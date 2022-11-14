@@ -2366,9 +2366,9 @@ Feature: nmcli: ipv4
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     * Reboot
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
-    When "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is visible with command "ip rule"
+    When "5:\s+from all lookup 6 proto static\s+6:\s+from 192.168.6.7 lookup 7 proto static" is visible with command "ip rule"
     * Bring "down" connection "con_ipv4"
-    Then "5:\s+from all lookup 6\s+6:\s+from 192.168.6.7 lookup 7" is not visible with command "ip rule"
+    Then "5:\s+from all lookup 6 proto static\s+6:\s+from 192.168.6.7 lookup 7 proto static" is not visible with command "ip rule"
     And "Exactly" "3" lines are visible with command "ip rule"
 
 
