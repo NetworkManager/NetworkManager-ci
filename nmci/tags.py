@@ -542,7 +542,6 @@ _register_tag("unload_kernel_modules", unload_kernel_modules_bs)
 def disp_as(context, scenario):
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")
-    nmci.nmutil.reload_NM_service()
 
 
 _register_tag("disp", None, disp_as)
