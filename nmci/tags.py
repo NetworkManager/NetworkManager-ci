@@ -539,18 +539,13 @@ def unload_kernel_modules_bs(context, scenario):
 _register_tag("unload_kernel_modules", unload_kernel_modules_bs)
 
 
-def disp_bs(context, scenario):
-    nmci.util.file_set_content("/tmp/dispatcher.txt", "")
-
-
 def disp_as(context, scenario):
-    # context.process.run_stdout("rm -rf /tmp/dispatcher.txt")
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")
     nmci.nmutil.reload_NM_service()
 
 
-_register_tag("disp", disp_bs, disp_as)
+_register_tag("disp", None, disp_as)
 
 
 def eth0_bs(context, scenario):

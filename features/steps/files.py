@@ -125,6 +125,12 @@ def write_dispatcher_file(context, path, params=None):
     if not params and bool(context.text):
         params = context.text
 
+    nmci.cleanup.cleanup_file(
+        "/tmp/dispatcher.txt",
+        priority=nmci.cleanup.Cleanup.PRIORITY_FILE + 1,
+    )
+    nmci.util.file_set_content("/tmp/dispatcher.txt", "")
+
     nmci.cleanup.cleanup_file(path)
 
     with open(path, "w") as f:
@@ -133,7 +139,6 @@ def write_dispatcher_file(context, path, params=None):
             f.write(params)
         f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     context.command_code("chmod +x %s" % path)
-    context.command_code("> /tmp/dispatcher.txt")
     time.sleep(8)
 
 
