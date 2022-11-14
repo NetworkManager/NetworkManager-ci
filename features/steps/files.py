@@ -124,12 +124,11 @@ def write_dispatcher_file(context, path, params=None):
         os.makedirs(dir_name)
     if not params and bool(context.text):
         params = context.text
-    f = open(path, "w")
-    f.write("#!/bin/bash\n")
-    if params:
-        f.write(params)
-    f.write("\necho $2 >> /tmp/dispatcher.txt\n")
-    f.close()
+    with open(path, "w") as f:
+        f.write("#!/bin/bash\n")
+        if params:
+            f.write(params)
+        f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     context.command_code("chmod +x %s" % path)
     context.command_code("> /tmp/dispatcher.txt")
     time.sleep(8)
