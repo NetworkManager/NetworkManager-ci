@@ -20,6 +20,7 @@ class Cleanup:
     PRIORITY_NFT_DEFAULT = 40
     PRIORITY_NFT_OTHER = 41
     PRIORITY_UDEV_RULE = 50
+    PRIORITY_FILE = 70
     PRIORITY_NM_SERVICE_RESTART = 200
     PRIORITY_UDEV_UPDATE = 300
 
@@ -207,6 +208,28 @@ class CleanupUdevUpdate(Cleanup):
         nmci.util.update_udevadm()
 
 
+class CleanupFile(Cleanup):
+    def __init__(
+        self,
+        *files,
+        priority=Cleanup.PRIORITY_FILE,
+    ):
+        self.files = tuple(files)
+        Cleanup.__init__(
+            self,
+            name=f"file-{self.files}",
+            unique_tag=(files,),
+            priority=priority,
+        )
+
+    def _do_cleanup(self):
+        for f in self.files:
+            try:
+                os.remove(f)
+            except FileNotFoundError:
+                pass
+
+
 class CleanupUdevRule(Cleanup):
     def __init__(
         self,
@@ -330,6 +353,9 @@ class _Cleanup:
 
     def cleanup_add_NM_service(self, *a, **kw):
         self._cleanup_add(CleanupNMService(*a, **kw))
+
+    def cleanup_file(self, *a, **kw):
+        self._cleanup_add(CleanupFile(*a, **kw))
 
     def process_cleanup(self):
         ex = []
