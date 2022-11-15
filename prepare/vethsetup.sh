@@ -292,7 +292,7 @@ function check_veth_env ()
     echo "* Checking dnsmasqs"
     [ -f "/tmp/dhcp_inbr.pid" ] && inbr_pid=$(< /tmp/dhcp_inbr.pid) || need_veth=1
     [ -f "/tmp/dhcp_simbr.pid" ] && simbr_pid=$(< /tmp/dhcp_simbr.pid) || need_veth=1
-    for pid in inbr_pid simbr_pid; do
+    for pid in $inbr_pid $simbr_pid; do
         if ! ps $pid | grep -q dnsmasq; then
             need_veth=1
         fi
