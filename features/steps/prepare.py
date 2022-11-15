@@ -481,7 +481,8 @@ def start_pppoe_server(context, name, ip, dev):
 
 
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
-def setup_macsec_psk(context, cak, ckn):
+@step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}" on VLAN "{vid}"')
+def setup_macsec_psk(context, cak, ckn, vid=None):
     manage_veth_device(context, "macsec_veth")
     context.command_code("modprobe macsec")
     context.execute_steps(f'* Add namespace "macsec_ns"')
@@ -489,6 +490,9 @@ def setup_macsec_psk(context, cak, ckn):
     context.command_code("ip link set macsec_vethp netns macsec_ns")
     context.command_code("ip link set macsec_veth up")
     context.command_code("ip netns exec macsec_ns ip link set macsec_vethp up")
+    if vid is not None:
+        context.command_code("ip -n macsec_ns link add link macsec_vethp vlan type vlan id {vid}".format(vid=vid))
+        context.command_code("ip -n macsec_ns link set vlan up")
     context.command_code("echo 'eapol_version=3' > /tmp/wpa_supplicant.conf")
     context.command_code("echo 'ap_scan=0' >> /tmp/wpa_supplicant.conf")
     context.command_code("echo 'network={' >> /tmp/wpa_supplicant.conf")
@@ -499,12 +503,13 @@ def setup_macsec_psk(context, cak, ckn):
     context.command_code("echo '  mka_ckn={ckn}' >> /tmp/wpa_supplicant.conf".format(ckn=ckn))
     context.command_code("echo '}' >> /tmp/wpa_supplicant.conf")
 
+    base_interface = "vlan" if vid is not None else "macsec_vethp"
     context.command_code("ip netns exec macsec_ns wpa_supplicant \
                                          -c /tmp/wpa_supplicant.conf \
-                                         -i macsec_vethp \
+                                         -i {base_interface} \
                                          -B \
                                          -D macsec_linux \
-                                         -P /tmp/wpa_supplicant_ms.pid")
+                                         -P /tmp/wpa_supplicant_ms.pid".format(base_interface=base_interface))
     time.sleep(6)
     assert context.command_code("ip netns exec macsec_ns ip link show macsec0") == 0, "wpa_supplicant didn't create a MACsec interface"
     assert context.command_code("nmcli device set macsec_veth managed yes") == 0, "wpa_supplicant didn't create a MACsec interface"

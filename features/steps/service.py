@@ -35,6 +35,7 @@ def reboot(context, timeout=None):
         "veth12",
         # for macsec
         "macsec0",
+        "macsec_veth.42",
     ]
 
     ifnames_to_down = [

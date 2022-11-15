@@ -1732,6 +1732,8 @@ testmapper:
         tags: gate libnl3
     - macsec_reboot:
         feature: general
+    - macsec_vlan_reboot:
+        feature: general
     - macsec_set_mtu_from_parent:
         feature: general
     - dummy_non_utf_device:

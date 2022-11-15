@@ -2029,6 +2029,49 @@ Feature: nmcli - general
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
 
 
+    @rhbz2122564
+    @ver+=1.41.0
+    @xfail
+    @macsec @not_on_aarch64_but_pegas @long
+    @macsec_vlan_reboot
+    Scenario: NM - general - MACsec PSK on VLAN
+    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100" on VLAN "42"
+    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
+          """
+          autoconnect yes
+          ipv4.method disabled
+          ipv6.method ignore
+          """
+    * Add "vlan" connection named "test-macsec-vlan" for device "macsec_veth.42" with options
+          """
+          autoconnect yes
+          ipv4.method disabled
+          ipv6.method ignore
+          vlan.parent macsec_veth
+          vlan.id 42
+          """
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
+          """
+          autoconnect yes
+          macsec.parent macsec_veth.42
+          macsec.mode psk
+          macsec.mka-cak 00112233445566778899001122334455
+          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
+          """
+    * Bring up connection "test-macsec-base"
+    * Bring up connection "test-macsec-vlan"
+    * Bring up connection "test-macsec"
+    Then Ping "172.16.10.1" "10" times
+    * Restart NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-vlan" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
+    * Reboot
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-vlan" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
+
+
     @rhbz1723690
     @ver+=1.18 @rhelver+=8
     @macsec @not_on_aarch64_but_pegas @long
