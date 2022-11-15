@@ -2021,9 +2021,12 @@ Feature: nmcli - general
     * Bring up connection "test-macsec-base"
     * Bring up connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
+    * Restart NM
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
     * Reboot
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show macsec0" in "45" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
 
 
     @rhbz1723690

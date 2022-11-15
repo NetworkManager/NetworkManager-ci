@@ -33,6 +33,8 @@ def reboot(context, timeout=None):
         # for veths
         "veth11",
         "veth12",
+        # for macsec
+        "macsec0",
     ]
 
     ifnames_to_down = [

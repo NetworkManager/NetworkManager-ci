@@ -482,6 +482,7 @@ def start_pppoe_server(context, name, ip, dev):
 
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
 def setup_macsec_psk(context, cak, ckn):
+    manage_veth_device(context, "macsec_veth")
     context.command_code("modprobe macsec")
     context.execute_steps(f'* Add namespace "macsec_ns"')
     context.execute_steps(f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"')
