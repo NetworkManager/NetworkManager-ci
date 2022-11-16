@@ -2356,7 +2356,8 @@ Feature: nmcli: ipv4
 
     @rhbz1652653 @rhbz1696881
     @ver+=1.18.4
-    @ver-=1.40
+    @ver-1.40.3
+    @ver-1.41.4
     @restart_if_needed
     @ipv4_routing_rules_manipulation
     Scenario: NM - ipv4 - routing rules manipulation
@@ -2374,7 +2375,8 @@ Feature: nmcli: ipv4
 
 
     @rhbz1652653 @rhbz1696881
-    @ver+=1.40.1
+    @ver+=1.40.3
+    @ver+=1.41.4
     @restart_if_needed
     @ipv4_routing_rules_manipulation
     Scenario: NM - ipv4 - routing rules manipulation
