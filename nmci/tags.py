@@ -2100,8 +2100,8 @@ def nmstate_upstream_setup_bs(context, scenario):
     )
 
     # Remove connectivity packages if present
-    context.process.run_stdout(
-        "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat || true",
+    context.process.run(
+        "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat",
         ignore_stderr=True,
         timeout=120,
     )
@@ -2122,16 +2122,8 @@ def nmstate_upstream_setup_as(context, scenario):
 
     # in case of fail we need to kill this
     context.process.systemctl("stop dnsmasq")
-    context.process.run_stdout(
-        "pkill -f 'dnsmasq.\\*/etc/dnsmasq.d/nmstate.conf' || true",
-        ignore_stderr=True,
-        shell=True,
-    )
-    context.process.run_stdout(
-        "rm -rf /etc/dnsmasq.d/nmstate.conf || true",
-        ignore_stderr=True,
-        shell=True,
-    )
+    context.process.run("pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf'", shell=True)
+    context.process.run("rm -f /etc/dnsmasq.d/nmstate.conf", shell=True)
 
     nmci.crash.after_crash_reset(context)
 
