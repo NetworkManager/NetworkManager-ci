@@ -74,6 +74,7 @@ class _Process:
         self.RunResult = RunResult
         self.IGNORE_RETURNCODE_ALL = IGNORE_RETURNCODE_ALL
         self.SHELL_AUTO = SHELL_AUTO
+        self.exec = _Exec(self)
 
     def _run_prepare_args(self, argv, shell, env, env_extra):
 
@@ -470,3 +471,12 @@ class _Process:
             stderr=subprocess.PIPE,
             do_embed=do_embed,
         )
+
+
+class _Exec:
+    def __init__(self, process):
+        self._process = process
+
+    def chmod(self, mode, *files):
+        self._process.run_stdout(["chmod", mode, *files])
+        return
