@@ -138,7 +138,7 @@ def write_dispatcher_file(context, path, params=None):
         if params:
             f.write(params)
         f.write("\necho $2 >> /tmp/dispatcher.txt\n")
-    context.command_code("chmod +x %s" % path)
+    nmci.process.exec.chmod("+x", path)
     time.sleep(8)
 
 
