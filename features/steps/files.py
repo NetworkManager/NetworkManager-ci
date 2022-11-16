@@ -139,7 +139,6 @@ def write_dispatcher_file(context, path, params=None):
             f.write(params)
         f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     nmci.process.exec.chmod("+x", path)
-    time.sleep(8)
 
 
 @step('Reset /etc/hosts')
