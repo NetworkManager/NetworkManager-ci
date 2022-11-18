@@ -23,9 +23,9 @@ nm_openvpn_gnome() {
 if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
-        sleep 5
+        dnf -4 -y install epel-release
         dnf -4 -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
-        dnf -4 -y install NetworkManager-openvpn-gnome NetworkManager-openvpn || \
+        dnf -4 -y install --enablerepo=epel NetworkManager-openvpn-gnome NetworkManager-openvpn || \
           nm_openvpn_gnome
 
         python3 -m pip install proxy.py
