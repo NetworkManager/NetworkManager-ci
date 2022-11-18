@@ -766,6 +766,37 @@ Feature: nmcli: connection
      And "eth9" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth10" is visible with command "nmcli device | grep ethernet | grep con_con"
 
+    @rhbz2039734
+    @rhbz2150000
+    # TODO adjust when BZ fixed
+    #@ver+=1.40.2
+    @connection_multiconnect_autoconnect_retries
+    Scenario: nmcli - connection - multiconnect autoconnect retry count per device
+    * Prepare simulated test "testX1" device without DHCP
+    * Prepare simulated test "testX2" device without DHCP
+    * Prepare simulated test "testX3" device without DHCP
+    * Run child "nmcli monitor"
+    * Add "ethernet" connection named "con_con" for device "''" with options
+          """
+          connection.autoconnect yes
+          connection.autoconnect-retries 2
+          connection.multi-connect multiple
+          ipv4.method auto
+          ipv4.dhcp-timeout 10
+          ipv6.method disable
+          match.interface-name 'testX*'
+          """
+    Then Expect "testX1: connection failed" in children in "15" seconds
+   
+    # Enable next step when following bug is fixed properly:
+    # https://bugzilla.redhat.com/show_bug.cgi?id=2039734
+    # Then Expect "testX1: connection failed" in children in "15" seconds
+   
+    # This covers https://bugzilla.redhat.com/show_bug.cgi?id=2150000
+    # Do not remove even when other bug is fixed!
+    Then Expect "testX1: disconnected" in children in "15" seconds
+    Then "testX1" is not visible with command "nmcli dev show | grep con_con"
+
 
     @rhbz1639254
     @ver+=1.14
