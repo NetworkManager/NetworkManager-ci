@@ -1,105 +1,135 @@
-import time
-from behave import step  # pylint: disable=no-name-in-module
+# pylint: disable=no-name-in-module
+from behave import step
 
 import nmci
 
 
-@step(u'Reboot')
-def reboot(context):
+@step("Reboot")
+@step('Reboot within "{timeout}" seconds')
+def reboot(context, timeout=None):
     context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service()
-    for x in range(1, 11):
-        context.command_code("sudo ip link set dev eth%d down" % int(x))
-        context.command_code("sudo ip addr flush dev eth%d" % int(x))
+    for i in range(1, 11):
+        nmci.ip.link_set(ifname=f"eth{i}", up=False)
+        nmci.ip.address_flush(ifname=f"eth{i}")
 
-    context.command_code("sudo ip link set dev em1 down")
-    context.command_code("sudo ip addr flush dev em1")
+    links = nmci.ip.link_show_all()
 
-    context.command_code("ip link del nm-bond")
-    context.command_code("ip link del nm-team")
-    context.command_code("ip link del nm-bridge")
-    context.command_code("ip link del team7")
-    context.command_code("ip link del bridge7")
-    context.command_code("ip link del bond-bridge")
+    link_ifnames = [li["ifname"] for li in links]
 
-    # for nmtui
-    context.command_code("ip link del bond0")
-    context.command_code("ip link del team0")
-    # for vrf devices
-    context.command_code("ip link del vrf0")
-    context.command_code("ip link del vrf1")
-    # for pppoe test
-    context.command_code("sudo ip addr flush dev test11")
-    # for various eth11 tests
-    context.command_code("sudo ip link set dev eth11 down")
-    context.command_code("sudo ip addr flush dev eth11")
-    # for sriov tests
-    context.command_code("sudo ip link set dev p4p1 down")
-    context.command_code("sudo ip addr flush dev p4p1")
+    ifnames_to_delete = [
+        "nm-bond",
+        "nm-team",
+        "nm-bridge",
+        "team7",
+        "bridge7",
+        "bond-bridge",
+        # for nmtui
+        "bond0",
+        "team0",
+        # for vrf devices
+        "vrf0",
+        "vrf1",
+        # for veths
+        "veth11",
+        "veth12",
+    ]
 
-    # for veth tests
-    context.command_code("sudo ip link del veth11")
-    context.command_code("sudo ip link del veth12")
+    ifnames_to_down = [
+        "eth11",
+        "em1",
+        # for sriov
+        "p4p1",
+    ]
 
-    context.command_code("rm -rf /var/run/NetworkManager")
+    ifnames_to_flush = [
+        "eth11",
+        "em1",
+        # for sriov
+        "p4p1",
+        # for pppoe
+        "test11",
+    ]
 
-    time.sleep(1)
-    assert nmci.nmutil.restart_NM_service(reset=False, timeout=10), "NM restart failed"
-    time.sleep(2)
+    for ifname in ifnames_to_delete:
+        nmci.ip.link_delete(ifname=ifname, accept_nodev=True)
+
+    for ifname in ifnames_to_down:
+        if ifname in link_ifnames:
+            nmci.ip.link_set(ifname=ifname, up=False)
+
+    for ifname in ifnames_to_flush:
+        if ifname in link_ifnames:
+            nmci.ip.address_flush(ifname=ifname)
+
+    nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
+
+    assert nmci.nmutil.start_NM_service(timeout=timeout), "NM start failed"
 
 
-@step(u'Start NM')
-def start_NM(context):
+@step("Start NM")
+def start_nm(context):
     context.nm_restarted = True
     assert nmci.nmutil.start_NM_service(), "NM start failed"
 
 
-@step(u'Start NM without PID wait')
-def start_NM_no_pid(context):
+@step("Start NM without PID wait")
+def start_nm_no_pid(context):
     context.nm_restarted = True
-    assert nmci.nmutil.start_NM_service(pid_wait=False, timeout=10), "NM start failed"
+    assert nmci.nmutil.start_NM_service(pid_wait=False), "NM start failed"
 
 
-@step(u'Restart NM')
-def restart_NM(context):
+@step("Restart NM")
+@step('Restart NM within "{timeout}" seconds')
+def restart_nm(context, timeout=None):
     context.nm_restarted = True
-    assert nmci.nmutil.restart_NM_service(reset=False), "NM restart failed"
-    # For stability reasons 1 is not enough, please do not lower this
-    time.sleep(2)
+    assert nmci.nmutil.restart_NM_service(
+        reset=False, timeout=timeout
+    ), "NM restart failed"
 
 
-@step(u'Restart NM in background')
-def restart_NM_background(context):
+@step("Restart NM in background")
+def restart_nm_background(context):
     context.nm_restarted = True
     context.pexpect_service("systemctl restart NetworkManager")
     context.nm_pid_refresh_count = 2
 
 
-@step(u'Kill NM with signal "{signal}"')
-@step(u'Kill NM')
-def kill_NM(context, signal=""):
+@step('Kill NM with signal "{signal}"')
+@step("Kill NM")
+def kill_nm(context, signal=""):
     context.nm_restarted = True
+
+    signal_args = []
     if signal:
-        signal = "-" + signal
-    context.run("kill %s $(pidof NetworkManager) && sleep 5" % (signal), shell=True)
-    context.nm_pid = nmci.nmutil.nm_pid()
+        signal_args = [f"-{signal}"]
+    nm_pid = nmci.nmutil.nm_pid()
+
+    if nm_pid:
+        nmci.process.run_stdout(["kill", *signal_args, str(nm_pid)])
+
+        context.nm_pid = nmci.nmutil.wait_for_nm_pid(old_pid=nm_pid)
+
+    # TODO: this check is not reliable, sometimes it fails, sometimes it passes
+    # assert not context.nm_pid, f"NetworkManager running after kill! PID:{context.nm_pid}"
+    context.nm_pid_refresh_count = 1
 
 
-@step(u'Stop NM')
-def stop_NM(context):
+@step("Stop NM")
+def stop_nm(context):
     context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service(), "NM stop failed"
 
 
-@step(u'Stop NM and clean "{device}"')
-def stop_NM_and_clean(context, device):
+@step('Stop NM and clean "{device}"')
+def stop_nm_and_clean(context, device):
     context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service(), "NM stop failed"
-    assert context.command_code("sudo ip addr flush dev %s" % (device)) == 0
-    assert context.command_code("sudo ip link set %s down" % (device)) == 0
+    nmci.ip.link_set(ifname=device, up=False)
+    nmci.ip.address_flush(ifname=device)
 
 
-@step(u'NM is restarted within next "{N}" steps')
-def pause_restart_check(context, N):
+@step('NM is restarted within next "{steps}" steps')
+def pause_restart_check(context, steps):
     context.nm_restarted = True
-    context.nm_pid_refresh_count = int(N) + 1
+    context.nm_pid_refresh_count = int(steps) + 1
