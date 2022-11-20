@@ -300,6 +300,21 @@ class _IP:
 
         return addrs
 
+    def address_flush(
+        self, ifname=None, *, ifindex=None, wait_for_device=None, addr_family=None
+    ):
+
+        li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+
+        filter_addr_family = []
+        if addr_family is not None:
+            filter_addr_family.append(f"-{self.addr_family_num(addr_family)}")
+
+        nmci.process.run_stdout(
+            ["ip", *filter_addr_family, "addr", "flush", "dev", li["ifname"]],
+            as_bytes=True,
+        )
+
     def link_show_all(self, binary=None):
 
         # binary is:
