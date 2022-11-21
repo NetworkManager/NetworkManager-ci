@@ -2,6 +2,9 @@
 
 set -x
 
+# redirect stdout+stderr into stdout and logger
+exec &> >(tee - >(logger -t "runtest"))
+
 die() {
     printf '%s\n' "$*"
     exit 1
