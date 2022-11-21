@@ -2724,3 +2724,30 @@
       * Bring "up" connection "test-bond0-2-0"
       * Bring "up" connection "test-bond0"
       Then "vlan_filtering 1" is visible with command "ip -d link show test-br0" in "15" seconds
+
+
+      @rhbz2130287
+      @ver+=1.41.3
+      @bond_unattach_ports_on_controller_failure
+      Scenario: bond - ports should be unattached when controller dependency fails
+      * Create "bond" device named "nm-bond"
+      * Add "bond" connection named "bond0" for device "nm-bond" with options
+            """
+            ipv4.method auto
+            ipv6.method disabled
+            autoconnect no
+            connection.autoconnect-slaves yes
+            """
+     * Add "ethernet" connection named "bond0.0" for device "eth4" with options "master nm-bond autoconnect no"
+     * Bring "up" connection "bond0"
+     * Execute "ip link del nm-bond"
+     Then "deactivating -> disconnected" is visible with command "journalctl  -t NetworkManager  --since -30s| grep '(eth4): state change:'" in "5" seconds
+     And "enslaved to unknown device" is not visible with command "journalctl  -t NetworkManager  --since -30s" in "5" seconds
+     * Create "bond" device named "nm-bond"
+     * Modify connection "bond0" changing options "ipv4.method manual ipv4.addresses 172.16.1.2/24"
+     * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "30" seconds
+     When "eth4:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
+     * Execute "ip link del nm-bond"
+     And "enslaved to unknown device" is not visible with command "journalctl -t NetworkManager  --since -30s" in "5" seconds
+     Then "deactivating -> disconnected" is visible with command "journalctl  -t NetworkManager  --since -30s | grep '(eth4): state change:'" in "5" seconds

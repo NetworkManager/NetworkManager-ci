@@ -327,6 +327,8 @@ testmapper:
         feature: bond
     - bond_vlan_filtering_unmanaged_bridge:
         feature: bond
+    - bond_unattach_ports_on_controller_failure:
+        feature: bond
     - update_firewall_zone_upon_reconnect:
         feature: ppp
     - pppoe_and_ethernet_together:
