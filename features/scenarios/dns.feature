@@ -1189,6 +1189,8 @@ Feature: nmcli - dns
     @ver+=1.40.1
     @ver+=1.38.5
     @ver+=1.36.9
+    @ver/rhel/8+=1.36.0.11
+    @ver/rhel/8+=1.40.0.3
     @not_with_systemd_resolved
     @eth0 @restore_resolvconf @restart_if_needed
     @resolv_conf_dns_priority
