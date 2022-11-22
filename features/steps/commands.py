@@ -64,10 +64,8 @@ def execute_command(context, command):
 
 
 def get_reproducer_command_v(rname, options):
-    files = glob.glob(f"./contrib/reproducers/repro_{rname}.*")
-    assert len(files) == 1, f'Invalid reproducer name - {rname}'
-    cmd = files[0]
-    assert os.access(cmd, os.X_OK), f"Reproducer {cmd} is not executable"
+    cmd = nmci.util.base_dir("contrib/reproducers", rname)
+    assert os.access(cmd, os.X_OK), f"Reproducer \"{rname}\" not found in \"./contrib/reproducers/\""
     args = [cmd]
     if options:
         args += list(shlex.split(options))

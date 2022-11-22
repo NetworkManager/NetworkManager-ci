@@ -2137,7 +2137,7 @@
     @dhcpv6_hostname
     Scenario: nmcli - ipv6 - secondary
     * Bring "down" connection "testeth0"
-    * "OK" is visible with reproducer "1858344" in "10" seconds
+    * "OK" is visible with reproducer "repro_1858344.sh" in "10" seconds
 
 
     @rhbz1861527

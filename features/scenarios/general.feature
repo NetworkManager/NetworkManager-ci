@@ -1891,9 +1891,9 @@ Feature: nmcli - general
     * Cleanup device "brX"
     * Execute "echo -e '[keyfile]\nunmanaged-devices=interface-name:orig*;interface-name:eth*' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
     * Restart NM
-    * Execute reproducer "1433303" for "2" times
+    * Execute reproducer "repro_1433303.sh" for "2" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute reproducer "1433303" for "4" times
+    * Execute reproducer "repro_1433303.sh" for "4" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     When Check noted value "1" difference from "0" is "less than" "500"
 
@@ -1913,9 +1913,9 @@ Feature: nmcli - general
        ipv6.method disabled
        ipv4.method disabled
        """
-    * Execute reproducer "1461643" for "5" times
+    * Execute reproducer "repro_1461643.sh" for "5" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    * Execute reproducer "1461643" for "30" times
+    * Execute reproducer "repro_1461643.sh" for "30" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
     When Check noted value "2" difference from "1" is "less than" "3000"
 
@@ -1952,7 +1952,7 @@ Feature: nmcli - general
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
     * Cleanup device "dummy0"
-    Then Execute reproducer "1512316" for "8" times
+    Then Execute reproducer "repro_1512316.sh" for "8" times
 
 
     @rhbz1337997
@@ -2232,7 +2232,7 @@ Feature: nmcli - general
     @libnm_async_tasks_cancelable
     Scenario: NM - general - cancelation of libnm async tasks (add_connection_async)
     * Cleanup connection "con_general"
-    Then Execute reproducer "1555281" with options "con_general"
+    Then Execute reproducer "repro_1555281.py" with options "con_general"
 
 
     @rhbz1643085 @rhbz1642625
@@ -2240,7 +2240,7 @@ Feature: nmcli - general
     @libnm_async_activation_cancelable_no_crash
     Scenario: NM - general - cancelation of libnm async activation - should not crash
     * Cleanup connection "con_general"
-    Then Execute reproducer "1643085" with options "con_general eth8"
+    Then Execute reproducer "repro_1643085.py" with options "con_general eth8"
 
     @rhbz1614691
     @ver+=1.12
@@ -2660,7 +2660,7 @@ Feature: nmcli - general
     @ver+=1.16
     @libnm_get_dns_crash
     Scenario: nmcli - general - libnm crash when getting nmclient.props.dns_configuration
-    Then Execute reproducer "1689054"
+    Then Execute reproducer "repro_1689054.py"
 
 
     @rhbz2027674
@@ -2668,7 +2668,7 @@ Feature: nmcli - general
     @ver+=1.36.3
     @libnm_nmclient_init_crash
     Scenario: nmcli - general - libnm crash when cancelling initialization of NMClient
-    Then Execute reproducer "2027674"
+    Then Execute reproducer "repro_2027674.py"
 
 
     @rhbz1697858

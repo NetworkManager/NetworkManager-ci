@@ -196,7 +196,7 @@ Feature: nmcli: connection
     * Open editor for connection "con_con"
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
-    Then Execute reproducer "1707261"
+    Then Execute reproducer "repro_1707261.py"
     * Delete connection "con_con2"
 
 
@@ -1042,4 +1042,4 @@ Feature: nmcli: connection
     * Cleanup connection "team0" and device "nm-team"
     * Cleanup connection "team-slave-eth5"
     * NM is restarted within next "1" steps
-    * Execute reproducer "2092323" with options "run" for "10" times
+    * Execute reproducer "repro_2092323.sh" with options "run" for "10" times
