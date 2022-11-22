@@ -1,9 +1,11 @@
+import glob
 import json
+import operator
 import os
 import pexpect
 import re
+import shlex
 import time
-import operator
 from behave import step  # pylint: disable=no-name-in-module
 
 import nmci
@@ -61,16 +63,19 @@ def execute_command(context, command):
     )
 
 
+def get_reproducer_command_v(rname, options):
+    files = glob.glob(f"./contrib/reproducers/repro_{rname}.*")
+    assert len(files) == 1, f'Invalid reproducer name - {rname}'
+    cmd = files[0]
+    assert os.access(cmd, os.X_OK), f"Reproducer {cmd} is not executable"
+    args = [cmd]
+    if options:
+        args += list(shlex.split(options))
+    return args
+
+
 def get_reproducer_command(rname, options):
-    dirpath = "contrib/reproducers"
-    command = None
-    for repro in os.listdir(dirpath):
-        if rname in repro:
-            repro_path = os.path.join(dirpath, repro)
-            command = f"bash {repro_path} {options}" if ".sh" in repro else f"python {repro_path} {options}"
-            break
-    assert command is not None, f'Invalid reproducer name - {rname}'
-    return command
+    return " ".join(shlex.quote(a) for a in get_reproducer_command_v(rname, options))
 
 
 @step(u'Execute reproducer "{rname}"')
