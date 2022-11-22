@@ -725,9 +725,7 @@ Feature: nmcli - ovs
     @permissive @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
-    * Execute "systemctl restart NetworkManager-dispatcher"
-    * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
-    * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
+    * Write dispatcher "pre-down.d/97-disp" file with params "sleep 1"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
           """
@@ -788,9 +786,7 @@ Feature: nmcli - ovs
     @permissive @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
     Scenario: nmcli - openvswitch - mac address set iface
-    * Execute "systemctl restart NetworkManager-dispatcher"
-    * Execute "echo -e '#!/bin/bash\nsleep 1' >/etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
-    * Execute "chmod +x /etc/NetworkManager/dispatcher.d/pre-down.d/97-disp"
+    * Write dispatcher "pre-down.d/97-disp" file with params "sleep 1"
     * Prepare simulated test "testX" device with "192.168.97" ipv4 and daemon options "--dhcp-host=00:11:22:33:45:67,192.168.97.13,foobar"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
