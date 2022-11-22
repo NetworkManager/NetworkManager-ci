@@ -36,15 +36,17 @@ class _NMUtil:
                 pid = int(pgrep_pid.stdout)
         return pid
 
-    def wait_for_nm_pid(self, seconds=10):
+    def wait_for_nm_pid(self, seconds=10, do_assert=True):
         timeout = nmci.util.start_timeout(seconds)
         while timeout.loop_sleep(0.3):
             pid = self.nm_pid()
             if pid:
                 return pid
-        raise nmci.util.ExpectedException(
-            f"NetworkManager not running in {seconds} seconds"
-        )
+        if do_assert:
+            raise nmci.util.ExpectedException(
+                f"NetworkManager not running in {seconds} seconds"
+            )
+        return None
 
     def nm_size_kb(self):
         pid = self.nm_pid()
