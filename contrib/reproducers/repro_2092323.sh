@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function setup_cons () {
     nmcli con add type team ifname nm-team con-name team0 config '{"runner": {"name": "lacp"}, "link_watch": {"name": "ethtool"}}' ipv4.method disable ipv6.method ignore;

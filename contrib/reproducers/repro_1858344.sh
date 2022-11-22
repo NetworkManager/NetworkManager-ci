@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 printf "\n * Initial hostname: %s\n" $(hostname)
 
@@ -26,7 +26,7 @@ nmcli connection add type ethernet ifname veth0 \
 trap 'rm -f /etc/NetworkManager/dispatcher.d/10-save-env.sh' EXIT
 
 cat <<'EOF' > /etc/NetworkManager/dispatcher.d/10-save-env.sh
-#!/bin/sh
+#!/bin/bash
 
 if [ "$1" != veth0 ] || [ "$2" != up ]; then
    exit 0
