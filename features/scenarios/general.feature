@@ -34,9 +34,9 @@ Feature: nmcli - general
     @reduce_logging
     Scenario: NM - general - reduce logging
      * Add "bond" connection named "gen-bond0" for device "gen-bond"
-    Then "preparing" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'   |grep '<info> .*gen-bond' |grep 'preparing device'"
-    Then "exported as" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago' |grep '<info> .*gen-bond' |grep 'exported as'"
-    Then "Stage" is not visible with command "journalctl _COMM=NetworkManager --since '2 min ago'       |grep '<info> .*gen-bond' |grep 'Stage'"
+    Then "preparing" is not visible with command "journalctl -u NetworkManager --since '2 min ago'   |grep '<info> .*gen-bond' |grep 'preparing device'"
+    Then "exported as" is not visible with command "journalctl -u NetworkManager --since '2 min ago' |grep '<info> .*gen-bond' |grep 'exported as'"
+    Then "Stage" is not visible with command "journalctl -u NetworkManager --since '2 min ago'       |grep '<info> .*gen-bond' |grep 'Stage'"
 
 
     @rhbz1614726
@@ -975,7 +975,7 @@ Feature: nmcli - general
     @no_error_when_firewald_restarted
     Scenario: NM - general - no error when firewalld restarted
     * Execute "sudo systemctl restart firewalld"
-    Then "nm_connection_get_setting_connection: assertion" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep nm_connection"
+    Then "nm_connection_get_setting_connection: assertion" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep nm_connection"
 
 
     @rhbz1103777
@@ -1603,7 +1603,7 @@ Feature: nmcli - general
     ## VVV Remove gateway's ip address so it is unpingable
     #* Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
     #* Run child "nmcli con up con_general"
-    #When "gateway ping failed with error code 1" is visible with command "journalctl -o cat --since '50 seconds ago' |grep testM" in "20" seconds
+    #When "gateway ping failed with error code 1" is visible with command "journalctl -u NetworkManager -o cat --since '50 seconds ago' |grep testM" in "20" seconds
     ## VVV Add gateway's ip address so it is pingable again
     #* Run child "sleep 40 && ip netns exec testM_ns ip a add 192.168.99.1/24 dev testM_bridge"
     #Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds

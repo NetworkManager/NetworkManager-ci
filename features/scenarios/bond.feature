@@ -1684,7 +1684,7 @@
      * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
-     And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep active_backup | grep error"
+     And "error" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep active_backup | grep error"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
@@ -1816,7 +1816,7 @@
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-      And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep balance |grep error"
+      And "error" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep balance |grep error"
       And "Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
      * "Error" is not visible with command "nmcli device modify nm-bond +bond.options 'primary = eth4'"
      When "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
@@ -1824,7 +1824,7 @@
       And "Primary Slave: eth4 \(primary_reselect always\)\s+Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
      * "Error" is not visible with command "nmcli connection modify bond0 +bond.options 'active_slave = eth1' && nmcli device reapply nm-bond"
      Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-      And "error" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep balance |grep error"
+      And "error" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep balance |grep error"
       And "Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
@@ -2411,7 +2411,7 @@
           bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
           """
     Then "mode=802.3ad" is visible with command "nmcli c show bond0"
-    Then "error" is not visible with command "journalctl  -t NetworkManager  --since -10s -p 3 -o cat |grep ad_actor_system"
+    Then "error" is not visible with command "journalctl -u NetworkManager --since -10s -p 3 -o cat |grep ad_actor_system"
 
 
     @rhbz1847814

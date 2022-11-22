@@ -1246,7 +1246,7 @@
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
-    Then "activation_source_schedule" is not visible with command "journalctl --since -1m|grep error"
+    Then "activation_source_schedule" is not visible with command "journalctl -u NetworkManager --since -1m|grep error"
 
 
     @internal_DHCP @long
@@ -1520,7 +1520,7 @@
           """
     * Bring "up" connection "con_ipv6"
     # extract T1 and T2 and compare they're shorter than a day (86400 s)
-    Then Execute "journalctl -u NetworkManager.service --since -5s --no-pager | grep 'T1 and T2 equal to zero' | tail -n1 | sed -e 's/^.*\(T1=[0-9]\+\)sec, \(T2=[0-9]\+\)sec$/\1\n\2/' | while read LINE; do echo \"is ${LINE:0:2}=${LINE:3} lesser than 86400?\" ; test ${LINE:3} -lt 86400 ; done"
+    Then Execute "journalctl -u NetworkManager --since -5s --no-pager | grep 'T1 and T2 equal to zero' | tail -n1 | sed -e 's/^.*\(T1=[0-9]\+\)sec, \(T2=[0-9]\+\)sec$/\1\n\2/' | while read LINE; do echo \"is ${LINE:0:2}=${LINE:3} lesser than 86400?\" ; test ${LINE:3} -lt 86400 ; done"
 
 
     @ver-=1.19.1

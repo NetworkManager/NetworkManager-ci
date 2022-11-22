@@ -643,7 +643,7 @@
      * Reboot
     Then "2168::16" is visible with command "ip a s nm-team.1" in "10" seconds
      And "192.168.168.16" is visible with command "ip a s nm-team.1" in "10" seconds
-     And "nm-team.1" is not visible with command "journalctl --since '10 seconds ago' --no-pager |grep warn"
+     And "nm-team.1" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep warn"
 
 
     @rhbz1427482

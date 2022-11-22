@@ -1074,7 +1074,7 @@ Feature: nmcli - ethernet
           ethtool.ring-rx-mini 100
           ethtool.ring-rx 1
           """
-    Then "ethtool.ring-rx-mini\s+= 100" is visible with command "sudo journalctl  | grep ring-rx | tail -n 1"
+    Then "ethtool.ring-rx-mini\s+= 100" is visible with command "sudo journalctl -u NetworkManager | grep ring-rx | tail -n 1"
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
     * Disconnect device "eth11"
