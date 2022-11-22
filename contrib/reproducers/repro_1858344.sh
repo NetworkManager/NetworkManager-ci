@@ -23,6 +23,8 @@ nmcli connection add type ethernet ifname veth0 \
       con-name veth0+ ipv4.method disabled \
       ethernet.cloned-mac-address 00:11:22:33:44:55
 
+trap 'rm -f /etc/NetworkManager/dispatcher.d/10-save-env.sh' EXIT
+
 cat <<'EOF' > /etc/NetworkManager/dispatcher.d/10-save-env.sh
 #!/bin/sh
 
