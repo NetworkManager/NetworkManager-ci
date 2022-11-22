@@ -42,4 +42,11 @@ proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/Netwo
 settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
 settings.AddConnection(con)
-settings.AddConnection(con)
+
+try:
+    settings.AddConnection(con)
+except dbus.exceptions.DBusException as e:
+    # This is what we expect. We are good.
+    sys.exit(0)
+
+sys.exit(1)
