@@ -50,10 +50,10 @@ function setup_veth_env ()
     systemctl restart NetworkManager; sleep 5
 
     # # log state of net after service restart
-    # ip a
-    # nmcli con
-    # nmcli dev
-    # nmcli gen
+    ip a
+    nmcli con
+    nmcli dev
+    nmcli gen
 
     # Get active device
     counter=0
