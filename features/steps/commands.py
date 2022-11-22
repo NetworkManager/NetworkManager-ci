@@ -84,16 +84,14 @@ def get_reproducer_command(rname, options):
 @step(u'Execute reproducer "{rname}" with options "{options}" for "{number}" times')
 def execute_reproducer(context, rname, options="", number=1):
     orig_nm_pid = nmci.nmutil.nm_pid()
-    command = get_reproducer_command(rname, options)
+    argv = get_reproducer_command_v(rname, options)
     nm_pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
-    i = 0
-    while i < int(number):
-        assert context.command_code(command) == 0
+    for i in range(int(number)):
+        nmci.process.run_stdout(argv, timeout=180, ignore_stderr=True)
         if nm_pid_refresh_count < 1:
             curr_nm_pid = nmci.nmutil.nm_pid()
             assert curr_nm_pid == orig_nm_pid, \
                 f'NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}'
-        i += 1
 
 
 @step(u'Execute "{command}" without waiting for process to finish')
