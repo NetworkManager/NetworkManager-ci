@@ -46,7 +46,32 @@ class _NMUtil:
             raise nmci.util.ExpectedException(
                 f"NetworkManager not running in {seconds} seconds"
             )
-        return None
+        return 0
+
+    def wait_for_nm_bus(self, seconds=10, do_assert=True):
+        busctl_argv = [
+            "busctl",
+            "call",
+            "org.freedesktop.NetworkManager",
+            "/org/freedesktop/NetworkManager",
+            "org.freedesktop.NetworkManager",
+            "GetAllDevices",
+        ]
+        timeout = nmci.util.start_timeout(seconds)
+        while timeout.loop_sleep(0.1):
+            if nmci.process.run_search_stdout(
+                busctl_argv,
+                "/org/freedesktop/NetworkManager",
+                ignore_stderr=True,
+                ignore_returncode=True,
+                timeout=10,
+            ):
+                return True
+        if do_assert:
+            raise nmci.util.ExpectedException(
+                f"NetworkManager bus not running in {seconds} seconds"
+            )
+        return False
 
     def nm_size_kb(self):
         pid = self.nm_pid()
@@ -74,9 +99,8 @@ class _NMUtil:
 
     def reload_NM_service(self):
         print("reload NM service")
-        time.sleep(0.5)
         nmci.process.run_stdout("pkill -HUP NetworkManager")
-        time.sleep(1)
+        self.wait_for_nm_bus(10)
 
     def restart_NM_service(self, reset=True, timeout=10):
         print("restart NM service")
@@ -84,6 +108,7 @@ class _NMUtil:
             nmci.process.systemctl("reset-failed NetworkManager.service")
         r = nmci.process.systemctl("restart NetworkManager.service", timeout=timeout)
         nmci.cext.context.nm_pid = self.wait_for_nm_pid(10)
+        self.wait_for_nm_bus(10)
         return r.returncode == 0
 
     def start_NM_service(self, pid_wait=True, timeout=10):
@@ -91,6 +116,7 @@ class _NMUtil:
         r = nmci.process.systemctl("start NetworkManager.service", timeout=timeout)
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(10)
+        self.wait_for_nm_bus(10)
         return r.returncode == 0
 
     def stop_NM_service(self):
