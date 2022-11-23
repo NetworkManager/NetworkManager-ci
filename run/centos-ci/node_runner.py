@@ -49,7 +49,7 @@ def run(
     return rc
 
 
-class Machine():
+class Machine:
     def __init__(self, id, release, name):
         self.release = release
         self.release_num = release.split("-")[0]
@@ -432,10 +432,10 @@ class Mapper:
         times = {}
         tests = {}
         all = (
-            "all" in features or
-            "*" in features or
-            "covering" in features or
-            "tests" in features
+            "all" in features
+            or "*" in features
+            or "covering" in features
+            or "tests" in features
         )
         all_tests = "tests" in features and ("all" in features[1] or "*" in features[1])
         for test in self.mapper["testmapper"]["default"]:
@@ -487,9 +487,9 @@ class Mapper:
         return times, tests
 
 
-class Runner():
-    DUFFY_AUTH = " --auth-name networkmanager --auth-key $CICO_API_KEY "
-    DUFFY = ("duffy client --url https://duffy.ci.centos.org/api/v1") + DUFFY_AUTH
+class Runner:
+    DUFFY_AUTH = "--auth-name networkmanager --auth-key $CICO_API_KEY"
+    DUFFY = f"duffy client --url https://duffy.ci.centos.org/api/v1 {DUFFY_AUTH}"
 
     def __init__(self):
         self.mapper = Mapper()
@@ -697,14 +697,14 @@ class Runner():
         root = ET.ElementTree()
         testsuite = ET.Element("testsuite", tests=str(len(passed) + len(failed)))
         for test in passed:
-            name = test[test.find("_Test") + 10:]
+            name = test[test.find("_Test") + 10 :]
             testcase = ET.Element("testcase", classname="tests", name=name)
             system_out = ET.Element("system-out")
             system_out.text = f"LOG:\n{self.build_url}/artifact/{test}.html"
             testcase.append(system_out)
             testsuite.append(testcase)
         for test in failed:
-            name = test[test.find("_Test") + 10:]
+            name = test[test.find("_Test") + 10 :]
             html_fails.append(name)
             testcase = ET.Element("testcase", classname="tests", name=name)
             failure = ET.Element("failure")
@@ -861,10 +861,7 @@ class Runner():
             self.pool = None
 
         retry_count = 0
-        reserve_cmd = (
-            f"{self.DUFFY}"
-            f" request-session pool={self.pool},quantity={number}"
-        )
+        reserve_cmd = f"{self.DUFFY} request-session pool={self.pool},quantity={number}"
         while True:
             duffy = run(
                 reserve_cmd,
@@ -872,17 +869,23 @@ class Runner():
             )
             content = duffy.stdout.strip()
             logging.debug(f"machine content {content}")
-            data = json.loads(content)
+            data = {}
+            try:
+                data = json.loads(content)
+            except json.decoder.JSONDecodeError:
+                retry_count += 1
+            if "error" in data:
+                retry_count += 1
+            if "session" in data:
+                break
             if retry_count >= 180:
                 self._abort(f"Unable to reserve a machine '{self.id}' in 180 minutes")
-            if "error" in data.keys():
-                time.sleep(60)
-                retry_count += 1
-            if "session" in data.keys():
-                break
+            time.sleep(60)
 
         for i in range(number):
-            nodes.append(data["session"]["nodes"][i]["data"]["provision"]["public_hostname"])
+            nodes.append(
+                data["session"]["nodes"][i]["data"]["provision"]["public_hostname"]
+            )
 
         # We use this to return all machines
         session_id = data["session"]["id"]
@@ -890,7 +893,7 @@ class Runner():
         return session_id, nodes
 
     def done(self):
-        return_cmd = self.DUFFY + f" retire-session {self.session_id}"
+        return_cmd = f"{self.DUFFY} retire-session {self.session_id}"
         run(return_cmd)
 
     def create_machines(self):
