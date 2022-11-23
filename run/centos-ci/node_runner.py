@@ -85,6 +85,7 @@ class Machine:
         self._proc = None
         self._last_cmd_ret = None
 
+        self.copr_repo_file = None
         self.cmd_async(self._setup)
 
     def ssh(self, cmd, check=True, verbose=False):
