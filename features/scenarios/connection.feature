@@ -222,7 +222,7 @@ Feature: nmcli: connection
     @ver+=1.10
     @connection_autoconnect_yes_without_immediate_effects
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
-     * Add "ethernet" connection named "con_con" for device "eth5" with options "autoconnect no"
+     * Add "ethernet" connection named "con_con2" for device "eth5" with options "autoconnect no"
      When "con_con2" is visible with command "nmcli con"
      * Execute "/usr/bin/python contrib/reproducers/repro_1401515.py" without waiting for process to finish
      Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
