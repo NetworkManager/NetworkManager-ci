@@ -440,6 +440,9 @@ class _Misc:
     class SkipTestException(Exception):
         pass
 
+    class HitRaceException(Exception):
+        pass
+
     class InvalidTagsException(Exception):
         pass
 
