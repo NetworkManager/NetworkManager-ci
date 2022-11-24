@@ -172,6 +172,7 @@ Feature: nmcli: connection
 
     @connection_set_id
     Scenario: nmcli - connection - set id
+     * Cleanup connection "con_con2"
      * Add "ethernet" connection named "con_con" for device "blah"
      * Open editor for connection "con_con"
      * Submit "set connection.id con_con2" in editor
@@ -192,12 +193,13 @@ Feature: nmcli: connection
     @ver+=1.18.0
     @connection_set_uuid_error
     Scenario: nmcli - connection - set uuid
+    # Con_con2 is left over after reproducer_1707261
+    * Cleanup connection "con_con2"
     * Add "ethernet" connection named "con_con" for device "blah"
     * Open editor for connection "con_con"
     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
     Then Error type "uuid" shown in editor
     Then Execute reproducer "repro_1707261.py"
-    * Delete connection "con_con2"
 
 
     @connection_set_interface-name
