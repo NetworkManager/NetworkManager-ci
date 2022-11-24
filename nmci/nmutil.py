@@ -97,3 +97,237 @@ class _NMUtil:
         r = nmci.process.systemctl("stop NetworkManager.service")
         nmci.cext.context.nm_pid = 0
         return r.returncode == 0
+
+    def dbus_obj_path(self, obj_path, default_prefix):
+        # The D-Bus object paths is usually something like
+        # "/org/freedesktop/NetworkManager/Devices/43".
+        #
+        # For convenience, allow obj_path to be only a number, in
+        # which case default_prefix will be prepended.
+        try:
+            x = int(obj_path)
+        except Exception:
+            return obj_path
+        return f"{default_prefix}/{x}"
+
+    def dbus_props_for_dev(
+        self,
+        dev_obj_path,
+        interface_name="org.freedesktop.NetworkManager.Device",
+    ):
+        dev_obj_path = self.dbus_obj_path(
+            dev_obj_path, "/org/freedesktop/NetworkManager/Devices"
+        )
+        return nmci.dbus.get_all_properties(
+            bus_name="org.freedesktop.NetworkManager",
+            object_path=dev_obj_path,
+            interface_name=interface_name,
+        )
+
+    def dbus_props_for_ac(
+        self,
+        ac_obj_path,
+        interface_name="org.freedesktop.NetworkManager.Connection.Active",
+    ):
+        ac_obj_path = self.dbus_obj_path(
+            ac_obj_path, "/org/freedesktop/NetworkManager/ActiveConnection"
+        )
+        return nmci.dbus.get_all_properties(
+            bus_name="org.freedesktop.NetworkManager",
+            object_path=ac_obj_path,
+            interface_name=interface_name,
+        )
+
+    def dbus_props_for_setting(
+        self,
+        settings_obj_path,
+        interface_name="org.freedesktop.NetworkManager.Settings.Connection",
+    ):
+        settings_obj_path = self.dbus_obj_path(
+            settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
+        )
+        return nmci.dbus.get_all_properties(
+            bus_name="org.freedesktop.NetworkManager",
+            object_path=settings_obj_path,
+            interface_name=interface_name,
+        )
+
+    def dbus_get_settings(self, settings_obj_path):
+        settings_obj_path = self.dbus_obj_path(
+            settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
+        )
+        v = nmci.dbus.call(
+            bus_name="org.freedesktop.NetworkManager",
+            object_path=settings_obj_path,
+            interface_name="org.freedesktop.NetworkManager.Settings.Connection",
+            method_name="GetSettings",
+            parameters=None,
+            reply_type="(a{sa{sv}})",
+        )
+        v_con = v.get_child_value(0)
+
+        settings = {}
+        for k_con in v_con.keys():
+            v_set = v_con.lookup_value(k_con)
+            x_set = {}
+            for k_set in v_set.keys():
+                x_set[k_set] = v_set.lookup_value(k_set)
+            settings[k_con] = x_set
+
+        return settings
+
+    def _connection_show_1(
+        self,
+        may_fail,
+        only_active,
+    ):
+        argv = [
+            "-g",
+            "UUID,TYPE,TIMESTAMP,AUTOCONNECT,AUTOCONNECT-PRIORITY,READONLY,DBUS-PATH,ACTIVE,STATE,ACTIVE-PATH",
+            "connection",
+            "show",
+        ]
+        if only_active:
+            argv += ["-a"]
+
+        try:
+            out = nmci.process.nmcli(argv, timeout=5)
+        except Exception as e:
+            if may_fail:
+                return []
+            raise
+
+        def _s_to_bool(s):
+            if s == "yes":
+                return True
+            if s == "no":
+                return False
+            raise ValueError(f'Not a boolean value ("{s}")')
+
+        def _parse_line(line):
+            # all the fields we selected cannot have a ':' (and NAME as last).
+            # So the parsing below is expected to be mostly safe.
+            #
+            # It's horrible, nmcli has no output mode where we could safely parse the output
+            # of free-text fields (or unknown fields). For example, such fields might have
+            # a new line (boom) or they might contain colons (which "-g" will unhelpfully
+            # escape as "\:".
+            (
+                x_uuid,
+                x_type,
+                x_timestamp,
+                x_autoconnect,
+                x_autoconnect_priority,
+                x_readonly,
+                x_dbus_path,
+                x_active,
+                x_state,
+                x_active_path,
+            ) = line.split(":")
+
+            if not x_active_path:
+                x_active_path = None
+            if not x_state:
+                x_state = None
+            x_autoconnect = _s_to_bool(x_autoconnect)
+            x_active = _s_to_bool(x_active)
+            x_readonly = _s_to_bool(x_readonly)
+
+            assert (
+                not only_active or x_active
+            ), f"expect only active connections with {line}"
+            assert (x_active_path is not None) == x_active
+
+            assert nmci.dbus.name_is_object_path(x_dbus_path)
+            assert not x_active_path or nmci.dbus.name_is_object_path(x_active_path)
+
+            return {
+                "UUID": x_uuid,
+                "NAME": None,
+                "TYPE": x_type,
+                "TIMESTAMP": int(x_timestamp),
+                "timestamp-real": None,
+                "AUTOCONNECT": x_autoconnect,
+                "READONLY": x_readonly,
+                "DBUS-PATH": x_dbus_path,
+                "ACTIVE": x_active,
+                "STATE": x_state,
+                "ACTIVE-PATH": x_active_path,
+                "active-object": None,
+                "settings": None,
+                "active-externally": False,
+            }
+
+        if out and out[-1] == "\n":
+            out = out[:-1]
+
+        result = [_parse_line(line) for line in out.split("\n")]
+
+        # Fetch additional things that we could no safely parse from nmcli output above.
+        # Doing this is racy, because we stitch together information that are fetched
+        # at different times. Beware.
+        for c in result:
+            # nmcli prints also "TIMESTAMP-REAL", but we cannot safely parse that.
+            # We also don't have easy access to the same locale/formatting. Hence,
+            # the "timestamp-real" field won't be exactly the same as "TIMESTAMP-REAL"
+            # from nmcli.
+            c["timestamp-real"] = time.strftime("%c", time.localtime(c["TIMESTAMP"]))
+
+            try:
+                settings = self.dbus_get_settings(c["DBUS-PATH"])
+                c["settings"] = settings
+                c["NAME"] = settings["connection"]["id"].get_string()
+            except Exception:
+                raise nmci.misc.HitRaceException()
+
+            if c["ACTIVE-PATH"] is not None:
+                try:
+                    ac = self.dbus_props_for_ac(c["ACTIVE-PATH"])
+                    c["active-object"] = self.dbus_props_for_ac(c["ACTIVE-PATH"])
+                except Exception:
+                    raise nmci.misc.HitRaceException()
+
+                # check for NM_ACTIVATION_STATE_FLAG_EXTERNAL.
+                if ac["StateFlags"].get_uint32() & 0x80:
+                    c["active-externally"] = True
+
+        return result
+
+    def connection_show(
+        self,
+        *,
+        may_fail=False,
+        only_active=False,
+        without_active_externally=False,
+        name=None,
+        uuid=None,
+        setting_type=None,
+    ):
+        # Call `nmcli connection show` to get a list of profiles. It augments
+        # the result with directly fetched data from D-Bus (the fetched data
+        # is thus not in sync with the data fetched with the nmcli call).
+        #
+        # An alternative might be to use NMClient, which works hard to give
+        # a consistent result from one moment (race-free). That is not done
+        # here, but it also would be a different functionality.
+        for i in range(100):
+            # Fetching multiple parts together is racy. We retry when we
+            # suspect a race.
+            try:
+                result = self._connection_show_1(may_fail, only_active)
+            except nmci.misc.HitRaceException:
+                if i > 20:
+                    raise
+                continue
+            break
+
+        if without_active_externally:
+            result = [c for c in result if not c["active-externally"]]
+        if name is not None:
+            result = [c for c in result if c["NAME"] == name]
+        if uuid is not None:
+            result = [c for c in result if c["UUID"] == uuid]
+        if setting_type is not None:
+            result = [c for c in result if c["TYPE"] == setting_type]
+
+        return result
