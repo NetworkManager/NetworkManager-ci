@@ -181,14 +181,6 @@ Feature: nmcli: connection
      Then "con_con2" is visible with command "nmcli -f NAME con show"
 
 
-    @ver-=1.17.90
-    @connection_set_uuid_error
-    Scenario: nmcli - connection - set uuid
-     * Add "ethernet" connection named "con_con" for device "blah"
-     * Open editor for connection "con_con"
-     * Submit "set connection.uuid 00000000-0000-0000-0000-000000000000" in editor
-     Then Error type "uuid" shown in editor
-
 
     @ver+=1.18.0
     @connection_set_uuid_error
