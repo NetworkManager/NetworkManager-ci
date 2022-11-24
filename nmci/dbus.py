@@ -5,6 +5,27 @@ class _DBus:
 
     REPLY_TYPE_U = object()
 
+    def name_is_bus_name(self, name, check=False):
+        if nmci.util.Gio.dbus_is_name(name):
+            return True
+        if check:
+            raise ValueError(f'Invalid D-Bus bus name "{name}"')
+        return False
+
+    def name_is_interface_name(self, name, check=False):
+        if nmci.util.Gio.dbus_is_interface_name(name):
+            return True
+        if check:
+            raise ValueError(f'Invalid D-Bus interface name "{name}"')
+        return False
+
+    def name_is_object_path(self, name, check=False):
+        if nmci.util.GLib.Variant.is_object_path(name):
+            return True
+        if check:
+            raise ValueError(f'Invalid D-Bus object path "{name}"')
+        return False
+
     def bus_get(self, bus_type=None, cancellable=None):
 
         Gio = nmci.util.Gio
@@ -27,6 +48,10 @@ class _DBus:
         bus_type=None,
         cancellable=None,
     ):
+
+        self.name_is_bus_name(bus_name, check=True)
+        self.name_is_interface_name(interface_name, check=True)
+        self.name_is_object_path(object_path, check=True)
 
         if flags is None:
             flags = nmci.util.Gio.DBusCallFlags.NONE
