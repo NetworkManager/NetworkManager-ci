@@ -1917,7 +1917,7 @@ Feature: nmcli - general
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
     * Execute reproducer "1461643" for "30" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    When Check noted value "2" difference from "1" is "less than" "3000"
+    When Check noted value "2" difference from "1" is "less than" "4000"
 
 
     @rhbz1398932
