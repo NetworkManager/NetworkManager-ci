@@ -168,3 +168,41 @@ class _DBus:
                 )
 
         return v
+
+    def get_all_properties(
+        self,
+        bus_name,
+        object_path,
+        interface_name,
+        flags=None,
+        timeout_msec=None,
+        bus_type=None,
+        cancellable=None,
+    ):
+
+        GLib = nmci.util.GLib
+
+        variant = GLib.Variant.new_tuple(
+            GLib.Variant.new_string(interface_name),
+        )
+
+        v = self.call(
+            bus_name=bus_name,
+            object_path=object_path,
+            interface_name="org.freedesktop.DBus.Properties",
+            method_name="GetAll",
+            parameters=variant,
+            reply_type="(a{sv})",
+            flags=flags,
+            timeout_msec=timeout_msec,
+            bus_type=bus_type,
+            cancellable=cancellable,
+        )
+        v = v.get_child_value(0)
+        assert v.is_of_type(GLib.VariantType("a{sv}"))
+
+        result = {}
+        for k in v.keys():
+            result[k] = v.lookup_value(k)
+
+        return result
