@@ -870,7 +870,8 @@ Feature: nmcli - vlan
     # Simulate reboot and delete all devices
     * Stop NM
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
-    * Reboot
+    # TODO: this needs investigation, why 10s is not enough
+    * Reboot within "100" seconds
     # Give NM some time to up some connections
     * Wait for "180" seconds
     # Wait till we have "all" addresses assigned again
