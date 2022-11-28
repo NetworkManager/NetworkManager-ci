@@ -1386,6 +1386,8 @@ testmapper:
         feature: ethernet
     - ethernet_keyfiles_dont_write_empty_mac_address_blacklist:
         feature: ethernet
+    - ethtool_multiple_options_in_profile_file:
+        feature: ethernet
     - dracut_setup:
         feature: dracut
         tags: gate dracut

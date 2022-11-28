@@ -1266,3 +1266,52 @@ Feature: nmcli - ethernet
     * Execute "nmcli c modify id con_ethernet connection.autoconnect false"
     When Execute "ls /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
     Then "mac-address" is not visible with command "cat /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
+
+
+    @rhbz2134569
+    @ver+=1.40.4 @rhelver-=8
+    @prepare_patched_netdevsim
+    @ethtool_multiple_options_in_profile_file
+    Scenario: nmcli - ethernet - check if correct ethtool options are configured in ifcfg file
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.address 192.0.2.1/24
+          """
+    * Bring "up" connection "con_ethernet"
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "ethtool.pause-autoneg off"
+    * Bring "up" connection "con_ethernet" 
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "ethtool.ring-rx 512"
+    * Bring "up" connection "con_ethernet"
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    Then Check ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_ethernet" has options
+          """
+          ETHTOOL_OPTS="-G eth11 rx 512 ; -A eth11 pause-autoneg off"
+          """
+
+
+    @rhbz2134569
+    @ver+=1.40.4 @rhelver+=9
+    @prepare_patched_netdevsim
+    @ethtool_multiple_options_in_profile_file
+    Scenario: nmcli - ethernet - check if correct ethtool options are configured in ifcfg file
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.address 192.0.2.1/24
+          """
+    * Bring "up" connection "con_ethernet"
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "ethtool.pause-autoneg off"
+    * Bring "up" connection "con_ethernet" 
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    * Modify connection "con_ethernet" changing options "ethtool.ring-rx 512"
+    * Bring "up" connection "con_ethernet"
+    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
+    Then Check keyfile "/etc/NetworkManager/system-connections/con_ethernet.nmconnection" has options
+          """
+          ethtool.pause-autoneg=false
+          ethtool.ring-rx=512
+          """
