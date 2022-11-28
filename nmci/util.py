@@ -52,6 +52,16 @@ class _Timeout:
         # self.expired() in between).
         return self._expired_called and self._is_expired
 
+    def remaining_time(self):
+        # It makes sense to ask how many seconds remains
+        # (to be used as value for another timeout)
+        now = time.monotonic()
+        if self._expiry is None:
+            return None
+        if self._expired(now):
+            return 0
+        return self._expiry - now
+
     def sleep(self, sleep_time):
         # sleep "sleep_time" or until the expiry (whatever
         # comes first).
@@ -62,9 +72,7 @@ class _Timeout:
         now = time.monotonic()
         if self._expired(now):
             return False
-        if self._expiry is None:
-            sleep_time = sleep_time
-        else:
+        if self._expiry is not None:
             sleep_time = min(sleep_time, (self._expiry - now))
         time.sleep(sleep_time)
         return True
@@ -250,8 +258,16 @@ class _Util:
         "FileGetContentResult", ["data", "full_file"]
     )
 
-    def start_timeout(self, *a, **kw):
-        return _Timeout(*a, **kw)
+    def start_timeout(self, timeout=None, default_timeout=None):
+        # timeout might be:
+        #   - _Timeout object already (do nothing)
+        #   - None (take default_timeout, init new _Timeout)
+        #   - str or number (init new _Timeout)
+        if isinstance(timeout, _Timeout):
+            return timeout
+        if timeout is None and default_timeout:
+            timeout = default_timeout
+        return _Timeout(timeout)
 
     def fd_get_content(
         self,
