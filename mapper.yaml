@@ -3102,11 +3102,23 @@ testmapper:
         feature: nmtui_wifi
     - nmtui_wifi_ap:
         feature: nmtui_wifi
-    - nmtui_wifi_wpa1_connection:
+    - nmtui_wifi_wpa1:
         feature: nmtui_wifi
-    - nmtui_wifi_wpa2_connection:
+    - nmtui_wifi_wpa2:
         feature: nmtui_wifi
-    - nmtui_wifi_wpa3_connection:
+    - nmtui_wifi_wpa3:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa1_enterprise_tls:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa1_enterprise_peap_mschapv2:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa1_enterprise_ttls_mschapv2:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa2_enterprise_tls:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa2_enterprise_peap_mschapv2:
+        feature: nmtui_wifi
+    - nmtui_wifi_wpa2_enterprise_ttls_mschapv2:
         feature: nmtui_wifi
 
 

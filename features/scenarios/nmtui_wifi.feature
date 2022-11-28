@@ -97,10 +97,11 @@ Feature: WIFI TUI tests
 
 
     @wifi
-    @nmtui_wifi_wpa1_connection
+    @nmtui_wifi_wpa1
     Scenario: nmtui - wifi - WPA1 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
     * Set "SSID" field to "qe-wpa1-psk"
     * Set "Security" dropdown to "WPA & WPA2 Personal"
     * Set "Password" field to "over the river and through the woods"
@@ -110,10 +111,11 @@ Feature: WIFI TUI tests
 
 
     @wifi
-    @nmtui_wifi_wpa2_connection
+    @nmtui_wifi_wpa2
     Scenario: nmtui - wifi - WPA2 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
     * Set "SSID" field to "qe-wpa2-psk"
     * Set "Security" dropdown to "WPA & WPA2 Personal"
     * Set "Password" field to "over the river and through the woods"
@@ -123,13 +125,127 @@ Feature: WIFI TUI tests
 
 
     @wifi
-    @nmtui_wifi_wpa3_connection
+    @nmtui_wifi_wpa3
     Scenario: nmtui - wifi - WPA2 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
     * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
     * Set "SSID" field to "qe-wpa3-psk"
     * Set "Security" dropdown to "WPA3 Personal"
     * Set "Password" field to "over the river and through the woods"
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: qe-wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa1_enterprise_tls
+    Scenario: nmtui - wifi - WPA enterprise tls connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
+    * Set "SSID" field to "qe-wpa1-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "TLS"
+    * Set "Identity" field to "Bill Smith"
+    * Set "CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "User\s+cert" field to "file:///tmp/certs/client.pem"
+    * Set "User\s+private\s+key" field to "file:///tmp/certs/client.pem"
+    * Set "User\s+privkey\s+password" field to "12345testing"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa1-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa1_enterprise_peap_mschapv2
+    Scenario: nmtui - wifi - WPA enterprise peap connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
+    * Set "SSID" field to "qe-wpa1-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "PEAP"
+    * Set "Anonymous\s+identity" field to "anonymous"
+    * Set "CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "Inner\s+authentication" dropdown to "MSCHAPv2"
+    * Set "Username" field to "Bill Smith"
+    * Set "Password" field to "testing123"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa1-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa1_enterprise_ttls_mschapv2
+    Scenario: nmtui - wifi - WPA enterprise peap connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
+    * Set "SSID" field to "qe-wpa1-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "TTLS"
+    * Set "Anonymous\s+identity" field to "anonymous"
+    * Set "CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "Inner authentication" dropdown to "MSCHAPv2"
+    * Set "Username" field to "Bill Smith"
+    * Set "Password" field to "testing123"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa1-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa2_enterprise_tls
+    Scenario: nmtui - wifi - WPA2 enterprise tls connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
+    * Set "SSID" field to "qe-wpa2-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "TLS"
+    * Set "Identity" field to "Bill Smith"
+    * Set "CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "User\s+cert" field to "file:///tmp/certs/client.pem"
+    * Set "User\s+private\s+key" field to "file:///tmp/certs/client.pem"
+    * Set "User\s+privkey\s+password" field to "12345testing"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa2-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa2_enterprise_peap_mschapv2
+    Scenario: nmtui - wifi - WPA2 enterprise peap connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Come in "WI-FI" category
+    * Set "SSID" field to "qe-wpa2-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "PEAP"
+    * Set "\s*Anonymous\s+identity" field to "anonymous"
+    * Set "\s*CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "Inner\s+authentication" dropdown to "MSCHAPv2"
+    * Set "Username" field to "Bill Smith"
+    * Set "Password" field to "testing123"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa2-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    @wifi
+    @nmtui_wifi_wpa2_enterprise_ttls_mschapv2
+    Scenario: nmtui - wifi - WPA2 enterprise peap connection
+    * Prepare new connection of type "Wi-Fi" named "wifi1"
+    * Set "Device" field to "wlan0"
+    * Set "SSID" field to "qe-wpa2-enterprise"
+    * Set "Security" dropdown to "WPA & WPA2 Enterprise"
+    * Set "Authentication" dropdown to "TTLS"
+    * Set "Anonymous\s+identity" field to "anonymous"
+    * Set "CA\s+cert" field to "file:///tmp/certs/eaptest_ca_cert.pem"
+    * Set "Inner\s+authentication" dropdown to "MSCHAPv2"
+    * Set "Username" field to "Bill Smith"
+    * Set "Password" field to "testing123"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    Then "SSID: qe-wpa2-enterprise" is visible with command "iw dev wlan0 link" in "30" seconds
