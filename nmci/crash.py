@@ -238,7 +238,7 @@ def after_crash_reset(context):
     conf_files = [
         f
         for f in glob.glob(dir + "/*")
-        if not f.endswith("/99-test.conf") or not f.endswith("/99-unmanage-orig.conf")
+        if not f.endswith("/99-test.conf") and not f.endswith("/99-unmanage-orig.conf")
     ]
     nmci.process.run_stdout(["rm", "-vrf", *conf_files])
 
