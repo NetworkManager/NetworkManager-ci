@@ -4,6 +4,7 @@ import re
 import sys
 import time
 import subprocess
+import shutil
 
 import nmci.embed
 
@@ -325,6 +326,25 @@ class _Util:
 
         with open(file_name, "wb") as f:
             f.write(data)
+
+    def file_remove(self, file_name, do_assert=False):
+        try:
+            os.remove(file_name)
+        except FileNotFoundError:
+            if do_assert:
+                raise
+
+    def directory_remove(self, dir_name, recursive=False, do_assert=False):
+        try:
+            # Both function might raise FileNotFoundError (ignore if not do_assert).
+            # Other Errors (permissions) are not ignnored, they are severe.
+            if recursive:
+                shutil.rmtree(dir_name)
+            else:
+                os.rmdir(dir_name)
+        except FileNotFoundError:
+            if do_assert:
+                raise
 
     def update_udevadm(self):
         # Just wait a bit to have all files correctly written
