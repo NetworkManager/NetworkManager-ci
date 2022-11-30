@@ -11,11 +11,13 @@ import nmci.embed
 
 class _Timeout:
     def __init__(self, timeout):
-        if isinstance(timeout, str):
+        now = time.monotonic()
+        if isinstance(timeout, _Timeout):
+            timeout = timeout.remaining_time(now=now)
+        elif isinstance(timeout, str):
             # for convenience, allow timeout as string. We often get the timeout
             # from behave steps, they are strings there...
             timeout = float(timeout)
-        now = time.monotonic()
         self._loop_sleep_called = False
         self._expired_called = False
         self.start_timestamp = now
@@ -52,10 +54,11 @@ class _Timeout:
         # self.expired() in between).
         return self._expired_called and self._is_expired
 
-    def remaining_time(self):
+    def remaining_time(self, now=None):
         # It makes sense to ask how many seconds remains
         # (to be used as value for another timeout)
-        now = time.monotonic()
+        if now is None:
+            now = time.monotonic()
         if self._expiry is None:
             return None
         if self._expired(now):
@@ -260,11 +263,9 @@ class _Util:
 
     def start_timeout(self, timeout=None, default_timeout=None):
         # timeout might be:
-        #   - _Timeout object already (do nothing)
-        #   - None (take default_timeout, init new _Timeout)
+        #   - _Timeout object already (use remaining time)
+        #   - None (take default_timeout)
         #   - str or number (init new _Timeout)
-        if isinstance(timeout, _Timeout):
-            return timeout
         if timeout is None and default_timeout:
             timeout = default_timeout
         return _Timeout(timeout)
