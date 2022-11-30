@@ -1756,7 +1756,18 @@ def test_util_start_timeout():
         loop += 1
     assert loop == 1
 
+    loop = 0
+    t = nmci.util.start_timeout(t)
+    while t.loop_sleep(1):
+        assert loop == 0
+        loop += 1
+    assert loop == 1
+
     t = nmci.util.start_timeout(0)
+    while t.sleep(1):
+        assert False
+
+    t = nmci.util.start_timeout(t)
     while t.sleep(1):
         assert False
 
