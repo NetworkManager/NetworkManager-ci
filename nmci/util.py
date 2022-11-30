@@ -261,13 +261,11 @@ class _Util:
         "FileGetContentResult", ["data", "full_file"]
     )
 
-    def start_timeout(self, timeout=None, default_timeout=None):
+    def start_timeout(self, timeout=None):
         # timeout might be:
-        #   - _Timeout object already (use remaining time)
-        #   - None (take default_timeout)
-        #   - str or number (init new _Timeout)
-        if timeout is None and default_timeout:
-            timeout = default_timeout
+        #   - _Timeout object (use remaining time)
+        #   - None (infinity)
+        #   - str or number (timeout in seconds)
         return _Timeout(timeout)
 
     def fd_get_content(

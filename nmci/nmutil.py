@@ -39,9 +39,9 @@ class _NMUtil:
                 pid = int(pgrep_pid.stdout)
         return pid
 
-    def wait_for_nm_pid(self, timeout=None, old_pid=0, do_assert=True):
+    def wait_for_nm_pid(self, timeout=DEFAULT_TIMEOUT, old_pid=0, do_assert=True):
         # If old_pid is non-zero, wait_for_nm_pid may exit wit 0
-        timeout = nmci.util.start_timeout(timeout, default_timeout=self.DEFAULT_TIMEOUT)
+        timeout = nmci.util.start_timeout(timeout)
         pid = 0
         while timeout.loop_sleep(0.3):
             pid = self.nm_pid()
@@ -58,7 +58,7 @@ class _NMUtil:
                 )
         return pid
 
-    def wait_for_nm_bus(self, timeout=None, do_assert=True):
+    def wait_for_nm_bus(self, timeout=DEFAULT_TIMEOUT, do_assert=True):
         busctl_argv = [
             "busctl",
             "call",
@@ -67,7 +67,7 @@ class _NMUtil:
             "org.freedesktop.NetworkManager",
             "GetAllDevices",
         ]
-        timeout = nmci.util.start_timeout(timeout, default_timeout=self.DEFAULT_TIMEOUT)
+        timeout = nmci.util.start_timeout(timeout)
         while timeout.loop_sleep(0.1):
             if nmci.process.run_search_stdout(
                 busctl_argv,
@@ -113,9 +113,9 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(self.DEFAULT_TIMEOUT)
         self.wait_for_nm_bus(timeout)
 
-    def restart_NM_service(self, reset=True, timeout=None):
+    def restart_NM_service(self, reset=True, timeout=DEFAULT_TIMEOUT):
         print("restart NM service")
-        timeout = nmci.util.start_timeout(timeout, default_timeout=self.DEFAULT_TIMEOUT)
+        timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
         r = nmci.process.systemctl(
@@ -125,9 +125,9 @@ class _NMUtil:
         self.wait_for_nm_bus(timeout)
         return r.returncode == 0
 
-    def start_NM_service(self, pid_wait=True, timeout=None):
+    def start_NM_service(self, pid_wait=True, timeout=DEFAULT_TIMEOUT):
         print("start NM service")
-        timeout = nmci.util.start_timeout(timeout, default_timeout=self.DEFAULT_TIMEOUT)
+        timeout = nmci.util.start_timeout(timeout)
         r = nmci.process.systemctl(
             "start NetworkManager.service", timeout=timeout.remaining_time()
         )
