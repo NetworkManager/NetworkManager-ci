@@ -1901,6 +1901,7 @@ Feature: nmcli - general
     @rhbz1461643 @rhbz1945282
     @ver+=1.10.0
     @ver/rhel/8+=1.36.0.8
+    @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
     @allow_veth_connections @logging_info_only @eth0 @remove_custom_cfg
     @stable_mem_consumption2
