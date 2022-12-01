@@ -384,7 +384,9 @@ class _Util:
 
     def dump_status(self, when, fail_only=False):
         nm_running = (
-            nmci.process.systemctl("status NetworkManager", do_embed=False).returncode
+            nmci.process.systemctl(
+                "status NetworkManager", embed_combine_tag=None
+            ).returncode
             == 0
         )
 
@@ -480,7 +482,7 @@ class _Util:
                 os.path.isfile("/etc/systemd/system/NetworkManager.service")
                 and nmci.process.run_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service",
-                    do_embed=False,
+                    embed_combine_tag=None,
                 )
                 == 0
             ):
@@ -488,7 +490,7 @@ class _Util:
                     "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                     " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                     shell=True,
-                    do_embed=False,
+                    embed_combine_tag=None,
                 )
                 msg += result.stdout
             nmci.embed.embed_data("Memory use " + when, msg)

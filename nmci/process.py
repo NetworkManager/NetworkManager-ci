@@ -149,7 +149,7 @@ class _Process:
         ignore_returncode,
         stdout,
         stderr,
-        do_embed,
+        embed_combine_tag="Process",
     ):
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra
@@ -172,8 +172,15 @@ class _Process:
         if r_stderr is None:
             r_stderr = b""
 
-        if do_embed:
-            nmci.embed.embed_run(argv_real, shell, returncode, r_stdout, r_stderr)
+        if embed_combine_tag:
+            nmci.embed.embed_run(
+                argv_real,
+                shell,
+                returncode,
+                r_stdout,
+                r_stderr,
+                combine_tag=embed_combine_tag,
+            )
 
         # Depending on ignore_returncode we accept non-zero output. But
         # even then we want to fail for return codes that indicate a crash
@@ -258,7 +265,7 @@ class _Process:
         ignore_stderr=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         return self._run(
             argv,
@@ -272,7 +279,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=stdout,
             stderr=stderr,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         )
 
     def run_stdout(
@@ -288,7 +295,7 @@ class _Process:
         ignore_returncode=False,
         ignore_stderr=False,
         stderr=subprocess.PIPE,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         return self._run(
             argv,
@@ -302,7 +309,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=stderr,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         ).stdout
 
     def run_code(
@@ -317,7 +324,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=False,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         return self._run(
             argv,
@@ -331,7 +338,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         ).returncode
 
     def run_search_stdout(
@@ -348,7 +355,7 @@ class _Process:
         ignore_stderr=False,
         stderr=subprocess.PIPE,
         pattern_flags=re.DOTALL | re.MULTILINE,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         # autodetect based on the pattern
         if isinstance(pattern, bytes):
@@ -369,7 +376,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=stderr,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         )
         return re.search(pattern, result.stdout, flags=pattern_flags)
 
@@ -384,7 +391,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -403,7 +410,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         ).stdout
 
     def nmcli_force(
@@ -417,7 +424,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -436,7 +443,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         )
 
     def systemctl(
@@ -450,7 +457,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        do_embed=True,
+        embed_combine_tag="Process",
     ):
         if isinstance(argv, str):
             argv = f"systemctl {argv}"
@@ -469,7 +476,7 @@ class _Process:
             ignore_returncode=ignore_returncode,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            do_embed=do_embed,
+            embed_combine_tag=embed_combine_tag,
         )
 
 

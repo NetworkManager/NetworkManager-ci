@@ -57,7 +57,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            do_embed=False,
+                            embed_combine_tag=None,
                         )
                     except Exception as ex:
                         e = ex
@@ -76,7 +76,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            do_embed=False,
+                            embed_combine_tag=None,
                         )
                     except Exception as ex:
                         e = ex

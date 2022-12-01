@@ -1107,7 +1107,7 @@ def simwifi_as(context, scenario):
     if context.IS_NMTUI:
         print("deleting all wifi connections")
         conns = (
-            nmci.process.nmcli("-t -f UUID,TYPE con show", do_embed=False)
+            nmci.process.nmcli("-t -f UUID,TYPE con show", embed_combine_tag=None)
             .strip()
             .split("\n")
         )
@@ -2227,7 +2227,11 @@ def no_config_server_as(context, scenario):
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
         nmci.nmutil.reload_NM_service()
-    conns = nmci.process.nmcli("-t -f UUID,NAME c", do_embed=False).strip().split("\n")
+    conns = (
+        nmci.process.nmcli("-t -f UUID,NAME c", embed_combine_tag=None)
+        .strip()
+        .split("\n")
+    )
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
     if uuids:
@@ -2454,7 +2458,7 @@ def allow_veth_connections_as(context, scenario):
     )
     nmci.util.update_udevadm()
     nmci.nmutil.reload_NM_service()
-    devs = nmci.process.nmcli("-t -f DEVICE c s -a", do_embed=False)
+    devs = nmci.process.nmcli("-t -f DEVICE c s -a", embed_combine_tag=None)
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
             context.process.nmcli(f"device disconnect {dev}")

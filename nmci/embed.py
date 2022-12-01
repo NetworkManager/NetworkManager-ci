@@ -197,6 +197,7 @@ class _Embed:
         stderr,
         fail_only=True,
         embed_context=None,
+        combine_tag="Commands",
     ):
         import nmci.util
 
@@ -241,7 +242,7 @@ class _Embed:
             title,
             message,
             fail_only=fail_only,
-            combine_tag="Commands",
+            combine_tag=combine_tag,
             embed_context=embed_context,
         )
 
