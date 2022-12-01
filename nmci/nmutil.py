@@ -5,6 +5,7 @@ import nmci.process
 import nmci.util
 import nmci.cext
 import nmci.cleanup
+import nmci.embed
 
 
 class _NMUtil:
@@ -29,7 +30,8 @@ class _NMUtil:
     def nm_pid(self):
         pid = 0
         service_pid = nmci.process.systemctl(
-            "show -pMainPID NetworkManager.service", embed_combine_tag=None
+            "show -pMainPID NetworkManager.service",
+            embed_combine_tag=nmci.embed.NO_EMBED,
         )
         if service_pid.returncode == 0:
             pid = int(service_pid.stdout.split("=")[-1])

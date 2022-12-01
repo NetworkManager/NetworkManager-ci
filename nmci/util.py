@@ -482,7 +482,7 @@ class _Util:
                 os.path.isfile("/etc/systemd/system/NetworkManager.service")
                 and nmci.process.run_code(
                     "grep -q valgrind /etc/systemd/system/NetworkManager.service",
-                    embed_combine_tag=None,
+                    embed_combine_tag=nmci.embed.NO_EMBED,
                 )
                 == 0
             ):
@@ -490,7 +490,7 @@ class _Util:
                     "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
                     " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
                     shell=True,
-                    embed_combine_tag=None,
+                    embed_combine_tag=nmci.embed.NO_EMBED,
                 )
                 msg += result.stdout
             nmci.embed.embed_data("Memory use " + when, msg)

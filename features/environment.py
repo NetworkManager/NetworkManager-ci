@@ -70,7 +70,9 @@ def _before_scenario(context, scenario):
     context.crashed_step = False
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
-    context.arch = nmci.process.run_stdout("uname -p", embed_combine_tag=None).strip()
+    context.arch = nmci.process.run_stdout(
+        "uname -p", embed_combine_tag=nmci.embed.NO_EMBED
+    ).strip()
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     with open("/etc/redhat-release") as release_f:
         context.rh_release = release_f.read()
@@ -83,7 +85,7 @@ def _before_scenario(context, scenario):
         "systemd-detect-virt",
         ignore_returncode=True,
         ignore_stderr=True,
-        embed_combine_tag=None,
+        embed_combine_tag=nmci.embed.NO_EMBED,
     ).strip()
 
     os.environ["TERM"] = "dumb"

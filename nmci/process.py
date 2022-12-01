@@ -12,6 +12,8 @@ SHELL_AUTO = object()
 import nmci.util
 import nmci.embed
 
+from nmci.embed import TRACE_COMBINE_TAG
+
 
 class WithShell:
     def __init__(self, cmd):
@@ -74,6 +76,7 @@ class _Process:
         self.RunResult = RunResult
         self.IGNORE_RETURNCODE_ALL = IGNORE_RETURNCODE_ALL
         self.SHELL_AUTO = SHELL_AUTO
+
         self.exec = _Exec(self)
 
     def _run_prepare_args(self, argv, shell, env, env_extra):
@@ -149,7 +152,7 @@ class _Process:
         ignore_returncode,
         stdout,
         stderr,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra
@@ -172,15 +175,14 @@ class _Process:
         if r_stderr is None:
             r_stderr = b""
 
-        if embed_combine_tag:
-            nmci.embed.embed_run(
-                argv_real,
-                shell,
-                returncode,
-                r_stdout,
-                r_stderr,
-                combine_tag=embed_combine_tag,
-            )
+        nmci.embed.embed_run(
+            argv_real,
+            shell,
+            returncode,
+            r_stdout,
+            r_stderr,
+            combine_tag=embed_combine_tag,
+        )
 
         # Depending on ignore_returncode we accept non-zero output. But
         # even then we want to fail for return codes that indicate a crash
@@ -265,7 +267,7 @@ class _Process:
         ignore_stderr=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         return self._run(
             argv,
@@ -295,7 +297,7 @@ class _Process:
         ignore_returncode=False,
         ignore_stderr=False,
         stderr=subprocess.PIPE,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         return self._run(
             argv,
@@ -324,7 +326,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=False,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         return self._run(
             argv,
@@ -355,7 +357,7 @@ class _Process:
         ignore_stderr=False,
         stderr=subprocess.PIPE,
         pattern_flags=re.DOTALL | re.MULTILINE,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         # autodetect based on the pattern
         if isinstance(pattern, bytes):
@@ -391,7 +393,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -424,7 +426,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         if isinstance(argv, str):
             argv = f"nmcli {argv}"
@@ -457,7 +459,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=True,
         ignore_stderr=True,
-        embed_combine_tag="Process",
+        embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         if isinstance(argv, str):
             argv = f"systemctl {argv}"

@@ -51,6 +51,7 @@ class _PExpect:
             stdout,
             None,
             embed_context=data.embed_context,
+            combine_tag="Commands",
         )
 
         return failed, argv, status, stdout

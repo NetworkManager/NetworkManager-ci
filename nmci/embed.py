@@ -1,7 +1,17 @@
 import collections
 import os
+import traceback
 
 import xml.etree.ElementTree as ET
+
+TRACE_COMBINE_TAG = object()
+NO_EMBED = object()
+
+MODULE_NAME_TRANSLATIONS = {
+    "Ip": "IP",
+    "Nmutil": "NM Util",
+    "Process": "Commands",
+}
 
 
 class Embed:
@@ -54,6 +64,8 @@ class _Embed:
         self.Embed = Embed
         self.EmbedData = EmbedData
         self.EmbedLink = EmbedLink
+        self.TRACE_COMBINE_TAG = TRACE_COMBINE_TAG
+        self.NO_EMBED = NO_EMBED
 
     def setup(self, runner):
         # setup formatter embed and set_title
@@ -77,6 +89,17 @@ class _Embed:
     def set_title(self, *a, **kw):
         if hasattr(self, "_set_title"):
             self._set_title(*a, *kw)
+
+    def _get_module_from_trace(self):
+        module = "Commands"
+        stack = traceback.extract_stack()
+        for item in stack:
+            if "/nmci/" in item.filename:
+                module = item.filename.split("/")[-1].replace(".py", "").capitalize()
+                break
+        if module in MODULE_NAME_TRANSLATIONS:
+            module = MODULE_NAME_TRANSLATIONS[module]
+        return module
 
     def _embed_queue(self, entry, embed_context=None):
 
@@ -158,6 +181,8 @@ class _Embed:
         self._to_embed.sort(key=lambda e: e._embed_context.count)
         for entry in nmci.util.consume_list(self._to_embed):
             combine_tag = entry.combine_tag
+            if combine_tag is NO_EMBED:
+                continue
             if combine_tag is None:
                 self._embed_one(scenario_fail, entry)
                 continue
@@ -197,7 +222,7 @@ class _Embed:
         stderr,
         fail_only=True,
         embed_context=None,
-        combine_tag="Commands",
+        combine_tag=TRACE_COMBINE_TAG,
     ):
         import nmci.util
 
@@ -237,6 +262,9 @@ class _Embed:
             title = f"Command `{title}`"
         else:
             title = f"Command `{title[:30]}...`"
+
+        if combine_tag == TRACE_COMBINE_TAG:
+            combine_tag = self._get_module_from_trace()
 
         self.embed_data(
             title,

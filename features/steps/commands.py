@@ -219,7 +219,7 @@ def note_the_output_as(context, command, index='noted-value'):
         context.noted = {}
     # use nmci as embed might be big in general
     command = nmci.process.WithShell(command)
-    context.noted[index] = nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=None).strip()
+    context.noted[index] = nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=nmci.embed.NO_EMBED).strip()
 
 
 @step(u'Note the number of lines of "{command}"')
@@ -231,9 +231,9 @@ def note_the_output_lines_as(context, command, index='noted-value', pattern=None
         context.noted = {}
     # use nmci as embed might be big in general
     if pattern is not None:
-        out = [line for line in nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=None).split('\n') if re.search(pattern, line)]
+        out = [line for line in nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=nmci.embed.NO_EMBED).split('\n') if re.search(pattern, line)]
     else:
-        out = [line for line in nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=None).split('\n') if line]
+        out = [line for line in nmci.process.run_stdout(command, ignore_stderr=True, embed_combine_tag=nmci.embed.NO_EMBED).split('\n') if line]
     context.noted[index] = str(len(out))
 
 
