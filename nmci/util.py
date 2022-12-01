@@ -383,6 +383,10 @@ class _Util:
         time.sleep(0.8)
 
     def dump_status(self, when, fail_only=False):
+        class Echo:
+            def __init__(self, args):
+                self.args = args
+
         nm_running = (
             nmci.process.systemctl(
                 "status NetworkManager", embed_combine_tag=None
@@ -390,34 +394,23 @@ class _Util:
             == 0
         )
 
-        cmds = [
-            'date "+%Y%m%d-%H%M%S.%N"',
-            "NetworkManager --version",
-            "ps aux",
-            "ip addr",
-            "ip -4 route",
-            "ip -6 route",
-            "nft list ruleset",
-        ]
+        nm_cmds = []
         if nm_running:
-            cmds += [
-                nmci.process.WithShell("hostnamectl 2>&1"),
+            nm_cmds = [
+                "NetworkManager --print-config",
                 "nmcli -f ALL g",
                 "nmcli -f ALL c",
                 "nmcli -f ALL d",
                 "nmcli -f ALL d w l",
-                "NetworkManager --print-config",
                 "cat /etc/resolv.conf",
                 # use '[d]hclient' to not match grep command itself.
                 nmci.process.WithShell("ps aux | grep -w '[d]hclient'"),
             ]
 
-        headings = {
-            len(cmds): "\nVeth setup network namespace and DHCP server state:\n"
-        }
-
+        veth_cmds = []
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
-            cmds += [
+            veth_cmds = [
+                Echo("\nVeth setup network namespace and DHCP server state:"),
                 "ip -n vethsetup addr",
                 "ip -n vethsetup -4 route",
                 "ip -n vethsetup -6 route",
@@ -429,27 +422,46 @@ class _Util:
 
         # vethsetup is handled separately
         named_nss = [n for n in named_nss if n != "vethsetup"]
+        named_nss_cmds = []
 
         if len(named_nss) > 0:
-            add_to_heading = "\nStatus of other named network namespaces:\n"
+            named_nss_cmds = [Echo("Status of other named network namespaces:")]
             for ns in sorted(named_nss):
-                heading = f"{add_to_heading}\nnetwork namespace {ns}:"
-                if len(add_to_heading) > 0:
-                    add_to_heading = ""
-                headings[len(cmds)] = heading
-                cmds += [
+                named_nss_cmds += [
+                    Echo(f"\nnetwork namespace {ns}:"),
                     f"ip -n {ns} a",
                     f"ip -n {ns} -4 r",
                     f"ip -n {ns} -6 r",
                     f"ip netns exec {ns} nft list ruleset",
                 ]
 
-        procs = [nmci.process.Popen(c, stderr=subprocess.DEVNULL) for c in cmds]
+        cmds = [
+            'date "+%Y%m%d-%H%M%S.%N"',
+            nmci.process.WithShell("hostnamectl 2>&1"),
+            "NetworkManager --version",
+            *nm_cmds,
+            "ip addr",
+            "ip -4 route",
+            "ip -6 route",
+            *veth_cmds,
+            *named_nss_cmds,
+            "ps aux",
+            "nft list ruleset",
+        ]
+
+        procs = []
+        for cmd in cmds:
+            if isinstance(cmd, Echo):
+                procs.append(cmd)
+            else:
+                procs.append(nmci.process.Popen(cmd, stderr=subprocess.DEVNULL))
 
         timeout = nmci.util.start_timeout(20)
         while timeout.loop_sleep(0.05):
             any_pending = False
             for proc in procs:
+                if isinstance(proc, Echo):
+                    continue
                 if proc.read_and_poll() is None:
                     if timeout.was_expired:
                         proc.terminate_and_wait(timeout_before_kill=3)
@@ -458,19 +470,24 @@ class _Util:
             if not any_pending or timeout.was_expired:
                 break
 
-        msg = ""
-        for i in range(len(procs)):
-            proc = procs[i]
-            if i in headings.keys():
-                msg = f"{msg}\n{headings[i]}"
-            msg += f"\n--- {proc.argv} ---\n"
-            msg += proc.stdout.decode("utf-8", errors="replace")
+        msg = []
+        for proc in procs:
+            if isinstance(proc, Echo):
+                msg.append(proc.args)
+                continue
+            msg.append(f"\n--- {proc.argv} ---\n")
+            msg.append(proc.stdout.decode("utf-8", errors="replace"))
         if timeout.was_expired:
-            msg += "\n\nWARNING: timeout expired waiting for processes. Processes were terminated."
+            msg.append(
+                "\nWARNING: timeout expired waiting for processes. Processes were terminated."
+            )
 
-        nmci.embed.embed_data("Status " + when, msg, fail_only=fail_only)
+        nmci.embed.embed_data("Status " + when, "\n".join(msg), fail_only=fail_only)
 
         # Always include memory stats
+        self.dump_memory_stats(when)
+
+    def dump_memory_stats(self, when):
         if nmci.cext.context.nm_pid is not None:
             try:
                 kb = nmci.nmutil.nm_size_kb()
