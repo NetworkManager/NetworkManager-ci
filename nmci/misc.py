@@ -720,7 +720,7 @@ class _Misc:
         tags_el = scenario_el.find(".//span[@class='tag']")
         try:
             git_url = nmci.git.config_get_origin_url()
-            git_commit = nmci.git.call_rev_parse("HEAD")
+            git_commit = nmci.git.rev_parse("HEAD")
         except Exception:
             git_url = None
             git_commit = None
@@ -759,7 +759,7 @@ class _Misc:
     def html_report_file_links(self, scenario_el):
         try:
             git_url = nmci.git.config_get_origin_url()
-            git_commit = nmci.git.call_rev_parse("HEAD")
+            git_commit = nmci.git.rev_parse("HEAD")
         except Exception:
             return
         url_base = f"{git_url}/-/tree/{git_commit}/"

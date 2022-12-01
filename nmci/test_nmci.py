@@ -1294,7 +1294,7 @@ def test_git_call_ref_parse():
     except Exception:
         pytest.skip("not a suitable git repo")
 
-    assert re.match("^[0-9a-f]{40}$", nmci.git.call_rev_parse("HEAD"))
+    assert re.match("^[0-9a-f]{40}$", nmci.git.rev_parse("HEAD"))
 
 
 def test_git_config_get_origin_url():
