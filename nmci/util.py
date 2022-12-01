@@ -80,7 +80,7 @@ class _Timeout:
         time.sleep(sleep_time)
         return True
 
-    def loop_sleep(self, sleep_time, at_least_once=True):
+    def loop_sleep(self, sleep_time=0.1, at_least_once=True):
         # The very first call to sleep does not actually sleep. It
         # Always returns True and does nothing.
         #
