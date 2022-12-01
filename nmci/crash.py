@@ -4,6 +4,9 @@ import os
 import time
 import glob
 
+COREDUMP_TYPE_SYSTEMD_COREDUMP = "systemd-coredump"
+COREDUMP_TYPE_ABRT = "abrt"
+
 
 def check_dump_package(pkg_name):
     if pkg_name in ["NetworkManager", "ModemManager"]:
@@ -28,9 +31,7 @@ def check_crash(context, crashed_step):
 
 
 def check_coredump(context):
-    for dump_dir in nmci.misc.coredump_list_on_disk(
-        nmci.misc.COREDUMP_TYPE_SYSTEMD_COREDUMP
-    ):
+    for dump_dir in coredump_list_on_disk(COREDUMP_TYPE_SYSTEMD_COREDUMP):
         print("Examining crash: " + dump_dir)
         dump_dir_split = dump_dir.split(".")
         if len(dump_dir_split) < 6:
@@ -43,7 +44,7 @@ def check_coredump(context):
         except Exception as e:
             print("Some garbage in %s: %s" % (dump_dir, str(e)))
             continue
-        if not nmci.misc.coredump_is_reported(dump_dir):
+        if not coredump_is_reported(dump_dir):
             # 'coredumpctl debug' not available in RHEL7
             if "Maipo" in context.rh_release:
                 timeout = nmci.util.start_timeout(60)
@@ -87,6 +88,36 @@ def check_coredump(context):
             nmci.embed.embed_dump("COREDUMP", dump_dir, data=dump)
 
 
+def _coredump_reported_file():
+    return nmci.util.tmp_dir("reported_crashes")
+
+
+def coredump_is_reported(dump_id):
+    filename = _coredump_reported_file()
+    if os.path.isfile(filename):
+        dump_id += "\n"
+        with open(filename) as f:
+            for line in f:
+                if dump_id == line:
+                    return True
+    return False
+
+
+def coredump_report(dump_id):
+    with open(_coredump_reported_file(), "a") as f:
+        f.write(dump_id + "\n")
+
+
+def coredump_list_on_disk(dump_type=None):
+    if dump_type == COREDUMP_TYPE_SYSTEMD_COREDUMP:
+        g = "/var/lib/systemd/coredump/*"
+    elif dump_type == COREDUMP_TYPE_ABRT:
+        g = "/var/spool/abrt/ccpp*"
+    else:
+        assert False, f"Invalid dump_type {dump_type}"
+    return glob.glob(g)
+
+
 def wait_faf_complete(context, dump_dir):
     NM_pkg = False
     last = False
@@ -115,7 +146,7 @@ def wait_faf_complete(context, dump_dir):
             last_timestamp = nmci.util.file_get_content_simple(
                 f"{dump_dir}/last_occurrence"
             )
-            if nmci.misc.coredump_is_reported(f"{dump_dir}-{last_timestamp}"):
+            if coredump_is_reported(f"{dump_dir}-{last_timestamp}"):
                 print("* Already reported")
                 context.faf_countdown -= i
                 context.faf_countdown = max(5, context.faf_countdown)
@@ -163,7 +194,7 @@ def check_faf(context):
     context.faf_countdown = 300
     while context.abrt_dir_change:
         context.abrt_dir_change = False
-        for dump_dir in nmci.misc.coredump_list_on_disk(nmci.misc.COREDUMP_TYPE_ABRT):
+        for dump_dir in coredump_list_on_disk(COREDUMP_TYPE_ABRT):
             print("Entering crash dir: " + dump_dir)
             if not wait_faf_complete(context, dump_dir):
                 if context.abrt_dir_change:

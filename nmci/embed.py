@@ -182,7 +182,7 @@ class _Embed:
         else:
             self.embed_link(caption, links)
         self.coredump_reported = True
-        nmci.misc.coredump_report(dump_id)
+        nmci.crash.coredump_report(dump_id)
 
     def embed_run(
         self,
