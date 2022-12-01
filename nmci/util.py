@@ -80,7 +80,7 @@ class _Timeout:
         time.sleep(sleep_time)
         return True
 
-    def loop_sleep(self, sleep_time):
+    def loop_sleep(self, sleep_time, at_least_once=True):
         # The very first call to sleep does not actually sleep. It
         # Always returns True and does nothing.
         #
@@ -92,6 +92,10 @@ class _Timeout:
         #         hi_there()
         if not self._loop_sleep_called:
             self._loop_sleep_called = True
+            if not at_least_once and self._expired(time.monotonic()):
+                # the timer is already expired on the first iteration
+                # and the caller wishes us to skip iteration altogether.
+                return False
             return True
         return self.sleep(sleep_time)
 
