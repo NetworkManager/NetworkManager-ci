@@ -394,7 +394,7 @@ class _Util:
             == 0
         )
 
-        nm_cmds = []
+        nm_cmds = [Echo("\n!!! NM is not running !!!")]
         if nm_running:
             nm_cmds = [
                 "NetworkManager --print-config",
