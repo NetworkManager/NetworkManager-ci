@@ -134,7 +134,11 @@ class _Embed:
         )
 
     def _embed_combines(self, scenario_fail, combine_tag, html_el, lst):
-        counts = ",".join(str(entry._embed_context.count) for entry in lst)
+        import nmci.misc
+
+        counts = nmci.misc.list_to_intervals(
+            [entry._embed_context.count for entry in lst]
+        )
         main_caption = f"({counts}) {combine_tag}"
         message = ""
         for entry in lst:

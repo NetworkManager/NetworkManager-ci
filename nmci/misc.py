@@ -885,3 +885,27 @@ class _Misc:
                 d = d + "\n" + nmci.util.bytes_to_str(suffix)
 
         return d
+
+    def list_to_intervals(self, numbers):
+        """
+        Converts list of sorted numbers to string containing intervals.
+        Example: [1,2,4,5,6,7,10] -> "1,2,4..7,10"
+        """
+        intervals = []
+        last_interval = []
+        # Append None, so last last_interval will be processed within the loop
+        for number in numbers + [None]:
+            if not last_interval:
+                last_interval.append(number)
+                continue
+            if last_interval[-1] + 1 == number:
+                last_interval.append(number)
+                continue
+            # prevent 1..1 and 1..2
+            if len(last_interval) <= 2:
+                for num in last_interval:
+                    intervals.append(f"{num}")
+            else:
+                intervals.append(f"{last_interval[0]}..{last_interval[-1]}")
+            last_interval = [number]
+        return ",".join(intervals)

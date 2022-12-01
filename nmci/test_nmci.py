@@ -692,6 +692,24 @@ def test_misc_test_version_tag_filter_for_stream():
     _assert("rhel-8", ["ver+5", "ver/rhel/7+7"], ["+5"])
 
 
+def test_misc_list_to_intervals():
+    lst = list(range(8)) + list(range(10, 12)) + list(range(20, 30)) + [34]
+    lst_str = nmci.misc.list_to_intervals(lst)
+    assert lst_str == "0..7,10,11,20..29,34"
+
+    lst = [1]
+    lst_str = nmci.misc.list_to_intervals(lst)
+    assert lst_str == "1"
+
+    lst = [3, 4]
+    lst_str = nmci.misc.list_to_intervals(lst)
+    assert lst_str == "3,4"
+
+    lst = [3, 4, 5]
+    lst_str = nmci.misc.list_to_intervals(lst)
+    assert lst_str == "3..5"
+
+
 def test_feature_tags():
 
     from . import tags
