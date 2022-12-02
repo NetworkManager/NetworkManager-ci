@@ -223,8 +223,10 @@ class _Embed:
         fail_only=True,
         embed_context=None,
         combine_tag=TRACE_COMBINE_TAG,
+        elapsed_time=None,
     ):
         import nmci.util
+        import nmci.misc
 
         if stdout is not None:
             try:
@@ -236,8 +238,13 @@ class _Embed:
                 stderr = nmci.util.bytes_to_str(stderr)
             except UnicodeDecodeError:
                 pass
-
-        message = f"{repr(argv)} {'(shell) ' if shell else ''}returned {returncode}\n"
+        shell_str = "(shell) " if shell else ""
+        time_str = (
+            f" in {nmci.misc.format_duration(elapsed_time)}"
+            if elapsed_time is not None
+            else ""
+        )
+        message = f"{repr(argv)} {shell_str}returned {returncode}{time_str}\n"
         if stdout:
             message += (
                 f"STDOUT{'[binary]' if isinstance(stderr, bytes) else ''}:\n{stdout}\n"
