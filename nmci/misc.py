@@ -909,3 +909,6 @@ class _Misc:
                 intervals.append(f"{last_interval[0]}..{last_interval[-1]}")
             last_interval = [number]
         return ",".join(intervals)
+
+    def format_duration(self, seconds):
+        return f"{seconds:.3f}s"
