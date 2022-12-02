@@ -436,7 +436,7 @@ class _Util:
                 ]
 
         cmds = [
-            "date +%Y%m%d-%H%M%S.%N",
+            "date '+%Y%m%d-%H%M%S.%N (%s)'",
             nmci.process.WithShell("get_rhel_compose"),
             nmci.process.WithShell("hostnamectl 2>&1"),
             "NetworkManager --version",
