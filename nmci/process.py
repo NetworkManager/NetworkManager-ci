@@ -158,6 +158,7 @@ class _Process:
             argv, shell, env, env_extra
         )
 
+        time_measure = nmci.util.start_timeout()
         proc = subprocess.run(
             argv_real,
             shell=shell,
@@ -182,6 +183,7 @@ class _Process:
             r_stdout,
             r_stderr,
             combine_tag=embed_combine_tag,
+            elapsed_time=time_measure.ticking_duration(),
         )
 
         # Depending on ignore_returncode we accept non-zero output. But
