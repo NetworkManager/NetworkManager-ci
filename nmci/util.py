@@ -387,36 +387,34 @@ class _Util:
             def __init__(self, args):
                 self.args = args
 
+            def frame_around(self, padding=1):
+                length = len(self.args) + 4 + 2 * padding
+                line_top = "_" * length
+                line_padding = "_" * padding
+                return f"{line_top}\n|{line_padding} {self.args} {line_padding}|"
+
         timeout = nmci.util.start_timeout(20)
 
-        nm_running = (
-            nmci.process.systemctl(
-                "status NetworkManager", embed_combine_tag=None
-            ).returncode
-            == 0
-        )
+        nm_running = nmci.nmutil.nm_pid() != 0
 
-        nm_cmds = [Echo("\n!!! NM is not running !!!")]
+        nm_cmds = [Echo("!!! NM is not running !!!")]
         if nm_running:
             nm_cmds = [
                 "NetworkManager --print-config",
                 "nmcli -f ALL g",
-                "nmcli -f ALL c",
                 "nmcli -f ALL d",
+                "nmcli -f ALL c",
                 "nmcli -f ALL d w l",
                 "cat /etc/resolv.conf",
-                # use '[d]hclient' to not match grep command itself.
-                nmci.process.WithShell("ps aux | grep -w '[d]hclient'"),
             ]
 
         veth_cmds = []
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
             veth_cmds = [
-                Echo("\nVeth setup network namespace and DHCP server state:"),
+                Echo("Veth setup network namespace and DHCP server state:"),
                 "ip -n vethsetup addr",
                 "ip -n vethsetup -4 route",
                 "ip -n vethsetup -6 route",
-                nmci.process.WithShell("ps aux | grep -w '[d]nsmasq'"),
                 "ip netns exec vethsetup nft list ruleset",
             ]
 
@@ -430,7 +428,7 @@ class _Util:
             named_nss_cmds = [Echo("Status of other named network namespaces:")]
             for ns in sorted(named_nss):
                 named_nss_cmds += [
-                    Echo(f"\nnetwork namespace {ns}:"),
+                    Echo(f"network namespace {ns}:"),
                     f"ip -n {ns} a",
                     f"ip -n {ns} -4 r",
                     f"ip -n {ns} -6 r",
@@ -438,7 +436,8 @@ class _Util:
                 ]
 
         cmds = [
-            'date "+%Y%m%d-%H%M%S.%N"',
+            "date +%Y%m%d-%H%M%S.%N",
+            nmci.process.WithShell("get_rhel_compose"),
             nmci.process.WithShell("hostnamectl 2>&1"),
             "NetworkManager --version",
             *nm_cmds,
@@ -477,9 +476,9 @@ class _Util:
         msg = []
         for proc in procs:
             if isinstance(proc, Echo):
-                msg.append(proc.args)
+                msg.append(proc.frame_around())
                 continue
-            msg.append(f"\n--- {proc.argv} ---\n")
+            msg.append(Echo(proc.argv).frame_around(3))
             msg.append(proc.stdout.decode("utf-8", errors="replace"))
         if timeout.was_expired:
             msg.append(
@@ -493,6 +492,7 @@ class _Util:
 
     def dump_memory_stats(self, when):
         if nmci.cext.context.nm_pid is not None:
+            timeout = nmci.util.start_timeout()
             try:
                 kb = nmci.nmutil.nm_size_kb()
             except nmci.util.ExpectedException as e:
@@ -514,6 +514,9 @@ class _Util:
                     embed_combine_tag=nmci.embed.NO_EMBED,
                 )
                 msg += result.stdout
+            msg += (
+                f"\nDuration: {nmci.misc.format_duration(timeout.ticking_duration())}"
+            )
             nmci.embed.embed_data("Memory use " + when, msg)
 
     def gvariant_type(self, s):
