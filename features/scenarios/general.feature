@@ -1867,7 +1867,7 @@ Feature: nmcli - general
 
 
     @ver+=1.41.2
-    @rhelver+=8 @fedoraver+=31
+    @rhelver+=8 @rhelver-=8 @fedoraver+=31
     @not_when_no_veths
     @nmstate_upstream_setup @permissive
     @nmstate_upstream
@@ -1877,6 +1877,23 @@ Feature: nmcli - general
     # Run only tier1 tests, NM is restarted during those tests
     * NM is restarted within next "1" steps
     * Execute "cd nmstate && pytest -vv -m 'tier1' -k 'not test_add_remove_team_with_port and not test_create_team_iface_with_port and not test_gen_conf_ovs_same_name' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
+    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
+    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
+
+
+    @ver+=1.41.2
+    @rhelver+=9 @fedoraver+=31
+    @not_when_no_veths
+    @nmstate_upstream_setup @permissive
+    @nmstate_upstream
+    Scenario: NM - general - nmstate
+    * Execute "ip link add eth1 type veth peer name eth1peer && ip link set dev eth1peer up"
+    * Execute "ip link add eth2 type veth peer name eth2peer && ip link set dev eth2peer up"
+    # Run only tier1 tests, NM is restarted during those tests
+    * NM is restarted within next "1" steps
+    * Execute "cd nmstate && pytest -vv -m 'tier1' -k 'not test_dns_edit and not test_remove_dns_config[empty_dict] and not test_remove_dns_config[empty_server_and_search] and not test_change_dns_search_only' --log-level=DEBUG 2>&1 | tee /tmp/nmstate.txt"
     Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
     Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
