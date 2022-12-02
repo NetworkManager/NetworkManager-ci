@@ -387,6 +387,8 @@ class _Util:
             def __init__(self, args):
                 self.args = args
 
+        timeout = nmci.util.start_timeout(20)
+
         nm_running = (
             nmci.process.systemctl(
                 "status NetworkManager", embed_combine_tag=None
@@ -456,7 +458,6 @@ class _Util:
             else:
                 procs.append(nmci.process.Popen(cmd, stderr=subprocess.DEVNULL))
 
-        timeout = nmci.util.start_timeout(20)
         while timeout.loop_sleep(0.05):
             any_pending = False
             for proc in procs:
@@ -469,6 +470,9 @@ class _Util:
                         any_pending = True
             if not any_pending or timeout.was_expired:
                 break
+
+        duration = nmci.misc.format_duration(timeout.ticking_duration())
+        procs.append(Echo(f"Status duration: {duration}"))
 
         msg = []
         for proc in procs:
