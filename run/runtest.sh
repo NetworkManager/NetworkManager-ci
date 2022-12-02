@@ -23,6 +23,12 @@ array_contains() {
     return 1
 }
 
+get_rhel_compose() {
+    grep baseurl= /etc/yum.repos.d/debuginfo.repo 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
+}
+
+export -f get_compose
+
 get_timestamp() {
     if [ -f /tmp/nm_tests_timestamp ]; then
       cat /tmp/nm_tests_timestamp
