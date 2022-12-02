@@ -50,6 +50,7 @@ TestResults:
           wget -O report.xml "$JUNIT_URL" && break
           sleep 5
       done
+      [ -s report.xml ] && rm report.xml
       [ -f report.xml ] || exit 1
       sed -n "/LOG:/n;p" report.xml | sed "s/<.*//g" | sort
       ! grep -q -F "<failure>" report.xml
