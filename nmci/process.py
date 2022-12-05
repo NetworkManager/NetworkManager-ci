@@ -183,7 +183,7 @@ class _Process:
             r_stdout,
             r_stderr,
             combine_tag=embed_combine_tag,
-            elapsed_time=time_measure.ticking_duration(),
+            elapsed_time=time_measure.elapsed_time(),
         )
 
         # Depending on ignore_returncode we accept non-zero output. But

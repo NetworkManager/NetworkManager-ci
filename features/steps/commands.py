@@ -280,9 +280,9 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, xtimeout.ticking_duration(), proc.before)
+            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, xtimeout.elapsed_time(), proc.before)
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.ticking_duration(), proc.before, proc.after)
+            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.elapsed_time(), proc.before, proc.after)
     if check_type == "default":
         assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, int(seconds), proc.before)
     elif check_type == "not":

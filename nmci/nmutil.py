@@ -56,7 +56,7 @@ class _NMUtil:
                 )
             else:
                 raise nmci.util.ExpectedException(
-                    f"NetworkManager not running in {timeout.ticking_duration()} seconds"
+                    f"NetworkManager not running in {timeout.elapsed_time()} seconds"
                 )
         return pid
 
@@ -81,7 +81,7 @@ class _NMUtil:
                 return True
         if do_assert:
             raise nmci.util.ExpectedException(
-                f"NetworkManager bus not running in {timeout.ticking_duration()} seconds"
+                f"NetworkManager bus not running in {timeout.elapsed_time()} seconds"
             )
         return False
 

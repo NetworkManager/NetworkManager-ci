@@ -28,7 +28,7 @@ class _Timeout:
             self._expiry = now + timeout
             self._is_expired = timeout <= 0
 
-    def ticking_duration(self):
+    def elapsed_time(self):
         return time.monotonic() - self.start_timestamp
 
     def _expired(self, now):
@@ -470,7 +470,7 @@ class _Util:
             if not any_pending or timeout.was_expired:
                 break
 
-        duration = nmci.misc.format_duration(timeout.ticking_duration())
+        duration = nmci.misc.format_duration(timeout.elapsed_time())
         procs.append(Echo(f"Status duration: {duration}"))
 
         msg = []
@@ -514,9 +514,7 @@ class _Util:
                     embed_combine_tag=nmci.embed.NO_EMBED,
                 )
                 msg += result.stdout
-            msg += (
-                f"\nDuration: {nmci.misc.format_duration(timeout.ticking_duration())}"
-            )
+            msg += f"\nDuration: {nmci.misc.format_duration(timeout.elapsed_time())}"
             nmci.embed.embed_data("Memory use " + when, msg)
 
     def gvariant_type(self, s):
