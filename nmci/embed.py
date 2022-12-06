@@ -14,6 +14,8 @@ MODULE_NAME_TRANSLATIONS = {
     "Cext": "Commands",
 }
 
+MODULES_TO_SKIP = ["Tags"]
+
 
 class Embed:
 
@@ -97,6 +99,8 @@ class _Embed:
         for item in stack:
             if "/nmci/" in item.filename:
                 module = item.filename.split("/")[-1].replace(".py", "").capitalize()
+                if module in MODULES_TO_SKIP:
+                    continue
                 break
         if module in MODULE_NAME_TRANSLATIONS:
             module = MODULE_NAME_TRANSLATIONS[module]
