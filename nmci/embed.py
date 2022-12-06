@@ -11,6 +11,7 @@ MODULE_NAME_TRANSLATIONS = {
     "Ip": "IP",
     "Nmutil": "NM Util",
     "Process": "Commands",
+    "Cext": "Commands",
 }
 
 
