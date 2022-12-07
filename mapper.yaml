@@ -2556,6 +2556,8 @@ testmapper:
         feature: dns
     - dns_resolved_dnssec_opts:
         feature: dns
+    - dns_resolved_add_mdns:
+        feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
     - nmtui_general_open_edit_menu:

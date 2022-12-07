@@ -474,6 +474,18 @@ Feature: nmcli - dns
     Then "edns0" is visible with command "grep options /etc/resolv.conf"
     Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
 
+    @rhbz2015460
+    @ver+=1.12
+    @dns_systemd_resolved
+    @dns_resolved_add_mdns
+    Scenario: NM - dns - mdns
+    * Add "ethernet" connection named "con_mdns" for device "eth2" with options "autoconnect no"
+    * Bring "up" connection "con_mdns"
+    Then "no" is visible with command "resolvectl mdns eth2"
+    * Execute "nmcli connection modify con_mdns connection.mdns yes"
+    * Bring "up" connection "con_mdns"
+    Then "yes" is visible with command "resolvectl mdns eth2"
+
 ##########################################
 # DEFAULT DNS TESTS
 ##########################################
