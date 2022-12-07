@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # Copyright (C) 2017, 2020 Red Hat, Inc.
 #
@@ -68,7 +68,7 @@ def can_sudo():
             ).returncode
             == 0
         )
-    except:
+    except Exception:
         return False
 
 
@@ -189,11 +189,7 @@ def ovs_print_external_ids(prefix):
 
     out = ""
     for cmd in cmds:
-        p = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            check=True,
-        )
+        p = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
         out += p.stdout.decode("utf-8") + "\n"
     out = "\n".join([prefix + s for s in out.split("\n")])
     _print(out)
@@ -226,7 +222,6 @@ def die_usage(msg):
 
 
 def parse_args(argv):
-    had_dash_dash = False
     args = {
         "mode": MODE_GET,
         "select_arg": None,
@@ -619,7 +614,9 @@ def do_apply(nmc, device, ids_arg, do_test):
         die("FAILURE to get applied connection after reapply")
 
     _print()
-    connection_print(connection, MODE_APPLY, [], device.get_path(), prefix="AFTER: ")
+    connection_print(
+        connection_after, MODE_APPLY, [], device.get_path(), prefix="AFTER: "
+    )
     _print()
 
     ovs_print_external_ids("AFTER-OVS-VSCTL: ")
@@ -640,10 +637,7 @@ if __name__ == "__main__":
         if len(devices) != 1:
             _print(
                 "To apply the external-ids of a device, exactly one connection must be selected. Instead, %s devices matched ([%s])"
-                % (
-                    len(devices),
-                    ", ".join([device_to_str(c) for c in devices]),
-                )
+                % (len(devices), ", ".join([device_to_str(c) for c in devices]))
             )
             die_usage("Select unique device to apply")
         do_apply(nmc, devices[0], args["ids_arg"], do_test=args["do_test"])

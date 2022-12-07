@@ -60,7 +60,7 @@ def checkpoint_path_to_num(path):
     m = re.match(r"^/org/freedesktop/NetworkManager/Checkpoint/([1-9][0-9]*)$", path)
     if m:
         return int(m.group(1))
-    raise Exception('Unexpected D-Bus path "%s"for checkpoint' % path)
+    raise Exception(f'Unexpected D-Bus path "{path}"for checkpoint')
 
 
 def find_checkpoint(nmc, path):
@@ -71,23 +71,23 @@ def find_checkpoint(nmc, path):
 
 
 def find_checkpoint_last(nmc):
-    l = [c.get_path() for c in nmc.get_checkpoints()]
-    if not l:
-        return None
-    l.sort(key=checkpoint_path_to_num)
-    return l[-1]
+    return max(
+        nmc.get_checkpoints(),
+        key=lambda c: checkpoint_path_to_num(c.get_path()),
+        default=None,
+    )
 
 
 def validate_path(path, nmc):
     if path == "--last":
-        path = find_checkpoint_last(nmc)
-        if path is None:
+        c = find_checkpoint_last(nmc)
+        if c is None:
             sys.exit("Has no checkpoint")
-        return path
+        return c.get_path()
 
     try:
         num = int(path)
-        path = "/org/freedesktop/NetworkManager/Checkpoint/%s" % num
+        path = f"/org/freedesktop/NetworkManager/Checkpoint/{num}"
     except Exception as e:
         pass
 
