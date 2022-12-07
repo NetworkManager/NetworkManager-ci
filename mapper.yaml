@@ -1114,6 +1114,8 @@ testmapper:
         feature: ipv4
     - ipv4_check_addr_order:
         feature: ipv4
+    - ipv4_reapply_preserve_external_ip:
+        feature: ipv4
     - dhcp_internal_ack_after_nak:
         feature: ipv4
     - dhcp_internal_nak_in_renewing:

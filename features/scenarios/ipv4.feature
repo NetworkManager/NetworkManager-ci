@@ -2908,3 +2908,45 @@ Feature: nmcli: ipv4
     * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.1/24,192.168.99.2/24,192.168.99.3/24'"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "192.168.99.1/24 192.168.99.2/24 192.168.99.3/24" on device "testX4"
+
+
+    @rhbz2132754
+    @ver+=1.41.6
+    @ipv4_reapply_preserve_external_ip
+    Scenario: @ipv4_reapply_preserve_external_ip
+    * Prepare simulated test "testX4" device
+    * Add "ethernet" connection named "con_ipv4" for device "testX4"
+    * Bring "up" connection "con_ipv4"
+
+    * Execute "ip addr add 10.42.1.5/24 dev testX4"
+    * Execute "ip addr add 10:42:1::5/64 dev testX4"
+    * Execute "ip route append 10.43.1.3/32 dev testX4"
+    * Execute "ip route append 10:43:1::3/128 dev testX4"
+    * Execute "nmcli device reapply testX4"
+    * Wait for "0.2" seconds
+    Then "10.42.1.5" is not visible with command "ip -4 addr show dev testX4"
+    Then "10:42:1::5" is not visible with command "ip -6 addr show dev testX4"
+    Then "10.43.1.3" is not visible with command "ip -4 route show dev testX4"
+    Then "10:43:1::3" is not visible with command "ip -6 route show dev testX4"
+
+    * Execute "ip addr add 10.42.1.5/24 dev testX4"
+    * Execute "ip addr add 10:42:1::5/64 dev testX4"
+    * Execute "ip route append 10.43.1.3/32 dev testX4"
+    * Execute "ip route append 10:43:1::3/128 dev testX4"
+    * Execute "contrib/gi/device-reapply.py reapply testX4"
+    * Wait for "0.2" seconds
+    Then "10.42.1.5" is not visible with command "ip -4 addr show dev testX4"
+    Then "10:42:1::5" is not visible with command "ip -6 addr show dev testX4"
+    Then "10.43.1.3" is not visible with command "ip -4 route show dev testX4"
+    Then "10:43:1::3" is not visible with command "ip -6 route show dev testX4"
+
+    * Execute "ip addr add 10.42.1.5/24 dev testX4"
+    * Execute "ip addr add 10:42:1::5/64 dev testX4"
+    * Execute "ip route append 10.43.1.3/32 dev testX4"
+    * Execute "ip route append 10:43:1::3/128 dev testX4"
+    * Execute "contrib/gi/device-reapply.py reapply testX4 --preserve-external-ip"
+    * Wait for "0.2" seconds
+    Then "10.42.1.5" is visible with command "ip -4 addr show dev testX4"
+    Then "10:42:1::5" is visible with command "ip -6 addr show dev testX4"
+    Then "10.43.1.3" is visible with command "ip -4 route show dev testX4"
+    Then "10:43:1::3" is visible with command "ip -6 route show dev testX4"
