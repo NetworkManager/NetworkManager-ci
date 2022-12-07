@@ -60,7 +60,7 @@ def checkpoint_path_to_num(path):
     m = re.match(r"^/org/freedesktop/NetworkManager/Checkpoint/([1-9][0-9]*)$", path)
     if m:
         return int(m.group(1))
-    raise Exception('Unexpected D-Bus path "%s"for checkpoint' %path)
+    raise Exception('Unexpected D-Bus path "%s"for checkpoint' % path)
 
 
 def find_checkpoint(nmc, path):
@@ -87,7 +87,7 @@ def validate_path(path, nmc):
 
     try:
         num = int(path)
-        path = "/org/freedesktop/NetworkManager/Checkpoint/%s" %num
+        path = "/org/freedesktop/NetworkManager/Checkpoint/%s" % num
     except Exception as e:
         pass
 
