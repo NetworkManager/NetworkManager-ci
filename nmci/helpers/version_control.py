@@ -2,6 +2,7 @@
 
 import sys
 import os
+import traceback
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -14,9 +15,9 @@ if len(sys.argv) != 2:
 try:
     (feature, test_name, tags) = nmci.misc.test_version_check(test_name=sys.argv[1])
 except Exception as e:
-    print(str(e))
     if isinstance(e, nmci.misc.SkipTestException):
         sys.exit(77)
+    traceback.print_exc()
     sys.exit(1)
 
 print(feature)
