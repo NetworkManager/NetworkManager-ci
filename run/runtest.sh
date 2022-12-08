@@ -84,10 +84,9 @@ function gsm_hub_runtest () {
     local MODEM_INDEX=${2:?"Error: modem index is missing."}
     local rc=0
     local VERSION_CONTROL
-    local TEST_NAME
     local ALL_TAGS
 
-    version_control "$NMTEST"
+    version_control "$TEST_NAME"
     rc=$?
 
     [ -n "$FEATURE_FILE" ] || return 0
