@@ -405,6 +405,7 @@ Feature: nmcli - procedures in documentation
             con-name br0
             group-forward-mask 8 connection.autoconnect-slaves 1
             ipv4.method disabled ipv6.method disabled
+            stp off forward-delay 2
             """
     * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0"
     # bridge port to have access limited by 802.1x auth
@@ -430,6 +431,7 @@ Feature: nmcli - procedures in documentation
             autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
             802-1x.identity example_user 802-1x.password user_password
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
+            802-1x.auth-timeout 75 connection.auth-retries 5
             """
     # Just in case a bit of time to settle
     * Wait for "1" seconds
@@ -448,7 +450,9 @@ Feature: nmcli - procedures in documentation
             autoconnect no 802-1x.eap tls 802-1x.identity spam
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
             802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
+            802-1x.auth-timeout 75 connection.auth-retries 5
             """
+    * Wait for "1" seconds
     When Bring up connection "test1-tls"
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"

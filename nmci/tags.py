@@ -2987,7 +2987,7 @@ def radius_bs(context, scenario):
             f.write(users_new)
         context.process.run_stdout("radiusd -XC")
         context.process.run_stdout("cp -a /etc/raddb /tmp/nmci-raddb")
-    context.process.run_stdout("chown -R radiusd.radiusd /var/run/radiusd")
+    context.process.run_stdout("chown -R radiusd:radiusd /var/run/radiusd")
     if context.process.systemctl("is-active radiusd").returncode == 0:
         context.process.systemctl("stop radiusd")
     context.process.run_stdout(
