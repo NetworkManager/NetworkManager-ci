@@ -168,6 +168,8 @@ class _Misc:
             testname = list(test.keys())[0]
             test = test[testname]
             test["testname"] = testname
+            if testname.startswith("gsm_hub"):
+                test["feature"] = "gsm"
             return test
 
         mapper_tests = [
