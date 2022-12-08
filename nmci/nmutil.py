@@ -135,7 +135,7 @@ class _NMUtil:
         )
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
-        self.wait_for_nm_bus(timeout)
+            self.wait_for_nm_bus(timeout)
         return r.returncode == 0
 
     def stop_NM_service(self):
