@@ -2,8 +2,8 @@
 
 set -x
 
-# redirect stdout+stderr into stdout and logger
-exec &> >(tee - >(logger -t "runtest"))
+# redirect stdout+stderr into stdout and logger (force line buffering)
+stdbuf -oL -eL exec &> >(tee - >(logger -t "runtest"))
 
 die() {
     printf '%s\n' "$*"
