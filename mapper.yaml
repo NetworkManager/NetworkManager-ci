@@ -3027,7 +3027,7 @@ testmapper:
         timeout: 60m
         # We do not want to tun these test by default
         # feature: gsm
-        tags: jimtcl libmbim libqmi ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
+        tags: jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
 
   NetworkManager-wifi:
     - nmcli_wifi_wpa1_peap_mschapv2:
