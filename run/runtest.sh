@@ -277,6 +277,8 @@ fi
 
 logger -t $0 "Test $TAG finished with result $RESULT: $rc"
 
+cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
+
 echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
 echo "------------ Test result: $RESULT ------------"
 exit $rc
