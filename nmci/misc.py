@@ -716,75 +716,63 @@ class _Misc:
         info["dns_plugin"] = dns_plugin
         return info
 
-    def html_report_tag_links(self, scenario_el):
+    def html_report_tag_links(self):
+
+        if not nmci.embed.has_html_formatter():
+            return
+
+        scenario = nmci.embed.get_current_scenario()
+        if not scenario:
+            return
+
+        html_tags = scenario.tags
         from . import tags
 
-        tags_el = scenario_el.find(".//span[@class='tag']")
         try:
             git_url = nmci.git.config_get_origin_url()
             git_commit = nmci.git.rev_parse("HEAD")
         except Exception:
             git_url = None
             git_commit = None
-        if tags_el is not None:
-            tags_list = tags_el.text.split(" ")
-            tags_el.text = ""
-            for tag in tags_list:
-                if tag.startswith("@rhbz"):
-                    link = ET.SubElement(
-                        tags_el,
-                        "a",
-                        {
-                            "href": "https://bugzilla.redhat.com/"
-                            + tag.replace("@rhbz", "").strip(", "),
-                            "target": "_blank",
-                            "style": "color:inherit",
-                        },
-                    )
-                    link.text = tag
-                elif tag.strip("@, ") in tags.tag_registry and git_url:
-                    lineno = tags.tag_registry[tag.strip("@, ")].lineno
-                    link = ET.SubElement(
-                        tags_el,
-                        "a",
-                        {
-                            "href": f"{git_url}/-/tree/{git_commit}/nmci/tags.py#L{lineno}",
-                            "target": "_blank",
-                            "style": "color:inherit",
-                        },
-                    )
-                    link.text = tag
-                else:
-                    tag_el = ET.SubElement(tags_el, "span")
-                    tag_el.text = tag
 
-    def html_report_file_links(self, scenario_el):
+        for tag in html_tags:
+
+            if tag.behave_tag.startswith("@rhbz"):
+                tag.set_link(
+                    "https://bugzilla.redhat.com/" + tag.behave_tag.replace("@rhbz", "")
+                )
+            elif tag.behave_tag.lstrip("@") in tags.tag_registry and git_url:
+                tag_name = tag.behave_tag.lstrip("@")
+                lineno = tags.tag_registry[tag_name].lineno
+                tag.set_link(f"{git_url}/-/tree/{git_commit}/nmci/tags.py#L{lineno}")
+            else:
+                lineno = scenario.location.line
+                filename = scenario.location.filename
+                tag.set_link(f"{git_url}/-/tree/{git_commit}/{filename}#L{lineno}")
+
+    def html_report_file_links(self):
+
+        if not nmci.embed.has_html_formatter():
+            return
+
+        scenario = nmci.embed.get_current_scenario()
+        if not scenario:
+            return
+
         try:
             git_url = nmci.git.config_get_origin_url()
             git_commit = nmci.git.rev_parse("HEAD")
         except Exception:
             return
-        url_base = f"{git_url}/-/tree/{git_commit}/"
-        file_els = [scenario_el.find(".//span[@class='scenario_file']")]
-        file_els += scenario_el.findall(".//div[@class='step_file']/span")
 
-        for file_el in file_els:
-            if file_el is not None:
-                if file_el.text == "<unknown>":
-                    # this happens if the behave step was not found.
-                    continue
-                file_name, line = file_el.text.split(":", 2)
-                link = ET.SubElement(
-                    file_el,
-                    "a",
-                    {
-                        "href": url_base + file_name + "#L" + line,
-                        "target": "_blank",
-                        "style": "color:inherit",
-                    },
-                )
-                link.text = file_el.text
-                file_el.text = ""
+        url_base = f"{git_url}/-/tree/{git_commit}/"
+
+        for step in scenario.steps:
+            if ":" not in step.location:
+                continue
+            filename = step.location.rsplit(":", 1)[0]
+            lineno = step.location.split(":")[-1]
+            step.location_link = url_base + filename + "#L" + lineno
 
     def journal_get_cursor(self):
         m = nmci.process.run_search_stdout(

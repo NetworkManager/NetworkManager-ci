@@ -51,15 +51,6 @@ def before_scenario(context, scenario):
 
 def _before_scenario(context, scenario):
     time_begin = time.time()
-    context.before_scenario_step_el = ET.Element(
-        "li", {"class": "step passed", "style": "margin-bottom:1rem;"}
-    )
-    ET.SubElement(context.before_scenario_step_el, "b").text = "Before scenario"
-    duration_el = ET.SubElement(
-        context.before_scenario_step_el, "small", {"class": "step_duration"}
-    )
-    embed_el = ET.SubElement(context.before_scenario_step_el, "div")
-    nmci.embed._html_formatter.actual["act_step_embed_span"] = embed_el
 
     # set important context attributes
     assert not nmci.cleanup._cleanup_lst
@@ -152,23 +143,26 @@ def _before_scenario(context, scenario):
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
     print(f"before_scenario ... {status} in {duration:.3f}s")
-    duration_el.text = f"({duration:.3f}s)"
 
     nmci.crash.check_crash(context, "crash outside steps (before scenario)")
-
-    if context.cext.scenario_skipped:
-        nmci.embed._html_formatter.scenario(scenario)
-        context.before_scenario_step_el.set("class", "step skipped")
 
     if excepts:
         # reset skipped flag, so we do not skip fail
         context.cext.scenario_skipped = False
-        context.before_scenario_step_el.set("class", "step failed")
         nmci.embed.embed_data(
             "Exception in before scenario tags",
             "\n\n".join(excepts),
         )
+        nmci.embed.before_scenario_finish("failed")
+        nmci.embed.after_step()
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
+
+    elif context.cext.scenario_skipped:
+        nmci.embed.before_scenario_finish("skipped")
+        nmci.embed.scenario(scenario)
+    else:
+        nmci.embed.before_scenario_finish("passed")
+        nmci.embed.after_step()
 
 
 def before_step(context, step):
@@ -219,6 +213,8 @@ def after_step(context, step):
 
     nmci.crash.check_crash(context, step.name)
 
+    nmci.embed.after_step()
+
 
 # print exception traceback
 def after_scenario(context, scenario):
@@ -232,18 +228,9 @@ def after_scenario(context, scenario):
 
 def _after_scenario(context, scenario):
     time_begin = time.time()
-    context.after_scenario_step_el = ET.Element(
-        "li", {"class": "step passed", "style": "margin-top:1rem;"}
-    )
-    ET.SubElement(context.after_scenario_step_el, "b").text = "After scenario"
-    duration_el = ET.SubElement(
-        context.after_scenario_step_el, "small", {"class": "step_duration"}
-    )
-    embed_el = ET.SubElement(context.after_scenario_step_el, "div")
-    nmci.embed._html_formatter.actual["act_step_embed_span"] = embed_el
 
-    nmci.misc.html_report_tag_links(nmci.embed._html_formatter.scenario_el)
-    nmci.misc.html_report_file_links(nmci.embed._html_formatter.scenario_el)
+    nmci.misc.html_report_tag_links()
+    nmci.misc.html_report_file_links()
 
     skipped = context.cext.scenario_skipped
 
@@ -337,21 +324,16 @@ def _after_scenario(context, scenario):
         excepts.append("Skip in after_scenario() detected.")
 
     if excepts or context.crashed_step:
-        context.after_scenario_step_el.set("class", "step failed")
         # reset skip flag, so we do not skip fail
         context.cext.scenario_skipped = False
     if excepts:
         nmci.embed.embed_data("Exception in after scenario tags", "\n\n".join(excepts))
 
-    # add Before/After scenario steps to HTML
-    nmci.embed._html_formatter.steps.insert(0, context.before_scenario_step_el)
-    nmci.embed._html_formatter.steps.append(context.after_scenario_step_el)
-
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
     print(f"after_scenario ... {status} in {duration:.3f}s")
 
-    duration_el.text = f"({duration:.3f}s)"
+    nmci.embed.after_scenario_finish(status)
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:
