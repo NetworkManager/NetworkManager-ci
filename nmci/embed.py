@@ -19,7 +19,7 @@ MODULES_TO_SKIP = ["Tags"]
 
 class Embed:
 
-    EmbedContext = collections.namedtuple("EmbedContext", ["count", "html_el"])
+    EmbedContext = collections.namedtuple("EmbedContext", ["count", "embed_data"])
 
     def __init__(self, fail_only=False, combine_tag=None):
         self.fail_only = fail_only
@@ -63,6 +63,9 @@ class _Embed:
         self.coredump_reported = False
         self._embed_count = 0
         self._to_embed = []
+        self._html_formatter = None
+        self._set_title = None
+        self._combine_tags = {}
 
         self.Embed = Embed
         self.EmbedData = EmbedData
@@ -77,21 +80,63 @@ class _Embed:
                 continue
             if hasattr(formatter, "set_title"):
                 self._set_title = formatter.set_title
-            if hasattr(formatter, "embedding"):
+            if hasattr(formatter, "embed"):
                 self._html_formatter = formatter
 
-    def get_embed_context(self):
+    def get_embed_context(self, combine_tag):
+        if combine_tag == NO_EMBED:
+            return Embed.EmbedContext(-1, None)
+
         self._embed_count += 1
         count = self._embed_count
 
-        html_el = None
-        if hasattr(self, "_html_formatter"):
-            html_el = self._html_formatter.actual["act_step_embed_span"]
-        return Embed.EmbedContext(count, html_el)
+        embed_data = None
+        if combine_tag in self._combine_tags:
+            embed_data = self._combine_tags[combine_tag]
+        elif self._html_formatter:
+            embed_data = self._html_formatter.embed("text/plain", "", combine_tag or "")
+            if combine_tag:
+                self._combine_tags[combine_tag] = embed_data
+        return Embed.EmbedContext(count, embed_data)
+
+    def after_step(self):
+        self._combine_tags = {}
 
     def set_title(self, *a, **kw):
-        if hasattr(self, "_set_title"):
+        if self._set_title:
             self._set_title(*a, *kw)
+
+    def has_html_formatter(self):
+        return self._html_formatter is not None
+
+    def get_current_scenario(self):
+        if self._html_formatter is None:
+            return None
+        return self._html_formatter.current_scenario
+
+    def before_scenario_finish(self, status):
+        """
+        This is needed as last call of `before_scenario()`
+        The purpose of this is to separate embeds between
+        scenarios correctly, provide status to the formatter
+        and formatter also computes time spend. It is harmless
+        when formatter is not using pseudo steps.
+        """
+        if self._html_formatter is None:
+            return
+        self._html_formatter.before_scenario_finish(status)
+
+    def after_scenario_finish(self, status):
+        """
+        This is needed as last call of `after_scenario()`
+        The purpose of this is to separate embeds between
+        scenarios correctly, provide status to the formatter
+        and formatter also computes time spend. It is harmless
+        when formatter is not using pseudo steps.
+        """
+        if self._html_formatter is None:
+            return
+        self._html_formatter.after_scenario_finish(status)
 
     def _get_module_from_trace(self):
         module = "Commands"
@@ -108,24 +153,16 @@ class _Embed:
 
     def _embed_queue(self, entry, embed_context=None):
 
-        if embed_context is None:
-            embed_context = self.get_embed_context()
+        if embed_context is None and self._html_formatter:
+            embed_context = self.get_embed_context(entry.combine_tag)
 
         entry._embed_context = embed_context
 
         self._to_embed.append(entry)
 
-    def _embed_args(self, html_el, mime_type, data, caption):
-
-        if hasattr(self, "_html_formatter"):
-            self._html_formatter._doEmbed(html_el, mime_type, data, caption)
-            if mime_type == "link":
-                # list() on ElementTree returns children
-                last_embed = list(html_el)[-1]
-                for a_tag in last_embed.findall("a"):
-                    if a_tag.get("href", "").startswith("data:"):
-                        a_tag.set("download", a_tag.text)
-            ET.SubElement(html_el, "br")
+    def _embed_args(self, embed_data, mime_type, data, caption):
+        if embed_data:
+            embed_data.set_data(mime_type, data, caption)
 
         if os.environ.get("NMCI_SHOW_EMBED") == "1":
             print(f">>>> EMBED[{mime_type}]: {caption}")
@@ -155,13 +192,13 @@ class _Embed:
             scenario_fail, entry.fail_only, mime_type, data
         )
         self._embed_args(
-            entry._embed_context.html_el,
+            entry._embed_context.embed_data,
             mime_type,
             data,
             f"({entry._embed_context.count}) {caption}",
         )
 
-    def _embed_combines(self, scenario_fail, combine_tag, html_el, lst):
+    def _embed_combines(self, scenario_fail, combine_tag, embed_data, lst):
         import nmci.misc
 
         counts = nmci.misc.list_to_intervals(
@@ -177,7 +214,7 @@ class _Embed:
             )
             message += f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}\n"
         message += f"{'-'*50}\n"
-        self._embed_args(html_el, "text/plain", message, main_caption)
+        self._embed_args(embed_data, "text/plain", message, main_caption)
 
     def process_embeds(self, scenario_fail):
         import nmci.util
@@ -191,7 +228,7 @@ class _Embed:
             if combine_tag is None:
                 self._embed_one(scenario_fail, entry)
                 continue
-            key = (combine_tag, entry._embed_context.html_el)
+            key = (combine_tag, entry._embed_context.embed_data)
             lst = combines_dict.get(key, None)
             if lst is None:
                 lst = []

@@ -74,7 +74,7 @@ call_behave() {
         TAGS+=("-t" "$a")
     done
 
-    behave "$FEATURE_FILE" "${TAGS[@]}" -k -f html -o "$NMTEST_REPORT" -f plain
+    behave "$FEATURE_FILE" "${TAGS[@]}" -k -f html-pretty -o "$NMTEST_REPORT" -f plain
 }
 
 ###############################################################################

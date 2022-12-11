@@ -32,6 +32,10 @@ install_packages () {
         if [ $need_abrt == "yes" ]; then
             enable_abrt
         fi
+
+        # install formatter html-pretty
+        python3 -m pip install behave-html-pretty-formatter
+
         touch /tmp/nm_packages_installed
     fi
 }

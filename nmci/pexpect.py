@@ -136,7 +136,9 @@ class _PExpect:
             shell=shell,
         )
 
-        data = PexpectData(False, proc, logfile, nmci.embed.get_embed_context(), label)
+        data = PexpectData(
+            False, proc, logfile, nmci.embed.get_embed_context("Commands"), label
+        )
 
         # These get killed at the end of the step by process_pexpect_spawn().
         self._pexpect_spawn_lst.append(data)
@@ -170,7 +172,9 @@ class _PExpect:
             shell=shell,
         )
 
-        data = PexpectData(True, proc, logfile, nmci.embed.get_embed_context(), label)
+        data = PexpectData(
+            True, proc, logfile, nmci.embed.get_embed_context("Commands"), label
+        )
 
         self._pexpect_service_lst.append(data)
 

@@ -422,7 +422,7 @@ def gsm_bs(context, scenario):
     # Extract modem's identification and keep it in a global variable for further use.
     # Only 1 modem is expected per test.
     context.modem_str = nmci.gsm.find_modem(context)
-    nmci.embed.set_title(" - " + context.modem_str, append=True)
+    scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):
         context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
