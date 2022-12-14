@@ -396,18 +396,19 @@ Feature: nmcli - procedures in documentation
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
     #   - el8: https://bugzilla.redhat.com/show_bug.cgi?id=2064284
-    @permissive
+    @permissive @firewall
     @8021x_hostapd_freeradius_doc_procedure
     Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
     ### 1. Setting up the bridge on the authenticator
     * Add "bridge" connection named "br0" for device "br0" with options
             """
             con-name br0
-            group-forward-mask 8 connection.autoconnect-slaves 1
+            bridge.group-forward-mask 8 connection.autoconnect-slaves 1
             ipv4.method disabled ipv6.method disabled
             stp off forward-delay 2
             """
-    * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0"
+    # Sometimes we need to avoid too many EAPOLs to hit hostapd, drop zone to bridge seems to be doing it correctly
+    * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0 connection.zone drop"
     # bridge port to have access limited by 802.1x auth
     * Execute "ip l add test1 type veth peer name test1b"
     * Execute "ip l set dev test1b up"
