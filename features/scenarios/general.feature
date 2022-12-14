@@ -1999,7 +1999,6 @@ Feature: nmcli - general
 
     @rhbz2122564
     @ver+=1.41.0
-    @xfail
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_reboot
     Scenario: NM - general - MACsec PSK
@@ -2031,7 +2030,6 @@ Feature: nmcli - general
 
     @rhbz2122564
     @ver+=1.41.0
-    @xfail
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_vlan_reboot
     Scenario: NM - general - MACsec PSK on VLAN
