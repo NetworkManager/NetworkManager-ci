@@ -2796,6 +2796,25 @@ Feature: nmcli: ipv4
     And "testX4" is not visible with command "ip route ls table 1000" in "10" seconds
 
 
+    @rhbz2117352
+    @ver+=1.41.7
+    @ipv4_dhcp_reapply_keep_lease
+    Scenario: nmcli - ipv4 - reapply device with DHCP and keep lease
+    * Prepare simulated test "testX4" device
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.method auto
+          ipv4.may-fail no
+          """
+    * Bring "up" connection "con_ipv4"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
+    * Run child "ip -4 monitor addr dev testX4"
+    * Modify connection "con_ipv4" changing options "ipv4.routes 172.25.67.89"
+    * Execute "nmcli device reapply testX4"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
+    And Do not expect "Deleted" in children in "2" seconds
+
+
     @rhbz2047788
     @ver+=1.32.7
     @ipv4_required_timeout_set
