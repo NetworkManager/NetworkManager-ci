@@ -1112,6 +1112,8 @@ testmapper:
         feature: ipv4
     - ipv4_route-table_reapply:
         feature: ipv4
+    - ipv4_dhcp_reapply_keep_lease:
+        feature: ipv4
     - ipv4_required_timeout_set:
         feature: ipv4
     - ipv4_check_addr_order:
