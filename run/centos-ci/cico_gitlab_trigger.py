@@ -21,6 +21,7 @@ class GitlabTrigger(object):
     def __init__(self, data, config_files=["/tmp/python-gitlab.cfg"]):
         self.data = data
         # If we don't have python-gitlab we can still use object for parsing
+        self.gl_project = None
         try:
             import gitlab
 
@@ -109,12 +110,22 @@ class GitlabTrigger(object):
         return wip
 
     @property
+    def latest_main_commit(self):
+        if self.gl_project is None:
+            return None
+        branch = self.gl_project.branches.get('main')
+        commit_id = branch.commit["id"]
+        return commit_id
+
+    @property
     def commit(self):
         commit = None
         if self.request_type == "note":
             commit = self.data["merge_request"]["last_commit"]["id"].strip()
         elif self.request_type == "merge_request":
             commit = self.data["object_attributes"]["last_commit"]["id"].strip()
+        if commit == self.latest_main_commit:
+            commit = None
         return commit
 
     @property
@@ -334,6 +345,9 @@ def execute_build(gt, content, os_version=default_os, features="best", build="ma
 
 def process_request(data, content):
     gt = GitlabTrigger(data)
+    if gt.commit is None:
+        print("Skipping empty MR")
+        return
     if gt.request_type == "note":
         params, _ = get_rebuild_detail(gt.description + "\n" + gt.commit_message)
         comment = gt.comment
