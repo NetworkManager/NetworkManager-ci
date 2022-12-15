@@ -96,7 +96,7 @@ function gsm_hub_runtest () {
 
     # Create unique IDs of embedded sections in the HTML report.
     # Allow joining of two or more reports with collapsible sections.
-    sed -i -e "s/embed_/${MODEM_INDEX}_${TEST_NAME}_embed_/g" /tmp/report.html
+    sed -i -e "s/embed_\([0-9]\+\)/embed_${MODEM_INDEX}_${TEST_NAME}_\1/g" /tmp/report.html
     return $rc
 }
 
