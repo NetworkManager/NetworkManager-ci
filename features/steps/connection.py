@@ -2,19 +2,7 @@ import pexpect
 import time
 from behave import step  # pylint: disable=no-name-in-module
 
-
 import nmci
-
-
-@step('Add "{vpn}" VPN connection named "{name}" for device "{ifname}"')
-def add_vpnc_connection_for_iface(context, name, ifname, vpn):
-    cli = context.pexpect_spawn('nmcli connection add con-name %s type vpn ifname %s vpn-type %s' % (name, ifname, vpn))
-    r = cli.expect(['Error', pexpect.EOF])
-    time.sleep(1)
-    assert r != 0, 'Got an Error while adding %s connection %s for device %s\n%s%s' % (vpn, name, ifname, cli.after, cli.buffer)
-
-    nmci.cleanup.cleanup_add_connection(name)
-
 
 @step(u'Add "{typ}" connection with options')
 @step(u'Add "{typ}" connection with options "{options}"')
