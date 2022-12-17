@@ -109,7 +109,7 @@
     Scenario: nmcli - vpn - activate asking for password with delay
     * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
     * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
-    * Connect to vpn "libreswan" with password "passwd" with timeout "40"
+    * Connect to vpn "libreswan" with password "passwd" after "40" seconds
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" in "120" seconds
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"

@@ -137,7 +137,7 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
 
 
 @step(u'Connect to vpn "{vpn}" with password "{password}"')
-@step(u'Connect to vpn "{vpn}" with password "{password}" with timeout "{time_out}"')
+@step(u'Connect to vpn "{vpn}" with password "{password}" after "{time_out}" seconds')
 @step(u'Connect to vpn "{vpn}" with password "{password}" and secret "{secret}"')
 def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
     cli = context.pexpect_spawn('nmcli -a connect up %s' % (vpn), timeout=180)
