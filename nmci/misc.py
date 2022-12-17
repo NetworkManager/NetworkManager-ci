@@ -902,3 +902,9 @@ class _Misc:
 
     def format_duration(self, seconds):
         return f"{seconds:.3f}s"
+
+    def format_dict(self, values, connector=" = ", separator=", "):
+        parts = []
+        for key, value in values.items():
+            parts.append(f"{key}{connector}{value}")
+        return separator.join(parts)

@@ -710,6 +710,23 @@ def test_misc_list_to_intervals():
     assert lst_str == "3..5"
 
 
+def test_misc_format_dict():
+    dct = {"a": "x", "b": "y"}
+    dct_str = nmci.misc.format_dict(dct)
+    assert dct_str == "a = x, b = y"
+
+    dct_str = nmci.misc.format_dict(dct, connector=":", separator=";")
+    assert dct_str == "a:x;b:y"
+
+    dct = {"a": "x"}
+    dct_str = nmci.misc.format_dict(dct)
+    assert dct_str == "a = x"
+
+    dct = {}
+    dct_str = nmci.misc.format_dict(dct)
+    assert dct_str == ""
+
+
 def test_feature_tags():
 
     from . import tags
