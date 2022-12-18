@@ -727,6 +727,39 @@ def test_misc_format_dict():
     assert dct_str == ""
 
 
+def test_misc_str_replace_dict():
+    dct = {"a": "x", "b": "y", "ab": "hey"}
+    result_str = nmci.misc.str_replace_dict("Hello <noted:a>, I am <noted:b>.", dct)
+    assert result_str == "Hello x, I am y."
+
+    result_str = nmci.misc.str_replace_dict(
+        "Hello <d:a>, I am <d:b>.", dct, dict_name="d"
+    )
+    assert result_str == "Hello x, I am y."
+
+    result_str = nmci.misc.str_replace_dict(
+        "Hello <d:a>, I am <x:ab>.", dct, dict_name="d"
+    )
+    assert result_str == "Hello x, I am <x:ab>."
+    result_str = nmci.misc.str_replace_dict(result_str, dct, dict_name="x")
+    assert result_str == "Hello x, I am hey."
+
+    # empty dict, nothing to replace
+    assert nmci.misc.str_replace_dict("do not change", {}) == "do not change"
+
+    # invalid key
+    with pytest.raises(AssertionError):
+        result_str = nmci.misc.str_replace_dict(
+            "Hello <d:z>, I am <d:b>.", dct, dict_name="d"
+        )
+
+    # unterminated sequence
+    with pytest.raises(AssertionError):
+        result_str = nmci.misc.str_replace_dict(
+            "Hello <d:a, I am <d:b>.", dct, dict_name="d"
+        )
+
+
 def test_feature_tags():
 
     from . import tags

@@ -908,3 +908,18 @@ class _Misc:
         for key, value in values.items():
             parts.append(f"{key}{connector}{value}")
         return separator.join(parts)
+
+    def str_replace_dict(self, text, values, dict_name="noted"):
+        result = []
+        text_split = text.split(f"<{dict_name}:")
+        result = [text_split[0]]
+        del text_split[0]
+        for part in text_split:
+            try:
+                dict_key, rest = part.split(">", 1)
+            except ValueError:
+                assert False, f"Unterminated <{dict_name}:...> sequence:\n{text}"
+            assert dict_key in values, f"Value for '{dict_key}' is not in {dict_name}"
+            result.append(values[dict_key])
+            result.append(rest)
+        return "".join(result)
