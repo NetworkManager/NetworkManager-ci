@@ -252,6 +252,7 @@ Feature: nmcli: connection
     @restart_if_needed
     @ifcfg_parse_options_with_comment
     Scenario: ifcfg - connection - parse options with comments
+     * Cleanup connection "con_con"
      * Execute "echo 'DEVICE=eth5' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "echo 'NAME=con_con' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
      * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_con"
@@ -265,6 +266,8 @@ Feature: nmcli: connection
     @restart_if_needed
     @ifcfg_compliant_with_kickstart
     Scenario: ifcfg - connection - pykickstart compliance
+    * Cleanup connection "con_con"
+    * Cleanup connection "con_con2"
     * Append "UUID='8b4753fb-c562-4784-bfa7-f44dc6581e73'" to ifcfg file "con_con2"
     * Append "DNS1='192.0.2.1'" to ifcfg file "con_con2"
     * Append "IPADDR='192.0.2.2'" to ifcfg file "con_con2"
