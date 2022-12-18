@@ -395,6 +395,7 @@ class _Process:
         env_extra=None,
         ignore_returncode=False,
         ignore_stderr=False,
+        ignore_stdout_error=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
         if isinstance(argv, str):
@@ -402,7 +403,7 @@ class _Process:
         else:
             argv = ["nmcli", *argv]
 
-        return self._run(
+        result = self._run(
             argv,
             shell=False,
             as_bytes=as_bytes,
@@ -416,6 +417,17 @@ class _Process:
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
         ).stdout
+
+        if not ignore_stdout_error:
+            error = re.search(
+                r"error.*", result, flags=re.IGNORECASE | re.DOTALL | re.MULTILINE
+            )
+            if error is not None:
+                raise Exception(
+                    f"`{argv}` printed 'Error' on stdout\nSTDOUT:\n{result}"
+                )
+
+        return result
 
     def nmcli_force(
         self,
