@@ -426,6 +426,12 @@ class _Process:
                 raise Exception(
                     f"`{argv}` printed 'Error' on stdout\nSTDOUT:\n{result}"
                 )
+            # do not re.IGNORECASE with Timeout, as timeout is used in `nmcli c show id ...`
+            time_out = re.search(r"Timeout.*", result, flags=re.DOTALL | re.MULTILINE)
+            if time_out is not None:
+                raise Exception(
+                    f"`{argv}` printed 'Timeout' on stdout\nSTDOUT:\n{result}"
+                )
 
         return result
 
