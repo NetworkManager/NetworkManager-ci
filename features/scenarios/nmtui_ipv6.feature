@@ -149,7 +149,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * Remove all "Addresses" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "fc01::1:5/68" is not visible with command "ip a s eth10"
     Then "dynamic" is visible with command "ip -6 a s eth10" in "45" seconds
 
@@ -235,8 +235,8 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * Remove all routes
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
-    * Bring up connection "ethernet2"
+    * Bring "up" connection "ethernet1"
+    * Bring "up" connection "ethernet2"
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
@@ -276,8 +276,8 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * Remove all routes
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
-    * Bring up connection "ethernet2"
+    * Bring "up" connection "ethernet1"
+    * Bring "up" connection "ethernet2"
     Then "2000::2/126" is visible with command "ip a s eth1"
     Then "2001::1/126" is visible with command "ip a s eth2"
     Then "1010::1 via 2000::1 dev eth1\s+proto static\s+metric 1" is not visible with command "ip -6 route"
@@ -298,7 +298,7 @@ Feature: IPv6 TUI tests
     * Add ip route "1010::1/128 :: 110"
     * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 256" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 1" is visible with command "ip -6 route"
@@ -316,7 +316,7 @@ Feature: IPv6 TUI tests
     * Add ip route "1010::1/128 :: 110"
     * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then "3030::1 via 2001::2 dev eth1\s+proto static\s+metric 111" is visible with command "ip -6 route"
     Then "2001::/126 dev eth1\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
     Then "1010::1 dev eth1\s+proto static\s+metric 110" is visible with command "ip -6 route"
@@ -460,7 +460,7 @@ Feature: IPv6 TUI tests
     * Set "DNS servers" field to "4000::1"
     * In this property also add "5000::1"
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Nameserver "4000::1" is set in "10" seconds
     Then Nameserver "5000::1" is set in "10" seconds
 
@@ -480,7 +480,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * Remove all "DNS servers" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Nameserver "4000::1" is not set
     Then Nameserver "5000::1" is not set
 
@@ -508,7 +508,7 @@ Feature: IPv6 TUI tests
     * Come in "IPv6 CONFIGURATION" category
     * Remove all "Search domains" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Domain "heaven.com" is not set
 
 
@@ -555,7 +555,7 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Ignore"
     * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then "IPV6INIT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet1"
     Then "inet6 ((?!fe80).)" is not visible with command "ip -6 a s eth1"
 

@@ -281,7 +281,7 @@ Feature: nmcli - procedures in documentation
           """
     * Modify connection "test-macsec" changing options "ipv4.method manual ipv4.addresses '172.16.10.5/24' ipv4.gateway '172.16.10.1' ipv4.dns '172.16.10.1'"
     * Modify connection "test-macsec" changing options "ipv6.method manual ipv6.addresses '2001:db8:1::1/32' ipv6.gateway '2001:db8:1::fffe' ipv6.dns '2001:db8:1::fffe'"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
     Then Ping6 "2001:db8:1::fffe"
 
@@ -297,7 +297,7 @@ Feature: nmcli - procedures in documentation
     * Modify connection "server-wg0" changing options "wireguard.listen-port 51820"
     * Execute "echo -e '[wireguard-peer.bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=]\nallowed-ips=192.0.2.2;2001:db8:1::2;' >> /etc/NetworkManager/system-connections/server-wg0.nmconnection"
     * Reload connections
-    * Bring up connection "server-wg0"
+    * Bring "up" connection "server-wg0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show server-wg0" in "40" seconds
      Then "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=" is visible with command "wg show wg0"
       And "inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0" is visible with command "ip address show wg0"
@@ -313,7 +313,7 @@ Feature: nmcli - procedures in documentation
     * Modify connection "client-wg0" changing options "ipv4.method manual wireguard.private-key 'aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A='"
     * Execute "echo -e '[wireguard-peer.UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=]\nendpoint=192.0.2.1:51820\nallowed-ips=192.0.2.1;2001:db8:1::1;\npersistent-keepalive=20' >> /etc/NetworkManager/system-connections/client-wg0.nmconnection"
     * Reload connections
-    * Bring up connection "client-wg0"
+    * Bring "up" connection "client-wg0"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show client-wg0" in "40" seconds
      Then "192.0.2.1:51820" is visible with command "wg show wg1"
       And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
@@ -385,7 +385,7 @@ Feature: nmcli - procedures in documentation
           remote 203.0.113.1
           master br88
           """
-    * Bring up connection "br88"
+    * Bring "up" connection "br88"
     * Execute "firewall-cmd --permanent --add-port=8472/udp"
     * Execute "firewall-cmd --reload"
     Then "master br4 permanent" is visible with command "bridge fdb show dev vxlan10"
@@ -436,7 +436,7 @@ Feature: nmcli - procedures in documentation
             """
     # Just in case a bit of time to settle
     * Wait for "1" seconds
-    When Bring up connection "test1-ttls"
+    When Bring "up" connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
     ### .7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
@@ -454,7 +454,7 @@ Feature: nmcli - procedures in documentation
             802-1x.auth-timeout 75 connection.auth-retries 5
             """
     * Wait for "1" seconds
-    When Bring up connection "test1-tls"
+    When Bring "up" connection "test1-tls"
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"
     ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
@@ -463,15 +463,15 @@ Feature: nmcli - procedures in documentation
     * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
     * Execute "systemctl daemon-reload"
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
-    * Bring up connection "test1-plain"
+    * Bring "up" connection "test1-plain"
     * Execute "systemctl start 802-1x-tr-mgmt.service"
     Then Unable to ping "192.168.100.1" from "test1" device
-    * Bring down connection "test1-plain"
-    * Bring up connection "test1-ttls"
+    * Bring "down" connection "test1-plain"
+    * Bring "up" connection "test1-ttls"
     * Wait for "1" seconds
     Then Ping "192.168.100.1" from "test1" device
     ### Uncomment next steps if https://bugzilla.redhat.com/show_bug.cgi?id=2067124 gets approved, remove if rejected
-    #* Bring down connection "test1-ttls"
+    #* Bring "down" connection "test1-ttls"
     #* Execute "ip l set test1 up; ip a add 192.168.123/24 dev test1"
     #Then Unable to ping "192.168.100.1" from "test1" device
 

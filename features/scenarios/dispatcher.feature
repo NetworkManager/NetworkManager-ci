@@ -72,7 +72,7 @@ Feature: NM: dispatcher
     * Write dispatcher "98-disp" file with params "if [ "$2" == "up" ]; then sleep 15; fi"
     * Write dispatcher "pre-down.d/97-disp" file
     * Bring "up" connection "testeth1"
-    * Bring down connection "testeth1" ignoring error
+    * Bring "down" connection "testeth1" ignoring error
     Then "up" is not visible with command "cat /tmp/dispatcher.txt"
     Then "up.*\s+up.*\s+pre-down.*\s+down" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
@@ -176,7 +176,7 @@ Feature: NM: dispatcher
     * Execute "tc -n testX6_ns qdisc add dev v4 root netem delay 1900ms"
     * Execute "tc -n v4 qdisc add dev veth0 root netem delay 1900ms"
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     * "192.168.99" is visible with command "ip a show testX6" in "10" seconds
     * "/tmp/nmci-no-stub-resolv.conf" is file in "10" seconds
     Then "nameserver 192.168.99.1" is visible with command "cat /tmp/nmci-no-stub-resolv.conf"

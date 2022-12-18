@@ -80,7 +80,7 @@ Feature: nmcli - vlan
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "eth7.299"
+    * Bring "up" connection "eth7.299"
     * "inet 10.42." is visible with command "ifconfig"
     * Delete connection "eth7.299"
     * Wait for "5" seconds
@@ -98,7 +98,7 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * "eth7.99" is not visible with command "ifconfig"
-    * Bring up connection "eth7.99"
+    * Bring "up" connection "eth7.99"
     Then "eth7.99" is visible with command "ifconfig"
 
 
@@ -114,7 +114,7 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     # With no errors
-    Then Bring up connection "eth7.99"
+    Then Bring "up" connection "eth7.99"
      And "1.2.3.4" is not visible with command "ip a s eth7.99"
 
 
@@ -127,9 +127,9 @@ Feature: nmcli - vlan
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "eth7.399"
+    * Bring "up" connection "eth7.399"
     * "inet 10.42." is visible with command "ifconfig"
-    * Bring down connection "eth7.399"
+    * Bring "down" connection "eth7.399"
     Then "inet 10.42." is not visible with command "ifconfig"
 
 
@@ -144,9 +144,9 @@ Feature: nmcli - vlan
     * Submit "yes" in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "eth7.399"
+    * Bring "up" connection "eth7.399"
     * "inet 10.42." is visible with command "ifconfig"
-    * Bring down connection "eth7.399"
+    * Bring "down" connection "eth7.399"
     * Wait for "10" seconds
     Then "inet 10.42." is not visible with command "ifconfig"
 
@@ -160,14 +160,14 @@ Feature: nmcli - vlan
     * Save in editor
     * Quit editor
     * Check value saved message showed in editor
-    * Bring up connection "eth7.65"
+    * Bring "up" connection "eth7.65"
     * "eth7.65@eth7" is visible with command "ip a"
     * Open editor for connection "eth7.65"
     * Set a property named "vlan.id" to "55" in editor
     * Save in editor
     * No error appeared in editor
-    * Bring down connection "eth7.65"
-    * Bring up connection "eth7.65"
+    * Bring "down" connection "eth7.65"
+    * Bring "up" connection "eth7.65"
     * "eth7.55@eth7" is visible with command "ip a"
 
 
@@ -182,8 +182,8 @@ Feature: nmcli - vlan
     * Save in editor
     * Quit editor
     * Check value saved message showed in editor
-    * Bring up connection "eth7.165"
-    * Bring down connection "eth7.165"
+    * Bring "up" connection "eth7.165"
+    * Bring "down" connection "eth7.165"
     * Open editor for connection "eth7.165"
     * Set a property named "vlan.id" to "265" in editor
     * Set a property named "vlan.interface-name" to "eth7.265" in editor
@@ -194,7 +194,7 @@ Feature: nmcli - vlan
     * Quit editor
     * "eth7.265:" is not visible with command "ifconfig"
     * "inet 10.42.0.1" is not visible with command "ifconfig"
-    * Bring up connection "eth7.265"
+    * Bring "up" connection "eth7.265"
     Then "eth7.265:" is visible with command "ifconfig"
     Then "inet 10.42.0.1" is visible with command "ifconfig"
 
@@ -235,7 +235,7 @@ Feature: nmcli - vlan
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "eth7.399"
+    * Bring "up" connection "eth7.399"
     * "inet 10.42." is visible with command "ifconfig"
     * Disconnect device "eth7.399"
     Then "inet 10.42." is not visible with command "ifconfig"
@@ -252,7 +252,7 @@ Feature: nmcli - vlan
     * Submit "yes" in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "eth7.499"
+    * Bring "up" connection "eth7.499"
     * "inet 10.42." is visible with command "ifconfig"
     * Disconnect device "eth7.499"
     Then "inet 10.42." is not visible with command "ifconfig"
@@ -349,14 +349,14 @@ Feature: nmcli - vlan
     * Modify connection "vlan_bridge7" changing options "bridge.stp no connection.autoconnect yes"
     * Modify connection "vlan_bridge7" changing options "ipv4.method manual ipv4.address '192.168.1.11/24' ipv4.gateway '192.168.1.1'"
     * Modify connection "vlan_bridge7" changing options "ipv4.dns 8.8.8.8 ipv4.dns-search boston.com"
-    * Bring up connection "vlan_bridge7"
+    * Bring "up" connection "vlan_bridge7"
     * Add "bond" connection named "vlan_bond7" for device "bond7" with options "autoconnect no mode active-backup"
     * Modify connection "vlan_bond7" changing options "ipv4.method disabled ipv6.method ignore connection.autoconnect yes"
-    * Bring up connection "vlan_bond7"
+    * Bring "up" connection "vlan_bond7"
     * Add "bond-slave" connection named "vlan_bond7.7" for device "eth7" with options "master bond7"
     * Add "vlan" connection named "vlan_vlan7" for device "vlan7" with options "autoconnect no dev bond7 id 7"
     * Modify connection "vlan_vlan7" changing options "connection.master bridge7 connection.slave-type bridge connection.autoconnect yes"
-    * Bring up connection "vlan_vlan7"
+    * Bring "up" connection "vlan_vlan7"
     # Check all is up
     * "connected:vlan_bond7.7" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
     # Delete bridge and bond outside NM, leaving the vlan device (with its mac set)
@@ -764,7 +764,7 @@ Feature: nmcli - vlan
           ipv4.dhcp-timeout 5
           vlan.parent <noted:vlan1_uuid>
           ipv6.method ignore
-          """
+          """:x
     * Bring "up" connection "vlan1"
     Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "\(connect" is visible with command "nmcli device show eth7.80" in "10" seconds

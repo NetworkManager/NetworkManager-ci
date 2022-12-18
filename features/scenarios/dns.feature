@@ -1237,7 +1237,7 @@ Feature: nmcli - dns
     * Execute "tc -n testX6_ns qdisc add dev v4 root netem delay 1900ms"
     * Execute "tc -n v4 qdisc add dev veth0 root netem delay 1900ms"
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     Then "nameserver 2620:dead:beaf::1" is visible with command "cat /run/NetworkManager/resolv.conf" in "45" seconds
 
 
@@ -1257,7 +1257,7 @@ Feature: nmcli - dns
     * Execute "tc -n testX6_ns qdisc add dev v6 root netem delay 1900ms"
     * Execute "tc -n v6 qdisc add dev veth0 root netem delay 1900ms"
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     Then "nameserver 192.168.99.1" is visible with command "cat /run/NetworkManager/resolv.conf" in "45" seconds
 
 
@@ -1275,5 +1275,5 @@ Feature: nmcli - dns
     * Execute "tc -n testX6_ns qdisc add dev v6 root netem delay 1900ms"
     * Execute "tc -n v6 qdisc add dev veth0 root netem delay 1900ms"
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     Then "nameserver 2620:dead:beaf::1" is visible with command "cat /run/NetworkManager/resolv.conf" in "45" seconds

@@ -133,12 +133,12 @@ Feature: nmcli - wifi
           802-11-wireless-security.psk secret123
           """
     * Wait for "1" seconds
-    * Bring up connection "wpa2-eap"
+    * Bring "up" connection "wpa2-eap"
     Then "wpa2-eap" is visible with command "iw dev wlan0 link" in "3" seconds
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     # Lets make sure that profile keeps secrets after modifications
     * Modify connection "wpa2-eap" changing options "connection.zone trusted"
-    * Bring up connection "wpa2-eap"
+    * Bring "up" connection "wpa2-eap"
     Then "wpa2-eap" is visible with command "iw dev wlan0 link" in "3" seconds
     And "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     And "inet 10" is visible with command "ip a s wlan0"
@@ -249,7 +249,7 @@ Feature: nmcli - wifi
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat123456"
     * Wait for "3" seconds
-    Then Bring up connection "wifi" ignoring error
+    Then Bring "up" connection "wifi" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
 
 
@@ -616,7 +616,7 @@ Feature: nmcli - wifi
           802-11-wireless-security.psk Secret123
           """
     * Wait for "1" seconds
-    Then Bring up connection "wifi" ignoring error
+    Then Bring "up" connection "wifi" ignoring error
     And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
     * Modify connection "wifi" changing options "802-11-wireless-security.psk secret123"
     * Reboot
@@ -781,7 +781,7 @@ Feature: nmcli - wifi
     # Set matching address
     * Note MAC address output for device "wlan0" via ethtool
     * Modify connection "wifi0" property "802-11-wireless.mac-address" to noted value
-    * Bring up connection "wifi0"
+    * Bring "up" connection "wifi0"
     Then "open" is visible with command "iw dev wlan0 link"
     And "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     # Valid inputs
@@ -1040,7 +1040,7 @@ Feature: nmcli - wifi
     @simwifi_remove_connection_while_up
     Scenario: nmcli - wifi - remove connection while up
     * Add "wifi" connection named "wifi0" for device "wlan0" with options "autoconnect off ssid open"
-    * Bring up connection "wifi0"
+    * Bring "up" connection "wifi0"
     When "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     And "open" is visible with command "iw dev wlan0 link"
     * Delete connection "wifi0"
@@ -1051,15 +1051,15 @@ Feature: nmcli - wifi
     @simwifi_set_existing_bssid
     Scenario: nmcli - wifi - set existing bssid
     * Add "wifi" connection named "open" for device "wlan0" with options "autoconnect off ssid open"
-    * Bring up connection "open"
-    * Bring down connection "open"
+    * Bring "up" connection "open"
+    * Bring "down" connection "open"
     * Open editor for connection "open"
     * Note the "802-11-wireless.seen-bssids" property from editor print output
     * Set a property named "802-11-wireless.bssid" to "noted-value" in editor
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "open"
+    * Bring "up" connection "open"
     Then "open" is visible with command "iw dev wlan0 link"
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 

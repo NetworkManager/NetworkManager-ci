@@ -196,7 +196,7 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * Remove all "Addresses" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "192.168.253.101/24" is not visible with command "ip a s eth1"
     Then "192.168.253.102/24" is not visible with command "ip a s eth1"
     Then "192.168.253.103/24" is not visible with command "ip a s eth1"
@@ -262,8 +262,8 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * Remove all routes
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
-    * Bring up connection "ethernet2"
+    * Bring "up" connection "ethernet1"
+    * Bring "up" connection "ethernet2"
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "10" seconds
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is not visible with command "ip route"
     Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route" in "10" seconds
@@ -426,7 +426,7 @@ Feature: IPv4 TUI tests
     * Set "DNS servers" field to "8.8.8.8"
     * In this property also add "8.8.4.4"
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Nameserver "8.8.8.8.*8.8.4.4" is set in "10" seconds
 
 
@@ -444,7 +444,7 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * Remove all "DNS servers" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Nameserver "8.8.8.8" is not set
     Then Nameserver "8.8.4.4" is not set
 
@@ -472,7 +472,7 @@ Feature: IPv4 TUI tests
     * Come in "IPv4 CONFIGURATION" category
     * Remove all "Search domains" property items
     * Confirm the connection settings
-    * Bring up connection "ethernet1"
+    * Bring "up" connection "ethernet1"
     Then Domain "heaven.com" is not set
 
 

@@ -41,7 +41,7 @@ Feature: nmcli - ethernet
     @ethernet_create_ifname_generic_connection
     Scenario: nmcli - ethernet - create ifname generic connection
     * Add "ethernet" connection named "ethos" for device "'*'" with options "autoconnect no"
-    * Bring up connection "ethos"
+    * Bring "up" connection "ethos"
     Then "ethernet\s+connected\s+ethos" is visible with command "nmcli device"
 
 
@@ -49,14 +49,14 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - up
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no ipv4.may-fail no"
     * "inet 192." is not visible with command "ifconfig eth1"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "inet 192." is visible with command "ifconfig eth1"
 
 
     @ethernet_disconnect_device
     Scenario: nmcli - ethernet - disconnect device
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect yes ipv4.may-fail no"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     * "inet 192." is visible with command "ifconfig eth1"
     * Disconnect device "eth1"
     Then "inet 192." is not visible with command "ifconfig eth1"
@@ -96,7 +96,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "eth1:connected:ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "inet 192." is visible with command "ip a s eth1"
 
@@ -106,7 +106,7 @@ Feature: nmcli - ethernet
     Scenario: NM - ethernet - no assumed connection for veth
     * Prepare simulated test "testE" device
     * Add "ethernet" connection named "ethernet" for device "testE" with options "autoconnect no"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     * Restart NM
     Then "testE" is not visible with command "nmcli -f NAME c" in "50" seconds
 
@@ -144,7 +144,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ifconfig eth1"
 
 
@@ -214,7 +214,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "MTU=64" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     Then "inet 192." is visible with command "ifconfig eth1"
 
@@ -229,11 +229,11 @@ Feature: nmcli - ethernet
           ipv6.method disable
           802-3-ethernet.mtu 666
           """
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     When "MTU=666" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     When "666" is visible with command "ip a s eth1"
     * Modify connection "ethernet" changing options "802-3-ethernet.mtu 9000"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     When "MTU=9000" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     When "9000" is visible with command "ip a s eth1"
 
@@ -246,7 +246,7 @@ Feature: nmcli - ethernet
     * Set a property named "802-3-ethernet.mtu" to "666" in editor
     * Save in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "1280" is visible with command "ip a s eth1"
 
 
@@ -259,7 +259,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "inet 192.168.1.10\s+netmask 255.255.255.0" is visible with command "ifconfig eth1"
 
 
@@ -273,7 +273,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "inet6 2607:f0d0:1002:51::4\s+prefixlen 64" is visible with command "ifconfig eth1"
 
 
@@ -288,7 +288,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "inet 192.168.1.10\s+netmask 255.255.255.0" is visible with command "ifconfig eth1"
     Then "inet6 2607:f0d0:1002:51::4\s+prefixlen 64" is visible with command "ifconfig eth1"
 
@@ -302,7 +302,7 @@ Feature: nmcli - ethernet
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "eth1\s+ethernet\s+connected" is visible with command "nmcli device"
 
 
@@ -318,13 +318,13 @@ Feature: nmcli - ethernet
     * Add "ethernet" connection named "ethernet" for device "em1"
     # Wake-on-lan 94 equals to (phy, unicast, multicast, broadcast, magic) alias pumbg
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan 92"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan default"
     * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Restart NM
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     Then Check noted values "wol_now" and "wol_orig" are the same
 
@@ -334,7 +334,7 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - wake-on-lan magic
     * Add "ethernet" connection named "ethernet" for device "em1"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan magic"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em1"
 
 
@@ -343,7 +343,7 @@ Feature: nmcli - ethernet
     Scenario: nmcli - ethernet - wake-on-lan disable
     * Add "ethernet" connection named "ethernet" for device "em1"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan none"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "Wake-on: d" is visible with command "ethtool em1"
 
 
@@ -354,7 +354,7 @@ Feature: nmcli - ethernet
     * Add "ethernet" connection named "ethernet" for device "em1"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
     * Reload connections
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em1"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
@@ -368,7 +368,7 @@ Feature: nmcli - ethernet
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
     * Reload connections
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em1"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
@@ -385,7 +385,7 @@ Feature: nmcli - ethernet
     * Quit editor
     * Bring "down" connection "ethernet"
     * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     #Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
     Then Check noted values "wol_new" and "wol_orig" are the same
@@ -408,7 +408,7 @@ Feature: nmcli - ethernet
           802-1x.private-key-password 1234
           """
     * Execute "nmcli -a con up con_ethernet"
-    Then Bring up connection "con_ethernet"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.33 @rhelver+=8
@@ -474,7 +474,7 @@ Feature: nmcli - ethernet
           802-1x.private-key-password-flags 4
           """
     * Execute "nmcli -a con up con_ethernet"
-    Then Bring up connection "con_ethernet"
+    Then Bring "up" connection "con_ethernet"
 
 
     @ver+=1.6.0
@@ -544,7 +544,7 @@ Feature: nmcli - ethernet
           802-1x.private-key /tmp/certs/test_user.key.enc.pem
           802-1x.private-key-password redhat12345
           """
-    Then Bring up connection "con_ethernet" ignoring error
+    Then Bring "up" connection "con_ethernet" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
 
 

@@ -671,7 +671,7 @@ Feature: nmcli: ipv4
     * Submit "set ipv6.method ignore" in editor
     * Save in editor
     * Quit editor
-    * Bring up connection "con_ipv4" ignoring error
+    * Bring "up" connection "con_ipv4" ignoring error
     Then "\(disconnected\)" is visible with command "nmcli device show eth3" in "5" seconds
 
 
@@ -1788,7 +1788,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     When "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
-    * Bring up connection "con_ipv4" ignoring error
+    * Bring "up" connection "con_ipv4" ignoring error
     When "testD4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
     * Bring "up" connection "con_ipv4"
@@ -1825,7 +1825,7 @@ Feature: nmcli: ipv4
     # Verify that ARP reply is received on DAD request
     * "Unicast reply from 192.168.123.40" is visible with command "arping -D -I dad 192.168.123.40"
     * Run child "tshark -n -l -i dad 'arp or port 67 or port 68' > /tmp/tshark.log"
-    When Bring up connection "test" ignoring error
+    When Bring "up" connection "test" ignoring error
     Then "192.168.123.40" is not visible with command "ip a show dev dad"
     And Execute "grep -q "DHCPDECLINE(dhcp) 192.168.123.40 $(</tmp/dad-mac)" /tmp/dnsmasq_ip4.log"
 
@@ -1902,7 +1902,7 @@ Feature: nmcli: ipv4
           ipv6.method manual
           ipv6.addresses 1::1/128
           """
-    * Bring up connection "tc1" ignoring error
+    * Bring "up" connection "tc1" ignoring error
      And Bring "up" connection "tc2"
      And Note the output of "pidof NetworkManager" as value "2"
      And Check noted values "1" and "2" are the same
@@ -1914,7 +1914,7 @@ Feature: nmcli: ipv4
     @ipv4_do_not_remove_second_ip_route
     Scenario: nmcli - ipv4 - do not remove secondary ip subnet route
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no"
-    * Bring up connection "con_ipv4"
+    * Bring "up" connection "con_ipv4"
     * "192.168" is visible with command "ip a s eth3" in "20" seconds
     * "dev eth3\s+proto kernel\s+scope link" is visible with command "ip route"
     * Add a secondary address to device "eth3" within the same subnet

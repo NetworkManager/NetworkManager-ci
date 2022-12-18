@@ -633,7 +633,7 @@
      * Bring "down" connection "bond0.1"
      * Disconnect device "nm-bond"
      Then Check bond "nm-bond" link state is "down"
-     * Bring up connection "bond0" ignoring error
+     * Bring "up" connection "bond0" ignoring error
      Then Check bond "nm-bond" state is "up"
      Then Check slave "eth1" not in bond "nm-bond" in proc
      Then Check slave "eth4" not in bond "nm-bond" in proc
@@ -785,10 +785,10 @@
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Bring down connection "bond0" ignoring error
-    * Bring down connection "bond0.0" ignoring error
-    * Bring down connection "bond0.1" ignoring error
-    * Bring down connection "bond0.2" ignoring error
+    * Bring "down" connection "bond0" ignoring error
+    * Bring "down" connection "bond0.0" ignoring error
+    * Bring "down" connection "bond0.1" ignoring error
+    * Bring "down" connection "bond0.2" ignoring error
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth11" in bond "nm-bond" in proc
@@ -834,10 +834,10 @@
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Bring down connection "bond0" ignoring error
-    * Bring down connection "bond0.0" ignoring error
-    * Bring down connection "bond0.1" ignoring error
-    * Bring down connection "bond0.2" ignoring error
+    * Bring "down" connection "bond0" ignoring error
+    * Bring "down" connection "bond0.0" ignoring error
+    * Bring "down" connection "bond0.1" ignoring error
+    * Bring "down" connection "bond0.2" ignoring error
     * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -931,10 +931,10 @@
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Bring down connection "bond0" ignoring error
-    * Bring down connection "bond0.0" ignoring error
-    * Bring down connection "bond0.1" ignoring error
-    * Bring down connection "bond0.2" ignoring error
+    * Bring "down" connection "bond0" ignoring error
+    * Bring "down" connection "bond0.0" ignoring error
+    * Bring "down" connection "bond0.1" ignoring error
+    * Bring "down" connection "bond0.2" ignoring error
     * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -1555,9 +1555,9 @@
     * Add "bond" connection named "bond0" for device "bond0" with options "autoconnect no 802-3-ethernet.mtu 1450 ipv4.method disabled ipv6.method disabled"
     * Add "ethernet" connection named "bond0.1" for device "eth1" with options "autoconnect no 802-3-ethernet.mtu 1400 connection.master bond0 connection.slave-type bond"
     * Add "ethernet" connection named "bond0.4" for device "eth4" with options "autoconnect no 802-3-ethernet.mtu 1400 connection.master bond0 connection.slave-type bond"
-    * Bring up connection "bond0"
-    * Bring up connection "bond0.1"
-    * Bring up connection "bond0.4"
+    * Bring "up" connection "bond0"
+    * Bring "up" connection "bond0.1"
+    * Bring "up" connection "bond0.4"
     Then "mtu 1450" is visible with command "ip l show bond0"
     Then "mtu 1400" is visible with command "ip l show eth1"
     Then "mtu 1400" is visible with command "ip l show eth4"
@@ -2366,7 +2366,7 @@
           ipv4.method manual ipv4.addresses 172.16.1.1/24
           """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-    * Bring up connection "bond0" ignoring error
+    * Bring "up" connection "bond0" ignoring error
     * Execute "rm -rf /etc/modprobe.d/99-test.conf"
     * Bring "up" connection "bond0"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
@@ -2672,7 +2672,7 @@
     * Add "bond" connection named "bond0b" for device "bond0" with options "ipv4.method disabled ipv6.method disabled"
     * Add "dummy" connection named "dummy0b" for device "dummy0" with options "master bond0b"
     Then "dummy0:connected:dummy0a" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
-    * Bring up connection "bond0b"
+    * Bring "up" connection "bond0b"
     Then "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "5" seconds
 
     

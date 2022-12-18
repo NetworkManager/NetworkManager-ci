@@ -94,36 +94,22 @@ def open_slave_connection(context, master, device, name):
     )
 
 
-@step('Bring up connection "{name}"')
 @step('Bring "{action}" connection "{name}"')
-def start_stop_connection(context, name, action="up"):
+@step('Bring "{action}" connection "{name}" for "{device}" device')
+def start_stop_connection(context, name, action, device=""):
     if action == "down":
         if name not in nmci.process.nmcli("connection show --active"):
             print("Warning: Connection is down no need to down it again")
             return
+    if device:
+        device = f"ifname {device}"
 
-    nmci.process.nmcli(f"connection {action} id {name}", timeout=180)
-
-
-@step('Start generic connection "{name}" for "{device}"')
-@step('Bring up connection "{name}" for "{device}" device')
-def start_connection_for_device(context, name, device):
-    nmci.process.nmcli(f"connection up id {name} ifname {device}", timeout=180)
+    nmci.process.nmcli(f"connection {action} id {name} {device}", timeout=180)
 
 
-@step('Bring up connection "{name}" ignoring error')
-def bring_up_connection_ignore_error(context, name):
-    nmci.process.nmcli_force(f"connection up id {name}", timeout=180)
-
-
-@step('Bring down connection "{name}"')
-def bring_down_connection(context, name):
-    nmci.process.nmcli(f"connection up id {name}", timeout=180)
-
-
-@step('Bring down connection "{name}" ignoring error')
-def bring_down_connection_ignoring(context, name):
-    nmci.process.nmcli_force(f"connection up id {name}", timeout=180)
+@step('Bring "{action}" connection "{name}" ignoring error')
+def bring_up_connection_ignore_error(context, name, action):
+    nmci.process.nmcli_force(f"connection {action} id {name}", timeout=180)
 
 
 @step('Check if "{name}" is active connection')

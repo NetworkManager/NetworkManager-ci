@@ -136,8 +136,8 @@ Feature: nmcli: connection
     @connection_restricted_to_single_device
     Scenario: nmcli - connection - restriction to single device
      * Add "ethernet" connection named "con_con" for device "\*"
-     * Start generic connection "con_con" for "eth5"
-     * Start generic connection "con_con" for "eth6"
+     * Bring "up" connection "con_con" for "eth5" device
+     * Bring "up" connection "con_con" for "eth6" device
     Then "eth6" is visible with command "nmcli -f GENERAL.DEVICES connection show con_con"
     Then "eth5" is not visible with command "nmcli -f GENERAL.DEVICES connection show con_con"
 
@@ -674,16 +674,16 @@ Feature: nmcli: connection
           autoconnect no
           connection.multi-connect default
           """
-    * Bring up connection "con_con" for "eth5" device
+    * Bring "up" connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
-    * Bring up connection "con_con" for "eth6" device
+    * Bring "up" connection "con_con" for "eth6" device
     When "eth6" is visible with command "nmcli device | grep con_con"
      And "eth5" is not visible with command "nmcli device | grep con_con"
     * Bring "down" connection "con_con"
     * Modify connection "con_con" changing options "connection.multi-connect single"
-    * Bring up connection "con_con" for "eth5" device
+    * Bring "up" connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
-    * Bring up connection "con_con" for "eth6" device
+    * Bring "up" connection "con_con" for "eth6" device
     Then "eth6" is visible with command "nmcli device | grep con_con"
      And "eth5" is not visible with command "nmcli device | grep con_con"
 
@@ -696,20 +696,20 @@ Feature: nmcli: connection
           autoconnect no
           connection.multi-connect manual-multiple
           """
-    * Bring up connection "con_con" for "eth5" device
+    * Bring "up" connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
      And "eth6" is not visible with command "nmcli device | grep con_con"
-    * Bring up connection "con_con" for "eth6" device
+    * Bring "up" connection "con_con" for "eth6" device
     When "eth6" is visible with command "nmcli device | grep con_con"
      And "eth5" is visible with command "nmcli device | grep con_con"
     * Bring "down" connection "con_con"
     When "eth6" is not visible with command "nmcli device | grep con_con"
      And "eth5" is not visible with command "nmcli device | grep con_con"
     * Modify connection "con_con" changing options "connection.multi-connect multiple"
-    * Bring up connection "con_con" for "eth5" device
+    * Bring "up" connection "con_con" for "eth5" device
     When "eth5" is visible with command "nmcli device | grep con_con"
      And "eth6" is not visible with command "nmcli device | grep con_con"
-    * Bring up connection "con_con" for "eth6" device
+    * Bring "up" connection "con_con" for "eth6" device
     When "eth6" is visible with command "nmcli device | grep con_con"
      And "eth5" is visible with command "nmcli device | grep con_con"
     * Bring "down" connection "con_con"
@@ -774,7 +774,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - connection activates preferably on managed devices
     * Execute "nmcli device set eth10 managed yes"
     * Add "ethernet" connection named "con_con" for device "\*" with options "autoconnect no"
-    * Bring up connection "con_con"
+    * Bring "up" connection "con_con"
     Then "eth10" is visible with command "nmcli device | grep con_con"
 
 
@@ -784,7 +784,7 @@ Feature: nmcli: connection
     @connection_no_managed_device
     Scenario: nmcli - connection - connection activates even on unmanaged device
     * Add "ethernet" connection named "con_con" for device "\*" with options "autoconnect no"
-    * Bring up connection "con_con"
+    * Bring "up" connection "con_con"
     Then "con_con" is visible with command "nmcli device"
 
 

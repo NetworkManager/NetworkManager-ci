@@ -103,7 +103,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
@@ -133,7 +133,7 @@ Feature: nmcli - general
           """
     * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
 
@@ -169,7 +169,7 @@ Feature: nmcli - general
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Wait for "10" seconds
     * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
 
@@ -199,18 +199,18 @@ Feature: nmcli - general
           """
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
 
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "foo" is visible with command "hostnamectl --transient" in "60" seconds
 
-    * Bring up connection "con_general2"
+    * Bring "up" connection "con_general2"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     # Since connections have the same priority, the one activated earlier wins
     Then "foo" is visible with command "hostnamectl --transient" in "60" seconds
 
     # Increase the priority of the second connection and retry
     * Modify connection "con_general2" changing options "hostname.priority 50"
-    * Bring up connection "con_general2"
+    * Bring "up" connection "con_general2"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     # Now con_general2 has higher priority and wins
     Then "bar" is visible with command "hostnamectl --transient" in "60" seconds
@@ -229,7 +229,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
@@ -247,7 +247,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
@@ -268,7 +268,7 @@ Feature: nmcli - general
           hostname.only-from-default false
           """
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
@@ -287,7 +287,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
      And "localhost|fedora" is visible with command "hostnamectl --transient" for full "20" seconds
@@ -306,7 +306,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no"
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
     Then "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
      And "localhost|fedora" is visible with command "hostnamectl --transient" for full "20" seconds
@@ -327,7 +327,7 @@ Feature: nmcli - general
     Scenario: nmcli - general - state disconnected
     * "disconnect" all " connected" devices
     Then "disconnected" is visible with command "nmcli -t -f STATE general"
-    * Bring up connection "testeth0"
+    * Bring "up" connection "testeth0"
 
 
     @networking_on
@@ -503,7 +503,7 @@ Feature: nmcli - general
           ipv4.method manual
           ipv4.addresses 192.168.1.10/24
           """
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     Then "IP4.ADDRESS.*192.168.1.10/24" is visible with command "nmcli device show eth8"
 
 
@@ -693,7 +693,7 @@ Feature: nmcli - general
           ipv6.may-fail no
           """
     * Wait for "2" seconds
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     When "100" is visible with command "nmcli  -t -f GENERAL.STATE device show testG"
     When "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
     * Restart NM
@@ -775,7 +775,7 @@ Feature: nmcli - general
     @nmcli_general_set_device_unmanaged
     Scenario: NM - general - set device to unmanaged state
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
     * Execute "nmcli device set eth8 managed off"
     #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
@@ -1943,7 +1943,7 @@ Feature: nmcli - general
     @dummy_connection
     Scenario: NM - general - create dummy connection
     * Add "dummy" connection named "con_general" for device "br0" with options "ip4 1.2.3.4/24 autoconnect no"
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     Then "dummy" is visible with command "ip -d l show br0 | grep dummy"
     Then "1.2.3.4/24" is visible with command "ip a s br0 | grep inet"
 
@@ -1957,11 +1957,11 @@ Feature: nmcli - general
           ipv4.method link-local
           ipv6.method link-local
           """
-    * Bring up connection "con_general"
-    * Bring up connection "con_general"
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
+    * Bring "up" connection "con_general"
+    * Bring "up" connection "con_general"
     * Execute "tc qdisc add dev br0 root handle 1234 fq_codel"
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     Then "dummy" is visible with command "ip -d l show br0 | grep dummy"
 
 
@@ -1992,8 +1992,8 @@ Feature: nmcli - general
           macsec.mka-cak 00112233445566778899001122334455
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
-    * Bring up connection "test-macsec-base"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec-base"
+    * Bring "up" connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
 
 
@@ -2017,8 +2017,8 @@ Feature: nmcli - general
           macsec.mka-cak 00112233445566778899001122334455
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
-    * Bring up connection "test-macsec-base"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec-base"
+    * Bring "up" connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
     * Restart NM
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
@@ -2056,9 +2056,9 @@ Feature: nmcli - general
           macsec.mka-cak 00112233445566778899001122334455
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
-    * Bring up connection "test-macsec-base"
-    * Bring up connection "test-macsec-vlan"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec-base"
+    * Bring "up" connection "test-macsec-vlan"
+    * Bring "up" connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
     * Restart NM
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
@@ -2090,12 +2090,12 @@ Feature: nmcli - general
           macsec.mka-cak 00112233445566778899001122334455
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
-    * Bring up connection "test-macsec-base"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec-base"
+    * Bring "up" connection "test-macsec"
     #Then Ping "172.16.10.1" "10" times
     When "1536" is visible with command "ip a s macsec_veth"
     When "1504" is visible with command "ip a s macsec0"
-    * Bring up connection "test-macsec-base"
+    * Bring "up" connection "test-macsec-base"
     Then "1536" is visible with command "ip a s macsec_veth"
     Then "1504" is visible with command "ip a s macsec0"
 
@@ -2155,7 +2155,7 @@ Feature: nmcli - general
           ipv4.route-metric 95
           ipv6.method ignore
           """
-    * Bring up connection "con_general2"
+    * Bring "up" connection "con_general2"
     # Connection should stay at the lower priority device
     Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
      And Ping "boston.com"
@@ -2284,8 +2284,8 @@ Feature: nmcli - general
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
     Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
-    * Bring up connection "test-macsec-base"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec-base"
+    * Bring "up" connection "test-macsec"
     Then "send_sci on" is visible with command "ip macsec show macsec0"
 
 
@@ -2991,7 +2991,7 @@ Feature: nmcli - general
           ipv6.addresses 2607:f0d0:1002:51::4/64
           ipv6.gateway 2607:f0d0:1002:51::1
           """
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     * "default via 192.168.122.96" is visible with command "ip -4 r show default"
     * "default via 2607:f0d0:1002:51::1" is visible with command "ip -6 r show default"
     * "via 192.168.122.96" is visible with command "nmcli"
@@ -3016,7 +3016,7 @@ Feature: nmcli - general
           ipv4.addresses 1.2.3.4/24
           connection.permissions 'user:root'
           """
-    * Bring up connection "con_general"
+    * Bring "up" connection "con_general"
     Then "no permission" is visible with command "sudo -u test nmcli d reapply dummy0"
 
 
@@ -3118,6 +3118,6 @@ Feature: nmcli - general
           macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
           """
     * Execute "ip link set macsec_veth up"
-    * Bring up connection "test-macsec"
+    * Bring "up" connection "test-macsec"
     Then Ping "172.16.10.1" "10" times
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds

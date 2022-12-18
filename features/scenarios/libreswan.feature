@@ -63,7 +63,7 @@
     Scenario: nmcli - libreswan - add and connect a connection with worong password
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
-    * Bring up connection "libreswan" ignoring error
+    * Bring "up" connection "libreswan" ignoring error
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan"
     Then "VPN.BANNER:.*BUG_REPORT_URL" is not visible with command "nmcli c show libreswan"
 

@@ -178,7 +178,7 @@
      * Bring "down" connection "team0.1"
      * Disconnect device "nm-team"
     Then Team "nm-team" is down
-     * Bring up connection "team0" ignoring error
+     * Bring "up" connection "team0" ignoring error
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 

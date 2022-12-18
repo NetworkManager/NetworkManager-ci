@@ -17,7 +17,7 @@ Feature: nmcli - wifi
       ssid qe-open
       802-11-wireless.mode infrastructure
       """
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -65,7 +65,7 @@ Feature: nmcli - wifi
       ssid qe-open
       802-11-wireless.band bg
       """
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -80,7 +80,7 @@ Feature: nmcli - wifi
       ssid qe-open
       802-11-wireless.band a
       """
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -92,7 +92,7 @@ Feature: nmcli - wifi
     Given  "enabled" is visible with command "nmcli radio wifi"
     * Execute "i=0; while ! nmcli  device wifi list --rescan yes |grep 'qe-open'; do i=$((++i)); [[ $i -lt 30 ]] && exit 1; sleep 1; done"
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     When "qe-open" is visible with command "iw dev wlan0 link"
     * Execute "nmcli radio wifi off"
     Then "disabled" is visible with command "nmcli radio wifi"
@@ -125,7 +125,7 @@ Feature: nmcli - wifi
       ssid qe-open
       802-11-wireless.cloned-mac-address f0:de:aa:fb:bb:cc
       """
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     Then "addr f0:de:aa:fb:bb:cc" is visible with command "iw dev wlan0 info"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -140,7 +140,7 @@ Feature: nmcli - wifi
       ssid qe-open
       802-11-wireless.mtu 64
       """
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     Then "64" is visible with command "nmcli -g 802-11-wireless.mtu connection show qe-open"
     Then "qe-open" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-open" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -151,7 +151,7 @@ Feature: nmcli - wifi
     @nmcli_wifi_seen_bssids
     Scenario: nmcli - wifi - seen bssids
     * Add "wifi" connection named "qe-open" for device "wlan0" with options "autoconnect off ssid qe-open"
-    * Bring up connection "qe-open"
+    * Bring "up" connection "qe-open"
     * Open editor for connection "qe-open"
     * Note the "802-11-wireless.seen-bssids" property from editor print output
     Then Noted value contains "([0-9A-F]{2}[:-]){5}([0-9A-F]{2})"
@@ -169,7 +169,7 @@ Feature: nmcli - wifi
           802-11-wireless.hidden yes
           802-11-wireless-security.psk 6ubDLTiFr6jDSAxW08GdKU0s5Prh1c5G8CWeYpXHgXeYmhhMyDX8vMMWwLhx8Sl
           """
-    * Bring up connection "qe-hidden-wpa2-psk"
+    * Bring "up" connection "qe-hidden-wpa2-psk"
     Then "qe-hidden-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-hidden-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -185,7 +185,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.psk "over the river and through the woods"
       802-11-wireless-security.proto rsn
       """
-    * Bring up connection "qe-wpa2-psk"
+    * Bring "up" connection "qe-wpa2-psk"
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -200,7 +200,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.key-mgmt wpa-psk
       802-11-wireless-security.psk "over the river and through the woods"
       """
-    * Bring up connection "qe-wpa3-psk"
+    * Bring "up" connection "qe-wpa3-psk"
     Then "qe-wpa3-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -216,7 +216,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.psk 'over the river and through the woods'
       802-11-wireless-security.proto wpa
       """
-    * Bring up connection "qe-wpa1-psk"
+    * Bring "up" connection "qe-wpa1-psk"
     Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -236,7 +236,7 @@ Feature: nmcli - wifi
           802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
           """
     * Wait for "1" seconds
-    * Bring up connection "qe-wpa1-enterprise"
+    * Bring "up" connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -257,7 +257,7 @@ Feature: nmcli - wifi
           802-1x.private-key 'file:///tmp/certs/client.pem'
           """
     * Wait for "1" seconds
-    * Bring up connection "qe-wpa1-enterprise"
+    * Bring "up" connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -276,7 +276,7 @@ Feature: nmcli - wifi
           802-1x.password testing123
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
           """
-    * Bring up connection "qe-wpa1-enterprise"
+    * Bring "up" connection "qe-wpa1-enterprise"
     Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -295,7 +295,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap mschapv2
           802-1x.password testing123
           """
-    * Bring up connection "qe-wpa2-enterprise"
+    * Bring "up" connection "qe-wpa2-enterprise"
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     Then "inet 10." is visible with command "ip a s wlan0"
@@ -316,7 +316,7 @@ Feature: nmcli - wifi
           802-1x.private-key-password 12345testing
           802-1x.private-key file:///tmp/certs/client.pem
           """
-    * Bring up connection "qe-wpa2-enterprise"
+    * Bring "up" connection "qe-wpa2-enterprise"
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -335,7 +335,7 @@ Feature: nmcli - wifi
           802-1x.password "testing123"
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
           """
-    * Bring up connection "qe-wpa2-enterprise"
+    * Bring "up" connection "qe-wpa2-enterprise"
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -354,7 +354,7 @@ Feature: nmcli - wifi
           802-1x.phase2-autheap mschapv2
           802-1x.password testing123
           """
-    * Bring up connection "qe-wpa3-enterprise-aes"
+    * Bring "up" connection "qe-wpa3-enterprise-aes"
     Then "qe-wpa3-enterprise-aes" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-enterprise-aes" is visible with command "nmcli -f IN-USE,SSID device wifi list"
     Then "inet 10." is visible with command "ip a s wlan0"
@@ -375,7 +375,7 @@ Feature: nmcli - wifi
           802-1x.private-key-password 12345testing
           802-1x.private-key file:///tmp/certs/client.pem
           """
-    * Bring up connection "qe-wpa3-enterprise-aes"
+    * Bring "up" connection "qe-wpa3-enterprise-aes"
     Then "qe-wpa3-enterprise-aes" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-enterprise-aes" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -394,7 +394,7 @@ Feature: nmcli - wifi
           802-1x.password "testing123"
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
           """
-    * Bring up connection "qe-wpa3-enterprise-aes"
+    * Bring "up" connection "qe-wpa3-enterprise-aes"
     Then "qe-wpa3-enterprise-aes" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-enterprise-aes" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -411,7 +411,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.pairwise ccmp
       """
     * Start following journal
-    * Bring up connection "qe-wpa2-psk"
+    * Bring "up" connection "qe-wpa2-psk"
     Then Look for "added 'pairwise' value 'CCMP'" in journal
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
@@ -446,7 +446,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.group ccmp
       """
     * Start following journal
-    * Bring up connection "qe-wpa2-psk"
+    * Bring "up" connection "qe-wpa2-psk"
     Then Look for "added 'group' value 'CCMP'" in journal
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"

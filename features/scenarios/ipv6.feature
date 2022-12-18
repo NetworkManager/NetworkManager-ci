@@ -1420,7 +1420,7 @@
         ipv4.method manual ipv4.address 10.16.1.10/24 ipv4.gateway 10.16.1.1 ipv4.dns 10.16.1.1
         ipv6.method manual ipv6.address 2001:db8:e:10::4/64
         """
-    * Bring up connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
     When "inet6 2001:db8:e:10::4/64" is visible with command "ip a show eth2"
     * Modify connection "con_ipv6" changing options "ipv4.dns ''"
     When Execute "nmcli dev reapply eth2"
@@ -1482,18 +1482,18 @@
         """
         ipv4.method disabled ipv6.ip6-privacy prefer-public-addr
         """
-    * Bring up connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
     # reapply scenario, 1-2 temporary addresses may be present for DHCP
     * Modify connection "con_ipv6" changing options "ipv6.ip6-privacy prefer-temp-addr"
     When Execute "nmcli d reapply testX6"
     * Wait for "2" seconds
     Then "At least" "1" and "at most" "2" lines with pattern "inet6.*temporary" are visible with command "ip -6 a show testX6" in "2" seconds
     # no (temporary) address should appear after connection is brought down
-    When Bring down connection "con_ipv6"
+    When Bring "down" connection "con_ipv6"
     Then "inet6" is not visible with command "ip -6 a show testX6"
     Then "connected" is not visible with command "nmcli c s --active | grep con_ipv6"
     # no (temporary) address should appear after connection times out (this requires @no_config_server)
-    * Bring up connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
     * Execute "ip -n testX6_ns l set testX6p down"
     When "testX6" is not visible with command "nmcli c s --active" in "10" seconds
     Then "inet6" is not visible with command "ip -6 a show testX6"
@@ -1678,12 +1678,12 @@
     * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 547 or port 546' > /tmp/tshark.log"
     * Execute "ip link set testX6 up"
     ### uncomment following steps to verify that address is assigned correctly in absence of duplicate address
-    #* Bring up connection "con_ipv6"
+    #* Bring "up" connection "con_ipv6"
     #Then "2620:dead:beaf[:0-9a-f]+1234:5678" is visible with command "ip a show testX6" in "10" seconds
     #Then Execute "ping -c 2 -I 2620:dead:beaf::1234:5678 2620:dead:beaf::1"
-    #* Bring down connection "con_ipv6"
+    #* Bring "down" connection "con_ipv6"
     * Execute "ip -n dup_ns addr add 2620:dead:beaf::1234:5678/64 dev dup"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     Then "2620:dead:beaf[:0-9a-f]+1234:5678" is not visible with command "ip a show testX6"
     # check that NM was offered a ::1234:5678 address by dnsmasq
     And "option:\s*5\s*iaaddr\s*2620:dead:beaf::1234:5678" is visible with command "cat /tmp/dnsmasq_ip6.log"
@@ -1724,12 +1724,12 @@
     * Run child "ip netns exec testX6_ns tshark -n -l -i br0 'icmp6 or port 547 or port 546' > /tmp/tshark.log"
     * Execute "ip link set testX6 up"
     ### uncomment following steps to verify that address is assigned correctly in absence of duplicate address
-    #* Bring up connection "con_ipv6"
+    #* Bring "up" connection "con_ipv6"
     #Then "2620:dead:beaf:0*:ecaa:bbff:fecc:ddee" is visible with command "ip a show testX6" in "10" seconds
     #Then Execute "ping -c 2 -I 2620:dead:beaf::ecaa:bbff:fecc:ddee 2620:dead:beaf::1"
-    #* Bring down connection "con_ipv6"
+    #* Bring "down" connection "con_ipv6"
     * Execute "ip -n dup_ns addr add 2620:dead:beaf::ecaa:bbff:fecc:ddee/64 dev dup"
-    * Bring up connection "con_ipv6" ignoring error
+    * Bring "up" connection "con_ipv6" ignoring error
     Then "2620:dead:beaf:0*:ecaa:bbff:fecc:ddee" is not visible with command "ip a show testX6"
     # interface ended up with just link-local address so it can't have full connectivity
     And "limited" is visible with command "nmcli -f DEVICE,IP6-CONNECTIVITY d | grep testX6"

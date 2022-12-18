@@ -87,7 +87,7 @@ Feature: Ethernet TUI tests
     @nmtui_ethernet_deactivate_connection
     Scenario: nmtui - ethernet - deactivate connection
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
-    * Bring up connection "ethernet"
+    * Bring "up" connection "ethernet"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection "ethernet" in the list
