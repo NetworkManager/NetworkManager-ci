@@ -2746,6 +2746,7 @@
      * Create "bond" device named "nm-bond"
      * Modify connection "bond0" changing options "ipv4.method manual ipv4.addresses 172.16.1.2/24"
      * Bring "up" connection "bond0"
+     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "30" seconds
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "30" seconds
      When "eth4:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      * Execute "ip link del nm-bond"
