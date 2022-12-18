@@ -139,6 +139,7 @@ Feature: nmcli - wifi
     @simwifi_wpa2_ask_passwd
     Scenario: nmcli - wifi - connect WPA network asking for password
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Cleanup connection "wpa2-eap"
     * Spawn "nmcli -a device wifi connect wpa2-eap" command
     * Expect "Password:"
     * Submit "secret123"
@@ -678,6 +679,8 @@ Feature: nmcli - wifi
           802-11-wireless.channel 1
           802-11-wireless.band bg
           """
+    # stability reasons: sometimes bring up fails that eth0 is not matchin interface.
+    * Wait for "1" seconds
     * Bring "up" connection "wifi-ap"
     When "AP_test" is visible with command "nmcli dev wifi list"
     * Add "wifi" connection named "wifi-client" for device "wlan0" with options
