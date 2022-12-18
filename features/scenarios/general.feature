@@ -2648,7 +2648,7 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "eth8" with options
           """
           autoconnect no
-          ipv4.dns-search $(echo {a..g}.noexist.redhat.com, | tr -d ' ')
+          ipv4.dns-search a.noexist.redhat.com,b.noexist.redhat.com,c.noexist.redhat.com,d.noexist.redhat.com,e.noexist.redhat.com,f.noexist.redhat.com,g.noexist.redhat.com
           """
     * Bring "up" connection "con_general"
     Then "Exactly" "7" lines with pattern "\.noexist\.redhat\.com" are visible with command "nmcli -f ipv4.dns-search con show con_general | sed 's/,/\n/g'"
@@ -2934,6 +2934,7 @@ Feature: nmcli - general
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     When "dummy0" is not visible with command "ip a s" in "30" seconds
     # And we need another one Sept/2021
+    * Wait for children
     When "dummy0" is not visible with command "ip a s" in "30" seconds
 
 
