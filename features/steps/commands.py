@@ -519,12 +519,18 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
 @step(u'Run child "{command}"')
 def run_child_process(context, command):
-    nmci.pexpect.pexpect_service(command, shell=True, label=True)
+    nmci.pexpect.pexpect_service(command, shell=True, label="child")
 
 
 @step(u'Run child "{command}" without shell')
 def run_child_process_no_shell(context, command):
-    nmci.pexpect.pexpect_service(command, label=True)
+    nmci.pexpect.pexpect_service(command, label="child")
+
+
+@step(u"Wait for children")
+def wait_for_children(context):
+    for child in nmci.pexpect.pexpect_service_find_all("child"):
+        child.proc.wait()
 
 
 @step(u'Start following journal')
