@@ -756,12 +756,13 @@ Feature: nmcli - vlan
     @vlan_L2_UUID
     Scenario: NM - vlan - L2 only master via UUID
     * Add "ethernet" connection named "vlan1" for device "eth7" with options "ipv4.method disabled ipv6.method ignore"
+    * Note the value of property "connection.uuid" of connection "vlan1" as noted value "vlan1_uuid"
     * Add "vlan" connection named "vlan" for device "eth7.80" with options
           """
           dev eth7
           id 80
           ipv4.dhcp-timeout 5
-          vlan.parent $(nmcli --mode tabular -t -f connection.uuid connection show vlan1)
+          vlan.parent <noted:vlan1_uuid>
           ipv6.method ignore
           """
     * Bring "up" connection "vlan1"

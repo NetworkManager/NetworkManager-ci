@@ -210,7 +210,7 @@ Feature: nmcli: ipv4
           ipv4.routes '192.168.2.0/24 192.168.1.11 2'
           ipv4.route-metric 22
           """
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+    * Add "ethernet" connection named "con_ipv4_2" for device "eth3" with options
           """
           ipv4.method static
           ipv4.addresses 192.168.3.10/24

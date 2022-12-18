@@ -20,6 +20,7 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
         options = context.text.replace("\n", " ") if context.text is not None else " "
     conn_name = f"con-name {name}" if name is not None else ""
     iface = f"ifname {ifname}" if ifname is not None else ""
+    options = nmci.misc.str_replace_dict(options, context.noted)
 
     cli = context.pexpect_spawn(
         f"nmcli connection add type {typ} {conn_name} {iface} {options}", shell=True
@@ -267,6 +268,7 @@ def is_not_readable(context, user, name):
 def modify_connection(context, name, options=None):
     if options is None:
         options = context.text.replace("\n", " ") if context.text is not None else " "
+    options = nmci.misc.str_replace_dict(options, context.noted)
     out = context.command_output(f"nmcli connection modify {name} {options}")
     assert (
         "Error" not in out

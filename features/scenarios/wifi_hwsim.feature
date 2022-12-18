@@ -640,9 +640,10 @@ Feature: nmcli - wifi
     # Tell wlan1's wpa_supplicant instance to listen and wait a bit
     * Execute "sleep 2 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 5"
     # Create a connection with dynamic mac address
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p'" as value "wifi_peer"
     * Add "wifi-p2p" connection named "wifi-p2p" for device "p2p-dev-wlan0" with options
         """
-        wifi-p2p.peer $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p' )
+        wifi-p2p.peer <noted:wifi_peer>
         """
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
     * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=0"
@@ -661,9 +662,10 @@ Feature: nmcli - wifi
     # Tell wlan1's wpa_supplicant instance to listen and wait a bit
     * Execute "sleep 2 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 5"
     # Create a connection with dynamic mac address
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p'" as value "wifi_peer"
     * Add "wifi-p2p" connection named "wifi-p2p" for device "p2p-dev-wlan0" with options
         """
-        wifi-p2p.peer $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p' )
+        wifi-p2p.peer <noted:wifi_peer>
         ipv4.never-default yes
         """
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
