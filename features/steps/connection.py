@@ -6,7 +6,7 @@ from behave import step  # pylint: disable=no-name-in-module
 import nmci
 
 
-@step(u'Add a connection named "{name}" for device "{ifname}" to "{vpn}" VPN')
+@step('Add "{vpn}" VPN connection named "{name}" for device "{ifname}"')
 def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     cli = context.pexpect_spawn('nmcli connection add con-name %s type vpn ifname %s vpn-type %s' % (name, ifname, vpn))
     r = cli.expect(['Error', pexpect.EOF])

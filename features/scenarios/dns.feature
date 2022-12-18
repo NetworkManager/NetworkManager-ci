@@ -328,7 +328,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create full-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
 
@@ -359,7 +359,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create full-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
 
@@ -391,7 +391,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create split-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv4.never-default yes"
     * Bring "up" connection "openvpn"
@@ -423,7 +423,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create split-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv4.never-default yes"
     * Bring "up" connection "openvpn"
@@ -705,7 +705,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create full-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
 
@@ -732,7 +732,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create split-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv4.never-default yes"
     * Bring "up" connection "openvpn"
@@ -759,7 +759,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create split-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv4.never-default yes ipv4.dns-priority 10"
     * Bring "up" connection "openvpn"
@@ -966,7 +966,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create full-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
 
@@ -994,7 +994,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
 
     # Create split-tunnel VPN connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con modify openvpn ipv4.never-default yes"
     * Bring "up" connection "openvpn"

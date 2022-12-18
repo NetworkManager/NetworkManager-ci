@@ -25,9 +25,9 @@
     @openvpn @openvpn6 @libreswan @ikev2
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     * Bring "up" connection "openvpn"
@@ -46,9 +46,9 @@
     @libreswan @openvpn @openvpn6
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     * Bring "up" connection "openvpn"

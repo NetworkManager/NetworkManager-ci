@@ -12,7 +12,7 @@
     @openvpn @openvpn4
     @openvpn_ipv4
     Scenario: nmcli - openvpn - add and connect IPv4 connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
@@ -26,7 +26,7 @@
     @openvpn @openvpn4
     @openvpn_ipv4
     Scenario: nmcli - openvpn - add and connect IPv4 connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Execute "nmcli con up openvpn ifname tun0"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
@@ -40,7 +40,7 @@
     @openvpn @openvpn4
     @openvpn_ipv4_neverdefault
     Scenario: nmcli - openvpn - add neverdefault IPv4 connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "ipv4.never-default yes"
     * Bring "up" connection "openvpn"
@@ -54,7 +54,7 @@
     @openvpn @openvpn6
     @openvpn_ipv6
     Scenario: nmcli - openvpn - add and connect IPv6 connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
@@ -70,7 +70,7 @@
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
     * Delete connection "testeth0"
     * Bring "up" connection "testeth10"
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "ipv6.never-default yes"
     * Bring "down" connection "openvpn"
@@ -86,7 +86,7 @@
     @openvpn_set_mtu
     Scenario: nmcli - openvpn - set mtu
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.MTU device show eth0" as value "eth0_mtu1"
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.MTU device show eth0" as value "eth0_mtu2"
@@ -99,7 +99,7 @@
     @firewall @openvpn
     @openvpn_set_firewall_zone
     Scenario: nmcli - openvpn - set firewall zone
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "connection.zone public"
     * Bring "up" connection "openvpn"
@@ -110,7 +110,7 @@
     @openvpn
     @openvpn_terminate
     Scenario: nmcli - openvpn - terminate connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
@@ -122,7 +122,7 @@
     @openvpn
     @openvpn_delete_active_connection
     Scenario: nmcli - openvpn - delete connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
@@ -135,7 +135,7 @@
     @openvpn
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
@@ -151,7 +151,7 @@
     @xfail
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection
-    * Add a connection named "openvpn" for device "\*" to "openvpn" VPN
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"

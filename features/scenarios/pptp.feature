@@ -10,7 +10,7 @@
     @pptp
     @pptp_add_profile
     Scenario: nmcli - pptp - add and connect a connection
-    * Add a connection named "pptp" for device "\*" to "pptp" VPN
+    * Add "pptp" VPN connection named "pptp" for device "\*"
     * Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"
     * Bring "up" connection "pptp"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show pptp"
@@ -22,7 +22,7 @@
     @pptp
     @pptp_passwd_file
     Scenario: nmcli - pptp - password from file
-    * Add a connection named "pptp" for device "\*" to "pptp" VPN
+    * Add "pptp" VPN connection named "pptp" for device "\*"
     * Use user "budulinek" with password "file" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"
     * Execute "echo 'vpn.secret.password:passwd' > /tmp/passwords"
     * Execute "nmcli con up pptp passwd-file /tmp/passwords"
@@ -39,7 +39,7 @@
     @pptp
     @pptp_terminate
     Scenario: nmcli - pptp - terminate connection
-    * Add a connection named "pptp" for device "\*" to "pptp" VPN
+    * Add "pptp" VPN connection named "pptp" for device "\*"
     * Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"
     * Execute "nmcli c modify pptp vpn.persistent true"
     * Bring "up" connection "pptp"

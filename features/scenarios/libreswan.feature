@@ -11,7 +11,7 @@
     @rhelver-=8
     @libreswan_ikev1_aggressive
     Scenario: nmcli - libreswan - connect in ike1 aggressive
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
@@ -29,7 +29,7 @@
     @libreswan @main
     @libreswan_ikev1_main
     Scenario: nmcli - libreswan - connect in ike1 main
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "passwd" and group "Main" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
@@ -45,7 +45,7 @@
     @libreswan @ikev2
     @libreswan_ikev2
     Scenario: nmcli - libreswan - connect in ike2
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
@@ -61,7 +61,7 @@
     @libreswan
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring up connection "libreswan" ignoring error
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan"
@@ -73,7 +73,7 @@
     @libreswan @ikev2
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
@@ -89,7 +89,7 @@
     @libreswan
     @libreswan_activate_asking_for_password
     Scenario: nmcli - vpn - activate asking for password
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd"
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
@@ -107,7 +107,7 @@
     @libreswan @long
     @libreswan_activate_asking_for_password_with_delay
     Scenario: nmcli - vpn - activate asking for password with delay
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "ask" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" after "40" seconds
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
@@ -125,7 +125,7 @@
     @libreswan
     @libreswan_activate_asking_for_password_and_secret
     Scenario: nmcli - vpn - activate asking for password and secret
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "ask" and group "yolo" with secret "ask" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Connect to vpn "libreswan" with password "passwd" and secret "ipsecret"
     * Execute "nmcli --show-secrets con show libreswan > /tmp/libreswan"
@@ -142,7 +142,7 @@
     @libreswan @ikev2
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
@@ -154,7 +154,7 @@
     @libreswan @ikev2
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
@@ -169,7 +169,7 @@
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
     Given Nameserver "11.12.13.14" is set in "20" seconds
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
@@ -193,7 +193,7 @@
     #@ethernet
     #@libreswan_start_on_boot
     #Scenario: nmcli - libreswan - start on boot
-    # * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    # * Add "libreswan" VPN connection named "libreswan" for device "\*"
     # * Execute "nmcli con modify eno1 connection.autoconnect no"
     # * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     # * Reboot
@@ -213,7 +213,7 @@
     @libreswan @ikev2
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
-    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
     * Execute "sleep 2; nmcli con modify lib1 connection.secondaries libreswan; sleep 3"
     * Bring "down" connection "lib1"

@@ -12,7 +12,7 @@
     @vpnc
     @vpnc_add_profile
     Scenario: nmcli - vpnc - add and connect a connection
-    * Add a connection named "vpnc" for device "\*" to "vpnc" VPN
+    * Add "vpnc" VPN connection named "vpnc" for device "\*"
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on VPNC connection "vpnc"
     * Bring "up" connection "vpnc"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show vpnc"
@@ -24,7 +24,7 @@
     @vpnc
     @vpnc_terminate
     Scenario: nmcli - vpnc - terminate connection
-    * Add a connection named "vpnc" for device "\*" to "vpnc" VPN
+    * Add "vpnc" VPN connection named "vpnc" for device "\*"
     * Use user "budulinek" with password "passwd" and group "yolo" with secret "ipsecret" for gateway "172.31.70.1" on VPNC connection "vpnc"
     * Bring "up" connection "vpnc"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show vpnc"

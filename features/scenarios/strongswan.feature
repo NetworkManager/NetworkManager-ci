@@ -11,7 +11,7 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_add_profile
     Scenario: nmcli - strongswan - add and connect a connection
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     Then "172.31.70.0/24 .*dev strongswan1" is visible with command "ip route"
@@ -27,7 +27,7 @@ Feature: nmcli: strongswan
     @strongswan @long
     @strongswan_connection_renewal
     Scenario: NM - strongswan - main connection lifetime renewal
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan" for full "130" seconds
@@ -42,7 +42,7 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_terminate
     Scenario: nmcli - strongswan - terminate connection
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
@@ -54,7 +54,7 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_delete_active_profile
     Scenario: nmcli - strongswan - delete active profile
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
@@ -68,7 +68,7 @@ Feature: nmcli: strongswan
     @strongswan_dns
     Scenario: nmcli - strongswan - dns
     Given Nameserver "172.31.70.1" is set in "20" seconds
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
@@ -84,7 +84,7 @@ Feature: nmcli: strongswan
     @strongswan
     @strongswan_start_as_secondary
     Scenario: nmcli - strongswan - start as secondary
-    * Add a connection named "strongswan" for device "\*" to "strongswan" VPN
+    * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
     * Execute "sleep 2; nmcli con modify str1 connection.secondaries strongswan; sleep 3"
     * Bring "down" connection "str1"
