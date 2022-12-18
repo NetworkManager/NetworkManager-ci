@@ -1,5 +1,4 @@
-import pexpect
-import time
+# pylint: disable=unused-argument,line-too-long
 from behave import step  # pylint: disable=no-name-in-module
 
 import nmci
@@ -16,28 +15,21 @@ import nmci
     'Add "{typ}" connection named "{name}" for device "{ifname}" with options "{options}"'
 )
 def add_new_connection(context, typ, name=None, ifname=None, options=None):
-    if options is None:
-        options = context.text.replace("\n", " ") if context.text is not None else " "
-    conn_name = f"con-name {name}" if name is not None else ""
-    iface = f"ifname {ifname}" if ifname is not None else ""
-    options = nmci.misc.str_replace_dict(options, context.noted)
-
-    cli = context.pexpect_spawn(
-        f"nmcli connection add type {typ} {conn_name} {iface} {options}", shell=True
-    )
-    assert (
-        cli.expect(["Error", pexpect.TIMEOUT, pexpect.EOF]) == 2
-    ), "Got an Error while creating connection of type %s with options %s\n%s%s" % (
-        typ,
-        options,
-        cli.after,
-        cli.buffer,
-    )
-
+    conn_name = ""
     if name is not None:
         nmci.cleanup.cleanup_add_connection(name)
+        conn_name = f"con-name {name}"
+
+    iface = ""
     if ifname is not None:
         nmci.cleanup.cleanup_add_iface(ifname)
+        iface = f"ifname {ifname}"
+
+    if options is None:
+        options = context.text.replace("\n", " ") if context.text is not None else " "
+    options = nmci.misc.str_replace_dict(options, context.noted)
+
+    nmci.process.nmcli(f"connection add type {typ} {conn_name} {iface} {options}")
 
 
 @step(
@@ -74,36 +66,15 @@ def add_insecure(context, typ, name, ifname):
     'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"'
 )
 def add_port(context, name, ifname, parent, pkey):
-    cli = context.pexpect_spawn(
-        "nmcli connection add type infiniband con-name %s ifname %s parent %s p-key %s"
-        % (name, ifname, parent, pkey)
+    nmci.process.nmcli(
+        f"connection add type infiniband con-name {name} ifname {ifname} parent {parent} p-key {pkey}"
     )
-    r = cli.expect(["Error", pexpect.EOF])
-    assert r == 1, "Got an Error while adding %s connection %s for device %s\n%s" % (
-        name,
-        ifname,
-        cli.after,
-        cli.buffer,
-    )
-    time.sleep(1)
 
 
 @step('Modify connection "{connection}" property "{prop}" to noted value')
 @step('Modify connection "{connection}" property "{prop}" to noted value "{index}"')
 def modify_connection_with_noted(context, connection, prop, index="noted-value"):
-    cli = context.pexpect_spawn(
-        f"nmcli connection modify {connection} {prop} {context.noted[index]}"
-    )
-    r = cli.expect(["Error", pexpect.EOF])
-    assert (
-        r == 1
-    ), "Got an Error while changing %s property for connection %s to %s\n%s%s" % (
-        prop,
-        connection,
-        context.noted["noted-value"],
-        cli.after,
-        cli.buffer,
-    )
+    nmci.process.nmcli(f"connection modify {connection} {prop} {context.noted[index]}")
 
 
 @step('Add slave connection for master "{master}" on device "{device}" named "{name}"')
@@ -117,150 +88,70 @@ def open_slave_connection(context, master, device, name):
 
     nmci.cleanup.cleanup_add_connection(name)
     nmci.cleanup.cleanup_add_iface(device)
-    cli = context.pexpect_spawn(
-        f"nmcli connection add type {con_type} ifname {device} con-name {name} master {master}"
+
+    nmci.process.nmcli(
+        f"connection add type {con_type} ifname {device} con-name {name} master {master}"
     )
 
-    cli_ret = cli.expect(["Error", pexpect.EOF])
-    assert (
-        cli_ret == 1
-    ), f"Got an Error while adding slave connection {name} on device {device} for master {master}\n{cli.after}{cli.buffer}"
 
-
+@step('Bring up connection "{name}"')
 @step('Bring "{action}" connection "{name}"')
-def start_stop_connection(context, action, name):
+def start_stop_connection(context, name, action="up"):
     if action == "down":
-        if context.command_code("nmcli connection show --active |grep %s" % name) != 0:
+        if name not in nmci.process.nmcli("connection show --active"):
             print("Warning: Connection is down no need to down it again")
             return
 
-    cli = context.pexpect_spawn(
-        "nmcli connection %s id %s" % (action, name), timeout=180
-    )
-
-    r = cli.expect(["Error", "Timeout", pexpect.TIMEOUT, pexpect.EOF])
-    assert r != 0, "Got an Error while %sing connection %s\n%s%s" % (
-        action,
-        name,
-        cli.after,
-        cli.buffer,
-    )
-    assert r != 1, "nmcli connection %s %s timed out (90s)" % (action, name)
-    assert r != 2, "nmcli connection %s %s timed out (180s)" % (action, name)
+    nmci.process.nmcli(f"connection {action} id {name}", timeout=180)
 
 
+@step('Start generic connection "{name}" for "{device}"')
 @step('Bring up connection "{name}" for "{device}" device')
 def start_connection_for_device(context, name, device):
-    cli = context.pexpect_spawn(
-        "nmcli connection up id %s ifname %s" % (name, device), timeout=180
-    )
-    r = cli.expect(["Error", "Timeout", pexpect.TIMEOUT, pexpect.EOF])
-    assert r != 0, "Got an Error while uping connection %s on %s\n%s%s" % (
-        name,
-        device,
-        cli.after,
-        cli.buffer,
-    )
-    assert r != 1, "nmcli connection up %s timed out (90s)" % (name)
-    assert r != 2, "nmcli connection up %s timed out (180s)" % (name)
+    nmci.process.nmcli(f"connection up id {name} ifname {device}", timeout=180)
 
 
-@step('Bring up connection "{connection}"')
-def bring_up_connection(context, connection):
-    cli = context.pexpect_spawn("nmcli connection up %s" % connection, timeout=180)
-    r = cli.expect(["Error", pexpect.TIMEOUT, pexpect.EOF])
-    assert r != 0, "Got an Error while upping connection %s\n%s%s" % (
-        connection,
-        cli.after,
-        cli.buffer,
-    )
-    assert r != 1, "nmcli connection up %s timed out (180s)" % connection
+@step('Bring up connection "{name}" ignoring error')
+def bring_up_connection_ignore_error(context, name):
+    nmci.process.nmcli_force(f"connection up id {name}", timeout=180)
 
 
-@step('Bring up connection "{connection}" ignoring error')
-def bring_up_connection_ignore_error(context, connection):
-    cli = context.pexpect_spawn("nmcli connection up %s" % connection, timeout=180)
-    r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
-    assert r != 1, "nmcli connection up %s timed out (180s)" % connection
+@step('Bring down connection "{name}"')
+def bring_down_connection(context, name):
+    nmci.process.nmcli(f"connection up id {name}", timeout=180)
 
 
-@step('Bring down connection "{connection}"')
-def bring_down_connection(context, connection):
-    cli = context.pexpect_spawn("nmcli connection down %s" % connection, timeout=180)
-    r = cli.expect(["Error", pexpect.TIMEOUT, pexpect.EOF])
-    assert r != 0, "Got an Error while downing a connection %s\n%s%s" % (
-        connection,
-        cli.after,
-        cli.buffer,
-    )
-    assert r != 1, "nmcli connection down %s timed out (180s)" % connection
-
-
-@step('Bring down connection "{connection}" ignoring error')
-def bring_down_connection_ignoring(context, connection):
-    cli = context.pexpect_spawn("nmcli connection down %s" % connection, timeout=180)
-    r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
-    assert r != 1, "nmcli connection down %s timed out (180s)" % connection
+@step('Bring down connection "{name}" ignoring error')
+def bring_down_connection_ignoring(context, name):
+    nmci.process.nmcli_force(f"connection up id {name}", timeout=180)
 
 
 @step('Check if "{name}" is active connection')
 def is_active_connection(context, name):
-    cli = context.pexpect_spawn("nmcli -t -f NAME connection show --active")
-    r = cli.expect([name, pexpect.EOF])
-    assert r == 0, "Connection %s is not active" % name
+    active_list = nmci.process.nmcli("-t -f NAME connection show --active").split("\n")
+    assert name in active_list, f"Connection {name} is not active"
 
 
 @step('Check if "{name}" is not active connection')
 def is_nonactive_connection(context, name):
-    cli = context.pexpect_spawn("nmcli -t -f NAME connection show --active")
-    r = cli.expect([name, pexpect.EOF])
-    assert r == 1, "Connection %s is active" % name
+    active_list = nmci.process.nmcli("-t -f NAME connection show --active").split("\n")
+    assert name not in active_list, f"Connection {name} is not active"
 
 
-@step('Delete connection "{connection}"')
-def delete_connection(context, connection):
-    cli = context.pexpect_spawn("nmcli connection delete %s" % connection, timeout=95)
-    res = cli.expect(["Error", pexpect.TIMEOUT, pexpect.EOF])
-    assert res != 0, "Got an Error while deleting connection %s\n%s%s" % (
-        connection,
-        cli.after,
-        cli.buffer,
-    )
-    assert res != 1, "Deleting connection %s timed out (95s)" % connection
+@step('Delete connection "{name}"')
+def delete_connection(context, name):
+    nmci.process.nmcli(f"connection delete {name}", timeout=95)
 
 
 @step('Fail up connection "{name}" for "{device}"')
 def fail_up_connection_for_device(context, name, device):
-    cli = context.pexpect_spawn(
-        "nmcli connection up id %s ifname %s" % (name, device), timeout=180
+    try:
+        nmci.process.nmcli(f"connection up id {name}", timeout=180)
+    except Exception:  # pylint: disable=broad-except
+        return
+    raise Exception(
+        f"nmcli connection up {name} for device {device} was succesfull. this should not happen"
     )
-    r = cli.expect(["Error", "Timeout", pexpect.TIMEOUT, pexpect.EOF])
-    assert r != 3, (
-        "nmcli connection up %s for device %s was succesfull. this should not happen"
-        % (name, device)
-    )
-
-
-@step('"{user}" is able to see connection "{name}"')
-def is_readable(context, user, name):
-    cli = context.pexpect_spawn(
-        "sudo -u %s nmcli connection show configured %s" % (user, name)
-    )
-    assert (
-        cli.expect(["connection.id:\\s+gsm", "Error", pexpect.TIMEOUT, pexpect.EOF])
-        == 0
-    ), ("Error while getting connection %s" % name)
-
-
-@step('"{user}" is not able to see connection "{name}"')
-def is_not_readable(context, user, name):
-    cli = context.pexpect_spawn(
-        "sudo -u %s nmcli connection show configured %s" % (user, name)
-    )
-    assert (
-        cli.expect(["connection.id:\\s+gsm", "Error", pexpect.TIMEOUT, pexpect.EOF])
-        != 0
-    ), ("Connection %s is readable even if it should not be %s" % name)
 
 
 @step('Modify connection "{name}" changing options "{options}"')
@@ -269,10 +160,7 @@ def modify_connection(context, name, options=None):
     if options is None:
         options = context.text.replace("\n", " ") if context.text is not None else " "
     options = nmci.misc.str_replace_dict(options, context.noted)
-    out = context.command_output(f"nmcli connection modify {name} {options}")
-    assert (
-        "Error" not in out
-    ), f"Got an Error while modifying {name} options {options}\n{out}"
+    nmci.process.nmcli(f"con modify {name} {options}")
 
 
 @step("Wait for testeth0")
@@ -283,35 +171,24 @@ def wait_for_eth0(context):
 @step("Reload connections")
 def reload_connections(context):
     nmci.nmutil.reload_NM_connections()
-    time.sleep(0.5)
-
-
-@step('Start generic connection "{connection}" for "{device}"')
-def start_generic_connection(context, connection, device):
-    cli = context.pexpect_spawn(
-        "nmcli connection up %s ifname %s" % (connection, device), timeout=180
-    )
-    r = cli.expect([pexpect.EOF, pexpect.TIMEOUT])
-    assert r == 0, "nmcli connection up %s timed out (180s)" % connection
-    time.sleep(4)
 
 
 def libnm_get_connection(nm_client, con_name):
     con = None
-    for c in nm_client.get_connections():
-        if c.get_id() == con_name:
-            assert not con, "multiple connections with id '%s'" % con_name
-            con = c
-    assert con, "no connection with id '%s'" % con_name
+    for connection in nm_client.get_connections():
+        if connection.get_id() == con_name:
+            assert not con, f"multiple connections with id '{con_name}'"
+            con = connection
+    assert con, f"no connection with id '{con_name}'"
     return con
 
 
-def parse_NM_settings_flags_string(NMflags, flags):
+def parse_nm_settings_flags_string(nm_flags, flags):
     flags = [f.strip() for f in flags.split(",")]
-    nm_flags = NMflags.NONE
+    nm_flags = nm_flags.NONE
     for flag in flags:
         if flag:
-            nm_flags |= getattr(NMflags, flag)
+            nm_flags |= getattr(nm_flags, flag)
     return nm_flags
 
 
@@ -320,10 +197,10 @@ def parse_NM_settings_flags_string(NMflags, flags):
     'Add connection with name "{name}" and uuid "{uuid}" using libnm with flags "{flags}"'
 )
 def add_connection(context, name, uuid, flags="TO_DISK"):
-    import gi
+    nmci.cleanup.cleanup_add_connection(name)
 
-    gi.require_version("NM", "1.0")
-    from gi.repository import GLib, NM
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    GLib = nmci.util.GLib  # pylint: disable=invalid-name
 
     main_loop = GLib.MainLoop()
     nm_client = NM.Client.new(None)
@@ -334,20 +211,19 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
     elif uuid.startswith("noted."):
         index = uuid.replace("noted.", "")
         uuid = context.noted[index]
-    nm_flags = parse_NM_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
+    nm_flags = parse_nm_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
 
     con2 = NM.SimpleConnection()
     s_con = NM.SettingConnection(type="802-3-ethernet", id=name, uuid=uuid)
     con2.add_setting(s_con)
 
     result = {}
-    nmci.cleanup.cleanup_add_connection(name)
 
-    def _add_connection2_cb(cl, async_result, user_data):
+    def _add_connection2_cb(cli, async_result, user_data):
         try:
             nm_client.add_connection2_finish(async_result)
-        except Exception as e:
-            result["error"] = e
+        except Exception as exc:  # pylint: disable=broad-except
+            result["error"] = exc
         main_loop.quit()
 
     nm_client.add_connection2(
@@ -362,24 +238,21 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
 
     main_loop.run()
 
-    assert "error" not in result, "add connection %s failed: %s" % (
-        name,
-        result["error"],
-    )
+    assert "error" not in result, f'Add connection {name} failed: {result["error"]}'
 
 
 @step('Clone connection "{con_src}" to "{con_dst}" using libnm')
 @step('Clone connection "{con_src}" to "{con_dst}" using libnm with flags "{flags}"')
 def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
-    import gi
+    nmci.cleanup.cleanup_add_connection(con_dst)
 
-    gi.require_version("NM", "1.0")
-    from gi.repository import GLib, NM
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    GLib = nmci.util.GLib  # pylint: disable=invalid-name
 
     main_loop = GLib.MainLoop()
     nm_client = NM.Client.new(None)
     con = libnm_get_connection(nm_client, con_src)
-    nm_flags = parse_NM_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
+    nm_flags = parse_nm_settings_flags_string(NM.SettingsAddConnection2Flags, flags)
 
     con2 = NM.SimpleConnection.new_clone(con)
     s_con = con2.get_setting_connection()
@@ -387,11 +260,11 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
     s_con.set_property(NM.SETTING_CONNECTION_UUID, NM.utils_uuid_generate())
     result = {}
 
-    def _add_connection2_cb(cl, async_result, user_data):
+    def _add_connection2_cb(cli, async_result, user_data):
         try:
             nm_client.add_connection2_finish(async_result)
-        except Exception as e:
-            result["error"] = e
+        except Exception as exc:  # pylint: disable=broad-except
+            result["error"] = exc
         main_loop.quit()
 
     nm_client.add_connection2(
@@ -406,11 +279,9 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
 
     main_loop.run()
 
-    assert "error" not in result, "add connection %s failed: %s" % (
-        con_dst,
-        result["error"],
-    )
-    nmci.cleanup.cleanup_add_connection(con_dst)
+    assert (
+        "error" not in result
+    ), f'Clone connection {con_dst} failed: {result["error"]}'
 
 
 @step('Update connection "{con_name}" changing options "{options}" using libnm')
@@ -418,15 +289,13 @@ def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
     'Update connection "{con_name}" changing options "{options}" using libnm with flags "{flags}"'
 )
 def update2_connection_autoconnect(context, con_name, options, flags=""):
-    import gi
-
-    gi.require_version("NM", "1.0")
-    from gi.repository import GLib, NM
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    GLib = nmci.util.GLib  # pylint: disable=invalid-name
 
     main_loop = GLib.MainLoop()
     nm_client = NM.Client.new(None)
     con = libnm_get_connection(nm_client, con_name)
-    nm_flags = parse_NM_settings_flags_string(NM.SettingsUpdate2Flags, flags)
+    nm_flags = parse_nm_settings_flags_string(NM.SettingsUpdate2Flags, flags)
 
     con2 = NM.SimpleConnection.new_clone(con)
     s_con = con2.get_setting_connection()
@@ -452,8 +321,8 @@ def update2_connection_autoconnect(context, con_name, options, flags=""):
     def _update2_cb(con, async_result, user_data):
         try:
             con.update2_finish(async_result)
-        except Exception as e:
-            result["error"] = e
+        except Exception as exc:  # pylint: disable=broad-except
+            result["error"] = exc
         main_loop.quit()
 
     con.update2(
@@ -467,52 +336,47 @@ def update2_connection_autoconnect(context, con_name, options, flags=""):
 
     main_loop.run()
 
-    assert "error" not in result, "update2 connection %s failed: %s" % (
-        con_name,
-        result["error"],
-    )
+    assert (
+        "error" not in result
+    ), f'Update connection {con_name} failed: {result["error"]}'
 
 
 @step(
     'Add bridges over VLANs in range from "{begin}" to "{end}" on interface "{ifname}" via libnm'
 )
 def add_bridges_vlans_range(context, begin, end, ifname):
-    try:
-        begin = int(begin)
-        end = int(end)
-        assert begin > 0, f"invalid range: begin is not positive integer: {begin}"
-        assert end > 0, f"invalid range: end is not positive integer: {end}"
-        assert (
-            begin <= end
-        ), f"invalid range: begin is not less than end: {begin} > {end}"
-    except Exception:
-        assert False, f"begin and end must be positive integers: {begin}, {end}"
+    begin = int(begin)
+    end = int(end)
+    assert begin > 0, f"invalid range: begin is not positive integer: {begin}"
+    assert end > 0, f"invalid range: end is not positive integer: {end}"
+    assert begin <= end, f"invalid range: begin is not less than end: {begin} > {end}"
 
     vlan_range = [f"{ifname}.{id}" for id in range(begin, end + 1)]
     vlan_range += [f"br{id}" for id in range(begin, end + 1)]
     context.vlan_range = getattr(context, "vlan_range", [])
     context.vlan_range += vlan_range
 
-    from nmci.util import GLib, NM
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    GLib = nmci.util.GLib  # pylint: disable=invalid-name
 
     nm_client = NM.Client.new(None)
     result = {}
 
-    def _add_connection_cb(cl, async_result, user_data):
+    def _add_connection_cb(cli, async_result, user_data):
         try:
-            cl.add_connection_finish(async_result)
-        except Exception as e:
-            result["error"] = e
+            cli.add_connection_finish(async_result)
+        except Exception as exc:  # pylint: disable=broad-except
+            result["error"] = exc
         if user_data is not None:
             user_data.quit()
 
-    for id in range(begin, end + 1):
+    for i in range(begin, end + 1):
 
         main_loop = GLib.MainLoop()
         con = NM.SimpleConnection.new()
         uuid = NM.utils_uuid_generate()
-        s_con = NM.SettingConnection(type="bridge", id=f"br{id}", uuid=uuid)
-        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"br{id}")
+        s_con = NM.SettingConnection(type="bridge", id=f"br{i}", uuid=uuid)
+        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"br{i}")
         s_bridge = NM.SettingBridge.new()
         s_ip4 = NM.SettingIP4Config.new()
         s_ip4.set_property(NM.SETTING_IP_CONFIG_METHOD, "disabled")
@@ -528,17 +392,17 @@ def add_bridges_vlans_range(context, begin, end, ifname):
         main_loop = GLib.MainLoop()
         con = NM.SimpleConnection.new()
         uuid = NM.utils_uuid_generate()
-        s_con = NM.SettingConnection(type="vlan", id=f"{ifname}.{id}", uuid=uuid)
-        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"{ifname}.{id}")
+        s_con = NM.SettingConnection(type="vlan", id=f"{ifname}.{i}", uuid=uuid)
+        s_con.set_property(NM.SETTING_CONNECTION_INTERFACE_NAME, f"{ifname}.{i}")
         s_con.set_property(NM.SETTING_CONNECTION_SLAVE_TYPE, "bridge")
-        s_con.set_property(NM.SETTING_CONNECTION_MASTER, f"br{id}")
-        s_vlan = NM.SettingVlan(id=id, parent=ifname)
+        s_con.set_property(NM.SETTING_CONNECTION_MASTER, f"br{i}")
+        s_vlan = NM.SettingVlan(id=i, parent=ifname)
         con.add_setting(s_con)
         con.add_setting(s_vlan)
         nm_client.add_connection_async(con, True, None, _add_connection_cb, main_loop)
         main_loop.run()
 
-        assert "error" not in result, f"add connection {id} failed: {result['error']}"
+        assert "error" not in result, f"add connection {i} failed: {result['error']}"
 
 
 @step('Cleanup connection "{connection}"')
@@ -556,4 +420,4 @@ def cleanup_connection(context, connection, device=None):
 def note_gotten_value(context, prop, con, index="noted-value"):
     if not hasattr(context, "noted"):
         context.noted = {}
-    context.noted[index] = nmci.process.run_stdout(f"nmcli -g {prop} c s {con}")
+    context.noted[index] = nmci.process.nmcli(f"-g {prop} c s {con}")
