@@ -59,6 +59,7 @@ def _before_scenario(context, scenario):
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
     context.crashed_step = False
+    context.noted = {}
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
     context.arch = nmci.process.run_stdout(
