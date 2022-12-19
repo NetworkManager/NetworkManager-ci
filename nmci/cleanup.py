@@ -13,6 +13,7 @@ class Cleanup:
     PRIORITY_CALLBACK_DEFAULT = 0
     PRIORITY_TAG = 10
     PRIORITY_CONNECTION = 20
+    PRIORITY_SYSCTL = 25
     PRIORITY_NAMESPACE = 30
     PRIORITY_IFACE_DELETE = 30
     PRIORITY_IFACE_RESET = 31
@@ -134,6 +135,46 @@ class CleanupIface(Cleanup):
             nmci.process.nmcli_force(["device", "delete", self.iface])
             return
         raise Exception(f'Unexpected cleanup op "{self.op}"')
+
+
+class CleanupSysctls(Cleanup):
+    """
+    The __init__() function accepts a single pattern passed to:
+        sysctl -a --pattern PATTERN
+    in order to avoid any processing of these values within NM CI
+    """
+
+    def __init__(self, sysctls_pattern, namespace=None):
+        import nmci.process
+
+        cmd = ["sysctl", "-a", "--pattern", sysctls_pattern]
+        if namespace:
+            self.namespace = namespace
+            cmd = ["ip", "netns", "exec", namespace, *cmd]
+        else:
+            self.namespace = None
+
+        self.sysctls = nmci.process.run_stdout(cmd)
+        Cleanup.__init__(self, name=f"sysctls-pattern-{sysctls_pattern}")
+
+    def _do_cleanup(self):
+        import nmci.pexpect
+        import nmci.process
+        import nmci.util
+
+        if self.namespace is not None:
+            if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
+                return
+            prefix = ["ip", "netns", "exec", namespace]
+        else:
+            prefix = []
+
+        pexpect_cmd = " ".join([*prefix, "sysctl", f"-p-"])
+        sysctl_p = nmci.pexpect.pexpect_spawn(pexpect_cmd, check=True)
+        sysctl_p.send(self.sysctls)
+        sysctl_p.sendline("")
+        sysctl_p.sendcontrol("d")
+        sysctl_p.sendeof()
 
 
 class CleanupNamespace(Cleanup):
@@ -341,6 +382,9 @@ class _Cleanup:
 
     def cleanup_add_iface(self, *a, **kw):
         self._cleanup_add(CleanupIface(*a, **kw))
+
+    def cleanup_add_sysctls(self, *a, **kw):
+        self._cleanup_add(CleanupSysctls(*a, **kw))
 
     def cleanup_add_namespace(self, *a, **kw):
         self._cleanup_add(CleanupNamespace(*a, **kw))

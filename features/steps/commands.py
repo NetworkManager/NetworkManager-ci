@@ -838,3 +838,9 @@ def run_nmstate(context, log_file):
         shell=True,
         timeout=1200,
     )
+
+
+@step('Set sysctl "{sysctl}" to "{value}"')
+def set_sysctl(context, sysctl, value):
+    nmci.cleanup.cleanup_add_sysctls(sysctl)
+    nmci.process.run(["sysctl", "-w", f"{sysctl}={value}"])
