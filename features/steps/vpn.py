@@ -1,3 +1,4 @@
+# pylint: disable=unused-argument,line-too-long
 import time
 from behave import step  # pylint: disable=no-name-in-module
 import nmci
