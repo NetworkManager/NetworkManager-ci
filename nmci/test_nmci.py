@@ -1817,6 +1817,7 @@ def test_black_code_fromatting():
     files = [
         nmci.util.base_dir("contrib/gui/steps.py"),
         nmci.util.base_dir("features/environment.py"),
+        nmci.util.base_dir("features/steps/vpn.py"),
         nmci.util.base_dir("features/steps/service.py"),
         nmci.util.base_dir("nmci"),
         nmci.util.base_dir("nmci/helpers/version_control.py"),

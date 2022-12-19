@@ -7,13 +7,16 @@ import nmci
 
 
 def vpn_options_str(vpn_data, vpn_secrets):
-    vpn_data_str = ", ".join(["%s = %s" % (attr, vpn_data[attr]) for attr in vpn_data.keys()])
+    vpn_data_str = ", ".join(
+        ["%s = %s" % (attr, vpn_data[attr]) for attr in vpn_data.keys()]
+    )
     vpn_data_str = "vpn.data '%s'" % vpn_data_str
 
     vpn_secrets_str = ""
     if vpn_secrets:
         vpn_secrets_str = ", ".join(
-            ["%s = %s" % (attr, vpn_secrets[attr]) for attr in vpn_secrets.keys()])
+            ["%s = %s" % (attr, vpn_secrets[attr]) for attr in vpn_secrets.keys()]
+        )
         vpn_secrets_str = " vpn.secrets '%s'" % vpn_secrets_str
 
     with open("/tmp/vpn.data", "w") as f:
@@ -22,10 +25,12 @@ def vpn_options_str(vpn_data, vpn_secrets):
     return vpn_data_str + vpn_secrets_str
 
 
-@step(u'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"')
+@step(
+    'Use certificate "{cert}" with key "{key}" and authority "{ca}" for gateway "{gateway}" on OpenVPN connection "{name}"'
+)
 def set_openvpn_connection(context, cert, key, ca, gateway, name):
     path = "%s/contrib/openvpn" % os.getcwd()
-    samples = glob.glob(os.path.abspath(path))[0]+'/'
+    samples = glob.glob(os.path.abspath(path))[0] + "/"
 
     vpn_data = {
         "tunnel-mtu": "1400",
@@ -37,16 +42,24 @@ def set_openvpn_connection(context, cert, key, ca, gateway, name):
         "cert-pass-flags": "0",
     }
 
-    context.execute_steps('''
+    context.execute_steps(
+        """
     * Modify connection "%s" changing options "%s"
-    ''' % (name, vpn_options_str(vpn_data, {})))
+    """
+        % (name, vpn_options_str(vpn_data, {}))
+    )
 
     time.sleep(1)
 
 
-@step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"')
+@step(
+    'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"'
+)
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
-    if nmci.process.run_search_stdout("rpm -qa", "libreswan-4") is not None and 'release 8' not in context.rh_release:
+    if (
+        nmci.process.run_search_stdout("rpm -qa", "libreswan-4") is not None
+        and "release 8" not in context.rh_release
+    ):
         username_option = "leftusername"
     else:
         username_option = "leftxauthusername"
@@ -68,12 +81,17 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
     if secret != "ask":
         vpn_secrets["pskvalue"] = secret
 
-    context.execute_steps('''
+    context.execute_steps(
+        """
     * Modify connection "%s" changing options "%s"
-    ''' % (name, vpn_options_str(vpn_data, vpn_secrets)))
+    """
+        % (name, vpn_options_str(vpn_data, vpn_secrets))
+    )
 
 
-@step(u'Use user "{user}" with secret "{secret}" for gateway "{gateway}" on Strongswan connection "{name}"')
+@step(
+    'Use user "{user}" with secret "{secret}" for gateway "{gateway}" on Strongswan connection "{name}"'
+)
 def set_strongswan_connection(context, user, secret, gateway, name):
     vpn_data = {
         "user": user,
@@ -86,12 +104,17 @@ def set_strongswan_connection(context, user, secret, gateway, name):
         "password": secret,
     }
 
-    context.execute_steps('''
+    context.execute_steps(
+        """
     * Modify connection "%s" changing options "%s"
-    ''' % (name, vpn_options_str(vpn_data, vpn_secrets)))
+    """
+        % (name, vpn_options_str(vpn_data, vpn_secrets))
+    )
 
 
-@step(u'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on VPNC connection "{name}"')
+@step(
+    'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on VPNC connection "{name}"'
+)
 def set_vpnc_connection(context, user, password, group, secret, gateway, name):
     vpn_data = {
         "NAT Traversal Mode": "natt",
@@ -113,12 +136,17 @@ def set_vpnc_connection(context, user, password, group, secret, gateway, name):
         "Xauth password": password,
     }
 
-    context.execute_steps('''
+    context.execute_steps(
+        """
     * Modify connection "%s" changing options "%s"
-    ''' % (name, vpn_options_str(vpn_data, vpn_secrets)))
+    """
+        % (name, vpn_options_str(vpn_data, vpn_secrets))
+    )
 
 
-@step(u'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"')
+@step(
+    'Use user "{user}" with password "{password}" and MPPE set to "{mppe}" for gateway "{gateway}" on PPTP connection "{name}"'
+)
 def set_pptp_connection(context, user, password, mppe, gateway, name):
     vpn_data = {
         "password-flags": "2" if password == "file" else "0",
@@ -131,16 +159,19 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
         "password": password,
     }
 
-    context.execute_steps('''
+    context.execute_steps(
+        """
     * Modify connection "%s" changing options "%s"
-    ''' % (name, vpn_options_str(vpn_data, vpn_secrets)))
+    """
+        % (name, vpn_options_str(vpn_data, vpn_secrets))
+    )
 
 
-@step(u'Connect to vpn "{vpn}" with password "{password}"')
-@step(u'Connect to vpn "{vpn}" with password "{password}" after "{time_out}" seconds')
-@step(u'Connect to vpn "{vpn}" with password "{password}" and secret "{secret}"')
+@step('Connect to vpn "{vpn}" with password "{password}"')
+@step('Connect to vpn "{vpn}" with password "{password}" after "{time_out}" seconds')
+@step('Connect to vpn "{vpn}" with password "{password}" and secret "{secret}"')
 def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
-    cli = context.pexpect_spawn('nmcli -a connect up %s' % (vpn), timeout=180)
+    cli = context.pexpect_spawn("nmcli -a connect up %s" % (vpn), timeout=180)
     if not time_out:
         time.sleep(1)
     else:
@@ -150,10 +181,18 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=None):
         time.sleep(1)
         cli.sendline(secret)
     if nmci.process.systemctl("-q is-active polkit").returncode == 0:
-        r = cli.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
-        assert r != 0, 'Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer)
-        assert r != 1, 'nmcli vpn connect ... timed out (180s)'
+        r = cli.expect(["Error", pexpect.TIMEOUT, pexpect.EOF])
+        assert r != 0, "Got an Error while connecting to network %s\n%s%s" % (
+            vpn,
+            cli.after,
+            cli.buffer,
+        )
+        assert r != 1, "nmcli vpn connect ... timed out (180s)"
     else:
         # Remove me when 1756441 is fixed
-        r = cli.expect(['Connection successfully activated', pexpect.TIMEOUT])
-        assert r == 0, 'Got an Error while connecting to network %s\n%s%s' % (vpn, cli.after, cli.buffer)
+        r = cli.expect(["Connection successfully activated", pexpect.TIMEOUT])
+        assert r == 0, "Got an Error while connecting to network %s\n%s%s" % (
+            vpn,
+            cli.after,
+            cli.buffer,
+        )
