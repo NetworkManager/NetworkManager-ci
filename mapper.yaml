@@ -342,7 +342,7 @@ testmapper:
     - pppoe_over_vlan:
         feature: ppp
     - nmstate_upstream:
-       timeout: 40m
+       timeout: 25m
        feature: general
     - bridge_options:
         feature: bridge

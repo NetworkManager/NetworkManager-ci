@@ -2046,95 +2046,11 @@ def nmstate_as(context, scenario):
 _register_tag("nmstate", nmstate_bs, nmstate_as)
 
 
-def nmstate_upstream_setup_bs(context, scenario):
-    # Prepare nmstate and skip if unsuccesful
-    nmci.veth.wait_for_testeth0()
-    if (
-        context.process.run_code(
-            "sh prepare/nmstate.sh", timeout=600, ignore_stderr=True
-        )
-        != 0
-    ):
-        context.cext.skip("ERROR: Skipping as prepare failed")
-        return
-
-    # Rename eth1/2 to ethX/Y as these are used by test
-    context.process.run_stdout("ip link set dev eth1 down")
-    context.process.run_stdout("ip link set name eth01 eth1")
-    context.process.run_stdout("ip link set dev eth2 down")
-    context.process.run_stdout("ip link set name eth02 eth2")
-
-    # We need to have use_tempaddr set to 0 to avoid test_dhcp_on_bridge0 PASSED
-    context.process.run_stdout("echo 0 > /proc/sys/net/ipv6/conf/default/use_tempaddr")
-
-    # Clone default profile but just ipv4 only"
-    active_con = nmci.nmutil.connection_show(
-        only_active=True,
-        without_active_externally=True,
-    )
-    assert len(active_con) == 1, f"did not find exactly one connection: {active_con}"
-    active_con = active_con[0]["NAME"]
-    context.process.nmcli(["con", "clone", active_con, "nmstate"])
-    context.process.nmcli(
-        "con modify nmstate ipv6.method disabled ipv6.addresses '' ipv6.gateway ''"
-    )
-    context.process.nmcli("con up nmstate")
-
-    # Move config files to /tmp in case we have vethsetup
-    context.process.run_stdout(
-        "cp /etc/NetworkManager/conf.d/99-test.conf /tmp/99-test.conf"
-    )
-    context.process.run_stdout(
-        "cp /etc/NetworkManager/conf.d/99-unmanage-orig.conf /tmp/99-unmanage-orig.conf"
-    )
-
-    # Remove connectivity packages if present
-    context.process.run(
-        "dnf -y remove NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat",
-        ignore_stderr=True,
-        timeout=120,
-    )
-    nmci.veth.manage_veths()
-
-    # if (
-    #     context.process.systemctl("is-active openvswitch").returncode != 0
-    #     or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
-    # ):
-    print("restarting OVS service")
-    context.process.systemctl("restart openvswitch")
-    nmci.nmutil.restart_NM_service(context)
+def nmstate_setup_as(context, scenario):
+    nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt", fail_only=True)
 
 
-def nmstate_upstream_setup_as(context, scenario):
-    # nmstate restarts NM few times during tests
-    context.nm_restarted = True
-
-    # in case of fail we need to kill this
-    context.process.systemctl("stop dnsmasq")
-    context.process.run("pkill -f 'dnsmasq.*/etc/dnsmasq.d/nmstate.conf'", shell=True)
-    context.process.run("rm -f /etc/dnsmasq.d/nmstate.conf", shell=True)
-
-    nmci.crash.after_crash_reset(context)
-
-    # Move config files back
-    context.process.run_stdout(
-        "mv /tmp/99-test.conf /etc/NetworkManager/conf.d/99-test.conf"
-    )
-    context.process.run_stdout(
-        "mv /tmp/99-unmanage-orig.conf /etc/NetworkManager/conf.d/99-unmanage-orig.conf"
-    )
-
-    nmci.nmutil.restart_NM_service()
-
-    nmstate = nmci.util.file_get_content_simple("/tmp/nmstate.txt")
-    if nmstate:
-        print("Attaching nmstate log")
-        nmci.embed.embed_data("NMSTATE", nmstate)
-
-
-_register_tag(
-    "nmstate_upstream_setup", nmstate_upstream_setup_bs, nmstate_upstream_setup_as
-)
+_register_tag("nmstate_setup", None, nmstate_setup_as)
 
 
 def backup_sysconfig_network_bs(context, scenario):

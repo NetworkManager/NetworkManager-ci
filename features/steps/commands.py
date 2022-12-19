@@ -2,6 +2,7 @@ import glob
 import json
 import operator
 import os
+import shutil
 import pexpect
 import re
 import shlex
@@ -766,3 +767,56 @@ def load_nftables(context, ns=None, ruleset=None):
 @step(u'Cleanup nftables in namespace "{ns}"')
 def flush_nftables(context, ns=None):
     nmci.cleanup.cleanup_add_nft(ns)
+
+
+@step(u'Run tier0 nmstate tests with log in "{log_file}"')
+def run_nmstate(context, log_file):
+    # Install podman and git clone nmstate
+    nmci.veth.wait_for_testeth0()
+    nmci.util.directory_remove('nmstate', recursive=True)
+    nmci.process.run_stdout(
+        "git clone https://github.com/nmstate/nmstate.git",
+        ignore_stderr=True,
+    )
+
+    # Get environement variables
+    release = "el9"
+    if int(context.rh_release_num) == 8:
+        release = "el8"
+
+    # Create the first part of cmd to execute
+    cmd = f"nmstate/automation/run-tests-in-nmci.sh --{release}"
+
+    if os.path.exists("/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"):
+        cmd += " --rpm-dir /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"
+    elif os.path.exists("/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"):
+        cmd += " --rpm-dir /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"
+    elif os.path.exists("/etc/yum.repos.d/nm-copr.repo"):
+        with open("/etc/yum.repos.d/nm-copr.repo", "r") as repo:
+            for line in repo.readlines():
+                if line.startswith("baseurl"):
+                    copr = line.split('/')[-4] + "/" + line.split('/')[-3]
+                    cmd += f" --copr {copr}"
+                    break
+    # Here we have stock packages, let's download them
+    else:
+        dir_name = "/tmp/nm_stock_pkgs/"
+        nmci.util.directory_remove(dir_name, recursive=True)
+        os.mkdir(dir_name)
+        nmci.process.run_stdout(
+            f"wget $(./contrib/utils/brew_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
+            ignore_stderr=True,
+            shell=True,
+            timeout=30,
+        )
+        cmd += " --rpm-dir /tmp/nm_stock_pkgs/"
+    # Add all logging to the logfile
+    cmd += (f" &> {log_file} </dev/null")
+
+    # And run it
+    nmci.process.run_stdout(
+        cmd,
+        ignore_stderr=True,
+        shell=True,
+        timeout=1200,
+    )
