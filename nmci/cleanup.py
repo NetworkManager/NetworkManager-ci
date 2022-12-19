@@ -16,6 +16,7 @@ class Cleanup:
     PRIORITY_SYSCTL = 25
     PRIORITY_NAMESPACE = 30
     PRIORITY_IFACE_DELETE = 30
+    PRIORITY_MPTCP = 30
     PRIORITY_IFACE_RESET = 31
     PRIORITY_PEXPECT_SERVICE = 40
     PRIORITY_NFT_DEFAULT = 40
@@ -206,6 +207,44 @@ class CleanupNamespace(Cleanup):
         )
 
 
+class CleanupMptcp(Cleanup):
+    def __init__(self):
+        from pyroute2 import MPTCP
+
+        mptcp = MPTCP()
+
+        endpoints = [
+            {k[19:].lower(): v for k, v in e["attrs"][0][1]["attrs"]}
+            for e in mptcp.endpoint("show")
+        ]
+        # fields now have format accepted by endpoint("set") but we don't need all of them
+        # include only fields we need to set
+        self.mptcp_endpoints = [
+            {
+                k: v
+                for k, v in endpoint.items()
+                if k in {"port", "id", "flags", "addr", "addr4", "addr6"}
+            }
+            for endpoint in endpoints
+        ]
+
+        self.mptcp_limits = {
+            k[14:].lower(): v for k, v in mptcp.limits("show")[0]["attrs"]
+        }
+
+        Cleanup.__init__(self, name="MPTCP-backup", priority=Cleanup.PRIORITY_MPTCP)
+
+    def _do_cleanup(self):
+        from pyroute2 import MPTCP
+
+        mptcp = MPTCP()
+        mptcp.endpoint("flush")
+        for endpoint in self.mptcp_endpoints:
+            mptcp.endpoint("add", **endpoint)
+        if len(self.mptcp_limits):
+            mptcp.limits("set", **self.mptcp_limits)
+
+
 class CleanupNft(Cleanup):
     def __init__(self, namespace=None, priority=None):
         if priority is None:
@@ -388,6 +427,9 @@ class _Cleanup:
 
     def cleanup_add_namespace(self, *a, **kw):
         self._cleanup_add(CleanupNamespace(*a, **kw))
+
+    def cleanup_add_ip_mptcp(self, *a, **kw):
+        self._cleanup_add(CleanupMptcp(*a, **kw))
 
     def cleanup_add_nft(self, *a, **kw):
         self._cleanup_add(CleanupNft(*a, **kw))

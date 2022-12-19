@@ -581,3 +581,71 @@ def prepare_iptunnel_doc(context, mode):
         context.command_code("ip -n iptunnelB link set brB up")
         context.command_code("ip -n iptunnelB addr add 192.0.2.2/24 dev brB")
         context.command_code("ip -n iptunnelB link set tunB master brB")
+
+
+@step('Prepare simulated MPTCP setup with "{num}" veths named "{veth}"')
+@step('Prepare simulated MPTCP setup with "{num}" veths named "{veth}" and MPTCP type "{typ}"')
+def mptcp(context, num, veth, typ="subflow"):
+    import nmci.pexpect
+
+    number = int(num)
+    nsname = "mptcp"
+    run_in_ns = ["ip", "netns", "exec", nsname]
+    ip_in_ns = ["ip", "-n", nsname]
+
+    nmci.cleanup.cleanup_add_namespace(nsname)
+    nmci.process.run(["ip", "netns", "add", nsname])
+
+    nmci.cleanup.cleanup_add_sysctls("\.rp_filter")
+    nmci.cleanup.cleanup_add_sysctls("mptcp")
+    nmci.cleanup.cleanup_add_ip_mptcp()
+    nmci.process.run_stdout([*ip_in_ns, "mptcp", "endpoint", "flush"])
+    nmci.process.run_stdout([*ip_in_ns, "mptcp", "limits", "set", "subflow", num, "add_addr_accepted", f"{number - 1}"])
+
+    nmci.process.run([*run_in_ns, "sysctl", "-w", "net.mptcp.enabled=1"])
+    for i in range(number):
+        iface = f"{veth}{i}"
+        iface_ns = f"{veth}{i}p"
+        v4_start = 80 + i
+        v6_start = hex(v4_start)[2:]
+        ipv4 = f"192.168.{v4_start}.1"
+        ipv6 = f"2620:dead:beaf:{v6_start}::1"
+        nmci.cleanup.cleanup_add_iface(iface)
+        nmci.process.run(["ip", "l", "add", iface, "type", "veth", "peer", "name", iface_ns, "netns", nsname])
+        nmci.process.run([*ip_in_ns, "l", "set", iface_ns, "up"])
+        nmci.process.run([*ip_in_ns, "addr", "add", f"{ipv4}/24", "dev", f"{iface}p"])
+        nmci.process.run([*ip_in_ns, "addr", "add", f"{ipv6}/64", "dev", f"{iface}p"])
+        nmci.process.run([*ip_in_ns, "mptcp", "endpoint", "add", ipv4, "dev", iface_ns, typ])
+        nmci.process.run([*ip_in_ns, "mptcp", "endpoint", "add", ipv6, "dev", iface_ns, typ])
+
+    rp_filter_keys = nmci.process.run_stdout([*run_in_ns, "sysctl", "-N", "-a", "--pattern", r"\.rp_filter"]).strip()
+    if len(rp_filter_keys) > 0:
+        #rp_filters = "\n".join([*[f"{k} = 0" for k in rp_filter_keys.split("\n")], "\n"])
+        rp_filters = [f"{k} = 0" for k in rp_filter_keys.split("\n")]
+
+        pexpect_cmd = " ".join([*run_in_ns, "sysctl", f"-p-"])
+        sysctl_p = nmci.pexpect.pexpect_spawn(pexpect_cmd, check=True)
+        #sysctl_p.send(rp_filters)
+        for f in rp_filters:
+            sysctl_p.sendline(f)
+        sysctl_p.sendcontrol('d')
+        sysctl_p.sendeof()
+
+    for f in ["/tmp/nmci-mptcp-ncat-4", "/tmp/nmci-mptcp-ncat-6"]:
+        try:
+            os.remove(f)
+        except FileNotFoundError:
+            pass
+    if nmci.util.DEBUG:
+        redir = "| tee"
+        nmci.process.run_stdout([*ip_in_ns, "addr"])
+        nmci.process.run_stdout([*ip_in_ns, "-4", "route"])
+        nmci.process.run_stdout([*ip_in_ns, "-6", "route"])
+        nmci.process.run_stdout([*ip_in_ns, "mptcp", "limits"])
+        nmci.process.run_stdout([*ip_in_ns, "mptcp", "endpoint"])
+        nmci.process.run_stdout([*run_in_ns, "sysctl", "-a", "--pattern", "mptcp"])
+        nmci.process.run_stdout([*run_in_ns, "sysctl", "-a", "--pattern", r"\.rp_filter"])
+    else:
+        redir = ">"
+    nmci.pexpect.pexpect_service(f"ip netns exec {nsname} tcpdump -i any -Ulvnn --number 'tcp port 9006' {redir} /tmp/tcpdump.log", shell=True, label="child")
+    nmci.pexpect.pexpect_service(f"ip netns exec {nsname} mptcpize run ncat -k -l 9006 {redir} /tmp/nmci-mptcp-ncat.log ", shell=True, label="child")
