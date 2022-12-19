@@ -40,6 +40,36 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
 
 
 @step(
+    'Add insecure "{typ}" connection named "{name}" for device "{ifname}" with options'
+)
+def add_insecure(context, typ, name, ifname):
+    nmci.cleanup.cleanup_add_connection(name)
+    options = context.text.replace("\n", " ") if context.text is not None else " "
+    options = nmci.misc.str_replace_dict(options, context.noted)
+    command = f"con add type {typ} con-name {name} ifname {ifname} {options}"
+    result = nmci.process.nmcli_force(command)
+
+    message = ""
+    if result.stdout:
+        message += f"\nSTDOUT:\n{result.stdout}\n"
+    if result.stderr:
+        message += f"\nSTDERR:\n{result.stderr}\n"
+
+    assert (
+        result.returncode == 0
+    ), f"Command `nmcli {command}` returned {result.returncode}\n{message}"
+    assert (
+        "Error" not in result.stdout
+    ), f"Command `nmcli {command}` returned {result.returncode}\nprinted 'Error' in STDOUT\n{message}"
+
+    err_split = result.stderr.strip("\n").split("\n")
+    err_filter = [message for message in err_split if "Warning" not in message]
+    assert (
+        not err_filter
+    ), f"Command `nmcli {command}` returned {result.returncode}\nprinted more than 'Warning' to STDERR\n{message}"
+
+
+@step(
     'Add infiniband port named "{name}" for device "{ifname}" with parent "{parent}" and p-key "{pkey}"'
 )
 def add_port(context, name, ifname, parent, pkey):

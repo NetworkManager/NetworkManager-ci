@@ -38,8 +38,18 @@ Feature: nmcli - wifi
     @simwifi_wep_tls
     Scenario: nmcli - simwifi - connect to WEP TLS
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid dynwep"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt ieee8021x 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
+            """
+            autoconnect no
+            ssid dynwep
+            802-11-wireless-security.key-mgmt ieee8021x
+            802-1x.eap tls
+            802-1x.identity test
+            802-1x.ca-cert /tmp/certs/test_user.ca.pem
+            802-1x.client-cert /tmp/certs/test_user.cert.pem
+            802-1x.private-key /tmp/certs/test_user.key.enc.pem
+            802-1x.private-key-password redhat
+            """"
     * Wait for "1" seconds
     Then Bring "up" connection "wifi"
 
@@ -49,7 +59,7 @@ Feature: nmcli - wifi
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options
+    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
           """
           autoconnect no
           ssid dynwep
@@ -70,7 +80,7 @@ Feature: nmcli - wifi
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add "wifi" connection named "wifi" for device "wlan0" with options
+    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
           """
           autoconnect no
           ssid dynwep
@@ -944,7 +954,7 @@ Feature: nmcli - wifi
 
     @simwifi_wifisec_authalg_wrong_values
     Scenario: nmcli - simwifi - set wrong authalg & leap with from keymgmt
-    * Add "wifi" connection named "wifi0" for device "wlan0" with options
+    * Add insecure "wifi" connection named "wifi0" for device "wlan0" with options
       """
       ssid open
       autoconnect off
