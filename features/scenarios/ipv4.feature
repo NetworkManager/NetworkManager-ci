@@ -2912,6 +2912,7 @@ Feature: nmcli: ipv4
 
     @rhbz2132754
     @ver+=1.41.6
+    @ver+=1.40.9
     @ipv4_reapply_preserve_external_ip
     Scenario: @ipv4_reapply_preserve_external_ip
     * Prepare simulated test "testX4" device
