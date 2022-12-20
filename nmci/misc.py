@@ -736,13 +736,13 @@ class _Misc:
             git_commit = None
 
         for tag in html_tags:
+            tag_name = tag.behave_tag.lstrip("@")
 
-            if tag.behave_tag.startswith("@rhbz"):
+            if tag_name.startswith("rhbz"):
                 tag.set_link(
-                    "https://bugzilla.redhat.com/" + tag.behave_tag.replace("@rhbz", "")
+                    "https://bugzilla.redhat.com/" + tag_name.replace("rhbz", "")
                 )
-            elif tag.behave_tag.lstrip("@") in tags.tag_registry and git_url:
-                tag_name = tag.behave_tag.lstrip("@")
+            elif tag_name in tags.tag_registry and git_url:
                 lineno = tags.tag_registry[tag_name].lineno
                 tag.set_link(f"{git_url}/-/tree/{git_commit}/nmci/tags.py#L{lineno}")
             else:
