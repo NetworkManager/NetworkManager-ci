@@ -175,11 +175,18 @@ class _Embed:
                 return ("text/plain", f"truncated mime_type={mime_type} on success")
             if isinstance(data, str):
                 if len(data) > 2048:
-                    # embed first line, header of command
-                    data_header, data = data.split("\n", 1)
+                    data_split = data.split("\n", 1)
+                    if len(data_split) == 2:
+                        # embed first line, header of command, truncate header if longer than 2048
+                        data_header, data = data_split
+                        if len(data_header) > 2048:
+                            data_header = f"...{data_header[-2048:]}"
+                        data_header = f"{data_header}\n"
+                    else:
+                        data_header = ""
                     return (
                         mime_type,
-                        f"truncated on success\n\n{data_header}\n...\n{data[-2048:]}",
+                        f"truncated on success\n\n{data_header}...\n{data[-2048:]}",
                     )
             elif isinstance(data, bytes):
                 if len(data) > 2048:
