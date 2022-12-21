@@ -2902,7 +2902,10 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "192.168.99.1/24 /192.168.99.[0-9]+/24$" on device "testX4"
     * Execute "nmcli device modify testX4 +ipv4.addresses '192.168.99.3/24'"
-    Then Check "ipv4" address list "192.168.99.1/24 192.168.99.3/24 /192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
+    Then Check "ipv4" address list "192.168.99.1/24 /192.168.99.[0-9]+/24 /192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
+     And "192.168.99.1/24" is visible with command "ip addr show dev testX4 primary"
+     And "192.168.99.3/24" is visible with command "ip addr show dev testX4 secondary"
+     And "192.168.99.([0-24-9][0-9]*|3[0-9]+)/24" is visible with command "ip addr show dev testX4 secondary"
     * Execute "nmcli device modify testX4 ipv4.addresses ''"
     Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
     * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.1/24,192.168.99.2/24,192.168.99.3/24'"
