@@ -56,9 +56,7 @@ def add_insecure(context, typ, name, ifname):
     ), f"Command `nmcli {command}` returned {result.returncode}\nprinted 'Error' in STDOUT\n{message}"
 
     err_split = result.stderr.strip("\n").split("\n")
-    err_filter = [
-        message for message in err_split if message and "Warning" not in message
-    ]
+    err_filter = [line for line in err_split if line and "Warning" not in line]
     assert (
         not err_filter
     ), f"Command `nmcli {command}` returned {result.returncode}\nprinted more than 'Warning' to STDERR\n{message}"
