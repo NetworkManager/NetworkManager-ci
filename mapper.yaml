@@ -862,6 +862,14 @@ testmapper:
     - ipv4_route_set_route_with_options:
         feature: ipv4
         tags: gate
+    - ipv4_route_set_single_route_with_weight:
+        feature: ipv4
+    - ipv4_route_set_ecmp_route_with_weight:
+        feature: ipv4
+    - ipv4_route_set_ecmp_route_with_weight_and_modify:
+        feature: ipv4
+    - ipv4_route_set_ecmp_routes_in_two_profiles:
+        feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax:
         feature: ipv4
     - ipv4_route_set_route_with_src_old_syntax:

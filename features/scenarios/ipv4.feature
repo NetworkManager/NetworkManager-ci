@@ -325,6 +325,94 @@ Feature: nmcli: ipv4
     And "advmss\s+1440\s+rto_min\s+100ms\s+quickack\s+1" is visible with command "ip r"
 
 
+    @ver+=1.41.7
+    @ipv4_route_set_single_route_with_weight
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'
+          """
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
+     And "default" is visible with command "ip r |grep eth0"
+
+
+    @ver+=1.41.7
+    @ipv4_route_set_ecmp_route_with_weight
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5, 192.168.5.0/24 192.168.3.12 weight=10'
+          """
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev eth3 weight 11" is visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev eth3 weight 6" is visible with command "ip route"
+     And "default" is visible with command "ip r |grep eth0"
+
+
+    @ver+=1.41.7
+    @ipv4_route_set_ecmp_route_with_weight_and_modify
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5, 192.168.5.0/24 192.168.3.12 weight=10'
+          """
+    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev eth3 weight 11" is visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev eth3 weight 6" is visible with command "ip route"
+     And "default" is visible with command "ip r |grep eth0"
+    * Execute "nmcli connection modify con_ipv4 ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'"
+    * Execute "nmcli c up con_ipv4"
+    Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev eth3 weight 11" is not visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev eth3 weight 6" is not visible with command "ip route"
+
+
+    @ver+=1.41.7
+    @ipv4_route_set_ecmp_routes_in_two_profiles
+    Scenario: nmcli - ipv4 - routes - set route with options
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.12 weight=10'
+          """
+    * Add "ethernet" connection named "con_ipv4_2" for device "eth2" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.20/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'
+          """
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev eth3 weight 11" is visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev eth2 weight 6" is visible with command "ip route"
+     And "default" is visible with command "ip r |grep eth0"
+
+
     @rhbz1373698
     @ver+=1.8.0
     @restart_if_needed
