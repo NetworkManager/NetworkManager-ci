@@ -504,10 +504,8 @@ class _Misc:
         # 1) the version tags '-'/'+' are just convenience forms of '-='/'+='. They
         #    need no special consideration ("+1.28.5" is exactly the same as "+=1.28.6").
         #
-        # 2) if both '-=' and '+=' are present, then both groups must be satisfied
-        #    at the same time. E.g. "ver+=1.24, ver-=1.28" to define a range.
-        #    That means, we evaluate
-        #      (not has-minus or minus-satisfied) and (not has-plus or plus-satisfied)
+        # 2) if both '-=' and '+=' are present, they might either define single closed range
+        #    e.g. "ver+=1.26, ver-=1.30", or a "hole" (buggy interval), e.g. "ver-=1.26, ver+=1.30".
         #
         # 3) version tags can either specify the full version ("ver+=1.26.4") or only the major
         #    component ("ver+=1.27").
@@ -523,21 +521,14 @@ class _Misc:
         #    With example "ver+=1.26.4, ver+=1.28.2", the first tag only covers 1.26.4+ stable
         #    versions, nothing else.
         #
-        # 4) for '+' group, the version tags are effectively OR-ed. Examples:
-        #    - "ver+=1.28.6" covers 1.28.6+ and 1.29+ and 2+
-        #    - "ver+=1.28.6, ver+=1.30.4" covers 1.28.6+, 1.30.4+ and 1.31+, but does not cover 1.30.2
-        #    - "ver+=1.28.6, ver+1.30" covers 1.28.6+, 1.31+, 2+, but does not cover 1.30.x
+        # 4) for each '+' version tag that comes right after '+' version tag (when sorted ascending),
+        #    there is added '-' tag, keeping only first 2 parts of version:
+        #    - "ver+=1.28.6 ver+=1.30.1" is equivalent to "ver+=1.28.6 ver-1.30 ver+=1.30.1"
+        #      meaning, that 1.29.x is satisfied, but 1.30.0 is skipped
         #
-        # 5) '-' is the inverse of '+'. For example, "ver+=1.28.5" is the same as
-        #    "not(ver-1.28.5)". Or for example, if one test that specifies "ver+=1.28.6, ver+=1.29.4"
-        #    and another test "ver-1.28.6, ver-1.29.4", then the tags are mutually exclusive.
-        #
-        # 6) with 4) and 5), it follows that for '-' group, the version tags are effectively AND-ed.
-        #    This is due to De Morgan's laws. For example,
-        #           "not(ver+=1.28.5 and ver+=1.30)"
-        #        == "not(not(ver-1.28.5) and not(ver-1.30))"
-        #        == "not(not(ver-1.28.5)) or not(not(ver-1.30))"
-        #        == "ver-1.28.5 or ver-1.30"
+        # 5) for each '-' version tag that comes right before '-' version tag (when sorted ascending),
+        #    there is added '+' tag keeping only first 2 parts of version and adding "9999.9999" :
+        #    - "ver-=1.28.6 ver-=1.30.1" is equivalent to "ver-=1.28.6 ver+1.28.9999.9999 ver-=1.30.1"
 
         l_version = len(version)
         assert l_version > 0
@@ -568,79 +559,109 @@ class _Misc:
                     % (op, ver, version)
                 )
 
-        # '+' is only a special case of '+=', and '-=' is only a special
-        # case of '-'. Reduce the cases we have to handle.
-        def _simplify_ver(op, ver):
-            if op == "+":
-                op = "+="
-                ver = list(ver)
-                ver[-1] += 1
-            elif op == "-=":
-                op = "-"
-                ver = list(ver)
-                ver[-1] += 1
+        # make all the tags equal length, treat "+" and "-=" as upper range
+        def _fill_ver(op, ver):
+            ver = list(ver)
+            while len(ver) < l_version:
+                if op in ["+", "-="]:
+                    ver.append(9999)
+                else:
+                    ver.append(0)
             return (op, ver)
 
-        ver_tags = [_simplify_ver(op, ver) for op, ver in ver_tags]
+        ver_tags = [_fill_ver(op, ver) for op, ver in ver_tags]
 
-        def _eval(ver_tags, version):
+        def _compute_aux_tag(sign, version):
+            inv_sign = sign.replace("+", "-") if "+" in sign else sign.replace("-", "+")
+            # If version is += 1.28.2, do not add -=1.28.0, but rather -1.28.0
+            # However, +=1.28.0 should be -=1.28.0 - so it is overlapping, rather than touching
+            if any(version[2:]):
+                inv_sign = inv_sign.replace("=", "")
+            if "+" in sign:
+                version = version[:2] + [0] * (l_version - 2)
+            else:
+                version = version[:2] + [9999] * (l_version - 2)
+            return (inv_sign, version)
 
+        # Compute auxiliary tags to make stops at version breaks
+        # This trims version into first 2 parts
+        #  - if we are in "+" pass, and we see +=1.34.2 +=1.36.8
+        #    add tag -1.36.0 so, versions between 1.34.2 and 1.35
+        #    are not skipped
+        #  - if we are in "-" pass and we see -=1.34.2 -=1.36.8
+        #    add tag +1.34.9999 so, versions 1.35.X are not skipped
+        def _add_aux_tags(ver_tags, sign):
+            new_tags = []
             if not ver_tags:
-                return None
+                return ver_tags
+            # first 2
+            ver_tags = list(ver_tags)
+            last_tag = None
+            for tag in ver_tags:
+                if sign in tag[0]:
+                    if last_tag is not None and last_tag != tag[1][:2]:
+                        aux_tag = _compute_aux_tag(*tag)
+                        if aux_tag:
+                            new_tags.append(aux_tag)
+                    last_tag = tag[1][:2]
+                else:
+                    last_tag = None
+            return new_tags
 
-            is_val_len_first = True
+        # this is to compare the tags with same version
+        # but different operator
+        _op_idx = lambda op: ["-", "-=", "+=", "+"].index(op)
 
-            for ver_len in range(1, len(version) + 1):
+        # key for sorting the version tags
+        _cmp_ver = lambda x: x[1] + [_op_idx(x[0])]
 
-                ver_l = [ver for ver in ver_tags if len(ver) == ver_len]
+        ver_tags.sort(key=_cmp_ver)
 
-                if not ver_l:
-                    continue
+        # "-" pass to compute range for "-" and "-=" tags
+        # process in descending order
+        ver_tags_1 = list(reversed(_add_aux_tags(reversed(ver_tags), "-")))
 
-                version_l = version[0:ver_len]
+        # "+" pass to compute range for "+" and "+=" tags
+        # do this over original list, as "-" pass might add
+        # "+" tags, which we should ignore here
+        ver_tags_2 = _add_aux_tags(ver_tags, "+")
 
-                ver_l.sort(reverse=True)
+        # join 2 lists, duplicates should not be an issue
+        ver_tags = sorted(ver_tags + ver_tags_1 + ver_tags_2, key=_cmp_ver)
 
-                has_match = False
-                is_first = True
-                for ver in ver_l:
-                    m = ver <= version_l
-                    if is_val_len_first:
-                        if (
-                            not is_first
-                            and ver[0 : ver_len - 1] != version_l[0 : ver_len - 1]
-                        ):
-                            m = False
-                    else:
-                        if ver[0 : ver_len - 1] != version_l[0 : ver_len - 1]:
-                            m = False
+        def _eval(tag, version):
+            if tag is None:
+                return True
+            op, tag_ver = tag
+            if op == "+":
+                return version > tag_ver
+            elif op == "+=":
+                return version >= tag_ver
+            elif op == "-":
+                return version < tag_ver
+            elif op == "-=":
+                return version <= tag_ver
 
-                    is_first = False
-                    if m:
-                        has_match = True
-                        break
+        def _search_closest_tags(ver_tags, version):
+            lo, hi = None, None
+            for v in ver_tags:
+                if v[1] <= version:
+                    lo = v
 
-                if has_match:
-                    return True
+            for v in reversed(ver_tags):
+                if v[1] >= version:
+                    hi = v
 
-                is_val_len_first = False
+            return lo, hi
 
+        low_range, high_range = _search_closest_tags(ver_tags, version)
+
+        # check if closest tags are satisfied or not
+        if not _eval(low_range, version):
             return False
-
-        # See above: the '+' group gets OR-ed while the '-' group gets
-        # AND-ed.  This is achieved by using the same _eval() call,
-        # and then inverting @v2 (De Morgan's laws).
-        v1 = _eval([ver for op, ver in ver_tags if op == "+="], version)
-        v2 = _eval([ver for op, ver in ver_tags if op == "-"], version)
-
-        if v2 is not None:
-            v2 = not v2
-
-        if v1 is None:
-            v1 = True
-        if v2 is None:
-            v2 = True
-        return v1 and v2
+        if not _eval(high_range, version):
+            return False
+        return True
 
     def test_find_feature_file(self, test_name, feature="*"):
         test_name = self.test_name_normalize(test_name=test_name)
