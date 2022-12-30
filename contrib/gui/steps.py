@@ -559,6 +559,11 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
         == 0
     ), "Unable to copy openvpn keys, please check directories in NM-ci repo"
 
+    assert (
+        subprocess.call("sudo chcon -R -t home_cert_t /tmp/sample-keys/", shell=True)
+        == 0
+    ), "Unable to fix selinux labels of openvpn keys, please check directories in NM-ci repo"
+
     out, rc = cmd_output_rc(
         f"sudo cp -f {path}{version}.conf /tmp/openvpn-running.conf", shell=True
     )
