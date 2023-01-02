@@ -1865,24 +1865,8 @@ Feature: nmcli - general
     Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
 
 
-    # To be run on C8S and hopefully the newest RHEL8.9 too
+    # To be run on C8S and newer RHELS too.
     @rhelver+=8.9
-    @nmstate_setup @permissive
-    @nmstate_upstream
-    Scenario: NM - general - nmstate
-    # Nmstate tests are now run in pod running either c8s or c9s
-    # and the version of NM that's uner test. No RHEL, no Fedora
-    # just CentOS Stream. This should be sufficient to see if NM
-    # is not breaking nmstate when we have MR or so.
-    * Run tier0 nmstate tests with log in "/tmp/nmstate.txt"
-    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
-    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
-    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
-    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
-
-
-    # To be run on RHEL9/C9S
-    @rhelver+=9.0
     @nmstate_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
