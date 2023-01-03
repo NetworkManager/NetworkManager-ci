@@ -302,7 +302,9 @@ Feature: nmcli - bridge
 
 
     @rhbz2124443
+    @ver-1.40
     @ver+=1.41.3
+    @ver/rhel/8-1.40
     @ver/rhel/8+=1.40.0.2
     @bridge_new_lower_mac_port_unchanged_ip_addresses_v4
     Scenario: nmcli - bridge - mac and IP addresses are kept after attaching of port with lower MAC
@@ -327,7 +329,9 @@ Feature: nmcli - bridge
 
 
     @rhbz2124443
+    @ver-1.40
     @ver+=1.41.3
+    @ver/rhel/8-1.40
     @ver/rhel/8+=1.40.0.2
     @bridge_new_lower_mac_port_unchanged_ip_addresses_v6
     Scenario: nmcli - bridge - mac and IP addresses are kept after attaching of port with lower MAC
