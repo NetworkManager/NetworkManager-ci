@@ -181,7 +181,8 @@ def after_step(context, step):
         step.status = Status.skipped
         step.error_message = None
 
-    nmci.pexpect.process_pexpect_spawn()
+    if context.step_level == 0:
+        nmci.pexpect.process_pexpect_spawn()
 
     if context.IS_NMTUI:
         """Teardown after each step.
@@ -212,9 +213,9 @@ def after_step(context, step):
         if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
-    nmci.crash.check_crash(context, step.name)
-
-    nmci.embed.after_step()
+    if context.step_level == 0:
+        nmci.crash.check_crash(context, step.name)
+        nmci.embed.after_step()
 
 
 # print exception traceback
