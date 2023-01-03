@@ -2047,6 +2047,10 @@ _register_tag("nmstate", nmstate_bs, nmstate_as)
 
 
 def nmstate_setup_as(context, scenario):
+    # There might be some podman residuals, delete them.
+    context.process.nmcli_force("con del cni-podman0")
+    context.process.nmcli_force("dev del cni-podman0")
+    # Embed NMSTATE logs.
     nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt", fail_only=True)
 
 
