@@ -115,7 +115,7 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(self.DEFAULT_TIMEOUT)
         self.wait_for_nm_bus(timeout)
 
-    def restart_NM_service(self, reset=True, timeout=DEFAULT_TIMEOUT):
+    def restart_NM_service(self, reset=True, timeout=15):
         print("restart NM service")
         timeout = nmci.util.start_timeout(timeout)
         if reset:
