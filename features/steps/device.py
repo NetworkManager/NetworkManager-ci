@@ -383,6 +383,8 @@ def vxlan_device_check_ports(context, dev, dst_port, src_min, src_max):
 @step(u'Snapshot "{action}" for "{devices}" with timeout "{timeout}"')
 @step(u'Snapshot for "{devices}" "{action}" device "{device}"')
 def snapshot_action(context, action, devices, timeout=0, device=None):
+    # We need to sleep here a bit to have all expected profiles ready
+    time.sleep(0.25)
     def initialize_manager_for_device(device):
         import dbus
         bus = dbus.SystemBus()
