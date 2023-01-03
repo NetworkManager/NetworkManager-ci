@@ -1848,30 +1848,15 @@ Feature: nmcli - general
     When "Exactly" "0" lines with pattern "vf" are visible with command "ip -c link show eth11" in "15" seconds
 
 
-    # To be run on RHEL8.4 to 8.7 (we have an issue on RHEL8.8)
-    @rhelver+=8.4 @rhelver-8.8
-    @skip_in_centos
-    @nmstate_setup @permissive
-    @nmstate_upstream
-    Scenario: NM - general - nmstate
-    # Nmstate tests are now run in pod running either c8s or c9s
-    # and the version of NM that's uner test. No RHEL, no Fedora
-    # just CentOS Stream. This should be sufficient to see if NM
-    # is not breaking nmstate when we have MR or so.
-    * Run tier0 nmstate tests with log in "/tmp/nmstate.txt"
-    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
-    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
-    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
-    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
-
-
-    # To be run on C8S and newer RHELS too.
+    # Skip on broken RHEL8.8
+    @rhelver+=8.4
+    @rhelver-8.8
     @rhelver+=8.9
     @nmstate_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
     # Nmstate tests are now run in pod running either c8s or c9s
-    # and the version of NM that's uner test. No RHEL, no Fedora
+    # and the version of NM that's under test. No RHEL, no Fedora
     # just CentOS Stream. This should be sufficient to see if NM
     # is not breaking nmstate when we have MR or so.
     * Run tier0 nmstate tests with log in "/tmp/nmstate.txt"
