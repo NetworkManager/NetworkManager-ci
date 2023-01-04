@@ -9,12 +9,8 @@ import nmci
 def reboot(context, timeout=None):
     context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service()
-    for i in range(1, 11):
-        nmci.ip.link_set(ifname=f"eth{i}", up=False)
-        nmci.ip.address_flush(ifname=f"eth{i}")
 
     links = nmci.ip.link_show_all()
-
     link_ifnames = [li["ifname"] for li in links]
 
     ifnames_to_delete = [
@@ -39,14 +35,14 @@ def reboot(context, timeout=None):
     ]
 
     ifnames_to_down = [
-        "eth11",
+        *[f"eth{i}" for i in range(1, 12)],
         "em1",
         # for sriov
         "p4p1",
     ]
 
     ifnames_to_flush = [
-        "eth11",
+        *[f"eth{i}" for i in range(1, 12)],
         "em1",
         # for sriov
         "p4p1",
