@@ -655,7 +655,6 @@ Feature: nmcli - bridge
     Scenario: bridge_external_unmanaged: add external bridge, ensure is unmanaged
     * Execute "sudo sh -c 'nmcli general logging level DEBUG'"
     Then Externally created bridge has IP when NM overtakes it repeated "30" times
-    * Cleanup device "br0"
 
 
     @rhbz1169936

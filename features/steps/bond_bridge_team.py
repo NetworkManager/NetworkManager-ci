@@ -2,6 +2,7 @@ import pexpect
 import time
 from behave import step  # pylint: disable=no-name-in-module
 from nmci.util import NM
+import nmci
 
 
 @step('Check bond "{bond}" in proc')
@@ -140,6 +141,7 @@ def settle(context):
 
 @step('Externally created bridge has IP when NM overtakes it repeated "{number}" times')
 def external_bridge_check(context, number):
+    nmci.cleanup.cleanup_add_iface("br0")
     i = 0
     while i < int(number):
         context.execute_steps(
