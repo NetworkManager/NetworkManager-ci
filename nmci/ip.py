@@ -327,6 +327,28 @@ class _IP:
             as_bytes=True,
         )
 
+    def address_add(
+        self,
+        address,
+        ifname=None,
+        *,
+        ifindex=None,
+        wait_for_device=None,
+        addr_family=None,
+    ):
+        if ifname is None or ifindex is not None or wait_for_device is not None:
+            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            ifname = li["ifname"]
+
+        filter_addr_family = []
+        if addr_family is not None:
+            filter_addr_family.append(f"-{self.addr_family_num(addr_family)}")
+
+        nmci.process.run_stdout(
+            ["ip", *filter_addr_family, "addr", "add", address, "dev", ifname],
+            as_bytes=True,
+        )
+
     def link_show_all(self, binary=None):
 
         # binary is:
@@ -496,6 +518,14 @@ class _IP:
             # The interface either still exists, or the caller requested a failure
             # trying to delete a non-existing interface.
             raise
+
+    def link_add(self, ifname, link_type, **kwargs):
+        args = []
+        for key, value in kwargs.items():
+            args += [key, value]
+        nmci.process.run_stdout(
+            ["ip", "link", "add", ifname, "type", link_type, *args], as_bytes=True
+        )
 
     def netns_list(self, with_binary=False):
 
