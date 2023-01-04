@@ -330,9 +330,9 @@ class _NMUtil:
             if c["ACTIVE-PATH"] is not None:
                 try:
                     ac = self.dbus_props_for_ac(c["ACTIVE-PATH"])
-                    c["active-object"] = self.dbus_props_for_ac(c["ACTIVE-PATH"])
                 except Exception:
                     raise nmci.misc.HitRaceException()
+                c["active-object"] = ac
 
                 # check for NM_ACTIVATION_STATE_FLAG_EXTERNAL.
                 if ac["StateFlags"].get_uint32() & 0x80:
