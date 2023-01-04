@@ -384,3 +384,143 @@ class _NMUtil:
             ]
 
         return result
+
+    def _device_status_1(self, name, device_type, get_ipaddrs):
+        argv = [
+            "-g",
+            "TYPE,STATE,IP4-CONNECTIVITY,IP6-CONNECTIVITY,DBUS-PATH,CON-UUID,CON-PATH",
+            "device",
+            "status",
+        ]
+
+        out = nmci.process.nmcli(argv, timeout=5)
+
+        def _parse_line(line):
+            # all the fields we selected cannot have a ':'.
+            # So the parsing below is expected to be mostly safe.
+            #
+            # It's horrible, nmcli has no output mode where we could safely parse the output
+            # of free-text fields (or unknown fields). For example, such fields might have
+            # a new line (boom) or they might contain colons (which "-g" will unhelpfully
+            # escape as "\:".
+            (
+                x_type,
+                x_state,
+                x_ip4_connectivity,
+                x_ip6_connectivity,
+                x_dbus_path,
+                x_con_uuid,
+                x_con_path,
+            ) = line.split(":")
+
+            if not x_con_uuid:
+                x_con_uuid = None
+            if not x_con_path:
+                x_con_path = None
+            if not x_state:
+                x_state = None
+
+            assert nmci.dbus.name_is_object_path(x_dbus_path)
+            assert not x_con_path or nmci.dbus.name_is_object_path(x_con_path)
+
+            return {
+                "name": None,
+                "TYPE": x_type,
+                "STATE": x_state,
+                "IP4-CONNECTIVITY": x_ip4_connectivity,
+                "IP6-CONNECTIVITY": x_ip6_connectivity,
+                "DBUS-PATH": x_dbus_path,
+                "CON-UUID": x_con_uuid,
+                "CON-PATH": x_con_path,
+                "device": None,
+                "active-connection": None,
+            }
+
+        if out and out[-1] == "\n":
+            out = out[:-1]
+
+        result = [_parse_line(line) for line in out.split("\n")]
+
+        if device_type is not None:
+            result = [
+                d for d in result if nmci.util.str_matches(d["TYPE"], device_type)
+            ]
+
+        # Fetch additional things that we could no safely parse from nmcli output above.
+        # Doing this is racy, because we stitch together information that are fetched
+        # at different times. Beware.
+        for d in result:
+            try:
+                device = self.dbus_props_for_dev(d["DBUS-PATH"])
+                d["device"] = device
+                d["name"] = device.get("Interface").get_string()
+            except Exception:
+                raise nmci.misc.HitRaceException()
+
+            if d["CON-PATH"] is not None:
+                try:
+                    d["active-connection"] = self.dbus_props_for_ac(d["CON-PATH"])
+                except Exception:
+                    raise nmci.misc.HitRaceException()
+
+        if name is not None:
+            result = [d for d in result if nmci.util.str_matches(d["name"], name)]
+
+        def _device_update_ipaddrs(device):
+            device["ip4-addresses"] = []
+            device["ip6-addresses"] = []
+            ifname = device["name"]
+            output = nmci.process.nmcli(
+                ["-g", "IP4.ADDRESS,IP6.ADDRESS", "device", "show", ifname]
+            )
+
+            if output != "":
+                lines = output.split("\n")
+                assert len(lines) == 3, f'Unexpected output "{output}"'
+                assert lines[2] == "", f'Unexpected output "{output}"'
+                ip4, ip6, _ = lines
+                ip4 = [a for a in ip4.split(" | ") if a]
+                ip6 = [a.replace("\\:", ":") for a in ip6.split(" | ") if a]
+
+                assert all(nmci.ip.ipaddr_plen_norm(s, "inet") == s for s in ip4)
+                assert all(nmci.ip.ipaddr_plen_norm(s, "inet6") == s for s in ip6)
+
+                device["ip4-addresses"] = ip4
+                device["ip6-addresses"] = ip6
+
+            return device
+
+        if get_ipaddrs:
+            result = [_device_update_ipaddrs(d) for d in result]
+
+        return result
+
+    def device_status(
+        self,
+        *,
+        name=None,
+        device_type=None,
+        get_ipaddrs=False,
+    ):
+        # Call `nmcli device status` to get a list of profiles. It augments
+        # the result with directly fetched data from D-Bus (the fetched data
+        # is thus not in sync with the data fetched with the nmcli call).
+        #
+        # An alternative might be to use NMClient, which works hard to give
+        # a consistent result from one moment (race-free). That is not done
+        # here, but it also would be a different functionality.
+        for i in range(100):
+            # Fetching multiple parts together is racy. We retry when we
+            # suspect a race.
+            try:
+                result1 = self._device_status_1(name, device_type, get_ipaddrs)
+                result = self._device_status_1(name, device_type, get_ipaddrs)
+                if result != result1:
+                    raise nmci.misc.HitRaceException()
+            except nmci.misc.HitRaceException:
+                if i > 20:
+                    raise
+                continue
+            break
+
+        return result
