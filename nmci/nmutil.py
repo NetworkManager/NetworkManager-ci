@@ -374,10 +374,12 @@ class _NMUtil:
         if without_active_externally:
             result = [c for c in result if not c["active-externally"]]
         if name is not None:
-            result = [c for c in result if c["name"] == name]
+            result = [c for c in result if nmci.util.str_matches(c["name"], name)]
         if uuid is not None:
-            result = [c for c in result if c["UUID"] == uuid]
+            result = [c for c in result if nmci.util.str_matches(c["UUID"], uuid)]
         if setting_type is not None:
-            result = [c for c in result if c["TYPE"] == setting_type]
+            result = [
+                c for c in result if nmci.util.str_matches(c["TYPE"], setting_type)
+            ]
 
         return result
