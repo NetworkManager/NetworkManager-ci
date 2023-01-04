@@ -1,61 +1,41 @@
-import pexpect
+# pylint: disable=unused-argument
 import time
+import os
+import re
 from behave import step  # pylint: disable=no-name-in-module
-from nmci.util import NM
 import nmci
 
 
 @step('Check bond "{bond}" in proc')
 def check_bond_in_proc(context, bond):
-    child = context.pexpect_spawn("cat /proc/net/bonding/%s " % (bond))
-    assert child.expect(["Ethernet Channel Bonding Driver", pexpect.EOF]) == 0, (
-        "%s is not in proc" % bond
-    )
+    proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+    assert "Ethernet Channel Bonding Driver" in proc_file, f"{bond} is not in proc"
 
 
 @step('Check slave "{slave}" in bond "{bond}" in proc')
 def check_slave_in_bond_in_proc(context, slave, bond):
-    child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-    if (
-        child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF])
-        != 0
-    ):
-        time.sleep(1)
-        child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-        if (
-            child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF])
-            != 0
-        ):
-            time.sleep(5)
-            child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-            assert (
-                child.expect(
-                    ["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF]
-                )
-                == 0
-            ), "Slave %s is not in %s" % (slave, bond)
-        else:
+    timeout = nmci.util.start_timeout(6)
+    while timeout.loop_sleep(0.2):
+        if not os.path.isfile(f"/proc/net/bonding/{bond}"):
+            continue
+        proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+        slave_re = re.compile(f"Slave Interface: {slave}\\s+MII Status: up")
+        if re.search(slave_re, proc_file) is not None:
             return True
-
-    else:
-        return True
+    assert False, f"Slave {slave} not in {bond}"
 
 
 @step('Check slave "{slave}" in team "{team}" is "{state}"')
 def check_slave_in_team_is_up(context, slave, team, state):
-    # time.sleep(2)
-    r = context.command_code("sudo teamdctl %s port present %s" % (team, slave))
-    if state == "up":
-        if r != 0:
-            time.sleep(3)
-            r = context.command_code("sudo teamdctl %s port present %s" % (team, slave))
-            assert r == 0, "Device %s was not found in dump of team %s" % (slave, team)
-
-    if state == "down":
-        if r == 0:
-            time.sleep(3)
-            r = context.command_code("sudo teamdctl %s port present %s" % (team, slave))
-            assert r != 0, "Device %s was found in dump of team %s" % (slave, team)
+    check_cmd = f"sudo teamdctl {team} port present {slave}"
+    timeout = nmci.util.start_timeout(3)
+    while timeout.loop_sleep(0.2):
+        result = nmci.process.run_code(check_cmd, ignore_stderr=True)
+        if state == "up" and result == 0:
+            return True
+        if state == "down" and result != 0:
+            return True
+    assert False, f"Device {slave} was not found '{state}' in dump of team {slave}"
 
 
 @step('Check "{bond}" has "{slave}" in proc')
@@ -63,127 +43,146 @@ def check_slave_present_in_bond_in_proc(context, slave, bond):
     # DON'T USE THIS STEP UNLESS YOU HAVE A GOOD REASON!!
     # this is not looking for up state as arp connections are sometimes down.
     # it's always better to check whether slave is up
-    child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-    assert (
-        child.expect(["Slave Interface: %s\\s+MII Status:" % slave, pexpect.EOF]) == 0
-    ), "Slave %s is not in %s" % (slave, bond)
+    proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+    slave_re = re.compile(f"Slave Interface: {slave}\\s+MII Status:")
+    assert re.search(slave_re, proc_file) is not None, f"Slave {slave} is not in {bond}"
 
 
 @step('Check slave "{slave}" not in bond "{bond}" in proc')
 def check_slave_not_in_bond_in_proc(context, slave, bond):
-    child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-    assert (
-        child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF])
-        != 0
-    ), "Slave %s is in %s" % (slave, bond)
+    if not os.path.isfile(f"/proc/net/bonding/{bond}"):
+        return
+    proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+    slave_re = re.compile(f"Slave Interface: {slave}\\s+MII Status: up")
+    if re.search(slave_re, proc_file) is None:
+        return True
+    assert False, f"Slave {slave} is in {bond}"
 
 
 @step('Check bond "{bond}" state is "{state}"')
 def check_bond_state(context, bond, state):
-    child = context.pexpect_spawn("ip addr show dev %s up" % (bond))
-    exp = 0 if state == "up" else 1
-    r = child.expect(["\\d+: %s:" % bond, pexpect.EOF])
-    if r != exp:
-        time.sleep(0.5)
-        r = child.expect(["\\d+: %s:" % bond, pexpect.EOF])
-        assert r == exp, "%s not in %s state" % (bond, state)
+    timeout = nmci.util.start_timeout(1)
+    while timeout.loop_sleep(0.2):
+        result = nmci.process.run_search_stdout(
+            f"ip addr show dev {bond} up", f"\\d+: {bond}:"
+        )
+        if state == "up" and result is not None:
+            return True
+        if state == "down" and result is None:
+            return True
+    assert False, f"{bond} is not in {state} state"
 
 
 @step('Check bond "{bond}" link state is "{state}"')
 def check_bond_link_state(context, bond, state):
-    if context.command_code("ls /proc/net/bonding/%s" % bond) != 0 and state == "down":
+    if not os.path.isfile(f"/proc/net/bonding/{bond}") and state == "down":
         return
-    i = 40
-    while i > 0:
-        child = context.pexpect_spawn("cat /proc/net/bonding/%s" % (bond))
-        if child.expect(["MII Status: %s" % state, pexpect.EOF]) == 0:
-            return
-        else:
-            time.sleep(0.2)
-            i -= 1
-    assert (
-        child.expect(["MII Status: %s" % state, pexpect.EOF]) == 0
-    ), "%s is not in %s link state" % (bond, state)
+    timeout = nmci.util.start_timeout(8)
+    while timeout.loop_sleep(0.2):
+        proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+        if f"MII Status: {state}" in proc_file:
+            return True
+    assert False, f"{bond} is not in {state} link state"
 
 
 @step("Create 300 bridges and delete them")
 def create_delete_bridges(context):
-    i = 0
-    while i < 300:
-        context.run("ip link add name br0 type bridge")
-        context.run("ip addr add 1.1.1.1/24 dev br0")
-        context.run("ip link delete dev br0")
-        i += 1
+    for _ in range(300):
+        nmci.ip.link_add("br0", "bridge")
+        nmci.ip.address_add("1.1.1.1/24", ifname="br0")
+        nmci.ip.link_delete(ifname="br0")
 
 
 @step("Settle with RTNETLINK")
 def settle(context):
     # This is a temporary measure until we have a proper API
     # and a nmcli command to actually settle with platform
-    client = NM.Client.new(None)
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    client = NM.Client.new(None)  # pylint: disable=assignment-from-no-return
 
-    while True:
-        devs = client.get_devices()
+    timeout = nmci.util.start_timeout(60)
+    while timeout.loop_sleep(0.1):
+        devs1 = client.get_devices()
         time.sleep(1)
         devs2 = client.get_devices()
 
-        if len(devs) != len(devs2):
+        if len(devs1) != len(devs2):
             continue
 
         different = False
-        for i in range(0, len(devs)):
-            if devs[i].get_iface() != devs2[i].get_iface():
+        for dev1, dev2 in zip(devs1, devs2):
+            if dev1.get_iface() != dev2.get_iface():
                 different = True
                 break
         if not different:
-            break
+            return
+    assert False, "Not settled in 60 seconds"
 
 
 @step('Externally created bridge has IP when NM overtakes it repeated "{number}" times')
 def external_bridge_check(context, number):
-    nmci.cleanup.cleanup_add_iface("br0")
-    i = 0
-    while i < int(number):
-        context.execute_steps(
-            """
-            * Execute "sudo sh -c 'ip link add name br0 type bridge ; ip addr add 10.1.1.1/24 dev br0 ; ip link set br0 up'"
-            * "10.1.1.1/24" is visible with command "ip addr show br0" in "4" seconds
-            * "GENERAL.STATE:\\s+100 \\(connected" is visible with command "nmcli device show br0" in "4" seconds
-            * "IP4.ADDRESS.+10.1.1.1/24" is visible with command "nmcli device show br0"
-            * Execute "sudo sh -c 'ip link del br0'"
-            * "br0" is not visible with command "nmcli device" in "5" seconds
-        """
+    addr = "10.1.1.1/24"
+    ifname = "br0"
+    nmci.cleanup.cleanup_add_iface(ifname)
+    for _ in range(int(number)):
+        nmci.ip.link_add(ifname=ifname, link_type="bridge")
+        nmci.ip.address_add(addr, ifname=ifname)
+        nmci.ip.link_set(ifname=ifname, up=True)
+        nmci.ip.address_expect(
+            [addr], ifname=ifname, wait_for_address=5, with_plen=True
         )
-        i += 1
+
+        timeout = nmci.util.start_timeout(5)
+        while timeout.loop_sleep(0.5):
+            devs = [
+                d
+                for d in nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
+                if d["STATE"].startswith("connected") and addr in d["ip4-addresses"]
+            ]
+            if devs:
+                break
+        assert devs, f"Bridge {ifname} is not connected or adress missing."
+
+        nmci.ip.link_delete(ifname=ifname)
+
+        timeout = nmci.util.start_timeout(5)
+        while timeout.loop_sleep(0.5):
+            devs = nmci.nmutil.device_status(name=ifname)
+            if not devs:
+                break
+        assert not devs, f"Bridge {ifname} still visible with `nmcli device`:\n{devs}"
 
 
 @step('Team "{team}" is down')
 def team_is_down(context, team):
     context.additional_sleep(2)
-    if context.command_code("teamdctl %s state dump" % team) == 0:
-        time.sleep(1)
-        assert (
-            context.command_code("teamdctl %s state dump" % team) != 0
-        ), 'team "%s" exists' % (team)
+    timeout = nmci.util.start_timeout(1)
+    while timeout.loop_sleep(0.2):
+        if (
+            nmci.process.run_code(f"teamdctl {team} state dump", ignore_stderr=True)
+            != 0
+        ):
+            return
+    assert False, f'team "{team}" exists'
 
 
 @step('Team "{team}" is up')
 def team_is_up(context, team):
     context.additional_sleep(2)
-    if context.command_code("teamdctl %s state dump" % team) != 0:
-        time.sleep(1)
-        assert (
-            context.command_code("teamdctl %s state dump" % team) == 0
-        ), 'team "%s" does not exist' % (team)
+    timeout = nmci.util.start_timeout(1)
+    while timeout.loop_sleep(0.2):
+        if (
+            nmci.process.run_code(f"teamdctl {team} state dump", ignore_stderr=True)
+            == 0
+        ):
+            return
+    assert False, f'team "{team}" does not exist'
 
 
 @step('Check that "{cap}" capability is loaded')
 def check_cap_loaded(context, cap):
-    nmc = NM.Client.new()
+    NM = nmci.util.NM  # pylint: disable=invalid-name
+    nmc = NM.Client.new(None)  # pylint: disable=assignment-from-no-return
     cap_id = getattr(NM.Capability, cap)
     caps = nmc.get_capabilities()
-    assert cap_id in caps, "capability %s (id %d) is not in %s" % (
-        cap,
-        cap_id,
-        str(caps),
-    )
+    assert cap_id in caps, f"capability {cap} (id {cap_id}) is not in {caps}"
