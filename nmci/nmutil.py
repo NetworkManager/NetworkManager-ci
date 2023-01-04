@@ -361,7 +361,10 @@ class _NMUtil:
             # Fetching multiple parts together is racy. We retry when we
             # suspect a race.
             try:
+                result1 = self._connection_show_1(may_fail, only_active)
                 result = self._connection_show_1(may_fail, only_active)
+                if result != result1:
+                    raise nmci.misc.HitRaceException()
             except nmci.misc.HitRaceException:
                 if i > 20:
                     raise
