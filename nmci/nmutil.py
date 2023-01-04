@@ -252,7 +252,7 @@ class _NMUtil:
             raise ValueError(f'Not a boolean value ("{s}")')
 
         def _parse_line(line):
-            # all the fields we selected cannot have a ':' (and NAME as last).
+            # all the fields we selected cannot have a ':'.
             # So the parsing below is expected to be mostly safe.
             #
             # It's horrible, nmcli has no output mode where we could safely parse the output
@@ -290,7 +290,7 @@ class _NMUtil:
 
             return {
                 "UUID": x_uuid,
-                "NAME": None,
+                "name": None,
                 "TYPE": x_type,
                 "TIMESTAMP": int(x_timestamp),
                 "timestamp-real": None,
@@ -323,7 +323,7 @@ class _NMUtil:
             try:
                 settings = self.dbus_get_settings(c["DBUS-PATH"])
                 c["settings"] = settings
-                c["NAME"] = settings["connection"]["id"].get_string()
+                c["name"] = settings["connection"]["id"].get_string()
             except Exception:
                 raise nmci.misc.HitRaceException()
 
@@ -371,7 +371,7 @@ class _NMUtil:
         if without_active_externally:
             result = [c for c in result if not c["active-externally"]]
         if name is not None:
-            result = [c for c in result if c["NAME"] == name]
+            result = [c for c in result if c["name"] == name]
         if uuid is not None:
             result = [c for c in result if c["UUID"] == uuid]
         if setting_type is not None:
