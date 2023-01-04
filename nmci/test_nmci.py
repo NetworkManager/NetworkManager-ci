@@ -1840,6 +1840,13 @@ def test_util_start_timeout():
         assert False
 
 
+def test_str_matches():
+    assert nmci.util.str_matches("a", "a")
+    assert nmci.util.str_matches("a", re.compile("a"))
+    assert nmci.util.str_matches("a", ["b", re.compile("a")])
+    assert not nmci.util.str_matches("x", ["b", re.compile("a")])
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():

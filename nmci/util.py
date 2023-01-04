@@ -261,6 +261,27 @@ class _Util:
             return s
         raise ValueError("Expects either a str or bytes")
 
+    def str_matches(self, string, pattern):
+        # Matches "string" with "pattern".
+        # Pattern can be:
+        # - a plain string (compared with ==)
+        # - a re.Pattern instance (compared with re.Pattern.search())
+        # - an interable/list of above.
+        if isinstance(pattern, str):
+            return string == pattern
+        if isinstance(pattern, re.Pattern):
+            return bool(pattern.search(string))
+        for p in pattern:
+            if isinstance(p, str):
+                if string == p:
+                    return True
+            elif isinstance(p, re.Pattern):
+                if p.search(string):
+                    return True
+            else:
+                raise TypeError()
+        return False
+
     FileGetContentResult = collections.namedtuple(
         "FileGetContentResult", ["data", "full_file"]
     )
