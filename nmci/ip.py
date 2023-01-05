@@ -37,7 +37,7 @@ class _IP:
             return 128
         self.addr_family_check(addr_family)
 
-    def ipaddr_norm(self, s, addr_family=None):
+    def ipaddr_parse(self, s, addr_family=None):
         s = nmci.util.bytes_to_str(s)
         addr_family = self.addr_family_norm(addr_family)
         if addr_family is not None:
@@ -53,7 +53,11 @@ class _IP:
                 addr_family = socket.AF_INET6
         return (socket.inet_ntop(addr_family, a), addr_family)
 
-    def ipaddr_plen_norm(self, s, addr_family=None):
+    def ipaddr_norm(self, s, addr_family=None):
+        addr, addr_family = self.ipaddr_parse(s, addr_family)
+        return addr
+
+    def ipaddr_plen_parse(self, s, addr_family=None):
         addr_family = self.addr_family_norm(addr_family)
         s = nmci.util.bytes_to_str(s)
         s0 = s
@@ -65,7 +69,7 @@ class _IP:
             p = None
 
         try:
-            a, f = self.ipaddr_norm(s, addr_family=addr_family)
+            a, f = self.ipaddr_parse(s, addr_family=addr_family)
         except Exception:
             raise ValueError(f"invalid address in {s0}")
 
@@ -74,10 +78,16 @@ class _IP:
                 p = int(p)
             except Exception:
                 p = -1
-            if p < 0 or p > self.addr_family_plen(addr_family):
+            if p < 0 or p > self.addr_family_plen(f):
                 raise ValueError(f"invalid plen in {s0}")
 
         return (a, f, p)
+
+    def ipaddr_plen_norm(self, s, addr_family=None):
+        (addr, addr_family, plen) = self.ipaddr_plen_parse(s, addr_family)
+        if plen is None:
+            return addr
+        return f"{addr}/{plen}"
 
     def mac_aton(self, mac_str, force_len=None):
         # we also accept None and '' for convenience.
@@ -196,7 +206,7 @@ class _IP:
                         plen = None
                         addr_family = None
                     else:
-                        addr, addr_family, plen = self.ipaddr_plen_norm(
+                        addr, addr_family, plen = self.ipaddr_plen_parse(
                             m.group(2),
                             addr_family=(
                                 socket.AF_INET if atype == "inet" else socket.AF_INET6

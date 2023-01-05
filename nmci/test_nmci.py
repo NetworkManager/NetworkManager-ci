@@ -4,6 +4,7 @@ import os
 import pytest
 import random
 import re
+import socket
 import subprocess
 import sys
 import tempfile
@@ -1845,6 +1846,41 @@ def test_str_matches():
     assert nmci.util.str_matches("a", re.compile("a"))
     assert nmci.util.str_matches("a", ["b", re.compile("a")])
     assert not nmci.util.str_matches("x", ["b", re.compile("a")])
+
+
+def test_ipaddr_parse_and_norm():
+
+    assert nmci.ip.ipaddr_parse("1.2.3.4") == ("1.2.3.4", socket.AF_INET)
+    assert nmci.ip.ipaddr_parse("fe80::00:2") == ("fe80::2", socket.AF_INET6)
+
+    with pytest.raises(Exception):
+        nmci.ip.ipaddr_parse("fe80::1", "4")
+
+    with pytest.raises(Exception):
+        nmci.ip.ipaddr_plen_norm("bee::4", "4")
+
+    assert nmci.ip.addr_family_norm(socket.AF_UNSPEC) is None
+
+    assert nmci.ip.ipaddr_norm("1.2.3.4") == "1.2.3.4"
+    assert nmci.ip.ipaddr_norm("0::1") == "::1"
+
+    assert nmci.ip.ipaddr_norm("1.2.3.4", addr_family="4") == "1.2.3.4"
+    with pytest.raises(Exception):
+        nmci.ip.ipaddr_norm("1.2.3.4", addr_family="6")
+
+    assert nmci.ip.ipaddr_plen_norm("1.2.3.4", addr_family="4") == "1.2.3.4"
+    with pytest.raises(Exception):
+        nmci.ip.ipaddr_plen_norm("1.2.3.4", addr_family="6")
+
+    assert nmci.ip.ipaddr_plen_parse("1.2.3.4/5", addr_family="4") == (
+        "1.2.3.4",
+        socket.AF_INET,
+        5,
+    )
+    assert (
+        nmci.ip.ipaddr_plen_norm("1.2.3.4/5", addr_family=socket.AF_UNSPEC)
+        == "1.2.3.4/5"
+    )
 
 
 # This test should always run as last. Keep it at the bottom

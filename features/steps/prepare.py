@@ -21,10 +21,10 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
         s = context.process.nmcli(["connection", "sh", profile])
         try:
             m = re.search("^IP4\.ADDRESS\[1\]:\\s*(\\S+)\\s*$", s, re.MULTILINE)
-            ip, _, plen = nmci.ip.ipaddr_plen_norm(m.group(1), addr_family="inet")
+            ip, _, plen = nmci.ip.ipaddr_plen_parse(m.group(1), addr_family="inet")
 
             m = re.search("^IP4\.GATEWAY:\\s*(\\S+)\\s*$", s, re.MULTILINE)
-            gw, _ = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
+            gw = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
         except Exception as e:
             continue
         break
