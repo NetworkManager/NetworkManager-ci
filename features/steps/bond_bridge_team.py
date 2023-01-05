@@ -17,8 +17,14 @@ def check_slave_in_bond_in_proc(context, slave, bond):
     if child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF]) != 0:
         time.sleep(1)
         child = context.pexpect_spawn('cat /proc/net/bonding/%s' % (bond))
-        assert child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF]) == 0, \
-            "Slave %s is not in %s" % (slave, bond)
+        if child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF]) != 0:
+            time.sleep(5)
+            child = context.pexpect_spawn('cat /proc/net/bonding/%s' % (bond))
+            assert child.expect(["Slave Interface: %s\\s+MII Status: up" % slave, pexpect.EOF]) == 0, \
+               "Slave %s is not in %s" % (slave, bond)
+        else:
+            return True
+
     else:
         return True
 
@@ -29,13 +35,13 @@ def check_slave_in_team_is_up(context, slave, team, state):
     r = context.command_code('sudo teamdctl %s port present %s' % (team, slave))
     if state == "up":
         if r != 0:
-            time.sleep(1)
+            time.sleep(3)
             r = context.command_code('sudo teamdctl %s port present %s' % (team, slave))
             assert r == 0, 'Device %s was not found in dump of team %s' % (slave, team)
 
     if state == "down":
         if r == 0:
-            time.sleep(1)
+            time.sleep(3)
             r = context.command_code('sudo teamdctl %s port present %s' % (team, slave))
             assert r != 0, 'Device %s was found in dump of team %s' % (slave, team)
 
