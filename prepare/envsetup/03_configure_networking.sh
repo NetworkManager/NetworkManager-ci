@@ -9,6 +9,8 @@ configure_networking () {
     modprobe -r sit
     modprobe -r ip_tunnel
     modprobe -r ip6_tunnel
+    modprobe -r ip_vti
+    modprobe -r ip6_vti
 
     # Load dummy module with numdummies=0 to prevent dummyX device creation by kernel
     modprobe dummy numdummies=0
