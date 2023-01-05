@@ -266,16 +266,17 @@ class _Util:
         # Pattern can be:
         # - a plain string (compared with ==)
         # - a re.Pattern instance (compared with re.Pattern.search())
+        #   - or re._pattern_type on python-=3.6
         # - an interable/list of above.
         if isinstance(pattern, str):
             return string == pattern
-        if isinstance(pattern, re.Pattern):
+        if isinstance(pattern, self.re_Pattern):
             return bool(pattern.search(string))
         for p in pattern:
             if isinstance(p, str):
                 if string == p:
                     return True
-            elif isinstance(p, re.Pattern):
+            elif isinstance(p, self.re_Pattern):
                 if p.search(string):
                     return True
             else:
@@ -550,6 +551,12 @@ class _Util:
             return s
 
         raise ValueError("cannot get the GVariantType for %r" % (s))
+
+    @property
+    def re_Pattern(self):
+        if hasattr(re, "Pattern"):
+            return re.Pattern
+        return re._pattern_type  # pylint: disable=no-member,protected-access
 
     def compare_strv_list(
         self,
