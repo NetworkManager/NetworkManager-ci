@@ -2386,3 +2386,18 @@
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
     Then Check noted values "ipv6_1" and "ipv6_2" are not the same
 
+
+    @rhbz2060684
+    @ver+=1.41.7
+    @ipv6_route_cache_consistancy
+    Scenario: ipv6 - check consistent route cache with "ip route replace"
+    * Prepare simulated test "testX6" device
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::1 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::2 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::3 dev testX6"
+    * Execute "ip -6 route"
+    * Execute "busctl call -j org.freedesktop.NetworkManager /org/freedesktop org.freedesktop.DBus.ObjectManager GetManagedObjects"
+    Then Check "inet" route list on NM device "testX6" matches "xxx"
+    * Execute "ip route replace 5:1::1/128 nexthop via 1:2:3:4::5 dev testX6"
+    * Execute "busctl call -j org.freedesktop.NetworkManager /org/freedesktop org.freedesktop.DBus.ObjectManager GetManagedObjects"
