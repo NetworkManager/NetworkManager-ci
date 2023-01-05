@@ -170,11 +170,13 @@ class _Embed:
                 print(f">>>>>> {line}")
 
     def _embed_mangle_message_for_fail(self, scenario_fail, fail_only, mime_type, data):
+        import nmci.util
+
         if not scenario_fail and fail_only:
             if mime_type != "text/plain":
                 return ("text/plain", f"truncated mime_type={mime_type} on success")
             if isinstance(data, str):
-                if len(data) > 2048:
+                if not nmci.util.DEBUG and len(data) > 2048:
                     data_split = data.split("\n", 1)
                     if len(data_split) == 2:
                         # embed first line, header of command, truncate header if longer than 2048
@@ -189,13 +191,14 @@ class _Embed:
                         f"truncated on success\n\n{data_header}...\n{data[-2048:]}",
                     )
             elif isinstance(data, bytes):
-                if len(data) > 2048:
+                if not nmci.util.DEBUG and len(data) > 2048:
                     return (
                         mime_type,
                         b"truncated binary on success\n\n...\n" + data[-2048:],
                     )
             else:
-                return (mime_type, f"truncated non-text {type(data)} on success")
+                if not nmci.util.DEBUG:
+                    return (mime_type, f"truncated non-text {type(data)} on success")
         return (mime_type, data)
 
     def _embed_one(self, scenario_fail, entry):
