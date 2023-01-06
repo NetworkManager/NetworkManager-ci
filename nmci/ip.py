@@ -314,14 +314,16 @@ class _IP:
         self, ifname=None, *, ifindex=None, wait_for_device=None, addr_family=None
     ):
 
-        li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+        if ifname is None or ifindex is not None or wait_for_device is not None:
+            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            ifname = li["ifname"]
 
         filter_addr_family = []
         if addr_family is not None:
             filter_addr_family.append(f"-{self.addr_family_num(addr_family)}")
 
         nmci.process.run_stdout(
-            ["ip", *filter_addr_family, "addr", "flush", "dev", li["ifname"]],
+            ["ip", *filter_addr_family, "addr", "flush", "dev", ifname],
             as_bytes=True,
         )
 
@@ -457,16 +459,16 @@ class _IP:
 
     def link_set(self, ifname=None, *, ifindex=None, up=None, wait_for_device=None):
 
-        li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+        if ifname is None or ifindex is not None or wait_for_device is not None:
+            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            ifname = li["ifname"]
 
         if up is not None:
             if up:
                 arg = "up"
             else:
                 arg = "down"
-            nmci.process.run_stdout(
-                ["ip", "link", "set", li["ifname"], arg], as_bytes=True
-            )
+            nmci.process.run_stdout(["ip", "link", "set", ifname, arg], as_bytes=True)
 
     def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
 
