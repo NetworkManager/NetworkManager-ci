@@ -8,6 +8,40 @@
     # Scenario:
 
 
+    @test
+    Scenario: test
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
+          """
+          ip4 172.16.1.1/24
+          """
+    * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+    When Check bond "nm-bond" link state is "up"
+     And Check slave "eth4" in bond "nm-bond" in proc
+    * Execute "ip a s"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
+    * Reboot
+    When Check bond "nm-bond" link state is "up"
+     And Check slave "eth4" in bond "nm-bond" in proc
+    * Execute "ip a s"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
+    * Reboot
+    When Check bond "nm-bond" link state is "up"
+     And Check slave "eth4" in bond "nm-bond" in proc
+    * Execute "ip a s"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
+    * Reboot
+    When Check bond "nm-bond" link state is "up"
+     And Check slave "eth4" in bond "nm-bond" in proc
+    * Execute "ip a s"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth4" as value "new_eth4"
+    * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show nm-bond" as value "bond"
+
+
+
+
     @rhelver+=9 @fedoraver+=32
     @plugin_default
     @bond_config_file
