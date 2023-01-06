@@ -225,7 +225,6 @@ class _NMUtil:
 
     def _connection_show_1(
         self,
-        may_fail,
         only_active,
     ):
         argv = [
@@ -237,12 +236,7 @@ class _NMUtil:
         if only_active:
             argv += ["-a"]
 
-        try:
-            out = nmci.process.nmcli(argv, timeout=5)
-        except Exception as e:
-            if may_fail:
-                return []
-            raise
+        out = nmci.process.nmcli(argv, timeout=5)
 
         def _s_to_bool(s):
             if s == "yes":
@@ -344,7 +338,6 @@ class _NMUtil:
     def connection_show(
         self,
         *,
-        may_fail=False,
         only_active=False,
         without_active_externally=False,
         name=None,
@@ -362,8 +355,8 @@ class _NMUtil:
             # Fetching multiple parts together is racy. We retry when we
             # suspect a race.
             try:
-                result1 = self._connection_show_1(may_fail, only_active)
-                result = self._connection_show_1(may_fail, only_active)
+                result1 = self._connection_show_1(only_active)
+                result = self._connection_show_1(only_active)
                 if result != result1:
                     raise nmci.misc.HitRaceException()
             except nmci.misc.HitRaceException:
