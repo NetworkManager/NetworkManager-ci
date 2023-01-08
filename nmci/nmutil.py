@@ -295,6 +295,7 @@ class _NMUtil:
                 "TIMESTAMP": int(x_timestamp),
                 "timestamp-real": None,
                 "AUTOCONNECT": x_autoconnect,
+                "AUTOCONNECT-PRIORITY": x_autoconnect_priority,
                 "READONLY": x_readonly,
                 "DBUS-PATH": x_dbus_path,
                 "ACTIVE": x_active,
