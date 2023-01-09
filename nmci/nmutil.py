@@ -582,6 +582,13 @@ class _NMUtil:
         if get_ipaddrs:
             for d in result:
                 _device_update_ipaddrs(d)
+            for d in result:
+                d["ip4config"] = self.dbus_get_ip_config(
+                    d["device"]["Ip4Config"], addr_family="4"
+                )
+                d["ip6config"] = self.dbus_get_ip_config(
+                    d["device"]["Ip6Config"], addr_family="6"
+                )
 
         return result
 
