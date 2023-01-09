@@ -160,7 +160,7 @@ def _before_scenario(context, scenario):
 
     elif context.cext.scenario_skipped:
         nmci.embed.before_scenario_finish("skipped")
-        nmci.embed.scenario(scenario)
+        nmci.embed.formatter_add_scenario(scenario)
     else:
         nmci.embed.before_scenario_finish("passed")
         nmci.embed.after_step()

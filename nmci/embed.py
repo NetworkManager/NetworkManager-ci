@@ -114,6 +114,11 @@ class _Embed:
             return None
         return self._html_formatter.current_scenario
 
+    def formatter_add_scenario(self, scenario):
+        if self._html_formatter is None:
+            return
+        self._html_formatter.scenario(scenario)
+
     def before_scenario_finish(self, status):
         """
         This is needed as last call of `before_scenario()`
