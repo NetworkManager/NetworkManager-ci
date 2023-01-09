@@ -226,6 +226,10 @@ class _NMUtil:
     def _connection_show_1(
         self,
         only_active,
+        without_active_externally,
+        name,
+        uuid,
+        setting_type,
     ):
         argv = [
             "-g",
@@ -305,6 +309,13 @@ class _NMUtil:
 
         result = [_parse_line(line) for line in out.split("\n")]
 
+        if uuid is not None:
+            result = [c for c in result if nmci.util.str_matches(c["UUID"], uuid)]
+        if setting_type is not None:
+            result = [
+                c for c in result if nmci.util.str_matches(c["TYPE"], setting_type)
+            ]
+
         # Fetch additional things that we could no safely parse from nmcli output above.
         # Doing this is racy, because we stitch together information that are fetched
         # at different times. Beware.
@@ -333,6 +344,11 @@ class _NMUtil:
                 if ac["StateFlags"].get_uint32() & 0x80:
                     c["active-externally"] = True
 
+        if without_active_externally:
+            result = [c for c in result if not c["active-externally"]]
+        if name is not None:
+            result = [c for c in result if nmci.util.str_matches(c["name"], name)]
+
         return result
 
     def connection_show(
@@ -355,8 +371,20 @@ class _NMUtil:
             # Fetching multiple parts together is racy. We retry when we
             # suspect a race.
             try:
-                result1 = self._connection_show_1(only_active)
-                result = self._connection_show_1(only_active)
+                result1 = self._connection_show_1(
+                    only_active,
+                    without_active_externally,
+                    name,
+                    uuid,
+                    setting_type,
+                )
+                result = self._connection_show_1(
+                    only_active,
+                    without_active_externally,
+                    name,
+                    uuid,
+                    setting_type,
+                )
                 if result != result1:
                     raise nmci.misc.HitRaceException()
             except nmci.misc.HitRaceException:
@@ -364,17 +392,6 @@ class _NMUtil:
                     raise
                 continue
             break
-
-        if without_active_externally:
-            result = [c for c in result if not c["active-externally"]]
-        if name is not None:
-            result = [c for c in result if nmci.util.str_matches(c["name"], name)]
-        if uuid is not None:
-            result = [c for c in result if nmci.util.str_matches(c["UUID"], uuid)]
-        if setting_type is not None:
-            result = [
-                c for c in result if nmci.util.str_matches(c["TYPE"], setting_type)
-            ]
 
         return result
 
