@@ -145,36 +145,12 @@ class _NMUtil:
         nmci.cext.context.nm_pid = 0
         return r.returncode == 0
 
-    def _dbus_obj_path(self, obj_path, default_prefix):
-        if isinstance(obj_path, nmci.util.GLib.Variant):
-            assert obj_type.get_type_string() == "o"
-            obj_path = obj_path.get_string()
-        if obj_path == "/":
-            return None
-        if default_prefix is not None:
-            try:
-                x = int(obj_path)
-                return f"{default_prefix}/{x}"
-            except Exception:
-                pass
-        return obj_path
-
-    def dbus_obj_path(self, obj_path, default_prefix=None):
-        # The D-Bus object paths is usually something like
-        # "/org/freedesktop/NetworkManager/Devices/43".
-        #
-        # For convenience, allow obj_path to be only a number, in
-        # which case default_prefix will be prepended.
-        p = self._dbus_obj_path(obj_path, default_prefix)
-        assert p is not None or nmci.dbus.name_is_object_path(p, check=True)
-        return p
-
     def dbus_props_for_dev(
         self,
         dev_obj_path,
         interface_name="org.freedesktop.NetworkManager.Device",
     ):
-        dev_obj_path = self.dbus_obj_path(
+        dev_obj_path = nmci.dbus.object_path_norm(
             dev_obj_path, "/org/freedesktop/NetworkManager/Devices"
         )
         if dev_obj_path is None:
@@ -190,7 +166,7 @@ class _NMUtil:
         ac_obj_path,
         interface_name="org.freedesktop.NetworkManager.Connection.Active",
     ):
-        ac_obj_path = self.dbus_obj_path(
+        ac_obj_path = nmci.dbus.object_path_norm(
             ac_obj_path, "/org/freedesktop/NetworkManager/ActiveConnection"
         )
         if ac_obj_path is None:
@@ -206,7 +182,7 @@ class _NMUtil:
         settings_obj_path,
         interface_name="org.freedesktop.NetworkManager.Settings.Connection",
     ):
-        settings_obj_path = self.dbus_obj_path(
+        settings_obj_path = nmci.dbus.object_path_norm(
             settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
         )
         if settings_obj_path is None:
@@ -218,7 +194,7 @@ class _NMUtil:
         )
 
     def dbus_get_settings(self, settings_obj_path):
-        settings_obj_path = self.dbus_obj_path(
+        settings_obj_path = nmci.dbus.object_path_norm(
             settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
         )
         if settings_obj_path is None:

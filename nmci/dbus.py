@@ -26,6 +26,30 @@ class _DBus:
             raise ValueError(f'Invalid D-Bus object path "{name}"')
         return False
 
+    def _object_path_norm(self, obj_path, default_prefix):
+        if isinstance(obj_path, nmci.util.GLib.Variant):
+            assert obj_type.get_type_string() == "o"
+            obj_path = obj_path.get_string()
+        if obj_path == "/":
+            return None
+        if default_prefix is not None:
+            try:
+                x = int(obj_path)
+                return f"{default_prefix}/{x}"
+            except Exception:
+                pass
+        return obj_path
+
+    def object_path_norm(self, obj_path, default_prefix=None):
+        # The D-Bus object paths is usually something like
+        # "/org/freedesktop/NetworkManager/Devices/43".
+        #
+        # For convenience, allow obj_path to be only a number, in
+        # which case default_prefix will be prepended.
+        p = self._object_path_norm(obj_path, default_prefix)
+        assert p is None or nmci.dbus.name_is_object_path(p, check=True)
+        return p
+
     def bus_get(self, bus_type=None, cancellable=None):
 
         Gio = nmci.util.Gio
