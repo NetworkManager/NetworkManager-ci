@@ -547,14 +547,14 @@ class _NMUtil:
             except Exception:
                 raise nmci.misc.HitRaceException()
 
-            if d["CON-PATH"] is not None:
-                try:
-                    d["active-connection"] = self.dbus_props_for_ac(d["CON-PATH"])
-                except Exception:
-                    raise nmci.misc.HitRaceException()
-
         if name is not None:
             result = [d for d in result if nmci.util.str_matches(d["name"], name)]
+
+        for d in result:
+            try:
+                d["active-connection"] = self.dbus_props_for_ac(d["CON-PATH"])
+            except Exception:
+                raise nmci.misc.HitRaceException()
 
         def _device_update_ipaddrs(device):
             ifname = device["name"]
