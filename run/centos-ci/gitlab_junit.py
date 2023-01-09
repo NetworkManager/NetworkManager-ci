@@ -16,7 +16,7 @@ statuses = [
     status.target_url
     for status in statuses
     if status.target_url
-    and "jenkins-networkmanager.apps.ocp.ci.centos.org" in status.target_url
+    and "jenkins-networkmanager.apps.ocp.cloud.ci.centos.org" in status.target_url
 ]
 if len(statuses) > 0:
     statuses.sort()
