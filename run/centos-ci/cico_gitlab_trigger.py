@@ -14,7 +14,7 @@ default_os = ["9-stream"]
 ##next_os = 'RHEL8.4'
 # next_branch_base = 'rhel-8'
 
-jenkins_url = "https://jenkins-networkmanager.apps.ocp.ci.centos.org/"
+jenkins_url = "https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/"
 
 
 class GitlabTrigger(object):
