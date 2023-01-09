@@ -1473,8 +1473,8 @@ testmapper:
         feature: dracut
     - dracut_NM_bond_over_2_ifaces_rr:
         feature: dracut
-    #- dracut_NM_team_over_2_ifaces:
-    #    feature: dracut
+    - dracut_NM_team_over_2_ifaces:
+        feature: dracut
     - dracut_NM_vlan_over_nic:
         feature: dracut
     - dracut_NM_vlan_mutliple_over_nic:
@@ -1484,6 +1484,8 @@ testmapper:
     - dracut_NM_vlan_over_bond:
         feature: dracut
     - dracut_NM_vlan_over_team_no_boot:
+        feature: dracut
+    - dracut_NM_vlan_over_team:
         feature: dracut
     - dracut_legacy_iSCSI_ibft_table:
         feature: dracut

@@ -1442,46 +1442,47 @@ Feature: NM: dracut
 
 
     # dracut bug: https://bugzilla.redhat.com/show_bug.cgi?id=1879014
-    #@rhbz1879014
-    #@rhelver+=8.3 @fedoraver+=32
-    #@dracut @long @not_on_ppc64le
-    #@dracut_NM_team_over_2_ifaces
-    #Scenario: NM - dracut - NM module - team over 2 ifaces
-    #* Run dracut test
-    #  | Param  | Value                                                                       |
-    #  | kernel | root=dhcp ro                                                                |
-    #  | kernel | team=team0:eth0,eth1                                                        |
-    #  | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0                        |
-    #  | qemu   | -device virtio-net,netdev=bond0_0,mac=52:54:00:12:34:10                     |
-    #  | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1                        |
-    #  | qemu   | -device virtio-net,netdev=bond0_1,mac=52:54:00:12:34:11                     |
-    #  | check  | nmcli_con_active team0 team0 45                                             |
-    #  | check  | nmcli_con_prop team0 ipv4.method auto                                       |
-    #  | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.53.101/24 45                       |
-    #  | check  | nmcli_con_prop team0 IP4.GATEWAY 192.168.53.1                               |
-    #  | check  | nmcli_con_prop team0 IP4.ROUTE *192.168.53.0/24*                            |
-    #  | check  | nmcli_con_prop team0 IP4.DNS 192.168.53.1                                   |
-    #  | check  | nmcli_con_prop team0 IP4.DOMAIN cl.bond0.redhat.com                         |
-    #  | check  | nmcli_con_prop team0 ipv6.method auto                                       |
-    #  | check  | nmcli_con_prop team0 IP6.DNS ''                                             |
-    #  | check  | nmcli_con_active eth0 eth0                                                  |
-    #  | check  | nmcli_con_prop eth0 connection.slave-type bond                              |
-    #  | check  | nmcli_con_prop eth0 connection.master $(nmcli -g connection.uuid c s team0) |
-    #  | check  | nmcli_con_prop eth0 ipv4.method ''                                          |
-    #  | check  | nmcli_con_prop eth0 ipv6.method ''                                          |
-    #  | check  | nmcli_con_active eth1 eth1                                                  |
-    #  | check  | nmcli_con_prop eth1 connection.slave-type bond                              |
-    #  | check  | nmcli_con_prop eth1 connection.master $(nmcli -g connection.uuid c s team0) |
-    #  | check  | nmcli_con_prop eth1 ipv4.method ''                                          |
-    #  | check  | nmcli_con_prop eth1 ipv6.method ''                                          |
-    #  | check  | wait_for_ip4_renew 192.168.53.101/24 team0                                  |
-    #  | check  | dns_search team0.redhat.com                                                 |
-    #  | check  | nmcli_con_num 3                                                             |
-    #  | check  | no_ifcfg                                                                    |
-    #  | check  | ip4_route_unique "192.168.53.0/24 dev team0"                                |
-    #  | check  | nfs_server 192.168.53.1                                                     |
-
-
+    @rhbz1879014
+    @rhelver+=9.2 @fedoraver+=32
+    @ver+=1.41.4
+    @dracut @long @not_on_ppc64le @skip_in_centos
+    @dracut_NM_team_over_2_ifaces
+    Scenario: NM - dracut - NM module - team over 2 ifaces
+    * Run dracut test
+      | Param  | Value                                                                       |
+      | kernel | root=dhcp ro                                                                |
+      | kernel | team=team0:eth0,eth1                                                        |
+      | qemu   | -netdev tap,id=bond0_0,script=$PWD/qemu-ifup/bond0_0                        |
+      | qemu   | -device virtio-net,netdev=bond0_0,mac=52:54:00:12:34:10                     |
+      | qemu   | -netdev tap,id=bond0_1,script=$PWD/qemu-ifup/bond0_1                        |
+      | qemu   | -device virtio-net,netdev=bond0_1,mac=52:54:00:12:34:11                     |
+      | check  | nmcli_con_active team0 team0 45                                             |
+      | check  | nmcli_con_prop team0 ipv4.method auto                                       |
+      | check  | nmcli_con_prop team0 IP4.ADDRESS 192.168.53.101/24 45                       |
+      | check  | nmcli_con_prop team0 IP4.GATEWAY 192.168.53.1                               |
+      | check  | nmcli_con_prop team0 IP4.ROUTE *192.168.53.0/24*                            |
+      | check  | nmcli_con_prop team0 IP4.DNS 192.168.53.1                                   |
+      | check  | nmcli_con_prop team0 IP4.DOMAIN cl.bond0.redhat.com                         |
+      | check  | nmcli_con_prop team0 ipv6.method auto                                       |
+      | check  | nmcli_con_prop team0 IP6.DNS ''                                             |
+      | check  | nmcli_con_active eth0 eth0                                                  |
+      | check  | nmcli_con_prop eth0 connection.slave-type team                              |
+      | check  | nmcli_con_prop eth0 connection.master $(nmcli -g connection.uuid c s team0) |
+      | check  | nmcli_con_prop eth0 ipv4.method ''                                          |
+      | check  | nmcli_con_prop eth0 ipv6.method ''                                          |
+      | check  | nmcli_con_active eth1 eth1                                                  |
+      | check  | nmcli_con_prop eth1 connection.slave-type team                              |
+      | check  | nmcli_con_prop eth1 connection.master $(nmcli -g connection.uuid c s team0) |
+      | check  | nmcli_con_prop eth1 ipv4.method ''                                          |
+      | check  | nmcli_con_prop eth1 ipv6.method ''                                          |
+      | check  | wait_for_ip4_renew 192.168.53.101/24 team0                                  |
+      | check  | dns_search bond0.redhat.com                                                 |
+      | check  | nmcli_con_num 3                                                             |
+      | check  | no_ifcfg                                                                    |
+      | check  | ip4_route_unique "192.168.53.0/24 dev team0"                                |
+      | check  | nfs_server 192.168.53.1                                                     |
+    
+    
     ########
     # VLAN #
     ########
@@ -1777,10 +1778,13 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.13                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhbz2092215
+    @rhelver+=8.3 @rhelver+=9.2 @fedoraver+=32
     @ver+=1.27
+    @ver-1.40
+    @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
-    @temporary_skip @dracut @long
+    @dracut @long
     @dracut_NM_vlan_over_team_no_boot
     Scenario: NM - dracut - NM module - VLAN over team boot over other iface (team not stable)
     * Run dracut test
@@ -1834,6 +1838,44 @@ Feature: NM: dracut
       | check  | ip6_route_unique "deaf:beef::1:10 dev eth2 proto kernel" |
       | check  | ip6_route_unique "deaf:beef::/64 dev eth2 proto ra"      |
       | check  | nfs_server 192.168.50.1                                  |
+
+
+    @rhbz2092215
+    @rhelver+=9.2 @fedoraver+=32
+    @ver+=1.41.4
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
+    @dracut_NM_vlan_over_team
+    Scenario: NM - dracut - NM module - VLAN over team 
+    * Run dracut test
+      | Param  | Value                                                    |
+      | kernel | root=nfs:192.168.55.17:/client ro                        |
+      | kernel | team=team0:eth0,eth1 vlan=vlan0017:team0 ip=team0:dhcp   |
+      | qemu   | -netdev tap,id=bond1_0,script=$PWD/qemu-ifup/bond1_0     |
+      | qemu   | -device virtio-net,netdev=bond1_0,mac=52:54:00:12:34:11  |
+      | qemu   | -netdev tap,id=bond1_1,script=$PWD/qemu-ifup/bond1_1     |
+      | qemu   | -device virtio-net,netdev=bond1_1,mac=52:54:00:12:34:12  |
+      | check  | nmcli_con_active team0 team0 45                          |
+      | check  | nmcli_con_prop team0 ipv4.method auto                    |
+      | check  | nmcli_con_prop team0 ipv6.method auto                    |
+      | check  | nmcli_con_active vlan0017 vlan0017 45                    |
+      | check  | nmcli_con_prop vlan0017 vlan.id 17                       |
+      | check  | nmcli_con_prop vlan0017 vlan.parent team0                |
+      | check  | nmcli_con_prop vlan0017 ipv4.method auto                 |
+      | check  | nmcli_con_prop vlan0017 IP4.ADDRESS 192.168.55.18/30 45  |
+      | check  | nmcli_con_prop vlan0017 IP4.GATEWAY 192.168.55.17        |
+      | check  | nmcli_con_prop vlan0017 IP4.ROUTE *192.168.55.16/30*     |
+      | check  | nmcli_con_prop vlan0017 IP4.DNS 192.168.55.17 45         |
+      | check  | nmcli_con_prop vlan0017 IP4.DOMAIN cl.vl17.redhat.com    |
+      | check  | nmcli_con_prop vlan0017 ipv6.method auto                 |
+      | check  | nmcli_con_prop vlan0017 IP6.DNS ''                       |
+      | check  | wait_for_ip4_renew 192.168.55.18/30 vlan0017             |
+      | check  | dns_search *vl17.redhat.com*                             |
+      | check  | nmcli_con_num 4                                          |
+      | check  | no_ifcfg                                                 |
+      | check  | ip4_route_unique "default via 192.168.55.17"             |
+      | check  | ip4_route_unique "192.168.55.16/30 dev vlan0017"         |
+      | check  | nfs_server 192.168.55.17                                 |
 
 
     ##########
