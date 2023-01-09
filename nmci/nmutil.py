@@ -557,8 +557,6 @@ class _NMUtil:
             result = [d for d in result if nmci.util.str_matches(d["name"], name)]
 
         def _device_update_ipaddrs(device):
-            device["ip4-addresses"] = []
-            device["ip6-addresses"] = []
             ifname = device["name"]
             output = nmci.process.nmcli(
                 ["-g", "IP4.ADDRESS,IP6.ADDRESS", "device", "show", ifname]
@@ -574,14 +572,16 @@ class _NMUtil:
 
                 assert all(nmci.ip.ipaddr_plen_norm(s, "inet") == s for s in ip4)
                 assert all(nmci.ip.ipaddr_plen_norm(s, "inet6") == s for s in ip6)
+            else:
+                ip4 = []
+                ip6 = []
 
-                device["ip4-addresses"] = ip4
-                device["ip6-addresses"] = ip6
-
-            return device
+            device["ip4-addresses"] = ip4
+            device["ip6-addresses"] = ip6
 
         if get_ipaddrs:
-            result = [_device_update_ipaddrs(d) for d in result]
+            for d in result:
+                _device_update_ipaddrs(d)
 
         return result
 
