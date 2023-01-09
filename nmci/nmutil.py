@@ -219,6 +219,90 @@ class _NMUtil:
 
         return settings
 
+    def dbus_get_ip_config(self, dbus_path, addr_family=None):
+
+        if isinstance(dbus_path, nmci.util.GLib.Variant):
+            assert dbus_path.get_type_string() == "o"
+            dbus_path = dbus_path.get_string()
+
+        if dbus_path is None or dbus_path == "/":
+            return None
+
+        addr_family = nmci.ip.addr_family_norm(addr_family)
+        af = nmci.ip.addr_family_num(addr_family, allow_none=True)
+
+        try:
+            dbus_path_as_num = int(dbus_path)
+        except Exception:
+            dbus_path_as_num = None
+
+        if dbus_path_as_num is not None:
+            if af is None:
+                raise Exception(
+                    f'Need to specify the address family when requesting unqualified IP config "{dbus_path}"'
+                )
+            p = f"/org/freedesktop/NetworkManager/IP{af}Config/{dbus_path_as_num}"
+        else:
+            if dbus_path.startswith(
+                "/org/freedesktop/NetworkManager/IP4Config/"
+            ) and af in [None, 4]:
+                af = 4
+                p = dbus_path
+            elif dbus_path.startswith(
+                "/org/freedesktop/NetworkManager/IP6Config/"
+            ) and af in [None, 6]:
+                af = 6
+                p = dbus_path
+            else:
+                raise Exception(
+                    f'Cannot detect the address family for D-Bus path "{dbus_path}"'
+                )
+
+        assert nmci.dbus.name_is_object_path(p, check=True)
+
+        data = nmci.dbus.get_all_properties(
+            bus_name="org.freedesktop.NetworkManager",
+            object_path=p,
+            interface_name=f"org.freedesktop.NetworkManager.IP{af}Config",
+        )
+
+        addr_family = nmci.ip.addr_family_norm(str(af))
+
+        # Parse some of the fields and convert to a string, to make them easier
+        # to handle.
+
+        def _parse_addresses(v, addr_family):
+            return nmci.ip.ipaddr_plen_norm(
+                f"{v['address']}/{v['prefix']}", addr_family
+            )
+
+        data["_addresses"] = [
+            _parse_addresses(v, addr_family) for v in data["AddressData"]
+        ]
+
+        def _parse_routes(v, addr_family):
+            s = nmci.ip.ipaddr_plen_norm(f"{v['dest']}/{v['prefix']}", addr_family)
+            if "next-hop" in v:
+                s += " " + nmci.ip.ipaddr_norm(v["next-hop"], addr_family)
+            s += " " + str(int(v["metric"]))
+            if "table" in v:
+                s += " table=" + str(int(v["table"]))
+            return s
+
+        data["_routes"] = [_parse_routes(v, addr_family) for v in data["RouteData"]]
+
+        def _parse_nameservers(v, addr_family):
+            return nmci.ip.ipaddr_norm(v["address"], addr_family)
+
+        # "NameserverData" exists ~only~ since NetworkManager 1.14. We expect that to be there.
+        # data["_nameservers"] = [
+        #    _parse_nameservers(v, addr_family) for v in data["NameserverData"]
+        # ]
+
+        data["_searches"] = [str(v) for v in data["Searches"]]
+
+        return data
+
     def _connection_show_1(
         self,
         only_active,
