@@ -91,6 +91,12 @@ class _IP:
             return addr
         return f"{addr}/{plen}"
 
+    def ipaddr_zero(self, addr_family):
+        if self.addr_family_num(addr_family) == 4:
+            return "0.0.0.0"
+        else:
+            return "::"
+
     def mac_aton(self, mac_str, force_len=None):
         # we also accept None and '' for convenience.
         # - None yiels None
