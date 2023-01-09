@@ -593,7 +593,12 @@ class _Util:
         #   For example, with match_mode='plain', expected=['a', '.'], strv=['b', 'a'], this
         #   matches when ignoring the order, but fails to match otherwise.
         #   An element in @expected only can match exactly once.
-        expected = list(expected)
+
+        if isinstance(expected, str):
+            # For convenience, allow "expected" to be a space separated string.
+            expected = re.split(r"[,; ]+", expected)
+        else:
+            expected = list(expected)
         strv = list(strv)
 
         expected_match_idxes = []
