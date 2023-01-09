@@ -20,7 +20,7 @@ class _DBus:
         return False
 
     def name_is_object_path(self, name, check=False):
-        if nmci.util.GLib.Variant.is_object_path(name):
+        if isinstance(name, str) and nmci.util.GLib.Variant.is_object_path(name):
             return True
         if check:
             raise ValueError(f'Invalid D-Bus object path "{name}"')
