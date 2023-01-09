@@ -21,12 +21,14 @@ class _IP:
         if addr_family != socket.AF_INET and addr_family != socket.AF_INET6:
             raise ValueError(f"invalid address family {addr_family}")
 
-    def addr_family_num(self, addr_family):
+    def addr_family_num(self, addr_family, allow_none=False):
         addr_family = self.addr_family_norm(addr_family)
         if addr_family == socket.AF_INET:
             return 4
         if addr_family == socket.AF_INET6:
             return 6
+        if addr_family is None and allow_none:
+            return None
         self.addr_family_check(addr_family)
 
     def addr_family_plen(self, addr_family):
