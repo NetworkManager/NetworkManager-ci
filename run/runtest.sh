@@ -37,6 +37,17 @@ get_timestamp() {
     fi
 }
 
+running_NM_version_check() {
+    local running_ver
+    local rpm_ver
+    running_ver=$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version | tr -d 's "')
+    rpm_ver=$(rpm -q NetworkManager)
+    if [[ "$rpm_ver" != *"$running_ver"* ]]; then
+        echo -e '\n\033[0;31mWARNING!!! Running NetworkManager version differs from installed package
+Did you forgot to restart after install?\033[0m\n'
+    fi
+}
+
 version_control() {
     local out
     local rc
@@ -274,6 +285,8 @@ if ps aux | grep -v grep | grep -q harness.py; then
         timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
     fi
 fi
+
+running_NM_version_check
 
 logger -t $0 "Test $TAG finished with result $RESULT: $rc"
 
