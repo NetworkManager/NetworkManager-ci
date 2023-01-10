@@ -721,7 +721,7 @@ def dns_dnsmasq_bs(context, scenario):
         context.systemd_resolved = False
     conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.nmutil.reload_NM_service()
+    nmci.nmutil.restart_NM_service()
     context.dns_plugin = "dnsmasq"
 
 
@@ -758,7 +758,7 @@ def dns_systemd_resolved_bs(context, scenario):
         conf.append("rc-manager=symlink")
 
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
-    nmci.nmutil.reload_NM_service()
+    nmci.nmutil.restart_NM_service()
     context.dns_plugin = "systemd-resolved"
 
 
