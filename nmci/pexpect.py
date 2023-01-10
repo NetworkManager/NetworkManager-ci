@@ -7,12 +7,13 @@ import nmci.cleanup
 
 
 class PexpectData:
-    def __init__(self, is_service, proc, logfile, embed_context, label):
+    def __init__(self, is_service, proc, logfile, embed_context, label, check):
         self.is_service = is_service
         self.proc = proc
         self.logfile = logfile
         self.embed_context = embed_context
         self.label = label
+        self.check = check
 
 
 class _PExpect:
@@ -36,9 +37,6 @@ class _PExpect:
             nmci.embed.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
         if not status:
             status = proc.status
-        # TODO: make the tests capable of this change
-        # if not failed:
-        #     failed = status != 0
         stdout = nmci.util.file_get_content_simple(data.logfile.name)
         data.logfile.close()
 
@@ -68,7 +66,12 @@ class _PExpect:
         ) = self._pexpect_complete(data)
 
         if p_failed:
-            raise Exception(f"process failed: {argv}")
+            raise Exception(f"Process '{argv}' could not be stopped.")
+
+        if data.check and returncode != 0:
+            raise Exception(
+                f"Process '{argv}' returned {returncode}:\nSTDOUT\n{stdout}"
+            )
 
     def _pexpect_start(
         self,
@@ -122,6 +125,7 @@ class _PExpect:
         codec_errors="strict",
         shell=False,
         label=None,
+        check=False,
     ):
         proc, logfile = self._pexpect_start(
             command=command,
@@ -137,7 +141,7 @@ class _PExpect:
         )
 
         data = PexpectData(
-            False, proc, logfile, nmci.embed.get_embed_context("Commands"), label
+            False, proc, logfile, nmci.embed.get_embed_context("Commands"), label, check
         )
 
         # These get killed at the end of the step by process_pexpect_spawn().
@@ -157,6 +161,7 @@ class _PExpect:
         codec_errors="strict",
         shell=False,
         label=None,
+        check=False,
         cleanup_priority=nmci.cleanup.Cleanup.PRIORITY_PEXPECT_SERVICE,
     ):
         proc, logfile = self._pexpect_start(
@@ -173,7 +178,7 @@ class _PExpect:
         )
 
         data = PexpectData(
-            True, proc, logfile, nmci.embed.get_embed_context("Commands"), label
+            True, proc, logfile, nmci.embed.get_embed_context("Commands"), label, check
         )
 
         self._pexpect_service_lst.append(data)
@@ -191,7 +196,7 @@ class _PExpect:
 
     def process_pexpect_spawn(self):
 
-        argv_failed = None
+        argv_failed = []
 
         for data in nmci.util.consume_list(self._pexpect_spawn_lst):
             (
@@ -200,11 +205,16 @@ class _PExpect:
                 returncode,
                 stdout,
             ) = self._pexpect_complete(data)
-            if argv_failed is None and p_failed:
-                argv_failed = argv
+            if p_failed:
+                argv_failed.append(f"Process '{argv}' could not be stopped.")
+            if data.check and returncode != 0:
+                argv_failed.append(
+                    f"Process '{argv}' returned {returncode}:\nSTDOUT\n{stdout}"
+                )
 
         if argv_failed:
-            raise Exception(f"Some process failed: {argv_failed}")
+            msg = "\n".join(argv_failed)
+            raise Exception(f"Some process failed:\n{msg}")
 
     def pexpect_service_find_all(self, label=None):
         for proc in self._pexpect_service_lst:
