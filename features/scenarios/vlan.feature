@@ -64,7 +64,7 @@ Feature: nmcli - vlan
     * Run child "dnsmasq --log-facility=/tmp/dnsmasq_vlan.log --dhcp-range=10.1.0.10,10.1.0.15,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
     * Add "vlan" connection named "tc2" with options "dev test1 id 100"
     * Execute "ip add add 1::666/128 dev test1"
-    * Wait for "5" seconds
+    When "inet 10.1.0.1" is visible with command "ip a s test1.100" in "15" seconds
     * Stop NM
     Then "inet 10.1.0.1" is visible with command "ip a s test1.100" for full "5" seconds
      And "inet6 1::" is visible with command "ip a s test1.100"
