@@ -166,6 +166,8 @@ def prepare_veths(context, pairs_array, bridge):
             f'''
             * Create "veth" device named "{pair}" with options "peer name {pair}p"
             * Cleanup device "{pair}p"
+            * Cleanup connection "{pair}p"
+            * Cleanup connection "{bridge}"
             ''')
         context.command_code("ip link set %sp master %s" % (pair, bridge))
         context.command_code("ip link set dev %s up" % pair)
