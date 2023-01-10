@@ -533,14 +533,25 @@ def wait_for_children(context):
     for child in nmci.pexpect.pexpect_service_find_all("child"):
         child.proc.wait()
 
+
 @step(u'Expect "{pattern}" in children in "{seconds}" seconds')
 def expect_children(context, pattern, seconds):
     seconds = float(seconds)
     for child in nmci.pexpect.pexpect_service_find_all("child"):
         proc = child.proc
         r = proc.expect([pattern, nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=seconds)
-        assert r != 1, f"Child {proc.name} exited without {pattern} in output:\n{proc.before}"
-        assert r != 2, f"Child {proc.name} did not output {pattern} within {seconds}s:\n{proc.before}"
+        assert r != 1, f"Child {proc.name} exited without '{pattern}' in output:\n{proc.before}"
+        assert r != 2, f"Child {proc.name} did not output '{pattern}' within {seconds}s:\n{proc.before}"
+
+
+@step(u'Do not expect "{pattern}" in children in "{seconds}" seconds')
+def not_expect_children(context, pattern, seconds):
+    seconds = float(seconds)
+    for child in nmci.pexpect.pexpect_service_find_all("child"):
+        proc = child.proc
+        r = proc.expect([pattern, nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=seconds)
+        assert r != 0, f"Child {proc.name} has '{pattern}' in output:\n{proc.before}{proc.after}"
+
 
 @step(u'Start following journal')
 def start_tailing_journal(context):
