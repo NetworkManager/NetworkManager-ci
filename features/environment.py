@@ -85,6 +85,8 @@ def _before_scenario(context, scenario):
     # dump status before the test preparation starts
     nmci.util.dump_status("Before Scenario", fail_only=False)
 
+    nmci.embed.set_title(f"NMCI: {scenario.tags[-1]}")
+
     if context.IS_NMTUI:
         nmci.process.run_code("sudo pkill nmtui", ignore_stderr=True)
         context.screen_logs = []
