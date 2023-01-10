@@ -24,10 +24,16 @@ array_contains() {
 }
 
 get_rhel_compose() {
-    grep baseurl= /etc/yum.repos.d/debuginfo.repo 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
+    for file in /etc/yum.repos.d/repofile.repo /etc/yum.repos.d/beaker-BaseOS.repo; do
+        if [ -f "$file" ]; then 
+            grep -F -e baseurl= -e BaseOS "$file" 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
+            return
+        fi
+    done
+    grep DISTRO= /etc/motd | grep -o "RHEL-[^/]*"
 }
 
-export -f get_compose
+export -f get_rhel_compose
 
 get_timestamp() {
     if [ -f /tmp/nm_tests_timestamp ]; then
