@@ -5,6 +5,7 @@ import sys
 import time
 import subprocess
 import shutil
+import html
 
 import nmci.embed
 
@@ -406,20 +407,29 @@ class _Util:
 
     def dump_status(self, when, fail_only=False):
         class Echo:
-            def __init__(self, args):
+            def __init__(self, args, html_tag=None, escape=True):
                 self.args = args
+                self.html_tag = html_tag
+                self.escape = escape
 
-            def frame_around(self, padding=1):
-                length = len(self.args) + 4 + 2 * padding
-                line_top = "_" * length
-                line_padding = "_" * padding
-                return f"{line_top}\n|{line_padding} {self.args} {line_padding}|"
+            # Do not overwrite `self`, we need it for `bytes_to_str()`
+            def __str__(me):  # pylint: disable=no-self-argument,invalid-name
+                if isinstance(me.args, list):
+                    args_s = " ".join(me.args)
+                else:
+                    args_s = self.bytes_to_str(me.args)
+                if me.escape:
+                    args_s = html.escape(args_s)
+                if me.html_tag:
+                    return f"<{me.html_tag}>{args_s}</{me.html_tag}>"
+                else:
+                    return f"{args_s}"
 
         timeout = nmci.util.start_timeout(20)
 
         nm_running = nmci.nmutil.nm_pid() != 0
 
-        nm_cmds = [Echo("!!! NM is not running !!!")]
+        nm_cmds = [Echo("!!! NM is not running !!!", "h1")]
         if nm_running:
             nm_cmds = [
                 "NetworkManager --print-config",
@@ -433,7 +443,7 @@ class _Util:
         veth_cmds = []
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
             veth_cmds = [
-                Echo("Veth setup network namespace and DHCP server state:"),
+                Echo("Veth setup network namespace and DHCP server state:", "h3"),
                 "ip -n vethsetup addr",
                 "ip -n vethsetup -4 route",
                 "ip -n vethsetup -6 route",
@@ -447,10 +457,10 @@ class _Util:
         named_nss_cmds = []
 
         if len(named_nss) > 0:
-            named_nss_cmds = [Echo("Status of other named network namespaces:")]
+            named_nss_cmds = [Echo("Status of other named network namespaces:", "h3")]
             for ns in sorted(named_nss):
                 named_nss_cmds += [
-                    Echo(f"network namespace {ns}:"),
+                    Echo(f"network namespace {ns}:", "h3"),
                     f"ip -n {ns} a",
                     f"ip -n {ns} -4 r",
                     f"ip -n {ns} -6 r",
@@ -492,52 +502,52 @@ class _Util:
             if not any_pending or timeout.was_expired:
                 break
 
+        memory = self.dump_memory_stats()
+        procs.append(Echo(memory, escape=False))
+
         duration = nmci.misc.format_duration(timeout.elapsed_time())
-        procs.append(Echo(f"Status duration: {duration}"))
+        procs.append(Echo(f"<b>Status duration:</b> {duration}", escape=False))
 
         msg = []
         for proc in procs:
             if isinstance(proc, Echo):
-                msg.append(proc.frame_around())
+                msg.append(f"\n{proc}")
                 continue
-            msg.append(Echo(proc.argv).frame_around(3))
-            msg.append(proc.stdout.decode("utf-8", errors="replace"))
+            msg.append(f"\n{Echo(proc.argv, 'h4')}")
+            output = proc.stdout.decode("utf-8", errors="replace")
+            msg.append(f"{Echo(output)}")
         if timeout.was_expired:
             msg.append(
                 "\nWARNING: timeout expired waiting for processes. Processes were terminated."
             )
 
-        nmci.embed.embed_data("Status " + when, "\n".join(msg), fail_only=fail_only)
+        nmci.embed.embed_data(
+            "Status " + when, "\n".join(msg), mime_type="text/html", fail_only=fail_only
+        )
 
-        # Always include memory stats
-        self.dump_memory_stats(when)
-
-    def dump_memory_stats(self, when):
+    def dump_memory_stats(self):
         if nmci.cext.context.nm_pid is not None:
-            timeout = nmci.util.start_timeout()
             try:
                 kb = nmci.nmutil.nm_size_kb()
             except nmci.util.ExpectedException as e:
-                msg = f"Daemon memory consumption: unknown ({e})\n"
+                msg = f"<b>Daemon memory consumption:</b> unknown ({e})\n"
             else:
-                msg = f"Daemon memory consumption: {kb} KiB\n"
-            if (
-                os.path.isfile("/etc/systemd/system/NetworkManager.service")
-                and nmci.process.run_code(
-                    "grep -q valgrind /etc/systemd/system/NetworkManager.service",
-                    embed_combine_tag=nmci.embed.NO_EMBED,
-                )
-                == 0
-            ):
-                result = nmci.process.run(
-                    "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
-                    " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
-                    shell=True,
-                    embed_combine_tag=nmci.embed.NO_EMBED,
-                )
-                msg += result.stdout
-            msg += f"\nDuration: {nmci.misc.format_duration(timeout.elapsed_time())}"
-            nmci.embed.embed_data("Memory use " + when, msg)
+                msg = f"<b>Daemon memory consumption:</b> {kb} KiB\n"
+            service_file = "/etc/systemd/system/NetworkManager.service"
+            if os.path.isfile(service_file):
+                if "valgrind" in self.file_get_content(service_file):
+                    result = nmci.process.run(
+                        "LOGNAME=root HOSTNAME=localhost gdb /usr/sbin/NetworkManager "
+                        " -ex 'target remote | vgdb' -ex 'monitor leak_check summary' -batch",
+                        shell=True,
+                        embed_combine_tag=nmci.embed.NO_EMBED,
+                    )
+                    msg += result.stdout
+            return msg
+        else:
+            return (
+                "<b>Daemon memory consumption:</b> unknown (NetworkManager not running)"
+            )
 
     def gvariant_type(self, s):
 
