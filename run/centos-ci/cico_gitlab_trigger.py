@@ -113,7 +113,7 @@ class GitlabTrigger(object):
     def latest_main_commit(self):
         if self.gl_project is None:
             return None
-        branch = self.gl_project.branches.get('main')
+        branch = self.gl_project.branches.get("main")
         commit_id = branch.commit["id"]
         return commit_id
 
@@ -377,7 +377,9 @@ def process_request(data, content):
         elif data["object_attributes"]["action"] == "unapproved":
             print("UNAPPROVED packet, ignoring")
         elif data["object_attributes"]["action"] in ["update", "approved"]:
-            if gt.wip or gt.title.startswith("WIP"):
+            if gt.repository != "NetworkManager" and (
+                gt.wip or gt.title.startswith("WIP")
+            ):
                 print("This is WIP Merge Request - not proceeding")
             elif (
                 gt.request_type == "merge_request"
