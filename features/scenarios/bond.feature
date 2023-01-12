@@ -2752,3 +2752,44 @@
      * Execute "ip link del nm-bond"
      And "enslaved to unknown device" is not visible with command "journalctl -t NetworkManager  --since -30s" in "5" seconds
      Then "deactivating -> disconnected" is visible with command "journalctl  -t NetworkManager  --since -30s | grep '(eth4): state change:'" in "5" seconds
+
+
+    @rhbz2118817
+    @ver+=1.40.2
+    @ver/rhel/8/7+=1.40.0.5
+    @ver/rhel/8/6+=1.36.0.12
+    @ver/rhel/8/4+=1.30.0.17
+    @restore_hostname @eth0
+    @bond_set_hostname_even_when_links_do_not_come_up_immediately
+    Scenario: bond - system should get hostname from DHCP over bond even when links come up with a delay
+    * Execute "hostnamectl set-hostname ''"
+    * Execute "systemctl stop systemd-hostnamed"
+    * Execute "hostname localhost"
+    * Execute "systemctl restart systemd-hostnamed"
+    * Restart NM
+    * Wait for "4" seconds
+    * Add namespace "ns1"
+    * Create "veth" device named "veth0" with options "peer name veth0p netns ns1"
+    * Create "veth" device named "veth1" with options "peer name veth1p netns ns1"
+    * Create "bond" device named "bond1" in namespace "ns1" with options "mode balance-rr"
+    * Execute "ip -n ns1 address add dev bond1 172.25.1.1/24"
+    * Execute "ip -n ns1 link set bond1 up"
+    * Execute "for if in veth{0,1}p; do ip -n ns1 link set ${if} master bond1; ip -n ns1 link set ${if} down; done"
+    * Execute "for if in veth{0,1}; do ip link set ${if} up; done"
+    * Run child "ip netns exec ns1 dnsmasq -h --interface bond1 --except-interface lo --host-record=client1234,172.25.1.101 --log-queries --no-resolv --server=8.8.8.8"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "master bond0 slave-type bond"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "master bond1 slave-type bond"
+    * Add "bond" connection named "bond0" for device "bond0" with options
+        """
+        ipv6.method disabled
+        ipv4.method manual ipv4.address 172.25.1.101/24
+        ipv4.gateway 172.25.1.1 ipv4.dns 172.25.1.1
+        mode balance-rr connection.autoconnect-slaves yes
+        """
+    * Dump status
+    * Bring "up" connection "bond0"
+    * Wait for "4" seconds
+    * "client1234" is not visible with command "hostname"
+    When Execute "for if in veth{0,1}p; do ip -n ns1 link set ${if} up; done"
+    * Wait for "10" seconds
+    Then "client1234" is visible with command "hostname"
