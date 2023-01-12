@@ -20,23 +20,36 @@ class _PExpect:
     def __init__(self):
         self._pexpect_spawn_lst = []
         self._pexpect_service_lst = []
-        self.EOF = pexpect.EOF
-        self.TIMEOUT = pexpect.TIMEOUT
+        self.EOF = pexpect.EOF  # pylint: disable=invalid-name
+        self.TIMEOUT = pexpect.TIMEOUT  # pylint: disable=invalid-name
 
     def _pexpect_complete(self, data):
         proc = data.proc
         failed = False
-        status = 0
-        if proc.status is None:
+        if proc.isalive():
+            # this will set status to 15
             proc.kill(15)
             if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+                # this will set status to 9
                 proc.kill(9)
-        # this sets proc status if killed, if exception, something very wrong happened
-        if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
+        # if proc is not closed, and does not return EOF in 0.2s,
+        # (it was killed -9 already, if still running)
+        # it is zombie probably, return status -1 and embed `ps aufx`
+        if (
+            not proc.closed
+            and proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1
+        ):
             failed = True
-            nmci.embed.embed_data("DEBUG: ps aufx", nmci.process.run_stdout("ps aufx"))
-        if not status:
-            status = proc.status
+            returncode = -1
+            nmci.embed.embed_data(
+                "DEBUG: ps aufx",
+                nmci.process.run_stdout(
+                    "ps aufx", embed_combine_tag=nmci.embed.NO_EMBED
+                ),
+            )
+        else:
+            proc.close()
+            returncode = proc.status
         stdout = nmci.util.file_get_content_simple(data.logfile.name)
         data.logfile.close()
 
@@ -45,14 +58,14 @@ class _PExpect:
         nmci.embed.embed_run(
             argv,
             True,
-            status,
+            returncode,
             stdout,
             None,
             embed_context=data.embed_context,
             combine_tag="Commands",
         )
 
-        return failed, argv, status, stdout
+        return failed, argv, returncode, stdout
 
     def _pexpect_service_cleanup(self, data):
 
