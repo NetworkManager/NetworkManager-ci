@@ -708,7 +708,7 @@ class _Util:
 
         if isinstance(expected, str):
             # For convenience, allow "expected" to be a space separated string.
-            expected = re.split(r"[,; ]+", expected)
+            expected = self.str_whitespace_split(expected)
         else:
             expected = list(expected)
         strv = list(strv)
