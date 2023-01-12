@@ -844,3 +844,8 @@ def run_nmstate(context, log_file):
 def set_sysctl(context, sysctl, value):
     nmci.cleanup.cleanup_add_sysctls(sysctl)
     nmci.process.run(["sysctl", "-w", f"{sysctl}={value}"])
+
+
+@step("Dump status")
+def step_dump_status(context):
+    nmci.util.dump_status("")
