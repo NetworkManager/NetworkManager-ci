@@ -610,6 +610,76 @@ class _Util:
             return re.Pattern
         return re._pattern_type  # pylint: disable=no-member,protected-access
 
+    def str_whitespace_join(self, args):
+        args = list(args)
+        if not args:
+            # The empty list joins to None and not to "".
+            # That's because [""] already joins to "", but we want a unique
+            # result for every join (so that it can be reverted). That's why we
+            # don't return a string for the empty list.
+            return None
+        return " ".join(a.replace("\\", "\\\\").replace(" ", "\\ ") for a in args)
+
+    def str_whitespace_split(self, text, remove_empty=True):
+        # Split the text at whitespace, but support backslash escaping
+        # to prevent splitting.
+        #
+        # This basically allows to express a string list in one string,
+        # separated by space. It only supports a minimum of extra escaping,
+        # to allow a space not be treated as separator. Most backslash
+        # is treated verbatim.
+        # This allows to write expressions, that themselves might be backslash
+        # escaped, without requiring additional backslash escaping.
+        # For example, regexes:
+        #    "^.$ ^\\ \\[" gives the two regexes ["^.$", "^ \\["]
+        #
+        # This will:
+        #   - None gives the empty list [] (so that every input strlist can
+        #     be joined and split again).
+        #   - take double backslash "\\\\" as a single backslash "\\"
+        #   - take escaped space "\\ " as a single space
+        #   - take a single whitespace to split the string (the whitespace is removed).
+        #   - any other escaped backslash is taken literally.
+        #   - if remove_empty=True, empty tokens are dropped from the result.
+        #     With remove_empty=False, split(join(strlist)) gives strlist.
+
+        if text is None:
+            # None is valid and splits to the empty list. That's a special case
+            # so that every strlist can be uniquely joined and split.
+            return []
+
+        assert isinstance(text, str)
+
+        result = []
+        i = 0
+        l = len(text)
+        word = ""
+        while i < l:
+            c = text[i]
+            i += 1
+            if c == " ":
+                result.append(word)
+                word = ""
+                continue
+            if c == "\\" and i < l:
+                c2 = text[i]
+                i += 1
+                if c2 == "\\":
+                    word += "\\"
+                elif c2 == " ":
+                    word += " "
+                else:
+                    word += f"\\{c2}"
+            else:
+                word += c
+
+        result.append(word)
+
+        if remove_empty:
+            result = [s for s in result if s]
+
+        return result
+
     def compare_strv_list(
         self,
         expected,

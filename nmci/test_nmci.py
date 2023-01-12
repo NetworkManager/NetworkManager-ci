@@ -1937,6 +1937,55 @@ def test_ipaddr_parse_and_norm():
     )
 
 
+def test_str_whitespace_split():
+    def check_roundtrip(*strlist, _randomize=True):
+        strlist = list(strlist)
+        text = nmci.util.str_whitespace_join(strlist)
+        strlist2 = nmci.util.str_whitespace_split(text, remove_empty=False)
+        assert strlist == strlist2
+        if _randomize:
+            random.shuffle(strlist)
+            check_roundtrip(*strlist, _randomize=False)
+
+    check_roundtrip()
+    check_roundtrip("")
+    check_roundtrip("", "")
+    check_roundtrip("", "", "")
+    check_roundtrip("a", "", "")
+    check_roundtrip("a", "a", "")
+    check_roundtrip("a", "a", "a")
+    check_roundtrip("\\", " ", "a")
+    check_roundtrip("\\", " ", "b a")
+    check_roundtrip("\\")
+    check_roundtrip(" ")
+    check_roundtrip(" ", " ")
+
+    def check(text, expected, remove_empty=True):
+        split = nmci.util.str_whitespace_split(text, remove_empty=remove_empty)
+        assert split == expected
+        check_roundtrip(*split)
+
+    check("", [])
+    check(" ", [])
+    check("  ", [])
+    check("", [""], remove_empty=False)
+    check(" ", ["", ""], remove_empty=False)
+    check("  ", ["", "", ""], remove_empty=False)
+    check("a", ["a"])
+    check("a\\", ["a\\"])
+    check("a\\\\", ["a\\"])
+    check("a b", ["a", "b"])
+    check("a  b", ["a", "b"])
+    check("a  b", ["a", "", "b"], remove_empty=False)
+
+    check("a \\ b", ["a", " b"])
+    check("a \\ \\b", ["a", " \\b"])
+    check("a\\\\ \\ \\b", ["a\\", " \\b"])
+
+    check("^.$ ^ \\[", ["^.$", "^", "\\["])
+    check("^.$ ^\\ \\[", ["^.$", "^ \\["])
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():
