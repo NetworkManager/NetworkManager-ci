@@ -2425,3 +2425,53 @@
     * Execute "mptcpize run ncat -c 'echo hello world!' 2620:dead:beaf:50::1 9006"
     Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
     Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2060684
+    @ver+=1.41.8
+    @ipv6_route_cache_consistancy
+    Scenario: ipv6 - check consistent route cache with "ip route replace"
+    * Prepare simulated test "testX6" device
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::1 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::2 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::3 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1:2:3:4::1\ 1024  5:1::1/128\ 1:2:3:4::2\ 1024  5:1::1/128\ 1:2:3:4::3\ 1024"
+    * Execute "ip route replace 5:1::1/128 nexthop via 1:2:3:4::5 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1:2:3:4::5\ 1024"
+
+    * Execute "ip -6 route flush dev testX6"
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::1 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::2 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::3 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024  5:1::1/128\ 1:2:3:4::1\ 1024  5:1::1/128\ 1:2:3:4::2\ 1024  5:1::1/128\ 1:2:3:4::3\ 1024"
+    * Execute "ip route replace 5:1::1/128 nexthop via 1:2:3:4::5 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024  5:1::1/128\ 1:2:3:4::5\ 1024"
+
+    * Execute "ip -6 route flush dev testX6"
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::1 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::2 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::3 dev testX6"
+    * Execute "ip route append 5:1::1/128 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024  5:1::1/128\ 1:2:3:4::1\ 1024  5:1::1/128\ 1:2:3:4::2\ 1024  5:1::1/128\ 1:2:3:4::3\ 1024"
+    * Execute "ip route replace 5:1::1/128 nexthop via 1:2:3:4::5 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024  5:1::1/128\ 1:2:3:4::5\ 1024"
+
+    * Execute "ip -6 route flush dev testX6"
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024"
+    * Execute "ip route replace 5:1::1/128 nexthop via 1:2:3:4::5 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1:2:3:4::5\ 1024"
+
+    * Execute "ip -6 route flush dev testX6"
+    * Execute "ip route append 1:2:3:4::/64 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::1 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::2 dev testX6"
+    * Execute "ip route append 5:1::1/128 nexthop via 1:2:3:4::3 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1:2:3:4::1\ 1024  5:1::1/128\ 1:2:3:4::2\ 1024  5:1::1/128\ 1:2:3:4::3\ 1024"
+    * Execute "ip route replace 5:1::1/128 dev testX6"
+    Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024"
