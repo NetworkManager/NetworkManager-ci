@@ -799,6 +799,7 @@ class _Misc:
         m = nmci.process.run_search_stdout(
             "journalctl --lines=0 --quiet --show-cursor --system",
             "^-- cursor: +([^ ].*[^ ]) *\n$",
+            ignore_stderr=True,
         )
         return m.group(1)
 
