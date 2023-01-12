@@ -45,10 +45,10 @@ get_timestamp() {
 
 running_NM_version_check() {
     local running_ver
-    local rpm_ver
-    running_ver=$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version | tr -d 's "')
-    rpm_ver=$(rpm -q NetworkManager)
-    if [[ "$rpm_ver" != *"$running_ver"* ]]; then
+    local dist_ver
+    running_ver="$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version | tr -d 's "')"
+    dist_ver="$(NetworkManager -V)"
+    if [[ "$dist_ver" != "$running_ver"* ]]; then
         echo -e '\n\033[0;31mWARNING!!! Running NetworkManager version differs from installed package
 Did you forgot to restart after install?\033[0m\n'
     fi
