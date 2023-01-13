@@ -560,9 +560,32 @@ class _IP:
         #
         # The result is a list of string or byte, depending on whether
         # the name can be decoded as utf-8.
-        v = [nmci.util.binary_to_str(b) for b in out.split(b"\n")]
+        v = [b for b in out.split(b"\n")]
 
-        if not with_binary:
-            v = [x for x in v if not isinstance(x, bytes)]
+        def does_ns_exist(nsname):
+            rc = nmci.process.run_code(
+                ["ip", "netns", "pids", nsname], ignore_stderr=True
+            )
+            if rc == 0:
+                return True
+            else:
+                return False
+
+        w = []
+        for i in v:
+            if does_ns_exist(i):
+                w.append(i)
+                continue
+            # Some NS's have " (id: int)" appended to their name without a
+            # clear rule, let's try to strip that and add if it exists
+            without_parentheses = re.sub(rb"\s*\([^)]*\)$", b"", i)
+            if does_ns_exist(without_parentheses):
+                w.append(without_parentheses)
+            # we still don't have name of a valid NS, let's just leave it
+
+        if with_binary:
+            v = w
+        else:
+            v = [nmci.util.binary_to_str(x) for x in w]
 
         return v
