@@ -2793,3 +2793,21 @@
     When Execute "for if in veth{0,1}p; do ip -n ns1 link set ${if} up; done"
     * Wait for "10" seconds
     Then "client1234" is visible with command "hostname"
+
+
+    @rhbz2118817
+    @ver+=1.40.2
+    @ver/rhel/8/7+=1.40.0.5
+    @ver/rhel/8/6+=1.36.0.12
+    @ver/rhel/8/4+=1.30.0.17
+    @restore_hostname @eth0
+    @bond_set_hostname_even_when_links_do_not_come_up_immediately_loop
+    Scenario: bond - system should get hostname from DHCP over bond even when links come up with a delay
+    * Cleanup namespace "ns1"
+    * Cleanup device "veth1"
+    * Cleanup device "veth3"
+    * Cleanup connection "veth0+" and device "veth0"
+    * Cleanup connection "veth2+" and device "veth2"
+    * Cleanup connection "bond0+" and device "bond0"
+    When Execute reproducer "repro_2118817.sh" for "10" times
+    Then "client1234" is visible with command "hostname"
