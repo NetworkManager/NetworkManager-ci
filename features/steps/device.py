@@ -718,5 +718,10 @@ def add_device(context, typ, name, namespace="", options=""):
 @step(u'Add namespace "{name}"')
 @step(u'Add namespace "{name}" with options "{options}"')
 def add_namespace(context, name, options=""):
-    context.command_code(f"ip netns add {name} {options}")
     nmci.cleanup.cleanup_add_namespace(name, teardown=False)
+    nmci.process.run(f"ip netns add {name} {options}")
+
+
+@step('Cleanup namespace "{name}"')
+def cleanup_ns(context, name):
+    nmci.cleanup.cleanup_add_namespace(name)
