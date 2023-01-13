@@ -556,6 +556,7 @@ def eth0_bs(context, scenario):
     #        print("shutting down eth0 once more as it is not down")
     #        context.process.run_stdout("nmcli device disconnect eth0")
     #        time.sleep(2)
+    context.process.nmcli("con modify testeth0 connection.autoconnect no")
     context.process.nmcli("con down testeth0")
     context.process.nmcli_force("con down testeth1")
     context.process.nmcli_force("con down testeth2")
@@ -566,6 +567,7 @@ def eth0_as(context, scenario):
     #        if 'restore_hostname' in scenario.tags:
     #            context.process.run_stdout('hostnamectl set-hostname --transien ""')
     #            context.process.run_stdout(f'hostnamectl set-hostname --static {context.original_hostname}')
+    context.process.nmcli("con modify testeth0 connection.autoconnect yes")
     nmci.veth.wait_for_testeth0()
 
 
