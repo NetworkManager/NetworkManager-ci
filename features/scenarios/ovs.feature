@@ -1049,6 +1049,31 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.0[\"]?, n_rxq=[\"]?2[\"]?}" is visible with command "ovs-vsctl show"
 
 
+     @rhbz2156385
+     @ver+=1.41.8
+     @ver/rhel/9+=1.41.90.1
+     @openvswitch @dpdk
+     @add_dpdk_port_n_rxq_txq_desc
+     Scenario: NM -  openvswitch - add dpdk device and n_rxq_desc,n_txq_desc arguments
+     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
+           """
+           ovs-bridge.datapath-type netdev
+           """
+     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+           """
+           conn.master port0
+           ovs-dpdk.devargs 0000:42:10.0
+           ovs-dpdk.n-rxq 2
+           ovs-dpdk.n-rxq-desc 128
+           ovs-dpdk.n-txq-desc 256
+           """
+     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+     And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.0[\"]?, n_rxq=[\"]?2[\"]?, n_rxq_desc=[\"]?128[\"]?, n_txq_desc=[\"]?256[\"]?}" is visible with command "ovs-vsctl show"
+
+
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5
     @openvswitch @dpdk

@@ -3281,5 +3281,7 @@ testmapper:
         feature: ovs
     - add_dpdk_port_n_rxq:
         feature: ovs
+    - add_dpdk_port_n_rxq_txq_desc:
+        feature: ovs
     - add_dpdk_bond_sriov:
         feature: ovs
