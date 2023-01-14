@@ -560,9 +560,16 @@ class _IP:
         #
         # The result is a list of string or byte, depending on whether
         # the name can be decoded as utf-8.
-        v = [nmci.util.binary_to_str(b) for b in out.split(b"\n")]
+        #
+        # Also, strip "(id: X)" part if present.
 
-        if not with_binary:
-            v = [x for x in v if not isinstance(x, bytes)]
+        id_regexp = re.compile(b" \\(id: [0-9]*\\)$")
+        lines = out.split(b"\n")
+        lines_without_ids = [re.sub(id_regexp, b"", l) for l in lines]
 
-        return v
+        namespaces = [nmci.util.binary_to_str(b) for b in lines_without_ids]
+
+        if with_binary:
+            namespaces = [x for x in namespaces if not isinstance(x, bytes)]
+
+        return namespaces
