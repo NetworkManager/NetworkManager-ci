@@ -1024,7 +1024,7 @@ Feature: nmcli - ovs
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
      And "Port port0" is visible with command "ovs-vsctl show"
-     And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=0000:42:10.0}" is visible with command "ovs-vsctl show"
+     And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.0[\"]?}" is visible with command "ovs-vsctl show"
 
 
      @rhbz2001563
