@@ -21,6 +21,7 @@ dispatcher_synchronicity_with_predown
 ethernet_set_mtu
 8021x_ttls_mschapv2_eap
 8021x_without_password_with_ask_at_the_end
+8021x_teardown_eth
 insufficient_perms_connection_down
 insufficient_perms_connection_up
 hostname_change

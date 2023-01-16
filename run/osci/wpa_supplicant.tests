@@ -13,6 +13,7 @@
 8021x_ttls_mschapv2_eap
 8021x_ttls_md5
 8021x_ttls_gtc
+8021x_teardown_eth
 simwifi_open_connect
 simwifi_wep_tls
 simwifi_wep_ttls_mschapv2_eap

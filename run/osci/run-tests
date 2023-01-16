@@ -59,6 +59,12 @@ function enable_debug_log ()
 
 function run_tests ()
 {
+    # Add fail, skip, pass, and test counter variables
+    cnt=0
+    fail=()
+    skip=()
+    pass=()
+
     if [ ! -d "$RESULTS_DIR" ]; then
         mkdir -p /tmp/artifacts
     fi
@@ -67,39 +73,43 @@ function run_tests ()
 
     echo "WILL RUN:"
     echo $TESTS
+    echo "Starting time:" $(date)
 
     # For all tests
-    for T in $TESTS; do
-        COUNTER=$(printf "%03d\n" $CNT)
-        echo "RUNING $T"
+    for test in $TESTS; do
+        echo "_______________________________"
+        echo "RUNNING $test"
+        counter=$(printf "%04d\n" $cnt)
 
-        TIMEOUT=$(sed -n "/- $T:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
+        timer=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "timeout:" | awk -F: '{print $2}')
         if [ "$TIMEOUT" == "" ]; then
-            TIMEOUT="10m"
+            timer="10m"
         fi
 
-        TEST=NetworkManager-ci_Test$COUNTER"_"$T timeout $TIMEOUT run/runtest.sh $T; rc=$?
+        export TEST="NetworkManager-ci_Test${counter}_$test"
+        cmd=$(sed -n "/- $test:/,/ - /p" mapper.yaml | grep -e "run:" | awk -F: '{print $2}')
+        if [ "$cmd" == "" ] ; then
+            cmd="run/./runtest.sh $test"
+        fi
 
-        if [ $rc -ne 0 ]; then
-            # Overal result is FAIL
-            echo "FAIL" > $RESULTS
-            # Move reports to /var/www/html/results/ and add FAIL prefix
-            if [[ $T == *nmtui* ]]; then
-                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.log
-            else
-                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/FAIL-NetworkManager-ci_Test$COUNTER"_"$T.html
-            fi
-            FAILURES+=($T)
+        timeout $timer $cmd; rc=$?
+        echo "Finished at:" $(date)
+
+        result="/tmp/artifacts/"
+        if [ $rc = 77 ]; then
+            skip+=($test)
+        elif [ $rc = 0 ]; then
+            pass+=($test)
         else
-            # Move reports to /tmp/artifacts
-            if [[ $T == *nmtui* ]]; then
-                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.log $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.log
-            else
-                mv /tmp/report_NetworkManager-ci_Test$COUNTER"_"$T.html $RESULTS_DIR/NetworkManager-ci_Test$COUNTER"_"$T.html
-            fi
+            # Overal result is FAIL
+            result=$RESULTS_DIR/FAIL-report_$TEST.html
+            fail+=($test)
+            # This should not be neeed, we do not have it in RHEL/Fedora testing
+            #systemctl restart NetworkManager
+            #nmcli con up id testeth0
         fi
-
-        ((CNT++))
+        mv /tmp/report_$TEST.html $result
+        ((cnt++))
     done
 }
 
@@ -107,20 +117,33 @@ function run_tests ()
 function report_results_and_exit ()
 {
     rc=1
-    # Write out tests failures
-    if [ ${#FAILURES[@]} -ne 0 ]; then
-        echo "** $CNT TESTS PASSED"
-        echo "--------------------------------------------"
-        echo "** ${#FAILURES[@]} TESTS FAILED"
-        echo "--------------------------------------------"
-        for FAIL in "${FAILURES[@]}"; do
-            echo "$FAIL"
-        done
-    else
+    echo "--------------------------------------------"
+    echo "** ${#pass[@]} TESTS PASSED"
+    if [ ${#pass[@]} -ne 0 ]; then
         rc=0
-        echo "** ALL $CNT TESTS PASSED!"
+        echo "PASS" > $RESULTS_DIR/RESULTS
     fi
-
+    if [ ${#fail[@]} -ne 0 ]; then
+        echo "--------------------------------------------"
+        echo "** ${#fail[@]} TESTS FAILED"
+        for f in "${fail[@]}"; do
+            echo "$f"
+        done
+        rc=1
+        echo "FAIL" > $RESULTS_DIR/RESULTS
+    fi
+    if [ ${#skip[@]} -ne 0 ]; then
+        echo "--------------------------------------------"
+        echo "** ${#skip[@]} TESTS SKIPPED"
+        for s in "${skip[@]}"; do
+            echo "$s"
+        done
+    fi
+    echo "${#pass[@]}" > $RESULTS_DIR/summary.txt
+    echo "${#fail[@]}" >> $RESULTS_DIR/summary.txt
+    echo "${#skip[@]}" >> $RESULTS_DIR/summary.txt
+    echo "${fail[@]}" >> $RESULTS_DIR/summary.txt
+    echo "${skip[@]}" >> $RESULTS_DIR/summary.txt
     exit $rc
 }
 
