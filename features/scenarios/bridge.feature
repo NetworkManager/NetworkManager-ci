@@ -302,6 +302,7 @@ Feature: nmcli - bridge
 
 
     @rhbz2124443
+    @ver+=1.37
     @ver-1.40
     @ver+=1.41.3
     @ver/rhel/8-1.40
@@ -329,6 +330,7 @@ Feature: nmcli - bridge
 
 
     @rhbz2124443
+    @ver+=1.37
     @ver-1.40
     @ver+=1.41.3
     @ver/rhel/8-1.40
