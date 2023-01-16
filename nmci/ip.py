@@ -573,3 +573,20 @@ class _IP:
             namespaces = [x for x in namespaces if not isinstance(x, bytes)]
 
         return namespaces
+
+    def netns_add(self, name):
+        nmci.process.run_stdout(["ip", "netns", "add", name])
+
+    def netns_delete(self, name, check=True):
+        nmci.process.run_stdout(
+            ["ip", "netns", "delete", name],
+            ignore_returncode=not check,
+            ignore_stderr=not check,
+        )
+
+    def netns_exec(self, name, *argv, ignore_returncode=False, ignore_stderr=False):
+        return nmci.process.run(
+            ["ip", "netns", "exec", name, *argv],
+            ignore_returncode=ignore_returncode,
+            ignore_stderr=ignore_stderr,
+        )
