@@ -872,6 +872,8 @@ testmapper:
         feature: ipv4
     - ipv4_route_set_ecmp_route_with_weight:
         feature: ipv4
+    - ipv4_route_set_ecmp_route_with_weight_and_drop_weight:
+        feature: ipv4
     - ipv4_route_set_ecmp_route_with_weight_and_modify:
         feature: ipv4
     - ipv4_route_set_ecmp_routes_in_two_profiles:
