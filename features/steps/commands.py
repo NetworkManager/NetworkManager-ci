@@ -751,20 +751,27 @@ def check_routes_expect(context, ifname, addr_family, expected):
 
     addr_family = nmci.ip.addr_family_norm(addr_family)
 
-    devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
-    assert len(devices) == 1
+    def do():
 
-    routes = devices[0][f"ip{nmci.ip.addr_family_num(addr_family)}config"]["_routes"]
+        devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
+        assert len(devices) == 1
+
+        routes = devices[0][f"ip{nmci.ip.addr_family_num(addr_family)}config"][
+            "_routes"
+        ]
+
+        try:
+            nmci.util.compare_strv_list(
+                expected,
+                routes,
+                ignore_extra_strv=False,
+                ignore_order=True,
+            )
+        except ValueError as e:
+            raise ValueError(f"List of routes unexpected: {e} (full list: {routes})")
 
     try:
-        nmci.util.compare_strv_list(
-            expected,
-            routes,
-            ignore_extra_strv=False,
-            ignore_order=True,
-        )
-    except ValueError as e:
-        raise ValueError(f"List of routes unexpected: {e} (full list: {routes})")
+        nmci.util.wait_for(do, timeout=2)
     finally:
         nmci.process.run_stdout(
             f"ip -d -{nmci.ip.addr_family_num(addr_family)} route show table all"
