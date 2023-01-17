@@ -263,51 +263,57 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if daemon_options is None:
         daemon_options = ""
 
-    context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
-    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
-    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.accept_ra=1".format(device=device))
-    context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
+    ns_name = f"{device}_ns"
+    peer_device = f"{device}p"
+
+    nmci.ip.netns_add(ns_name)
+    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{ns_name}" with options "peer name {peer_device}"')
+    nmci.ip.netns_exec(ns_name, "sysctl", f"net.ipv6.conf.{device}.disable_ipv6=0")
+    nmci.ip.netns_exec(ns_name, "sysctl", f"net.ipv6.conf.{device}.accept_ra=1")
+    nmci.ip.netns_exec(ns_name, "sysctl", f"net.ipv6.conf.{device}.autoconf=1")
+    nmci.ip.link_set(ifname="lo", up=True, namespace=ns_name)
+    nmci.ip.link_set(ifname=peer_device, up=True, namespace=ns_name)
     if ipv4.lower() != "none":
-        context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
+        nmci.ip.address_add(ifname=peer_device, address=f"{ipv4}.1/24", namespace=ns_name)
     if ipv6.lower() != "none":
-        context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
-    context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
-    context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
-    context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
-    context.command_code("echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
-    context.command_code("echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
-    context.command_code("echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
-    context.command_code("echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
-    context.command_code("echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
+        nmci.ip.address_add(ifname=peer_device, address=f"{ipv4}::1/64", namespace=ns_name)
+    nmci.util.file_set_content("/etc/hosts",
+        [
+            '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4',
+            '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6',
+            '192.168.99.10 ip-192-168-99-10',
+            '192.168.99.11 ip-192-168-99-11',
+            '192.168.99.12 ip-192-168-99-12',
+            '192.168.99.13 ip-192-168-99-13',
+            '192.168.99.14 ip-192-168-99-14',
+            '192.168.99.15 ip-192-168-99-15',
+        ]
+    )
+
+    dnsmasq_command = [
+        "dnsmasq",
+        f"--interface={peer_device}",
+        "--bind-interfaces",
+        "--pid-file=/tmp/{ns_name}.pid",
+        f"--dhcp-leasefile=/tmp/{ns_name}.lease"
+    ]
 
     if option:
-        option = "--dhcp-option-force=" + option
-    else:
-        option = ""
-
-    dnsmasq_command = "ip netns exec {device}_ns dnsmasq \
-                                --interface={device}p \
-                                --bind-interfaces \
-                                --pid-file=/tmp/{device}_ns.pid \
-                                --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                {option} \
-                                {daemon_options}".format(device=device, option=option, daemon_options=daemon_options)
+        dnsmasq_command.append(f"--dhcp-option-force={option}")
     if ipv4.lower() != "none":
-        dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
+        dnsmasq_command.append(f"--dhcp-range={ipv4}.10,{ipv4}.15,{lease_time}")
     if ipv6.lower() != "none" and lease_time != 'infinite':
-        dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
-                             --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
+        dnsmasq_command.append(f"--dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time}")
+        dnsmasq_command.append(f"--enable-ra")
 
-    assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
-    context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
+    nmci.ip.netns_exec(ns_name, *dnsmasq_command)
+
+    nmci.ip.link_set(ifname=device, namespace=ns_name, netns=str(os.getpid()))
     if nmci.process.systemctl("status NetworkManager", embed_combine_tag=nmci.embed.NO_EMBED).returncode == 0:
         context.execute_steps(f'Then "connected" is visible with command "nmcli device show {device}" in "10" seconds');
     else:
         time.sleep(2)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.cleanup_add_namespace(ns_name)
 
 
 
