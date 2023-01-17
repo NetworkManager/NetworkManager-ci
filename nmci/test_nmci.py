@@ -1986,6 +1986,25 @@ def test_str_whitespace_split():
     check("^.$ ^\\ \\[", ["^.$", "^ \\["])
 
 
+def test_wait_for():
+
+    arg = []
+
+    def do():
+        if not arg:
+            arg.append(1)
+            raise Exception("ex")
+        return "hi"
+
+    assert "hi" == nmci.util.wait_for(do)
+
+    def do():
+        raise ValueError("ex")
+
+    with pytest.raises(ValueError):
+        nmci.util.wait_for(do, timeout=0)
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():

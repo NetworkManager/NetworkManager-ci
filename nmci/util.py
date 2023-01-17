@@ -812,3 +812,75 @@ class _Util:
             )
 
         return True
+
+    def wait_for(
+        self,
+        callback,
+        timeout=5,
+        poll_sleep_time=0.2,
+        handle_result=None,
+        handle_exception=None,
+        handle_timeout=None,
+        op_name=None,
+    ):
+        # Waits for up to "timeout" seconds, with a poll-interval of "poll_sleep_time".
+        #
+        # The main mode of operation is simply that the "callback" raises an exception
+        # if the thing that we wait for is not yet reached. In that mode,
+        # - the function retries until timeout or until "callback" does not raise
+        # - on success, the return value of "callback" is returned.
+        # - on timeout, the last_exception is re-raised.
+        #
+        # you can also pass "handle_result", "handle_exception" and "handle_timeout"
+        # callbacks, to modify the behavior.
+
+        timeout = nmci.util.start_timeout(timeout)
+
+        if handle_result is None:
+            # The default implementation returns done=True and result=res.
+            handle_result = lambda res: (True, res)
+
+        if handle_exception is None:
+            # The default implementation accepts and exception and swallows
+            # is (by returning True, that the exception was handled).
+            # The effect is, that we retry as long as there is an exception.
+            handle_exception = lambda e: True
+
+        if handle_timeout is None:
+            # The default implementation either re-raises the
+            # last exception or (if none) raises a TimeoutError.
+            def h(last_exception):
+                if last_exception is not None:
+                    raise last_exception
+                raise TimeoutError(f"timeout waiting for operation '{op_name}'")
+
+            handle_timeout = h
+
+        while timeout.loop_sleep(sleep_time=poll_sleep_time):
+
+            last_exception = None
+
+            try:
+                res = callback()
+            except Exception as e:
+                # handle_exception() can:
+                # - return True to swallow the exception and continue
+                # - return False, to re-raise the exception (and abort)
+                # - raise an exception.
+                last_exception = e
+                if not handle_exception(e):
+                    raise
+                continue
+
+            # handle_result() must return a tuple with (done, result)
+            # where "done" is a boolean that determines whether we are done,
+            # and "result" is the result that we will return.
+            done, result = handle_result(res)
+            if done:
+                return result
+
+        # handle_timeout can:
+        # - re-raise the "last_exception" (if any)
+        # - raise its own exception, like a TimeoutError
+        # - return a value that is returned by the function.
+        return handle_timeout(last_exception)
