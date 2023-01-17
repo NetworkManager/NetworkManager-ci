@@ -689,6 +689,10 @@ class _IP:
         )
 
     def netns_exec(self, name, *argv, check=True, service=False):
+        if len(argv) == 1:
+            if isinstance(argv[1], list) or isinstance(argv[1], tuple):
+                argv = argv[1]
+
         args = ["ip", "netns", "exec", name, *argv]
         if service:
             return nmci.pexpect.pexpect_service(args[0], args=args[1:], check=check)
