@@ -2390,6 +2390,7 @@
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
     Then Check noted values "ipv6_1" and "ipv6_2" are not the same
 
+
     @rhbz2029636
     @tcpdump
     @ver+=1.40
