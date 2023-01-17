@@ -150,7 +150,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
 
 def nmtui_start(context, extra_env={}):
     env = dict(os.environ, **extra_env, LANG="en_US.UTF-8", TERM=TERM_TYPE)
-    context.tui = context.pexpect_service(f"nmtui > {OUTPUT}", shell=True, env=env)
+    context.tui = context.pexpect_service(f"EDITOR=vi nmtui > {OUTPUT}", shell=True, env=env)
     for line in context.screen.display:
         if 'NetworkManager TUI' in line:
             break
