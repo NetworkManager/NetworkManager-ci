@@ -2590,7 +2590,7 @@ _register_tag("profie", None, profie_as)
 
 
 def peers_ns_as(context, scenario):
-    context.process.run_stdout("ip netns del peers")
+    nmci.ip.netns_delete("peers")
     # sleep(TIMER)
 
 
@@ -2832,7 +2832,7 @@ def custom_ns_as(context, scenario):
         return
     cleaned = set()
     for ns in context.cleanup_ns:
-        context.process.run_stdout(f"ip netns delete {ns}")
+        nmci.ip.netns_delete(ns)
         cleaned.add(ns)
     context.cleanup_ns.difference_update(cleaned)
 

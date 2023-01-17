@@ -760,10 +760,8 @@ def load_nftables(context, ns=None, ruleset=None):
 
     nmci.cleanup.cleanup_add_nft(ns)
     if ns is None:
-        nsprefix = ""
         nft = nftables.Nftables()
     else:
-        nsprefix = f"ip netns exec {ns} "
         netns.pushns(ns)
         nft = nftables.Nftables()
         netns.popns()
@@ -774,7 +772,10 @@ def load_nftables(context, ns=None, ruleset=None):
         f.write(ruleset)
     nft_status = [f"nftables ruleset{f' in namespace {ns}' if ns else ''} before this step:"]
     nft_status.append(nft.cmd("list ruleset")[1])
-    context.process.run(f"{nsprefix}nft -f {file}")
+    if ns is None:
+        context.process.run(["nft", "-f", file])
+    else:
+        nmci.ip.netns_exec(ns, "nft", "-f", file)
     nft_status.append(f"\nnftables ruleset{f' in namespace {ns}' if ns else ''} after this step:")
     nft_status.append(nft.cmd("list ruleset")[1])
     nmci.embed.embed_data("State of nftables", "\n".join(nft_status), fail_only=True)

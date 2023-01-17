@@ -42,10 +42,8 @@ class _Veth:
     def teardown_testveth(self, ns):
         print(f"Removing the setup in {ns} namespace")
         if os.path.isfile(f"/tmp/{ns}.pid"):
-            nmci.process.run_stdout(
-                f"ip netns exec {ns} pkill -SIGCONT -F /tmp/{ns}.pid"
-            )
-            nmci.process.run_stdout(f"ip netns exec {ns} pkill -F /tmp/{ns}.pid")
+            nmci.ip.netns_exec(ns, "pkill", "-SIGCONT", "-F", f"/tmp/{ns}.pid")
+            nmci.ip.netns_exec(ns, "pkill", "-F", f"/tmp/{ns}.pid")
         device = ns.split("_")[0]
         print(device)
         nmci.process.run(f"pkill -F /var/run/dhclient-{device}.pid", ignore_stderr=True)

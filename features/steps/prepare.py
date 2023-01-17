@@ -104,8 +104,8 @@ def config_dhcpv6_pd(context, mode, lease=None):
     with open('/tmp/ip6leases.conf', 'w') as f:
         pass
 
-    context.pexpect_service("ip netns exec testX6_ns radvd -n -C /tmp/radvd-pd.conf", shell=True)
-    context.pexpect_service("ip netns exec testX6_ns dhcpd -6 -d -cf /tmp/dhcpd-pd.conf -lf /tmp/ip6leases.conf", shell=True)
+    nmci.ip.netns_exec("testX6_ns", "radvd", "-n", "-C", "/tmp/radvd-pd.conf", service=True)
+    nmci.ip.netns_exec("testX6_ns", "dhcpd", "-6", "-d", "-cf", "/tmp/dhcpd-pd.conf", "-lf", "/tmp/ip6leases.conf", service=True)
 
 
 @step(u'Prepare connection')
@@ -184,17 +184,20 @@ def start_radvd(context, location):
 
 @step(u'Restart dhcp server on {device} device with {ipv4} ipv4 and {ipv6} ipv6 dhcp address prefix')
 def restart_dhcp_server(context, device, ipv4, ipv6):
+    ns_name = f"{device}_ns"
     context.command_code('kill $(cat /tmp/{device}_ns.pid)'.format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr flush dev {device}_bridge".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(device=device, ip=ipv4))
-    context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(device=device, ip=ipv6))
-    context.command_code("ip netns exec {device}_ns dnsmasq \
-                                        --pid-file=/tmp/{device}_ns.pid \
-                                        --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                        --dhcp-range={ipv4}.10,{ipv4}.15,2m \
-                                        --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m \
-                                        --enable-ra --interface={device}_bridge \
-                                        --bind-interfaces".format(device=device, ipv4=ipv4, ipv6=ipv6))
+    nmci.ip.address_flush(ifname=f"{device}_bridge", namespace=ns_name)
+    nmci.ip.address_add(ifname=f"{device}_bridge", address=f"{ipv4}.1/24", namespace=ns_name)
+    nmci.ip.address_add(ifname=f"{device}_bridge", address=f"{ipv6}::1/64", namespace=ns_name)
+    nmci.ip.netns_exec(ns_name, [
+                                "dnsmasq",
+                                f"--pid-file=/tmp/{ns_name}.pid",
+                                f"--dhcp-leasefile=/tmp/{ns_name}.lease",
+                                f"--dhcp-range={ipv4}.10,{ipv4}.15,2m",
+                                f"--dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m",
+                                f"--enable-ra",
+                                "--interface={device}_bridge",
+                                "--bind-interfaces"])
 
 
 @step(u'Prepare simulated test "{device}" device using dhcpd')
@@ -203,37 +206,43 @@ def prepare_dhcpd_simdev(context, device, server_id):
     manage_veth_device(context, device)
 
     ipv4 = "192.168.99"
-    context.execute_steps(f'* Add namespace "{device}_ns"')
+    ns_name = f"{device}_ns"
+    peer_device = f"{device}p"
+    nmci.ip.netns_add(ns_name)
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
-    context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
-    context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
-    context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
-    context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
-    context.command_code("echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
-    context.command_code("echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
-    context.command_code("echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
-    context.command_code("echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
-    context.command_code("echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
+    nmci.ip.link_set(ifname=peer_device, netns=ns_name)
+    nmci.ip.link_set(ifname="lo", up=True, namespace=ns_name)
+    nmci.ip.link_set(ifname=peer_device, up=True, namespace=ns_name)
+    nmci.ip.address_add(ifname=peer_device, address=f"{ipv4}.1/24", namespace=ns_name)
+    nmci.util.file_set_content("/etc/hosts",
+        [
+            '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4',
+            '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6',
+            '192.168.99.10 ip-192-168-99-10',
+            '192.168.99.11 ip-192-168-99-11',
+            '192.168.99.12 ip-192-168-99-12',
+            '192.168.99.13 ip-192-168-99-13',
+            '192.168.99.14 ip-192-168-99-14',
+            '192.168.99.15 ip-192-168-99-15',
+        ]
+    )
 
-    config = []
-    if server_id is not None:
-        config.append("server-identifier {server_id};".format(server_id=server_id))
-    config.append("max-lease-time 150;")
-    config.append("default-lease-time 120;")
-    config.append("subnet {ip}.0 netmask 255.255.255.0 {{".format(ip=ipv4))
-    config.append("  range {ip}.10 {ip}.15;".format(ip=ipv4))
-    config.append("}}".format(ip=ipv4))
+    server_id_conf = []
+    if server_id:
+        server_id_conf = [f"server-identifier {server_id};"]
 
-    f = open('/tmp/dhcpd.conf', 'w')
-    for line in config:
-        f.write(line + '\n')
-    f.close()
+    nmci.util.file_set_content("/tmp/dhcpd.conf", [
+        *server_id_conf,
+        "max-lease-time 150;",
+        "default-lease-time 120;",
+        f"subnet {ipv4}.0 netmask 255.255.255.0 {{",
+        f"  range {ipv4}.10 {ipv4}.15;",
+        "}",
 
-    context.command_code("ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid".format(device=device))
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    ])
+
+    nmci.ip.netns_exec(ns_name, ["dhcpd", "-4", "-cf", "/tmp/dhcpd.conf", "-pf", f"/tmp/{ns_name}.pid"])
+    nmci.cleanup.cleanup_add_namespace(ns_name)
 
 
 @step(u'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix and "{lease_time}" leasetime and daemon options "{daemon_options}"')
