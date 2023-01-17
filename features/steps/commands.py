@@ -742,10 +742,8 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
             addr_family=family,
             wait_for_address=seconds,
         )
-    except Exception:
-        print(">>> about to fail check_address_expect():")
-        os.system('ip -d address show')
-        raise
+    finally:
+        nmci.process.run_stdout(f"ip -d -{nmci.ip.addr_family_num(family)} route show")
 
 
 @step(u'Load nftables')
