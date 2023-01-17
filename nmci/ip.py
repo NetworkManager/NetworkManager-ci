@@ -1,6 +1,7 @@
 import re
 import socket
 
+import nmci.pexpect
 import nmci.process
 import nmci.util
 
@@ -584,9 +585,13 @@ class _IP:
             ignore_stderr=not check,
         )
 
-    def netns_exec(self, name, *argv, ignore_returncode=False, ignore_stderr=False):
-        return nmci.process.run(
-            ["ip", "netns", "exec", name, *argv],
-            ignore_returncode=ignore_returncode,
-            ignore_stderr=ignore_stderr,
-        )
+    def netns_exec(self, name, *argv, check=True, service=False):
+        args = ["ip", "netns", "exec", name, *argv]
+        if service:
+            return nmci.pexpect.pexpect_service(args[0], args=args[1:], check=check)
+        else:
+            return nmci.process.run(
+                args,
+                ignore_returncode=not check,
+                ignore_stderr=not check,
+            )
