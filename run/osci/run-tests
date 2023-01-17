@@ -17,32 +17,7 @@ function run_needed_workarounds ()
 {
     ### NEEDED WORKAROUNDS ##################
 
-    # 1. Missing /usr/bin/python binary for pip
-
-    if [ ! -f /usr/bin/python ]; then
-        echo "create /usr/bin/python link to /usr/bin/python2"
-        ln -s /usr/bin/python2 /usr/bin/python
-    else
-        echo "no need to link /usr/bin/python"
-    fi
-
-
-    # 2. Broken racoon in ipsec in F28
-
-    if [[ $RELEASE == *fedora* ]]; then
-        yum -y install ipsec-tools
-        yum downgrade -y https://kojipkgs.fedoraproject.org//packages/ipsec-tools/0.8.2/10.fc28/x86_64/ipsec-tools-0.8.2-10.fc28.x86_64.rpm
-
-        # We can remove this once https://bugzilla.redhat.com/show_bug.cgi?id=1739797 is fixed
-        yum downgrade -y https://kojipkgs.fedoraproject.org//packages/dnsmasq/2.79/7.fc29/x86_64/dnsmasq-2.79-7.fc29.x86_64.rpm
-    fi
-
-    # 3. Look we have simetimes timeouting hostnamectl
-    systemctl restart systemd-hostnamed
-    hostnamectl
-
-    # 4. we do miss yum in F31
-    ln -s /usr/bin/dnf /usr/bin/yum
+    echo "No workarounds needed these days, yay!"
 
     ###########################################
 }
