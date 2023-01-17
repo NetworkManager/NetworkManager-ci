@@ -143,13 +143,23 @@ class _IP:
         return self.mac_ntoa(self.mac_aton(mac_str, force_len))
 
     def address_show(
-        self, binary=None, ifindex=None, ifname=None, addr_family=None, atype=None
+        self,
+        binary=None,
+        ifindex=None,
+        ifname=None,
+        addr_family=None,
+        atype=None,
+        namespace=None,
     ):
 
         select_ifindex = ifindex
         select_ifname = ifname
         select_addr_family = self.addr_family_norm(addr_family)
         select_atype = atype
+
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
 
         # binary is:
         #   False: expect all stings to be UTF-8, the result only contains decoded strings
@@ -159,7 +169,9 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = nmci.process.run_stdout(["ip", "-d", "address", "show"], as_bytes=True)
+        out = nmci.process.run_stdout(
+            ["ip", *ns_args, "-d", "address", "show"], as_bytes=True
+        )
 
         result = []
 
@@ -270,6 +282,7 @@ class _IP:
         addr_family=None,
         wait_for_address=None,
         addrs=None,
+        namespace=None,
     ):
         addr_family = self.addr_family_norm(addr_family)
 
@@ -289,6 +302,7 @@ class _IP:
                         addr_family=addr_family,
                         wait_for_address=None,
                         addrs=None,
+                        namespace=namespace,
                     )
                 except ValueError as e:
                     err = e
@@ -296,7 +310,10 @@ class _IP:
 
         if addrs is None:
             addrs = self.address_show(
-                ifindex=ifindex, ifname=ifname, addr_family=addr_family
+                ifindex=ifindex,
+                ifname=ifname,
+                addr_family=addr_family,
+                namespace=namespace,
             )
 
         s_addrs = [
@@ -320,19 +337,34 @@ class _IP:
         return addrs
 
     def address_flush(
-        self, ifname=None, *, ifindex=None, wait_for_device=None, addr_family=None
+        self,
+        ifname=None,
+        *,
+        ifindex=None,
+        wait_for_device=None,
+        addr_family=None,
+        namespace=None,
     ):
 
         if ifname is None or ifindex is not None or wait_for_device is not None:
-            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            li = self.link_show(
+                ifindex=ifindex,
+                ifname=ifname,
+                timeout=wait_for_device,
+                namespace=namespace,
+            )
             ifname = li["ifname"]
 
         filter_addr_family = []
         if addr_family is not None:
             filter_addr_family.append(f"-{self.addr_family_num(addr_family)}")
 
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
         nmci.process.run_stdout(
-            ["ip", *filter_addr_family, "addr", "flush", "dev", ifname],
+            ["ip", *ns_args, *filter_addr_family, "addr", "flush", "dev", ifname],
             as_bytes=True,
         )
 
@@ -344,21 +376,40 @@ class _IP:
         ifindex=None,
         wait_for_device=None,
         addr_family=None,
+        namespace=None,
     ):
         if ifname is None or ifindex is not None or wait_for_device is not None:
-            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            li = self.link_show(
+                ifindex=ifindex,
+                ifname=ifname,
+                timeout=wait_for_device,
+                namespace=namespace,
+            )
             ifname = li["ifname"]
 
         filter_addr_family = []
         if addr_family is not None:
             filter_addr_family.append(f"-{self.addr_family_num(addr_family)}")
 
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
         nmci.process.run_stdout(
-            ["ip", *filter_addr_family, "addr", "add", address, "dev", ifname],
+            [
+                "ip",
+                *ns_args,
+                *filter_addr_family,
+                "addr",
+                "add",
+                address,
+                "dev",
+                ifname,
+            ],
             as_bytes=True,
         )
 
-    def link_show_all(self, binary=None):
+    def link_show_all(self, binary=None, namespace=None):
 
         # binary is:
         #   False: expect all stings to be UTF-8, the result only contains decoded strings
@@ -368,7 +419,13 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = nmci.process.run_stdout(["ip", "-d", "link", "show"], as_bytes=True)
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
+        out = nmci.process.run_stdout(
+            ["ip", *ns_args, "-d", "link", "show"], as_bytes=True
+        )
 
         result = []
 
@@ -417,6 +474,7 @@ class _IP:
         flags=None,
         binary=None,
         allow_missing=False,
+        namespace=None,
     ):
 
         if ifindex is None and ifname is None:
@@ -431,7 +489,7 @@ class _IP:
 
         result = []
 
-        for data in self.link_show_all(binary=True):
+        for data in self.link_show_all(binary=True, namespace=namespace):
             ii = data["ifindex"]
             if ifindex is not None and int(ifindex) != ii:
                 continue
@@ -488,23 +546,53 @@ class _IP:
     def link_show_maybe(self, ifname=None, *, allow_missing=True, **kwargs):
         return self.link_show(ifname=ifname, allow_missing=allow_missing, **kwargs)
 
-    def link_set(self, ifname=None, *, ifindex=None, up=None, wait_for_device=None):
+    def link_set(
+        self,
+        ifname=None,
+        *,
+        ifindex=None,
+        up=None,
+        wait_for_device=None,
+        namespace=None,
+        netns=None,
+    ):
 
         if ifname is None or ifindex is not None or wait_for_device is not None:
-            li = self.link_show(ifindex=ifindex, ifname=ifname, timeout=wait_for_device)
+            li = self.link_show(
+                ifindex=ifindex,
+                ifname=ifname,
+                timeout=wait_for_device,
+                namespace=namespace,
+            )
             ifname = li["ifname"]
+
+        args_set = [up is not None, netns is not None]
+        assert any(args_set), "One of 'up' or 'netns' argument must be set."
+        assert args_set.count(True) == 1, "Bot 'up' and 'netns' can not be set."
 
         if up is not None:
             if up:
-                arg = "up"
+                args = ["up"]
             else:
-                arg = "down"
-            nmci.process.run_stdout(["ip", "link", "set", ifname, arg], as_bytes=True)
+                args = ["down"]
 
-    def link_delete(self, ifname=None, *, ifindex=None, accept_nodev=False):
+        if netns is not None:
+            args = ["netns", netns]
+
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
+        nmci.process.run_stdout(
+            ["ip", *ns_args, "link", "set", ifname, *args], as_bytes=True
+        )
+
+    def link_delete(
+        self, ifname=None, *, ifindex=None, accept_nodev=False, namespace=None
+    ):
 
         if ifname is None or ifindex is not None:
-            li = self.link_show_maybe(ifindex=ifindex)
+            li = self.link_show_maybe(ifindex=ifindex, namespace=namespace)
             if li is None:
                 if accept_nodev:
                     return
@@ -515,25 +603,40 @@ class _IP:
                 )
             ifname = li["ifname"]
 
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
         try:
-            nmci.process.run_stdout(["ip", "link", "delete", ifname], as_bytes=True)
+            nmci.process.run_stdout(
+                ["ip", *ns_args, "link", "delete", ifname], as_bytes=True
+            )
         except Exception:
             if accept_nodev:
                 if ifindex is not None:
-                    if self.link_show_maybe(ifindex=ifindex) is None:
+                    if (
+                        self.link_show_maybe(ifindex=ifindex, namespace=namespace)
+                        is None
+                    ):
                         return
-                elif self.link_show_maybe(ifname=ifname) is None:
+                elif self.link_show_maybe(ifname=ifname, namespace=namespace) is None:
                     return
             # The interface either still exists, or the caller requested a failure
             # trying to delete a non-existing interface.
             raise
 
-    def link_add(self, ifname, link_type, **kwargs):
+    def link_add(self, ifname, link_type, namespace=None, **kwargs):
         args = []
         for key, value in kwargs.items():
             args += [key, value]
+
+        ns_args = []
+        if namespace is not None:
+            ns_args = ["-n", namespace]
+
         nmci.process.run_stdout(
-            ["ip", "link", "add", ifname, "type", link_type, *args], as_bytes=True
+            ["ip", *ns_args, "link", "add", ifname, "type", link_type, *args],
+            as_bytes=True,
         )
 
     def netns_list(self, with_binary=False):
