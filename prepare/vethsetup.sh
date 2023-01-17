@@ -3,14 +3,20 @@
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
+function dump_state ()
+{
+    ip a
+    PAGER= nmcli -f All c
+    PAGER= nmcli -f All dev
+    PAGER= nmcli gen
+
+}
+
 function setup_veth_env ()
 {
     # Log state of net before the setup
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
     sleep 1
+    dump_state
 
     need_veth=0
     for X in $(seq 0 10); do
@@ -54,11 +60,8 @@ function setup_veth_env ()
     sleep 2
     systemctl restart NetworkManager; sleep 5
 
-    # # log state of net after service restart
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
+    # log state of net after service restart
+    dump_state
 
     # Get active device
     counter=0
@@ -125,7 +128,7 @@ function setup_veth_env ()
 
     else
         # Backup original nmconnection file
-        FILE=$(nmcli -f FILENAME  connection |grep $DEV)
+        FILE=$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" |awk -F ':' '{print $1}')
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
             mv $FILE /tmp/$DEV.nmconnection
@@ -261,10 +264,8 @@ function setup_veth_env ()
     touch /tmp/nm_veth_configured
 
     # Log state of net after the setup
-    # ip a
-    # nmcli con
-    # nmcli dev
-    # nmcli gen
+    dump_state
+
 }
 
 
@@ -356,10 +357,7 @@ function check_veth_env ()
 function teardown_veth_env ()
 {
     # Log state of net before the teardown
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
+    dump_state
 
     # Stop DHCP for inbr and simbr
     kill $(cat /tmp/dhcp_inbr.pid)
@@ -460,10 +458,8 @@ function teardown_veth_env ()
 
     rm -rf /tmp/nm_veth_configured
     # Log state of net after the teardown
-    ip a
-    nmcli con
-    nmcli dev
-    nmcli gen
+    dump_state
+
 }
 
 if [ "$1" == "setup" ]; then
