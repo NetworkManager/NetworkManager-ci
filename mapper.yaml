@@ -878,6 +878,8 @@ testmapper:
         feature: ipv4
     - ipv4_route_set_ecmp_routes_in_two_profiles:
         feature: ipv4
+    - ipv4_route_set_ecmp_routes_dummy_and_reactivate_connection:
+        feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax:
         feature: ipv4
     - ipv4_route_set_route_with_src_old_syntax:

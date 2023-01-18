@@ -437,6 +437,31 @@ Feature: nmcli: ipv4
      And "default" is visible with command "ip r |grep eth0"
 
 
+    @rhbz2158394
+    @ver+=1.41.7
+    @ipv4_route_set_ecmp_routes_dummy_and_reactivate_connection
+    Scenario: nmcli - ipv4 - routes - set ecmp route with dummy and reactivate connection
+    * Add "dummy" connection named "con_ipv4" for device "dummy0" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.route-metric 256
+          ipv4.routes '192.168.5.0/24 192.168.3.12 weight=10, 192.168.5.0/24 192.168.3.11 weight=5'
+          """
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev dummy0 weight 10" is visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev dummy0 weight 5" is visible with command "ip route"
+    * Bring "down" connection "con_ipv4"
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is not visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev dummy0 weight 10" is not visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev dummy0 weight 5" is not visible with command "ip route"
+    * Bring "up" connection "con_ipv4"
+    Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
+    Then "nexthop via 192.168.3.12 dev dummy0 weight 10" is visible with command "ip route"
+    Then "nexthop via 192.168.3.11 dev dummy0 weight 5" is visible with command "ip route"
+
+
     @rhbz1373698
     @ver+=1.8.0
     @restart_if_needed
