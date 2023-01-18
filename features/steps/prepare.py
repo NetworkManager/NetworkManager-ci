@@ -105,7 +105,7 @@ def config_dhcpv6_pd(context, mode, lease=None):
         pass
 
     nmci.ip.netns_exec("testX6_ns", "radvd", "-n", "-C", "/tmp/radvd-pd.conf", service=True)
-    nmci.ip.netns_exec("testX6_ns", "dhcpd", "-6", "-d", "-cf", "/tmp/dhcpd-pd.conf", "-lf", "/tmp/ip6leases.conf", service=True)
+    nmci.ip.netns_exec("testX6_ns", "dhcpd", "-6", "-d", "-cf", "/tmp/dhcpd-pd.conf", "-lf", "/tmp/ip6leases.conf", service=True, check=False)
 
 
 @step(u'Prepare connection')
