@@ -750,7 +750,7 @@ def dns_systemd_resolved_bs(context, scenario):
         target = os.readlink("/etc/resolv.conf")
     except:
         target = None
-    if target is None or not target.contains("/run/systemd/resolve/"):
+    if target is None or "/run/systemd/resolve/" not in target:
         conf.append("rc-manager=symlink")
 
     nmci.util.file_set_content("/etc/NetworkManager/conf.d/99-xtest-dns.conf", conf)
