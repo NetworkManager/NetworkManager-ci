@@ -294,7 +294,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
         "dnsmasq",
         f"--interface={peer_device}",
         "--bind-interfaces",
-        "--pid-file=/tmp/{ns_name}.pid",
+        f"--pid-file=/tmp/{ns_name}.pid",
         f"--dhcp-leasefile=/tmp/{ns_name}.lease"
     ]
 
@@ -305,6 +305,8 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if ipv6.lower() != "none" and lease_time != 'infinite':
         dnsmasq_command.append(f"--dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time}")
         dnsmasq_command.append(f"--enable-ra")
+
+    dnsmasq_command.append(daemon_options)
 
     nmci.ip.netns_exec(ns_name, *dnsmasq_command)
 
