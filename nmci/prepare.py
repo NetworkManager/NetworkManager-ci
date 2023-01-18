@@ -23,7 +23,7 @@ def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
 
 
 def teardown_libreswan(context):
-    nmci.process.run_stdout("sh prepare/libreswan.sh teardown")
+    nmci.process.run_stdout("sh prepare/libreswan.sh teardown", ignore_stderr=True)
     print("Attach Libreswan logs")
     journal_log = nmci.misc.journal_show(
         syslog_identifier="pluto",

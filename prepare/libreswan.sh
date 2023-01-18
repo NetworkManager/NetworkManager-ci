@@ -161,6 +161,9 @@ libreswan_gen_netconfig ()
         ipv4.gateway 11.12.13.14 ipv4.dns 11.12.13.14 ipv4.route-metric 90
     nmcli dev set libreswan1 managed yes
 
+    # We saw some issues saying activation failed so let's sleep 1 here
+    sleep 1
+
     # Warning: the next command interrupts any established SSH connection to the remote machine!
     nmcli connection up id lib1
     echo "   OK"
