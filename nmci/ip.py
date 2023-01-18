@@ -690,8 +690,8 @@ class _IP:
 
     def netns_exec(self, name, *argv, check=True, service=False):
         if len(argv) == 1:
-            if isinstance(argv[1], list) or isinstance(argv[1], tuple):
-                argv = argv[1]
+            if isinstance(argv[0], list) or isinstance(argv[0], tuple):
+                argv = argv[0]
 
         args = ["ip", "netns", "exec", name, *argv]
         if service:
