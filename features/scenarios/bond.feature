@@ -2675,10 +2675,9 @@
     * Bring "up" connection "bond0b"
     Then "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "5" seconds
 
-    
+
     @rhbz2128216
-    # Currently, RHEL9.1 kernel version is too old (once updated - change @rhelver-=0 to @rhelver+=9.X)
-    @fedoraver+=36 @rhelver-=0
+    @fedoraver+=36 @rhelver+=9.2
     @ver+=1.41.3
     @skip_in_centos
     @bond_set_balance_slb_options
@@ -2695,7 +2694,7 @@
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     And "vlan+srmac" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
+     And "vlan\+srcmac\s+5" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
      And "balance-xor" is visible with command "cat /sys/class/net/nm-bond/bonding/mode"
 
 
