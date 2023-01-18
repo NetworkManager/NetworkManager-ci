@@ -276,7 +276,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if ipv4.lower() != "none":
         nmci.ip.address_add(ifname=peer_device, address=f"{ipv4}.1/24", namespace=ns_name)
     if ipv6.lower() != "none":
-        nmci.ip.address_add(ifname=peer_device, address=f"{ipv4}::1/64", namespace=ns_name)
+        nmci.ip.address_add(ifname=peer_device, address=f"{ipv6}::1/64", namespace=ns_name)
     nmci.util.file_set_content("/etc/hosts",
         [
             '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4',
