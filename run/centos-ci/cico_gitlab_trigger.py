@@ -228,6 +228,16 @@ class GitlabTrigger(object):
 
         return features
 
+    def latest_MR_commit(self, repository, mr_id):
+        project = self.gl_api.projects.get(f"NetworkManager/{repository}")
+        try:
+            merge_request = project.mergerequests.get(mr_id)
+            if merge_request.state == "opened":
+                return merge_request.sha
+        except:
+            return None
+        return None
+
     def is_NMCI_branch(self, branch_name):
         import requests
 
@@ -271,10 +281,26 @@ class GitlabTrigger(object):
             print(str(e))
 
 
-def get_rebuild_detail(message, overrides={}):
+def get_rebuild_detail(gt, message, overrides={}):
     # lets see if there is a @OS:cXs in the desc or commit msg
     msg = []
     os_version = overrides.get("os_version", set())
+
+    pattern = None
+    match = None
+    if gt.repository == "NetworkManager":
+        pattern = re.compile("(NetworkManager-ci)(!|/-/merge_requests/)([0-9]+)")
+    elif gt.repository == "NetworkManager-ci":
+        pattern = re.compile("(NetworkManager)(!|/-/merge_requests/)([0-9]+)")
+    if pattern is not None:
+        match = re.search(pattern, message)
+    if match is not None:
+        commit = gt.latest_MR_commit(match.group(1), match.group(3))
+        if commit is not None:
+            overrides["build"] = commit
+            if gt.repository == "NetworkManager":
+                overrides["mr_id"] = match.group(3)
+
     for line in message.split("\n"):
         if line.strip().lower().startswith("@os:"):
             os_alias = line.strip().split(":")[-1]
@@ -297,21 +323,19 @@ def get_rebuild_detail(message, overrides={}):
 
 
 # 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
-def execute_build(gt, content, os_version=default_os, features="best", build="main"):
+# build is TEST_BRANCH for NM, REFSPEC for NM-ci
+def execute_build(gt, content, os_version=default_os, features="best", build="main", mr_id=None):
     params = []
-
     if gt.repository == "NetworkManager":
         # NM CODE will use main unless we know branch mr/abcd exists
-        branch = f"mr/{gt.merge_request_id}"
-        if not gt.is_NMCI_branch(branch):
-            branch = "main"
-        params.append({"name": "TEST_BRANCH", "value": branch})
+        if mr_id is not None:
+            params.append({"name": "MERGE_REQUEST_ID", "value": mr_id})
+        params.append({"name": "TEST_BRANCH", "value": build})
         params.append({"name": "REFSPEC", "value": gt.commit})
         project_dir = "NetworkManager-code-mr"
 
     if gt.repository == "NetworkManager-ci":  # NMCI always use main for code
-        if gt.source_project_id != gt.target_project_id:
-            params.append({"name": "MERGE_REQUEST_ID", "value": gt.merge_request_id})
+        params.append({"name": "MERGE_REQUEST_ID", "value": gt.merge_request_id})
         params.append({"name": "TEST_BRANCH", "value": gt.commit})
         params.append({"name": "REFSPEC", "value": build})
         project_dir = "NetworkManager-test-mr"
@@ -354,9 +378,9 @@ def process_request(data, content):
         print("Skipping empty MR")
         return
     if gt.request_type == "note":
-        params, _ = get_rebuild_detail(gt.description + "\n" + gt.commit_message)
+        params, _ = get_rebuild_detail(gt, gt.description + "\n" + gt.commit_message)
         comment = gt.comment
-        params, comment = get_rebuild_detail(comment, params)
+        params, comment = get_rebuild_detail(gt, comment, params)
         if comment.lower().startswith("rebuild"):
             comment = comment.lower().replace("rebuild", "", 1).strip()
             if comment == "":
@@ -394,7 +418,7 @@ def process_request(data, content):
                     commits = f.read().splitlines()
                     if gt.commit not in commits:
                         params, _ = get_rebuild_detail(
-                            gt.description + "\n" + gt.commit_message
+                            gt, gt.description + "\n" + gt.commit_message
                         )
                         execute_build(gt, content, **params)
                     else:
@@ -408,7 +432,7 @@ def process_request(data, content):
                 print("This is WIP Merge Request - not proceeding")
             else:
                 params, _ = get_rebuild_detail(
-                    gt.description + "\n" + gt.commit_message
+                    gt, gt.description + "\n" + gt.commit_message
                 )
                 execute_build(gt, content, **params)
     else:
