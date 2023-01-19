@@ -86,8 +86,9 @@ swanctl {
 
 charon {
   install_routes = no
-  load = random nonce aes sha1 sha2 md5 hmac curve25519 kernel-netlink socket-default updown vici
- # reuse_ikesa=no
+  # Leave module loading to charon. Fixes F36/37/Rawhide
+  # load = random nonce aes sha1 sha2 md5 hmac curve25519 kernel-netlink socket-default updown vici
+  # reuse_ikesa=no
 }
 EOF
 
