@@ -204,11 +204,11 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(u'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"')
 def prepare_dhcpd_simdev(context, device, server_id):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(ns_name)
 
     ipv4 = "192.168.99"
     ns_name = f"{device}_ns"
     peer_device = f"{device}p"
+    nmci.cleanup.cleanup_add_namespace(ns_name)
     nmci.ip.netns_add(ns_name)
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     nmci.ip.link_set(ifname=peer_device, netns=ns_name)
@@ -255,7 +255,6 @@ def prepare_dhcpd_simdev(context, device, server_id):
 @step(u'Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None, daemon_options=None):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(ns_name)
 
     if ipv4 is None:
         ipv4 = "192.168.99"
@@ -267,6 +266,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     ns_name = f"{device}_ns"
     peer_device = f"{device}p"
 
+    nmci.cleanup.cleanup_add_namespace(ns_name)
     nmci.ip.netns_add(ns_name)
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{ns_name}" with options "peer name {peer_device}"')
     nmci.ip.netns_exec(ns_name, "sysctl", f"net.ipv6.conf.{device}.disable_ipv6=0")
