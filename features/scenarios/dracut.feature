@@ -1443,7 +1443,7 @@ Feature: NM: dracut
 
     # dracut bug: https://bugzilla.redhat.com/show_bug.cgi?id=1879014
     @rhbz1879014
-    @rhelver+=9.2 @fedoraver+=32
+    @rhelver+=9.1 @fedoraver+=32
     @ver+=1.41.4
     @dracut @long @not_on_ppc64le @skip_in_centos
     @dracut_NM_team_over_2_ifaces
@@ -1481,8 +1481,8 @@ Feature: NM: dracut
       | check  | no_ifcfg                                                                    |
       | check  | ip4_route_unique "192.168.53.0/24 dev team0"                                |
       | check  | nfs_server 192.168.53.1                                                     |
-    
-    
+
+
     ########
     # VLAN #
     ########
@@ -1779,7 +1779,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=8.3 @rhelver+=9.2 @fedoraver+=32
+    @rhelver+=8.3 @rhelver+=9.1 @fedoraver+=32
     @ver+=1.27
     @ver-1.40
     @ver+=1.41.4
@@ -1841,7 +1841,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=9.2 @fedoraver+=32
+    @rhelver+=9.1 @fedoraver+=32
     @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
     @dracut @long
