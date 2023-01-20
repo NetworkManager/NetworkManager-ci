@@ -1868,7 +1868,7 @@
 
      @rhbz1755467
      @ver+=1.22
-     @internal_DHCP @dhcpd @rhelver+=8
+     @internal_DHCP @dhcpd @rhelver+=8 @fedoraver-=35
      @ipv6_prefix_delegation_internal
      Scenario: nmcli - ipv6 - prefix delegation
      * Prepare simulated test "testX6" device without DHCP
