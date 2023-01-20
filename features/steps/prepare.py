@@ -321,8 +321,6 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
 def prepare_simdev(context, device):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
 
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -331,6 +329,8 @@ def prepare_simdev(context, device):
     #         +-----------------------+ +-------------+
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Add namespace "{device}2_ns"')
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.execute_steps(f'* Create "veth" device named "{device}2" with options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
@@ -361,9 +361,9 @@ def prepare_simdev(context, device):
 @step(u'Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
@@ -372,8 +372,6 @@ def prepare_simdev_no_dhcp(context, device):
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
 
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -382,6 +380,8 @@ def prepare_simdev(context, device):
     #         +-----------------------+ +-------------+
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(f'* Add namespace "{device}2_ns"')
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
     context.execute_steps(f'* Create "veth" device named "{device}" with options "peer name {device}p"')
     context.execute_steps(f'* Create "veth" device named "{device}2" with options "peer name {device}2p"')
     context.command_code("ip link set {device}p netns {device}_ns".format(device=device))
@@ -417,11 +417,11 @@ def prepare_simdev(context, device):
 @step(u'Prepare simulated veth device "{device}" without carrier')
 def prepare_simdev_no_carrier(context, device):
     manage_veth_device(context, device)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
 
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
     context.execute_steps(f'* Add namespace "{device}_ns"')
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
     context.command_code("ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
