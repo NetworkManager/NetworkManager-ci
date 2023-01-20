@@ -571,16 +571,20 @@ class _Misc:
 
         ver_tags = [_fill_ver(op, ver) for op, ver in ver_tags]
 
+        l_keep = 2
+        if l_version <= 2:
+            l_keep = 1
+
         def _compute_aux_tag(sign, version):
             inv_sign = sign.replace("+", "-") if "+" in sign else sign.replace("-", "+")
             # If version is += 1.28.2, do not add -=1.28.0, but rather -1.28.0
             # However, +=1.28.0 should be -=1.28.0 - so it is overlapping, rather than touching
-            if any(version[2:]):
+            if any(version[l_keep:]):
                 inv_sign = inv_sign.replace("=", "")
             if "+" in sign:
-                version = version[:2] + [0] * (l_version - 2)
+                version = version[:l_keep] + [0] * (l_version - l_keep)
             else:
-                version = version[:2] + [9999] * (l_version - 2)
+                version = version[:l_keep] + [9999] * (l_version - l_keep)
             return (inv_sign, version)
 
         # Compute auxiliary tags to make stops at version breaks
@@ -628,6 +632,8 @@ class _Misc:
 
         # join 2 lists, duplicates should not be an issue
         ver_tags = sorted(ver_tags + ver_tags_1 + ver_tags_2, key=_cmp_ver)
+
+        print(ver_tags)
 
         def _eval(tag, version):
             if tag is None:
