@@ -633,8 +633,6 @@ class _Misc:
         # join 2 lists, duplicates should not be an issue
         ver_tags = sorted(ver_tags + ver_tags_1 + ver_tags_2, key=_cmp_ver)
 
-        print(ver_tags)
-
         def _eval(tag, version):
             if tag is None:
                 return True
