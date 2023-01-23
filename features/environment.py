@@ -42,11 +42,19 @@ def before_all(context):
 # print exception traceback
 def before_scenario(context, scenario):
     try:
-        _before_scenario(context, scenario)
+        status = _before_scenario(context, scenario)
     except Exception as E:
         E_tb = traceback.format_exc()
         print(E_tb)
+        nmci.embed.before_scenario_finish("failed")
+        if context.cext.scenario_skipped:
+            # reset skipped flag, we do not want to skip when exception
+            context.cext.scenario_skipped = False
+            nmci.embed.formatter_add_scenario(scenario)
         raise E
+    nmci.embed.before_scenario_finish(status)
+    if context.cext.scenario_skipped:
+        nmci.embed.formatter_add_scenario(scenario)
 
 
 def _before_scenario(context, scenario):
@@ -145,27 +153,22 @@ def _before_scenario(context, scenario):
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
+    if status == "passed" and context.cext.scenario_skipped:
+        status = "skipped"
     print(f"before_scenario ... {status} in {duration:.3f}s")
 
     nmci.crash.check_crash(context, "crash outside steps (before scenario)")
 
+    nmci.embed.after_step()
+
     if excepts:
-        # reset skipped flag, so we do not skip fail
-        context.cext.scenario_skipped = False
         nmci.embed.embed_data(
             "Exception in before scenario tags",
             "\n\n".join(excepts),
         )
-        nmci.embed.before_scenario_finish("failed")
-        nmci.embed.after_step()
         assert False, "Exception in before scenario tags:\n\n" + "\n\n".join(excepts)
 
-    elif context.cext.scenario_skipped:
-        nmci.embed.before_scenario_finish("skipped")
-        nmci.embed.formatter_add_scenario(scenario)
-    else:
-        nmci.embed.before_scenario_finish("passed")
-        nmci.embed.after_step()
+    return status
 
 
 def before_step(context, step):
@@ -226,11 +229,13 @@ def after_step(context, step):
 # print exception traceback
 def after_scenario(context, scenario):
     try:
-        _after_scenario(context, scenario)
+        status = _after_scenario(context, scenario)
     except Exception as E:
         E_tb = traceback.format_exc()
         print(E_tb)
+        nmci.embed.after_scenario_finish("failed")
         raise E
+    nmci.embed.after_scenario_finish(status)
 
 
 def _after_scenario(context, scenario):
@@ -338,9 +343,9 @@ def _after_scenario(context, scenario):
 
     duration = time.time() - time_begin
     status = "failed" if excepts else "passed"
+    if status == "passed" and skipped:
+        status = "skipped"
     print(f"after_scenario ... {status} in {duration:.3f}s")
-
-    nmci.embed.after_scenario_finish(status)
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:
@@ -351,6 +356,8 @@ def _after_scenario(context, scenario):
         assert False, "Crash happened"
 
     assert not excepts, "Exceptions in after scenario:\n\n" + "\n\n".join(excepts)
+
+    return status
 
 
 def after_tag(context, tag):
