@@ -1262,6 +1262,8 @@ testmapper:
         feature: vlan
     - vlan_create_macvlan_on_an_unmanaged_interface:
         feature: vlan
+    - vlan_stacking:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate

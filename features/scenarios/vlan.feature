@@ -996,3 +996,39 @@ Feature: nmcli - vlan
     * Execute "ip link set test_nic1peer up"
     * Add "macvlan" connection named "vlan1" for device "mvl1" with options "mode bridge macvlan.parent test1_nicpeer"
     * Restart NM
+
+
+    @rhbz2128809
+    @ver+=1.41.7
+    @vlan_stacking
+    Scenario: nmcli - vlan - add VLAN 802.1Q over VLAN 802.1ad
+    * Create "veth" device named "vlan_eth" with options "peer name vlan_eth_peer"
+    * Add "ethernet" connection named "vlan_eth" for device "vlan_eth" with options
+      """
+      connection.autoconnect no
+      ipv4.method disable
+      ipv6.method disable
+      """
+    * Add "vlan" connection named "vlan42" for device "vlan_eth.42" with options
+      """
+      connection.autoconnect no
+      dev vlan_eth
+      vlan.id 42
+      vlan.protocol 802.1ad
+      ipv4.method disable
+      ipv6.method disable
+      """
+    * Add "vlan" connection named "vlan47" for device "vlan_eth.42.47" with options
+      """
+      connection.autoconnect no
+      vlan.id 47
+      dev vlan_eth.42
+      vlan.protocol 802.1Q
+      ipv4.method disable
+      ipv6.method disable
+      """
+    * Bring "up" connection "vlan_eth"
+    * Bring "up" connection "vlan42"
+    * Bring "up" connection "vlan47"
+    Then "vlan protocol 802.1ad" is visible with command "ip -d l show dev vlan_eth.42"
+    Then "vlan protocol 802.1Q" is visible with command "ip -d l show dev vlan_eth.42.47"
