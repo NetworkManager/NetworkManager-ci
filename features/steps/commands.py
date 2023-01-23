@@ -821,8 +821,14 @@ def run_nmstate(context, log_file):
         dir_name = "/tmp/nm_stock_pkgs/"
         nmci.util.directory_remove(dir_name, recursive=True)
         os.mkdir(dir_name)
+        koji="koji"
+        if "Enterprise" in context.rh_release:
+            koji="brew"
+        if "CentOS" in context.rh_release:
+            # TODO: what to do here?
+            pass
         nmci.process.run_stdout(
-            f"wget $(./contrib/utils/brew_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
+            f"wget $(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
             ignore_stderr=True,
             shell=True,
             timeout=30,
