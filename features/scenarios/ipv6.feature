@@ -565,14 +565,16 @@
     @eth0
     @ipv6_dns_auto_with_more_manually_set
     Scenario: nmcli - ipv6 - dns - method auto + dns
-     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
            """
            ipv4.may-fail no
            ipv6.dns '4000::1, 5000::1'
            """
-    Then Nameserver "4000::1" is set in "45" seconds
+    * Bring "up" connection "con_ipv6"
+    Then Nameserver "2620:" is set in "15" seconds
+    Then Nameserver "4000::1" is set
     Then Nameserver "5000::1" is set
-    Then Nameserver "192.168.100.1" is set in "45" seconds
+    Then Nameserver "10." is set in "15" seconds
 
 
     @eth0
@@ -583,8 +585,10 @@
           ipv6.ignore-auto-dns yes
           ipv6.dns '4000::1, 5000::1'
           """
-    Then Nameserver "4000::1" is set in "45" seconds
+    * Bring "up" connection "con_ipv6"
+    Then Nameserver "4000::1" is set in "15" seconds
     Then Nameserver "5000::1" is set
+    Then Nameserver "2620:" is not set
 
 
     @ver+=1.18
