@@ -587,10 +587,28 @@
     @sriov_nmstate_many_vfs
     Scenario: NM - sriov - enable sriov in config
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
-    * Execute "echo -e 'interfaces:\n- name: p4p1\n  type: ethernet\n  state: up\n  ethernet:\n    sr-iov:\n      total-vfs: 45' > /tmp/many-vfs.yaml"
+    * Cleanup connection "p4p1"
+    * Write file "/tmp/many-vfs.yaml" with content
+      """
+      interfaces:
+      - name: p4p1
+        type: ethernet
+        state: up
+        ethernet:
+          sr-iov:
+            total-vfs: 45
+      """
     * Execute "nmstatectl apply /tmp/many-vfs.yaml"
-    When "Exactly" "46" lines with pattern "p4p1" are visible with command "nmcli dev" in "20" seconds
-    * Execute "echo -e 'interfaces:\n- name: p4p1\n  type: ethernet\n  state: up\n  ethernet:\n    sr-iov:\n      total-vfs: 60' > /tmp/many-vfs.yaml"
+    When "Exactly" "46" lines with pattern "p4p1" are visible with command "nmcli dev"
+    * Write file "/tmp/many-vfs.yaml" with content
+      """
+      interfaces:
+      - name: p4p1
+        type: ethernet
+        state: up
+        ethernet:
+          sr-iov:
+            total-vfs: 60
+      """
     * Execute "nmstatectl apply /tmp/many-vfs.yaml"
-    When "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev" in "100" seconds
-
+    Then "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev"
