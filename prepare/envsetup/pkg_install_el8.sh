@@ -150,7 +150,7 @@ install_el8_packages () {
     # dracut testing
     dnf -4 -y install \
         qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
-    if [[ $(uname -p) = "s390x" ]]; then
+    if [[ $(arch) = "s390x" ]]; then
         # perl-Config-Genral not installable on s390x and needed by scsi-target-utils
         dnf -4 -y install \
             $BREW/rhel-8/packages/perl-Config-General/2.63/5.el8+7/noarch/perl-Config-General-2.63-5.el8+7.noarch.rpm

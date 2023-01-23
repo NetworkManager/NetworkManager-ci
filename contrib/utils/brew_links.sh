@@ -11,7 +11,7 @@ Examples:
 * upgrade, specify all arguments, do not install debuginfo and devel RPMs
     dnf upgrade \$($0 NetworkManager 1.32.0 1.el8 x86_64| grep -v debuginfo | grep -v devel)
 * downgrade, use some defaults: PACKAGE defaults to "Networkmanager", for VERSION and BUILD
-  latest is retrieved, default ARCH is currently running (now: $(uname -p))
+  latest is retrieved, default ARCH is currently running (now: $(arch))
     dnf downgrade \$($0 "" 1.30.0)
 * upgrade to the latest NetworkManager package: use all defaults
     dnf upgrade \$($0)
@@ -60,7 +60,7 @@ ver=$2
 build=$3
 [ -z "$build" ] && build=$(get_latest $url_base/$package/$ver/)
 arch=$4
-[ -z "$arch" ] && arch=$(uname -p)
+[ -z "$arch" ] && arch=$(arch)
 
 rpms=$(get_all $url_base/$package/$ver/$build/$arch/)
 

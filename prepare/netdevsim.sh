@@ -62,7 +62,7 @@ function setup () {
         # Patch module
         patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
 
-        ARCH="$(uname -p)"
+        ARCH="$(arch)"
 
         if [ $ARCH == "ppc64le" ] ;then
             ARCH="powerpc"

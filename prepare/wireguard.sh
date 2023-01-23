@@ -24,7 +24,7 @@ function install_module_cert {
 
 function make_from_src {
 
-    ARCH="$(uname -p)"
+    ARCH="$(arch)"
 
     if [ $ARCH == "ppc64le" ] ;then 
         ARCH="powerpc"

@@ -28,7 +28,7 @@ fi
 
 [[ -z $RAM ]] && RAM=768
 
-[[ $(uname -p) = "ppc64le" ]] && ARGS+=(-M cap-nested-hv=on,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,cap-hpt-max-page-size=4194304)
+[[ $(arch) = "ppc64le" ]] && ARGS+=(-M cap-nested-hv=on,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken,cap-ccf-assist=off,cap-hpt-max-page-size=4194304)
 
 CPUS="2"
 [[ $(nproc) -gt 4 ]] && CPUS="$(($(nproc)-2))"

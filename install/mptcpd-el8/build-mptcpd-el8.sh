@@ -5,7 +5,7 @@ SRPM_LIBELL=https://kojipkgs.fedoraproject.org//packages/libell/0.52/1.eln121/sr
 SRPM_MPTCPD=https://kojipkgs.fedoraproject.org//packages/mptcpd/0.10/2.eln120/src/mptcpd-0.10-2.eln120.src.rpm
 
 RES_DIR=built
-ARCH=$(uname -i)
+ARCH=$(arch)
 MOCK="mock -r mock-configs/rhel-8-${ARCH}-mod.cfg"
 
 die() {
