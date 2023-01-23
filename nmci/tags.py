@@ -425,8 +425,14 @@ def gsm_bs(context, scenario):
     scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):
-        context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
-
+        if not os.path.isfile("/tmp/nm_single_modem_configured"):
+            for i in range(8):
+                context.process.run_stdout(f"python prepare/acroname.py -dp {i}")
+            # We need to enable just the Sierra 7455 in acroname pos 2
+            context.process.run_stdout(f"python prepare/acroname.py -ep 2")
+            acroname = open("/tmp/nm_single_modem_configured", "x")
+            acroname.close()
+            context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
     context.process.nmcli_force("con down testeth0")
 
 
