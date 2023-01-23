@@ -574,3 +574,23 @@
           sriov.autoprobe-drivers false
           """
     Then "spoof checking on" is visible with command "ip link show dev p4p1 |grep 'vf 0'"
+
+
+
+    ################# Other ######################################
+
+
+    @rhbz2150831 @rhbz2038050
+    @ver+=1.40.2
+    @ver+=1.41.6
+    @sriov @nmstate
+    @sriov_nmstate_many_vfs
+    Scenario: NM - sriov - enable sriov in config
+    When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
+    * Execute "echo -e 'interfaces:\n- name: p4p1\n  type: ethernet\n  state: up\n  ethernet:\n    sr-iov:\n      total-vfs: 45' > /tmp/many-vfs.yaml"
+    * Execute "nmstatectl apply /tmp/many-vfs.yaml"
+    When "Exactly" "46" lines with pattern "p4p1" are visible with command "nmcli dev" in "20" seconds
+    * Execute "echo -e 'interfaces:\n- name: p4p1\n  type: ethernet\n  state: up\n  ethernet:\n    sr-iov:\n      total-vfs: 60' > /tmp/many-vfs.yaml"
+    * Execute "nmstatectl apply /tmp/many-vfs.yaml"
+    When "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev" in "100" seconds
+

@@ -3275,6 +3275,8 @@ testmapper:
         feature: sriov
     - sriov_con_add_VF_spoof:
         feature: sriov
+    - sriov_nmstate_many_vfs:
+        feature: sriov
     - add_dpdk_port:
         feature: ovs
     - add_dpdk_port_n_rxq:
