@@ -8,6 +8,12 @@ import commands
 import nmci
 
 
+@step('Write file "{path}" with content')
+def fill_file_with_content(context, path):
+    nmci.cleanup.cleanup_file(path)
+    nmci.util.file_set_content(path, context.text)
+
+
 @step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
 def append_to_file(context, name, line=None):
