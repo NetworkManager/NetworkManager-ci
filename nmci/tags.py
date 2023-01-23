@@ -95,6 +95,13 @@ def temporary_skip_bs(context, scenario):
 _register_tag("temporary_skip", temporary_skip_bs)
 
 
+def fail_bs(context, scenario):
+    assert False
+
+
+_register_tag("fail", fail_bs)
+
+
 def skip_restarts_bs(context, scenario):
     if os.path.isfile("/tmp/nm_skip_restarts") or os.path.isfile("/tmp/nm_skip_STR"):
         context.cext.skip(
