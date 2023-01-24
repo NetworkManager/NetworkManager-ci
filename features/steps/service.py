@@ -56,6 +56,9 @@ def reboot(context, timeout=None):
     for ifname in ifnames_to_down:
         if ifname in link_ifnames:
             nmci.ip.link_set(ifname=ifname, up=False)
+            # We need to clean DNS records when shutting down devices
+            if nmci.process.systemctl("is-active systemd-resolved").returncode == 0:
+                nmci.process.run(f"resolvectl revert {ifname}", ignore_stderr=True)
 
     for ifname in ifnames_to_flush:
         if ifname in link_ifnames:
