@@ -588,6 +588,22 @@ def prepare_iptunnel_doc(context, mode):
 def mptcp(context, num, veth, typ="subflow"):
     import nmci.pexpect
 
+    ### workaround for systems with MPTCP enabled by default
+    # NM currently doesn't remove MPTCP endpoints for an interface that goes
+    # down (eth0 before MPTCP scenarios) which makes existing checks for MPTCP
+    # endpoints wrong on systems that have MPTCP enabled by default (Fedora).
+    #
+    # A workaround is to disable MPTCP, restart NM and flush the endpoints
+    # early in the Prepare so that the rest of scenario works exactly the same
+    # as on systems with MPTCP disabled.
+    nmci.cleanup.cleanup_add_sysctls("net.mptcp.enabled")
+    nmci.cleanup.cleanup_add_NM_service("restart")
+    nmci.process.run(["sysctl", "-w", "net.mptcp.enabled=0"])
+    nmci.process.run(["ip", "mptcp", "endpoint", "flush"])
+    context.nm_restarted = True
+    nmci.nmutil.restart_NM_service(reset=False)
+    ### end workaround
+
     number = int(num)
     nsname = "mptcp"
     run_in_ns = ["ip", "netns", "exec", nsname]
