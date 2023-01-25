@@ -597,7 +597,7 @@ def mptcp(context, num, veth, typ="subflow"):
     nmci.process.run(["ip", "netns", "add", nsname])
 
     nmci.cleanup.cleanup_add_sysctls("\.rp_filter")
-    nmci.cleanup.cleanup_add_sysctls("mptcp")
+    nmci.cleanup.cleanup_add_sysctls("net.mptcp.enabled")
     nmci.cleanup.cleanup_add_ip_mptcp()
     nmci.process.run_stdout([*ip_in_ns, "mptcp", "endpoint", "flush"])
     nmci.process.run_stdout([*ip_in_ns, "mptcp", "limits", "set", "subflow", num, "add_addr_accepted", f"{number - 1}"])
@@ -620,12 +620,10 @@ def mptcp(context, num, veth, typ="subflow"):
 
     rp_filter_keys = nmci.process.run_stdout([*run_in_ns, "sysctl", "-N", "-a", "--pattern", r"\.rp_filter"]).strip()
     if len(rp_filter_keys) > 0:
-        #rp_filters = "\n".join([*[f"{k} = 0" for k in rp_filter_keys.split("\n")], "\n"])
         rp_filters = [f"{k} = 0" for k in rp_filter_keys.split("\n")]
 
         pexpect_cmd = " ".join([*run_in_ns, "sysctl", f"-p-"])
         sysctl_p = nmci.pexpect.pexpect_spawn(pexpect_cmd, check=True)
-        #sysctl_p.send(rp_filters)
         for f in rp_filters:
             sysctl_p.sendline(f)
         sysctl_p.sendcontrol('d')
