@@ -91,7 +91,7 @@ def _before_scenario(context, scenario):
     os.environ["TERM"] = "dumb"
 
     # dump status before the test preparation starts
-    nmci.util.dump_status("Before Scenario", fail_only=False)
+    nmci.util.dump_status("Before Scenario")
 
     nmci.embed.set_title(f"NMCI: {scenario.tags[-1]}")
 
@@ -223,7 +223,7 @@ def after_step(context, step):
         nmci.embed.after_step()
 
     if step.name.startswith("Prepare "):
-        nmci.util.dump_status("After this step", fail_only=True)
+        nmci.util.dump_status("After this step")
 
 
 # print exception traceback
@@ -273,7 +273,7 @@ def _after_scenario(context, scenario):
     )
 
     if scenario.status == "failed" or nmci.util.DEBUG:
-        nmci.util.dump_status("After Scenario", fail_only=True)
+        nmci.util.dump_status("After Scenario")
 
     nmci.pexpect.process_pexpect_spawn()
 
@@ -324,7 +324,7 @@ def _after_scenario(context, scenario):
         nmci.crash.after_crash_reset(context)
 
     if scenario_fail:
-        nmci.util.dump_status("After Clean", fail_only=False)
+        nmci.util.dump_status("After Clean")
 
     # process embeds as last thing before asserts
     try:

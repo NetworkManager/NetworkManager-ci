@@ -405,7 +405,7 @@ class _Util:
         )
         time.sleep(0.8)
 
-    def dump_status(self, when, fail_only=False):
+    def dump_status(self, when):
         class Echo:
             def __init__(self, args, html_tag=None, escape=True):
                 self.args = args
@@ -522,9 +522,7 @@ class _Util:
                 "\nWARNING: timeout expired waiting for processes. Processes were terminated."
             )
 
-        nmci.embed.embed_data(
-            "Status " + when, "\n".join(msg), mime_type="text/html", fail_only=fail_only
-        )
+        nmci.embed.embed_data("Status " + when, "\n".join(msg), mime_type="text/html")
 
     def dump_memory_stats(self):
         if nmci.cext.context.nm_pid is not None:
