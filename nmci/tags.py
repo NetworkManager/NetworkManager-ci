@@ -1494,6 +1494,13 @@ def dracut_remote_NFS_clean_as(context, scenario):
 _register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)
 
 
+def dump_status_verbose_bs(context, scenario):
+    nmci.util.dump_status_verbose = True
+
+
+_register_tag("dump_status_verbose", dump_status_verbose_bs)
+
+
 def prepare_patched_netdevsim_bs(context, scenario):
     context.process.run_stdout(
         "sh prepare/netdevsim.sh setup", timeout=600, ignore_stderr=True

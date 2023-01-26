@@ -90,6 +90,9 @@ def _before_scenario(context, scenario):
 
     os.environ["TERM"] = "dumb"
 
+    if "dump_status_verbose" in scenario.tags:
+        nmci.util.dump_status_verbose = True
+
     # dump status before the test preparation starts
     nmci.util.dump_status("Before Scenario")
 
