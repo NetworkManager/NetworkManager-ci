@@ -2393,6 +2393,7 @@
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv6_mptcp_no_flags
     Scenario: MPTCP with no explicit configuration
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -2410,6 +2411,7 @@
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv6_mptcp_flags_0x8
     Scenario: MPTCP with flag no-defroute
     * Prepare simulated MPTCP setup with "2" veths named "veth"

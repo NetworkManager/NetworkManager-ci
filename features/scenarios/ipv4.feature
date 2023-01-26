@@ -3119,6 +3119,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_no_flags_no_defroute
     Scenario: MPTCP with no explicit configuration and no default route
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3137,6 +3138,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_no_flags
     Scenario: MPTCP with no explicit configuration
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3155,6 +3157,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_disabled
     Scenario: MPTCP disabled in NM
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3170,6 +3173,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_enabled
     # no endpoints configuveth1 despite 'enabled' flag because no lon-local route is present
     Scenario: MPTCP with no explicit configuration
@@ -3187,6 +3191,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x2_0x4
     Scenario: MPTCP enabled even without sysctl
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3204,6 +3209,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x2_0x8
     Scenario: MPTCP enabled even without default route
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3221,6 +3227,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x10
     Scenario: MPTCP with flag signal
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "signal"
@@ -3238,6 +3245,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x20
     Scenario: MPTCP with flag subflow
     * Prepare simulated MPTCP setup with "2" veths named "veth"
@@ -3255,6 +3263,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x40
     Scenario: MPTCP with flag backup
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "backup"
@@ -3272,6 +3281,7 @@ Feature: nmcli: ipv4
     @rhbz2029636
     @tcpdump
     @ver+=1.40
+    @dump_status_verbose
     @ipv4_mptcp_flags_0x80
     Scenario: MPTCP with flag fullmesh
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "fullmesh"
