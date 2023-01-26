@@ -63,6 +63,7 @@ def _before_scenario(context, scenario):
     # set important context attributes
     assert not nmci.cleanup._cleanup_lst
     assert not context.cext.scenario_skipped
+    nmci.util.set_verbose(False)
     context.step_level = 0
     context.nm_restarted = False
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -296,13 +297,13 @@ def _after_scenario(context, scenario):
     nmci.crash.check_faf(context)
 
     scenario_fail = (
-        scenario.status == "failed"
-        or context.crashed_step
-        or nmci.util.DEBUG
-        or len(excepts) > 0
+        scenario.status == "failed" or context.crashed_step or len(excepts) > 0
     )
 
     if scenario_fail:
+        nmci.util.set_verbose(True)
+
+    if nmci.util.is_verbose():
         # Attach journalctl logs
         print("Attaching NM log")
         log = nmci.misc.journal_show(
@@ -326,12 +327,12 @@ def _after_scenario(context, scenario):
             nmci.embed.embed_data("NO_COREDUMP/NO_FAF", msg)
         nmci.crash.after_crash_reset(context)
 
-    if scenario_fail:
+    if nmci.util.is_verbose():
         nmci.util.dump_status("After Clean")
 
     # process embeds as last thing before asserts
     try:
-        nmci.embed.process_embeds(scenario_fail)
+        nmci.embed.process_embeds()
     except Exception:
         excepts.append(traceback.format_exc())
 

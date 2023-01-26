@@ -636,7 +636,7 @@ def mptcp(context, num, veth, typ="subflow"):
             os.remove(f)
         except FileNotFoundError:
             pass
-    if nmci.util.DEBUG:
+    if nmci.util.is_verbose():
         redir = "| tee"
         nmci.process.run_stdout([*ip_in_ns, "addr"])
         nmci.process.run_stdout([*ip_in_ns, "-4", "route"])

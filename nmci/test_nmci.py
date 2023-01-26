@@ -1682,7 +1682,7 @@ def test_ctx_pexpect():
 
     nmci.pexpect.process_pexpect_spawn()
 
-    nmci.embed.process_embeds(True)
+    nmci.embed.process_embeds()
 
 
 def test_util_consume_list():

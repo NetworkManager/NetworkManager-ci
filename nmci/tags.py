@@ -1547,7 +1547,7 @@ _register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
 
 
 def attach_hostapd_log_as(context, scenario):
-    if scenario.status == "failed" or nmci.util.DEBUG:
+    if nmci.util.is_verbose():
         print("Attaching hostapd log")
 
         confs = context.process.run_stdout(
@@ -1580,7 +1580,7 @@ _register_tag("attach_hostapd_log", None, attach_hostapd_log_as)
 
 
 def attach_wpa_supplicant_log_as(context, scenario):
-    if scenario.status == "failed" or nmci.util.DEBUG:
+    if nmci.util.is_verbose():
         print("Attaching wpa_supplicant log")
         data = nmci.misc.journal_show(
             "wpa_supplicant",
@@ -2906,7 +2906,7 @@ def radius_bs(context, scenario):
 
 
 def radius_as(context, scenario):
-    if scenario.status == "failed" or nmci.util.DEBUG:
+    if nmci.util.is_verbose():
         nmci.embed.embed_service_log("RADIUS", syslog_identifier="radiusd")
     context.process.systemctl("stop nm-radiusd.service")
 
@@ -2930,7 +2930,7 @@ def tag8021x_doc_procedure_bs(context, scenario):
 
 def tag8021x_doc_procedure_as(context, scenario):
     context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
-    if scenario.status == "failed" or nmci.util.DEBUG:
+    if nmci.util.is_verbose():
         nmci.embed.embed_service_log("HOSTAPD", syslog_identifier="hostapd")
         nmci.embed.embed_service_log(
             "802.1X access control", syslog_identifier="802-1x-tr-mgmt"

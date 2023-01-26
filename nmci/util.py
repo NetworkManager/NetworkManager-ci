@@ -113,6 +113,7 @@ class _Util:
 
     def __init__(self):
         self.dump_status_verbose = False
+        self._is_verbose = False
 
     class ExpectedException(Exception):
         # We don't want to just catch blindly all "Exception" types
@@ -214,6 +215,12 @@ class _Util:
             ]
             self._DEBUG = v
         return v
+
+    def set_verbose(self, value=True):
+        self._is_verbose = value
+
+    def is_verbose(self):
+        return self._is_verbose or self.DEBUG
 
     def gvariant_to_dict(self, variant):
         import json

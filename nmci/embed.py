@@ -174,14 +174,14 @@ class _Embed:
             for line in str(data).splitlines():
                 print(f">>>>>> {line}")
 
-    def _embed_mangle_message_for_fail(self, scenario_fail, fail_only, mime_type, data):
+    def _embed_mangle_message_for_fail(self, fail_only, mime_type, data):
         import nmci.util
 
-        if not scenario_fail and fail_only:
+        if not nmci.util.is_verbose() and fail_only:
             if mime_type != "text/plain":
                 return ("text/plain", f"truncated mime_type={mime_type} on success")
             if isinstance(data, str):
-                if not nmci.util.DEBUG and len(data) > 2048:
+                if not nmci.util.is_verbose() and len(data) > 2048:
                     data_split = data.split("\n", 1)
                     if len(data_split) == 2:
                         # embed first line, header of command, truncate header if longer than 2048
@@ -196,20 +196,20 @@ class _Embed:
                         f"truncated on success\n\n{data_header}...\n{data[-2048:]}",
                     )
             elif isinstance(data, bytes):
-                if not nmci.util.DEBUG and len(data) > 2048:
+                if not nmci.util.is_verbose() and len(data) > 2048:
                     return (
                         mime_type,
                         b"truncated binary on success\n\n...\n" + data[-2048:],
                     )
             else:
-                if not nmci.util.DEBUG:
+                if not nmci.util.is_verbose():
                     return (mime_type, f"truncated non-text {type(data)} on success")
         return (mime_type, data)
 
-    def _embed_one(self, scenario_fail, entry):
+    def _embed_one(self, entry):
         (mime_type, data, caption) = entry.evalDoEmbedArgs()
         (mime_type, data) = self._embed_mangle_message_for_fail(
-            scenario_fail, entry.fail_only, mime_type, data
+            entry.fail_only, mime_type, data
         )
         self._embed_args(
             entry._embed_context.embed_data,
@@ -218,7 +218,7 @@ class _Embed:
             f"({entry._embed_context.count}) {caption}",
         )
 
-    def _embed_combines(self, scenario_fail, combine_tag, embed_data, lst):
+    def _embed_combines(self, combine_tag, embed_data, lst):
         import nmci.misc
 
         counts = nmci.misc.list_to_intervals(
@@ -230,13 +230,13 @@ class _Embed:
             (mime_type, data, caption) = entry.evalDoEmbedArgs()
             assert mime_type == "text/plain"
             (mime_type, data) = self._embed_mangle_message_for_fail(
-                scenario_fail, entry.fail_only, mime_type, data
+                entry.fail_only, mime_type, data
             )
             message += f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}\n"
         message += f"{'-'*50}\n"
         self._embed_args(embed_data, "text/plain", message, main_caption)
 
-    def process_embeds(self, scenario_fail):
+    def process_embeds(self):
         import nmci.util
 
         combines_dict = {}
@@ -246,7 +246,7 @@ class _Embed:
             if combine_tag is NO_EMBED:
                 continue
             if combine_tag is None:
-                self._embed_one(scenario_fail, entry)
+                self._embed_one(entry)
                 continue
             key = (combine_tag, entry._embed_context.embed_data)
             lst = combines_dict.get(key, None)
@@ -255,7 +255,7 @@ class _Embed:
                 combines_dict[key] = lst
             lst.append(entry)
         for key, lst in combines_dict.items():
-            self._embed_combines(scenario_fail, key[0], key[1], lst)
+            self._embed_combines(key[0], key[1], lst)
 
     def embed_data(self, *a, embed_context=None, **kw):
         self._embed_queue(EmbedData(*a, **kw), embed_context=embed_context)
