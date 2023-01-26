@@ -156,7 +156,11 @@ class CleanupSysctls(Cleanup):
             self.namespace = None
 
         self.sysctls = nmci.process.run_stdout(cmd)
-        Cleanup.__init__(self, name=f"sysctls-pattern-{sysctls_pattern}")
+        Cleanup.__init__(
+            self,
+            name=f"sysctls-pattern-{sysctls_pattern}",
+            unique_tag=Cleanup.UNIQ_TAG_DISTINCT,
+        )
 
     def _do_cleanup(self):
         import nmci.pexpect
@@ -166,7 +170,7 @@ class CleanupSysctls(Cleanup):
         if self.namespace is not None:
             if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
                 return
-            prefix = ["ip", "netns", "exec", namespace]
+            prefix = ["ip", "netns", "exec", self.namespace]
         else:
             prefix = []
 
