@@ -2776,7 +2776,7 @@
     * Execute "ip -n ns1 address add dev bond1 172.25.1.1/24"
     * Wait for "0.2" seconds
     * Execute "for if in veth{0,1}; do ip link set ${if} up; done"
-    * Run child "ip netns exec ns1 dnsmasq -h --interface bond1 --except-interface lo --host-record=client1234,172.25.1.101 --log-queries --no-resolv --server=8.8.8.8"
+    * Run child "ip netns exec ns1 dnsmasq -d -h --interface bond1 --except-interface lo --host-record=client1234,172.25.1.101 --log-queries --no-resolv --server=8.8.8.8"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "master bond0 slave-type bond"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "master bond0 slave-type bond"
     * Add "bond" connection named "bond0" for device "bond0" with options
