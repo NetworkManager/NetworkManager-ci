@@ -111,6 +111,9 @@ class _Util:
     # like time.CLOCK_BOOTTIME, which only exists since Python 3.7
     CLOCK_BOOTTIME = 7
 
+    def __init__(self):
+        self.dump_status_verbose = False
+
     class ExpectedException(Exception):
         # We don't want to just catch blindly all "Exception" types
         # but rather only those exceptions where an API is known that
@@ -425,6 +428,10 @@ class _Util:
                 else:
                     return f"{args_s}"
 
+        verbose_ip_args = []
+        if self.dump_status_verbose:
+            verbose_ip_args = ["-d"]
+
         timeout = nmci.util.start_timeout(20)
 
         nm_running = nmci.nmutil.nm_pid() != 0
@@ -443,11 +450,20 @@ class _Util:
                 nm_cmds.append("resolvectl --no-pager")
         veth_cmds = []
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
+            verbose_cmds = []
+            if self.dump_status_verbose:
+                verbose_cmds.extend(
+                    [
+                        ["ip", "-n", "vethsetup", "mptcp", "limits"],
+                        ["ip", "-n", "vethsetup", "mptcp", "endpoint"],
+                    ]
+                )
             veth_cmds = [
                 Echo("Veth setup network namespace and DHCP server state:", "h3"),
-                "ip -n vethsetup addr",
-                "ip -n vethsetup -4 route",
-                "ip -n vethsetup -6 route",
+                ["ip", "-n", "vethsetup", *verbose_ip_args, "addr"],
+                ["ip", "-n", "vethsetup", *verbose_ip_args, "-4", "route"],
+                ["ip", "-n", "vethsetup", *verbose_ip_args, "-6", "route"],
+                *verbose_cmds,
                 "ip netns exec vethsetup nft list ruleset",
             ]
 
@@ -460,23 +476,41 @@ class _Util:
         if len(named_nss) > 0:
             named_nss_cmds = [Echo("Status of other named network namespaces:", "h3")]
             for ns in sorted(named_nss):
+                verbose_cmds = []
+                if self.dump_status_verbose:
+                    verbose_cmds.extend(
+                        [
+                            ["ip", "-n", ns, "mptcp", "limits"],
+                            ["ip", "-n", ns, "mptcp", "endpoint"],
+                        ]
+                    )
                 named_nss_cmds += [
                     Echo(f"network namespace {ns}:", "h3"),
-                    f"ip -n {ns} a",
-                    f"ip -n {ns} -4 r",
-                    f"ip -n {ns} -6 r",
+                    ["ip", "-n", ns, *verbose_ip_args, "a"],
+                    ["ip", "-n", ns, *verbose_ip_args, "-4", "r"],
+                    ["ip", "-n", ns, *verbose_ip_args, "-6", "r"],
+                    *verbose_cmds,
                     f"ip netns exec {ns} nft list ruleset",
                 ]
 
+        verbose_cmds = []
+        if self.dump_status_verbose:
+            verbose_cmds.extend(
+                [
+                    ["ip", "mptcp", "limits"],
+                    ["ip", "mptcp", "endpoint"],
+                ]
+            )
         cmds = [
             "date '+%Y%m%d-%H%M%S.%N (%s)'",
             nmci.process.WithShell("get_rhel_compose"),
             nmci.process.WithShell("hostnamectl 2>&1"),
             "NetworkManager --version",
             *nm_cmds,
-            "ip addr",
-            "ip -4 route",
-            "ip -6 route",
+            ["ip", *verbose_ip_args, "addr"],
+            ["ip", *verbose_ip_args, "-4", "route"],
+            ["ip", *verbose_ip_args, "-6", "route"],
+            *verbose_cmds,
             *veth_cmds,
             *named_nss_cmds,
             "ps aux",
