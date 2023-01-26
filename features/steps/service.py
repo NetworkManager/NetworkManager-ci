@@ -85,9 +85,7 @@ def start_nm_no_pid(context):
 @step('Restart NM within "{timeout}" seconds')
 def restart_nm(context, timeout=None):
     context.nm_restarted = True
-    assert nmci.nmutil.restart_NM_service(
-        reset=False, timeout=timeout
-    ), "NM restart failed"
+    assert nmci.nmutil.restart_NM_service(timeout=timeout), "NM restart failed"
 
 
 @step("Restart NM in background")

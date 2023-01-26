@@ -1143,14 +1143,14 @@ def simwifi_ap_bs(context, scenario):
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(reset=False), "NM stop failed"
+    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
 
 
 def simwifi_ap_as(context, scenario):
     context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(reset=False), "NM stop failed"
+    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
