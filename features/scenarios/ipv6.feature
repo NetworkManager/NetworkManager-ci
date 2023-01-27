@@ -571,7 +571,7 @@
            ipv6.dns '4000::1, 5000::1'
            """
     * Bring "up" connection "con_ipv6"
-    Then Nameserver "2620:" is set in "15" seconds
+    When "2620:" is visible with command "ip a s eth10" in "15" seconds
     Then Nameserver "4000::1" is set
     Then Nameserver "5000::1" is set
     Then Nameserver "10." is set in "15" seconds
