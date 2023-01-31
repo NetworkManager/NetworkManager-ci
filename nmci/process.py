@@ -2,12 +2,11 @@ import collections
 import os
 import re
 import subprocess
+import shlex
 
 RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr"])
 
 IGNORE_RETURNCODE_ALL = object()
-
-SHELL_AUTO = object()
 
 import nmci.util
 import nmci.embed
@@ -15,13 +14,52 @@ import nmci.embed
 from nmci.embed import TRACE_COMBINE_TAG
 
 
-class WithShell:
+class With:
     def __init__(self, cmd):
-        assert isinstance(cmd, str)
         self.cmd = cmd
 
-    def __str__(self):
+    def get_argv(self):
+        if isinstance(self.cmd, With):
+            return self.cmd.get_argv()
         return self.cmd
+
+    def get_shell(self):
+        if isinstance(self.cmd, With):
+            return self.cmd.get_shell()
+        return False
+
+    def _prepend_argv(self, prefix):
+        argv = self.cmd
+        if isinstance(argv, With):
+            argv = argv.get_argv()
+        if isinstance(argv, str):
+            prefix_str = " ".join(shlex.quote(x) for x in prefix)
+            argv = f"{prefix_str} {argv}"
+        else:
+            argv = [*prefix, *argv]
+        return argv
+
+
+class WithShell(With):
+    def __init__(self, cmd):
+        self.cmd = cmd
+
+    def get_shell(self):
+        return True
+
+
+class WithPrefix(With):
+    def __init__(self, prefix, cmd):
+        self.cmd = cmd
+        self.prefix = prefix
+
+    def get_argv(self):
+        return self._prepend_argv(self.prefix)
+
+
+class WithNamespace(WithPrefix):
+    def __init__(self, namespace, cmd):
+        super().__init__(["ip", "netns", "exec", namespace], cmd)
 
 
 class PopenCollect:
@@ -71,35 +109,32 @@ class PopenCollect:
 
 class _Process:
     def __init__(self):
+        self.With = With
         self.WithShell = WithShell
+        self.WithNamespace = WithNamespace
+        self.WithPrefix = WithPrefix
         self.PopenCollect = PopenCollect
         self.RunResult = RunResult
         self.IGNORE_RETURNCODE_ALL = IGNORE_RETURNCODE_ALL
-        self.SHELL_AUTO = SHELL_AUTO
 
         self.exec = _Exec(self)
 
-    def _run_prepare_args(self, argv, shell, env, env_extra):
+    def _run_prepare_args(self, argv, shell, env, env_extra, namespace):
 
-        if shell is SHELL_AUTO:
-            # Autodetect whether to use a shell.
-            if isinstance(argv, WithShell):
-                argv = argv.cmd
-                shell = True
-            else:
-                shell = False
-        else:
-            shell = True if shell else False
+        if namespace:
+            argv = WithNamespace(namespace, argv)
 
         argv_real = argv
+
+        if isinstance(argv_real, With):
+            shell = shell or argv_real.get_shell()
+            argv_real = argv_real.get_argv()
 
         if isinstance(argv_real, str):
             # For convenience, we allow argv as string.
             if shell:
                 argv_real = [argv_real]
             else:
-                import shlex
-
                 argv_real = shlex.split(argv_real)
 
         if env_extra:
@@ -115,16 +150,17 @@ class _Process:
         self,
         argv,
         *,
-        shell=SHELL_AUTO,
+        shell=False,
         cwd=nmci.util.BASE_DIR,
         env=None,
         env_extra=None,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        namespace=None,
     ):
 
         argv, argv_real, shell, env = self._run_prepare_args(
-            argv, shell, env, env_extra
+            argv, shell, env, env_extra, namespace
         )
 
         proc = subprocess.Popen(
@@ -153,9 +189,10 @@ class _Process:
         stdout,
         stderr,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        namespace=None,
     ):
         argv, argv_real, shell, env = self._run_prepare_args(
-            argv, shell, env, env_extra
+            argv, shell, env, env_extra, namespace
         )
 
         time_measure = nmci.util.start_timeout()
@@ -259,7 +296,7 @@ class _Process:
         self,
         argv,
         *,
-        shell=SHELL_AUTO,
+        shell=False,
         as_bytes=False,
         timeout=5,
         cwd=nmci.util.BASE_DIR,
@@ -270,6 +307,7 @@ class _Process:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        namespace=None,
     ):
         return self._run(
             argv,
@@ -284,13 +322,14 @@ class _Process:
             stdout=stdout,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            namespace=namespace,
         )
 
     def run_stdout(
         self,
         argv,
         *,
-        shell=SHELL_AUTO,
+        shell=False,
         as_bytes=False,
         timeout=5,
         cwd=nmci.util.BASE_DIR,
@@ -300,6 +339,7 @@ class _Process:
         ignore_stderr=False,
         stderr=subprocess.PIPE,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        namespace=None,
     ):
         return self._run(
             argv,
@@ -314,13 +354,14 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            namespace=namespace,
         ).stdout
 
     def run_code(
         self,
         argv,
         *,
-        shell=SHELL_AUTO,
+        shell=False,
         as_bytes=False,
         timeout=5,
         cwd=nmci.util.BASE_DIR,
@@ -329,6 +370,7 @@ class _Process:
         ignore_returncode=True,
         ignore_stderr=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        namespace=None,
     ):
         return self._run(
             argv,
@@ -343,6 +385,7 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
+            namespace=namespace,
         ).returncode
 
     def run_search_stdout(
@@ -350,7 +393,7 @@ class _Process:
         argv,
         pattern,
         *,
-        shell=SHELL_AUTO,
+        shell=False,
         timeout=5,
         cwd=nmci.util.BASE_DIR,
         env=None,
@@ -360,6 +403,7 @@ class _Process:
         stderr=subprocess.PIPE,
         pattern_flags=re.DOTALL | re.MULTILINE,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        namespace=None,
     ):
         # autodetect based on the pattern
         if isinstance(pattern, bytes):
@@ -381,6 +425,7 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            namespace=namespace,
         )
         return re.search(pattern, result.stdout, flags=pattern_flags)
 
@@ -398,13 +443,10 @@ class _Process:
         ignore_stdout_error=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
-        if isinstance(argv, str):
-            argv = f"nmcli {argv}"
-        else:
-            argv = ["nmcli", *argv]
+        nmcli_argv = WithPrefix(["nmcli"], argv)
 
         result = self._run(
-            argv,
+            nmcli_argv,
             shell=False,
             as_bytes=as_bytes,
             timeout=timeout,
@@ -448,13 +490,10 @@ class _Process:
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
-        if isinstance(argv, str):
-            argv = f"nmcli {argv}"
-        else:
-            argv = ["nmcli", *argv]
+        nmcli_argv = WithPrefix(["nmcli"], argv)
 
         return self._run(
-            argv,
+            nmcli_argv,
             shell=False,
             as_bytes=as_bytes,
             timeout=timeout,
@@ -481,13 +520,10 @@ class _Process:
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
-        if isinstance(argv, str):
-            argv = f"systemctl {argv}"
-        else:
-            argv = ["systemctl", *argv]
+        s_argv = WithPrefix(["systemctl"], argv)
 
         return self._run(
-            argv,
+            s_argv,
             shell=False,
             as_bytes=as_bytes,
             timeout=timeout,

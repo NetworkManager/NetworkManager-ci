@@ -424,8 +424,10 @@ class _Util:
 
             # Do not overwrite `self`, we need it for `bytes_to_str()`
             def __str__(me):  # pylint: disable=no-self-argument,invalid-name
-                if isinstance(me.args, list):
+                if hasattr(me.args, "__iter__"):
                     args_s = " ".join(me.args)
+                elif isinstance(me.args, nmci.process.With):
+                    args_s = str(me.args)
                 else:
                     args_s = self.bytes_to_str(me.args)
                 if me.escape:

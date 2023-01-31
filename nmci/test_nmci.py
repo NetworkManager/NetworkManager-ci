@@ -1544,10 +1544,6 @@ def test_process_run_shell_auto():
     )
 
     assert "$SHELL" == nmci.process.run("echo -n $SHELL", shell=False).stdout
-    assert (
-        "$SHELL"
-        == nmci.process.run("echo -n $SHELL", shell=nmci.process.SHELL_AUTO).stdout
-    )
     assert "$SHELL" == nmci.process.run("echo -n $SHELL").stdout
     assert "$SHELL" != nmci.process.run("echo -n $SHELL", shell=True).stdout
     assert "$SHELL" != nmci.process.run(nmci.process.WithShell("echo -n $SHELL")).stdout
@@ -1601,6 +1597,64 @@ def test_ip_link_add_nonutf8():
             assert nmci.ip.link_show(ifname=ifname)
 
     nmci.ip.link_delete(ifname)
+
+
+@pytest.fixture
+def cleanup_namespace():
+    namespaces = [f"nmci_test{i}_ns" for i in range(2)]
+    yield namespaces
+    for ns in namespaces:
+        nmci.process.run(f"ip netns delete {ns}", ignore_stderr=True)
+
+
+def test_namespaces(cleanup_namespace):
+    ns = cleanup_namespace
+    # test nmci.ip
+    rc = nmci.process.run_code(f"ip netns add {ns[0]}", ignore_stderr=True)
+    if rc != 0:
+        pytest.skip("Not enough privilegies to run the test.")
+    assert ns[0] in nmci.ip.netns_list()
+
+    nmci.ip.netns_add(ns[1])
+    assert ns[1] in nmci.ip.netns_list()
+    nmci.ip.netns_delete(ns[1])
+    assert ns[1] not in nmci.ip.netns_list()
+    with pytest.raises(Exception):
+        nmci.ip.netns_delete(ns[1])
+    nmci.ip.netns_delete(ns[1], check=False)
+
+    nmci.ip.address_add("192.168.1.4/24", ifname="lo", namespace=ns[0])
+    assert len(nmci.ip.address_show(ifname="lo", namespace=ns[0])) == 1
+    nmci.ip.address_expect("192.168.1.4", ifname="lo", namespace=ns[0])
+    # check that address is not in root namespace
+    with pytest.raises(Exception):
+        nmci.ip.address_expect("192.168.1.4", ifname="lo")
+
+    nmci.ip.address_add("fee::bee:01/64", ifname="lo", namespace=ns[0])
+    nmci.ip.address_expect(
+        "fee::bee:1/64", ifname="lo", with_plen=True, namespace=ns[0]
+    )
+    assert len(nmci.ip.address_show(ifname="lo", namespace=ns[0])) == 2
+
+    nmci.ip.address_flush(ifname="lo", namespace=ns[0])
+    assert [] == nmci.ip.address_show(ifname="lo", namespace=ns[0])
+
+    # test nmci.process
+    assert nmci.process.run_stdout("true", namespace=ns[0]) == ""
+    assert nmci.process.run_code(nmci.process.WithNamespace(ns[0], "true")) == 0
+    assert (
+        nmci.process.run_search_stdout(["ip", "link"], "lo:", namespace=ns[0])
+        is not None
+    )
+    assert (
+        nmci.process.run_search_stdout(["ip", "link"], "eth_test_nmci", namespace=ns[0])
+        is None
+    )
+
+    args1 = nmci.process.WithShell(nmci.process.WithNamespace(ns[0], "ip a | grep lo:"))
+    args2 = nmci.process.WithNamespace(ns[0], nmci.process.WithShell("ip a | grep lo:"))
+    assert nmci.process.run_stdout(args1)
+    assert nmci.process.run_stdout(args2)
 
 
 @Stub.misc_distro_detect(("fedora", [35]))
