@@ -14,6 +14,15 @@ def fill_file_with_content(context, path):
     nmci.util.file_set_content(path, context.text)
 
 
+@step('Create NM config file with content')
+@step('Create NM config file "{filename}" with content')
+def create_config_file(context, filename="99-xxcustom.conf"):
+    path = os.path.join("/etc/NetworkManager/conf.d", filename)
+    nmci.cleanup.cleanup_file(path)
+    nmci.cleanup.cleanup_add_NM_service("restart")
+    nmci.util.file_set_content(path, context.text)
+
+
 @step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
 def append_to_file(context, name, line=None):
@@ -21,6 +30,12 @@ def append_to_file(context, name, line=None):
         line = context.text if context.text is not None else " "
     cmd = 'sudo echo "%s" >> %s' % (line, name)
     context.command_code(cmd)
+
+@step('Replace "{substring}" with "{replacement}" in file "{path}"')
+def replace_substring(context, substring, replacement, path):
+    content = nmci.util.file_get_content_simple(path)
+    content = re.sub(substring, replacement, content)
+    nmci.util.file_set_content(path, content)
 
 
 @step('Append "{line}" to ifcfg file "{name}"')
