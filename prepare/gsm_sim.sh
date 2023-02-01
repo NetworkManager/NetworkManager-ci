@@ -5,7 +5,9 @@ function modem_setup ()
     # deactivate physical devices
     for i in $(ls /sys/bus/usb/devices/usb*/authorized)
     do
-        echo 0 > $i
+        if [ -f "$i" ]; then
+            echo 0 > $i
+        fi
     done
 
     # get modemu script from NM repo
@@ -25,7 +27,7 @@ function modem_teardown ()
 }
 
 if [ "$1" != "teardown" ]; then
-    modem_setup $1 2&>1 >> /tmp/gsm_sim.log
+    modem_setup $1 >> /tmp/gsm_sim.log 2>&1
 else
     modem_teardown
 fi
