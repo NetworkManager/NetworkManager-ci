@@ -424,7 +424,9 @@ def restore_device(context, device, connection):
     check_cmd = "nmcli -t -f NAME,DEVICE,FILENAME con show"
     check_cmd_out, _ = cmd_output_rc(check_cmd, shell=True)
     con_lines = check_cmd_out.strip("\n").split("\n")
-    cfiles = [x.split(":", 2)[2] for x in con_lines if x.startswith(f"{connection}:{device}:")]
+    cfiles = [
+        x.split(":", 2)[2] for x in con_lines if x.startswith(f"{connection}:{device}:")
+    ]
     assert len(cfiles) == 1, f"Unable to find unique connection, found {cfiles}"
     cfile = cfiles[0]
     assert os.path.isfile(
