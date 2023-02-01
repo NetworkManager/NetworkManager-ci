@@ -3294,3 +3294,22 @@ Feature: nmcli: ipv4
     * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
     Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
     Then "exactly" "2" lines with pattern "fullmesh" are visible with command "ip mptcp endpoint show"
+
+
+    @rhbz2120471
+    @ver+=1.41.3
+    @dump_status_verbose @tcpdump
+    @ipv4_mptcp_reapply_change_flag
+    Scenario: MPTCP changes are applied upon reapply
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Set ip mptcp limits to "subflow 3 add_addr_accepted 2"
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method auto ipv6.method auto"
+    * Bring "up" connection "con_ipv4"
+    Then "192\.168\.100.*dev eth3" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "signal" is not visible with command "ip mptcp endpoint show | grep eth3"
+    Then "signal" is not visible with command "nmcli -f connection.mptcp-flags c s con_ipv4"
+    * Modify connection "con_ipv4" changing options "connection.mptcp-flags signal"
+    When Execute "nmcli device reapply eth3"
+    Then "192.168.100.*signal" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "signal" is visible with command "nmcli -f connection.mptcp-flags c s con_ipv4"
