@@ -65,6 +65,11 @@ def cmd_output_rc_embed(context, cmd, **kwargs):
     return (output, rc)
 
 
+def arch():
+    a, _ = cmd_output_rc("arch")
+    return a.strip("\n")
+
+
 def check_star_expr(needle, haystack):
     if needle.startswith("*") and needle.endswith("*"):
         assert (
@@ -488,6 +493,9 @@ use_step_matcher("qecore")
 
 @step('Prepare libreswan | mode "{mode}"')
 def prepare_libreswan(context, mode="aggressive"):
+    if arch() == "s390x":
+        context.scenario.skip(reson="Libreswan not available on 's390x'")
+        return
     context.execute_steps("""* Delete all connections of type "vpn" after scenario""")
     cmd = (
         f"sudo MODE={mode} bash {NM_CI_RUNNER_CMD} "
@@ -543,6 +551,9 @@ def prepare_gsm(context, modem="modemu"):
 
 @step('Prepare openvpn | version "{version}" | in "{path}"')
 def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
+    if arch() == "s390x":
+        context.scenario.skip(reson="OpenVPN not available on 's390x'")
+        return
     context.sandbox.add_after_scenario_hook(
         lambda context: context.embed(
             "text/plain",
@@ -588,10 +599,8 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     'Prepare Wi-Fi | with certificates from "{certs_dir}" | with crypto "{crypto}" | with "{ap_num}" APs'
 )
 def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_num=""):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch()}'")
         return
     context.execute_steps(
         """* Delete all connections of type "802-11-wireless" after scenario"""
@@ -635,10 +644,8 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
 
 @step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
 def prepare_8021x(context, certs_dir="contrib/8021x/certs", crypto=None):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"802.1x not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"802.1x not available on '{arch()}'")
         return
     context.sandbox.add_after_scenario_hook(
         lambda context: context.embed(
@@ -684,7 +691,7 @@ def prepare_wireguard(context):
     output, rc = cmd_output_rc_embed(
         context, f"sudo bash {NM_CI_RUNNER_CMD} prepare/wireguard.sh", shell=True
     )
-    assert rc == 0, "wireguard setup failed!!!"
+    assert rc == 0, f"wireguard setup failed!!!\n{output}"
 
 
 @step('Prepare netdevsim | num "{num}"')
@@ -717,10 +724,8 @@ use_step_matcher("parse")
 
 @step("Teardown Wi-Fi")
 def teardown_wifi(context):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch()}'")
         return
     wifi_teardown()
 
@@ -728,33 +733,43 @@ def teardown_wifi(context):
 @step("Teardown Wi-Fi after scenario")
 @step("Teardown Wi-Fi after test")
 def teardown_wifi_hook(context):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch()}'")
         return
     context.sandbox.add_after_scenario_hook(wifi_teardown)
 
 
 @step("Teardown libreswan")
 def teardown_libreswan(context):
+    if arch() == "s390x":
+        context.scenario.skip(reason="Libreswan not available on 's390x'")
+        return
     libreswan_teardown(context)
 
 
 @step("Teardown libreswan after scenario")
 @step("Teardown libreswan after test")
 def teardown_libreswan_hook(context):
+    if arch() == "s390x":
+        context.scenario.skip(reason="Libreswan not available on 's390x'")
+        return
     context.sandbox.add_after_scenario_hook(libreswan_teardown, context)
 
 
 @step("Teardown openvpn")
 def teardown_openvpn(context):
+    if arch() == "s390x":
+        context.scenario.skip(reason="OpenVPN not available on 's390x'")
+        return
     openvpn_teardown(context)
 
 
 @step("Teardown openvpn after scenario")
 @step("Teardown openvpn after test")
 def teardown_openvpn_hook(context):
+    if arch() == "s390x":
+        context.scenario.skip(reason="OpenVPN not available on 's390x'")
+        return
     context.sandbox.add_after_scenario_hook(openvpn_teardown, context)
 
 
@@ -771,10 +786,8 @@ def teardown_gsm_hook(context):
 
 @step("Teardown 8021x")
 def teardown_8021x(context):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch()}'")
         return
     hostapd_teardown()
 
@@ -782,10 +795,8 @@ def teardown_8021x(context):
 @step("Teardown 8021x after scenario")
 @step("Teardown 8021x after test")
 def teardown_8021x_hook(context):
-    arch, _ = cmd_output_rc("arch")
-    arch = arch.strip()
-    if arch != "x86_64":
-        context.scenario.skip(reason=f"Wi-Fi not available on '{arch}'")
+    if arch() != "x86_64":
+        context.scenario.skip(reason=f"Wi-Fi not available on '{arch()}'")
         return
     context.sandbox.add_after_scenario_hook(hostapd_teardown)
 

@@ -23,11 +23,12 @@ nm_openvpn_gnome() {
 if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
-        dnf -4 -y install epel-release
-        dnf -4 -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
-        dnf -4 -y install --enablerepo=epel NetworkManager-openvpn-gnome NetworkManager-openvpn || \
-          nm_openvpn_gnome
-
+        if [ "$(arch)" != "s390x" ]; then
+            dnf -4 -y install epel-release
+            dnf -4 -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
+            dnf -4 -y install --enablerepo=epel NetworkManager-openvpn-gnome NetworkManager-openvpn || \
+                nm_openvpn_gnome
+        fi
         python3 -m pip install proxy.py
         systemctl restart NetworkManager
         touch /tmp/network_pkgs_installed
