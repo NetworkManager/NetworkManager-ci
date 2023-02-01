@@ -1599,8 +1599,8 @@ def performance_bs(context, scenario):
     context.machine_speed_factor = 1
     hostname = context.process.run_stdout("hostname").strip()
     if "ci.centos" in hostname:
-        print("CentOS: should be 2 times faster")
-        context.machine_speed_factor = 0.5
+        print("CentOS: should be much faster")
+        context.machine_speed_factor = 0.6
     elif hostname.startswith("gsm-r5s"):
         print("gsm-r5s: keeping default")
     elif hostname.startswith("wlan-r6s"):
