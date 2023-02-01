@@ -421,18 +421,15 @@ def remove_connection_type_after_scenario(context, type):
 
 @step('Restore "{device}" with connection "{connection}"')
 def restore_device(context, device, connection):
-    check_cmd = "nmcli -t -f NAME,DEVICE con show"
+    check_cmd = "nmcli -t -f NAME,DEVICE,FILENAME con show"
     check_cmd_out, _ = cmd_output_rc(check_cmd, shell=True)
-    assert (
-        f"{connection}:{device}" in check_cmd_out
-    ), f"'{connection}:{device}' not found in nmcli output:\n{check_cmd_out}"
-
-    cfile = f"/etc/sysconfig/network-scripts/ifcfg-{connection}"
-    if not os.path.isfile(cfile):
-        cfile = f"/etc/NetworkManager/system-connections/{connection}.nmconnection"
+    con_lines = check_cmd_out.strip("\n").split("\n")
+    cfiles = [x.split(":", 2)[2] for x in con_lines if x.startswith(f"{connection}:{device}:")]
+    assert len(cfiles) == 1, f"Unable to find unique connection, found {cfiles}"
+    cfile = cfiles[0]
     assert os.path.isfile(
         cfile
-    ), f"unable to find configuration file for '{connection}'"
+    ), f"unable to find configuration file for '{connection}' on {device}:\n{check_cmd_out}"
     assert (
         subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True)
         == 0
