@@ -39,6 +39,12 @@ class With:
             argv = [*prefix, *argv]
         return argv
 
+    def __str__(self):
+        argv = self.get_argv()
+        if isinstance(argv, str):
+            return argv
+        return " ".join(shlex.quote(x) for x in argv)
+
 
 class WithShell(With):
     def __init__(self, cmd):

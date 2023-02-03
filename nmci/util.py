@@ -423,13 +423,17 @@ class _Util:
                 self.escape = escape
 
             # Do not overwrite `self`, we need it for `bytes_to_str()`
-            def __str__(me):  # pylint: disable=no-self-argument,invalid-name
-                if hasattr(me.args, "__iter__"):
-                    args_s = " ".join(me.args)
-                elif isinstance(me.args, nmci.process.With):
+            def __str__(me):  # py__iterlint: disable=no-self-argument,invalid-name
+                if isinstance(me.args, nmci.process.With):
                     args_s = str(me.args)
-                else:
+                elif isinstance(me.args, (str, bytes)):
                     args_s = self.bytes_to_str(me.args)
+                elif hasattr(me.args, "__iter__"):
+                    args_s = " ".join(me.args)
+                else:
+                    raise Exception(
+                        f"Unexpected argument type in Echo: {type(me.args)}"
+                    )
                 if me.escape:
                     args_s = html.escape(args_s)
                 if me.html_tag:
