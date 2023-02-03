@@ -33,7 +33,7 @@ for file in $(find /run/initramfs/state/etc/sysconfig/network-scripts -type f); 
 done
 
 echo "== checking services =="
-for service in dbus NetworkManager systemd-hostnamed; do
+for service in dbus NetworkManager; do
     for i in {1..15}; do
         systemctl is-active $service.service | grep -q ^active && \
             break
