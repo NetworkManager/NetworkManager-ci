@@ -1280,7 +1280,9 @@ Feature: nmcli - dns
 
 
     @rhbz2019306
-    @ver+=1.43
+    @ver+=1.43.0
+    @ver+=1.42.0
+    @ver+=1.41.91
     @restore_resolvconf @restart_if_needed
     @not_with_systemd_resolved
     @dns_global
