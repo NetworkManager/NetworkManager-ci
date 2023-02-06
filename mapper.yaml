@@ -2612,6 +2612,8 @@ testmapper:
         feature: dns
     - dns_global:
         feature: dns
+    - dns_kill_dnsmasq_when_nm_restarts:
+        feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
     - nmtui_general_open_edit_menu:

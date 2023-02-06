@@ -1290,3 +1290,19 @@ Feature: nmcli - dns
     * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
     Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
+   
+   
+    @rhbz2120763
+    @ver+=1.40.10
+    @dns_kill_dnsmasq_when_nm_restarts
+    Scenario: Kill dnsmasq process upon NM restart when dns=none in config
+    * Create NM config file with content
+      """
+      [main]
+      dns=dnsmasq
+      """
+    * Restart NM
+    Then "dnsmasq" is visible with command "pgrep dnsmasq -laf | grep -v 'dhcp-range'"
+    * Replace "dns=dnsmasq" with "dns=none" in file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Restart NM
+    Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"
