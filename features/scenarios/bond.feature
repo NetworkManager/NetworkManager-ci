@@ -838,7 +838,11 @@
     * Bring "down" connection "bond0.0" ignoring error
     * Bring "down" connection "bond0.1" ignoring error
     * Bring "down" connection "bond0.2" ignoring error
-    * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
+    * Create NM config file "99-bond.conf" with content
+      """
+      [main]
+      slaves-order=index
+      """
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth11" in bond "nm-bond" in proc
@@ -885,7 +889,11 @@
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Execute "echo -e '[main]\nslaves-order=index' > /etc/NetworkManager/conf.d/99-bond.conf"
+    * Create NM config file "99-bond.conf" with content
+      """
+      [main]
+      slaves-order=index
+      """
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth11" in bond "nm-bond" in proc
@@ -935,7 +943,11 @@
     * Bring "down" connection "bond0.0" ignoring error
     * Bring "down" connection "bond0.1" ignoring error
     * Bring "down" connection "bond0.2" ignoring error
-    * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
+    * Create NM config file "99-bond.conf" with content
+      """
+      [main]
+      slaves-order=name
+      """
     * Reboot
     When Check bond "nm-bond" link state is "up"
      And Check slave "eth11" in bond "nm-bond" in proc
@@ -982,7 +994,11 @@
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Execute "echo -e '[main]\nslaves-order=name' > /etc/NetworkManager/conf.d/99-bond.conf"
+    * Create NM config file "99-bond.conf" with content
+      """
+      [main]
+      slaves-order=name
+      """
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
     * Reboot
     When Check bond "nm-bond" link state is "up"
@@ -1637,7 +1653,7 @@
            """
      * Add "ethernet" connection named "bond0.0" for device "eth4" with options "master nm-bond"
      * Add slave connection for master "nm-bond" on device "eth5" named "bond0.1"
-     * Execute "sed -i 's/BONDING_OPTS=mode=balance-rr/BONDING_OPTS=mode=5/' /etc/sysconfig/network-scripts/ifcfg-bond0"
+     * Replace "BONDING_OPTS=mode=balance-rr" with "BONDING_OPTS=mode=5" in file "/etc/sysconfig/network-scripts/ifcfg-bond0"
      * Reload connections
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"

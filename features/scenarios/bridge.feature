@@ -883,7 +883,12 @@ Feature: nmcli - bridge
     @remove_custom_cfg @restart_if_needed
     @bridge_device_created_unmanaged
     Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
-    * Execute "echo -e '[device]\nmatch-device=*\nmanaged=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    * Create NM config file with content
+      """
+      [device]
+      match-device=*
+      managed=0
+      """
     * Restart NM
     * Add "bridge" connection named "bridge0" for device "bridge0"
     Then "unmanaged" is not visible with command "nmcli device | grep bridge0"

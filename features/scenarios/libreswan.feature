@@ -295,7 +295,7 @@
     Scenario: nmcli - libreswan - export
     * Execute "nmcli connection import file contrib/vpn/vpn.swan3 type libreswan"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan3"
-    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan3"
+    * Replace "phase2alg=" with "esp=" in file "/tmp/vpn.swan3"
     Then Check file "contrib/vpn/vpn.swan3" is contained in file "/tmp/vpn.swan3"
     * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
     * Delete connection "vpn"
@@ -311,7 +311,7 @@
     Scenario: nmcli - libreswan - export
     * Execute "nmcli connection import file contrib/vpn/vpn.swan4 type libreswan"
     * Execute "nmcli connection export vpn > /tmp/vpn.swan4"
-    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan4"
+    * Replace "phase2alg=" with "esp=" in file "/tmp/vpn.swan4"
     Then Check file "contrib/vpn/vpn.swan4" is contained in file "/tmp/vpn.swan4"
     * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
     * Delete connection "vpn"

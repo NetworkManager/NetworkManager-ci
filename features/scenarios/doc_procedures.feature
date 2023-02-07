@@ -107,7 +107,11 @@ Feature: nmcli - procedures in documentation
     @simwifi @attach_wpa_supplicant_log @remove_custom_cfg
     @simwifi_hotspot_doc_procedure
     Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point
-    Given Execute "printf '[main]\nfirewall-backend=nftables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Create NM config file with content
+          """
+          [main]
+          firewall-backend=nftables
+          """
     Given Restart NM
     * Doc: "Identifying whether a wireless device supports the access point mode"
     * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
@@ -146,7 +150,11 @@ Feature: nmcli - procedures in documentation
     @simwifi @attach_wpa_supplicant_log @remove_custom_cfg
     @simwifi_hotspot_sae_doc_procedure
     Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point (SAE + custom IP range)
-    Given Execute "printf '[main]\nfirewall-backend=nftables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Create NM config file with content
+          """
+          [main]
+          firewall-backend=nftables
+          """
     Given Restart NM
     * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
     * Cleanup connection "Example-Hotspot"

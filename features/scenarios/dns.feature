@@ -525,7 +525,11 @@ Feature: nmcli - dns
     @remove_custom_cfg @restart_if_needed
     @dns_priority_config
     Scenario: nmcli - ipv4 - dns - set priority in config
-    * Execute "echo -e '[connection]\nipv4.dns-priority=200' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [connection]
+      ipv4.dns-priority=200
+      """
     * Execute "systemctl reload NetworkManager"
     * Add "ethernet" connection named "con_dns" for device "eth2" with options
           """
@@ -546,7 +550,11 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
     Then Nameserver "2.3.4.1.*1.2.3.4" is set in "5" seconds
     # check that 0 in config makes it default (50 VPN, 100 other)
-    * Execute "echo -e '[connection]\nipv4.dns-priority=0' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [connection]
+      ipv4.dns-priority=0
+      """
     * Execute "systemctl reload NetworkManager"
     * Modify connection "con_dns" changing options "ipv4.dns-priority 40"
     * Bring "up" connection "con_dns"
@@ -1111,7 +1119,11 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @dns_none
     Scenario: NM - dns none setting
-    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Create NM config file "90-test-dns-none.conf" with content
+      """
+      [main]
+      dns=none
+      """
     * Restart NM
     * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
     * Execute "systemctl mask sendmail"
@@ -1125,7 +1137,11 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @remove_dns_none
     Scenario: NM - dns  none removal
-    * Execute "printf '[main]\ndns=none\n' | sudo tee /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Create NM config file "90-test-dns-none.conf" with content
+      """
+      [main]
+      dns=none
+      """
     * Restart NM
     * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
     * Execute "systemctl mask sendmail"
@@ -1155,8 +1171,11 @@ Feature: nmcli - dns
           ipv6.method ignore
           """
     * Stop NM
-    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Append "rc-manager=file" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      rc-manager=file
+      """
     * Remove file "/etc/resolv.conf" if exists
     * Remove file "/tmp/no-resolv.conf" if exists
     * Create symlink "/etc/resolv.conf" with destination "/tmp/no-resolv.conf"

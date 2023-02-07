@@ -1468,7 +1468,7 @@ Feature: nmcli - ovs
     @ovs_external_unmanaged_device
     Scenario: NM - openvswitch - ovs external device stays unmanaged
     * Cleanup device "ovs-int0"
-    * Append lines to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file "99-xxcustom.conf" with content
       """
       [device-unmanaged]
       match-device=interface-name:ovs-int0

@@ -843,8 +843,11 @@
     * Add "ethernet" connection named "con_ipv6" for device "eth10"
     * Bring "up" connection "con_ipv6"
     When "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
-    * Execute "echo '[connection.ip6-privacy]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'ipv6.ip6-privacy=2' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file "99-xxcustom.conf" with content
+      """
+      [connection.ip6-privacy]
+      ipv6.ip6-privacy=2
+      """
     * Restart NM
     * Bring "down" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
@@ -2347,9 +2350,12 @@
     @remove_custom_cfg @restart_if_needed
     @ipv6_set_addr-gen_mode_global_config
     Scenario: nmcli - ipv6 - set ipv6.addr-gen mode in global config
-    * Execute "echo '[connection]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'match-device=type:ethernet' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'ipv6.addr-gen-mode=0' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [connection]
+      match-device=type:ethernet
+      ipv6.addr-gen-mode=0
+      """
     * Restart NM
     * Prepare simulated test "testX6" device
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options

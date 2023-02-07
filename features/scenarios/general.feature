@@ -178,7 +178,12 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_priority
     Scenario: nmcli - general - Hostname priority
-    * Execute "echo -e '[connection-hostname]\nmatch-device=interface-name:test?\nhostname.only-from-default=0' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Create NM config file "90-hostname.conf" with content
+      """
+      [connection-hostname]
+      match-device=interface-name:test?
+      hostname.only-from-default=0
+      """
     * Restart NM
     * Prepare simulated test "testG" device with "192.168.97" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:11:22:33:44:55,192.168.97.13,foo"
     * Prepare simulated test "testH" device with "192.168.98" ipv4 and daemon options "--dhcp-option=3 --dhcp-host=00:00:11:00:00:11,192.168.98.11,bar"
@@ -221,7 +226,11 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full
     Scenario: NM - general - hostname mode full
-    * Execute "echo -e '[main]\nhostname-mode=full' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Create NM config file "90-hostname.conf" with content
+      """
+      [main]
+      hostname-mode=full
+      """
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
@@ -239,7 +248,11 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_dhcp
     Scenario: NM - general - hostname mode dhcp
-    * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Create NM config file "90-hostname.conf" with content
+      """
+      [main]
+      hostname-mode=dhcp
+      """
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
@@ -278,7 +291,11 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full_without_dhcp_hosts
     Scenario: NM - general - hostname mode dhcp without dhcp hosts
-    * Execute "echo -e '[main]\nhostname-mode=dhcp' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Create NM config file "90-hostname.conf" with content
+      """
+      [main]
+      hostname-mode=dhcp
+      """
     * Execute "echo no-hosts > /etc/dnsmasq.d/dnsmasq_custom.conf"
     * Restart NM
     * Prepare simulated test "testG" device
@@ -298,7 +315,11 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_none
     Scenario: NM - general - hostname mode none
-    * Execute "echo -e '[main]\nhostname-mode=none' > /etc/NetworkManager/conf.d/90-hostname.conf"
+    * Create NM config file "90-hostname.conf" with content
+      """
+      [main]
+      hostname-mode=none
+      """
     * Restart NM
     * Prepare simulated test "testG" device
     * Execute "hostnamectl set-hostname """
@@ -761,7 +782,11 @@ Feature: nmcli - general
     * Execute "ip link set dev bond0 up"
     * "bond0\s+bond\s+unmanaged" is visible with command "nmcli device"
     # Add a config rule to unmanage the device
-    * Execute "echo -e [keyfile]\\nunmanaged-devices=interface-name:bond0 > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:bond0
+      """
     * Execute "pkill -HUP NetworkManager"
     * Execute "ip addr add dev bond0 1.2.3.4/24"
     * Wait for "5" seconds
@@ -827,7 +852,7 @@ Feature: nmcli - general
     * Cleanup device "eth8.100"
     * Add "vlan" connection named "eth8.100" with options "autoconnect no dev eth8 id 100"
     * Check ifcfg-name file created for connection "eth8.100"
-    * Execute "sed -i 's/PHYSDEV=eth8/PHYSDEV=eth9    /' /etc/sysconfig/network-scripts/ifcfg-eth8.100"
+    * Replace "PHYSDEV=eth8" with "PHYSDEV=eth9" in file "/etc/sysconfig/network-scripts/ifcfg-eth8.100"
     * Reload connections
     Then "eth9" is visible with command "nmcli con show eth8.100"
 
@@ -1071,7 +1096,11 @@ Feature: nmcli - general
     @remove_custom_cfg
     @nat_from_shared_network_iptables
     Scenario: NM - general - NAT_dhcp from shared networks - iptables
-    Given Execute "printf '[main]\nfirewall-backend=iptables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Create NM config file with content
+          """
+          [main]
+          firewall-backend=iptables
+          """
     Given Restart NM
     * Create "veth" device named "test1g" with options "peer name test1gp"
     * Add "bridge" connection named "vethbrg" for device "vethbrg" with options
@@ -1099,7 +1128,11 @@ Feature: nmcli - general
     @remove_custom_cfg @permissive
     @nat_from_shared_network_nftables
     Scenario: NM - general - NAT_dhcp from shared networks - nftables
-    Given Execute "printf '[main]\nfirewall-backend=nftables' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    Given Create NM config file with content
+          """
+          [main]
+          firewall-backend=nftables
+          """
     Given Restart NM
     * Create "veth" device named "test1g" with options "peer name test1gp"
     * Add "bridge" connection named "vethbrg" for device "vethbrg" with options
@@ -1139,9 +1172,12 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "15" seconds
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Create NM config file "01-run-once.conf" with content
+      """
+      [main]
+      configure-and-quit=yes
+      dhcp=internal
+      """
     * Start NM without PID wait
     Then "192." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
     Then "1.2.3.4\/24" is visible with command "ip a s testG |grep 'inet '|grep -v dynamic" in "60" seconds
@@ -1164,9 +1200,12 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Create NM config file "01-run-once.conf" with content
+      """
+      [main]
+      configure-and-quit=yes
+      dhcp=internal
+      """
     * Wait for "1" seconds
     * Start NM without PID wait
     * "192" is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
@@ -1191,9 +1230,12 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Create NM config file "01-run-once.conf" with content
+      """
+      [main]
+      configure-and-quit=yes
+      dhcp=internal
+      """
     * Wait for "1" seconds
     * Start NM without PID wait
     When "2620:" is visible with command "ip a s testG" in "60" seconds
@@ -1212,9 +1254,12 @@ Feature: nmcli - general
     * Stop NM and clean "eth0"
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Create NM config file "01-run-once.conf" with content
+      """
+      [main]
+      configure-and-quit=yes
+      dhcp=internal
+      """
     * Execute "ip link set dev eth0 up"
     * Wait for "1" seconds
     * Start NM without PID wait
@@ -1233,13 +1278,17 @@ Feature: nmcli - general
     * Stop NM and clean "eth0"
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'configure-and-quit=yes' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'dhcp=internal' >> /etc/NetworkManager/conf.d/01-run-once.conf"
     ## VVV Just to make sure slow devices will catch carrier
-    * Execute "echo '[device]' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'match-device=interface-name:eth0' >> /etc/NetworkManager/conf.d/01-run-once.conf"
-    * Execute "echo 'carrier-wait-timeout=10000' >> /etc/NetworkManager/conf.d/01-run-once.conf"
+    * Create NM config file "01-run-once.conf" with content
+      """
+      [main]
+      configure-and-quit=yes
+      dhcp=internal
+
+      [device]
+      match-device=interface-name:eth0
+      carrier-wait-timeout=10000
+      """
     * Wait for "1" seconds
     * Start NM without PID wait
     Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
@@ -1333,9 +1382,12 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "testG"
     * Stop NM
     * Prepare simulated veth device "testG" without carrier
-    * Execute "echo '[device-testG]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'match-device=interface-name:testG' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'carrier-wait-timeout=20000' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [device-testG]
+      match-device=interface-name:testG
+      carrier-wait-timeout=20000
+      """
     * Wait for "2" seconds
     * Start NM
     * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=30 && echo PASS > /tmp/nm-online.txt"
@@ -1872,7 +1924,11 @@ Feature: nmcli - general
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Cleanup device "brX"
-    * Execute "echo -e '[keyfile]\nunmanaged-devices=interface-name:orig*;interface-name:eth*' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:orig*;interface-name:eth*
+      """
     * Restart NM
     * Execute reproducer "repro_1433303.sh" for "2" times
     * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
@@ -1889,7 +1945,11 @@ Feature: nmcli - general
     @allow_veth_connections @logging_info_only @eth0 @remove_custom_cfg
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
-    * Execute "echo -e '[keyfile]\nunmanaged-devices=interface-name:orig*;interface-name:eth*' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:orig*;interface-name:eth*
+      """
     * Restart NM
     * Add "ethernet" connection named "con_gen" for device "\*" with options
        """
@@ -2211,8 +2271,11 @@ Feature: nmcli - general
     @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
-    * Append "[main]" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Append "rc-manager=unmanaged" to file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      rc-manager=unmanaged
+      """
     * Append "nameserver 1.2.3.4" to file "/etc/resolv.conf"
     * Stop NM
     When "nameserver 1.2.3.4" is visible with command "cat /etc/resolv.conf" in "3" seconds
@@ -2226,7 +2289,11 @@ Feature: nmcli - general
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
-    * Execute "echo -e '[logging]\nlevel=DEFAULT:WARN,TEAM:TRACE' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    * Create NM config file with content
+      """
+      [logging]
+      level=DEFAULT:WARN,TEAM:TRACE
+      """
     Then Start NM
 
 
@@ -2704,8 +2771,11 @@ Feature: nmcli - general
     @remove_custom_cfg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does not have .nmconnection extension
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      plugins=keyfile,ifcfg-rh
+      """
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general" is file
@@ -2717,8 +2787,11 @@ Feature: nmcli - general
     @rhelver+=8 @rhel_pkg @remove_custom_cfg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      plugins=keyfile,ifcfg-rh
+      """
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
@@ -2730,8 +2803,11 @@ Feature: nmcli - general
     @not_with_rhel_pkg @remove_custom_cfg @restart_if_needed
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
-    * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      plugins=keyfile,ifcfg-rh
+      """
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
     Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
@@ -2743,8 +2819,11 @@ Feature: nmcli - general
      @keyfile_cleanup @remove_custom_cfg
      @move_keyfile_to_usr_lib_dir
      Scenario: NM - general - move keyfile to usr lib dir and check deletion
-     * Execute "echo '[main]' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-     * Execute "echo 'plugins=keyfile,ifcfg-rh' >> /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      plugins=keyfile,ifcfg-rh
+      """
      * Restart NM
      * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
      * Note the output of "nmcli -g connection.uuid connection show con_general"
@@ -2770,8 +2849,31 @@ Feature: nmcli - general
     @remove_custom_cfg @restart_if_needed @keyfile_cleanup
     @no_uuid_in_keyfile_in_usr_lib_dir
     Scenario: NM - general - read keyfiles without connection.uuid in usr lib dir
-    * Execute "echo -e '[main]\nplugins=keyfile,ifcfg-rh' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Execute "echo -e '[connection]\nid=con_general\ntype=ethernet\nautoconnect=false\npermissions=\n\n[ethernet]\nmac-address-blacklist=\n\n[ipv4]\ndns-search=\nmethod=auto\n\n[ipv6]\naddr- gen-mode=stable-privacy\ndns-search=\nmethod=auto' > /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
+    * Create NM config file with content
+      """
+      [main]
+      plugins=keyfile,ifcfg-rh
+      """
+    * Create keyfile "/usr/lib/NetworkManager/system-connections/con_general.nmconnection"
+      """
+      [connection]
+      id=con_general
+      type=ethernet
+      autoconnect=false
+      permissions=
+
+      [ethernet]
+      mac-address-blacklist=
+
+      [ipv4]
+      dns-search=
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=stable-privacy
+      dns-search=
+      method=auto
+      """
     * Execute "sudo chmod go-rwx /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
     * Restart NM
     When "con_general" is visible with command "nmcli connection" in "10" seconds
@@ -2813,7 +2915,11 @@ Feature: nmcli - general
     @remove_custom_cfg @restart_if_needed
     @invalid_config_warning
     Scenario: NM - general - warn about invalid config options
-    * Execute "echo -e '[main]\nsomething_nonexistent = some_value' > /etc/NetworkManager/conf.d/99-xxcustom.conf;"
+    * Create NM config file with content
+      """
+      [main]
+      something_nonexistent = some_value
+      """
     * Restart NM
     * Note NM log
     Then Noted value contains "<warn>[^<]*config: unknown key 'something_nonexistent' in section \[main\] of file"
@@ -2881,7 +2987,11 @@ Feature: nmcli - general
     @remove_custom_cfg @restart_if_needed
     @no_user_control
     Scenario: NM - general - root only control
-    * Execute "echo -e '[main]\nauth-polkit=root-only' > /etc/NetworkManager/conf.d/99-xxcustom.conf"
+    * Create NM config file with content
+      """
+      [main]
+      auth-polkit=root-only
+      """
     * Restart NM
     # User test has been created in envsetup.py
     Then "org.freedesktop.NetworkManager.network-control\s+no" is visible with command "sudo -u test nmcli gen perm"

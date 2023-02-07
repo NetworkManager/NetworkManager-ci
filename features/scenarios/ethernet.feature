@@ -153,7 +153,11 @@ Feature: nmcli - ethernet
     @mac @restart_if_needed
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
-    * Execute "echo -e '[connection]\nethernet.cloned-mac-address=preserve' > /etc/NetworkManager/conf.d/99-mac.conf"
+    * Create NM config file "99-mac.conf" with content
+      """
+      [connection]
+      ethernet.cloned-mac-address=preserve
+      """
     * Reboot
     * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
@@ -168,7 +172,11 @@ Feature: nmcli - ethernet
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
-    * Execute "echo -e '[connection]\nethernet.cloned-mac-address=permanent' > /etc/NetworkManager/conf.d/99-mac.conf"
+    * Create NM config file "99-mac.conf" with content
+      """
+      [connection]
+      ethernet.cloned-mac-address=permanent
+      """
     * Reboot
     * Execute "ip link set dev eth1 address f0:11:22:33:44:55"
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
