@@ -3313,3 +3313,21 @@ Feature: nmcli: ipv4
     When Execute "nmcli device reapply eth3"
     Then "192.168.100.*signal" is visible with command "ip mptcp endpoint" in "5" seconds
     Then "signal" is visible with command "nmcli -f connection.mptcp-flags c s con_ipv4"
+
+
+    @rhbz2120471
+    @ver+=1.41.3
+    @dump_status_verbose @tcpdump
+    @ipv4_mptcp_remove_endpoints
+    Scenario: MPTCP remove endpoint that are no longer available
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Set ip mptcp limits to "subflow 3 add_addr_accepted 2"
+    * Restart NM
+    * Add "ethernet" connection named "eth3" for device "eth3" with options "ipv6.method disabled"
+    * Add "ethernet" connection named "eth10" for device "eth10" with options "ipv6.method disabled"
+    * Bring "up" connection "eth3"
+    * Bring "up" connection "eth10"
+    Then "192\.168\.100.*eth3" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "10\.16\.1.*eth10" is visible with command "ip mptcp endpoint" in "5" seconds
+    When Bring "down" connection "eth3"
+    Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
