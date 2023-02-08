@@ -54,6 +54,8 @@ class Cleanup:
         self._also_needs = also_needs
         self._do_cleanup_called = False
 
+        _module._cleanup_add(self)
+
     def also_needs(self):
         # Whether this cleanup requires additional cleanups.
         # Those cleanups will be enqueued *after* the current one
@@ -337,18 +339,22 @@ class _Cleanup:
         "run": "/var/run/NetworkManager/conf.d/",
     }
 
+    cleanup_add = Cleanup
+    cleanup_add_connection = CleanupConnection
+    cleanup_add_iface = CleanupIface
+    cleanup_add_namespace = CleanupNamespace
+    cleanup_add_nft = CleanupNft
+    cleanup_add_ip_mptcp_limits = CleanupMptcpLimits
+    cleanup_add_ip_mptcp_endpoints = CleanupMptcpEndpoints
+    cleanup_add_sysctls = CleanupSysctls
+    cleanup_file = CleanupFile
+    cleanup_add_udev_rule = CleanupUdevRule
+    cleanup_add_NM_service = CleanupNMService
+    cleanup_nm_config = CleanupNMConfig
+
     def __init__(self):
         self._cleanup_lst = []
         self._cleanup_done = False
-
-        self.Cleanup = Cleanup
-        self.CleanupConnection = CleanupConnection
-        self.CleanupIface = CleanupIface
-        self.CleanupNamespace = CleanupNamespace
-        self.CleanupNft = CleanupNft
-        self.CleanupUdevRule = CleanupUdevRule
-        self.CleanupNMService = CleanupNMService
-        self.CleanupNMConfig = CleanupNMConfig
 
     def _cleanup_add(self, cleanup_action):
         if self._cleanup_done:
@@ -384,75 +390,6 @@ class _Cleanup:
         if newly_added:
             for c in cleanup_action.also_needs():
                 self._cleanup_add(c)
-
-    def cleanup_add(
-        self,
-        callback=None,
-        name=None,
-        unique_tag=None,
-        priority=Cleanup.PRIORITY_CALLBACK_DEFAULT,
-        also_needs=None,
-    ):
-        self._cleanup_add(
-            Cleanup(
-                callback=callback,
-                name=name,
-                unique_tag=unique_tag,
-                priority=priority,
-                also_needs=also_needs,
-            )
-        )
-
-    def cleanup_add_connection(
-        self, con_name, qualifier=None, priority=Cleanup.PRIORITY_CONNECTION
-    ):
-        self._cleanup_add(
-            CleanupConnection(con_name=con_name, qualifier=qualifier, priority=priority)
-        )
-
-    def cleanup_add_iface(self, iface, op=None, priority=None):
-        self._cleanup_add(CleanupIface(iface=iface, op=op, priority=priority))
-
-    def cleanup_add_sysctls(self, sysctls_pattern, namespace=None):
-        self._cleanup_add(
-            CleanupSysctls(sysctls_pattern=sysctls_pattern, namespace=namespace)
-        )
-
-    def cleanup_add_namespace(
-        self, namespace, teardown=True, priority=Cleanup.PRIORITY_NAMESPACE
-    ):
-        self._cleanup_add(
-            CleanupNamespace(namespace=namespace, teardown=teardown, priority=priority)
-        )
-
-    def cleanup_add_ip_mptcp_endpoints(self):
-        self._cleanup_add(CleanupMptcpEndpoints())
-
-    def cleanup_add_ip_mptcp_limits(self, namespace=None):
-        self._cleanup_add(CleanupMptcpLimits(namespace=namespace))
-
-    def cleanup_add_nft(self, namespace=None, priority=None):
-        self._cleanup_add(CleanupNft(namespace=namespace, priority=priority))
-
-    def cleanup_add_udev_rule(self, rule, priority=Cleanup.PRIORITY_UDEV_RULE):
-        self._cleanup_add(CleanupUdevRule(rule=rule, priority=priority))
-
-    def cleanup_add_NM_service(self, operation, priority=None):
-        self._cleanup_add(CleanupNMService(operation=operation, priority=priority))
-
-    def cleanup_file(self, *files, priority=Cleanup.PRIORITY_FILE, name=None):
-        self._cleanup_add(CleanupFile(*files, priority=priority))
-
-    def cleanup_nm_config(
-        self, config_file, config_directory=None, priority=Cleanup.PRIORITY_FILE
-    ):
-        self._cleanup_add(
-            CleanupNMConfig(
-                config_file=config_file,
-                config_directory=config_directory,
-                priority=priority,
-            )
-        )
 
     def process_cleanup(self):
         ex = []
