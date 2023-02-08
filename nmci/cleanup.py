@@ -158,7 +158,7 @@ class CleanupSysctls(Cleanup):
         else:
             prefix = []
 
-        pexpect_cmd = " ".join([*prefix, "sysctl", f"-p-"])
+        pexpect_cmd = " ".join([*prefix, "sysctl", "-p-"])
         sysctl_p = nmci.pexpect.pexpect_spawn(pexpect_cmd, check=True)
         sysctl_p.send(self.sysctls)
         sysctl_p.sendline("")
