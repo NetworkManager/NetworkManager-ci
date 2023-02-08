@@ -211,7 +211,7 @@ class CleanupNamespace(Cleanup):
         )
 
 
-class CleanupMptcp(Cleanup):
+class CleanupMptcpEndpoints(Cleanup):
     def __init__(self):
         from pyroute2 import MPTCP
 
@@ -232,11 +232,7 @@ class CleanupMptcp(Cleanup):
             for endpoint in endpoints
         ]
 
-        self.mptcp_limits = {
-            k[14:].lower(): v for k, v in mptcp.limits("show")[0]["attrs"]
-        }
-
-        Cleanup.__init__(self, name="MPTCP-backup", priority=Cleanup.PRIORITY_MPTCP)
+        super().__init__(self, name="MPTCP-endpoints", priority=Cleanup.PRIORITY_MPTCP)
 
     def _do_cleanup(self):
         from pyroute2 import MPTCP
@@ -245,8 +241,6 @@ class CleanupMptcp(Cleanup):
         mptcp.endpoint("flush")
         for endpoint in self.mptcp_endpoints:
             mptcp.endpoint("add", **endpoint)
-        if len(self.mptcp_limits):
-            mptcp.limits("set", **self.mptcp_limits)
 
 
 class CleanupMptcpLimits(Cleanup):
@@ -446,8 +440,8 @@ class _Cleanup:
     def cleanup_add_namespace(self, *a, **kw):
         self._cleanup_add(CleanupNamespace(*a, **kw))
 
-    def cleanup_add_ip_mptcp(self, *a, **kw):
-        self._cleanup_add(CleanupMptcp(*a, **kw))
+    def cleanup_add_ip_mptcp_endpoints(self, *a, **kw):
+        self._cleanup_add(CleanupMptcpEndpoints(*a, **kw))
 
     def cleanup_add_ip_mptcp_limits(self, *a, **kw):
         self._cleanup_add(CleanupMptcpLimits(*a, **kw))

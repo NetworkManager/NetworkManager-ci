@@ -614,7 +614,8 @@ def mptcp(context, num, veth, typ="subflow"):
 
     nmci.cleanup.cleanup_add_sysctls("\.rp_filter")
     nmci.cleanup.cleanup_add_sysctls("net.mptcp.enabled")
-    nmci.cleanup.cleanup_add_ip_mptcp()
+    nmci.cleanup.cleanup_add_ip_mptcp_limits()
+    nmci.cleanup.cleanup_add_ip_mptcp_endpoints()
     nmci.process.run_stdout([*ip_in_ns, "mptcp", "endpoint", "flush"])
     nmci.process.run_stdout([*ip_in_ns, "mptcp", "limits", "set", "subflow", num, "add_addr_accepted", f"{number - 1}"])
 
