@@ -84,8 +84,7 @@ class CleanupConnection(Cleanup):
     def __init__(self, con_name, qualifier=None, priority=Cleanup.PRIORITY_CONNECTION):
         self.con_name = con_name
         self.qualifier = qualifier
-        Cleanup.__init__(
-            self,
+        super().__init__(
             name=f"nmcli-connection-{con_name}",
             unique_tag=(con_name, qualifier),
             priority=priority,
@@ -100,12 +99,7 @@ class CleanupConnection(Cleanup):
 
 
 class CleanupIface(Cleanup):
-    def __init__(
-        self,
-        iface,
-        op=None,
-        priority=None,
-    ):
+    def __init__(self, iface, op=None, priority=None):
         if op is None:
             if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                 op = "reset"
@@ -119,11 +113,8 @@ class CleanupIface(Cleanup):
 
         self.op = op
         self.iface = iface
-        Cleanup.__init__(
-            self,
-            name=f"iface-{op}-{iface}",
-            unique_tag=(iface, op),
-            priority=priority,
+        super().__init__(
+            name=f"iface-{op}-{iface}", unique_tag=(iface, op), priority=priority
         )
 
     def _do_cleanup(self):
@@ -154,8 +145,7 @@ class CleanupSysctls(Cleanup):
             self.namespace = None
 
         self.sysctls = nmci.process.run_stdout(cmd)
-        Cleanup.__init__(
-            self,
+        super().__init__(
             name=f"sysctls-pattern-{sysctls_pattern}",
             unique_tag=Cleanup.UNIQ_TAG_DISTINCT,
         )
@@ -177,16 +167,10 @@ class CleanupSysctls(Cleanup):
 
 
 class CleanupNamespace(Cleanup):
-    def __init__(
-        self,
-        namespace,
-        teardown=True,
-        priority=Cleanup.PRIORITY_NAMESPACE,
-    ):
+    def __init__(self, namespace, teardown=True, priority=Cleanup.PRIORITY_NAMESPACE):
         self.teardown = teardown
         self.namespace = namespace
-        Cleanup.__init__(
-            self,
+        super().__init__(
             name=f"namespace-{namespace}-{'teardown' if teardown else ''}",
             unique_tag=(namespace, teardown),
             priority=priority,
@@ -223,7 +207,7 @@ class CleanupMptcpEndpoints(Cleanup):
             for endpoint in endpoints
         ]
 
-        super().__init__(self, name="MPTCP-endpoints", priority=Cleanup.PRIORITY_MPTCP)
+        super().__init__(name="MPTCP-endpoints", priority=Cleanup.PRIORITY_MPTCP)
 
     def _do_cleanup(self):
         from pyroute2 import MPTCP
@@ -256,8 +240,7 @@ class CleanupNft(Cleanup):
             else:
                 priority = Cleanup.PRIORITY_NFT_OTHER
         self.namespace = namespace
-        Cleanup.__init__(
-            self,
+        super().__init__(
             name=f"nft-{'ns-'+namespace if namespace is not None else 'default'}",
             unique_tag=(namespace,),
             priority=priority,
@@ -277,32 +260,18 @@ class CleanupUdevUpdate(Cleanup):
         self,
         priority=Cleanup.PRIORITY_UDEV_UPDATE,
     ):
-        Cleanup.__init__(
-            self,
-            name="udev-update",
-            priority=priority,
-        )
+        super().__init__(name="udev-update", priority=priority)
 
     def _do_cleanup(self):
         nmci.util.update_udevadm()
 
 
 class CleanupFile(Cleanup):
-    def __init__(
-        self,
-        *files,
-        name=None,
-        priority=Cleanup.PRIORITY_FILE,
-    ):
+    def __init__(self, *files, priority=Cleanup.PRIORITY_FILE, name=None):
         self.files = tuple(files)
         if name is None:
             name = f"file-{self.files}"
-        Cleanup.__init__(
-            self,
-            name=name,
-            unique_tag=(files,),
-            priority=priority,
-        )
+        super().__init__(name=name, unique_tag=(files,), priority=priority)
 
     def _do_cleanup(self):
         for f in self.files:
@@ -313,18 +282,8 @@ class CleanupFile(Cleanup):
 
 
 class CleanupUdevRule(CleanupFile):
-    def __init__(
-        self,
-        rule,
-        priority=Cleanup.PRIORITY_UDEV_RULE,
-    ):
-        CleanupFile.__init__(
-            self,
-            rule,
-            name=f"udev-rule-{rule}",
-            unique_tag=(rule,),
-            priority=priority,
-        )
+    def __init__(self, rule, priority=Cleanup.PRIORITY_UDEV_RULE):
+        super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
     def also_needs(self):
         return (CleanupUdevUpdate(),)
@@ -339,11 +298,8 @@ class CleanupNMService(Cleanup):
             else:
                 priority = Cleanup.PRIORITY_NM_SERVICE_RESTART
         self._operation = operation
-        Cleanup.__init__(
-            self,
-            name=f"NM-service-{operation}",
-            priority=priority,
-            unique_tag=(operation,),
+        super().__init__(
+            name=f"NM-service-{operation}", priority=priority, unique_tag=(operation,)
         )
 
     def _do_cleanup(self):
