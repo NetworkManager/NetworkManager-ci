@@ -663,3 +663,11 @@ def mptcp(context, num, veth, typ="subflow"):
         redir = ">"
     nmci.pexpect.pexpect_service(f"ip netns exec {nsname} tcpdump -i any -Ulvnn --number 'tcp port 9006' {redir} /tmp/tcpdump.log", shell=True, label="child")
     nmci.pexpect.pexpect_service(f"ip netns exec {nsname} mptcpize run ncat -k -l 9006 {redir} /tmp/nmci-mptcp-ncat.log ", shell=True, label="child")
+
+
+@step('Set ip mptcp limits to "{lim}"')
+@step('Set ip mptcp limits to "{lim}" in "{ns}"')
+def lims(context, lim, ns=None):
+    nmci.cleanup.cleanup_add_ip_mptcp_limits(namespace=ns)
+    if lim is not None:
+        nmci.process.run(f"ip mptcp limits set {lim}", namespace=ns)

@@ -249,6 +249,20 @@ class CleanupMptcp(Cleanup):
             mptcp.limits("set", **self.mptcp_limits)
 
 
+class CleanupMptcpLimits(Cleanup):
+    def __init__(self, namespace=None):
+        self.namespace = namespace
+        self.mptcp_limits = nmci.process.run_stdout(
+            "ip mptcp limits", namespace=namespace
+        )
+        super().__init__(self, name="MPTCP-limits", priority=Cleanup.PRIORITY_MPTCP)
+
+    def _do_cleanup(self):
+        nmci.process.run(
+            f"ip mptcp limits set {self.mptcp_limits}", namespace=self.namespace
+        )
+
+
 class CleanupNft(Cleanup):
     def __init__(self, namespace=None, priority=None):
         if priority is None:
@@ -434,6 +448,9 @@ class _Cleanup:
 
     def cleanup_add_ip_mptcp(self, *a, **kw):
         self._cleanup_add(CleanupMptcp(*a, **kw))
+
+    def cleanup_add_ip_mptcp_limits(self, *a, **kw):
+        self._cleanup_add(CleanupMptcpLimits(*a, **kw))
 
     def cleanup_add_nft(self, *a, **kw):
         self._cleanup_add(CleanupNft(*a, **kw))
