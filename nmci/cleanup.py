@@ -314,7 +314,29 @@ class CleanupNMService(Cleanup):
         assert r
 
 
+class CleanupNMConfig(CleanupFile):
+    def __init__(
+        self, config_file, config_directory=None, priority=Cleanup.PRIORITY_FILE
+    ):
+        if config_directory is not None:
+            assert config_directory in _Cleanup.NM_CONF_DIRS
+            config_file = _Cleanup.NM_CONF_DIRS[config_directory] + config_file
+        elif not config_file.startswith("/"):
+            config_file = _Cleanup.NM_CONF_DIRS["etc"] + config_file
+
+        super.__init__(config_file, priority=priority, name=f"NM-config-{config_file}")
+
+    def also_needs(self):
+        return (CleanupNMService("restart"),)
+
+
 class _Cleanup:
+    NM_CONF_DIRS = {
+        "etc": "/etc/NetworkManager/conf.d/",
+        "usr": "/usr/lib/NetworkManager/conf.d/",
+        "run": "/var/run/NetworkManager/conf.d/",
+    }
+
     def __init__(self):
         self._cleanup_lst = []
         self._cleanup_done = False
@@ -326,6 +348,7 @@ class _Cleanup:
         self.CleanupNft = CleanupNft
         self.CleanupUdevRule = CleanupUdevRule
         self.CleanupNMService = CleanupNMService
+        self.CleanupNMConfig = CleanupNMConfig
 
     def _cleanup_add(self, cleanup_action):
         if self._cleanup_done:
@@ -394,6 +417,17 @@ class _Cleanup:
 
     def cleanup_file(self, *a, **kw):
         self._cleanup_add(CleanupFile(*a, **kw))
+
+    def cleanup_nm_config(
+        self, config_file, config_directory=None, priority=Cleanup.PRIORITY_FILE
+    ):
+        self._cleanup_add(
+            CleanupNMConfig(
+                config_file=config_file,
+                config_directory=config_directory,
+                priority=priority,
+            )
+        )
 
     def process_cleanup(self):
         ex = []
