@@ -1785,7 +1785,7 @@ def test_context_cleanup():
     ]
 
     nmci.cleanup._cleanup_add(
-        nmci.cleanup.Cleanup(name="foo", callback=lambda: None, priority=50)
+        nmci.Cleanup(name="foo", callback=lambda: None, priority=50)
     )
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == [

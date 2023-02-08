@@ -15,7 +15,7 @@ class Tag:
         before_scenario=None,
         after_scenario=None,
         args={},
-        priority=nmci.cleanup.Cleanup.PRIORITY_TAG,
+        priority=nmci.Cleanup.PRIORITY_TAG,
     ):
         self.lineno = 0
         self.tag_name = tag_name
@@ -73,7 +73,7 @@ def _register_tag(
     before_scenario=None,
     after_scenario=None,
     args={},
-    priority=nmci.cleanup.Cleanup.PRIORITY_TAG,
+    priority=nmci.Cleanup.PRIORITY_TAG,
 ):
     assert tag_name not in tag_registry, "multiple definitions for tag '@%s'" % tag_name
     tag_registry[tag_name] = Tag(
@@ -1810,7 +1810,7 @@ _register_tag(
     "runonce",
     runonce_bs,
     runonce_as,
-    priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_START - 1,
+    priority=nmci.Cleanup.PRIORITY_NM_SERVICE_START - 1,
 )
 
 
