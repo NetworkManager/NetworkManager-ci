@@ -1,5 +1,11 @@
 import subprocess
 
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
+
 
 class _CExt:
     def __init__(self):
@@ -12,7 +18,6 @@ class _CExt:
         assert not hasattr(context, "cext")
 
         self.context = context
-        import nmci
 
         if hasattr(context, "_runner"):
             nmci.embed.setup(context._runner)
@@ -71,10 +76,11 @@ class _CExt:
         )
 
     def skip(self, msg=""):
-        import nmci
-
         if msg:
             nmci.embed.embed_data("Skip message", msg)
         self.context.scenario.skip(msg)
         self.scenario_skipped = True
         raise nmci.misc.SkipTestException(msg)
+
+
+_module = _CExt()

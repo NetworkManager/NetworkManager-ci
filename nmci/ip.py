@@ -1,8 +1,11 @@
 import re
 import socket
 
-import nmci.process
-import nmci.util
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _IP:
@@ -686,3 +689,6 @@ class _IP:
             ignore_returncode=not check,
             ignore_stderr=not check,
         )
+
+
+_module = _IP()

@@ -1,9 +1,10 @@
 import pexpect
 
-import nmci.embed
-import nmci.util
-import nmci.process
-import nmci.cleanup
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class PexpectData:
@@ -234,3 +235,6 @@ class _PExpect:
             if label is not None and proc.label != label:
                 continue
             yield proc
+
+
+_module = _PExpect()

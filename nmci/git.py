@@ -1,6 +1,10 @@
 from functools import lru_cache
 
-import nmci.process
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _Git:
@@ -23,3 +27,6 @@ class _Git:
         if r.startswith("git@"):
             r = r.replace(":", "/").replace("git@", "https://")
         return r
+
+
+_module = _Git()

@@ -8,10 +8,12 @@ RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr
 
 IGNORE_RETURNCODE_ALL = object()
 
-import nmci.util
-import nmci.embed
-
+import nmci
 from nmci.embed import TRACE_COMBINE_TAG
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class With:
@@ -551,3 +553,6 @@ class _Exec:
     def chmod(self, mode, *files):
         self._process.run_stdout(["chmod", mode, *files])
         return
+
+
+_module = _Process()

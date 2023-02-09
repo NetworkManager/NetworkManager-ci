@@ -1,4 +1,8 @@
-import nmci.util
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _DBus:
@@ -230,3 +234,6 @@ class _DBus:
             result[k] = v.lookup_value(k)
 
         return result
+
+
+_module = _DBus()

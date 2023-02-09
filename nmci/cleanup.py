@@ -2,7 +2,11 @@ import os
 import time
 import re
 
-import nmci.cext
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class Cleanup:
@@ -87,7 +91,6 @@ class CleanupConnection(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.process
 
         if self.qualifier is not None:
             args = [self.qualifier, self.con_name]
@@ -124,8 +127,6 @@ class CleanupIface(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.veth
-        import nmci.process
 
         if self.op == "reset":
             nmci.veth.reset_hwaddr_nmcli(self.iface)
@@ -146,7 +147,6 @@ class CleanupSysctls(Cleanup):
     """
 
     def __init__(self, sysctls_pattern, namespace=None):
-        import nmci.process
 
         cmd = ["sysctl", "-a", "--pattern", sysctls_pattern]
         if namespace:
@@ -163,9 +163,6 @@ class CleanupSysctls(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.pexpect
-        import nmci.process
-        import nmci.util
 
         if self.namespace is not None:
             if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -199,8 +196,6 @@ class CleanupNamespace(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.veth
-        import nmci.process
 
         if self.teardown:
             nmci.veth.teardown_testveth(self.namespace)
@@ -273,7 +268,6 @@ class CleanupNft(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.process
 
         cmd = ["nft", "flush", "ruleset"]
         if self.namespace is not None:
@@ -295,7 +289,6 @@ class CleanupUdevUpdate(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.util
 
         nmci.util.update_udevadm()
 
@@ -363,7 +356,6 @@ class CleanupNMService(Cleanup):
         )
 
     def _do_cleanup(self):
-        import nmci.nmutil
 
         if self._operation == "start":
             r = nmci.nmutil.start_NM_service()
@@ -460,7 +452,6 @@ class _Cleanup:
 
     def process_cleanup(self):
         ex = []
-        import nmci.util
 
         for cleanup_action in nmci.util.consume_list(self._cleanup_lst):
             try:
@@ -468,3 +459,6 @@ class _Cleanup:
             except Exception as e:
                 ex.append(e)
         return ex
+
+
+_module = _Cleanup()

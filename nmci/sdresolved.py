@@ -1,5 +1,8 @@
-import nmci.util
-import nmci.dbus
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _SDResolved:
@@ -99,3 +102,6 @@ class _SDResolved:
             "domains": self.link_get_domains(ifindex),
             "default_route": self.link_get_default_route(ifindex),
         }
+
+
+_module = _SDResolved()

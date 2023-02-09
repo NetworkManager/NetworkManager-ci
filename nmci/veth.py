@@ -4,6 +4,10 @@ import time
 import nmci
 
 
+def __getattr__(attr):
+    return getattr(_module, attr)
+
+
 class _Veth:
     def restore_connections(self):
         print("* recreate all connections")
@@ -122,3 +126,6 @@ class _Veth:
                 assert False, "Testeth0 cannot be upped..this is wrong"
             testeth0 = nmci.process.nmcli("con show testeth0")
         print(" ** we do have IPv4 complete")
+
+
+_module = _Veth()

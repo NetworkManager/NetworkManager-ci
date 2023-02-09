@@ -7,7 +7,11 @@ import subprocess
 import shutil
 import html
 
-import nmci.embed
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _Timeout:
@@ -400,7 +404,6 @@ class _Util:
 
     def update_udevadm(self):
         # Just wait a bit to have all files correctly written
-        import nmci.process
 
         time.sleep(0.2)
         nmci.process.run_stdout(
@@ -909,3 +912,6 @@ class _Util:
         # - raise its own exception, like a TimeoutError
         # - return a value that is returned by the function.
         return handle_timeout(last_exception)
+
+
+_module = _Util()

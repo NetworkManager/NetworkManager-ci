@@ -4,10 +4,7 @@ import time
 import shutil
 import re
 
-import nmci.process
-import nmci.embed
-import nmci.util
-import nmci.veth
+import nmci
 
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):

@@ -1,11 +1,10 @@
 import time
 
-import nmci.dbus
-import nmci.process
-import nmci.util
-import nmci.cext
-import nmci.cleanup
-import nmci.embed
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _NMUtil:
@@ -621,3 +620,6 @@ class _NMUtil:
             break
 
         return result
+
+
+_module = _NMUtil()

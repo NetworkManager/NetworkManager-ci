@@ -6,11 +6,11 @@ import yaml
 import json
 import xml.etree.ElementTree as ET
 
-import nmci.git
-import nmci.ip
-import nmci.sdresolved
-import nmci.util
-import nmci.process
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
 
 
 class _Misc:
@@ -949,3 +949,6 @@ class _Misc:
             result.append(values[dict_key])
             result.append(rest)
         return "".join(result)
+
+
+_module = _Misc()

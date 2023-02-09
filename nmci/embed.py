@@ -4,6 +4,13 @@ import traceback
 
 import xml.etree.ElementTree as ET
 
+import nmci
+
+
+def __getattr__(attr):
+    return getattr(_module, attr)
+
+
 TRACE_COMBINE_TAG = object()
 NO_EMBED = object()
 
@@ -175,7 +182,6 @@ class _Embed:
                 print(f">>>>>> {line}")
 
     def _embed_mangle_message_for_fail(self, fail_only, mime_type, data):
-        import nmci.util
 
         if not nmci.util.is_verbose() and fail_only:
             if mime_type != "text/plain":
@@ -219,7 +225,6 @@ class _Embed:
         )
 
     def _embed_combines(self, combine_tag, embed_data, lst):
-        import nmci.misc
 
         counts = nmci.misc.list_to_intervals(
             [entry._embed_context.count for entry in lst]
@@ -237,7 +242,6 @@ class _Embed:
         self._embed_args(embed_data, "text/plain", message, main_caption)
 
     def process_embeds(self):
-        import nmci.util
 
         combines_dict = {}
         self._to_embed.sort(key=lambda e: e._embed_context.count)
@@ -265,7 +269,6 @@ class _Embed:
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         print("Attaching %s, %s" % (caption, dump_id))
-        import nmci.misc
 
         assert (data is None) + (links is None) == 1
         if data is not None:
@@ -287,8 +290,6 @@ class _Embed:
         combine_tag=TRACE_COMBINE_TAG,
         elapsed_time=None,
     ):
-        import nmci.util
-        import nmci.misc
 
         if stdout is not None:
             try:
@@ -322,7 +323,6 @@ class _Embed:
             title = argv
         else:
             import shlex
-            import nmci.util
 
             title = " ".join(
                 shlex.quote(nmci.util.bytes_to_str(a, errors="replace")) for a in argv
@@ -353,11 +353,8 @@ class _Embed:
         fail_only=False,
     ):
         print("embedding " + descr + " logs")
-        import nmci.misc
 
         if cursor is None:
-            import nmci
-
             cursor = nmci.cext.context.log_cursor
         self.embed_data(
             descr,
@@ -377,7 +374,6 @@ class _Embed:
         as_base64=False,
         fail_only=False,
     ):
-        import nmci.util
 
         if not os.path.isfile(fname):
             print("Warning: File " + repr(fname) + " not found")
@@ -402,3 +398,6 @@ class _Embed:
 
         self.embed_link(caption, [(data, fname)], fail_only=fail_only)
         return True
+
+
+_module = _Embed()

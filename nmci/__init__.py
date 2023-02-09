@@ -10,85 +10,84 @@ import sys
 import nmci.run as run
 
 # CEXT
-from nmci.cext import _CExt
+import nmci.cext
 
-cext = _CExt()
+cext = nmci.cext._module
 sys.modules[f"{__name__}.cext"] = cext
 
 # EMBED
 import nmci.embed
 
 EmbedData = nmci.embed.EmbedData
-embed = nmci.embed._Embed()
+embed = nmci.embed._module
 sys.modules[f"{__name__}.embed"] = embed
 
 # CLEANUP
 import nmci.cleanup
 
 Cleanup = nmci.cleanup.Cleanup
-
-cleanup = nmci.cleanup._Cleanup()
+cleanup = nmci.cleanup._module
 sys.modules[f"{__name__}.cleanup"] = cleanup
 
 # UTIL
-from nmci.util import _Util
+import nmci.util
 
-util = _Util()
+util = nmci.util._module
 sys.modules[f"{__name__}.util"] = util
 
 # PROCESS
 # should be made class, to have imports uniform
-from nmci.process import _Process
+import nmci.process
 
-process = _Process()
+process = nmci.process._module
 sys.modules[f"{__name__}.process"] = process
 
 # PEXPECT
-from nmci.pexpect import _PExpect
+import nmci.pexpect
 
-pexpect = _PExpect()
+pexpect = nmci.pexpect._module
 sys.modules[f"{__name__}.pexpect"] = pexpect
 
 # DBUS
-from nmci.dbus import _DBus
+import nmci.dbus
 
-dbus = _DBus()
+dbus = nmci.dbus._module
 sys.modules[f"{__name__}.dbus"] = dbus
 
 # SDRESOLVED
-from nmci.sdresolved import _SDResolved
+import nmci.sdresolved
 
-sdresolved = _SDResolved()
+sdresolved = nmci.sdresolved._module
 sys.modules[f"{__name__}.sdresolved"] = sdresolved
 
 # IP
-from nmci.ip import _IP
+import nmci.ip
 
-ip = _IP()
+ip = nmci.ip._module
 sys.modules[f"{__name__}.ip"] = ip
 
 # GIT
-from nmci.git import _Git
+import nmci.git
 
-git = _Git()
+git = nmci.git._module
 sys.modules[f"{__name__}.git"] = git
 
 # MISC
-from nmci.misc import _Misc
+import nmci.misc
 
-misc = _Misc()
+misc = nmci.misc._module
 sys.modules[f"{__name__}.misc"] = misc
 
 # NMUTIL
-from nmci.nmutil import _NMUtil
+import nmci.nmutil
 
-nmutil = _NMUtil()
+nmutil = nmci.nmutil._module
 sys.modules[f"{__name__}.nmutil"] = nmutil
 
 # VETH
-from nmci.veth import _Veth
+import nmci.veth
 
-veth = _Veth()
+veth = nmci.veth._module
 sys.modules[f"{__name__}.veth"] = veth
 
 import nmci.gsm as gsm
