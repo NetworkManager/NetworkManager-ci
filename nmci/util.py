@@ -469,6 +469,16 @@ class _Util:
                     [
                         ["ip", "-n", "vethsetup", "mptcp", "limits"],
                         ["ip", "-n", "vethsetup", "mptcp", "endpoint"],
+                        [
+                            "ip",
+                            "netns",
+                            "exec",
+                            "vethsetup",
+                            "sysctl",
+                            "-a",
+                            "--pattern",
+                            r"net\.mptcp\.enabled|\.rp_filter",
+                        ],
                     ]
                 )
             veth_cmds = [
@@ -495,6 +505,16 @@ class _Util:
                         [
                             ["ip", "-n", ns, "mptcp", "limits"],
                             ["ip", "-n", ns, "mptcp", "endpoint"],
+                            [
+                                "ip",
+                                "netns",
+                                "exec",
+                                ns,
+                                "sysctl",
+                                "-a",
+                                "--pattern",
+                                r"net\.mptcp\.enabled|\.rp_filter",
+                            ],
                         ]
                     )
                 named_nss_cmds += [
@@ -512,6 +532,7 @@ class _Util:
                 [
                     ["ip", "mptcp", "limits"],
                     ["ip", "mptcp", "endpoint"],
+                    ["sysctl", "-a", "--pattern", r"net\.mptcp\.enabled|\.rp_filter"],
                 ]
             )
         cmds = [
