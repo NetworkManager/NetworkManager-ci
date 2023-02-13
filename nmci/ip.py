@@ -153,7 +153,6 @@ class _IP:
         atype=None,
         namespace=None,
     ):
-
         select_ifindex = ifindex
         select_ifname = ifname
         select_addr_family = self.addr_family_norm(addr_family)
@@ -347,7 +346,6 @@ class _IP:
         addr_family=None,
         namespace=None,
     ):
-
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
                 ifindex=ifindex,
@@ -412,7 +410,6 @@ class _IP:
         )
 
     def link_show_all(self, binary=None, namespace=None):
-
         # binary is:
         #   False: expect all stings to be UTF-8, the result only contains decoded strings
         #   True: expect at least some of the names to be binary, all the ifnames are bytes
@@ -478,7 +475,6 @@ class _IP:
         allow_missing=False,
         namespace=None,
     ):
-
         if ifindex is None and ifname is None:
             raise ValueError("Missing argument, either ifindex or ifname must be given")
 
@@ -531,7 +527,6 @@ class _IP:
         return data
 
     def link_show(self, ifname=None, *, timeout=None, **kwargs):
-
         xtimeout = nmci.util.start_timeout(timeout)
         while xtimeout.loop_sleep(0.08):
             try:
@@ -555,10 +550,10 @@ class _IP:
         ifindex=None,
         up=None,
         wait_for_device=None,
+        name=None,
         namespace=None,
         netns=None,
     ):
-
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
                 ifindex=ifindex,
@@ -568,15 +563,20 @@ class _IP:
             )
             ifname = li["ifname"]
 
-        args_set = [up is not None, netns is not None]
-        assert any(args_set), "One of 'up' or 'netns' argument must be set."
-        assert args_set.count(True) == 1, "Bot 'up' and 'netns' can not be set."
+        args_set = [up is not None, netns is not None, name is not None]
+        assert any(args_set), "One of ('up', 'netns', 'name') arguments must be set."
+        assert (
+            args_set.count(True) == 1
+        ), "More than one of ('up', 'netns', 'name') can not be set at the same time."
 
         if up is not None:
             if up:
                 args = ["up"]
             else:
                 args = ["down"]
+
+        if name is not None:
+            args = ["name", name]
 
         if netns is not None:
             args = ["netns", netns]
@@ -592,7 +592,6 @@ class _IP:
     def link_delete(
         self, ifname=None, *, ifindex=None, accept_nodev=False, namespace=None
     ):
-
         if ifname is None or ifindex is not None:
             li = self.link_show_maybe(ifindex=ifindex, namespace=namespace)
             if li is None:
@@ -642,7 +641,6 @@ class _IP:
         )
 
     def netns_list(self, with_binary=False):
-
         out = nmci.process.run_stdout("ip netns list", as_bytes=True)
 
         if not out:
