@@ -10,7 +10,6 @@ def __getattr__(attr):
 
 
 class Cleanup:
-
     UNIQ_TAG_DISTINCT = object()
 
     PRIORITY_NM_SERVICE_START = -30
@@ -37,6 +36,7 @@ class Cleanup:
         unique_tag=None,
         priority=PRIORITY_CALLBACK_DEFAULT,
         also_needs=None,
+        args=None,
     ):
         self.name = name
         if unique_tag is Cleanup.UNIQ_TAG_DISTINCT or (
@@ -48,6 +48,7 @@ class Cleanup:
             self.unique_tag = (type(self),)
         else:
             self.unique_tag = ("arg", type(self), *unique_tag)
+        self.args = args or {}
         self.priority = priority
         self._callback = callback
         self._also_needs = also_needs
@@ -76,7 +77,7 @@ class Cleanup:
     def _do_cleanup(self):
         if self._callback is None:
             raise NotImplementedError("cleanup not implemented")
-        self._callback()
+        self._callback(**self.args)
 
 
 class CleanupConnection(Cleanup):
@@ -91,7 +92,6 @@ class CleanupConnection(Cleanup):
         )
 
     def _do_cleanup(self):
-
         if self.qualifier is not None:
             args = [self.qualifier, self.con_name]
         else:
@@ -107,7 +107,7 @@ class CleanupIface(Cleanup):
         priority=None,
     ):
         if op is None:
-            if re.match(r"^(eth[0-9]|eth10)$", iface):
+            if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                 op = "reset"
             else:
                 op = "delete"
@@ -127,7 +127,6 @@ class CleanupIface(Cleanup):
         )
 
     def _do_cleanup(self):
-
         if self.op == "reset":
             nmci.veth.reset_hwaddr_nmcli(self.iface)
             if self.iface != "eth0":
@@ -147,7 +146,6 @@ class CleanupSysctls(Cleanup):
     """
 
     def __init__(self, sysctls_pattern, namespace=None):
-
         cmd = ["sysctl", "-a", "--pattern", sysctls_pattern]
         if namespace:
             self.namespace = namespace
@@ -163,7 +161,6 @@ class CleanupSysctls(Cleanup):
         )
 
     def _do_cleanup(self):
-
         if self.namespace is not None:
             if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
                 return
@@ -196,7 +193,6 @@ class CleanupNamespace(Cleanup):
         )
 
     def _do_cleanup(self):
-
         if self.teardown:
             nmci.veth.teardown_testveth(self.namespace)
 
@@ -268,7 +264,6 @@ class CleanupNft(Cleanup):
         )
 
     def _do_cleanup(self):
-
         cmd = ["nft", "flush", "ruleset"]
         if self.namespace is not None:
             if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -289,7 +284,6 @@ class CleanupUdevUpdate(Cleanup):
         )
 
     def _do_cleanup(self):
-
         nmci.util.update_udevadm()
 
 
@@ -356,7 +350,6 @@ class CleanupNMService(Cleanup):
         )
 
     def _do_cleanup(self):
-
         if self._operation == "start":
             r = nmci.nmutil.start_NM_service()
         elif self._operation == "restart":
@@ -382,7 +375,6 @@ class _Cleanup:
         self.CleanupNMService = CleanupNMService
 
     def _cleanup_add(self, cleanup_action):
-
         if self._cleanup_done:
             raise Exception(
                 "Cleanup already happend. Cannot schedule anew cleanup action"
