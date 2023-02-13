@@ -3061,6 +3061,26 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - crashing_NM_binary:
         feature: general
+    - loopback_modify_iface_address:
+        feature: loopback
+    - loopback_invalid_profile_options:
+        feature: loopback
+    - loopback_dns_dnsmasq_default:
+        feature: loopback
+    - loopback_set_route_with_options:
+        feature: loopback
+    - loopback_add_connection:
+        feature: loopback
+    - loopback_multi_connect:
+        feature: loopback
+    - loopback_set_iface_as_ovs_port:
+        feature: loopback
+    - loopback_set_iface_as_bond_port:
+        feature: loopback
+    - loopback_match_renamed_iface:
+        feature: loopback
+    - loopback_multiple_profiles:
+        feature: loopback
 
 
   NetworkManager-gsm:

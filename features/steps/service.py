@@ -39,6 +39,8 @@ def reboot(context, timeout=None):
         "em1",
         # for sriov
         "p4p1",
+        # for loopback
+        "lo",
     ]
 
     ifnames_to_flush = [
@@ -48,6 +50,8 @@ def reboot(context, timeout=None):
         "p4p1",
         # for pppoe
         "test11",
+        # for loopback
+        "lo",
     ]
 
     for ifname in ifnames_to_delete:
