@@ -314,13 +314,6 @@ def delete_device(context, device):
     assert r != 1, 'nmcli device delete %s timed out (180s)' % device
 
 
-@step(u'Rename device "{old_device}" to "{new_device}"')
-def delete_device(context, old_device, new_device):
-    context.command_code("ip link set dev %s down" % old_device)
-    context.command_code("ip link set %s name %s" % (old_device, new_device))
-    context.command_code("ip link set dev %s up" % new_device)
-
-
 @step(u'vxlan device "{dev}" check for parent "{parent}"')
 def vxlan_device_check(context, dev, parent):
     import dbus, sys
@@ -737,3 +730,32 @@ def add_namespace(context, name, options=""):
 @step('Cleanup namespace "{name}"')
 def cleanup_ns(context, name):
     nmci.cleanup.cleanup_add_namespace(name)
+
+
+@step('Rename device "{orig_name}" to "{new_name}"')
+def rename_device(context, orig_name, new_name):
+
+    # Rename interface back in cleanup
+    nmci.cleanup.cleanup_add_NM_service('restart')
+    nmci.cleanup.cleanup_add(
+        callback=nmci.ip.link_set,
+        name="link-down",
+        unique_tag=(orig_name, True),
+        args={'ifname': orig_name, 'up': True}
+    )
+    nmci.cleanup.cleanup_add(
+        callback=nmci.ip.link_set,
+        name="rename",
+        unique_tag=(new_name, 'lo'),
+        args={'ifname': new_name, 'name': 'lo'}
+    )
+    nmci.cleanup.cleanup_add(
+        callback=nmci.ip.link_set,
+        name="link-up",
+        unique_tag=(new_name, False),
+        args={'ifname': new_name, 'up': False}
+    )
+
+    nmci.ip.link_set(ifname=orig_name, up=False)
+    nmci.ip.link_set(ifname=orig_name, name=new_name)
+    nmci.ip.link_set(ifname=new_name, up=True)
