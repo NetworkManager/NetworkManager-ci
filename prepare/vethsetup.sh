@@ -91,12 +91,6 @@ function setup_veth_env ()
     # List profiles
     PAGER= nmcli -f All c
 
-    # Make sure the active ethernet device is eth0
-    if ! [ "x$DEV" == "xeth0" ]; then
-        sleep 1
-        ip link set $DEV down
-        ip link set $DEV name eth0
-    fi
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
@@ -144,7 +138,10 @@ function setup_veth_env ()
         sleep 0.5
     fi
 
+
     # Bring up the device and prepare final profile testeth0
+    ip link set $DEV down
+    ip link set $DEV name eth0
     ip link set eth0 up
     nmcli con mod $UUID connection.id testeth0
     nmcli con mod $UUID connection.interface-name eth0
