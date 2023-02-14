@@ -773,7 +773,6 @@ Feature: nmcli - general
 
 
     @rhbz1136843
-    @remove_custom_cfg
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
     * Create "bond" device named "bond0"
@@ -1093,7 +1092,6 @@ Feature: nmcli - general
     @rhbz1067299 @rhbz1548825
     @rhelver+=8 @fedoraver+=32
     @ver+=1.31.5
-    @remove_custom_cfg
     @nat_from_shared_network_iptables
     Scenario: NM - general - NAT_dhcp from shared networks - iptables
     Given Create NM config file with content
@@ -1125,7 +1123,7 @@ Feature: nmcli - general
     @rhbz1548825
     @rhelver+=8 @fedoraver+=32
     @ver+=1.31.5
-    @remove_custom_cfg @permissive
+    @permissive
     @nat_from_shared_network_nftables
     Scenario: NM - general - NAT_dhcp from shared networks - nftables
     Given Create NM config file with content
@@ -1376,7 +1374,7 @@ Feature: nmcli - general
 
     @rhbz1515027
     @ver+=1.10
-    @delete_testeth0 @remove_custom_cfg @restart_if_needed
+    @delete_testeth0 @restart_if_needed
     @nm_online_wait_for_delayed_device
     Scenario: NM - general - wait for delayed device
     * Add "ethernet" connection named "con_general" for device "testG"
@@ -1400,7 +1398,7 @@ Feature: nmcli - general
 
     @rhbz1759956
     @ver+=1.22.5 @ver-=1.24
-    @delete_testeth0 @remove_custom_cfg @restart_if_needed
+    @delete_testeth0 @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
     * Add "ethernet" connection named "con_general" for device "testG" with options
@@ -1433,7 +1431,7 @@ Feature: nmcli - general
 
     @rhbz1759956 @rhbz1828458
     @ver+=1.25
-    @delete_testeth0 @remove_custom_cfg @restart_if_needed
+    @delete_testeth0 @restart_if_needed
     @nm_online_wait_for_second_connection
     Scenario: NM - general - wait for second device
     * Add "ethernet" connection named "con_general" for device "testG" with options
@@ -1920,7 +1918,7 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
-    @logging_info_only @eth0 @remove_custom_cfg
+    @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Cleanup device "brX"
@@ -1942,7 +1940,7 @@ Feature: nmcli - general
     @ver/rhel/8+=1.36.0.8
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
-    @allow_veth_connections @logging_info_only @eth0 @remove_custom_cfg
+    @allow_veth_connections @logging_info_only
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
     * Create NM config file with content
@@ -2268,7 +2266,6 @@ Feature: nmcli - general
     @rhbz1541031
     @ver+=1.12
     @not_with_systemd_resolved
-    @remove_custom_cfg
     @resolv_conf_overwrite_after_stop
     Scenario: NM - general - overwrite resolv conf after stop
     * Create NM config file with content
@@ -2284,8 +2281,7 @@ Feature: nmcli - general
 
 
     @rhbz1593519
-    @ver+=1.12
-    @remove_custom_cfg
+    @ver+=1.12 
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
@@ -2767,8 +2763,7 @@ Feature: nmcli - general
 
 
     @rhbz1697858
-    @rhelver-=7 @rhel_pkg @fedoraver-=0
-    @remove_custom_cfg
+    @rhelver-=7 @rhel_pkg @fedoraver-=0 
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does not have .nmconnection extension
     * Create NM config file with content
@@ -2784,7 +2779,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.19
-    @rhelver+=8 @rhel_pkg @remove_custom_cfg
+    @rhelver+=8 @rhel_pkg
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Create NM config file with content
@@ -2800,7 +2795,7 @@ Feature: nmcli - general
 
     @rhbz1697858
     @ver+=1.14
-    @not_with_rhel_pkg @remove_custom_cfg @restart_if_needed
+    @not_with_rhel_pkg @restart_if_needed
     @keyfile_nmconnection_extension
     Scenario: NM - general - keyfile does have .nmconnection extension
     * Create NM config file with content
@@ -2816,7 +2811,7 @@ Feature: nmcli - general
 
      @rhbz1674545
      @ver+=1.19
-     @keyfile_cleanup @remove_custom_cfg
+     @keyfile_cleanup
      @move_keyfile_to_usr_lib_dir
      Scenario: NM - general - move keyfile to usr lib dir and check deletion
     * Create NM config file with content
@@ -2846,7 +2841,7 @@ Feature: nmcli - general
 
     @rhbz1674545
     @ver+=1.19
-    @remove_custom_cfg @restart_if_needed @keyfile_cleanup
+    @restart_if_needed @keyfile_cleanup
     @no_uuid_in_keyfile_in_usr_lib_dir
     Scenario: NM - general - read keyfiles without connection.uuid in usr lib dir
     * Create NM config file with content
@@ -2912,7 +2907,7 @@ Feature: nmcli - general
 
     @rhbz1541013
     @ver+=1.19
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @invalid_config_warning
     Scenario: NM - general - warn about invalid config options
     * Create NM config file with content
@@ -2984,7 +2979,7 @@ Feature: nmcli - general
 
     @rhbz1762011
     @ver+=1.22
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @no_user_control
     Scenario: NM - general - root only control
     * Create NM config file with content
@@ -3020,14 +3015,14 @@ Feature: nmcli - general
     @NM_merge_dhclient_conditionals
     Scenario: NM - general - merge dhcp conditionals
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
-    * Execute "echo -e 'if not option domain-name = "example.org" {\nprepend domain-name-servers 127.0.0.1;}' > /etc/dhcp/dhclient-eth8.conf"
+    * Execute """echo -e 'if not option domain-name = "example.org" {\nprepend domain-name-servers 127.0.0.1;}' > /etc/dhcp/dhclient-eth8.conf"""
     * Bring "up" connection "con_general"
     Then "prepend domain-name-servers 127.0.0.1" is visible with command "cat /var/lib/NetworkManager/dhclient-eth8.conf"
 
 
     @rhbz1711215
     @ver+=1.25 @rhelver+=8
-    @remove_custom_cfg @performance
+    @performance
     @NM_performance_dhcp_on_existing_veths
     Scenario: NM - general - create and activate 100 connections in 6 seconds on existing veths
     # We need up to 1/4 of dhcpd servers to be able to handle the amount of

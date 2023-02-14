@@ -836,7 +836,7 @@
 
 
     @rhbz1187525
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @ipv6_ip6-default_privacy
     Scenario: nmcli - ipv6 - ip6_privacy - default value
     * Execute "echo 1 > /proc/sys/net/ipv6/conf/default/use_tempaddr"
@@ -2347,7 +2347,7 @@
 
     @rhbz2082682
     @ver+=1.39.10
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @ipv6_set_addr-gen_mode_global_config
     Scenario: nmcli - ipv6 - set ipv6.addr-gen mode in global config
     * Create NM config file with content

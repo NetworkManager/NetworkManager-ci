@@ -1028,14 +1028,6 @@ def logging_as(context, scenario):
 _register_tag("logging", logging_bs, logging_as)
 
 
-def remove_custom_cfg_as(context, scenario):
-    context.process.run_stdout("sudo rm -f /etc/NetworkManager/conf.d/99-xxcustom.conf")
-    nmci.nmutil.restart_NM_service()
-
-
-_register_tag("remove_custom_cfg", None, remove_custom_cfg_as)
-
-
 def netservice_bs(context, scenario):
     context.process.run_stdout("sudo pkill -9 /sbin/dhclient")
     # Make orig- devices unmanaged as they may be unfunctional
@@ -2398,14 +2390,6 @@ def tuntap_as(context, scenario):
 _register_tag("tuntap", None, tuntap_as)
 
 
-def bond_order_as(context, scenario):
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-bond.conf")
-    nmci.nmutil.reload_NM_service()
-
-
-_register_tag("bond_order", None, bond_order_as)
-
-
 def remove_tombed_connections_as(context, scenario):
     tombs = []
     for dir in [
@@ -2599,15 +2583,6 @@ def tshark_as(context, scenario):
 
 
 _register_tag("tshark", None, tshark_as)
-
-
-def mac_as(context, scenario):
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/99-mac.conf")
-    nmci.nmutil.reload_NM_service()
-    nmci.veth.reset_hwaddr_nmcli("eth1")
-
-
-_register_tag("mac", None, mac_as)
 
 
 def eth8_up_as(context, scenario):

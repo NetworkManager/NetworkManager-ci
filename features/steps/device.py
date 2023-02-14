@@ -636,6 +636,10 @@ def device_lldp_status_libnm(context, device):
 @step(u'Activate "{device_num}" devices in "{sec_high}" seconds')
 @step(u'Activate "{device_num}" devices in "{sec_low}" to "{sec_high}" seconds')
 def activate_devices_check(context, device_num, sec_high, sec_low=0):
+    
+    nmci.cleanup.cleanup_file("/etc/NetworkManager/conf.d/99-xxcustom.conf")
+    nmci.cleanup.cleanup_add_NM_service("restart")
+
     out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
     # activate.py calls setup.sh which restarts NM
     context.nm_pid = nmci.nmutil.wait_for_nm_pid()

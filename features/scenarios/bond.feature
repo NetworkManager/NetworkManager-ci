@@ -771,7 +771,7 @@
     @rhbz1420708
     @ver+=1.7.9
     @rhelver-=7 @fedoraver-=0 @rhel_pkg
-    @bond_order @restart_if_needed
+    @restart_if_needed
     @bond_default_rhel7_slaves_ordering
     Scenario: NM - bond - default rhel7 slaves ordering (ifindex)
     * Prepare simulated test "eth11" device
@@ -820,7 +820,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @bond_order @restart_if_needed
+    @restart_if_needed
     @bond_slaves_ordering_by_ifindex
     Scenario: NM - bond - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -874,7 +874,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @bond_order @restart_if_needed
+    @restart_if_needed
     @bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - ifindex slaves ordering
     * Prepare simulated test "eth11" device
@@ -925,7 +925,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @bond_order @restart_if_needed
+    @restart_if_needed
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
     * Prepare simulated test "eth11" device
@@ -979,7 +979,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
-    @bond_order @restart_if_needed
+    @restart_if_needed
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
     * Prepare simulated test "eth11" device

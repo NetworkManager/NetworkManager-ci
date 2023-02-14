@@ -104,7 +104,7 @@ Feature: nmcli - procedures in documentation
 
     @rhelver+=8 @rhelver-=8
     @ver+=1.37
-    @simwifi @attach_wpa_supplicant_log @remove_custom_cfg
+    @simwifi @attach_wpa_supplicant_log
     @simwifi_hotspot_doc_procedure
     Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point
     Given Create NM config file with content
@@ -147,7 +147,7 @@ Feature: nmcli - procedures in documentation
 
     @rhelver+=8 @rhelver-=8
     @ver+=1.37
-    @simwifi @attach_wpa_supplicant_log @remove_custom_cfg
+    @simwifi @attach_wpa_supplicant_log
     @simwifi_hotspot_sae_doc_procedure
     Scenario: nmcli - docs - Configuring RHEL as a WPA2 or WPA3 Personal access point (SAE + custom IP range)
     Given Create NM config file with content

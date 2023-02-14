@@ -522,7 +522,7 @@ Feature: nmcli - dns
 
 
     @not_with_systemd_resolved
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @dns_priority_config
     Scenario: nmcli - ipv4 - dns - set priority in config
     * Create NM config file with content
@@ -1159,7 +1159,7 @@ Feature: nmcli - dns
     @rhbz1593661
     @ver+=1.12
     @not_with_systemd_resolved
-    @remove_custom_cfg @restore_resolvconf @eth8_disconnect @restart_if_needed
+    @restore_resolvconf @eth8_disconnect @restart_if_needed
     @resolv_conf_dangling_symlink
     Scenario: NM - dns - follow resolv.conf when dangling symlink
     * Add "ethernet" connection named "con_dns" for device "eth8" with options

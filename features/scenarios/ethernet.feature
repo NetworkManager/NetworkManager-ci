@@ -150,7 +150,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @mac @restart_if_needed
+    @restart_if_needed
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
     * Create NM config file "99-mac.conf" with content
@@ -168,7 +168,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @mac @restart_if_needed
+    @restart_if_needed
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
@@ -187,7 +187,7 @@ Feature: nmcli - ethernet
 
     @rhbz1413312
     @ver+=1.6.0
-    @mac @rhelver-=7 @rhel_pkg
+    @rhelver-=7 @rhel_pkg
     @ethernet_mac_address_rhel7_default
     Scenario: NM - ethernet - mac address rhel7 dafault
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"

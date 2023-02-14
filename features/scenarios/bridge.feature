@@ -880,7 +880,7 @@ Feature: nmcli - bridge
 
     @rhbz1679230
     @ver+=1.19
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @bridge_device_created_unmanaged
     Scenario: NM - bridge - virtual bridge created by NM should not be unmanaged
     * Create NM config file with content

@@ -1739,7 +1739,7 @@ Feature: nmcli: ipv4
 
     @rhbz1350830
     @ver+=1.10.0
-    @remove_custom_cfg @restart_if_needed
+    @restart_if_needed
     @dhcp-timeout_default_in_cfg
     Scenario: nmcli - ipv4 - dhcp_timout infinity in cfg file
     * Create NM config file with content

@@ -1464,7 +1464,7 @@ Feature: nmcli - ovs
 
     @rhbz2077950
     @ver+=1.39.11
-    @openvswitch @remove_custom_cfg @restart_if_needed
+    @openvswitch @restart_if_needed
     @ovs_external_unmanaged_device
     Scenario: NM - openvswitch - ovs external device stays unmanaged
     * Cleanup device "ovs-int0"
