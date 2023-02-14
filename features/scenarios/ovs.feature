@@ -1478,3 +1478,51 @@ Feature: nmcli - ovs
     * Execute "ovs-vsctl add-br ovs-br0"
     * Execute "ovs-vsctl add-port ovs-br0 ovs-int0 -- set interface ovs-int0 type=patch -- set interface ovs-int0 options:peer=ovs-br0"
     Then "unmanaged" is visible with command "nmcli device | grep ovs-int0" in "10" seconds
+
+
+    @rhbz2151455
+    @ver+=1.41.8
+    @openvswitch
+    @ovs_other_config
+    Scenario: NM -  openvswitch - add other config
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
+    * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.bond-mode balance-slb
+          """
+    * Add "ethernet" connection named "ovs-bond0-eth2" for device "eth2" with options
+          """
+          conn.master ovs-bond0
+          slave-type ovs-port
+          """
+    * Add "ovs-interface" connection named "ovs-bond0-iface0" for device "iface0" with options
+          """
+          slave-type ovs-port
+          master ovs-bond0
+          ipv4.method static
+          ipv4.address 192.168.123.100/24
+          """
+
+    * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bond0  +o:bond-miimon-interval 200"
+    * Bring "up" connection "ovs-bond0"
+    Then "other-config: \"bond-miimon-interval\" = \"200\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0"
+    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "sudo ovs-vsctl list port"
+
+    * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bridge0  +o:mac-table-size 10000"
+    * Bring "up" connection "ovs-bridge0"
+    Then "other-config: \"mac-table-size\" = \"10000\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bridge0"
+    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "sudo ovs-vsctl list bridge"
+
+    * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bond0-iface0 +o:cfm_interval 100"
+    * Bring "up" connection "ovs-bond0-iface0"
+    Then "other-config: \"cfm_interval\" = \"100\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0-iface0"
+    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "sudo ovs-vsctl list interface"
+
+    * Reboot
+    Then "other-config: \"bond-miimon-interval\" = \"200\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0"
+    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "sudo ovs-vsctl list port"
+    Then "other-config: \"mac-table-size\" = \"10000\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bridge0"
+    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "sudo ovs-vsctl list bridge"
+    Then "other-config: \"cfm_interval\" = \"100\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0-iface0"
+    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "sudo ovs-vsctl list interface"
