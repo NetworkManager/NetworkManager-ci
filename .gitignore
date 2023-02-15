@@ -4,3 +4,5 @@ __pycache__/
 mapper.json
 .vscode/
 report.xml
+nmci/doc/.doctrees/*
+nmci/doc/doctrees/*
