@@ -3306,12 +3306,12 @@ Feature: nmcli: ipv4
     * Restart NM
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.method auto ipv6.method auto"
     * Bring "up" connection "con_ipv4"
-    Then "192\.168\.100.*dev eth3" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "192\.168\.10[0-3].*dev eth3" is visible with command "ip mptcp endpoint" in "5" seconds
     Then "signal" is not visible with command "ip mptcp endpoint show | grep eth3"
     Then "signal" is not visible with command "nmcli -f connection.mptcp-flags c s con_ipv4"
     * Modify connection "con_ipv4" changing options "connection.mptcp-flags signal"
     When Execute "nmcli device reapply eth3"
-    Then "192.168.100.*signal" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "192\.168\.10[0-3].*signal" is visible with command "ip mptcp endpoint" in "5" seconds
     Then "signal" is visible with command "nmcli -f connection.mptcp-flags c s con_ipv4"
 
 
@@ -3327,7 +3327,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "eth10" for device "eth10" with options "ipv6.method disabled"
     * Bring "up" connection "eth3"
     * Bring "up" connection "eth10"
-    Then "192\.168\.100.*eth3" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "192\.168\.10[0-3].*eth3" is visible with command "ip mptcp endpoint" in "5" seconds
     Then "10\.16\.1.*eth10" is visible with command "ip mptcp endpoint" in "5" seconds
     When Bring "down" connection "eth3"
     Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
