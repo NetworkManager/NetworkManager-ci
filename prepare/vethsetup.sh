@@ -96,7 +96,7 @@ function setup_veth_env ()
     UUID=${UUID_NAME%:*}
 
     # Do we have keyfiles or ifcfg plugins enabled?
-    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep system-connections); then
+    if nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep -q system-connections; then
         touch /tmp/nm_plugin_keyfiles
     fi
 
@@ -127,7 +127,7 @@ function setup_veth_env ()
 
     else
         # Backup original nmconnection file
-        FILE=$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" |awk -F ':' '{print $1}')
+        FILE="$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" | sed "s/$DEV:yes//")"
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
             mv $FILE /tmp/$DEV.nmconnection
@@ -246,22 +246,17 @@ function setup_veth_env ()
     nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
     nmcli c u testeth0
 
-    if ! test -f /tmp/nm_plugin_keyfiles; then
+    if [ ! -e /tmp/testeth0 ] ; then
+        # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
+        # Copy final connection to /tmp/testeth0 for later in test usage
+        testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
         if [ ! -e /tmp/testeth0 ] ; then
-            # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
-            # Copy final connection to /tmp/testeth0 for later in test usage
-            yes | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-        fi
-    else
-        if ! test -f /tmp/testeth0; then
-            # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
-            # Copy final connection to /tmp/testeth0 for later in test usage
-            yes | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+            yes | cp -rf "$testeth0_file" /tmp/testeth0
         fi
     fi
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
     # Let's get rid of that
-    for i in $(nmcli -t -f NAME,UUID connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $2}'); do nmcli con del $i; done
+    nmcli con del uuid $(nmcli -t -f UUID,NAME connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $1}')
 
     touch /tmp/nm_veth_configured
 
@@ -291,8 +286,9 @@ function check_veth_env ()
     fi
 
     echo "* Checking up testeth0 and non activated testethX"
-    if ! (nmcli connection show --active |grep testeth0 > /dev/null && ! nmcli connection show --active |grep testeth |grep -v testeth0); then
+    if [ "$(nmcli -g NAME con show --active | grep testeth)" != testeth0 ]; then
         echo "Not OK!!"
+        nmcli con show --active
         need_veth=1
     fi
 
