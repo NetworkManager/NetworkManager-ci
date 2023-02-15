@@ -507,3 +507,20 @@ Feature: nmcli - procedures in documentation
     * Start NM
     Then "ethernet\s+/etc/NetworkManager/system-connections/output.nmconnection\s+Example-Connection" is visible with command "nmcli -f TYPE,FILENAME,NAME connection"
     Then Execute "nmcli connection show Example-Connection"
+
+
+    @eth0  # to prevent packet fragmentation stats to change
+    @doc_set_mtu_9000
+    Scenario: nmci - ethernet - set MTU 9000 and verify
+    * Doc: "Configuring the MTU in an existing NetworkManager connection profile"
+    * Prepare simulated test "testG" device
+    * Execute "ip -n testG_ns link set dev testGp mtu 9000"
+    * Add "ethernet" connection named "Example" for device "testG" with options "autoconnect no"
+    * Bring "up" connection "Example"
+    * Note the output of "nstat -az IpReasm*" as value "nstat1"
+    * Modify connection "Example" changing options "mtu 9000"
+    * Bring "up" connection "Example"
+    Then "mtu\s+9000" is visible with command "ip link show dev testG"
+    Then Execute "ping -c1 -Mdo -s 8972 192.168.99.1"
+    * Note the output of "nstat -az IpReasm*" as value "nstat2"
+    Then Check noted values "nstat1" and "nstat2" are the same
