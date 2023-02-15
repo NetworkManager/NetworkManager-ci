@@ -750,6 +750,13 @@ def dns_systemd_resolved_bs(context, scenario):
             context.cext.skip("Cannot start systemd-resolved")
     conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
 
+    # We need to enable mdns for tests
+    context.process.run_stdout(
+        "echo 'MulticastDNS=yes' >> /etc/systemd/resolved.conf",
+        shell=True,
+    )
+    context.process.systemctl("restart systemd-resolved")
+
     # On Fedora and RHEL9+, rc-manager is "auto" by default, which doesn't touch
     # resolv.conf when dns=systemd-resolved; we also want to test NM writing
     # 127.0.0.53 to resolv.conf if needed, so change the value of rc-manager.
@@ -766,9 +773,14 @@ def dns_systemd_resolved_bs(context, scenario):
 
 
 def dns_systemd_resolved_as(context, scenario):
+    # Remove the last line enabling mdns
+    context.process.run_stdout("sed -i '$d' /etc/systemd/resolved.conf")
     if not context.systemd_resolved:
         print("stop systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
+    else:
+        print("restarting systemd-resolved")
+        context.process.systemctl("restart systemd-resolved")
     context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/99-xtest-dns.conf")
     nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
