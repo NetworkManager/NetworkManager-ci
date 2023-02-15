@@ -2615,7 +2615,7 @@ testmapper:
         feature: dns
     - dns_resolved_dnssec_opts:
         feature: dns
-    - dns_resolved_add_mdns:
+    - dns_resolved_mdns:
         feature: dns
     - dns_global:
         feature: dns
