@@ -1554,6 +1554,10 @@ testmapper:
         tags: gate
     - pull_hostname_from_dns:
         feature: general
+    - pull_hostname_from_dns_static_ipv6:
+        feature: general
+    - pull_hostname_from_dns_dynamic_ipv6:
+        feature: general
     - hostname_priority:
         feature: general
     - hostname_mode_full:

@@ -138,6 +138,57 @@ Feature: nmcli - general
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
 
 
+    @rhbz2166711
+    @ver+=1.42.0
+    @restore_hostname @eth0
+    @kill_dnsmasq_ip6
+    @pull_hostname_from_dns_static_ipv6
+    Scenario: nmcli - general - pull hostname from DNS (static IPv6 address)
+    * Prepare simulated test "testG" device without DHCP
+    * Execute "ip -n testG_ns addr add dev testGp fd42::1/64"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
+    * Run child "ip netns exec testG_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --bind-interfaces --interface testGp --host-record=client42,fd42::42" without shell
+    * Add "ethernet" connection named "con_general" for device "testG" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method manual
+          ipv6.address fd42::42/64
+          ipv6.dns fd42::1
+          """
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring "up" connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "30" seconds
+    Then "client42" is visible with command "hostnamectl --transient" in "30" seconds
+
+
+    @ver+=1.42.0
+    @restore_hostname @eth0
+    @kill_dnsmasq_ip6
+    @pull_hostname_from_dns_dynamic_ipv6
+    Scenario: nmcli - general - pull hostname from DNS (dynamic IPv6 address)
+    * Prepare simulated test "testG" device without DHCP
+    * Execute "ip -n testG_ns addr add dev testGp fd01::1/64"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
+    * Run child "ip netns exec testG_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --bind-interfaces --interface testGp --dhcp-range=fd01::100,fd01::200 --enable-ra --dhcp-host 00:11:22:33:44:55,client001122334455" without shell
+    * Add "ethernet" connection named "con_general" for device "testG" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method auto
+          ethernet.cloned-mac-address 00:11:22:33:44:55
+          hostname.from-dhcp no
+          """
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
+    * Bring "up" connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "30" seconds
+    Then "client001122334455" is visible with command "hostnamectl --transient" in "30" seconds
+
+
     @rhbz1970335
     @ver+=1.30.0
     @rhelver+=8
