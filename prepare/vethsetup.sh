@@ -27,7 +27,7 @@ function setup_veth_env ()
     done
 
     if [ $need_veth -eq 0 ]; then
-        exit 0
+        return 0
     fi
     # Enable udev rule to enable ignoring 'veth' devices eth*, keeping their pairs unmanaged
     echo 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"' >/etc/udev/rules.d/87-xvethsetup.rules
@@ -80,11 +80,11 @@ function setup_veth_env ()
             else
                 echo "All ethernet interfaces down, unable to determine gateway"
                 nmcli dev
-                exit 1
+                return 1
             fi
         elif [ $counter -eq 40 ]; then
             echo "Unable to get active device"
-            exit 1
+            return 1
         fi
     done
 
@@ -94,6 +94,11 @@ function setup_veth_env ()
     UUID_NAME=$(nmcli -t -f UUID,NAME c show --active | head -n 1)
     NAME=${UUID_NAME#*:}
     UUID=${UUID_NAME%:*}
+
+    # Do we have keyfiles or ifcfg plugins enabled?
+    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep system-connections); then
+        touch /tmp/nm_plugin_keyfiles
+    fi
 
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
     for i in {1..10}; do
@@ -115,7 +120,7 @@ function setup_veth_env ()
         fi
 
         # Copy backup to /etc/sysconfig/network-scripts/ and reload
-        yes 2>/dev/null | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
+        yes | cp -rf /tmp/ifcfg-$DEV /etc/sysconfig/network-scripts/ifcfg-testeth0
         sleep 0.5
         nmcli con reload
         sleep 0.5
@@ -132,7 +137,7 @@ function setup_veth_env ()
         fi
 
         # Copy backup to /etc/sysconfig/network-scripts/ and reload
-        yes 2>/dev/null | cp -rf /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
+        yes | cp -rf /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
         sleep 0.5
         nmcli con reload
         sleep 0.5
@@ -245,13 +250,13 @@ function setup_veth_env ()
         if [ ! -e /tmp/testeth0 ] ; then
             # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
             # Copy final connection to /tmp/testeth0 for later in test usage
-            yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
+            yes | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
         fi
     else
         if ! test -f /tmp/testeth0; then
             # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
             # Copy final connection to /tmp/testeth0 for later in test usage
-            yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
+            yes | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
         fi
     fi
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
@@ -342,7 +347,7 @@ function check_veth_env ()
     fi
 
     if [ $need_veth -eq 0 ]; then
-        exit 0
+        return 0
     else
         echo "Need to regenerate vethsetup!!"
         echo "Regenerate $TEST" >> /tmp/regenerate_vethsetups

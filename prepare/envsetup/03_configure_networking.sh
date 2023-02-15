@@ -85,7 +85,7 @@ configure_networking () {
 
     # Do we have keyfiles or ifcfg plugins enabled?
     DEV=$(nmcli -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
-    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep nmconnection); then
+    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep system-connections); then
         touch /tmp/nm_plugin_keyfiles
         # Remove all ifcfg files as we don't need them
         rm -rf /etc/sysconfig/network-scripts/*
@@ -108,17 +108,12 @@ configure_networking () {
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         echo $(pwd)
-        . prepare/vethsetup.sh setup
+        sh prepare/vethsetup.sh setup
 
         # Copy this once more just to be sure it's there as it's really crucial
-        if ! test -f /tmp/nm_plugin_keyfiles; then
-            if [ ! -e /tmp/testeth0 ] ; then
-                yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-            fi
-        else
-            if ! test -f /tmp/testeth0; then
-                yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
-            fi
+        testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
+        if [ ! -e /tmp/testeth0 ] ; then
+            yes | cp -rf "$testeth0_file" /tmp/testeth0
         fi
 
         cat /tmp/testeth0
@@ -145,16 +140,10 @@ configure_networking () {
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage
-            if ! test -f /tmp/nm_plugin_keyfiles; then
-                if [ ! -e /tmp/testeth0 ] ; then
-                    yes 2>/dev/null | cp -rf /etc/sysconfig/network-scripts/ifcfg-testeth0 /tmp/testeth0
-                fi
-            else
-                if ! test -f /tmp/testeth0; then
-                    yes 2>/dev/null | cp -rf /etc/NetworkManager/system-connections/testeth0.nmconnection /tmp/testeth0
-                fi
+            testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
+            if [ ! -e /tmp/testeth0 ] ; then
+                yes | cp -rf "$testeth0_file" /tmp/testeth0
             fi
-
         fi
 
         if [ $wlan -eq 1 ]; then
