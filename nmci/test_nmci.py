@@ -1843,6 +1843,112 @@ def test_context_cleanup():
         assert traceback.format_exception(ex, ex, ex.__traceback__)
 
 
+@pytest.fixture
+def get_tmpfilename(request):
+    # the files will be deleted and re-created during fixture lifetime so we
+    # need just the name, not actual file nor file object where we'd have to
+    # catch FileNotFoundError twice instead of just once
+    def generate_fname():
+        f = "".join(
+            [
+                nmci.util.tmp_dir(),
+                "pytest-tmpfile.",
+                *[random.choice("abcdefghijklmnopqrstuvwxyz") for i in range(8)],
+            ]
+        )
+
+        def cleanup():
+            try:
+                os.remove(f)
+            except FileNotFoundError:
+                pass
+
+        request.addfinalizer(cleanup)
+        return f
+
+    return generate_fname
+
+
+def do_cleanups():
+    assert not [
+        ex
+        for ex in nmci.cleanup.process_cleanup()
+        if not isinstance(ex, nmci.misc.SkipTestException)
+    ], "Exception(s) occurred during cleanup processing!"
+    assert (
+        not nmci.cleanup._cleanup_lst
+    ), "Some cleanups are still left in cleanup module..."
+
+
+# Testing of individual clean up classes. Let's use one test_sth() function per
+# cleanup tested so cleanups don't step on each other's toes (e.g. one testing
+# file deletion and second file restoration, both of the same file name.
+#
+# The 'test_cleanup_file_restore()' function is annotated to highlight
+# possible pitfalls.
+
+
+def test_cleanup_file_restore(get_tmpfilename):
+    # State of nmci modules is persistent across pytest run. The following
+    # function clears any leftover state that could cause false positives in
+    # your test or mess up with your test.
+    create_test_context()
+
+    # set constants. Not the get_tmpfilename() function. This way, the
+    # @pytest.fixture that's defined up from here generates a name for us and
+    # takes care of deletion of the file after unit test ends. For
+    # non-instantiated fixtures, see namespaceone (with 'yield' keyword)
+    deleted_file = get_tmpfilename()
+    modified_file = get_tmpfilename()
+    missing_file = "/hello/from/nmci/this/path/does/not/exist"
+    after_modification = "mine meanings mine or a mine?\n"
+    files = {
+        deleted_file: "hi from nmci!\n",
+        modified_file: "this file is mine!\n",
+    }
+
+    # set up pre-add-cleanup environment that the clean up class under test is
+    # supposed to restore
+    for file, c in files.items():
+        with open(file, "w") as f:
+            f.write(c)
+
+    for file, c in files.items():
+        assert open(file).read() == c
+
+    # run nmci.cleanup to add cleanup objects
+    nmci.cleanup.CleanupFileRestore(deleted_file)
+    nmci.cleanup.CleanupFileRestore(modified_file)
+    with pytest.raises(FileNotFoundError):
+        nmci.cleanup.CleanupFileRestore(missing_file)
+
+    # create mess and verify we indeed did mess up the system
+    os.remove(deleted_file)
+    with open(modified_file, "w") as f:
+        f.write(after_modification)
+    assert not os.path.exists(deleted_file)
+    assert open(modified_file).read() == after_modification
+
+    # run cleanups. It's wrapped this way to save boilerplate code while filtering
+    # non-error exceptions
+    do_cleanups()
+
+    # verify that the system state is cleaned up. This time, that the deleted
+    # and modified files are present and with the old content
+    for file, c in files.items():
+        assert open(file).read() == c
+
+
+def test_cleanup_files(get_tmpfilename):
+    create_test_context()
+    fname = get_tmpfilename()
+    nmci.cleanup.CleanupFile(fname)
+    with open(fname, "w") as f:
+        f.write("Hello, I shouldn't be here after the test!")
+    do_cleanups()
+    assert not os.path.exists(fname)
+
+
 def test_util_start_timeout():
 
     t = nmci.util.start_timeout(None)
