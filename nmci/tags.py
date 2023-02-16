@@ -81,6 +81,13 @@ def _register_tag(
     )
 
 
+def backup_testeth0(*a):
+    nmci.veth.ensure_tmp_testeth0()
+    nmci.cleanup.CleanupFileRestore(
+        "/tmp/testeth0", priority=nmci.cleanup.Cleanup.PRIORITY_TAG - 1
+    )
+
+
 # tags that have efect outside this file
 _register_tag("no_abrt")
 _register_tag("xfail")
@@ -827,8 +834,9 @@ _register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
 
 def delete_testeth0_bs(context, scenario):
     skip_restarts_bs(context, scenario)
-    context.process.nmcli("device disconnect eth0")
-    context.process.nmcli("connection delete id testeth0")
+    backup_testeth0()
+    nmci.process.nmcli("device disconnect eth0")
+    nmci.process.nmcli("connection delete id testeth0")
 
 
 def delete_testeth0_as(context, scenario):
@@ -1352,6 +1360,7 @@ _register_tag("main")
 
 
 def openvpn_bs(context, scenario):
+    backup_testeth0()
     if context.arch == "s390x":
         nmci.veth.wait_for_testeth0()
         context.cext.skip("Skipping on s390x")
@@ -2117,6 +2126,7 @@ _register_tag("need_config_server", need_config_server_bs, need_config_server_as
 
 
 def no_config_server_bs(context, scenario):
+    backup_testeth0()
     if context.process.run_code("rpm -q NetworkManager-config-server") == 1:
         context.restore_config_server = False
     else:

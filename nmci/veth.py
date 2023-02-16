@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 
 import nmci
@@ -9,6 +10,18 @@ def __getattr__(attr):
 
 
 class _Veth:
+    def ensure_tmp_testeth0(self):
+        f = "/tmp/testeth0"
+        if not os.path.isfile(f):
+            if os.path.exists("/tmp/nm_plugin_keyfiles"):
+                shutil.copy2("/etc/sysconfig/network-scripts/ifcfg-testeth0", f)
+            else:
+                shutil.copy2(
+                    "/etc/NetworkManager/system-connections/testeth0.nmconnection", f
+                )
+        assert os.path.isfile(f)
+        assert len(open(f).read()) > 0
+
     def restore_connections(self):
         print("* recreate all connections")
         conns = nmci.process.nmcli("-g NAME connection show").strip().split("\n")
