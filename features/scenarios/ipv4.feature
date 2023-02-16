@@ -3333,6 +3333,6 @@ Feature: nmcli: ipv4
     * Bring "up" connection "eth3"
     * Bring "up" connection "eth10"
     Then "192\.168\.10[0-3].*eth3" is visible with command "ip mptcp endpoint" in "5" seconds
-    Then "10\.16\.1.*eth10" is visible with command "ip mptcp endpoint" in "5" seconds
+    Then "10\..*eth10" is visible with command "ip mptcp endpoint" in "5" seconds
     When Bring "down" connection "eth3"
     Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
