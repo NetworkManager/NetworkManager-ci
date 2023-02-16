@@ -3,6 +3,9 @@
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
+MYDIR="$(dirname "$0")"
+. $MYDIR/envsetup/utils.sh
+
 function dump_state ()
 {
     ip a
@@ -11,6 +14,7 @@ function dump_state ()
     PAGER= nmcli gen
 
 }
+
 
 function setup_veth_env ()
 {
@@ -246,14 +250,8 @@ function setup_veth_env ()
     nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
     nmcli c u testeth0
 
-    if [ ! -e /tmp/testeth0 ] ; then
-        # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
-        # Copy final connection to /tmp/testeth0 for later in test usage
-        testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
-        if [ ! -e /tmp/testeth0 ] ; then
-            yes | cp -rf "$testeth0_file" /tmp/testeth0
-        fi
-    fi
+    copy_testeth0_to_tmp
+
     # On s390x sometimes this extra default profile gets created in addition to custom static original one
     # Let's get rid of that
     nmcli con del uuid $(nmcli -t -f UUID,NAME connection |grep -v testeth |grep -v orig |awk -F ':' ' {print $1}')
@@ -340,6 +338,10 @@ function check_veth_env ()
     if ! ip netns exec vethsetup ip a s  masq |grep -q 192.168.100.1/24; then
         echo "Not OK!!"
         need_veth=1
+    fi
+
+    if [ ! -s /tmp/testeth0 -a $need_veth -eq 0 ]; then
+        copy_testeth0_to_tmp
     fi
 
     if [ $need_veth -eq 0 ]; then

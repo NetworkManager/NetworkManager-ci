@@ -283,6 +283,17 @@ export_python_command() {
 }
 
 
+copy_testeth0_to_tmp () {
+    # THIS NEED TO BE DONE HERE FOR RECREATION REASONS
+    # Copy final connection to /tmp/testeth0 for later in test usage
+    echo "* Copying to /tmp configuration of connection to the outside world"
+    testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
+    if [ ! -e /tmp/testeth0 ] ; then
+	yes | cp -rf "$testeth0_file" /tmp/testeth0
+    fi
+}
+
+
 deploy_ssh_keys () {
     if ! test -d /root/.ssh; then
         mkdir /root/.ssh/
