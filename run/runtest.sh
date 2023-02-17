@@ -262,7 +262,7 @@ if [ $rc -eq 0 ]; then
     RESULT="PASS"
 elif [ $rc -eq 77 ]; then
     RESULT="SKIP"
-    if [ $CENTOS_CI -ne 1 ]; then
+    if [ "$CENTOS_CI" -ne 1 ]; then
       rc=0
     fi
 else
