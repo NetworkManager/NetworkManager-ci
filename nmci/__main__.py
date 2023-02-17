@@ -15,8 +15,8 @@ get_test_tags [feature [test_name]]
     - print all test tags for given test
     - feature: nmcli (default), nmtui, or feature file name (e.g. adsl, alias, bond...)
 
-mapper_feature [feature_name [format]]
-    - print all tests in feature as defined in mapper.yaml (all or * for all features)
+mapper_feature [feature_name [ testmapper [format]]]
+    - print all tests of testmapper with given feature from mapper.yaml ('all' or '*' for all features/testmappers)
     - possible formats: name (default, output just test name), json, bash (executable format)
 """
         )
@@ -39,19 +39,23 @@ mapper_feature [feature_name [format]]
         print("\n".join(nmci.misc.test_load_tags_from_features(feature, test_name)))
 
     elif sys.argv[1] == "mapper_feature":
+        formats = ["name", "json", "bash"]
         feature = "*"
         if len(sys.argv) > 2:
             feature = sys.argv[2]
-        format = "name"
+        testmapper = "*"
         if len(sys.argv) > 3:
-            format = sys.argv[3]
-        if format not in ["name", "json", "bash"]:
-            print(f"Unknown format: {format}")
-            exit(1)
+            testmapper = sys.argv[3]
+        format = "name"
+        if len(sys.argv) > 4:
+            format = sys.argv[4]
+        assert (
+            format in formats
+        ), f"Unknown format: '{format}', must be one of {formats}"
         import nmci.misc
 
         mapper = nmci.misc.get_mapper_obj()
-        mapper_tests = nmci.misc.get_mapper_tests(mapper, feature)
+        mapper_tests = nmci.misc.get_mapper_tests(mapper, feature, testmapper)
         d_test_run = mapper["component"]["test-run"]
         d_timeout = "10m"
         if format == "json":

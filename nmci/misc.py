@@ -160,9 +160,12 @@ class _Misc:
         with open("mapper.json", "r") as m_file:
             return json.load(m_file)
 
-    def get_mapper_tests(self, mapper, feature="*"):
-        all_features = ["*", "all"]
-        testmappers = [x for x in mapper["testmapper"]]
+    def get_mapper_tests(self, mapper, feature="*", testmapper="*"):
+        all_values = ["*", "all"]
+        if testmapper in all_values:
+            testmappers = [x for x in mapper["testmapper"]]
+        else:
+            testmappers = [testmapper]
 
         def flatten_test(test):
             testname = list(test.keys())[0]
@@ -180,9 +183,9 @@ class _Misc:
             for test in mapper_tests
             if (
                 "feature" in test
-                and (test["feature"] == feature or feature in all_features)
+                and (test["feature"] == feature or feature in all_values)
             )
-            or ("feature" not in test and feature in all_features)
+            or ("feature" not in test and feature in all_values)
         ]
 
     def nm_version_parse(self, version):
