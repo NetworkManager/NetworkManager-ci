@@ -3,7 +3,7 @@ import pexpect
 import time
 from behave import step, given  # pylint: disable=no-name-in-module
 
-import nmci.misc
+import nmci
 from nmci.util import NM
 
 
@@ -636,9 +636,17 @@ def device_lldp_status_libnm(context, device):
 @step(u'Activate "{device_num}" devices in "{sec_high}" seconds')
 @step(u'Activate "{device_num}" devices in "{sec_low}" to "{sec_high}" seconds')
 def activate_devices_check(context, device_num, sec_high, sec_low=0):
-    
-    nmci.cleanup.cleanup_file("/etc/NetworkManager/conf.d/99-xxcustom.conf")
-    nmci.cleanup.cleanup_add_NM_service("restart")
+    nmci.cleanup.cleanup_add(
+            callback=lambda: nmci.process.systemctl(["unmask", "NetworkManager-dispatcher"]),
+            name="unmask NM-dispatcher",
+            priority=nmci.Cleanup.PRIORITY_NM_SERVICE_RESTART
+    )
+    # setup
+    nmci.nmutil.stop_NM_service()
+    nmci.process.systemctl(["mask", "NetworkManager-dispatcher"])
+    nmci.process.systemctl(["stop", "NetworkManager-dispatcher"])
+    nmci.process.run(f"cd contrib/gi; ./setup.sh {device_num}", shell=True, ignore_stderr=True, timeout=60)
+    nmci.nmutil.start_NM_service()
 
     out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
     # activate.py calls setup.sh which restarts NM

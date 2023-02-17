@@ -53,10 +53,6 @@ def run():
     if (len(sys.argv) >= 2):
         num_devices = int(sys.argv[1])
 
-    print("### Number of devices: {}".format(num_devices))
-    print("### Setup")
-    subprocess.run(["./setup.sh", "{}".format(num_devices)])
-
     client = NM.Client.new(None)
     main_loop = GLib.MainLoop()
 
