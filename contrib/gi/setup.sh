@@ -7,12 +7,6 @@ DHCP_NUM=34
 NUM_NS=$(($NUM_DEVS/$DHCP_NUM+1))
 echo "creating $NUM_NS namespaces..."
 
-systemctl stop NetworkManager
-
-# mask the Dispatcher as well.
-systemctl mask NetworkManager-dispatcher 2>&1
-systemctl stop NetworkManager-dispatcher 2>&1
-
 # cleanup from previous run
 pkill dhcpd
 ip link | sed -n 's/^[0-9]\+:.*\(t-[^@:]\+\)@.*/\1/p' | xargs -n 1 ip link del 2>/dev/null
@@ -71,20 +65,3 @@ for ns in $(seq 1 $((NUM_NS))); do
     END=$(($END+$DHCP_NUM))
 done
 
-
-cat <<EOF > /etc/NetworkManager/conf.d/99-xxcustom.conf
-[main]
-dhcp=internal
-no-auto-default=*
-dns=none
-[device-99-my]
-match-device=interface-name:t-a*
-managed=1
-[logging]
-level=INFO
-domains=DEFAULT,DHCP4:DEBUG
-EOF
-
-
-systemctl start NetworkManager
-sleep 5

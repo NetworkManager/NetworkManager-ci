@@ -1635,8 +1635,6 @@ def performance_as(context, scenario):
     # Deleting all connections t-a1..t-a100
     cons = " ".join([f"t-a{i}" for i in range(1, 101)])
     context.process.nmcli_force(f"con del {cons}")
-    # setup.sh masks dispatcher scripts
-    context.process.systemctl("unmask NetworkManager-dispatcher")
     # reset the performance profile
     context.process.systemctl("start tuned")
     context.process.run("tuned-adm profile $(tuned-adm recommend)", ignore_stderr=True)

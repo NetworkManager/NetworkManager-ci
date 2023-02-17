@@ -3028,6 +3028,20 @@ Feature: nmcli - general
     # We need up to 1/4 of dhcpd servers to be able to handle the amount of
     # networks in the max time. If we have just one there seems to be some
     # retransmissions needed in DHCP server so we know nothing about NM performance.
+    * Create NM config file with content
+          """
+          [main]
+          dhcp=internal
+          no-auto-default=*
+          dns=none
+          [device-99-my]
+          match-device=interface-name:t-a*
+          managed=1
+          [logging]
+          level=INFO
+          domains=DEFAULT,DHCP4:DEBUG
+          """
+    # * Restart NM  # no need to restart NM, it is stopped and started in the following step
     Then Activate "100" devices in "6" seconds
 
 
