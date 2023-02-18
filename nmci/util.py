@@ -15,7 +15,11 @@ def __getattr__(attr):
 
 
 class _Timeout:
-    def __init__(self, timeout):
+    def __init__(self, timeout, name=None):
+        if name:
+            self.full_name = f"Timeout '{name}'"
+        else:
+            self.full_name = "Timeout"
         now = time.monotonic()
         if isinstance(timeout, _Timeout):
             timeout = timeout.remaining_time(now=now)
@@ -32,6 +36,14 @@ class _Timeout:
         else:
             self._expiry = now + timeout
             self._is_expired = timeout <= 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        assert (
+            not self.expired()
+        ), f"{self.full_name} expired in {self.elapsed_time():.3f}s."
 
     def elapsed_time(self):
         return time.monotonic() - self.start_timestamp
@@ -302,12 +314,12 @@ class _Util:
         "FileGetContentResult", ["data", "full_file"]
     )
 
-    def start_timeout(self, timeout=None):
+    def start_timeout(self, timeout=None, name=None):
         # timeout might be:
         #   - _Timeout object (use remaining time)
         #   - None (infinity)
         #   - str or number (timeout in seconds)
-        return _Timeout(timeout)
+        return _Timeout(timeout, name=name)
 
     def fd_get_content(
         self,
