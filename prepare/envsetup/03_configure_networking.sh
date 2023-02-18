@@ -15,6 +15,9 @@ configure_networking () {
     # Load dummy module with numdummies=0 to prevent dummyX device creation by kernel
     modprobe dummy numdummies=0
 
+    # Install server package
+    yum -y install NetworkManager-config-server
+
     # If we have custom built packages let's store it's dir
     dir="$(find /root /tmp -name nm-build)"
     if test $dir ; then
@@ -178,6 +181,5 @@ configure_networking () {
         nmcli con up testeth0
     fi
 
-    yum -y install NetworkManager-config-server
     touch /tmp/nm_eth_configured
 }
