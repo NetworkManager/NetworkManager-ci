@@ -254,7 +254,8 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     if daemon_options is None:
         daemon_options = ""
 
-    context.execute_steps(f'* Add namespace "{device}_ns"')
+    nmci.ip.netns_add(f"{device}_ns")
+    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
     context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(device=device))
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.accept_ra=1".format(device=device))
@@ -294,14 +295,12 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
-
-    # Wait a bit for NM to see the device in either connected or disconnected state
     if nmci.process.systemctl("status NetworkManager", embed_combine_tag=nmci.embed.NO_EMBED).returncode == 0:
-        context.execute_steps(f'Then "connected" is visible with command "nmcli device show {device}" in "10" seconds');
-    else:
-        time.sleep(2)
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
-
+        timeout = nmci.util.start_timeout(10)
+        while timeout.loop_sleep(0.5):
+            if nmci.nmutil.device_status(name=device):
+                break
+        assert not timeout.expired(), f"Did not see created device '{device}' in 10s."
 
 
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
