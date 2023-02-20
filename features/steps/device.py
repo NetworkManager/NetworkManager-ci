@@ -715,6 +715,14 @@ def add_device(context, typ, name, namespace=None, options=""):
     nmci.ip.link_add(name, typ, *shlex.split(options), namespace=namespace, ifindex=context.ifindex, wait_for_device=5)
 
 
+@step(u'Create "{count}" "{typ}" devices named "{name}"')
+def add_multiple_devices(context, typ, name, count):
+    for i in range(int(count)):
+        _name = f"{name}_{i}"
+        add_device(context, typ, _name, options=f"peer name {_name}p")
+        nmci.process.nmcli(f"device set {_name} managed yes")
+
+
 @step(u'Add namespace "{name}"')
 @step(u'Add namespace "{name}" with options "{options}"')
 def add_namespace(context, name, options=""):

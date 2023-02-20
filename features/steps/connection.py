@@ -32,6 +32,22 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
     nmci.process.nmcli(f"connection add type {typ} {conn_name} {iface} {options}")
 
 
+@step('Add "{count}" "{typ}" connections named "{name}" for devices "{ifname}"')
+@step(
+    'Add "{count}" "{typ}" connections named "{name}" for devices "{ifname}" with options'
+)
+@step(
+    'Add "{count}" "{typ}" connections named "{name}" for devices "{ifname}" with options "{options}"'
+)
+def add_multiple_new_connections(
+    context, count, typ, name=None, ifname=None, options=None
+):
+    for i in range(int(count)):
+        _con_name = f"{name}_{i}"
+        _dev_name = f"{ifname}_{i}"
+        add_new_connection(context, typ, _con_name, _dev_name, options)
+
+
 @step(
     'Add insecure "{typ}" connection named "{name}" for device "{ifname}" with options'
 )
@@ -357,7 +373,6 @@ def add_bridges_vlans_range(context, begin, end, ifname):
             user_data.quit()
 
     for i in range(begin, end + 1):
-
         main_loop = GLib.MainLoop()
         con = NM.SimpleConnection.new()
         uuid = NM.utils_uuid_generate()
