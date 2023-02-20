@@ -9,7 +9,11 @@ COREDUMP_TYPE_ABRT = "abrt"
 
 
 def check_dump_package(pkg_name):
-    if pkg_name in ["NetworkManager", "ModemManager"]:
+    if (
+        pkg_name in ["NetworkManager", "ModemManager"]
+        or "ovs" in pkg_name
+        or "openvswitch" in pkg_name
+    ):
         return True
     return False
 
