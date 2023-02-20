@@ -323,7 +323,7 @@ def restart_if_needed_as(context, scenario):
         nmci.veth.wait_for_testeth0()
 
 
-_register_tag("restart_if_needed", None, restart_if_needed_as)
+_register_tag("restart_if_needed", backup_testeth0, restart_if_needed_as)
 
 
 def secret_key_reset_bs(context, scenario):
@@ -431,6 +431,7 @@ _register_tag("captive_portal", captive_portal_bs, captive_portal_as)
 
 
 def gsm_bs(context, scenario):
+    backup_testeth0()
     context.process.run("mmcli -G debug")
     context.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.
@@ -570,6 +571,7 @@ def eth0_bs(context, scenario):
     #        print("shutting down eth0 once more as it is not down")
     #        context.process.run_stdout("nmcli device disconnect eth0")
     #        time.sleep(2)
+    backup_testeth0()
     context.process.nmcli("con modify testeth0 connection.autoconnect no")
     context.process.nmcli("con down testeth0")
     context.process.nmcli_force("con down testeth1")
@@ -589,6 +591,7 @@ _register_tag("eth0", eth0_bs, eth0_as)
 
 
 def alias_bs(context, scenario):
+    backup_testeth0()
     context.process.nmcli("connection up testeth7")
     context.process.nmcli_force("connection delete eth7")
 
@@ -995,6 +998,7 @@ _register_tag("eth3_disconnect", eth3_disconnect_bs, eth3_disconnect_as)
 
 
 def need_dispatcher_scripts_bs(context, scenario):
+    backup_testeth0()
     if os.path.isfile("/tmp/nm-builddir"):
         print("install dispatcher scripts")
         context.process.run_stdout(
@@ -1112,6 +1116,7 @@ _register_tag("pkcs11", pkcs11_bs)
 
 
 def simwifi_bs(context, scenario):
+    backup_testeth0()
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
     args = ["namespace"]
@@ -1764,6 +1769,7 @@ _register_tag("firewall", firewall_bs, firewall_as)
 
 
 def restore_hostname_bs(context, scenario):
+    backup_testeth0()
     context.original_hostname = context.process.run_stdout("hostname").strip()
 
 
@@ -1789,6 +1795,7 @@ _register_tag("restore_hostname", restore_hostname_bs, restore_hostname_as)
 
 
 def runonce_bs(context, scenario):
+    backup_testeth0()
     context.process.systemctl("stop network")
     # TODO check: this should be done by @eth0
     context.process.nmcli_force("device disconnect eth0")
@@ -2246,6 +2253,7 @@ _register_tag("novice")
 
 
 def no_connections_bs(context, scenario):
+    backup_testeth0()
     nmci.process.nmcli(
         ["con", "del", *[c["name"] for c in nmci.nmutil.connection_show()]]
     )
@@ -2342,7 +2350,7 @@ def networking_on_as(context, scenario):
     nmci.veth.wait_for_testeth0()
 
 
-_register_tag("networking_on", None, networking_on_as)
+_register_tag("networking_on", backup_testeth0, networking_on_as)
 
 
 def adsl_as(context, scenario):
@@ -2632,7 +2640,7 @@ def keyfile_cleanup_as(context, scenario):
     nmci.veth.wait_for_testeth0()
 
 
-_register_tag("keyfile_cleanup", None, keyfile_cleanup_as)
+_register_tag("keyfile_cleanup", backup_testeth0, keyfile_cleanup_as)
 
 
 def remove_dns_clean_as(context, scenario):
@@ -2665,7 +2673,7 @@ def restore_resolvconf_as(context, scenario):
     nmci.veth.wait_for_testeth0()
 
 
-_register_tag("restore_resolvconf", None, restore_resolvconf_as)
+_register_tag("restore_resolvconf", backup_testeth0, restore_resolvconf_as)
 
 
 def device_connect_as(context, scenario):
@@ -2759,7 +2767,7 @@ def connect_testeth0_as(context, scenario):
     nmci.veth.wait_for_testeth0()
 
 
-_register_tag("connect_testeth0", None, connect_testeth0_as)
+_register_tag("connect_testeth0", backup_testeth0, connect_testeth0_as)
 
 
 def kill_dbus_monitor_as(context, scenario):
