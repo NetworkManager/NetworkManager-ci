@@ -145,10 +145,8 @@ configure_networking () {
             nmcli c modify testeth0 ipv4.route-metric 99 ipv6.route-metric 99
             sleep 1
             # Copy final connection to /tmp/testeth0 for later in test usage
-            testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
-            if [ ! -e /tmp/testeth0 ] ; then
-                yes | cp -rf "$testeth0_file" /tmp/testeth0
-            fi
+            copy_testeth0_to_tmp
+
         fi
 
         if [ $wlan -eq 1 ]; then
