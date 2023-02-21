@@ -659,6 +659,8 @@ testmapper:
         feature: ipv6
     - ipv6_routes_without_gw:
         feature: ipv6
+    - ipv6_replace_local_rule:
+        feature: ipv6
     - ipv6_dns_manual_IP_with_manual_dns:
         feature: ipv6
     - ipv6_dns_auto_with_more_manually_set:
@@ -1086,6 +1088,8 @@ testmapper:
     - ipv4_manual_addr_preferred_over_dhcp:
         feature: ipv4
     - ipv4_routing_rules_manipulation:
+        feature: ipv4
+    - ipv4_replace_local_rule:
         feature: ipv4
     - dhcp_multiple_router_options:
         feature: ipv4

@@ -546,6 +546,26 @@
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
 
+    @rhbz2167805
+    @ver+=1.42.1
+    @ver+=1.43.2
+    @restart_if_needed
+    @ipv6_replace_local_rule
+    Scenario: NM - ipv6 - replace local route rule
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.replace-local-rule yes"
+    * Bring "up" connection "con_ipv6"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+    Then "0:	from all lookup local" is not visible with command "ip -6 rule"
+    * Bring "down" connection "con_ipv6"
+    Then "0:	from all lookup local" is visible with command "ip -6 rule"
+    * Add "ethernet" connection named "con_ipv62" for device "eth4" with options "ipv6.replace-local-rule no"
+    * Bring "up" connection "con_ipv62"
+    Then "0:	from all lookup local" is visible with command "ip -6 rule"
+    * Bring "up" connection "con_ipv6"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+    Then "0:	from all lookup local" is not visible with command "ip -6 rule"
+
+
     @eth0
     @ipv6_dns_manual_IP_with_manual_dns
     Scenario: nmcli - ipv6 - dns - method static + IP + dns

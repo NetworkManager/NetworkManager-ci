@@ -2535,6 +2535,26 @@ Feature: nmcli: ipv4
     And "Exactly" "3" lines are visible with command "ip rule"
 
 
+    @rhbz2167805
+    @ver+=1.42.1
+    @ver+=1.43.2
+    @restart_if_needed
+    @ipv4_replace_local_rule
+    Scenario: NM - ipv4 - replace local route rule
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.replace-local-rule yes"
+    * Bring "up" connection "con_ipv4"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    Then "0:	from all lookup local" is not visible with command "ip rule"
+    * Bring "down" connection "con_ipv4"
+    Then "0:	from all lookup local" is visible with command "ip rule"
+    * Add "ethernet" connection named "con_ipv42" for device "eth4" with options "ipv4.replace-local-rule no"
+    * Bring "up" connection "con_ipv42"
+    Then "0:	from all lookup local" is visible with command "ip rule"
+    * Bring "up" connection "con_ipv4"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    Then "0:	from all lookup local" is not visible with command "ip rule"
+
+
     @rhbz1634657
     @ver+=1.16
     @ver-1.37.90
