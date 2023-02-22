@@ -1638,7 +1638,6 @@ def performance_as(context, scenario):
     # reset the performance profile
     context.process.systemctl("start tuned")
     context.process.run("tuned-adm profile $(tuned-adm recommend)", ignore_stderr=True)
-    context.process.systemctl("start openvswitch")
 
 
 _register_tag("performance", performance_bs, performance_as)
@@ -1863,14 +1862,10 @@ def openvswitch_bs(context, scenario):
             "yum -y install NetworkManager-ovs", timeout=120, ignore_stderr=True
         )
         context.process.systemctl("daemon-reload")
-        nmci.nmutil.restart_NM_service()
-    if (
-        context.process.systemctl("is-active openvswitch").returncode != 0
-        or "ERR" in context.process.systemctl("status ovs-vswitchd.service").stdout
-    ):
-        print("restart openvswitch")
-        context.process.systemctl("restart openvswitch")
-        nmci.nmutil.restart_NM_service()
+    print("Start openvswitch")
+    context.process.systemctl("reset-failed openvswitch")
+    context.process.systemctl("start openvswitch")
+    nmci.nmutil.restart_NM_service()
 
 
 def openvswitch_as(context, scenario):
@@ -1883,8 +1878,18 @@ def openvswitch_as(context, scenario):
         print("Attaching OVSDemon log")
         nmci.embed.embed_data("OVSDemon", data2)
 
-    context.process.run("ovs-vsctl del-br ovsbr0", ignore_stderr=True)
-    context.process.run("ovs-vsctl del-br ovs-br0", ignore_stderr=True)
+    # Restart in case we have openvswitch stopped from the test
+    context.process.systemctl("restart openvswitch")
+
+    context.process.run(
+        "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",
+        ignore_stderr=True,
+        shell=True,
+    )
+    time.sleep(1)
+
+    context.process.systemctl("stop openvswitch")
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
