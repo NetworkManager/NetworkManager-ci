@@ -37,14 +37,16 @@ install_el9_packages () {
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
         # OVS deps and GSM perl deps
+        POLICY_VER=$(get_centos_pkg_release "$CBSC/openvswitch-selinux-extra-policy/1.0/")
+        OVS_VER=$(get_centos_pkg_release "$CBSC/openvswitch2.17/2.17.0/")
+        PERL_VER=$(get_centos_pkg_release "$KHUB/perl-IO-Tty/1.16/")
         dnf -y install \
-            $CBSC/openvswitch2.17/2.17.0/31.el9s/$(arch)/openvswitch2.17-2.17.0-31.el9s.$(arch).rpm \
-            $CBSC/openvswitch-selinux-extra-policy/1.0/31.el9s/noarch/openvswitch-selinux-extra-policy-1.0-31.el9s.noarch.rpm \
-            $KHUB/perl-IO-Tty/1.16/4.el9/$(arch)/perl-IO-Tty-1.16-4.el9.$(arch).rpm
+            $CBSC/openvswitch2.17/2.17.0/$OVS_VER/$(arch)/openvswitch2.17-2.17.0-$OVS_VER.$(arch).rpm \
+            $CBSC/openvswitch-selinux-extra-policy/1.0/$POLICY_VER/noarch/openvswitch-selinux-extra-policy-1.0-$POLICY_VER.noarch.rpm \
+            $KHUB/perl-IO-Tty/1.16/$PERL_VER/$(arch)/perl-IO-Tty-1.16-$PERL_VER.$(arch).rpm
     else
         cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
         yum -y install openvswitch2.17*
-        systemctl restart openvswitch
     fi
 
 

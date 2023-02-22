@@ -254,6 +254,17 @@ get_online_state() {
     return 1
 }
 
+get_centos_pkg_release() {
+    DISTRO="el$(awk -F ' ' '{print $NF}' /etc/redhat-release)"
+    VER=$(curl -s $1/ | \
+           grep $DISTRO | \
+           grep 'a href' | \
+           tail -n -1 | \
+           awk -F 'href=\"' '{print $2}' | \
+           awk -F '/' '{print $1}')
+    echo $VER
+}
+
 export_python_command() {
     if [ -f /tmp/python_command ]; then
         PYTHON_COMMAND=$(cat /tmp/python_command)
