@@ -768,8 +768,7 @@ Feature: nmcli: connection
 
     @rhbz2039734
     @rhbz2150000
-    # TODO adjust when BZ fixed
-    #@ver+=1.40.2
+    @ver+=1.43
     @connection_multiconnect_autoconnect_retries
     Scenario: nmcli - connection - multiconnect autoconnect retry count per device
     * Prepare simulated test "testX1" device without DHCP
@@ -787,11 +786,11 @@ Feature: nmcli: connection
           match.interface-name 'testX*'
           """
     Then Expect "testX1: connection failed" in children in "15" seconds
-   
+
     # Enable next step when following bug is fixed properly:
     # https://bugzilla.redhat.com/show_bug.cgi?id=2039734
-    # Then Expect "testX1: connection failed" in children in "15" seconds
-   
+    Then Expect "testX1: connection failed" in children in "15" seconds
+
     # This covers https://bugzilla.redhat.com/show_bug.cgi?id=2150000
     # Do not remove even when other bug is fixed!
     Then Expect "testX1: disconnected" in children in "15" seconds
