@@ -126,9 +126,11 @@ class _NMUtil:
         self.wait_for_nm_bus(timeout)
         return r.returncode == 0
 
-    def start_NM_service(self, pid_wait=True, timeout=DEFAULT_TIMEOUT):
+    def start_NM_service(self, pid_wait=True, reset=False, timeout=DEFAULT_TIMEOUT):
         print("start NM service")
         timeout = nmci.util.start_timeout(timeout)
+        if reset:
+            nmci.process.systemctl("reset-failed NetworkManager.service")
         r = nmci.process.systemctl(
             "start NetworkManager.service", timeout=timeout.remaining_time()
         )
