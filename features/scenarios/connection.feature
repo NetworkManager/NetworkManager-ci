@@ -1027,7 +1027,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - migrate all ifcfg profiles to keyfile
     * Reload connections
     * Execute "nmcli con migrate"
-    Then "ifcfg" is not visible with command "ls /etc/sysconfig/network-scripts"
+    Then "ifcfg" is not visible with command "ls /etc/sysconfig/network-scripts |grep -v readme-ifcfg"
     * Reload connections
     Then "ifcfg" is not visible with command "nmcli -f TYPE,FILENAME,NAME conn"
     * Bring "up" connection "migration_bond"
