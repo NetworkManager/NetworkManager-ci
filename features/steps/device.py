@@ -739,19 +739,19 @@ def rename_device(context, orig_name, new_name):
     nmci.cleanup.cleanup_add_NM_service('restart')
     nmci.cleanup.cleanup_add(
         callback=nmci.ip.link_set,
-        name="link-down",
+        name=f"link-up: {orig_name}",
         unique_tag=(orig_name, True),
         args={'ifname': orig_name, 'up': True}
     )
     nmci.cleanup.cleanup_add(
         callback=nmci.ip.link_set,
-        name="rename",
-        unique_tag=(new_name, 'lo'),
-        args={'ifname': new_name, 'name': 'lo'}
+        name=f"link-rename: {new_name} -> {orig_name}",
+        unique_tag=(new_name, orig_name),
+        args={'ifname': new_name, 'name': orig_name}
     )
     nmci.cleanup.cleanup_add(
         callback=nmci.ip.link_set,
-        name="link-up",
+        name=f"link-down: {new_name}",
         unique_tag=(new_name, False),
         args={'ifname': new_name, 'up': False}
     )
