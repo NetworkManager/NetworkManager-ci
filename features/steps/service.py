@@ -70,7 +70,7 @@ def reboot(context, timeout=None):
 
     nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
 
-    assert nmci.nmutil.start_NM_service(timeout=timeout), "NM start failed"
+    assert nmci.nmutil.start_NM_service(reset=True, timeout=timeout), "NM start failed"
 
 
 @step("Start NM")
