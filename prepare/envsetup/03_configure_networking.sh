@@ -91,6 +91,11 @@ configure_networking () {
         rm -rf /etc/sysconfig/network-scripts/*
     fi
 
+    # Comment out all mentions of plugins
+    for file in `grep -rl '^\s*plugins\s*=' /etc/NetworkManager/`; do
+        sed -i "s/\(^\s*plugins\s*=\)/#\1/" "$file"
+    done
+
     # Drop compiled in defaults into proper config
     if grep -q -e 'release 8' /etc/redhat-release; then
         echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
