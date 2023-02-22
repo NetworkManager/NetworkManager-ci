@@ -1372,7 +1372,6 @@ _register_tag("openvpn6")
 
 def strongswan_bs(context, scenario):
     # Do not run on RHEL7 on s390x
-    nmci.cleanup.cleanup_add_iface("tun0", op="delete")
     if "release 7" in context.rh_release:
         if context.arch == "s390x":
             context.cext.skip("Skipping on RHEL7 on s390x")

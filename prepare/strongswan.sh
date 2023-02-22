@@ -183,6 +183,8 @@ strongswan_teardown ()
         ip link del strongswan1
         kill_dnsmasq
         nmcli connection del str1
+        # leftover on RHEL9
+        pkill charon-nm
         modprobe -r ip_vti
 }
 
