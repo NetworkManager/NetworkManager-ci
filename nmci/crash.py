@@ -251,11 +251,10 @@ def after_crash_reset(context):
     for link in nmci.ip.link_show_all(binary=True):
         if link["ifname"] in allowed_links or link["ifname"].startswith(b"orig-"):
             continue
-        nmci.process.run_stdout(
-            "ip link delete $'"
-            + link["ifname"].decode("utf-8", "backslashreplace")
-            + "'",
-            shell=True,
+        nmci.process.run(
+            [b"ip", b"link", b"delete", nmci.util.str_to_bytes(link["ifname"])],
+            ignore_returncode=True,
+            ignore_stderr=True,
         )
 
     print("Remove all ifcfg files")
