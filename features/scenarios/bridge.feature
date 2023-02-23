@@ -963,6 +963,27 @@ Feature: nmcli - bridge
     Then "fe80" is not visible with command "python contrib/gi/nmclient_get_device_property.py dummy0 get_ip6_config"
 
 
+    @rhbz2165029
+    @ver+=1.41.7
+    @ver+=1.40.14
+    @bridge_v6ll_present_with_stp_and_static_v4
+    Scenario: nmcli - bridge - link-local v6 address is present with STP on and static v4
+    * Add "bridge" connection named "con_br0" for device "br0" with options
+        """
+        stp on autoconnect no ipv6.method link-local
+        ipv4.method manual ipv4.addresses 172.25.81.1/24
+        """
+    * Add "ethernet" connection named "con_eth4" for device "eth4" with options
+        """
+        master con_br0 autoconnect no
+        """
+    * Bring "up" connection "con_br0"
+    * Bring "up" connection "con_eth4"
+    When "NO-CARRIER" is not visible with command "ip l show br0" in "40" seconds
+    Then "inet6 fe80" is visible with command "ip a show br0"
+    Then "inet 172.25.81.1" is visible with command "ip a show br0"
+
+
     @rhbz1778590
     @ver+=1.29 @ver-=1.32 @rhelver+=8
     @bridge_set_mtu

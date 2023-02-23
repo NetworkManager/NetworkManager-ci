@@ -445,6 +445,8 @@ testmapper:
         feature: bridge
     - bridge_remove_slaves_ipv6ll:
         feature: bridge
+    - bridge_v6ll_present_with_stp_and_static_v4:
+        feature: bridge
     - bridge_set_mtu:
         feature: bridge
         tags: gate
