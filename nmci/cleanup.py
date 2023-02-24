@@ -291,12 +291,15 @@ class CleanupFile(Cleanup):
     def __init__(
         self,
         *files,
+        name=None,
         priority=Cleanup.PRIORITY_FILE,
     ):
         self.files = tuple(files)
+        if name is None:
+            name = f"file-{self.files}"
         Cleanup.__init__(
             self,
-            name=f"file-{self.files}",
+            name=name,
             unique_tag=(files,),
             priority=priority,
         )
@@ -309,15 +312,15 @@ class CleanupFile(Cleanup):
                 pass
 
 
-class CleanupUdevRule(Cleanup):
+class CleanupUdevRule(CleanupFile):
     def __init__(
         self,
         rule,
         priority=Cleanup.PRIORITY_UDEV_RULE,
     ):
-        self.rule = rule
-        Cleanup.__init__(
+        CleanupFile.__init__(
             self,
+            rule,
             name=f"udev-rule-{rule}",
             unique_tag=(rule,),
             priority=priority,
@@ -325,12 +328,6 @@ class CleanupUdevRule(Cleanup):
 
     def also_needs(self):
         return (CleanupUdevUpdate(),)
-
-    def _do_cleanup(self):
-        try:
-            os.remove(self.rule)
-        except FileNotFoundError:
-            pass
 
 
 class CleanupNMService(Cleanup):
