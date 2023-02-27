@@ -2236,13 +2236,9 @@ _register_tag("novice")
 
 
 def no_connections_bs(context, scenario):
-    context.process.run_code(
-        "rm -rf /etc/NetworkManager/system-connections/testeth*", shell=True
+    nmci.process.nmcli(
+        ["con", "del", *[c["name"] for c in nmci.nmutil.connection_show()]]
     )
-    context.process.run_code(
-        "rm -rf /etc/sysconfig/network-scripts/ifcfg-*", shell=True
-    )
-    context.process.nmcli("con reload")
 
 
 def no_connections_as(context, scenario):
