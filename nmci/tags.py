@@ -1879,16 +1879,23 @@ def openvswitch_as(context, scenario):
         nmci.embed.embed_data("OVSDemon", data2)
 
     # Restart in case we have openvswitch stopped from the test
-    context.process.systemctl("restart openvswitch")
+    if context.process.systemctl("is-active openvswitch").returncode != 0:
+        context.process.systemctl("restart openvswitch")
+    nmci.nmutil.stop_NM_service()
+    context.nm_restarted = True
 
     context.process.run(
         "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",
         ignore_stderr=True,
         shell=True,
     )
-    time.sleep(1)
+    context.process.run(
+        "ovs-vsctl list-br",
+        ignore_stderr=True,
+    )
 
     context.process.systemctl("stop openvswitch")
+    time.sleep(1)
     nmci.nmutil.restart_NM_service()
 
 
