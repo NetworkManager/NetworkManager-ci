@@ -25,6 +25,7 @@ PRIORITY_NFT_DEFAULT = 40
 PRIORITY_NFT_OTHER = 41
 PRIORITY_UDEV_RULE = 50
 PRIORITY_FILE = 70
+PRIORITY_FILE_RESTORE = 80
 PRIORITY_NM_SERVICE_RESTART = 200
 PRIORITY_UDEV_UPDATE = 300
 
@@ -47,6 +48,7 @@ class _Cleanup:
         PRIORITY_NFT_OTHER = PRIORITY_NFT_OTHER
         PRIORITY_UDEV_RULE = PRIORITY_UDEV_RULE
         PRIORITY_FILE = PRIORITY_FILE
+        PRIORITY_FILE_RESTORE = PRIORITY_FILE_RESTORE
         PRIORITY_NM_SERVICE_RESTART = PRIORITY_NM_SERVICE_RESTART
         PRIORITY_UDEV_UPDATE = PRIORITY_UDEV_UPDATE
 
@@ -349,6 +351,40 @@ class _Cleanup:
 
         def also_needs(self):
             return (_Cleanup.CleanupNMService("restart"),)
+
+    class CleanupFileRestore(Cleanup):
+        """
+        * a positional argument is the file name to be backed up and subsequently
+          force-restored in clean-up phase.
+        * as we don't have implemented reverse unique_tag (skipping cleanup object
+          creation if one already exists), we have to use Cleanup.UNIQ_TAG_DISTINCT
+          to ensure that the system is at the same state as before the scenario
+        * Contents is stored in memory, therefore don't use this cleanup for files
+          that could get too large
+        * Neither exceptions during _add_cleanup(), nor exceptions during
+          _do_cleanup() are caught. File must exist and be readable during
+          _add_cleanup() and directory must exist and be writable during _do_cleanup
+        """
+
+        def __init__(
+            self,
+            file,
+            priority=PRIORITY_FILE_RESTORE,
+        ):
+            self.fcontent = open(file, "rb").read()
+            self.fname = file
+            super().__init__(
+                self,
+                name=f"backup-file-{file}",
+                # not usable until we can set here first-added-is-retained
+                # unique_tag=(file,),
+                unique_tag=UNIQ_TAG_DISTINCT,
+                priority=priority,
+            )
+
+        def _do_cleanup(self):
+            with open(self.fname, "wb") as handle:
+                handle.write(self.fcontent)
 
     NM_CONF_DIRS = {
         "etc": "/etc/NetworkManager/conf.d/",
