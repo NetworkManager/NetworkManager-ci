@@ -139,6 +139,7 @@ Feature: nmcli - general
 
 
     @rhbz2166711
+    @ver/rhel/8+=1.40.16.1
     @ver+=1.42.0
     @restore_hostname @eth0
     @kill_dnsmasq_ip6
@@ -164,6 +165,7 @@ Feature: nmcli - general
     Then "client42" is visible with command "hostnamectl --transient" in "30" seconds
 
 
+    @ver/rhel/8+=1.40.16.1
     @ver+=1.42.0
     @restore_hostname @eth0
     @kill_dnsmasq_ip6
