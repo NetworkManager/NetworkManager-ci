@@ -140,7 +140,7 @@ Feature: nmcli - general
 
     @rhbz2166711
     @ver/rhel/8+=1.40.16.1
-    @ver+=1.42.0
+    @ver+=1.42.2
     @restore_hostname @eth0
     @kill_dnsmasq_ip6
     @pull_hostname_from_dns_static_ipv6
@@ -166,7 +166,7 @@ Feature: nmcli - general
 
 
     @ver/rhel/8+=1.40.16.1
-    @ver+=1.42.0
+    @ver+=1.42.2
     @restore_hostname @eth0
     @kill_dnsmasq_ip6
     @pull_hostname_from_dns_dynamic_ipv6
