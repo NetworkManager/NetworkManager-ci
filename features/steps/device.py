@@ -1,5 +1,6 @@
 import json
 import pexpect
+import shlex
 import time
 from behave import step, given  # pylint: disable=no-name-in-module
 
@@ -697,27 +698,21 @@ def cleanup_connection(context, iface):
 @step(u'Create "{typ}" device named "{name}" with options "{options}"')
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}"')
 @step(u'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"')
-def add_device(context, typ, name, namespace="", options=""):
+def add_device(context, typ, name, namespace=None, options=""):
     nmci.cleanup.cleanup_add_iface(name)
-    namespace = f"-n {namespace}" if namespace else ""
-
     # Make sure the new device gets the hightest ifindex of all links.
     # This is what generally happens when adding a new link and some tests
     # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
     # not guarranteed and doesn't happen when the device is moved across
     # namespaces and got a lower ifindex in the old namespace.
-    links = json.loads(nmci.process.run_stdout("ip -j link", embed_combine_tag=nmci.embed.NO_EMBED))
-    links = links + json.loads(nmci.process.run_stdout(f"ip {namespace} -j link", embed_combine_tag=nmci.embed.NO_EMBED))
-    for link in links:
-        if link["ifindex"] > context.ifindex:
-            context.ifindex = link["ifindex"]
+    ifindices = (link["ifindex"] for link in nmci.ip.link_show_all(namespace=nmci.ip.IP_NAMESPACE_ALL))
 
     # Bump, so that we don't try to use the same ifindex even before the
     # result of previous link add is visible. Bump by two, because a veth
     # pair might be created.
-    context.ifindex = context.ifindex + 2
-    cmd = nmci.process.WithShell(f"ip {namespace} link add index {context.ifindex} {name} type {typ} {options}")
-    context.process.run_stdout(cmd)
+    context.ifindex = max(context.ifindex, *ifindices) + 2
+
+    nmci.ip.link_add(name, typ, *shlex.split(options), namespace=namespace, ifindex=context.ifindex, wait_for_device=5)
 
 
 @step(u'Add namespace "{name}"')

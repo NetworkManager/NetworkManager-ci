@@ -348,10 +348,13 @@ def prepare_simdev_no_dhcp(context, device):
     manage_veth_device(context, device)
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
-    context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
-    context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    context.execute_steps(f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"')
+    nmci.ip.link_set(ifname=device, namespace=f"{device}_ns", netns=str(os.getpid()))
+    # Fix potential race with indices in "iptunnel" prepare
+    # Wait until device appears in root namespace, so index is captured correctly
+    nmci.ip.link_show(ifname=device, timeout=5)
+    nmci.ip.link_set(ifname=f"{device}p", namespace=f"{device}_ns", up=True)
 
 
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
