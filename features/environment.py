@@ -265,7 +265,7 @@ def _after_scenario(context, scenario):
                 nmci.util.file_get_content_simple("/tmp/tui-screen.log"),
             )
         # Stop TUI
-        nmci.process.run_code("sudo killall nmtui &> /dev/null", ignore_stderr=True)
+        nmci.process.run_code("killall nmtui", ignore_stderr=True)
         if os.path.isfile("/tmp/nmtui.out"):
             os.remove("/tmp/nmtui.out")
 
