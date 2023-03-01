@@ -169,8 +169,11 @@ strongswan_setup ()
         ip netns exec strongswan mount -o bind,remount $VAR_RUN_DIR /var/run
 
         ip netns exec strongswan strongswan start
-        sleep 1
-        ip netns exec strongswan swanctl --load-conns
+        c=0
+        while ! ip netns exec strongswan swanctl --load-conns; do
+            sleep 0.5
+            ((c++ > 5)) && break
+        done
         ip netns exec strongswan swanctl --load-pools
         ip netns exec strongswan swanctl --load-creds
 
