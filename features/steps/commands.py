@@ -556,7 +556,11 @@ def not_expect_children(context, pattern, seconds):
 @step(u'Start following journal')
 def start_tailing_journal(context):
     context.journal = context.pexpect_service('sudo journalctl --follow -o cat', timeout=180)
-    time.sleep(0.3)
+    with nmci.util.start_timeout(10) as t:
+        while t.loop_sleep(0.2):
+            nmci.process.run_stdout("logger nmci_journal_follow")
+            if context.journal.expect(["nmci_journal_follow", nmci.pexpect.TIMEOUT], timeout=0.2) == 0:
+                break
 
 
 @step(u'Look for "{content}" in journal')
