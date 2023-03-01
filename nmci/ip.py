@@ -8,7 +8,13 @@ def __getattr__(attr):
     return getattr(_module, attr)
 
 
+IP_NAMESPACE_ALL = object()
+
+
 class _IP:
+
+    IP_NAMESPACE_ALL = IP_NAMESPACE_ALL
+
     def addr_family_norm(self, addr_family):
         if addr_family in [socket.AF_INET, socket.AF_INET6]:
             return addr_family
@@ -418,51 +424,60 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        ns_args = []
+        ns_args = {"": []}
         if namespace is not None:
-            ns_args = ["-n", namespace]
+            if namespace is IP_NAMESPACE_ALL:
+                for ns in self.netns_list():
+                    ns_args[ns] = ["-n", ns]
+            else:
+                ns_args = {namespace: ["-n", namespace]}
 
-        out = nmci.process.run_stdout(
-            ["ip", *ns_args, "-d", "link", "show"], as_bytes=True
-        )
+        outs = {}
+        for ns, ns_arg in ns_args.items():
+            outs[ns] = nmci.process.run_stdout(
+                ["ip", *ns_arg, "-d", "link", "show"], as_bytes=True
+            )
 
         result = []
 
-        lines = out.split(b"\n")
-        i = 0
+        for ns, out in outs.items():
+            lines = out.split(b"\n")
+            i = 0
 
-        if lines and not lines[-1]:
-            del lines[-1]
+            if lines and not lines[-1]:
+                del lines[-1]
 
-        if not lines:
-            raise Exception("output of ip link is empty")
-
-        while i < len(lines):
-            line = lines[i]
-            i += 1
-
-            # currently we only parse a subset of the parameters
-
-            ip_data = {}
-
-            m = re.match(rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>", line)
-            if not m:
-                raise Exception("Unexpected line in ip link output: %s" % (line))
-
-            ip_data["ifindex"] = int(m.group(1))
-            ip_data["ifname"] = nmci.util.binary_to_str(m.group(2), binary)
-
-            g = m.group(4)
-            g = [s.decode() for s in g.split(b",")]
-            ip_data["flags"] = g
+            if not lines:
+                raise Exception("output of ip link is empty")
 
             while i < len(lines):
                 line = lines[i]
-                if not re.match(rb"^ +", line):
-                    break
                 i += 1
 
-            result.append(ip_data)
+                # currently we only parse a subset of the parameters
+
+                ip_data = {}
+
+                m = re.match(rb"^([0-9]+): *([^:@]+)(@[^:]*)?: <([^>]*)>", line)
+                if not m:
+                    raise Exception("Unexpected line in ip link output: %s" % (line))
+
+                ip_data["ifindex"] = int(m.group(1))
+                ip_data["ifname"] = nmci.util.binary_to_str(m.group(2), binary)
+
+                g = m.group(4)
+                g = [s.decode() for s in g.split(b",")]
+                ip_data["flags"] = g
+
+                while i < len(lines):
+                    line = lines[i]
+                    if not re.match(rb"^ +", line):
+                        break
+                    i += 1
+
+                ip_data["namespace"] = ns
+
+                result.append(ip_data)
 
         return result
 
@@ -626,19 +641,48 @@ class _IP:
             # trying to delete a non-existing interface.
             raise
 
-    def link_add(self, ifname, link_type, namespace=None, **kwargs):
-        args = []
+    def link_add(
+        self,
+        ifname,
+        link_type,
+        *args,
+        ifindex=None,
+        namespace=None,
+        wait_for_device=None,
+        **kwargs,
+    ):
+        merged_args = list(args)
         for key, value in kwargs.items():
-            args += [key, value]
+            merged_args += [key, value]
 
         ns_args = []
         if namespace is not None:
             ns_args = ["-n", namespace]
 
+        # index must be specified before type
+        index_args = []
+        if ifindex is not None:
+            index_args = ["index", str(ifindex)]
+
         nmci.process.run_stdout(
-            ["ip", *ns_args, "link", "add", ifname, "type", link_type, *args],
+            [
+                "ip",
+                *ns_args,
+                "link",
+                "add",
+                ifname,
+                *index_args,
+                "type",
+                link_type,
+                *merged_args,
+            ],
             as_bytes=True,
         )
+
+        if wait_for_device:
+            self.link_show(
+                ifname, namespace=namespace, ifindex=ifindex, timeout=wait_for_device
+            )
 
     def netns_list(self, with_binary=False):
         out = nmci.process.run_stdout("ip netns list", as_bytes=True)
