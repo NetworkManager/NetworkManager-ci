@@ -5,10 +5,6 @@ import re
 import nmci
 
 
-def __getattr__(attr):
-    return getattr(_module, attr)
-
-
 UNIQ_TAG_DISTINCT = object()
 
 PRIORITY_NM_SERVICE_START = -30
@@ -29,7 +25,6 @@ PRIORITY_NM_SERVICE_RESTART = 200
 PRIORITY_UDEV_UPDATE = 300
 
 
-class _Cleanup:
     class Cleanup:
         UNIQ_TAG_DISTINCT = UNIQ_TAG_DISTINCT
 
@@ -418,6 +413,3 @@ class _Cleanup:
             except Exception as e:
                 ex.append(e)
         return ex
-
-
-_module = _Cleanup()
