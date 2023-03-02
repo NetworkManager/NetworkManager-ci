@@ -546,45 +546,43 @@ def prepare_iptunnel_doc(context, mode):
     context.execute_steps('* Prepare simulated test "netA" device without DHCP')
     context.execute_steps('* Prepare simulated test "netB" device without DHCP')
     context.execute_steps('* Add namespace "iptunnelB"')
-    context.command_code("ip link set netB netns iptunnelB")
+    nmci.ip.link_set(ifname="netB", netns="iptunnelB")
     if bridge:
         # if bridge, add addresses to "computers" in local networks
-        context.command_code("ip -n netA_ns addr add 192.0.2.3/24 dev netAp")
-        context.command_code("ip -n netB_ns addr add 192.0.2.4/24 dev netBp")
+        nmci.ip.address_add("192.0.2.3/24", ifname="netAp", namespace="netA_ns")
+        nmci.ip.address_add("192.0.2.4/24", ifname="netBp", namespace="netB_ns")
     else:
         # only add local addresses if not bridge
-        context.command_code("ip addr add 192.0.2.1/24 dev netA")
-        context.command_code("ip -n iptunnelB address add 172.16.0.1/24 dev netB")
+        nmci.ip.address_add(address="192.0.2.1/24", ifname="netA")
+        nmci.ip.address_add(address="172.16.0.1/24", ifname="netB", namespace="iptunnelB")
 
     # connect Network A (public IP 203.0.113.10) and Network B (public IP 198.51.100.5) via veth pair ipA and ipB
     context.execute_steps('* Create "veth" device named "ipA" with options "peer name ipB"')
-    context.command_code("ip link set ipA up")
-    context.command_code("ip addr add 203.0.113.10/32 dev ipA")
-    context.command_code("ip route add 198.51.100.5/32 dev ipA")
-    context.command_code("ip link set ipB netns iptunnelB")
-    context.command_code("ip -n iptunnelB link set ipB up")
-    context.command_code("ip -n iptunnelB address add 198.51.100.5/32 dev ipB")
-    context.command_code("ip -n iptunnelB route add 203.0.113.10/32 dev ipB")
-    assert context.command_code("ping -c 1 198.51.100.5") == 0, \
-        "unable to ping public IP of B from A"
-    assert context.command_code("ip netns exec iptunnelB ping -c 1 203.0.113.10") == 0, \
-        "unable to ping public IP of A from B"
+    nmci.ip.link_set(ifname="ipA", up=True)
+    nmci.ip.address_add(address="203.0.113.10/32", ifname="ipA")
+    nmci.ip.route_add("198.51.100.5/32", ifname="ipA")
+    nmci.ip.link_set(ifname="ipB", netns="iptunnelB")
+    nmci.ip.link_set(ifname="ipB", up=True, namespace="iptunnelB")
+    nmci.ip.address_add(address="198.51.100.5/32", ifname="ipB", namespace="iptunnelB")
+    nmci.ip.route_add("203.0.113.10/32", ifname="ipB", namespace="iptunnelB")
+    nmci.process.run_stdout("ping -c 1 198.51.100.5")
+    nmci.process.run_stdout("ping -c 1 203.0.113.10", namespace="iptunnelB")
 
     # preapre Network B part of iptunnel (in iptunnelB namespace)
-    context.command_code("ip -n iptunnelB link add name tunB type %s local 198.51.100.5 remote 203.0.113.10" % (mode))
-    context.command_code("ip -n iptunnelB link set tunB up")
-    if not bridge:
-        context.command_code("ip -n iptunnelB addr add 10.0.1.2/30 dev tunB")
-        context.command_code("ip -n iptunnelB route add 10.0.1.1 dev tunB")
-        context.command_code("ip -n iptunnelB route add 192.0.2.0/24 dev tunB")
+    nmci.ip.link_add(ifname="tunB", link_type=mode, local="198.51.100.5", remote="203.0.113.10", namespace="iptunnelB")
+    nmci.ip.link_set(ifname="tunB", up=True, namespace="iptunnelB")
+    if bridge:
+        nmci.ip.link_add(ifname="brB", link_type="bridge", namespace="iptunnelB")
+        nmci.ip.link_set(ifname="netB", up=False, namespace="iptunnelB")
+        nmci.ip.link_set(ifname="netB", master="brB", namespace="iptunnelB")
+        nmci.ip.link_set(ifname="netB", up=True, namespace="iptunnelB")
+        nmci.ip.link_set(ifname="brB", up=True, namespace="iptunnelB")
+        nmci.ip.address_add("192.0.2.2/24", ifname="brB", namespace="iptunnelB")
+        nmci.ip.link_set(ifname="tunB", master="brB", namespace="iptunnelB")
     else:
-        context.command_code("ip -n iptunnelB link add brB type bridge")
-        context.command_code("ip -n iptunnelB link set netB down")
-        context.command_code("ip -n iptunnelB link set netB master brB")
-        context.command_code("ip -n iptunnelB link set netB up")
-        context.command_code("ip -n iptunnelB link set brB up")
-        context.command_code("ip -n iptunnelB addr add 192.0.2.2/24 dev brB")
-        context.command_code("ip -n iptunnelB link set tunB master brB")
+        nmci.ip.address_add("10.0.1.2/30", ifname="tunB", namespace="iptunnelB")
+        nmci.ip.route_add("10.0.1.1/32", ifname="tunB", namespace="iptunnelB")
+        nmci.ip.route_add("192.0.2.0/24", ifname="tunB", namespace="iptunnelB")
 
 
 @step('Prepare simulated MPTCP setup with "{num}" veths named "{veth}"')
