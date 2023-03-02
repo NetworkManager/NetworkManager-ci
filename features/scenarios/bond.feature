@@ -1160,6 +1160,7 @@
 
 
     @rhbz2117202
+    @ver-=1.43.1
     @bond_options_new_arp_values
     Scenario: nmcli - bond - options - set new arp values
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1181,6 +1182,30 @@
      Then Check "nm-bond" has "eth1" in proc
      Then Check "nm-bond" has "eth4" in proc
 
+    @rhbz2117202
+    @rhbz2069004
+    @ver+=1.43.2
+    @bond_options_new_arp_values
+    Scenario: nmcli - bond - options - set new arp values
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Modify connection "bond0" changing options "bond.options mode=0,arp_interval=1000,arp_ip_target="10.16.135.254 10.16.135.253",ns_ip6_target="2001:dead:beef:: 2000:acdc:1234:6600::""
+     * Bring "up" connection "bond0"
+     * Bring "up" connection "bond0.0"
+     * Bring "up" connection "bond0.1"
+     Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "ARP IP target/s \(n.n.n.n form\):.*10.16.135.254, 10.16.135.253" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "NS IPv6 target/s \(xx::xx form\):.*2001:dead:beef::, 2000:acdc:1234:6600::" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check "nm-bond" has "eth1" in proc
+     Then Check "nm-bond" has "eth4" in proc
 
     @bond_options_arp_vs_miimon_conflict
     Scenario: nmcli - bond - options - set conflicting values between miimon and arp
