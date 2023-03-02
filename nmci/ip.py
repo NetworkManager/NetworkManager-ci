@@ -738,5 +738,154 @@ class _IP:
             ignore_stderr=not check,
         )
 
+    def _route(
+        self,
+        route,
+        ifname=None,
+        action=None,
+        *args,
+        ifindex=None,
+        addr_family=None,
+        namespace=None,
+        wait_for_device=None,
+        **kwargs,
+    ):
+        assert action in ["add", "del", "show", "flush"], f"Unknown action: `{action}`."
+
+        show_or_flush = action in ["show", "flush"]
+        route_arg = []
+        addr_family_arg = []
+        if not show_or_flush:
+            route_norm, addr_family_detect, plen = self.ipaddr_plen_parse(
+                route, addr_family
+            )
+            route_arg = [f"{route_norm}/{plen}"]
+            addr_family_arg = [f"-{self.addr_family_num(addr_family_detect)}"]
+        elif addr_family is not None:
+            addr_family_arg = [f"-{self.addr_family_num(addr_family)}"]
+
+        if (
+            (ifname is None and not show_or_flush)
+            or ifindex is not None
+            or wait_for_device is not None
+        ):
+            li = self.link_show(
+                ifindex=ifindex,
+                ifname=ifname,
+                timeout=wait_for_device,
+                namespace=namespace,
+            )
+            ifname = li["ifname"]
+
+        ifname_arg = ["dev", ifname] if ifname is not None else []
+
+        ns_arg = ["-n", namespace] if namespace is not None else []
+
+        merged_args = list(args)
+        merged_args += [arg for item in kwargs.items() for arg in item]
+
+        return nmci.process.run_stdout(
+            [
+                "ip",
+                *addr_family_arg,
+                *ns_arg,
+                "route",
+                action,
+                *route_arg,
+                *merged_args,
+                *ifname_arg,
+            ]
+        )
+
+    def route_add(
+        self,
+        route,
+        ifname=None,
+        *args,
+        ifindex=None,
+        addr_family=None,
+        namespace=None,
+        wait_for_device=None,
+        **kwargs,
+    ):
+        self._route(
+            route,
+            ifname,
+            "add",
+            *args,
+            addr_family=addr_family,
+            ifindex=ifindex,
+            namespace=namespace,
+            wait_for_device=wait_for_device,
+            **kwargs,
+        )
+
+    def route_del(
+        self,
+        route,
+        ifname=None,
+        *args,
+        ifindex=None,
+        namespace=None,
+        addr_family=None,
+        wait_for_device=None,
+        **kwargs,
+    ):
+        self._route(
+            route,
+            ifname,
+            "del",
+            *args,
+            addr_family=addr_family,
+            ifindex=ifindex,
+            namespace=namespace,
+            wait_for_device=wait_for_device,
+            **kwargs,
+        )
+
+    def route_flush(
+        self,
+        ifname=None,
+        ifindex=None,
+        namespace=None,
+        wait_for_device=None,
+        addr_family=None,
+    ):
+        self._route(
+            None,
+            ifname,
+            "flush",
+            addr_family=addr_family,
+            ifindex=ifindex,
+            namespace=namespace,
+            wait_for_device=wait_for_device,
+        )
+
+    def route_show(
+        self,
+        ifname=None,
+        ifindex=None,
+        namespace=None,
+        wait_for_device=None,
+        addr_family=None,
+    ):
+        result = {}
+        routes = self._route(
+            None,
+            ifname,
+            "show",
+            addr_family=addr_family,
+            ifindex=ifindex,
+            namespace=namespace,
+            wait_for_device=wait_for_device,
+        )
+        routes_lines = routes.strip("\n").split("\n")
+        for route in routes_lines:
+            if not route:
+                continue
+            route, params = route.split(" ", 1)
+            result[route] = params
+        return result
+
 
 _module = _IP()
