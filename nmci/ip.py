@@ -9,11 +9,13 @@ def __getattr__(attr):
 
 
 IP_NAMESPACE_ALL = object()
+IP_LINK_NOMASTER = object()
 
 
 class _IP:
 
     IP_NAMESPACE_ALL = IP_NAMESPACE_ALL
+    IP_LINK_NOMASTER = IP_LINK_NOMASTER
 
     def addr_family_norm(self, addr_family):
         if addr_family in [socket.AF_INET, socket.AF_INET6]:
@@ -561,13 +563,15 @@ class _IP:
     def link_set(
         self,
         ifname=None,
-        *,
+        *args,
         ifindex=None,
         up=None,
         wait_for_device=None,
-        name=None,
         namespace=None,
+        name=None,
         netns=None,
+        master=None,
+        **kwargs,
     ):
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
@@ -578,30 +582,32 @@ class _IP:
             )
             ifname = li["ifname"]
 
-        args_set = [up is not None, netns is not None, name is not None]
-        assert any(args_set), "One of ('up', 'netns', 'name') arguments must be set."
-        assert (
-            args_set.count(True) == 1
-        ), "More than one of ('up', 'netns', 'name') can not be set at the same time."
-
+        merged_args = []
         if up is not None:
-            if up:
-                args = ["up"]
-            else:
-                args = ["down"]
+            merged_args.append("up" if up else "down")
 
         if name is not None:
-            args = ["name", name]
+            merged_args += ["name", name]
 
         if netns is not None:
-            args = ["netns", netns]
+            merged_args += ["netns", netns]
+
+        if master is IP_LINK_NOMASTER:
+            merged_args.append("nomaster")
+        elif master is not None:
+            merged_args += ["master", master]
+
+        merged_args += list(args)
+        merged_args += [arg for item in kwargs.items() for arg in item]
+
+        assert merged_args, "Nothing to be set."
 
         ns_args = []
         if namespace is not None:
             ns_args = ["-n", namespace]
 
         nmci.process.run_stdout(
-            ["ip", *ns_args, "link", "set", ifname, *args], as_bytes=True
+            ["ip", *ns_args, "link", "set", ifname, *merged_args], as_bytes=True
         )
 
     def link_delete(
