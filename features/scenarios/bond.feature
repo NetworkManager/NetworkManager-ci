@@ -1529,6 +1529,44 @@
      Then Check bond "nm-bond" link state is "up"
 
 
+    @rhbz2069001
+    @ver+=1.43.2
+    @bond_8023ad_with_lacp_active_on
+    Scenario: nmcli - bond - options - mode set to 802.3ad with lacp_rate fast
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Modify connection "bond0" changing options "bond.options mode=802.3ad,miimon=100,xmit_hash_policy=layer2+3,lacp_active=on"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Transmit Hash Policy:\s+layer2\+3" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "802.3ad info.*LACP rate: slow" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "LACP active:.*on" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+
+
+    @rhbz2069001
+    @ver+=1.43.2
+    @bond_8023ad_with_lacp_active_off
+    Scenario: nmcli - bond - options - mode set to 802.3ad with lacp_rate fast
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Modify connection "bond0" changing options "bond.options mode=802.3ad,miimon=100,xmit_hash_policy=layer2+3,lacp_active=off"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "Transmit Hash Policy:\s+layer2\+3" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "802.3ad info.*LACP rate: slow" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then "LACP active:.*off" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+
+
     @bond_mode_balance_tlb
     Scenario: nmcli - bond - options - mode set to balance-tlb
      * Add "bond" connection named "bond0" for device "nm-bond" with options

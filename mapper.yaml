@@ -205,6 +205,10 @@ testmapper:
         feature: bond
     - bond_8023ad_with_lacp_rate_fast:
         feature: bond
+    - bond_8023ad_with_lacp_active_on:
+        feature: bond
+    - bond_8023ad_with_lacp_active_off:
+        feature: bond
     - bond_mode_balance_tlb:
         feature: bond
     - bond_mode_balance_alb:
