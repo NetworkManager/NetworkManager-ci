@@ -557,11 +557,12 @@ def prepare_iptunnel_doc(context, mode):
         nmci.ip.address_add(address="172.16.0.1/24", ifname="netB", namespace="iptunnelB")
 
     # connect Network A (public IP 203.0.113.10) and Network B (public IP 198.51.100.5) via veth pair ipA and ipB
-    context.execute_steps('* Create "veth" device named "ipA" with options "peer name ipB"')
+    context.execute_steps('* Create "veth" device named "ipA" in namespace "iptunnelB" with options "peer name ipB"')
+    nmci.ip.link_set(ifname="ipA", up=False, namespace="iptunnelB")
+    nmci.ip.link_set(ifname="ipA", netns=str(os.getpid()), namespace="iptunnelB")
     nmci.ip.link_set(ifname="ipA", up=True)
     nmci.ip.address_add(address="203.0.113.10/32", ifname="ipA")
     nmci.ip.route_add("198.51.100.5/32", ifname="ipA")
-    nmci.ip.link_set(ifname="ipB", netns="iptunnelB")
     nmci.ip.link_set(ifname="ipB", up=True, namespace="iptunnelB")
     nmci.ip.address_add(address="198.51.100.5/32", ifname="ipB", namespace="iptunnelB")
     nmci.ip.route_add("203.0.113.10/32", ifname="ipB", namespace="iptunnelB")
