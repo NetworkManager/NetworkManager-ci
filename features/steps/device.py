@@ -710,7 +710,7 @@ def add_device(context, typ, name, namespace=None, options=""):
     # Bump, so that we don't try to use the same ifindex even before the
     # result of previous link add is visible. Bump by two, because a veth
     # pair might be created.
-    context.ifindex = max(context.ifindex, *ifindices) + 2
+    context.ifindex = max(context.ifindex, *ifindices) + 3
 
     nmci.ip.link_add(name, typ, *shlex.split(options), namespace=namespace, ifindex=context.ifindex, wait_for_device=5)
 
