@@ -97,6 +97,7 @@ class Cleanup:
             raise NotImplementedError("cleanup not implemented")
         self._callback(**self.args)
 
+
 class CleanupConnection(Cleanup):
     def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
         self.con_name = con_name
@@ -114,6 +115,7 @@ class CleanupConnection(Cleanup):
         else:
             args = [self.con_name]
         nmci.process.nmcli_force(["connection", "delete"] + args)
+
 
 class CleanupIface(Cleanup):
     def __init__(self, iface, op=None, priority=None):
@@ -145,6 +147,7 @@ class CleanupIface(Cleanup):
             nmci.process.nmcli_force(["device", "delete", self.iface])
             return
         raise Exception(f'Unexpected cleanup op "{self.op}"')
+
 
 class CleanupSysctls(Cleanup):
     """
@@ -184,6 +187,7 @@ class CleanupSysctls(Cleanup):
         sysctl_p.sendcontrol("d")
         sysctl_p.sendeof()
 
+
 class CleanupNamespace(Cleanup):
     def __init__(self, namespace, teardown=True, priority=PRIORITY_NAMESPACE):
         self.teardown = teardown
@@ -203,6 +207,7 @@ class CleanupNamespace(Cleanup):
             ["ip", "netns", "del", self.namespace],
             ignore_stderr=True,
         )
+
 
 class CleanupMptcpEndpoints(Cleanup):
     def __init__(self):
@@ -235,6 +240,7 @@ class CleanupMptcpEndpoints(Cleanup):
         for endpoint in self.mptcp_endpoints:
             mptcp.endpoint("add", **endpoint)
 
+
 class CleanupMptcpLimits(Cleanup):
     def __init__(self, namespace=None):
         self.namespace = namespace
@@ -247,6 +253,7 @@ class CleanupMptcpLimits(Cleanup):
         nmci.process.run(
             f"ip mptcp limits set {self.mptcp_limits}", namespace=self.namespace
         )
+
 
 class CleanupNft(Cleanup):
     def __init__(self, namespace=None, priority=None):
@@ -271,6 +278,7 @@ class CleanupNft(Cleanup):
             cmd = ["ip", "netns", "exec", self.namespace] + cmd
         nmci.process.run(cmd)
 
+
 class CleanupUdevUpdate(Cleanup):
     def __init__(
         self,
@@ -281,6 +289,7 @@ class CleanupUdevUpdate(Cleanup):
     def _do_cleanup(self):
 
         nmci.util.update_udevadm()
+
 
 class CleanupFile(Cleanup):
     def __init__(self, *files, priority=PRIORITY_FILE, name=None):
@@ -296,12 +305,14 @@ class CleanupFile(Cleanup):
             except FileNotFoundError:
                 pass
 
+
 class CleanupUdevRule(CleanupFile):
     def __init__(self, rule, priority=PRIORITY_UDEV_RULE):
         super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
     def also_needs(self):
         return (CleanupUdevUpdate(),)
+
 
 class CleanupNMService(Cleanup):
     def __init__(self, operation, priority=None):
@@ -330,14 +341,17 @@ class CleanupNMService(Cleanup):
             r = True
         assert r
 
+
 NM_CONF_DIRS = {
     "etc": "/etc/NetworkManager/conf.d/",
     "usr": "/usr/lib/NetworkManager/conf.d/",
     "run": "/var/run/NetworkManager/conf.d/",
 }
 
+
 class CleanupNMConfig(CleanupFile):
     NM_CONF_DIRS = NM_CONF_DIRS
+
     def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
         if config_directory is not None:
             assert config_directory in NM_CONF_DIRS
@@ -345,12 +359,11 @@ class CleanupNMConfig(CleanupFile):
         elif not config_file.startswith("/"):
             config_file = NM_CONF_DIRS["etc"] + config_file
 
-        super.__init__(
-            config_file, priority=priority, name=f"NM-config-{config_file}"
-        )
+        super.__init__(config_file, priority=priority, name=f"NM-config-{config_file}")
 
     def also_needs(self):
         return (CleanupNMService("restart"),)
+
 
 # Aliases to remain compatible
 cleanup_add = Cleanup
@@ -369,13 +382,12 @@ cleanup_nm_config = CleanupNMConfig
 _cleanup_lst = []
 _cleanup_done = False
 
+
 def _cleanup_add(cleanup_action):
     global _cleanup_lst
     global _cleanup_done
     if _cleanup_done:
-        raise Exception(
-            "Cleanup already happend. Cannot schedule anew cleanup action"
-        )
+        raise Exception("Cleanup already happend. Cannot schedule anew cleanup action")
 
     newly_added = True
 
@@ -405,6 +417,7 @@ def _cleanup_add(cleanup_action):
     if newly_added:
         for c in cleanup_action.also_needs():
             _cleanup_add(c)
+
 
 def process_cleanup():
     global _cleanup_lst
