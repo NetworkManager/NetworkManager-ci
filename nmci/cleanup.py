@@ -365,9 +365,8 @@ cleanup_add_udev_rule = CleanupUdevRule
 cleanup_add_NM_service = CleanupNMService
 cleanup_nm_config = CleanupNMConfig
 
-def __init__(self):
-    self._cleanup_lst = []
-    self._cleanup_done = False
+_cleanup_lst = []
+_cleanup_done = False
 
 def _cleanup_add(self, cleanup_action):
     if self._cleanup_done:
