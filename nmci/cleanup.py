@@ -70,7 +70,7 @@ class Cleanup:
         self._also_needs = also_needs
         self._do_cleanup_called = False
 
-        _module._cleanup_add(self)
+        _cleanup_add(self)
 
     def also_needs(self):
         # Whether this cleanup requires additional cleanups.
@@ -368,8 +368,10 @@ cleanup_nm_config = CleanupNMConfig
 _cleanup_lst = []
 _cleanup_done = False
 
-def _cleanup_add(self, cleanup_action):
-    if self._cleanup_done:
+def _cleanup_add(cleanup_action):
+    global _cleanup_lst
+    global _cleanup_done
+    if _cleanup_done:
         raise Exception(
             "Cleanup already happend. Cannot schedule anew cleanup action"
         )
@@ -380,15 +382,15 @@ def _cleanup_add(self, cleanup_action):
     # new action to the front (honoring the priority),
     # meaning that later added cleanups, will be executed
     # first.
-    for i, a in enumerate(self._cleanup_lst):
+    for i, a in enumerate(_cleanup_lst):
         if a.unique_tag == cleanup_action.unique_tag:
-            del self._cleanup_lst[i]
+            del _cleanup_lst[i]
             newly_added = False
             break
 
     # Prepend, but still honor the priority.
     idx = 0
-    for a in self._cleanup_lst:
+    for a in _cleanup_lst:
         # Smaller priority number is preferred (and is
         # rolled back first).
         if a.priority >= cleanup_action.priority:
@@ -397,16 +399,17 @@ def _cleanup_add(self, cleanup_action):
             # index found where to insert.
             break
         idx += 1
-    self._cleanup_lst.insert(idx, cleanup_action)
+    _cleanup_lst.insert(idx, cleanup_action)
 
     if newly_added:
         for c in cleanup_action.also_needs():
-            self._cleanup_add(c)
+            _cleanup_add(c)
 
-def process_cleanup(self):
+def process_cleanup():
+    global _cleanup_lst
     ex = []
 
-    for cleanup_action in nmci.util.consume_list(self._cleanup_lst):
+    for cleanup_action in nmci.util.consume_list(_cleanup_lst):
         try:
             cleanup_action.do_cleanup()
         except Exception as e:
