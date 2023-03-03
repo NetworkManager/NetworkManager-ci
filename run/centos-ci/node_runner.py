@@ -55,6 +55,7 @@ class Machine:
         self.release_num = release.split("-")[0]
         self.id = id
         self.name = name
+        self.copr_repo = False
         self.results = f"../results_m{self.id}/"
         run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
@@ -66,7 +67,6 @@ class Machine:
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
         )
 
-        self.copr_repo_file_internal = "/etc/yum.repos.d/nm-copr.repo"
         self.ssh_options = " ".join(
             [
                 "-o UserKnownHostsFile=/dev/null",
@@ -85,7 +85,6 @@ class Machine:
         self._proc = None
         self._last_cmd_ret = None
 
-        self.copr_repo_file = None
         self.cmd_async(self._setup)
 
     def ssh(self, cmd, check=True, verbose=False):
@@ -269,7 +268,7 @@ class Machine:
     def build_async(self, refspec, mr="custom", repo=""):
         self.cmd_async(self.build, refspec, mr, repo)
 
-    def install_NM(self, source="copr"):
+    def install_NM(self):
         # remove NM first
         NM_rpms = self.ssh("rpm -qa \\| grep NetworkManager", check=False).stdout or ""
         delete_rpms = ""
@@ -287,23 +286,22 @@ class Machine:
             self.ssh(f"rpm -ea --nodeps {delete_rpms}")
 
         excludes = " ".join([f'--exclude \\"{e}\\"' for e in self.rpm_exclude_list])
-        if source == "copr":
-            self.scp_to(self.copr_repo_file, self.copr_repo_file_internal)
+        if self.copr_repo:
             self.ssh(
-                f"yum -y install --repo nm-copr-repo \\'NetworkManager*\\' {excludes}",
+                f"yum -y install --repo \\'*{self.copr_repo}\\' \\'NetworkManager*\\' {excludes}",
                 verbose=True,
             )
         else:
             self.ssh("mkdir -p rpms")
             self.scp_to(f"{self.rpms_dir}/*.rpm", "rpms")
-            # excludes not needed here, as the rpms should not be copied from build_machine
+            # excludes not needed build, as the rpms should not be copied from build_machine
             self.ssh("yum -y install ./rpms/NetworkManager*.rpm")
         self.ssh("systemctl restart NetworkManager")
         self.ssh(f"rpm -qa > ../packages.m{self.id}.list")
         return True
 
-    def install_NM_async(self, source=None):
-        self.cmd_async(self.install_NM, source)
+    def install_NM_async(self):
+        self.cmd_async(self.install_NM)
 
     def runtests(self, tests):
         self.tests = tests
@@ -493,11 +491,11 @@ class Runner:
     DUFFY = f"duffy client --url https://duffy.ci.centos.org/api/v1 {DUFFY_AUTH}"
 
     def __init__(self):
+        self.copr_repo = False
         self.mapper = Mapper()
         self.machines = []
         self.machine_list = "../machines"
         self.build_machine = None
-        self.copr_repo_file = "../nm_copr_repo"
         self.phase = ""
         self.results_common = "../"
         self.exit_code = 0
@@ -767,10 +765,8 @@ class Runner:
         if self.gitlab is not None:
             if self.gitlab.repository == "NetworkManager":
                 self.mr = f"mr{self.gitlab.merge_request_id}"
-        self._check_if_copr_possible()
 
-    def _check_if_copr_possible(self):
-        self.copr_repo = False
+    def check_if_copr_possible(self):
         if (
             not self.repo
             or self.repo
@@ -778,23 +774,16 @@ class Runner:
         ):
             p = re.compile("nm-1-[0-9][0-9]")
             # Let's check if we have stable branch"
-            if p.match(self.refspec):
-                branch = "1." + self.refspec.split("-")[-1]
-                self.copr_repo = f"NetworkManager-{branch}-debug"
-            elif self.refspec == "main":
+            if self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
             elif self.refspec == "nm-1-28":
                 self.copr_repo = "NetworkManager-CI-1.28-git"
             elif self.refspec == "nm-1-26":
                 self.copr_repo = "NetworkManager-CI-1.26-git"
-
-            if self.copr_repo:
-                copr_host = "https://copr-be.cloud.fedoraproject.org"
-                copr_dirs = "results/networkmanager"
-                centos_dir = f"centos-stream-{self.release_num}-x86_64"
-                self.copr_baseurl = (
-                    f"{copr_host}/{copr_dirs}/{self.copr_repo}/{centos_dir}/"
-                )
+            elif p.match(self.refspec):
+                branch = "1." + self.refspec.split("-")[-1]
+                self.copr_repo = f"NetworkManager-{branch}-debug"
+        logging.debug(f"COPR repo: {self.copr_repo}")
 
     def wait_for_machines(self, abort_on_fail=True):
         logging.debug(f"Waiting for {self.phase} to finish...")
@@ -892,18 +881,9 @@ class Runner:
 
     def build(self):
         if self.copr_repo:
-            with open(self.copr_repo_file, "w") as cfg:
-                cfg.write("[nm-copr-repo]\n")
-                cfg.write("name=nm-copr-repo\n")
-                cfg.write(f"baseurl={self.copr_baseurl}\n")
-                cfg.write("enable=1\n")
-                cfg.write("gpgcheck=0\n")
-                cfg.write("skip_if_unavailable=0\n")
-                cfg.write("sslverify=0\n")
-
-            # tell machines where to search for repo file
             for m in self.machines:
-                m.copr_repo_file = self.copr_repo_file
+                m.copr_repo = self.copr_repo
+                m.ssh(f"dnf -y copr enable networkmanager/{self.copr_repo}")
         else:
             self.build_machine.build(self.refspec, self.mr, self.repo)
 
@@ -911,11 +891,8 @@ class Runner:
         if self.exit_code != 0:
             sys.exit(1)
         self.phase = "install NM"
-        src = "rpms"
-        if self.copr_repo:
-            src = "copr"
         for m in self.machines:
-            m.install_NM_async(src)
+            m.install_NM_async()
 
     def run_tests_on_machines(self):
         self.phase = "runtests"
@@ -962,6 +939,7 @@ class Runner:
 def main():
     runner = Runner()
     runner.parse_args()
+    runner.check_if_copr_possible()
     runner.create_machines()
     runner.wait_for_machines(abort_on_fail=True)
     runner.build()
