@@ -632,7 +632,7 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     nmci.cleanup.cleanup_add(
             callback=lambda: nmci.process.systemctl(["unmask", "NetworkManager-dispatcher"]),
             name="unmask NM-dispatcher",
-            priority=nmci.Cleanup.PRIORITY_NM_SERVICE_RESTART
+            priority=nmci.cleanup.PRIORITY_NM_SERVICE_RESTART
     )
     # setup
     nmci.nmutil.stop_NM_service()

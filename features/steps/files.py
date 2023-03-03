@@ -148,7 +148,7 @@ def write_dispatcher_file(context, path, params=None):
 
     nmci.cleanup.cleanup_file(
         "/tmp/dispatcher.txt",
-        priority=nmci.Cleanup.PRIORITY_FILE + 1,
+        priority=nmci.cleanup.PRIORITY_FILE + 1,
     )
     nmci.util.file_set_content("/tmp/dispatcher.txt", "")
 

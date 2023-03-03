@@ -176,7 +176,7 @@ class _PExpect:
         shell=False,
         label=None,
         check=False,
-        cleanup_priority=nmci.Cleanup.PRIORITY_PEXPECT_SERVICE,
+        cleanup_priority=nmci.cleanup.PRIORITY_PEXPECT_SERVICE,
     ):
         proc, logfile = self._pexpect_start(
             command=command,
@@ -202,7 +202,7 @@ class _PExpect:
         nmci.cleanup.cleanup_add(
             callback=lambda: self._pexpect_service_cleanup(data),
             name=f"pexpect {proc.name}",
-            unique_tag=nmci.Cleanup.UNIQ_TAG_DISTINCT,
+            unique_tag=nmci.cleanup.UNIQ_TAG_DISTINCT,
             priority=cleanup_priority,
         )
 
