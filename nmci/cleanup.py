@@ -330,6 +330,12 @@ class CleanupNMService(Cleanup):
             r = True
         assert r
 
+NM_CONF_DIRS = {
+    "etc": "/etc/NetworkManager/conf.d/",
+    "usr": "/usr/lib/NetworkManager/conf.d/",
+    "run": "/var/run/NetworkManager/conf.d/",
+}
+
 class CleanupNMConfig(CleanupFile):
     NM_CONF_DIRS = NM_CONF_DIRS
     def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
@@ -345,12 +351,6 @@ class CleanupNMConfig(CleanupFile):
 
     def also_needs(self):
         return (CleanupNMService("restart"),)
-
-NM_CONF_DIRS = {
-    "etc": "/etc/NetworkManager/conf.d/",
-    "usr": "/usr/lib/NetworkManager/conf.d/",
-    "run": "/var/run/NetworkManager/conf.d/",
-}
 
 # Aliases to remain compatible
 cleanup_add = Cleanup
