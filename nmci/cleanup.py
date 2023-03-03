@@ -56,7 +56,7 @@ class Cleanup:
     ):
         self.name = name
         if unique_tag is UNIQ_TAG_DISTINCT or (
-            unique_tag is None and type(self) is _Cleanup.Cleanup
+            unique_tag is None and type(self) is Cleanup
         ):
             # This instance only compares equal to itself.
             self.unique_tag = (id(self),)
@@ -301,7 +301,7 @@ class CleanupUdevRule(CleanupFile):
         super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
     def also_needs(self):
-        return (_Cleanup.CleanupUdevUpdate(),)
+        return (CleanupUdevUpdate(),)
 
 class CleanupNMService(Cleanup):
     def __init__(self, operation, priority=None):
@@ -331,19 +331,20 @@ class CleanupNMService(Cleanup):
         assert r
 
 class CleanupNMConfig(CleanupFile):
+    NM_CONF_DIRS = NM_CONF_DIRS
     def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
         if config_directory is not None:
-            assert config_directory in _Cleanup.NM_CONF_DIRS
-            config_file = _Cleanup.NM_CONF_DIRS[config_directory] + config_file
+            assert config_directory in NM_CONF_DIRS
+            config_file = NM_CONF_DIRS[config_directory] + config_file
         elif not config_file.startswith("/"):
-            config_file = _Cleanup.NM_CONF_DIRS["etc"] + config_file
+            config_file = NM_CONF_DIRS["etc"] + config_file
 
         super.__init__(
             config_file, priority=priority, name=f"NM-config-{config_file}"
         )
 
     def also_needs(self):
-        return (_Cleanup.CleanupNMService("restart"),)
+        return (CleanupNMService("restart"),)
 
 NM_CONF_DIRS = {
     "etc": "/etc/NetworkManager/conf.d/",
