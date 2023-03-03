@@ -99,6 +99,8 @@ testmapper:
   default:
     - pass:
         feature: general
+    - last_copr_build_check:
+        feature: general
     - bond_add_default_bond:
         feature: bond
         tags: gate

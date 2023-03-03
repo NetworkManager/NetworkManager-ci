@@ -2,9 +2,9 @@ import glob
 import json
 import operator
 import os
-import shutil
 import pexpect
 import re
+import requests
 import shlex
 import time
 from behave import step  # pylint: disable=no-name-in-module
@@ -889,3 +889,50 @@ def set_sysctl(context, sysctl, value):
 @step("Dump status")
 def step_dump_status(context):
     nmci.util.dump_status("")
+
+
+@step("Last copr build is successful")
+def check_last_copr_build(context):
+    version_str = nmci.process.run_stdout(["NetworkManager", "-V"])
+    release, version = nmci.misc.nm_version_detect()
+    if release != "upstream":
+        nmci.cext.skip(f"Not upstream: {release} {version_str}")
+    if "copr" not in version_str:
+        nmci.cext.skip(f"Not copr build: {version_str}")
+    if version[1]%2 == 1:
+        copr_repo = "NetworkManager-main-debug"
+    elif version[1] >= 30:
+        copr_repo = f"NetworkManager-{version[0]}.{version[1]}-debug"
+    elif version[1] >= 26:
+        copr_repo = f"NetworkManager-CI-{version[0]}.{version[1]}-git"
+    else:
+        nmci.cext.skip(f"Version not in copr: {version_str}")
+    copr_log = "backend.log.gz"
+    copr_host = "https://copr-be.cloud.fedoraproject.org"
+    copr_dirs = "results/networkmanager"
+    distro, dist_ver = nmci.misc.distro_detect()
+    if distro == "rhel":
+        distro = "centos-stream"
+    distro_dir = f"{distro}-{dist_ver[0]}-x86_64"
+    copr_baseurl = (
+        f"{copr_host}/{copr_dirs}/{copr_repo}/{distro_dir}/"
+    )
+    resp = requests.get(copr_baseurl, timeout=60)
+    build_list = [
+        row.replace("</a", "") for row in resp.text.split(">") if "</a" in row
+    ]
+    build_list = [row for row in build_list if row.endswith("-NetworkManager")]
+    assert build_list, f"No builds found in copr: {copr_repo}."
+    build_list.sort()
+    build_list.reverse()
+
+    for build in build_list[:4]:
+        backend_url = f"{copr_baseurl}/{build}/{copr_log}"
+        resp = requests.get(backend_url, timeout=60)
+        nmci.embed.embed_link("Copr backend url", [(backend_url, backend_url)])
+        nmci.embed.embed_data("Copr backend log", resp.text)
+        if resp.status_code == 200:
+            break
+
+    assert resp.status_code == 200, f"Unable to retrieve backend log: {resp.status_code} {backend_url}."
+    assert "Worker failed build" not in resp.text, f"Latest copr build in {copr_repo} is failed."

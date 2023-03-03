@@ -12,6 +12,11 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
+    @last_copr_build_check
+    Scenario: Check if latest copr build failed for this version
+    Then Last copr build is successful
+
+
     @xfail @crash @skip_in_centos
     @crashing_NM_binary
     Scenario: Dummy scenario that is supposed to test crash embeding

@@ -796,43 +796,6 @@ class Runner:
                     f"{copr_host}/{copr_dirs}/{self.copr_repo}/{centos_dir}/"
                 )
 
-    def check_last_copr_build(self):
-        copr_log = "backend.log.gz"
-        resp = requests.get(self.copr_baseurl)
-        build_list = [
-            row.replace("</a", "") for row in resp.text.split(">") if "</a" in row
-        ]
-        build_list = [row for row in build_list if row.endswith("-NetworkManager")]
-        if not build_list:
-            self._abort(f"No builds found in copr: {self.copr_repo}")
-        build_list.sort()
-        build_list.reverse()
-
-        failed = False
-        for build in build_list:
-            backend_url = f"{self.copr_baseurl}/{build}/{copr_log}"
-            logging.debug(f"Opening {backend_url}")
-            resp = requests.get(backend_url)
-            if resp.status_code != 200:
-                if failed:
-                    self._abort(
-                        f"Unable to retrieve copr builds: HTTP code {resp.status_code}."
-                    )
-                failed = True
-                logging.debug(
-                    f"Unable to retrieve copr build: HTTP code {resp.status_code}."
-                )
-                continue
-            else:
-                break
-
-        if "Worker failed build" in resp.text:
-            message = f"Latests copr build failed!\n\n{backend_url}"
-            if self.gitlab:
-                self.gitlab.post_commit_comment(message)
-            else:
-                self._abort(message)
-
     def wait_for_machines(self, abort_on_fail=True):
         logging.debug(f"Waiting for {self.phase} to finish...")
         build_machine = []
@@ -929,8 +892,6 @@ class Runner:
 
     def build(self):
         if self.copr_repo:
-            self.check_last_copr_build()
-
             with open(self.copr_repo_file, "w") as cfg:
                 cfg.write("[nm-copr-repo]\n")
                 cfg.write("name=nm-copr-repo\n")
