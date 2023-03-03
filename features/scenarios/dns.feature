@@ -1057,6 +1057,7 @@ Feature: nmcli - dns
     Then "1" is visible with command "grep nameserver -c /etc/resolv.conf"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
 
+
     @ver+=1.15.1
     @ver-1.21.2
     @dns_dnsmasq @restore_resolvconf
@@ -1076,6 +1077,7 @@ Feature: nmcli - dns
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "172.16.1.53" is visible with command "grep nameserver /etc/resolv.conf"
 
+
     @ver+=1.21.2
     @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill_ratelimit
@@ -1093,6 +1095,17 @@ Feature: nmcli - dns
     # Check dnsmasq is no longer running. Since 1.21.1, resolv.conf still points to localhost
     Then "0" is visible with command "pgrep -c -P `pidof NetworkManager` dnsmasq"
     Then "127.0.0.1" is visible with command "grep nameserver /etc/resolv.conf"
+
+
+    @rhbz2120763
+    @ver+=1.40.10
+    @dns_dnsmasq
+    @dns_dnsmasq_kill_when_nm_restarts
+    Scenario: Kill dnsmasq process upon NM restart when dns=none in config
+    When "dnsmasq" is visible with command "pgrep dnsmasq -laf | grep -v 'dhcp-range'"
+    * Replace "dns=dnsmasq" with "dns=none" in file "/etc/NetworkManager/conf.d/99-xtest-dns.conf"
+    * Restart NM
+    Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"
 
 
 ##########################################
@@ -1250,6 +1263,7 @@ Feature: nmcli - dns
     @rhbz2100456
     @ver+=1.41.3
     @ver/rhel/8+=1.36.0.9
+    @not_with_systemd_resolved
     @kill_dnsmasq_ip4 @kill_dnsmasq_ip6
     @tshark
     @dns_openshift_dualstack_slow_v4
@@ -1270,6 +1284,7 @@ Feature: nmcli - dns
     @rhbz2100456
     @ver+=1.41.3
     @ver/rhel/8+=1.36.0.9
+    @not_with_systemd_resolved
     @kill_dnsmasq_ip4 @kill_dnsmasq_ip6
     @tshark
     @dns_openshift_dualstack_slow_v6
@@ -1290,6 +1305,7 @@ Feature: nmcli - dns
     @rhbz2100456
     @ver+=1.41.3
     @ver/rhel/8+=1.36.0.9
+    @not_with_systemd_resolved
     @kill_dnsmasq_ip6
     @tshark
     @dns_openshift_v6_only_slow_v6
@@ -1316,19 +1332,3 @@ Feature: nmcli - dns
     * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
     Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
-   
-   
-    @rhbz2120763
-    @ver+=1.40.10
-    @dns_kill_dnsmasq_when_nm_restarts
-    Scenario: Kill dnsmasq process upon NM restart when dns=none in config
-    * Create NM config file with content
-      """
-      [main]
-      dns=dnsmasq
-      """
-    * Restart NM
-    Then "dnsmasq" is visible with command "pgrep dnsmasq -laf | grep -v 'dhcp-range'"
-    * Replace "dns=dnsmasq" with "dns=none" in file "/etc/NetworkManager/conf.d/99-xxcustom.conf"
-    * Restart NM
-    Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"

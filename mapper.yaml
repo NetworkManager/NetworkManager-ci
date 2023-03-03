@@ -2605,6 +2605,8 @@ testmapper:
         feature: dns
     - dns_dnsmasq_kill_ratelimit:
         feature: dns
+    - dns_dnsmasq_kill_when_nm_restarts:
+        feature: dns
     - dns_multiple_options:
         feature: dns
     - dns_none:
@@ -2630,8 +2632,6 @@ testmapper:
     - dns_resolved_mdns:
         feature: dns
     - dns_global:
-        feature: dns
-    - dns_kill_dnsmasq_when_nm_restarts:
         feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
