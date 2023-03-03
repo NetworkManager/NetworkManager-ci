@@ -9,10 +9,18 @@ import os
 import yaml
 import json
 import base64
+import sys
 import time
 
 from multiprocessing import Process, Pipe
 from cico_gitlab_trigger import GitlabTrigger
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s:%(levelname)s:%(message)s",
+    datefmt="%d/%b/%Y %H:%M:%S",
+    stream=sys.stdout,
+)
 
 # TODO convert this to argument
 MACHINES_NUM = 2
