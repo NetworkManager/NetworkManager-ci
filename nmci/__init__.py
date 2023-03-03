@@ -23,9 +23,8 @@ embed = nmci.embed._module
 sys.modules[f"{__name__}.embed"] = embed
 
 # CLEANUP
-import nmci.cleanup
+import nmci.cleanup as cleanup
 
-cleanup = nmci.cleanup._module
 Cleanup = cleanup.Cleanup
 sys.modules[f"{__name__}.cleanup"] = cleanup
 
