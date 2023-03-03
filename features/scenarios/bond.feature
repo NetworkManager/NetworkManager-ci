@@ -2679,6 +2679,7 @@
     * Modify connection "bond0" changing options "bond.options mode=1,fail_over_mac=0"
     Then "failed" is visible with command "nmcli device reapply bond0"
 
+
     @ver+=1.41.1
     @bond_conflicting_device_names
     Scenario: nmcli - bond - ensure a bond doesn't get brought down by autoactivation requiring master of the same name
@@ -2689,6 +2690,7 @@
     * Add "dummy" connection named "dummy0b" for device "dummy0" with options "master bond0b"
     Then "dummy0:connected:dummy0a" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
     * Bring "up" connection "bond0b"
+    When "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "1" seconds
     Then "bond0:connected:bond0b" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" for full "5" seconds
 
 
