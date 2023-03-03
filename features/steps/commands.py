@@ -893,36 +893,34 @@ def step_dump_status(context):
 
 @step("Last copr build is successful")
 def check_last_copr_build(context):
-    version_str = nmci.process.run_stdout(["NetworkManager", "-V"])
-    release, version = nmci.misc.nm_version_detect()
-    if release != "upstream":
-        nmci.cext.skip(f"Not upstream: {release} {version_str}")
-    if "copr" not in version_str:
-        nmci.cext.skip(f"Not copr build: {version_str}")
-    if version[1]%2 == 1:
-        copr_repo = "NetworkManager-main-debug"
-    elif version[1] >= 30:
-        copr_repo = f"NetworkManager-{version[0]}.{version[1]}-debug"
-    elif version[1] >= 26:
-        copr_repo = f"NetworkManager-CI-{version[0]}.{version[1]}-git"
-    else:
-        nmci.cext.skip(f"Version not in copr: {version_str}")
+    import dnf
+
+    base = dnf.Base()
+    base.fill_sack()
+
+    q = base.sack.query()
+    i = q.installed()
+    i = i.filter(name='NetworkManager')
+
+    repo_name = ""
+    for pkg in list(i):
+        repo_name = pkg.from_repo
+        break
+
+    if "copr" not in repo_name:
+        nmci.cext.skip(f"NetworkManager not installed from copr repo, REPO: {repo_name}")
+
+    base.read_all_repos()
+    repo = base.repos.get(repo_name)
+    copr_baseurl = repo.remote_location(" ").strip(" ")  # empty string as argument returns empty string
+
     copr_log = "backend.log.gz"
-    copr_host = "https://copr-be.cloud.fedoraproject.org"
-    copr_dirs = "results/networkmanager"
-    distro, dist_ver = nmci.misc.distro_detect()
-    if distro == "rhel":
-        distro = "centos-stream"
-    distro_dir = f"{distro}-{dist_ver[0]}-x86_64"
-    copr_baseurl = (
-        f"{copr_host}/{copr_dirs}/{copr_repo}/{distro_dir}/"
-    )
     resp = requests.get(copr_baseurl, timeout=60)
     build_list = [
         row.replace("</a", "") for row in resp.text.split(">") if "</a" in row
     ]
     build_list = [row for row in build_list if row.endswith("-NetworkManager")]
-    assert build_list, f"No builds found in copr: {copr_repo}."
+    assert build_list, f"No builds found in copr: {copr_baseurl}."
     build_list.sort()
     build_list.reverse()
 
@@ -935,4 +933,4 @@ def check_last_copr_build(context):
             break
 
     assert resp.status_code == 200, f"Unable to retrieve backend log: {resp.status_code} {backend_url}."
-    assert "Worker failed build" not in resp.text, f"Latest copr build in {copr_repo} is failed."
+    assert "Worker failed build" not in resp.text, f"Latest copr build in {copr_baseurl} is failed."
