@@ -1,9 +1,43 @@
 #!/bin/bash
 
-set -x
+POS_ARGS=()
+BEHAVE_DRY=FALSE
 
-# redirect stdout+stderr into stdout and logger (force line buffering)
-stdbuf -oL -eL exec &> >(tee - >(logger -t "runtest"))
+usage_exit () {
+    [ $# -gt 0 ] && ec=$1 || ec=1
+    if [ $# -gt 1 ]; then
+        printf "\n\n$2\n\n"
+    fi
+    echo "Usage: $0 [-d] scenario_name | -h"
+    echo "-d: run without html formatter and pass --dry to behave"
+    echo "-h: this message"
+    exit $ec
+}
+
+while [ $OPTIND -le $# ]; do
+if getopts "dh" OPTION; then
+    case $OPTION in
+        d) BEHAVE_DRY=TRUE ;;
+        h) usage_exit 0 ;;
+        *) usage_exit 1 "unknown option -${OPTION} was used!" ;;
+    esac
+else
+    POS_ARGS+=("${!OPTIND}")
+    ((OPTIND++))
+fi
+done
+
+[ ${#POS_ARGS[@]} -eq 1 ] || usage_exit 1 "$0 accepts exactly one scenario argument, got '${POS_ARGS[*]}'"
+
+# if $1 starts with @, cut it away
+TAG="${POS_ARGS[@]#@}"
+
+if [ "$BEHAVE_DRY" == "FALSE" ]; then
+    set -x
+
+    # redirect stdout+stderr into stdout and logger (force line buffering)
+    stdbuf -oL -eL exec &> >(tee - >(logger -t "runtest"))
+fi
 
 die() {
     printf '%s\n' "$*"
@@ -81,8 +115,14 @@ version_control() {
 call_behave() {
     local FEATURE_FILE="$1"
     shift
-    local NMTEST_REPORT="$1"
+    local NMTEST_REPORT_OR_DRY="$1"
     shift
+
+    if [ "$NMTEST_REPORT_OR_DRY" == "BEHAVE_DRY" ]; then
+      B_ARGS="--dry"
+    else
+      B_ARGS="-f html-pretty -o \"$NMTEST_REPORT_OR_DRY\""
+    fi
 
     local a
     local TAGS
@@ -91,7 +131,7 @@ call_behave() {
         TAGS+=("-t" "$a")
     done
 
-    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture -k -f html-pretty -o "$NMTEST_REPORT" -f plain
+    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture -k $B_ARGS -f plain
 }
 
 ###############################################################################
@@ -192,9 +232,6 @@ function gsm_hub_test() {
 
 ###############################################################################
 
-# if $1 starts with @, cut it away
-TAG="${1#@}"
-
 logger -t $0 "Running test $TAG"
 
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
@@ -215,20 +252,24 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
-. $DIR/prepare/envsetup.sh
-( configure_environment "$TAG" ) ; conf_rc=$?
-if [ $conf_rc != 0 ]; then
-    if ps aux|grep -v grep| grep -q harness.py; then
-        timeout 2m rstrnt-report-result -o "" "$NMTEST" FAIL
+if [ "$BEHAVE_DRY" == "FALSE" ]; then
+    . $DIR/prepare/envsetup.sh
+    ( configure_environment "$TAG" ) ; conf_rc=$?
+    if [ $conf_rc != 0 ]; then
+        if ps aux|grep -v grep| grep -q harness.py; then
+            timeout 2m rstrnt-report-result -o "" "$NMTEST" FAIL
+        fi
+        cat /tmp/nmcli_general
+        exit $conf_rc
     fi
-    cat /tmp/nmcli_general
-    exit $conf_rc
+    export_python_command
+
+    export COLUMNS="1024"
+
+    NMTEST_REPORT="/tmp/report_$NMTEST.html"
+else
+    NMTEST_REPORT="BEHAVE_DRY"
 fi
-export_python_command
-
-export COLUMNS="1024"
-
-NMTEST_REPORT="/tmp/report_$NMTEST.html"
 
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 
@@ -257,6 +298,9 @@ if [ -n "$FEATURE_FILE" ]; then
         fi
     fi
 fi
+
+# We don't need any more reporting in -d mode
+[ "$BEHAVE_DRY" == "TRUE" ] && exit $rc
 
 if [ $rc -eq 0 ]; then
     RESULT="PASS"
