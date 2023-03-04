@@ -383,6 +383,7 @@ class _NMUtil:
                 "active-connection": None,
                 "settings": None,
                 "active-externally": False,
+                "filename": None,
             }
 
         if out and out[-1] == "\n":
@@ -411,6 +412,12 @@ class _NMUtil:
                 settings = self.dbus_get_settings(c["DBUS-PATH"])
                 c["settings"] = settings
                 c["name"] = settings["connection"]["id"].get_string()
+            except Exception:
+                raise nmci.misc.HitRaceException()
+
+            try:
+                props = self.dbus_props_for_setting(c["DBUS-PATH"])
+                c["filename"] = props["Filename"].get_string()
             except Exception:
                 raise nmci.misc.HitRaceException()
 
