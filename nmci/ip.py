@@ -661,6 +661,9 @@ class _IP:
         for key, value in kwargs.items():
             merged_args += [key, value]
 
+        if link_type == "veth" and ifindex is not None:
+            merged_args += ["index", str(ifindex + 1)]
+
         ns_args = []
         if namespace is not None:
             ns_args = ["-n", namespace]
