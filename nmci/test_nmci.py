@@ -2038,31 +2038,9 @@ def test_black_code_fromatting():
     if os.environ.get("NMCI_NO_BLACK") == "1":
         pytest.skip("skip formatting test with python-black (NMCI_NO_BLACK=1)")
 
-    files = [
-        nmci.util.base_dir("contrib/gui/steps.py"),
-        nmci.util.base_dir("features/environment.py"),
-        nmci.util.base_dir("features/steps/bond_bridge_team.py"),
-        nmci.util.base_dir("features/steps/connection.py"),
-        nmci.util.base_dir("features/steps/vpn.py"),
-        nmci.util.base_dir("features/steps/service.py"),
-        nmci.util.base_dir("nmci"),
-        nmci.util.base_dir("nmci/helpers/version_control.py"),
-    ]
-
-    exclude = [
-        # "--exclude",
-        # "nmci/(tags)\\.py",
-    ]
-
     try:
-        proc = subprocess.run(
-            ["black", "-q", "--diff"] + exclude + files,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        proc = subprocess.run(["black", "--no-color", "--diff", "--check", "."])
     except FileNotFoundError:
         pytest.skip("python black is not available")
 
-    assert not proc.stderr
-    assert not proc.stdout
     assert proc.returncode == 0

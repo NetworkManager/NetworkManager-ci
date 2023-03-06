@@ -1,3 +1,48 @@
 [tool.pytest.ini_options]
 junit_logging = "all"
 junit_log_passing_tests = false
+
+[tool.black]
+exclude = '''
+          (
+            ^this-dummy-pattern-is-start-of-the-list.py
+            | contrib/dbus/dbus-set-bond.py
+            | contrib/dbus/dbus-set-gw.py
+            | contrib/dbus/dbus-set-wifi-bad-cert.py
+            | contrib/dbus/dbus-set-wifi-tls-blob.py
+            | contrib/dbus/dbusmock-unittest.py
+            | contrib/gi/activate.py
+            | contrib/gi/bond_add_activate.py
+            | contrib/gi/nmclient_get_connection_property.py
+            | contrib/gi/nmclient_get_device_property.py
+            | contrib/gi/nmclient_get_property.py
+            | contrib/gi/nmclient_get_state_flags.py
+            | contrib/naming/ports-libnm.py
+            | contrib/reproducers/repro_1401515.py
+            | contrib/reproducers/repro_1555281.py
+            | contrib/reproducers/repro_1643085.py
+            | contrib/reproducers/repro_1689054.py
+            | contrib/reproducers/repro_1707261.py
+            | contrib/reproducers/repro_2059673.py
+            | contrib/reproducers/repro_reapply_no_wired_settings.py
+            | contrib/usb_hub/acroname.py
+            | features/steps/commands.py
+            | features/steps/device.py
+            | features/steps/doc.py
+            | features/steps/dracut.py
+            | features/steps/editor.py
+            | features/steps/files.py
+            | features/steps/nmtui.py
+            | features/steps/prepare.py
+            | prepare/acroname.py
+            | prepare/bird_routes.py
+            | prepare/sd-resolved.py
+            | run/centos-ci/cico_gitlab_trigger.py
+            | run/centos-ci/return_nodes.py
+            | run/publish_behave_logs/setup_pbl.py
+            | run/rh-str/test1.py
+            | run/rh-str/test2.py
+            | run/utils/j-dump/del_cached_build.py
+            | run/utils/j-dump/j-dump.py
+          )
+          '''
