@@ -2027,7 +2027,7 @@ def test_behave_steps_in_feature_files(capfd):
     cap = capfd.readouterr()
     assert len(cap.out) > 0
     undefs_absent = print_undefs(cap.out)
-    assert undefs_absent, "Following undefined steps were encountered:\n"
+    assert undefs_absent, "Following undefined steps were encountered:"
     assert proc.returncode == 0, "behave ended up with non-zero return code"
 
 
