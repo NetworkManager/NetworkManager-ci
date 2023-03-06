@@ -14,11 +14,13 @@ UnitTests:
     - when: always
   script:
     - |
-      yum -y install python3 python3-pip python3-devel iproute gcc curl
-      python3 -m pip install pytest PyYAML pexpect pyroute2 click==8.0.4
+      yum -y install python3 python3-pip python3-devel python3-gobject \
+          python3-requests iproute gcc curl NetworkManager-libnm
+      python3 -m pip install pytest PyYAML pexpect pyroute2 click==8.0.4 behave pyte
       python3 -m pip install --prefix /usr/ black==22.3.0
       set +e
-      python3 -m pytest --junitxml=report.xml
+      stty cols 74
+      python3 -m pytest --capture=fd --junitxml=report.xml
       rc=$?
       if [ $rc != 0 ]; then
         curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \

@@ -2005,6 +2005,32 @@ def test_wait_for():
         nmci.util.wait_for(do, timeout=0)
 
 
+def print_undefs(b_out):
+    l = b_out.splitlines()
+    undef_header = re.compile(r"UNDEFINED STEPS\[[0-9]+\]:")
+    headers = list(filter(undef_header.fullmatch, l))
+    if len(headers) == 1:
+        start = l.index(headers[0])
+        print("\n".join(l[start:]))
+    elif len(headers) > 1:
+        raise Exception("more than one undefined steps header lines found")
+    return not bool(headers)
+
+
+def test_behave_steps_in_feature_files(capfd):
+    b_cli = ["behave", "-d", "-c", "--no-summary", "--no-snippets", "-f", "steps.usage"]
+    try:
+        proc = subprocess.run(b_cli)
+    except FileNotFoundError:
+        pytest.skip("behave is not available for check if all the steps are recognized")
+
+    cap = capfd.readouterr()
+    assert len(cap.out) > 0
+    undefs_absent = print_undefs(cap.out)
+    assert undefs_absent, "Following undefined steps were encountered:\n"
+    assert proc.returncode == 0, "behave ended up with non-zero return code"
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():

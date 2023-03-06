@@ -3,3 +3,4 @@ __pycache__/
 /.tmp/
 mapper.json
 .vscode/
+report.xml
