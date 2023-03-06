@@ -182,6 +182,29 @@ class _Process:
 
         return PopenCollect(proc, argv=argv, argv_real=argv_real, shell=shell)
 
+    def raise_results(self, argv, header, result):
+
+        argv_real = self._run_prepare_args(argv, False, None, None, None)[1]
+
+        argv_str = " ".join(
+            [nmci.util.bytes_to_str(s, errors="replace") for s in argv_real]
+        )
+
+        msg = f"`{argv_str}` {header}"
+        r_stderr = (
+            "\nSTDERR:\n" + nmci.util.bytes_to_str(result.stderr, "replace")
+            if result.stderr
+            else ""
+        )
+        r_stdout = (
+            "\nSTDOUT:\n" + nmci.util.bytes_to_str(result.stdout, "replace")
+            if result.stdout
+            else ""
+        )
+
+        msg += f"{r_stdout}{r_stderr}"
+        raise Exception(msg)
+
     def _run(
         self,
         argv,
@@ -231,6 +254,8 @@ class _Process:
             elapsed_time=time_measure.elapsed_time(),
         )
 
+        results = RunResult(returncode, r_stdout, r_stderr)
+
         # Depending on ignore_returncode we accept non-zero output. But
         # even then we want to fail for return codes that indicate a crash
         # (e.g. 134 for SIGABRT). If you really want to accept *any* return code,
@@ -242,62 +267,24 @@ class _Process:
         ):
             pass
         else:
-            raise Exception(
-                "`%s` returned exit code %s\nSTDOUT:\n%s\nSTDERR:\n%s"
-                % (
-                    " ".join(
-                        [nmci.util.bytes_to_str(s, errors="replace") for s in argv_real]
-                    ),
-                    returncode,
-                    r_stdout.decode("utf-8", errors="replace"),
-                    r_stderr.decode("utf-8", errors="replace"),
-                )
-            )
+            self.raise_results(argv_real, f"exited with {returncode}", results)
 
         if not ignore_stderr and r_stderr:
             # if anything was printed to stderr, we consider that a fail.
-            raise Exception(
-                "`%s` printed something on stderr\nSTDERR:\n%s"
-                % (
-                    " ".join(
-                        [nmci.util.bytes_to_str(s, errors="replace") for s in argv_real]
-                    ),
-                    r_stderr.decode("utf-8", errors="replace"),
-                )
-            )
+            self.raise_results(argv_real, "printed something to stderr", results)
 
         if not as_bytes:
             try:
                 r_stdout = r_stdout.decode("utf-8", errors="strict")
             except UnicodeDecodeError as e:
-                raise Exception(
-                    "`%s` printed non-utf-8 to stdout\nSTDOUT:\n%s"
-                    % (
-                        " ".join(
-                            [
-                                nmci.util.bytes_to_str(s, errors="replace")
-                                for s in argv_real
-                            ]
-                        ),
-                        r_stdout.decode("utf-8", errors="replace"),
-                    )
-                )
+                self.raise_results(argv_real, "printed non-utf-8 to stdout", results)
+
             try:
                 r_stderr = r_stderr.decode("utf-8", errors="strict")
             except UnicodeDecodeError as e:
-                raise Exception(
-                    "`%s` printed non-utf-8 to stderr\nSTDERR:\n%s"
-                    % (
-                        " ".join(
-                            [
-                                nmci.util.bytes_to_str(s, errors="replace")
-                                for s in argv_real
-                            ]
-                        ),
-                        r_stderr.decode("utf-8", errors="replace"),
-                    )
-                )
+                self.raise_results(argv_real, "printed non-utf-8 to stderr", results)
 
+        # Create new RunResult, r_stdout and r_stderr should be decoded here.
         return RunResult(returncode, r_stdout, r_stderr)
 
     def run(
@@ -466,24 +453,24 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
-        ).stdout
+        )
 
         if not ignore_stdout_error:
             error = re.search(
-                r"error.*", result, flags=re.IGNORECASE | re.DOTALL | re.MULTILINE
+                r"error.*",
+                result.stdout,
+                flags=re.IGNORECASE | re.DOTALL | re.MULTILINE,
             )
             if error is not None:
-                raise Exception(
-                    f"`{argv}` printed 'Error' on stdout\nSTDOUT:\n{result}"
-                )
+                self.raise_results(argv, "printed 'Error' on stdout", result)
             # do not re.IGNORECASE with Timeout, as timeout is used in `nmcli c show id ...`
-            time_out = re.search(r"Timeout.*", result, flags=re.DOTALL | re.MULTILINE)
+            time_out = re.search(
+                r"Timeout.*", result.stdout, flags=re.DOTALL | re.MULTILINE
+            )
             if time_out is not None:
-                raise Exception(
-                    f"`{argv}` printed 'Timeout' on stdout\nSTDOUT:\n{result}"
-                )
+                self.raise_results(argv, "printed 'Timeout' on stdout", result)
 
-        return result
+        return result.stdout
 
     def nmcli_force(
         self,
