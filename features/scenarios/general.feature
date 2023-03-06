@@ -139,6 +139,8 @@ Feature: nmcli - general
 
 
     @rhbz2166711
+    @ver/rhel/8/6+=1.36.0.13
+    @ver/rhel/8/7+=1.40.0.6
     @ver/rhel/8+=1.40.16.1
     @ver+=1.42.2
     @restore_hostname @eth0
@@ -165,6 +167,9 @@ Feature: nmcli - general
     Then "client42" is visible with command "hostnamectl --transient" in "30" seconds
 
 
+    @rhbz2166711
+    @ver/rhel/8/6+=1.36.0.13
+    @ver/rhel/8/7+=1.40.0.6
     @ver/rhel/8+=1.40.16.1
     @ver+=1.42.2
     @restore_hostname @eth0
