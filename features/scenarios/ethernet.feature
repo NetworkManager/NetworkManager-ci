@@ -1323,3 +1323,21 @@ Feature: nmcli - ethernet
           ethtool.pause-autoneg=false
           ethtool.ring-rx=512
           """
+
+    @rhbz2154350
+    @ver+=1.40.12
+    @ethernet_keep_mtu_on_reboot
+    Scenario: nmcli - connection - keep the same MTU for many devices on reboot
+    * Create "302" "veth" devices named "veth_dev"
+    * Add "302" "ethernet" connections named "con_con" for devices "veth_dev" with options
+          """
+          autoconnect yes
+          ipv4.method disabled
+          ipv6.method disabled
+          802-3-ethernet.mtu 9000
+          """
+     Then "Exactly" "302" lines with pattern "mtu 9000" are visible with command "ip link show" in "120" seconds
+     * Stop NM
+     * Execute "for i in $(seq 0 301); do ip link set veth_dev_$i down; ip addr flush veth_dev_$i; done;"
+     * Reboot 
+     Then "Exactly" "302" lines with pattern "mtu 9000" are visible with command "ip link show" in "120" seconds
