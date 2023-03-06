@@ -10,6 +10,7 @@ def __getattr__(attr):
 
 IP_NAMESPACE_ALL = object()
 IP_LINK_NOMASTER = object()
+IGNORED_STDERR_MESSAGES = ["Dump was interrupted and may be inconsistent."]
 
 
 class _IP:
@@ -178,9 +179,17 @@ class _IP:
 
         assert binary is None or binary is True or binary is False
 
-        out = nmci.process.run_stdout(
-            ["ip", *ns_args, "-d", "address", "show"], as_bytes=True
+        cmd_argv = ["ip", *ns_args, "-d", "address", "show"]
+        cmd_res = nmci.process.run(
+            cmd_argv, as_bytes=True, ignore_returncode=False, ignore_stderr=True
         )
+
+        if cmd_res.stderr and not nmci.util.str_matches(
+            nmci.util.bytes_to_str(cmd_res.stderr, "replace"), IGNORED_STDERR_MESSAGES
+        ):
+            nmci.process.raise_results(cmd_argv, "printed something to stderr", cmd_res)
+
+        out = cmd_res.stdout
 
         result = []
 
