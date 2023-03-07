@@ -13,8 +13,9 @@ Feature: nmcli - general
 
 
     @last_copr_build_check
-    Scenario: Check if latest copr build failed for this version
-    Then Last copr build is successful
+    Scenario: Check that latest copr build is not failed
+    Given NetworkManager is installed from a copr repo
+    Then Check last copr build is successful
 
 
     @xfail @crash @skip_in_centos

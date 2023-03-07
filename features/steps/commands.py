@@ -891,8 +891,8 @@ def step_dump_status(context):
     nmci.util.dump_status("")
 
 
-@step("Last copr build is successful")
-def check_last_copr_build(context):
+@step("NetworkManager is installed from a copr repo")
+def copr_repo_check(context):
     import dnf
 
     base = dnf.Base()
@@ -912,20 +912,24 @@ def check_last_copr_build(context):
 
     base.read_all_repos()
     repo = base.repos.get(repo_name)
-    copr_baseurl = repo.remote_location(" ").strip(" ")  # empty string as argument returns empty string
+    context.copr_baseurl = repo.remote_location(" ").strip(" ")  # empty string as argument returns empty string
+    assert context.copr_baseurl, f"Failed to set baseurl, `repo.remote_location` reurned '{context.copr_baseurl}'"
 
+
+@step("Check last copr build is successful")
+def check_last_copr_build(context):
     copr_log = "backend.log.gz"
-    resp = requests.get(copr_baseurl, timeout=60)
+    resp = requests.get(context.copr_baseurl, timeout=60)
     build_list = [
         row.replace("</a", "") for row in resp.text.split(">") if "</a" in row
     ]
     build_list = [row for row in build_list if row.endswith("-NetworkManager")]
-    assert build_list, f"No builds found in copr: {copr_baseurl}."
+    assert build_list, f"No builds found in copr: {context.copr_baseurl}."
     build_list.sort()
     build_list.reverse()
 
     for build in build_list[:4]:
-        backend_url = f"{copr_baseurl}/{build}/{copr_log}"
+        backend_url = f"{context.copr_baseurl}/{build}/{copr_log}"
         resp = requests.get(backend_url, timeout=60)
         nmci.embed.embed_link("Copr backend url", [(backend_url, backend_url)])
         nmci.embed.embed_data("Copr backend log", resp.text)
@@ -933,4 +937,4 @@ def check_last_copr_build(context):
             break
 
     assert resp.status_code == 200, f"Unable to retrieve backend log: {resp.status_code} {backend_url}."
-    assert "Worker failed build" not in resp.text, f"Latest copr build in {copr_baseurl} is failed."
+    assert "Worker failed build" not in resp.text, f"Latest copr build in {context.copr_baseurl} is failed."
