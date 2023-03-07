@@ -2000,6 +2000,8 @@ testmapper:
         feature: ovs
     - ovs_other_config:
         feature: ovs
+    - ovs_vxlan_networking_off_on:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

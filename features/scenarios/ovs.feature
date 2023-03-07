@@ -1526,3 +1526,23 @@ Feature: nmcli - ovs
     Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "sudo ovs-vsctl list bridge"
     Then "other-config: \"cfm_interval\" = \"100\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0-iface0"
     Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "sudo ovs-vsctl list interface"
+
+
+    @rhbz2149012
+    @ver+=1.43.2
+    @openvswitch @restart_if_needed
+    @ovs_vxlan_networking_off_on
+    Scenario: NM - openvswitch - ovs external with vxlan stays UP after networking off/on
+    * Cleanup device "vxlan1"
+    * Execute "ip link add vxlan1 type vxlan remote 172.25.12.1 id 120 dstport 0"
+    * Execute "ip link set vxlan1 up"
+    * Execute "ovs-vsctl add-br ovs-br0"
+    * Execute "ovs-vsctl add-port ovs-br0 vxlan1"
+    Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
+    * Execute "nmcli networking off"
+    * Execute "nmcli networking on"
+    * Execute "sleep 1"
+    Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
+    * Execute "nmcli networking off"
+    * Execute "nmcli networking on"
+    Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
