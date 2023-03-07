@@ -3267,6 +3267,41 @@ Feature: nmcli - general
 
 
     @rhbz2158328
+    @rhelver-=8
+    @xfail
+    @ver+=1.43.2
+    @apply_link_settings
+    Scenario: NM - general - apply and reapply link settings
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* qlen \([0-9]\+\).*/\1/p'" as value "1-before"
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* gso_max_size \([0-9]\+\).*/\1/p'" as value "2-before"
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* gso_max_segs \([0-9]\+\).*/\1/p'" as value "3-before"
+
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
+          """
+          link.tx-queue-length 1555
+          link.gso-max-size 32000
+          link.gso-max-segments 4242
+	  """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
+    Then "qlen 1555" is visible with command "ip -d link show eth8"
+    Then "gso_max_size 32000" is visible with command "ip -d link show eth8"
+    Then "gso_max_segs 4242" is visible with command "ip -d link show eth8"
+
+    * Execute "nmcli device modify eth8 link.tx-queue-length 1554 link.gso-max-segments 4243"
+    Then "qlen 1554" is visible with command "ip -d link show eth8"
+    Then "gso_max_segs 4243" is visible with command "ip -d link show eth8"
+
+    * Bring "down" connection "con_general"
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* qlen \([0-9]\+\).*/\1/p'" as value "1-after"
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* gso_max_size \([0-9]\+\).*/\1/p'" as value "2-after"
+    * Note the output of "ip -d link show eth8 | sed -n 's/.* gso_max_segs \([0-9]\+\).*/\1/p'" as value "3-after"
+    Then Check noted values "1-before" and "1-after" are the same
+    Then Check noted values "2-before" and "2-after" are the same
+    Then Check noted values "3-before" and "3-after" are the same
+
+
+    @rhbz2158328
+    @rhelver+=9
     @ver+=1.43.2
     @apply_link_settings
     Scenario: NM - general - apply and reapply link settings
