@@ -225,7 +225,7 @@ def after_step(context, step):
     if context.step_level == 0:
         nmci.crash.check_crash(context, step.name)
         nmci.embed.after_step()
-        if step.name.startswith("Prepare "):
+        if step.name.startswith("Prepare ") or "prepare/" in step.name:
             nmci.util.dump_status("After this step")
 
 
