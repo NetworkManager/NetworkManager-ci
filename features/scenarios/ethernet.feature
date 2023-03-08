@@ -48,18 +48,18 @@ Feature: nmcli - ethernet
     @ethernet_connection_up
     Scenario: nmcli - ethernet - up
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no ipv4.may-fail no"
-    * "inet 192." is not visible with command "ifconfig eth1"
+    * "inet 192." is not visible with command "ip addr show eth1"
     * Bring "up" connection "ethernet"
-    Then "inet 192." is visible with command "ifconfig eth1"
+    Then "inet 192." is visible with command "ip addr show eth1"
 
 
     @ethernet_disconnect_device
     Scenario: nmcli - ethernet - disconnect device
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect yes ipv4.may-fail no"
     * Bring "up" connection "ethernet"
-    * "inet 192." is visible with command "ifconfig eth1"
+    * "inet 192." is visible with command "ip addr show eth1"
     * Disconnect device "eth1"
-    Then "inet 192." is not visible with command "ifconfig eth1"
+    Then "inet 192." is not visible with command "ip addr show eth1"
 
 
     @ethernet
@@ -90,7 +90,7 @@ Feature: nmcli - ethernet
     @ethernet_set_matching_mac
     Scenario: nmcli - ethernet - set matching mac adress
     * Add "ethernet" connection named "ethernet" for device "'*'" with options "autoconnect no"
-    * Note the "ether" property from ifconfig output for device "eth1"
+    * Note the output of "nmcli -f GENERAL.HWADDR device show eth1 | awk '{print $2}'"
     * Open editor for connection "ethernet"
     * Set a property named "802-3-ethernet.mac-address" to "noted-value" in editor
     * Save in editor
@@ -127,7 +127,7 @@ Feature: nmcli - ethernet
     @ethernet_set_blacklisted_mac
     Scenario: nmcli - ethernet - set blacklisted mac adress
     * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
-    * Note the "ether" property from ifconfig output for device "eth1"
+    * Note the output of "nmcli -f GENERAL.HWADDR device show eth1 | awk '{print $2}'"
     * Open editor for connection "ethernet"
     * Set a property named "802-3-ethernet.mac-address-blacklist" to "noted-value" in editor
     * Save in editor
@@ -145,7 +145,7 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "ethernet"
-    Then "ether f0:de:aa:fb:bb:cc" is visible with command "ifconfig eth1"
+    Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip link show eth1"
 
 
     @rhbz1413312
@@ -224,7 +224,7 @@ Feature: nmcli - ethernet
     * Quit editor
     * Bring "up" connection "ethernet"
     Then "MTU=64" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    Then "inet 192." is visible with command "ifconfig eth1"
+    Then "inet 192." is visible with command "ip addr show eth1"
 
 
     @rhbz1775136
@@ -268,7 +268,7 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "ethernet"
-    Then "inet 192.168.1.10\s+netmask 255.255.255.0" is visible with command "ifconfig eth1"
+    Then "inet 192.168.1.10/24" is visible with command "ip addr show eth1"
 
 
     @ethernet_set_static_ipv6_configuration
@@ -282,7 +282,7 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "ethernet"
-    Then "inet6 2607:f0d0:1002:51::4\s+prefixlen 64" is visible with command "ifconfig eth1"
+    Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip addr show eth1"
 
 
     @ethernet_set_both_ipv4_6_configuration
@@ -297,8 +297,8 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "ethernet"
-    Then "inet 192.168.1.10\s+netmask 255.255.255.0" is visible with command "ifconfig eth1"
-    Then "inet6 2607:f0d0:1002:51::4\s+prefixlen 64" is visible with command "ifconfig eth1"
+    Then "inet 192.168.1.10/24" is visible with command "ip addr show eth1"
+    Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip addr show eth1"
 
 
     @nmcli_ethernet_no_ip

@@ -548,9 +548,9 @@ Feature: nmcli - general
     @networking_on
     @general_networking_off
     Scenario: nmcli - networking - turn off
-    * "eth0:" is visible with command "ifconfig"
+    When "state UP" is visible with command "ip link show eth0"
     * Execute "nmcli networking off"
-    Then "eth0:" is not visible with command "ifconfig" in "5" seconds
+    Then "state DOWN" is visible with command "ip link show eth0" in "5" seconds
     Then Execute "nmcli networking on"
 
 
@@ -558,9 +558,9 @@ Feature: nmcli - general
     @general_networking_on
     Scenario: nmcli - networking - turn on
     * Execute "nmcli networking off"
-    * "eth0:" is not visible with command "ifconfig" in "5" seconds
+    Then "state DOWN" is visible with command "ip link show eth0" in "5" seconds
     * Execute "nmcli networking on"
-    Then "eth0:" is visible with command "ifconfig" in "5" seconds
+    Then "state UP" is visible with command "ip link show eth0" in "5" seconds
 
 
     @ver-1.37.3

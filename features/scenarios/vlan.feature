@@ -12,7 +12,7 @@ Feature: nmcli - vlan
     @vlan_add_default_device
     Scenario: nmcli - vlan - add default device
      * Add "vlan" connection named "eth7.99" with options "dev eth7 id 99"
-     Then "eth7.99:" is visible with command "ifconfig"
+     Then "eth7.99" is visible with command "ip link show"
      Then Check ifcfg-name file created for connection "eth7.99"
 
 
@@ -75,7 +75,7 @@ Feature: nmcli - vlan
 
     @vlan_remove_connection
     Scenario: nmcli - vlan - remove connection
-    Given "inet 10.42." is not visible with command "ifconfig"
+    Given "inet 10.42." is not visible with command "ip addr show"
     * Add "vlan" connection named "eth7.299" with options "autoconnect no dev eth7 id 299"
     * Open editor for connection "eth7.299"
     * Set a property named "ipv4.method" to "shared" in editor
@@ -83,10 +83,10 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "eth7.299"
-    * "inet 10.42." is visible with command "ifconfig"
+    * "inet 10.42." is visible with command "ip addr show eth7.299"
     * Delete connection "eth7.299"
     * Wait for "5" seconds
-    Then "inet 10.42." is not visible with command "ifconfig"
+    Then "inet 10.42." is not visible with command "ip addr show"
     Then ifcfg-"eth7.299" file does not exist
 
 
@@ -99,9 +99,9 @@ Feature: nmcli - vlan
     * No error appeared in editor
     * Check value saved message showed in editor
     * Quit editor
-    * "eth7.99" is not visible with command "ifconfig"
+    * "eth7.99" is not visible with command "ip addr show"
     * Bring "up" connection "eth7.99"
-    Then "eth7.99" is visible with command "ifconfig"
+    Then "eth7.99" is visible with command "ip addr show eth7.99"
 
 
     @vlan_reup_connection
@@ -122,7 +122,7 @@ Feature: nmcli - vlan
 
     @vlan_connection_down
     Scenario: nmcli - vlan - connection down
-    * "inet 10.42." is not visible with command "ifconfig"
+    * "inet 10.42." is not visible with command "ip addr show"
     * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "ipv4.method" to "shared" in editor
@@ -130,14 +130,14 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "eth7.399"
-    * "inet 10.42." is visible with command "ifconfig"
+    * "inet 10.42." is visible with command "ip addr show eth7.399"
     * Bring "down" connection "eth7.399"
-    Then "inet 10.42." is not visible with command "ifconfig"
+    Then "inet 10.42." is not visible with command "ip addr show"
 
 
     @vlan_connection_down_with_autoconnect
     Scenario: nmcli - vlan - connection down (autoconnect on)
-    * "inet 10.42." is not visible with command "ifconfig"
+    * "inet 10.42." is not visible with command "ip addr show"
     * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "connection.autoconnect" to "yes" in editor
@@ -147,10 +147,10 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "eth7.399"
-    * "inet 10.42." is visible with command "ifconfig"
+    * "inet 10.42." is visible with command "ip addr show eth7.399"
     * Bring "down" connection "eth7.399"
     * Wait for "10" seconds
-    Then "inet 10.42." is not visible with command "ifconfig"
+    Then "inet 10.42." is not visible with command "ip addr show"
 
 
     @vlan_change_id_with_no_interface_set
@@ -194,11 +194,11 @@ Feature: nmcli - vlan
     * Save in editor
     * Check value saved message showed in editor
     * Quit editor
-    * "eth7.265:" is not visible with command "ifconfig"
-    * "inet 10.42.0.1" is not visible with command "ifconfig"
+    * "eth7.265:" is not visible with command "ip addr show"
+    * "inet 10.42.0.1" is not visible with command "ip addr show eth7.265"
     * Bring "up" connection "eth7.265"
-    Then "eth7.265:" is visible with command "ifconfig"
-    Then "inet 10.42.0.1" is visible with command "ifconfig"
+    Then "eth7.265" is visible with command "ip addr show"
+    Then "inet 10.42.0.1" is visible with command "ip addr show eth7.265"
 
 
     @vlan_describe_all
@@ -230,7 +230,7 @@ Feature: nmcli - vlan
 
     @vlan_disconnect_device
     Scenario: nmcli - vlan - disconnect device
-    * "inet 10.42." is not visible with command "ifconfig"
+    * "inet 10.42." is not visible with command "ip addr show"
     * Add "vlan" connection named "eth7.399" with options "autoconnect no dev eth7 id 399"
     * Open editor for connection "eth7.399"
     * Set a property named "ipv4.method" to "shared" in editor
@@ -238,14 +238,14 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "eth7.399"
-    * "inet 10.42." is visible with command "ifconfig"
+    * "inet 10.42." is visible with command "ip addr show eth7.399"
     * Disconnect device "eth7.399"
-    Then "inet 10.42." is not visible with command "ifconfig"
+    Then "inet 10.42." is not visible with command "ip addr show"
 
 
     @vlan_disconnect_device_with_autoconnect
     Scenario: nmcli - vlan - disconnect device (with autoconnect)
-    * "inet 10.42." is not visible with command "ifconfig"
+    * "inet 10.42." is not visible with command "ip addr show"
     * Add "vlan" connection named "eth7.499" with options "autoconnect no dev eth7 id 499"
     * Open editor for connection "eth7.499"
     * Set a property named "connection.autoconnect" to "yes" in editor
@@ -255,16 +255,16 @@ Feature: nmcli - vlan
     * Check value saved message showed in editor
     * Quit editor
     * Bring "up" connection "eth7.499"
-    * "inet 10.42." is visible with command "ifconfig"
+    * "inet 10.42." is visible with command "ip addr show eth7.499"
     * Disconnect device "eth7.499"
-    Then "inet 10.42." is not visible with command "ifconfig"
+    Then "inet 10.42." is not visible with command "ip addr show"
 
 
     @vlan_device_tagging
     Scenario: nmcli - vlan - device tagging
     * Execute "yum -y install wireshark"
     * Add "vlan" connection named "eth7.80" with options "dev eth7 id 80"
-    * "eth7.80:" is visible with command "ifconfig" in "10" seconds
+    * "eth7.80" is visible with command "ip addr show" in "10" seconds
     * Run child "ping -I eth7.80 8.8.8.8"
     Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
 
@@ -273,7 +273,7 @@ Feature: nmcli - vlan
     Scenario: nmcli - vlan - on bridge
     * Add "bridge" connection named "vlan_bridge7" for device "bridge7" with options "stp no"
     * Add "vlan" connection named "vlan_bridge7.15" with options "dev bridge7 id 15"
-    Then "bridge7.15:" is visible with command "ifconfig"
+    Then "bridge7.15" is visible with command "ip addr show"
 
 
     @rhbz1586191

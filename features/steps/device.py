@@ -217,15 +217,6 @@ def connect_wifi_device_w_options(context, network, options):
     assert r != 1, 'nmcli device wifi connect ... timed out (180s)'
 
 
-@step(u'Note the "{prop}" property from ifconfig output for device "{device}"')
-def note_print_property(context, prop, device):
-    ifc = context.pexpect_spawn('ifconfig %s' % device)
-    ifc.expect('%s\\s(\\S+)' % prop)
-    if not hasattr(context, 'noted'):
-        context.noted = {}
-    context.noted['noted-value'] = ifc.match.group(1)
-
-
 @step(u'Note MAC address output for device "{device}" via ethtool')
 def note_mac_address(context, device):
     if not hasattr(context, 'noted'):
