@@ -12,6 +12,10 @@ def truncate(l: list) -> list:
     return [*head, msg, *tail]
 
 
+def startswith_list(s, starts):
+    any((s.startswith(i) for i in starts))
+
+
 def main():
     """
     Add content from <system-out> and <system-err> nodes to <failure> to make all
@@ -34,8 +38,19 @@ def main():
     h_log_old = "--------------------------------- Captured Log ---------------------------------"
     h_out_old = "--------------------------------- Captured Out ---------------------------------"
     h_log, h_out, h_err = "Captured Log:", "Captured Out:", "Captured Err:"
+    h_failure = "Error message and failing line(s) within nmci/:"
 
     for tc in tcs:
+        failure_el = tc.find("failure")
+        f_filtered = [h_failure]
+        f_filtered += truncate(
+            list(
+                filter(
+                    lambda s: startswith_list(s, ["E", "nmci/test_nmci.py"]),
+                    failure_el.text.splitlines(),
+                )
+            )
+        )
         outs = [el for el in tc if el.tag in [tag_out, tag_err]]
         system_out_orig = [i.text.splitlines() for i in outs if i.tag == tag_out]
         l = system_out_orig[0] if system_out_orig else []
@@ -45,9 +60,9 @@ def main():
         s_out = truncate(s_out)
         s_err = [i.text.splitlines()[1:] for i in outs if i.tag == tag_err]
         s_err = truncate([h_err, *s_err[0]] if s_err else [])
-        msg = ["\n".join(i) for i in filter(None, [s_log, s_out, s_err])]
+        msg = ["\n".join(i) for i in filter(None, [f_filtered, s_log, s_out, s_err])]
 
-        tc.find("failure").text = "\n\n".join(msg)
+        failure_el.text = "\n\n".join(msg)
         for el in outs:
             tc.remove(el)
 
