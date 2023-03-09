@@ -2918,7 +2918,7 @@ Feature: nmcli: ipv4
 
     @rhbz1861527
     @ver+=1.35.7
-    @logging_info_only
+    #@logging_info_only
     @ipv4_ignore_nonstatic_routes
     Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP
     * Prepare simulated test "testX4" device using dhcpd and server identifier "192.168.1.1"

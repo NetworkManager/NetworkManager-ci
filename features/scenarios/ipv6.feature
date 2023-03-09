@@ -2169,7 +2169,7 @@
 
     @rhbz1861527
     @ver+=1.35.7
-    @logging_info_only
+    #@logging_info_only
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
     * Prepare simulated test "testX6" device
