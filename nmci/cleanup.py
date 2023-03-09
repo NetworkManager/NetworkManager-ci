@@ -59,6 +59,21 @@ class _Cleanup:
             also_needs=None,
             args=None,
         ):
+            """Generic cleanup
+
+            :param callback: cleanup method to be called, defaults to None
+            :type callback: callable, optional
+            :param name: human readable description, defaults to None
+            :type name: str, optional
+            :param unique_tag: comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
+            :type unique_tag: object, optional
+            :param priority: defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
+            :type priority: int, optional
+            :param also_needs: dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
+            :type also_needs: callable, optional
+            :param args: arguments for callback
+            :type args: dic, optional
+            """
             self.name = name
             if unique_tag is UNIQ_TAG_DISTINCT or (
                 unique_tag is None and type(self) is _Cleanup.Cleanup
@@ -78,14 +93,20 @@ class _Cleanup:
             _module._cleanup_add(self)
 
         def also_needs(self):
-            # Whether this cleanup requires additional cleanups.
-            # Those cleanups will be enqueued *after* the current one
-            # (however, self.priority will be still honored.
+            """Dependent cleanups, should return iterable of Cleanup instances.
+
+            Those cleanups will be enqueued *after* the current one
+            (however, self.priority will be still honored.
+
+            :return: tuple of Cleanup
+            :rtype: iterable
+            """
             if self._also_needs is None:
                 return ()
             return self._also_needs()
 
         def do_cleanup(self):
+            """This is called automatically after scenario. Do not call at other places."""
             assert not self._do_cleanup_called
             self._do_cleanup_called = True
             t = time.monotonic()
@@ -104,6 +125,15 @@ class _Cleanup:
 
     class CleanupConnection(Cleanup):
         def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
+            """Cleanup NetworkManager connection
+
+            :param con_name: name or UUID of the connection to cleanup
+            :type con_name: str
+            :param qualifier: optional qualifier ('id' or 'uuid'), defaults to None
+            :type qualifier: str, optional
+            :param priority: cleanup priority, defaults to PRIORITY_CONNECTION
+            :type priority: int, optional
+            """
             self.con_name = con_name
             self.qualifier = qualifier
             super().__init__(
@@ -122,6 +152,15 @@ class _Cleanup:
 
     class CleanupIface(Cleanup):
         def __init__(self, iface, op=None, priority=None):
+            """Cleanup the network interafce
+
+            :param iface: name of the interface
+            :type iface: str
+            :param op: operation, one of 'delete' or 'reset', defaults to 'reset' on eth0...eth10, 'delete' otherwise
+            :type op: str, optional
+            :param priority: cleanup priority, defaults to PRIORITY_IFACE_DELETE or PRIORITY_IFACE_RESET
+            :type priority: int, optional
+            """
             if op is None:
                 if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                     op = "reset"
@@ -152,13 +191,14 @@ class _Cleanup:
             raise Exception(f'Unexpected cleanup op "{self.op}"')
 
     class CleanupSysctls(Cleanup):
-        """
-        The __init__() function accepts a single pattern passed to:
-            sysctl -a --pattern PATTERN
-        in order to avoid any processing of these values within NM CI
-        """
-
         def __init__(self, sysctls_pattern, namespace=None):
+            """Sysctl cleanup - reset to original value.
+
+            :param sysctls_pattern: sysctl pattern to save
+            :type sysctls_pattern: str
+            :param namespace: name of namespace, defaults to None
+            :type namespace: str, optional
+            """
 
             cmd = ["sysctl", "-a", "--pattern", sysctls_pattern]
             if namespace:
@@ -190,6 +230,16 @@ class _Cleanup:
             sysctl_p.sendeof()
 
     class CleanupNamespace(Cleanup):
+        """Namespace cleanup
+
+        :param namespace: name of namespace
+        :type namespace: str
+        :param teardown: whether to do teardown testveth, defaults to True
+        :type teardown: bool, optional
+        :param priority: cleanup priority, defaults to PRIORITY_NAMESPACE
+        :type priority: int, optional
+        """
+
         def __init__(self, namespace, teardown=True, priority=PRIORITY_NAMESPACE):
             self.teardown = teardown
             self.namespace = namespace
@@ -211,7 +261,12 @@ class _Cleanup:
 
     class CleanupMptcpEndpoints(Cleanup):
         def __init__(self):
-            from pyroute2 import MPTCP
+            """MPTCP endpoint cleanups"""
+
+            # do not import by default, it takes non-trivial time to load
+            from pyroute2 import (  # pylint: disable=import-outside-toplevel,no-name-in-module
+                MPTCP,
+            )
 
             mptcp = MPTCP()
 
@@ -233,7 +288,10 @@ class _Cleanup:
             super().__init__(name="MPTCP-endpoints", priority=PRIORITY_MPTCP)
 
         def _do_cleanup(self):
-            from pyroute2 import MPTCP
+            # do not import by default, it takes non-trivial time to load
+            from pyroute2 import (  # pylint: disable=import-outside-toplevel,no-name-in-module
+                MPTCP,
+            )
 
             mptcp = MPTCP()
             mptcp.endpoint("flush")
@@ -242,6 +300,11 @@ class _Cleanup:
 
     class CleanupMptcpLimits(Cleanup):
         def __init__(self, namespace=None):
+            """MPTCP limits cleanup
+
+            :param namespace: name of namespace, defaults to None
+            :type namespace: str, optional
+            """
             self.namespace = namespace
             self.mptcp_limits = nmci.process.run_stdout(
                 "ip mptcp limits", namespace=namespace
@@ -255,6 +318,13 @@ class _Cleanup:
 
     class CleanupNft(Cleanup):
         def __init__(self, namespace=None, priority=None):
+            """NFT rules cleanup
+
+            :param namespace: name of namespace, defaults to None
+            :type namespace: str, optional
+            :param priority: cleanup priority, defaults to None
+            :type priority: int, optional
+            """
             if priority is None:
                 if namespace is None:
                     priority = PRIORITY_NFT_DEFAULT
@@ -281,6 +351,11 @@ class _Cleanup:
             self,
             priority=PRIORITY_UDEV_UPDATE,
         ):
+            """Udev update cleanup, calls updates and settles udev
+
+            :param priority: cleanup priortiy, defaults to PRIORITY_UDEV_UPDATE
+            :type priority: int, optional
+            """
             super().__init__(name="udev-update", priority=priority)
 
         def _do_cleanup(self):
@@ -289,6 +364,13 @@ class _Cleanup:
 
     class CleanupFile(Cleanup):
         def __init__(self, *files, priority=PRIORITY_FILE, name=None):
+            """File cleanup, removes file if exists.
+
+            :param priority: cleanup priority, defaults to PRIORITY_FILE
+            :type priority: int, optional
+            :param name: description of cleanup, defaults to None
+            :type name: str, optional
+            """
             self.files = tuple(files)
             if name is None:
                 name = f"file-{self.files}"
@@ -303,6 +385,13 @@ class _Cleanup:
 
     class CleanupUdevRule(CleanupFile):
         def __init__(self, rule, priority=PRIORITY_UDEV_RULE):
+            """Udev rule file cleanup
+
+            :param rule: name of file containing udev rule
+            :type rule: str
+            :param priority: cleanup priortiy, defaults to PRIORITY_UDEV_RULE
+            :type priority: int, optional
+            """
             super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
         def also_needs(self):
@@ -310,6 +399,13 @@ class _Cleanup:
 
     class CleanupNMService(Cleanup):
         def __init__(self, operation, priority=None):
+            """NetworkManager systemd service cleanup. Accepts start, restart, and reload.
+
+            :param operation: operation on systemd service, one of 'start', 'restart' or 'reload'.
+            :type operation: str
+            :param priority: cleanup priortiy, defaults to None
+            :type priority: int, optional
+            """
             assert operation in ["start", "restart", "reload"]
             if priority is None:
                 if operation == "start":
@@ -337,6 +433,15 @@ class _Cleanup:
 
     class CleanupNMConfig(CleanupFile):
         def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
+            """Cleanup NetworkManager config file and restart.
+
+            :param config_file: NetworkManager config file name, either full path, or relative path accepted.
+            :type config_file: str
+            :param config_directory: NetworkManager config directory, one of 'etc', 'usr', 'run', defaults to 'etc'
+            :type config_directory: str, optional
+            :param priority: cleanup priority, defaults to PRIORITY_FILE
+            :type priority: int, optional
+            """
             if config_directory is not None:
                 assert config_directory in _Cleanup.NM_CONF_DIRS
                 config_file = _Cleanup.NM_CONF_DIRS[config_directory] + config_file
@@ -375,6 +480,12 @@ class _Cleanup:
         self._cleanup_done = False
 
     def _cleanup_add(self, cleanup_action):
+        """This is called during each Cleanup*.__init__ by default.
+
+        :param cleanup_action: Cleanup instance object
+        :type cleanup_action: Cleanup instance
+        :raises Exception: raised if cleanups already done
+        """
         if self._cleanup_done:
             raise Exception(
                 "Cleanup already happend. Cannot schedule anew cleanup action"
@@ -410,6 +521,11 @@ class _Cleanup:
                 self._cleanup_add(c)
 
     def process_cleanup(self):
+        """Exectue the cleanups honoring its order.
+
+        :return: list of Exceptions that hapenned during cleanups
+        :rtype: list of Exception
+        """
         ex = []
 
         for cleanup_action in nmci.util.consume_list(self._cleanup_lst):

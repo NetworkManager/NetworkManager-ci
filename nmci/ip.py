@@ -19,6 +19,14 @@ class _IP:
     IP_LINK_NOMASTER = IP_LINK_NOMASTER
 
     def addr_family_norm(self, addr_family):
+        """
+        Normalize address family.
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily or string
+        :return: socket constant or None
+        :rtype: socket.AddressFamily
+        """
         if addr_family in [socket.AF_INET, socket.AF_INET6]:
             return addr_family
         if addr_family is None or addr_family == socket.AF_UNSPEC:
@@ -30,10 +38,27 @@ class _IP:
         self.addr_family_check(addr_family)
 
     def addr_family_check(self, addr_family):
+        """
+        Check that address family is :code:`socket.AF_INET` or :code:`socket.AF_INET6`.
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily
+        :raises ValueError: when invalid address family provided
+        """
         if addr_family != socket.AF_INET and addr_family != socket.AF_INET6:
             raise ValueError(f"invalid address family {addr_family}")
 
     def addr_family_num(self, addr_family, allow_none=False):
+        """
+        Number represenation (4 or 6) of address family.
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily or string
+        :param allow_none: whether to accept None value, defaults to False
+        :type allow_none: bool, optional
+        :return: number representation of address family
+        :rtype: int
+        """
         addr_family = self.addr_family_norm(addr_family)
         if addr_family == socket.AF_INET:
             return 4
@@ -44,6 +69,14 @@ class _IP:
         self.addr_family_check(addr_family)
 
     def addr_family_plen(self, addr_family):
+        """
+        IP address length for given family
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily or str
+        :return: length of address
+        :rtype: int
+        """
         addr_family = self.addr_family_norm(addr_family)
         if addr_family == socket.AF_INET:
             return 32
@@ -52,6 +85,17 @@ class _IP:
         self.addr_family_check(addr_family)
 
     def ipaddr_parse(self, s, addr_family=None):
+        """
+        Parse IP address from string. If address family is not provided
+        both IPv4 and IPv6 addresses are accepted.
+
+        :param s: address
+        :type s: str or bytes
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str or None, optional
+        :return: normalized address with detected address family
+        :rtype: tuple, str and socket.AddressFamily
+        """
         s = nmci.util.bytes_to_str(s)
         addr_family = self.addr_family_norm(addr_family)
         if addr_family is not None:
@@ -68,10 +112,33 @@ class _IP:
         return (socket.inet_ntop(addr_family, a), addr_family)
 
     def ipaddr_norm(self, s, addr_family=None):
+        """
+        Normalize IP address. If address family is not provided
+        both IPv4 and IPv6 addresses are accepted.
+
+        :param s: address
+        :type s: str or bytes
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str or None, optional
+        :return: normalized address
+        :rtype: str
+        """
         addr, addr_family = self.ipaddr_parse(s, addr_family)
         return addr
 
     def ipaddr_plen_parse(self, s, addr_family=None):
+        """
+        Parse IP address and prefix from string. If address family is not provided
+        both IPv4 and IPv6 addresses are accepted.
+
+        :param s: address with prefix, e.g "1.2.3.4/31"
+        :type s: str or bytes
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str or None, optional
+        :raises ValueError: when provided address or plen is invalid
+        :return: tuple of normalized address, address family and prefix
+        :rtype: tuple, str and socket.AddressFamily and int
+        """
         addr_family = self.addr_family_norm(addr_family)
         s = nmci.util.bytes_to_str(s)
         s0 = s
@@ -98,21 +165,49 @@ class _IP:
         return (a, f, p)
 
     def ipaddr_plen_norm(self, s, addr_family=None):
+        """
+        Normalize IP address and prefix. If address family is not provided
+        both IPv4 and IPv6 addresses are accepted.
+
+        :param s: address with prefix, e.g "1.2.3.4/31"
+        :type s: str or bytes
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str or None, optional
+        :raises ValueError: when provided address or plen is invalid
+        :return: normalized adrress with prefix
+        :rtype: str
+        """
         (addr, addr_family, plen) = self.ipaddr_plen_parse(s, addr_family)
         if plen is None:
             return addr
         return f"{addr}/{plen}"
 
     def ipaddr_zero(self, addr_family):
+        """
+        Zero address for given address family
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily or string
+        :return: "0.0.0.0" or "::"
+        :rtype: str
+        """
         if self.addr_family_num(addr_family) == 4:
             return "0.0.0.0"
         else:
             return "::"
 
     def mac_aton(self, mac_str, force_len=None):
-        # we also accept None and '' for convenience.
-        # - None yiels None
-        # - '' yields []
+        """
+        Convert MAC address to bytes.
+        We also accept None and '' for convenience, None yiels None, '' yields [].
+
+        :param mac_str: mac address
+        :type mac_str: str
+        :param force_len: length of address in bits, defaults to None
+        :type force_len: int, optional
+        :return: MAC address in bytes
+        :rtype: bytes
+        """
         if mac_str is None:
             return mac_str
         mac_str = nmci.util.bytes_to_str(mac_str)
@@ -146,11 +241,32 @@ class _IP:
         return b
 
     def mac_ntoa(self, mac):
+        """
+        Convert bytes to MAC address string
+
+        :param mac_str: mac address
+        :type mac_str: str
+        :param force_len: length of address in bits, defaults to None
+        :type force_len: int, optional
+        :return: MAC address
+        :rtype: str
+        """
         if mac is None:
             return None
         return ":".join(["%02x" % c for c in bytearray(mac)])
 
     def mac_norm(self, mac_str, force_len=None):
+        """
+        Normalize MAC address string.
+        We also accept None and '' for convenience, None yiels None, '' yields [].
+
+        :param mac_str: mac address
+        :type mac_str: str
+        :param force_len: length of address in bits, defaults to None
+        :type force_len: int, optional
+        :return: normalized MAC address
+        :rtype: str
+        """
         return self.mac_ntoa(self.mac_aton(mac_str, force_len))
 
     def address_show(
@@ -162,6 +278,25 @@ class _IP:
         atype=None,
         namespace=None,
     ):
+        """
+        Get addresses via :code:`ip address show`. Possibility to filter output
+        by providing ifindex or ifname.
+
+        :param binary: whether to return bytes, defaults to None
+        :type binary: bool, optional
+        :param ifindex: index of interface to show, defaults to None
+        :type ifindex: int or str, optional
+        :param ifname: interafce name to show, defaults to None
+        :type ifname: _type_, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param atype: output only addresses of the following type, one of "inet", "inet6", "link/ether", defaults to None
+        :type atype: str, optional
+        :param namespace: namespace to match, defaults to None
+        :type namespace: str, optional
+        :return: addresses for matched inetrafces
+        :rtype: dict
+        """
         select_ifindex = ifindex
         select_ifname = ifname
         select_addr_family = self.addr_family_norm(addr_family)
@@ -302,6 +437,34 @@ class _IP:
         addrs=None,
         namespace=None,
     ):
+        """
+        Check if expected address is present on interface.
+
+        :param expected: list of expected addresses
+        :type expected: list of str or re.Pattern
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param match_mode: see :code:`nmci.util.compare_strv_list`, defaults to "auto"
+        :type match_mode: str, optional
+        :param with_plen: whether to strip prefix or not, defaults to False
+        :type with_plen: bool, optional
+        :param ignore_order: whether to ignore address order, defaults to False
+        :type ignore_order: bool, optional
+        :param ignore_extra: whether to addresses must match exactly, defaults to True
+        :type ignore_extra: bool, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param wait_for_address: timeout until address must be present, defaults to None
+        :type wait_for_address: float, optional
+        :param addrs: addreses, if set will not query :code:`address_show()`, defaults to None
+        :type addrs: dict, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :return: adresses of the matched interfaces
+        :rtype: dict
+        """
         addr_family = self.addr_family_norm(addr_family)
 
         if wait_for_address is not None:
@@ -363,6 +526,20 @@ class _IP:
         addr_family=None,
         namespace=None,
     ):
+        """
+        Flush addresses on given interface.
+
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interafec index, defaults to None
+        :type ifindex: int or str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        """
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
                 ifindex=ifindex,
@@ -395,6 +572,22 @@ class _IP:
         addr_family=None,
         namespace=None,
     ):
+        """
+        Add IP address to interface.
+
+        :param address: IP address to add
+        :type address: str
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interafce index, defaults to None
+        :type ifindex: int or str, optional
+        :param wait_for_device: timeout for device to appear, defaults to None
+        :type wait_for_device: float, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        """
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
                 ifindex=ifindex,
@@ -427,11 +620,20 @@ class _IP:
         )
 
     def link_show_all(self, binary=None, namespace=None):
-        # binary is:
-        #   False: expect all stings to be UTF-8, the result only contains decoded strings
-        #   True: expect at least some of the names to be binary, all the ifnames are bytes
-        #   None: expect a mix. The ifnames that can be decoded as UTF-8 are returned
-        #     as strings, otherwise as bytes.
+        """
+        Show all links. Parameter binary can be:
+
+        :code:`False`: expect all stings to be UTF-8, the result only contains decoded strings
+        :code:`True`: expect at least some of the names to be binary, all the ifnames are bytes
+        :code:`None`: expect a mix. The ifnames that can be decoded as UTF-8 are returned as strings, otherwise as bytes.
+
+        :param binary: whether output should be string or binary or mixed, defaults to None
+        :type binary: bool, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :return: Attributes of all availiable links
+        :rtype: dict
+        """
 
         assert binary is None or binary is True or binary is False
 
@@ -501,6 +703,24 @@ class _IP:
         allow_missing=False,
         namespace=None,
     ):
+        """
+        Show single link. Interface name or index must be provided.
+
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param flags: interafce has to have given flags, defaults to None
+        :type flags: str, optional
+        :param binary: see :code:`link_show_all()`, defaults to None
+        :type binary: bool, optional
+        :param allow_missing: does not raise Exception if none interafce matched, defaults to False
+        :type allow_missing: bool, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :return: attributes of matched interafce or None
+        :rtype: dict
+        """
         if ifindex is None and ifname is None:
             raise ValueError("Missing argument, either ifindex or ifname must be given")
 
@@ -553,6 +773,26 @@ class _IP:
         return data
 
     def link_show(self, ifname=None, *, timeout=None, **kwargs):
+        """
+        Show single link. Interface name or index must be provided.
+
+        :param timeout: timeout until device must appear, defaults to None
+        :type timeout: float, optional
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param flags: interafce has to have given flags, defaults to None
+        :type flags: str, optional
+        :param binary: see :code:`link_show_all()`, defaults to None
+        :type binary: bool, optional
+        :param allow_missing: does not raise Exception if none interafce matched, defaults to False
+        :type allow_missing: bool, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :return: attributes of matched interafce or None
+        :rtype: dict
+        """
         xtimeout = nmci.util.start_timeout(timeout)
         while xtimeout.loop_sleep(0.08):
             try:
@@ -567,6 +807,26 @@ class _IP:
         )
 
     def link_show_maybe(self, ifname=None, *, allow_missing=True, **kwargs):
+        """
+        Show single link. Interface name or index must be provided.
+
+        :param timeout: timeout until device must appear, defaults to None
+        :type timeout: float, optional
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param flags: interafce has to have given flags, defaults to None
+        :type flags: str, optional
+        :param binary: see :code:`link_show_all()`, defaults to None
+        :type binary: bool, optional
+        :param allow_missing: does not raise Exception if none interafce matched, defaults to True
+        :type allow_missing: bool, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :return: attributes of matched interafce or None
+        :rtype: dict
+        """
         return self.link_show(ifname=ifname, allow_missing=allow_missing, **kwargs)
 
     def link_set(
@@ -582,6 +842,29 @@ class _IP:
         master=None,
         **kwargs,
     ):
+        """
+        Set link attributes. Additional arguments are appended to
+        :code:`ip link set ...` command. Additional keyword arguments are
+        appended with separated space: :code:`peer='p_name'` is appended as
+        :code:`'peer' 'p_name'`.
+
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param up: if set, interface is set :code:`up` or :code:`down`, defaults to None
+        :type up: bool, optional
+        :param wait_for_device: timeout for device to appear, defaults to None
+        :type wait_for_device: float, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param name: new name for interface, defaults to None
+        :type name: str, optional
+        :param netns: new namespace for interface, defaults to None
+        :type netns: str, optional
+        :param master: new master of interface, defaults to None
+        :type master: str, optional
+        """
         if ifname is None or ifindex is not None or wait_for_device is not None:
             li = self.link_show(
                 ifindex=ifindex,
@@ -622,6 +905,18 @@ class _IP:
     def link_delete(
         self, ifname=None, *, ifindex=None, accept_nodev=False, namespace=None
     ):
+        """
+        Delete link.
+
+        :param ifname: interafce name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param accept_nodev: whether to raise if device already not present, defaults to False
+        :type accept_nodev: bool, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        """
         if ifname is None or ifindex is not None:
             li = self.link_show_maybe(ifindex=ifindex, namespace=namespace)
             if li is None:
@@ -666,6 +961,23 @@ class _IP:
         wait_for_device=None,
         **kwargs,
     ):
+        """
+        Add new link. Additional arguments are appended to
+        :code:`ip link add ...` command. Additional keyword arguments are
+        appended with separated space: :code:`peer='p_name'` is appended as
+        :code:`'peer' 'p_name'`.
+
+        :param ifname: interface name
+        :type ifname: str
+        :param link_type: interface type
+        :type link_type: str
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        """
         merged_args = list(args)
         for key, value in kwargs.items():
             merged_args += [key, value]
@@ -703,6 +1015,14 @@ class _IP:
             )
 
     def netns_list(self, with_binary=False):
+        """
+        List availiable namespaces.
+
+        :param with_binary: whether to return as bytes, defaults to False
+        :type with_binary: bool, optional
+        :return: list of interface names
+        :rtype: list of str
+        """
         out = nmci.process.run_stdout("ip netns list", as_bytes=True)
 
         if not out:
@@ -741,9 +1061,23 @@ class _IP:
         return namespaces
 
     def netns_add(self, name):
+        """
+        Add namespace
+
+        :param name: name if the namespace
+        :type name: str
+        """
         nmci.process.run_stdout(["ip", "netns", "add", name])
 
     def netns_delete(self, name, check=True):
+        """
+        Delete namespace
+
+        :param name: name of namespace
+        :type name: str
+        :param check: whether to raise if namespace already deleted, defaults to True
+        :type check: bool, optional
+        """
         nmci.process.run_stdout(
             ["ip", "netns", "delete", name],
             ignore_returncode=not check,
@@ -762,7 +1096,35 @@ class _IP:
         wait_for_device=None,
         **kwargs,
     ):
-        assert action in ["add", "del", "show", "flush"], f"Unknown action: `{action}`."
+        """
+        Perform route action.  Additional arguments are appended to
+        :code:`ip route ...` command. Additional keyword arguments are
+        appended with separated space: :code:`peer='p_name'` is appended as
+        :code:`'peer' 'p_name'`.
+
+        :param route: route, address and prefix or :code:`'default'`
+        :type route: str
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param action: one of 'add', 'del', 'show', 'flush', defaults to None
+        :type action: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        :return: STDOUT of :code:`ip route` command
+        :rtype: str
+        """
+        assert action in [
+            "add",
+            "del",
+            "show",
+            "flush",
+        ], f"Unknown action: :code:`{action}`."
 
         show_or_flush = action in ["show", "flush"]
         route_arg = []
@@ -820,6 +1182,25 @@ class _IP:
         wait_for_device=None,
         **kwargs,
     ):
+        """
+        Add route.  Additional arguments are appended to
+        :code:`ip route ...` command. Additional keyword arguments are
+        appended with separated space: :code:`peer='p_name'` is appended as
+        :code:`'peer' 'p_name'`.
+
+        :param route: route, address and prefix or :code:`'default'`
+        :type route: str
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        """
         self._route(
             route,
             ifname,
@@ -843,6 +1224,25 @@ class _IP:
         wait_for_device=None,
         **kwargs,
     ):
+        """
+        Delete route.  Additional arguments are appended to
+        :code:`ip route ...` command. Additional keyword arguments are
+        appended with separated space: :code:`peer='p_name'` is appended as
+        :code:`'peer' 'p_name'`.
+
+        :param route: route, address and prefix or :code:`'default'`
+        :type route: str
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        """
         self._route(
             route,
             ifname,
@@ -863,6 +1263,20 @@ class _IP:
         wait_for_device=None,
         addr_family=None,
     ):
+        """
+        Flush routes.
+
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        """
         self._route(
             None,
             ifname,
@@ -881,6 +1295,23 @@ class _IP:
         wait_for_device=None,
         addr_family=None,
     ):
+        """
+        Show routes. Returned in dictionary, where keys are routes (address with prefix)
+        and value is additinal arguments (allowing simple checks: :code:`'1.2.3.4/10' in route_show()`)
+        TODO will not work if multiple route is having different options.
+
+        :param ifname: interface name, defaults to None
+        :type ifname: str, optional
+        :param ifindex: interface index, defaults to None
+        :type ifindex: int or str, optional
+        :param addr_family: address family, defaults to None
+        :type addr_family: socket.AddressFamily or str, optional
+        :param namespace: namespace, defaults to None
+        :type namespace: str, optional
+        :param wait_for_device: timeout until device appears, defaults to None
+        :type wait_for_device: float, optional
+        :return: routes in dictionary, keyword is route address with prefix, value additional argument.
+        """
         result = {}
         routes = self._route(
             None,

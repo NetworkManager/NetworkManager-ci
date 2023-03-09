@@ -29,6 +29,13 @@ class Embed:
     EmbedContext = collections.namedtuple("EmbedContext", ["count", "embed_data"])
 
     def __init__(self, fail_only=False, combine_tag=None):
+        """General Embed
+
+        :param fail_only: whether to embed only if scenario failed, defaults to False
+        :type fail_only: bool, optional
+        :param combine_tag: join multiple embeds under single caption, defaults to None
+        :type combine_tag: str, optional
+        """
         self.fail_only = fail_only
         self.combine_tag = combine_tag
         self._data = None
@@ -43,6 +50,19 @@ class EmbedData(Embed):
     def __init__(
         self, caption, data, mime_type="text/plain", fail_only=False, combine_tag=None
     ):
+        """Embed General Data
+
+        :param caption: embed caption
+        :type caption: str
+        :param data: data to be embedded
+        :type data: str
+        :param mime_type: mime-type of the data, defaults to "text/plain"
+        :type mime_type: str, optional
+        :param fail_only: whether to embed only if scenario failed, defaults to False
+        :type fail_only: bool, optional
+        :param combine_tag: join multiple embeds under single caption, defaults to None
+        :type combine_tag: str, optional
+        """
         Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
         self._caption = caption
         self._data = data
@@ -51,8 +71,17 @@ class EmbedData(Embed):
 
 class EmbedLink(Embed):
     def __init__(self, caption, data, fail_only=False, combine_tag=None):
-        # data must be a list of 2-tuples, where the first element
-        # is the link target (href) and the second the text.
+        """Embed links
+
+        :param caption: embed caption
+        :type caption: str
+        :param data: data must be a list of 2-tuples, where the first element, is the link target (href) and the second the text.
+        :type data: list of pairs of str
+        :param fail_only: whether to embed only if scenario failed, defaults to False
+        :type fail_only: bool, optional
+        :param combine_tag: join multiple embeds under single caption, defaults to None
+        :type combine_tag: str, optional
+        """
         Embed.__init__(self, fail_only=fail_only, combine_tag=combine_tag)
 
         new_data = []
@@ -81,6 +110,11 @@ class _Embed:
         self.NO_EMBED = NO_EMBED
 
     def setup(self, runner):
+        """Save formatter from behave.Runnr object
+
+        :param runner: behave Runner object
+        :type runner: behave.Runner
+        """
         # setup formatter embed and set_title
         for formatter in runner.formatters:
             if "html" not in formatter.name:
@@ -91,6 +125,13 @@ class _Embed:
                 self._html_formatter = formatter
 
     def get_embed_context(self, combine_tag):
+        """Returns the EmbedContext object for given combine tag, creates new if needed.
+
+        :param combine_tag: caption of joined embeds
+        :type combine_tag: str
+        :return: EmbedContext object for given combine_tag.
+        :rtype: EmbedContext
+        """
         if combine_tag == NO_EMBED:
             return Embed.EmbedContext(-1, None)
 
@@ -107,32 +148,55 @@ class _Embed:
         return Embed.EmbedContext(count, embed_data)
 
     def after_step(self):
+        """Sould be called after each step to refresh the combined tags."""
         self._combine_tags = {}
 
     def set_title(self, *a, **kw):
+        """Calls set_title() of the formatter, if supported by formatter."""
         if self._set_title:
             self._set_title(*a, *kw)
 
     def has_html_formatter(self):
+        """Check if HTML formatter is set. This makes sense only after setup() call.
+
+        :return: True if HTML formatter is present.
+        :rtype: bool
+        """
         return self._html_formatter is not None
 
     def get_current_scenario(self):
+        """Returns the current scenario object of the HTML formatter
+
+        :return: current scenario object in HTML formatter
+        :rtype: formatter.Scenario
+        """
         if self._html_formatter is None:
             return None
         return self._html_formatter.current_scenario
 
     def formatter_add_scenario(self, scenario):
+        """Register the scenario in formatter.
+
+        This is called if skipped before scenario, because behave then does not
+        register the scenario to formatter.
+
+        :param scenario: scenario to be registered in formatter
+        :type scenario: behave.Scenario
+        """
         if self._html_formatter is None:
             return
         self._html_formatter.scenario(scenario)
 
     def before_scenario_finish(self, status):
         """
-        This is needed as last call of `before_scenario()`
+        This is needed as last call of :code:`before_scenario()`
         The purpose of this is to separate embeds between
         scenarios correctly, provide status to the formatter
         and formatter also computes time spend. It is harmless
         when formatter is not using pseudo steps.
+
+        :param status: status of the before scenario
+        :type status: str
         """
         if self._html_formatter is None:
             return
@@ -140,11 +204,14 @@ class _Embed:
 
     def after_scenario_finish(self, status):
         """
-        This is needed as last call of `after_scenario()`
+        This is needed as last call of :code:`after_scenario()`
         The purpose of this is to separate embeds between
         scenarios correctly, provide status to the formatter
         and formatter also computes time spend. It is harmless
         when formatter is not using pseudo steps.
+
+        :param status: status of the after scenario
+        :type status: str
         """
         if self._html_formatter is None:
             return
@@ -242,6 +309,9 @@ class _Embed:
         self._embed_args(embed_data, "text/plain", message, main_caption)
 
     def process_embeds(self):
+        """This is called in after scenario to process the embeds
+        and send data to the HTML formatter (if present).
+        """
 
         combines_dict = {}
         self._to_embed.sort(key=lambda e: e._embed_context.count)
@@ -268,6 +338,17 @@ class _Embed:
         self._embed_queue(EmbedLink(*a, **kw), embed_context=embed_context)
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
+        """embed new crash dump
+
+        :param caption: embed caption
+        :type caption: str
+        :param dump_id: unique ID of the crash
+        :type dump_id: str
+        :param data: backtrace of the coredump, defaults to None
+        :type data: str, optional
+        :param links: FAF links to embed, defaults to None
+        :type links: list of pairs of str, optional
+        """
         print("Attaching %s, %s" % (caption, dump_id))
 
         assert (data is None) + (links is None) == 1
@@ -290,6 +371,27 @@ class _Embed:
         combine_tag=TRACE_COMBINE_TAG,
         elapsed_time=None,
     ):
+        """Embed results of a process
+
+        :param argv: arguments of the process
+        :type argv: list of str or str
+        :param shell: whether executed in shell
+        :type shell: bool
+        :param returncode: returncode of the process
+        :type returncode: int
+        :param stdout: STDOUT of the process
+        :type stdout: str or binary
+        :param stderr: STDERR of the process
+        :type stderr: str or binary
+        :param fail_only: wheter to embed only if scenario fails, defaults to True
+        :type fail_only: bool, optional
+        :param embed_context: embed context, defaults to None
+        :type embed_context: Embed.EmedContext, optional
+        :param combine_tag: caption of joined embeds, defaults to TRACE_COMBINE_TAG, computes caption from stactrace
+        :type combine_tag: str, optional
+        :param elapsed_time: measured time of process run in seconds, defaults to None
+        :type elapsed_time: float, optional
+        """
 
         if stdout is not None:
             try:
@@ -352,6 +454,21 @@ class _Embed:
         cursor=None,
         fail_only=False,
     ):
+        """Embed log of service using journalctl
+
+        :param descr: embed caption
+        :type descr: str
+        :param service: name of the service to filter out, defaults to None
+        :type service: str, optional
+        :param syslog_identifier: equivalent to '-u' parameter of journalctl, defaults to None
+        :type syslog_identifier: str, optional
+        :param journal_args: additional journalctl arguments, defaults to None
+        :type journal_args: list of str, optional
+        :param cursor: journalctl cursor, defaults to None
+        :type cursor: str, optional
+        :param fail_only: wheter to embed only if scenario fails, defaults to True
+        :type fail_only: bool, optional
+        """
         print("embedding " + descr + " logs")
 
         if cursor is None:
@@ -374,6 +491,19 @@ class _Embed:
         as_base64=False,
         fail_only=False,
     ):
+        """Embed file to HTML report
+
+        :param caption: embed caption
+        :type caption: str
+        :param fname: name of the file to embed
+        :type fname: str
+        :param as_base64: whether to convert file to base64, defaults to False
+        :type as_base64: bool, optional
+        :param fail_only: wheter to embed only if scenario fails, defaults to True
+        :type fail_only: bool, optional
+        :return: True if file exists and embedded, False otherwise
+        :rtype: bool
+        """
 
         if not os.path.isfile(fname):
             print("Warning: File " + repr(fname) + " not found")

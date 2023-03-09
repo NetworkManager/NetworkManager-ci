@@ -428,7 +428,7 @@ def gsm_bs(context, scenario):
     context.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.
     # Only 1 modem is expected per test.
-    context.modem_str = nmci.gsm.find_modem(context)
+    context.modem_str = nmci.gsm.find_modem()
     scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):

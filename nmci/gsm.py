@@ -7,6 +7,9 @@ import nmci
 
 
 def reset_usb_devices():
+    """
+    Resets USB GSM devices
+    """
     USBDEVFS_RESET = 21780
 
     def getfile(dirname, filename):
@@ -33,6 +36,9 @@ def reset_usb_devices():
 
 
 def reinitialize_devices():
+    """
+    Reinitialize GSM devices
+    """
     if (
         nmci.process.systemctl(
             "is-active ModemManager", embed_combine_tag=nmci.embed.NO_EMBED
@@ -78,15 +84,18 @@ def reinitialize_devices():
     return True
 
 
-def find_modem(context):
+def find_modem():
     """
     Find the 1st modem connected to a USB port or USB hub on a testing machine.
-    :return: None/a string of detected modem specified in a dictionary.
+
+    When to extract information about a modem?
+    - When the modem is initialized.
+    - When it is available in the output of  :code:`mmcli -L`.
+    - When the device has type of :code:`'gsm'` in the output of :code:`nmcli dev`.
+
+    :return: detected modem specified in a dictionary
+    :rtype: str
     """
-    # When to extract information about a modem?
-    # - When the modem is initialized.
-    # - When it is available in the output of 'mmcli -L'.
-    # - When the device has type of 'gsm' in the output of 'nmcli dev'.
 
     modem_dict = {
         "413c:8118": "Dell Wireless 5510",
@@ -135,12 +144,14 @@ def find_modem(context):
 
 def get_modem_info(context):
     """
-    Get a list of connected modem via command 'mmcli -L'.
+    Get a list of connected modem via command :code:`mmcli -L`.
     Extract the index of the 1st modem.
-    Get info about the modem via command 'mmcli -m $i'
+    Get info about the modem via command :code:`mmcli -m $i`
     Find its SIM card. This optional for this function.
-    Get info about the SIM card via command 'mmcli --sim $i'.
-    :return: None/A string containing modem information.
+    Get info about the SIM card via command :code:`mmcli --sim $i`.
+
+    :return: modem information
+    :rtype: str
     """
     output = modem_index = modem_info = sim_index = sim_info = None
 

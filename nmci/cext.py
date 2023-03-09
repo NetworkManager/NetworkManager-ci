@@ -8,12 +8,21 @@ def __getattr__(attr):
 
 
 class _CExt:
+    """Context Extenstion object
+    Remembers the current behave context and implements
+    basic operations over it.
+    """
+
     def __init__(self):
         self.context = None
         self.scenario_skipped = False
 
     def setup(self, context):
+        """Setup context formatter, commands, and save context.
 
+        :param context: behave context object
+        :type context: behave.Context
+        """
         assert not hasattr(context, "embed")
         assert not hasattr(context, "cext")
 
@@ -76,6 +85,12 @@ class _CExt:
         )
 
     def skip(self, msg=""):
+        """Skip scenario and stop executing (raise SkipTestException).
+
+        :param msg: Reason of skip, defaults to ""
+        :type msg: str, optional
+        :raises nmci.misc.SkipTestException: Interupts further code execution
+        """
         if msg:
             nmci.embed.embed_data("Skip message", msg)
         self.context.scenario.skip(msg)

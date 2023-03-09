@@ -9,6 +9,13 @@ COREDUMP_TYPE_ABRT = "abrt"
 
 
 def check_dump_package(pkg_name):
+    """Helper function to check if package name is relevant.
+
+    :param pkg_name: name of the package
+    :type pkg_name: ste
+    :return: True if NetworkManager or ModemManager, False otherwise
+    :rtype: bool
+    """
     if (
         pkg_name in ["NetworkManager", "ModemManager"]
         or "ovs" in pkg_name
@@ -19,6 +26,13 @@ def check_dump_package(pkg_name):
 
 
 def check_crash(context, crashed_step):
+    """Check if crash hapenned (by NM PID change), remember step when crash occured in context.
+
+    :param context: behave Context object
+    :type context: behave.Context
+    :param crashed_step: Name of the crashed step
+    :type crashed_step: str
+    """
     pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     if pid_refresh_count > 0:
         context.pid_refresh_count = pid_refresh_count - 1
@@ -35,6 +49,11 @@ def check_crash(context, crashed_step):
 
 
 def check_coredump(context):
+    """Check for crashes reported to coredump
+
+    :param context: behave Context object
+    :type context: behave.Context
+    """
     for dump_dir in coredump_list_on_disk(COREDUMP_TYPE_SYSTEMD_COREDUMP):
         print("Examining crash: " + dump_dir)
         dump_dir_split = dump_dir.split(".")
@@ -93,10 +112,22 @@ def check_coredump(context):
 
 
 def _coredump_reported_file():
+    """Cache file of already reported crashes
+
+    :return: Filename of cache file
+    :rtype: str
+    """
     return nmci.util.tmp_dir("reported_crashes")
 
 
 def coredump_is_reported(dump_id):
+    """Check if crash is already reported, to not spam repeatedly the same crash.
+
+    :param dump_id: unique ID of the crash, should differ across distinct crashes
+    :type dump_id: str
+    :return: True if already reported, False otherwise
+    :rtype: bool
+    """
     filename = _coredump_reported_file()
     if os.path.isfile(filename):
         dump_id += "\n"
@@ -108,11 +139,23 @@ def coredump_is_reported(dump_id):
 
 
 def coredump_report(dump_id):
+    """Save crash ID in cache, to be reported only once.
+
+    :param dump_id: unique ID of the crash, should differ across distinct crashes
+    :type dump_id: str
+    """
     with open(_coredump_reported_file(), "a") as f:
         f.write(dump_id + "\n")
 
 
 def coredump_list_on_disk(dump_type=None):
+    """List coredumps on disk.
+
+    :param dump_type: one of COREDUMP_TYPE_SYSTEMD_COREDUMP or COREDUMP_TYPE_ABRT, defaults to None
+    :type dump_type: obj, optional
+    :return: list of filenames
+    :rtype: list of filename
+    """
     if dump_type == COREDUMP_TYPE_SYSTEMD_COREDUMP:
         g = "/var/lib/systemd/coredump/*"
     elif dump_type == COREDUMP_TYPE_ABRT:
@@ -123,6 +166,15 @@ def coredump_list_on_disk(dump_type=None):
 
 
 def wait_faf_complete(context, dump_dir):
+    """Waits until given FAF is uploaded and reported correctly.
+
+    :param context: behave Context object
+    :type context: behave.Context
+    :param dump_dir: FAF dir to wait for
+    :type dump_dir: ste
+    :return: True if wait succeded, False, if report still not complete
+    :rtype: bool
+    """
     NM_pkg = False
     last = False
     last_timestamp = 0
@@ -194,6 +246,11 @@ def wait_faf_complete(context, dump_dir):
 
 
 def check_faf(context):
+    """Check for new FAF reports
+
+    :param context: behave COntext object
+    :type context: behave.Context
+    """
     context.abrt_dir_change = True
     context.faf_countdown = 300
     while context.abrt_dir_change:
@@ -239,6 +296,11 @@ def check_faf(context):
 
 
 def after_crash_reset(context):
+    """Do the reset of NetworkManager config and envionment, to prevent NetworkManager crashing again.
+
+    :param context: behave Context object
+    :type context: behave.Context
+    """
     print("@after_crash_reset")
 
     print("Stop NM")

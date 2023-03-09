@@ -448,7 +448,7 @@ class _NMUtil:
         uuid=None,
         setting_type=None,
     ):
-        # Call `nmcli connection show` to get a list of profiles. It augments
+        # Call :code:`nmcli connection show` to get a list of profiles. It augments
         # the result with directly fetched data from D-Bus (the fetched data
         # is thus not in sync with the data fetched with the nmcli call).
         #
@@ -607,7 +607,7 @@ class _NMUtil:
         device_type=None,
         get_ipaddrs=False,
     ):
-        # Call `nmcli device status` to get a list of profiles. It augments
+        # Call :code:`nmcli device status` to get a list of profiles. It augments
         # the result with directly fetched data from D-Bus (the fetched data
         # is thus not in sync with the data fetched with the nmcli call).
         #
