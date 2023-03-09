@@ -19,6 +19,9 @@ install_behave_pytest () {
   # black is needed by unit tests to check code format
   # stick to fedora 33 version of black: 22.3.0
   python -m pip install --prefix /usr/ black==22.3.0
+  # install sphinx to build nmci documentation
+  python -m pip install --prefix /usr/ sphinx==4.2.0
+  python -m pip install sphinx-markdown-builder
 }
 
 

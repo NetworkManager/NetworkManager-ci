@@ -2031,6 +2031,25 @@ def test_behave_steps_in_feature_files(capfd):
     assert proc.returncode == 0, "behave ended up with non-zero return code"
 
 
+def test_nmci_doc():
+
+    if sys.version.startswith("3.6."):
+        pytest.skip("sphinx markdown builder does not work with python3.6 :(")
+
+    print(
+        "Running `sphinx-build -E -b markdown nmci/doc_src nmci/doc` to rebuild documentation:"
+    )
+    proc = subprocess.run(
+        ["sphinx-build", "-E", "-b", "markdown", "nmci/doc_src", "nmci/doc"]
+    )
+
+    assert proc.returncode == 0, "Unable to build documentation"
+
+    proc = subprocess.run(["git", "diff", "--quiet", "nmci/README.md"])
+
+    assert proc.returncode == 0, "Documentation changed after rebuild."
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():
