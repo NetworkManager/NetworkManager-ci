@@ -4,14 +4,14 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 
 ### Nightly status (CentOS CI)
 
-| Code Branch | Build Status |
-| ------------| ------------ |
-| main | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/) |
-| 1.42.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/) |
-| 1.40.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/) |
-| 1.38.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/) |
-| 1.36.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/) |
-| 1.34.x | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/) |
+| Code Branch | Build Status                                                                                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main        | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/) |
+| 1.42.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/) |
+| 1.40.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/) |
+| 1.38.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/) |
+| 1.36.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/) |
+| 1.34.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/) |
 
 
 ### Howto execute basic test suite manually on localhost
@@ -237,7 +237,12 @@ Another possibility how to test the changes is to open a merge request in Gitlab
 
 1. The tests can be skipped either by pushing with `git push -o ci.skip`, or "Rebase without pipeline button" in WebUI.
 
-1. If you name your branch `mrXYZ`, then merge request with number XYZ from [NetworkManager repository](https://gitlab.freedesktop.org/NetworkManager/NetworkManager) will use this branch for testing.
+1. If you interlink merge requests (mention counterpart merge request in description), corresponding branch will be used for testing/build:
+  * In a [NetworkManager merge request](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/merge_requests) description mention `NetworkManager-ci!ABC` or `https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/merge_requests/ABC` and it will use test from merge request numbered `ABC`
+
+  * In a [NetworkManager-ci merge request](https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/merge_requests) description mention `NetworkManager!XYZ` or `https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/XYZ` and it will build NetworkManager from merge request numbered `XYZ`
+
+  * Example: NetworkManager!1536 and NetworkManager-ci!1317
 
 
 For CentOS trigger, there is also `@RunFeatures:feature1,feature2,...` override, which executes only specified features. It can be in either in commit message, in `rebuild` message or in merge request description.
