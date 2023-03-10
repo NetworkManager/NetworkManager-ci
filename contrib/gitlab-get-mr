@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+import json
+import re
+import requests
+import subprocess
+import sys
+
+
+def git(gitcmd: list, *a, **kw) -> str:
+    proc = subprocess.run(
+        ["git", *gitcmd],
+        encoding="UTF-8",
+        check=True,
+        stdout=subprocess.PIPE,
+        **kw,
+    )
+    return proc.stdout.strip()
+
+
+def main():
+    err = []
+    branch_local: str = git(["branch", "--show-current"])
+    try:
+        upstream_remote: str = git(["config", f"branch.{branch_local}.remote"])
+    except subprocess.CalledProcessError:
+        raise SystemExit("Current branch has no upstream.")
+
+    remote_url: str = git(["remote", "get-url", upstream_remote])
+
+    host, path = re.fullmatch("[^@]*@?([^:]+):(.*)\.git", remote_url).groups()
+
+    gl_uri_web = "https://" + host + "/" + path
+    gl_uri_web_mrs = "https://" + host + "/" + path + "/-/merge_requests"
+    gl_uri_api = (
+        "https://"
+        + host
+        + "/api/v4/projects/"
+        + path.replace("/", "%2F")
+        + "/merge_requests?state=opened"
+    )
+
+    r = requests.get(gl_uri_api)
+    if r.status_code == requests.codes.ok:
+        err.append(
+            "This seems like a valid GL instance:   "
+            + f"                             {gl_uri_web}"
+        )
+    else:
+        msg = (
+            "This either isn't GL instance or disallows public access to MRs:\n"
+            f"  * web URI: {gl_uri_web_mrs}\n"
+            f"  * API URI: {gl_uri_api}"
+        )
+        err.append(msg)
+        raise SystemExit("\n".join(err))
+
+    mrs = json.loads(r.text)
+
+    mrs_filtered = [i for i in mrs if i["source_branch"] == branch_local]
+    if mrs_filtered:
+        mr = mrs_filtered[0]
+    else:
+        msg = (
+            f"Branch {branch_local} however was not found among active MRs at:   "
+            + gl_uri_web_mrs
+        )
+        err.append(msg)
+        raise SystemExit("\n".join(err))
+
+    print(mr["web_url"])
+
+
+if __name__ == "__main__":
+    main()
