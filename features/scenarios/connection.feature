@@ -1067,3 +1067,15 @@ Feature: nmcli: connection
     * Cleanup connection "team-slave-eth5"
     * NM is restarted within next "1" steps
     * Execute reproducer "repro_2092323.sh" with options "run" for "10" times
+
+
+    @xfail
+    @rhbz2177209
+    @nmcli_space_in_secondaries
+    Scenario: nmcli - vpn - space in secondaries
+    * Add "openvpn" VPN connection named "Open VPN" for device "\*"
+    * Cleanup connection "Wired 1"
+    * Cleanup connection "Wired 2"
+    * Execute "nmcli c add con-name 'Wired 2' ifname 'eth2' type ethernet autoconnect no"
+    Then Execute "nmcli c add con-name 'Wired 1' ifname eth2 type ethernet autoconnect no connection.secondaries 'Open VPN'"
+    Then Execute "nmcli c modify 'Wired 2' connection.secondaries 'Open VPN'"

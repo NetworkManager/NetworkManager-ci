@@ -2277,6 +2277,8 @@ testmapper:
         feature: connection
     - connection_dont_assume_settings_connection:
         feature: connection
+    - nmcli_space_in_secondaries:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
