@@ -2258,11 +2258,12 @@ def teamd_as(context, scenario):
 _register_tag("teamd", None, teamd_as)
 
 
-def restore_eth1_mtu_as(context, scenario):
-    context.process.run_stdout("sudo ip link set eth1 mtu 1500")
+def restore_eth_mtu_as(context, scenario, num):
+    nmci.ip.link_set(ifname=f"eth{num}", mtu="1500")
 
 
-_register_tag("restore_eth1_mtu", None, restore_eth1_mtu_as)
+for i in [1, 7]:
+    _register_tag(f"restore_eth{i}_mtu", None, restore_eth_mtu_as, {"num": i})
 
 
 def wifi_rescan_as(context, scenario):
@@ -2790,7 +2791,6 @@ _register_tag("remove_ctcdevice", remove_ctcdevice_bs, remove_ctcdevice_as)
 
 
 def filter_batch_bs(context, scenario):
-
     file_path = "/tmp/filter_batch.txt"
     count = 1
     filter = []
@@ -2980,7 +2980,6 @@ _register_tag("cleanup", None, cleanup_as)
 
 
 def copy_ifcfg_bs(context, scenario):
-
     dirpath = "contrib/profiles"
     for file in os.listdir(dirpath):
         if "ifcfg-migration" in file:
