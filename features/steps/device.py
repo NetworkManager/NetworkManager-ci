@@ -717,10 +717,26 @@ def add_device(context, typ, name, namespace=None, options=""):
 
 @step(u'Create "{count}" "{typ}" devices named "{name}"')
 def add_multiple_devices(context, typ, name, count):
+    # see add_device()
+    ifindices = (
+        link["ifindex"] for link in nmci.ip.link_show_all(namespace=nmci.ip.IP_NAMESPACE_ALL)
+    )
+    _increment_size = 2
+
+    if typ == 'veth':
+        nmci.veth.manage_device(f"{name}_[0-9]*", name)
+        _increment_size = 3
+    # see add_device()
+    context.ifindex = max(context.ifindex, *ifindices)
+
     for i in range(int(count)):
         _name = f"{name}_{i}"
-        add_device(context, typ, _name, options=f"peer name {_name}p")
-        nmci.process.nmcli(f"device set {_name} managed yes")
+        context.ifindex += _increment_size
+        options =  f"peer name {_name}p" if typ == 'veth' else ""
+        nmci.cleanup.cleanup_add_iface(_name)
+        nmci.ip.link_add(
+            _name, typ, *shlex.split(options), wait_for_device=False, ifindex=context.ifindex
+        )
 
 
 @step(u'Add namespace "{name}"')

@@ -6,13 +6,6 @@ from behave import step  # pylint: disable=no-name-in-module
 
 import nmci
 
-def manage_veth_device(context, device):
-    rule_file = f"/etc/udev/rules.d/88-veth-{device}.rules"
-    if not os.path.isfile(rule_file):
-        rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"' %device
-        nmci.util.file_set_content(rule_file, [rule])
-        nmci.util.update_udevadm()
-        nmci.cleanup.cleanup_add_udev_rule(rule_file)
 
 @step('Create PBR files for profile "{profile}" and "{dev}" device in table "{table}"')
 def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
@@ -161,7 +154,7 @@ def prepare_veths(context, pairs_array, bridge):
     context.execute_steps(f'* Create "bridge" device named "{bridge}"')
     context.command_code("sudo ip link set dev %s up" % bridge)
     for pair in pairs:
-        manage_veth_device(context, pair)
+        nmci.veth.manage_device(pair)
         context.execute_steps(
             f'''
             * Create "veth" device named "{pair}" with options "peer name {pair}p"
@@ -200,7 +193,7 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(u'Prepare simulated test "{device}" device using dhcpd')
 @step(u'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"')
 def prepare_dhcpd_simdev(context, device, server_id):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     ipv4 = "192.168.99"
     context.execute_steps(f'* Add namespace "{device}_ns"')
@@ -245,7 +238,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
 @step(u'Prepare simulated test "{device}" device')
 @step(u'Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None, daemon_options=None):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     if ipv4 is None:
         ipv4 = "192.168.99"
@@ -305,7 +298,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 
 @step(u'Prepare simulated test "{device}" device with DHCPv4 server on different network')
 def prepare_simdev(context, device):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -345,7 +338,7 @@ def prepare_simdev(context, device):
 
 @step(u'Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
@@ -359,7 +352,7 @@ def prepare_simdev_no_dhcp(context, device):
 
 @step(u'Prepare simulated test "{device}" device for IPv6 PMTU discovery')
 def prepare_simdev(context, device):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     #         +-------testX_ns--------+ +--testX2_ns--+
     # testX <-|-> testXp     testX2 <-|-|-> testX2p   |
@@ -404,7 +397,7 @@ def prepare_simdev(context, device):
 
 @step(u'Prepare simulated veth device "{device}" without carrier')
 def prepare_simdev_no_carrier(context, device):
-    manage_veth_device(context, device)
+    nmci.veth.manage_device(device)
 
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
@@ -489,7 +482,7 @@ def start_pppoe_server(context, name, ip, dev):
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}"')
 @step(u'Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}" on VLAN "{vid}"')
 def setup_macsec_psk(context, cak, ckn, vid=None):
-    manage_veth_device(context, "macsec_veth")
+    nmci.veth.manage_device("macsec_veth")
     context.command_code("modprobe macsec")
     context.execute_steps(f'* Add namespace "macsec_ns"')
     context.execute_steps(f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"')

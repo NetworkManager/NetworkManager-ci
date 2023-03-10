@@ -26,6 +26,18 @@ class _Veth:
             )
         self.restore_testeth0()
 
+    def manage_device(self, device, rule_name=None):
+        rule_name = rule_name or device
+        rule_file = f"/etc/udev/rules.d/88-veth-{rule_name}.rules"
+        if not os.path.isfile(rule_file):
+            rule = (
+                'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="%s*", ENV{NM_UNMANAGED}="0"'
+                % device
+            )
+            nmci.util.file_set_content(rule_file, [rule])
+            nmci.util.update_udevadm()
+            nmci.cleanup.cleanup_add_udev_rule(rule_file)
+
     def manage_veths(self):
         if not os.path.isfile("/tmp/nm_veth_configured"):
             rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
