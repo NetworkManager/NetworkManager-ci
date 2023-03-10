@@ -21,6 +21,14 @@ configure_basic_system () {
             xargs debuginfo-install -y
     fi
 
+    mkdir -p /etc/systemd/system/NetworkManager.service.d
+    cat <<EOF > /etc/systemd/system/NetworkManager.service.d/90-nm-ci-override.conf
+# Created by NM-ci.
+[Service]
+Environment=G_DEBUG=fatal-warnings
+Environment=NM_OBFUSCATE_PTR=0
+EOF
+
     # Restart with valgrind
     if [ -e /etc/systemd/system/NetworkManager-valgrind.service ]; then
         ln -s NetworkManager-valgrind.service /etc/systemd/system/NetworkManager.service
