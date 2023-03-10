@@ -850,6 +850,13 @@ def run_nmstate(context, log_file):
                     copr = line.split('/')[-4] + "/" + line.split('/')[-3]
                     cmd += f" --copr {copr}"
                     break
+    elif nmci.process.run_code("dnf copr list | grep networkmanager/NetworkManager", shell=True) == 0:
+        copr = ""
+        copr = nmci.process.run_stdout(
+            "dnf copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
+            shell=True,
+        ).strip()
+        cmd += f" --copr {copr}"
     # Here we have stock packages, let's download them
     else:
         dir_name = "/tmp/nm_stock_pkgs/"
