@@ -215,6 +215,8 @@ if [ -z "$NMTEST" ]; then
     exit 128
 fi
 
+rm -f "$DIR/.tmp/nmci-random-seed"
+
 . $DIR/prepare/envsetup.sh
 ( configure_environment "$TAG" ) ; conf_rc=$?
 if [ $conf_rc != 0 ]; then

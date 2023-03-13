@@ -592,6 +592,12 @@ class _Util:
         duration = nmci.misc.format_duration(timeout.elapsed_time())
         procs.append(Echo(f"<b>Status duration:</b> {duration}", escape=False))
 
+        procs.append(
+            Echo(
+                f"<b>NMCI_RANDOM_SEED={nmci.util.nmci_random_seed()}</b>", escape=False
+            )
+        )
+
         msg = []
         for proc in procs:
             if isinstance(proc, Echo):
@@ -924,6 +930,61 @@ class _Util:
         # - raise its own exception, like a TimeoutError
         # - return a value that is returned by the function.
         return handle_timeout(last_exception)
+
+    def nmci_random_seed(self):
+        seed = getattr(self, "_random_seed", None)
+        if seed is None:
+
+            s = os.environ.get("NMCI_RANDOM_SEED", None)
+            if s:
+                seed = int(s)
+            else:
+                file = nmci.util.tmp_dir("nmci-random-seed")
+                try:
+                    s = nmci.util.file_get_content_simple(file)
+                except FileNotFoundError:
+                    pass
+                else:
+                    seed = int(s)
+
+                if seed is None:
+                    import random
+
+                    seed = random.randint(1, 2**32)
+                    nmci.util.file_set_content(file, str(seed))
+
+            self._random_seed = seed
+        return seed
+
+    def random_generator(self, seed):
+        import random
+
+        context = nmci.cext.context
+        if context is None:
+            context = ""
+        else:
+            context = f"/[{context.scenario}/{context.current_step.name}/{context.current_step.location}]"
+
+        global_seed = self.nmci_random_seed()
+        rseed = f"{global_seed}{context}/{seed}"
+        return random.Random(rseed)
+
+    def random_float(self, seed, minval=0.0, maxval=1.0):
+        r = self.random_generator(seed)
+        if minval == 0.0 and maxval == 1.0:
+            return r.random()
+        return r.uniform(minval, maxval)
+
+    def random_int(self, seed, minval=0, maxval=(2**32 - 1)):
+        return self.random_generator(seed).randint(minval, maxval)
+
+    def random_bool(self, seed):
+        return bool(self.random_int(seed, 0, 1))
+
+    def random_iter_int(self, seed, minval=0, maxval=(2**32 - 1)):
+        r = self.random_generator(seed)
+        while True:
+            yield r.randint(minval, maxval)
 
 
 _module = _Util()
