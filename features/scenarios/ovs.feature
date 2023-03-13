@@ -1404,13 +1404,13 @@ Feature: nmcli - ovs
           ovs-interface.type dpdk
           802-3-ethernet.mtu 9000
           """
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
-    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
-    And "mtu 9000" is visible with command "ip a s dev port0"
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
+    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
+    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
     * Reboot
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
-    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
-    And "mtu 9000" is visible with command "ip a s dev port0"
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
+    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
+    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
 
 
 
@@ -1451,15 +1451,15 @@ Feature: nmcli - ovs
           ovs-interface.type dpdk
           802-3-ethernet.mtu 9000
           """
-    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
-    And "mtu 9000" is visible with command "ip a s dev port0"
-    And "192.168.123.100/24" is visible with command "ip a s dev port0"
+    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
+    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
+    And "192.168.123.100/24" is visible with command "ip a s dev port0" in "5" seconds
     * Reboot
-    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0"
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1"
-    And "mtu 9000" is visible with command "ip a s dev port0"
-    And "192.168.123.100/24" is visible with command "ip a s dev port0"
+    When "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
+    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
+    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
+    And "192.168.123.100/24" is visible with command "ip a s dev port0" in "5" seconds
 
 
     @rhbz2077950
