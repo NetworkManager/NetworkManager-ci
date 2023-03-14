@@ -1,5 +1,4 @@
 import os
-import pyte
 import re
 import time
 from behave import step  # pylint: disable=no-name-in-module
@@ -78,6 +77,8 @@ def feed_stream(stream):
 
 
 def init_screen():
+    import pyte
+
     stream = pyte.ByteStream()
     screen = pyte.Screen(80, 24)
     stream.attach(screen)
