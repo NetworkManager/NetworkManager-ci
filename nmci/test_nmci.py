@@ -2005,8 +2005,8 @@ def test_wait_for():
         nmci.util.wait_for(do, timeout=0)
 
 
-def print_undefs(b_out):
-    l = b_out.splitlines()
+def print_undefs(outs):
+    l = outs.out.splitlines()
     undef_header = re.compile(r"UNDEFINED STEPS\[[0-9]+\]:")
     headers = list(filter(undef_header.fullmatch, l))
     if len(headers) == 1:
@@ -2014,6 +2014,13 @@ def print_undefs(b_out):
         print("\n".join(l[start:]))
     elif len(headers) > 1:
         raise Exception("more than one undefined steps header lines found")
+    else:
+        # behave failed for a different reason so let's reprint the stdout to see why
+        sys.stdout.write(outs.out)
+
+    if len(outs.err):
+        # spam on stderr should be suppressed by --no-* options, so let's reprint this always
+        sys.stderr.write(outs.err)
     return not bool(headers)
 
 
@@ -2026,7 +2033,7 @@ def test_behave_steps_in_feature_files(capfd):
 
     cap = capfd.readouterr()
     assert len(cap.out) > 0
-    undefs_absent = print_undefs(cap.out)
+    undefs_absent = print_undefs(cap)
     assert undefs_absent, "Following undefined steps were encountered:"
     assert proc.returncode == 0, "behave ended up with non-zero return code"
 
