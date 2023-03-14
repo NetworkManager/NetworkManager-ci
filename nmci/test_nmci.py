@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
+import filecmp
 import os
 import pytest
 import random
 import re
+import shutil
 import socket
 import subprocess
 import sys
 import tempfile
 import time
+import warnings
 
 import nmci
 
@@ -2036,6 +2039,34 @@ def test_behave_steps_in_feature_files(capfd):
     assert proc.returncode == 0, "behave ended up with non-zero return code"
 
 
+def run_sphinx_build_and_compare_results():
+    file_cur = "nmci/README.md"
+    file_lnk = "nmci/doc/index.md"
+    file_gen = ".tmp/index.md"
+    file_git = ".tmp/index.md-git"
+    ret = {}
+    if not os.path.isdir(".tmp"):
+        os.mkdir(".tmp")
+    build_res = subprocess.run(
+        ["sphinx-build", "-E", "-b", "markdown", "nmci/doc_src", ".tmp"]
+    )
+    with open(file_git, "wb") as f:
+        subprocess.run(["git", "show", "HEAD:nmci/README.md"], stdout=f)
+
+    link_checks = (
+        os.path.realpath(file_cur) == os.path.realpath(file_lnk),
+        os.path.islink(file_lnk),
+    )
+    ret["link"] = all(link_checks)
+    ret["build_res"] = build_res.returncode
+    ret["cur_same_as_gen"] = filecmp.cmp(file_cur, file_gen)
+    ret["gen_same_as_git"] = filecmp.cmp(file_gen, file_git)
+    if not ret["cur_same_as_gen"]:
+        shutil.copyfile(file_gen, file_cur)
+
+    return ret
+
+
 def test_nmci_doc():
     # Minimal dependencies are listed in .gitlab-ci.yml file
     # Required python modules for this tests are:
@@ -2050,15 +2081,14 @@ def test_nmci_doc():
     print(
         "Running `sphinx-build -E -b markdown nmci/doc_src nmci/doc` to rebuild documentation:"
     )
-    proc = subprocess.run(
-        ["sphinx-build", "-E", "-b", "markdown", "nmci/doc_src", "nmci/doc"]
-    )
 
-    assert proc.returncode == 0, "Unable to build documentation"
-
-    proc = subprocess.run(["git", "diff", "--quiet", "nmci/README.md"])
-
-    assert proc.returncode == 0, "Documentation changed after rebuild."
+    sph_res = run_sphinx_build_and_compare_results()
+    assert sph_res["build_res"] == 0, "Unable to build documentation"
+    assert sph_res["cur_same_as_gen"], "Outdated documentation was rebuilt"
+    assert sph_res["link"], "nmci/doc/index.md must be a symlink to ../README.md"
+    if not sph_res["gen_same_as_git"]:
+        w = "\n\nDocumentation in nmci/README.md is current but not committed. Commit it before pushing!\n"
+        warnings.warn(w, UserWarning)
 
 
 # This test should always run as last. Keep it at the bottom
