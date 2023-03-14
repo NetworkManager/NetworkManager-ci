@@ -71,7 +71,9 @@ def setup_openvpn(context, tags):
         ]
     nmci.util.file_set_content("/etc/openvpn/trest-server.conf", conf)
     time.sleep(1)
-    ovpn_proc = context.pexpect_service("sudo openvpn /etc/openvpn/trest-server.conf")
+    ovpn_proc = context.pexpect_service(
+        "sudo openvpn --writepid /tmp/openvpn.pid --config /etc/openvpn/trest-server.conf"
+    )
     res = ovpn_proc.expect(
         ["Initialization Sequence Completed", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF],
         timeout=20,

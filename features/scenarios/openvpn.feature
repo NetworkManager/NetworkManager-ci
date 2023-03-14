@@ -140,9 +140,9 @@
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    * Execute "pkill openvpn"
+    * Execute "pkill -F /tmp/openvpn.pid"
     * Wait for "3" seconds
-    * Run child "openvpn /etc/openvpn/trest-server.conf"
+    * Run child "openvpn --writepid /tmp/openvpn.pid --config /etc/openvpn/trest-server.conf"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
 
 
@@ -156,7 +156,7 @@
     * Modify connection "openvpn" changing options "vpn.persistent true"
     * Bring "up" connection "openvpn"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    * Execute "pkill openvpn"
+    * Execute "pkill -F /tmp/openvpn.pid"
     * Wait for "3" seconds
-    * Run child "openvpn /etc/openvpn/trest-server.conf"
+    * Run child "openvpn --writepid /tmp/openvpn.pid --config /etc/openvpn/trest-server.conf"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
