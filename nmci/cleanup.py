@@ -309,7 +309,7 @@ class _Cleanup:
             self.mptcp_limits = nmci.process.run_stdout(
                 "ip mptcp limits", namespace=namespace
             )
-            super().__init__(self, name="MPTCP-limits", priority=PRIORITY_MPTCP)
+            super().__init__(name="MPTCP-limits", priority=PRIORITY_MPTCP)
 
         def _do_cleanup(self):
             nmci.process.run(
@@ -448,8 +448,8 @@ class _Cleanup:
             elif not config_file.startswith("/"):
                 config_file = _Cleanup.NM_CONF_DIRS["etc"] + config_file
 
-            super.__init__(
-                config_file, priority=priority, name=f"NM-config-{config_file}"
+            super().__init__(
+                config_file, name=f"NM-config-{config_file}", priority=priority
             )
 
         def also_needs(self):
