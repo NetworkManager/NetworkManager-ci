@@ -1,3 +1,5 @@
+# pylint: disable=function-redefined
+# type: ignore [no-redef]
 import os
 import re
 import shlex

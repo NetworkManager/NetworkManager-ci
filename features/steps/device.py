@@ -1,3 +1,5 @@
+# pylint: disable=function-redefined
+# type: ignore [no-redef]
 import json
 import pexpect
 import shlex

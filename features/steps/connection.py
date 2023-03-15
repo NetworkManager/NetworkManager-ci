@@ -1,4 +1,5 @@
-# pylint: disable=unused-argument,line-too-long
+# pylint: disable=unused-argument,line-too-long,function-redefined
+# type: ignore [no-redef]
 from behave import step  # pylint: disable=no-name-in-module
 
 import nmci

@@ -1,3 +1,5 @@
+# pylint: disable=function-redefined
+# type: ignore [no-redef]
 import glob
 import json
 import operator

@@ -1,7 +1,3 @@
-[tool.pytest.ini_options]
-junit_logging = "all"
-junit_log_passing_tests = false
-
 [tool.black]
 exclude = '''
           (
@@ -46,3 +42,16 @@ exclude = '''
             | run/utils/j-dump/j-dump.py
           )
           '''
+
+[[tool.mypy.overrides]]
+module = [
+    "behave",
+    "dbus",
+    "pexpect",
+    "pyroute2",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+junit_logging = "all"
+junit_log_passing_tests = false
