@@ -240,14 +240,24 @@ def prepare_dhcpd_simdev(context, device, server_id):
 @step(u'Prepare simulated test "{device}" device')
 @step(u'Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None, daemon_options=None):
-    nmci.veth.manage_device(device)
-
     if ipv4 is None:
         ipv4 = "192.168.99"
+    elif ipv4.lower() == "none":
+        ipv4 = None
+
+    assert ipv4 is None or nmci.ip.ipaddr_parse(ipv4 + ".1", addr_family="4")
+
     if ipv6 is None:
         ipv6 = "2620:dead:beaf"
+    elif ipv6.lower() == "none":
+        ipv6 = None
+
+    assert ipv6 is None or nmci.ip.ipaddr_parse(ipv6 + "::1", addr_family="6")
+
     if daemon_options is None:
         daemon_options = ""
+
+    nmci.veth.manage_device(device)
 
     nmci.ip.netns_add(f"{device}_ns")
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
@@ -257,9 +267,9 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.command_code("ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set lo up".format(device=device))
     context.command_code("ip netns exec {device}_ns ip link set {device}p up".format(device=device))
-    if ipv4.lower() != "none":
+    if ipv4:
         context.command_code("ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(device=device, ip=ipv4))
-    if ipv6.lower() != "none":
+    if ipv6:
         context.command_code("ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(device=device, ip=ipv6))
     context.command_code("echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts")
     context.command_code("echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts")
@@ -282,9 +292,9 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
                                 --dhcp-leasefile=/tmp/{device}_ns.lease \
                                 {option} \
                                 {daemon_options}".format(device=device, option=option, daemon_options=daemon_options)
-    if ipv4.lower() != "none":
+    if ipv4:
         dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
-    if ipv6.lower() != "none" and lease_time != 'infinite':
+    if ipv6 and lease_time != 'infinite':
         dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
                              --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
 
