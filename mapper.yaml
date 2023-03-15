@@ -850,6 +850,8 @@ testmapper:
         feature: ipv6
     - ipv6_route_cache_consistancy:
         feature: ipv6
+    - ipv6_prefsrc_route:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
@@ -1185,6 +1187,8 @@ testmapper:
     - ipv4_mptcp_reapply_change_flag:
         feature: ipv4
     - ipv4_mptcp_remove_endpoints:
+        feature: ipv4
+    - ipv4_prefsrc_route:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
