@@ -753,9 +753,12 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
 
 
 @step('Check "{addr_family}" route list on NM device "{ifname}" matches "{expected}"')
-def check_routes_expect(context, ifname, addr_family, expected):
+@step('Check "{addr_family}" route list on NM device "{ifname}" matches "{expected}" in "{timeout}" seconds')
+def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
 
     addr_family = nmci.ip.addr_family_norm(addr_family)
+
+    timeout = float(timeout)
 
     def do():
 
@@ -777,7 +780,7 @@ def check_routes_expect(context, ifname, addr_family, expected):
             raise ValueError(f"List of routes unexpected: {e} (full list: {routes})")
 
     try:
-        nmci.util.wait_for(do, timeout=2)
+        nmci.util.wait_for(do, timeout=timeout)
     finally:
         nmci.process.run_stdout(
             f"ip -d -{nmci.ip.addr_family_num(addr_family)} route show table all"
