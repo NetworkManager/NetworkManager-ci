@@ -292,7 +292,7 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
     if nmci.process.systemctl("status NetworkManager", embed_combine_tag=nmci.embed.NO_EMBED).returncode == 0:
         timeout = nmci.util.start_timeout(10)
-        while timeout.loop_sleep(0.5):
+        while timeout.loop_sleep(0.1):
             if nmci.nmutil.device_status(name=device):
                 break
         assert not timeout.expired(), f"Did not see created device '{device}' in 10s."
