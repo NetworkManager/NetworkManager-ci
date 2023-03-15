@@ -3356,3 +3356,30 @@ Feature: nmcli: ipv4
     Then "(?m)dev eth10\s*$" is visible with command "ip mptcp endpoint" in "5" seconds
     When Bring "down" connection "eth3"
     Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
+
+
+    @rhbz2046293
+    @ver+=1.43.3
+    @ipv4_prefsrc_route
+    Scenario: Configure IPv4 routes with prefsrc
+    * Prepare simulated test "testX1" device with "192.168.51.10" ipv4 and "2620:dead:beaf:51" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "x1" for device "testX1" with options "ipv4.dad-timeout 500 ipv4.routes '1.51.0.51/32 src=192.168.51.10, 1.51.0.52/32 src=192.168.52.10' ipv4.route-metric 161 ipv6.method disabled"
+    Then Check "inet" route list on NM device "testX1" matches "1.51.0.51/32\ 161    192.168.51.0/24\ 161    0.0.0.0/0\ 192.168.51.1\ 161" in "8" seconds
+    Then "1.51.0.51 proto static scope link src 192.168.51.10 metric 161" is visible with command "ip -d -4 route show dev testX1"
+
+    * Commentary
+      """
+      The route with src=192.168.98.5 cannot be configured yet. That keeps the device "connecting".
+      """
+    Then "connecting" is visible with command "nmcli -g GENERAL.STATE device show testX1"
+
+    * Prepare simulated test "testX2" device with "192.168.52.10" ipv4 and "2621:dead:beaf:52" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "x2" for device "testX2" with options "ipv4.routes '1.52.0.52/32 src=192.168.52.10, 1.52.0.51/32 src=192.168.51.10' ipv4.route-metric 162 ipv6.method disabled"
+    Then Check "inet" route list on NM device "testX2" matches "1.52.0.51/32\ 162    1.52.0.52/32\ 162    192.168.52.0/24\ 162    0.0.0.0/0\ 192.168.52.1\ 162" in "8" seconds
+    Then Check "inet" route list on NM device "testX1" matches "1.51.0.51/32\ 161    1.51.0.52/32\ 161    192.168.51.0/24\ 161    0.0.0.0/0\ 192.168.51.1\ 161" in "0" seconds
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show testX2"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show testX1"
+    Then "1.52.0.51 proto static scope link src 192.168.51.10 metric 162" is visible with command "ip -d -4 route show dev testX2"
+    Then "1.52.0.52 proto static scope link src 192.168.52.10 metric 162" is visible with command "ip -d -4 route show dev testX2"
+    Then "1.51.0.51 proto static scope link src 192.168.51.10 metric 161" is visible with command "ip -d -4 route show dev testX1"
+    Then "1.51.0.52 proto static scope link src 192.168.52.10 metric 161" is visible with command "ip -d -4 route show dev testX1"

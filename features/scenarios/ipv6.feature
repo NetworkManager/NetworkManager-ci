@@ -2501,3 +2501,29 @@
     Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1:2:3:4::1\ 1024  5:1::1/128\ 1:2:3:4::2\ 1024  5:1::1/128\ 1:2:3:4::3\ 1024"
     * Execute "ip route replace 5:1::1/128 dev testX6"
     Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024"
+
+    @rhbz2046293
+    @ver+=1.43.3
+    @ipv6_prefsrc_route
+    Scenario: Configure IPv6 routes with prefsrc
+    * Prepare simulated test "testX1" device with "192.168.51.10" ipv4 and "2620:dead:beaf::51" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "x1" for device "testX1" with options "ipv4.method disabled ipv6.routes '1::51/128 src=2620:dead:beaf::51, 1::52/128 src=2621:dead:beaf::52' ipv6.route-metric 161"
+    Then Check "inet6" route list on NM device "testX1" matches "fe80::/64\ 1024    2620:dead:beaf::/64\ 161    2620:dead:beaf::51/128\ 161    /::/0\ fe80:.*\ 161    1::51/128\ 161" in "8" seconds
+    Then "1::51 proto static scope global src 2620:dead:beaf::51 metric 161" is visible with command "ip -d -6 route show dev testX1"
+
+    * Commentary
+      """
+      The route with src=2621:dead:beaf::52 cannot be configured yet. That keeps the device "connecting".
+      """
+    Then "connecting" is visible with command "nmcli -g GENERAL.STATE device show testX1"
+
+    * Prepare simulated test "testX2" device with "192.168.52.10" ipv4 and "2621:dead:beaf::52" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "x2" for device "testX2" with options "ipv4.method disabled ipv6.routes '2::52/128 src=2621:dead:beaf::52, 2::51/128 src=2620:dead:beaf::51' ipv6.route-metric 162"
+    Then Check "inet6" route list on NM device "testX2" matches "fe80::/64\ 1024    2621:dead:beaf::/64\ 162    2621:dead:beaf::52/128\ 162    /::/0\ fe80:.*\ 162    2::51/128\ 162    2::52/128\ 162" in "8" seconds
+    Then Check "inet6" route list on NM device "testX1" matches "fe80::/64\ 1024    2620:dead:beaf::/64\ 161    2620:dead:beaf::51/128\ 161    /::/0\ fe80:.*\ 161    1::51/128\ 161    1::52/128\ 161" in "0" seconds
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show testX2"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show testX1"
+    Then "2::51 proto static scope global src 2620:dead:beaf::51 metric 162" is visible with command "ip -d -6 route show dev testX2"
+    Then "2::52 proto static scope global src 2621:dead:beaf::52 metric 162" is visible with command "ip -d -6 route show dev testX2"
+    Then "1::51 proto static scope global src 2620:dead:beaf::51 metric 161" is visible with command "ip -d -6 route show dev testX1"
+    Then "1::52 proto static scope global src 2621:dead:beaf::52 metric 161" is visible with command "ip -d -6 route show dev testX1"
