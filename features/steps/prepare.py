@@ -285,13 +285,19 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
     else:
         option = ""
 
+    pid_file = f"/tmp/{device}_ns.pid"
+    lease_file = f"/tmp/{device}_ns.lease"
+
+    nmci.cleanup.cleanup_file(pid_file)
+    nmci.cleanup.cleanup_file(lease_file)
+
     dnsmasq_command = "ip netns exec {device}_ns dnsmasq \
                                 --interface={device}p \
                                 --bind-interfaces \
-                                --pid-file=/tmp/{device}_ns.pid \
-                                --dhcp-leasefile=/tmp/{device}_ns.lease \
+                                --pid-file={pid_file} \
+                                --dhcp-leasefile={lease_file} \
                                 {option} \
-                                {daemon_options}".format(device=device, option=option, daemon_options=daemon_options)
+                                {daemon_options}".format(device=device, pid_file=pid_file, lease_file=lease_file, option=option, daemon_options=daemon_options)
     if ipv4:
         dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
     if ipv6 and lease_time != 'infinite':
