@@ -240,10 +240,25 @@ def prepare_dhcpd_simdev(context, device, server_id):
 @step(u'Prepare simulated test "{device}" device')
 @step(u'Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, option=None, daemon_options=None):
+
+    ipv4addr = None
     if ipv4 is None:
         ipv4 = "192.168.99"
     elif ipv4.lower() == "none":
         ipv4 = None
+    else:
+        try:
+            ipv4 = nmci.ip.ipaddr_norm(ipv4, addr_family="4")
+        except Exception:
+            pass
+        else:
+            # This is a complete IP address. This means me choose
+            # the .1 address for the server, and the DHCP range only
+            # contains this one IP address.
+            m = re.search("^(.*)\.([^.])+$", ipv4)
+            ipv4addr = ipv4
+            ipv4 = m.group(1)
+            assert ipv4addr != ipv4+".1"
 
     assert ipv4 is None or nmci.ip.ipaddr_parse(ipv4 + ".1", addr_family="4")
 
@@ -299,7 +314,11 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
                                 {option} \
                                 {daemon_options}".format(device=device, pid_file=pid_file, lease_file=lease_file, option=option, daemon_options=daemon_options)
     if ipv4:
-        dnsmasq_command += " --dhcp-range={ipv4}.10,{ipv4}.15,{lease_time} ".format(lease_time=lease_time, ipv4=ipv4)
+        if ipv4addr:
+            dhcprange = f"{ipv4addr},{ipv4addr}"
+        else:
+            dhcprange = f"{ipv4}.10,{ipv4}.15"
+        dnsmasq_command += " --dhcp-range={dhcprange},{lease_time} ".format(lease_time=lease_time, dhcprange=dhcprange)
     if ipv6 and lease_time != 'infinite':
         dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
                              --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
