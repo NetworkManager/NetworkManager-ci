@@ -262,10 +262,24 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
 
     assert ipv4 is None or nmci.ip.ipaddr_parse(ipv4 + ".1", addr_family="4")
 
+    ipv6addr = None
     if ipv6 is None:
         ipv6 = "2620:dead:beaf"
     elif ipv6.lower() == "none":
         ipv6 = None
+    else:
+        try:
+            ipv6 = nmci.ip.ipaddr_norm(ipv6, addr_family="6")
+        except Exception:
+            pass
+        else:
+            # This is a complete IP address. This means me choose
+            # the ::1 address for the server, and the DHCP range only
+            # contains this one IP address.
+            m = re.search("^(.*)::([^:])+$", ipv6)
+            ipv6addr = ipv6
+            ipv6 = m.group(1)
+            assert ipv6addr != ipv6+"::1"
 
     assert ipv6 is None or nmci.ip.ipaddr_parse(ipv6 + "::1", addr_family="6")
 
@@ -320,8 +334,12 @@ def prepare_simdev(context, device, lease_time="2m", ipv4=None, ipv6=None, optio
             dhcprange = f"{ipv4}.10,{ipv4}.15"
         dnsmasq_command += " --dhcp-range={dhcprange},{lease_time} ".format(lease_time=lease_time, dhcprange=dhcprange)
     if ipv6 and lease_time != 'infinite':
-        dnsmasq_command += " --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,{lease_time} \
-                             --enable-ra".format(lease_time=lease_time, ipv6=ipv6)
+        if ipv6addr:
+            dhcprange = f"{ipv6addr},{ipv6addr}"
+        else:
+            dhcprange = f"{ipv6}::100,{ipv6}::fff"
+        dnsmasq_command += " --dhcp-range={dhcprange},slaac,64,{lease_time} \
+                             --enable-ra".format(lease_time=lease_time, dhcprange=dhcprange)
 
     assert context.command_code(dnsmasq_command) == 0, "unable to start dnsmasq using command `{dnsmasq_command}`".format(dnsmasq_command=dnsmasq_command)
     context.command_code("ip netns exec {device}_ns ip link set {device} netns {pid}".format(device=device, pid=os.getpid()))
