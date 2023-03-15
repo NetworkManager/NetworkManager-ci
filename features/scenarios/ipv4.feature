@@ -3373,6 +3373,14 @@ Feature: nmcli: ipv4
       """
     Then "connecting" is visible with command "nmcli -g GENERAL.STATE device show testX1"
 
+    * Commentary
+      """
+      We are unable to configure the route src=2621:dead:beaf::52 yet. NetworkManager
+      is internally waiting for some seconds, before considering that condition an
+      error. Randomly wait, to either hit that condition or not.
+      """
+    * Wait for up to "12" random seconds
+
     * Prepare simulated test "testX2" device with "192.168.52.10" ipv4 and "2621:dead:beaf:52" ipv6 dhcp address prefix
     * Add "ethernet" connection named "x2" for device "testX2" with options "ipv4.routes '1.52.0.52/32 src=192.168.52.10, 1.52.0.51/32 src=192.168.51.10' ipv4.route-metric 162 ipv6.method disabled"
     Then Check "inet" route list on NM device "testX2" matches "1.52.0.51/32\ 162    1.52.0.52/32\ 162    192.168.52.0/24\ 162    0.0.0.0/0\ 192.168.52.1\ 162" in "8" seconds
