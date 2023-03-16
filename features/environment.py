@@ -41,6 +41,7 @@ def before_all(context):
 
 # print exception traceback
 def before_scenario(context, scenario):
+    nmci.misc.journal_send(f"Entering before_scenario() of: {scenario.name}")
     try:
         status = _before_scenario(context, scenario)
     except Exception as E:
@@ -55,6 +56,7 @@ def before_scenario(context, scenario):
     nmci.embed.before_scenario_finish(status)
     if context.cext.scenario_skipped:
         nmci.embed.formatter_add_scenario(scenario)
+    nmci.misc.journal_send(f"Leaving before_scenario() of: {scenario.name}")
 
 
 def _before_scenario(context, scenario):
@@ -185,11 +187,13 @@ def _before_scenario(context, scenario):
 
 
 def before_step(context, step):
+    nmci.misc.journal_send(f"At before_step() of {step.name}")
     context.step_level += 1
     context.current_step = step
 
 
 def after_step(context, step):
+    nmci.misc.journal_send(f"Entering after_step() of {step.name}")
     context.no_step = False
     context.step_level -= 1
 
@@ -244,10 +248,12 @@ def after_step(context, step):
             if step.status != Status.passed:
                 nmci.cext.skip(f"Skipping because step is {step.status.name}")
         context.skip_check_count -= 1
+    nmci.misc.journal_send(f"Leaving after_step() of {step.name}")
 
 
 # print exception traceback
 def after_scenario(context, scenario):
+    nmci.misc.journal_send(f"Entering after_scenario() of {scenario.name}")
     try:
         status = _after_scenario(context, scenario)
     except Exception as E:
@@ -256,6 +262,7 @@ def after_scenario(context, scenario):
         nmci.embed.after_scenario_finish("failed")
         raise E
     nmci.embed.after_scenario_finish(status)
+    nmci.misc.journal_send(f"Leaving after_scenario() of {scenario.name}")
 
 
 def _after_scenario(context, scenario):
@@ -271,7 +278,7 @@ def _after_scenario(context, scenario):
         nmci.crash.check_crash(
             context, "crash outside steps (last step before after_scenario)"
         )
-        # print("Starting NM as it was found stopped")
+        # print("Entering NM as it was found stopped")
         # nmci.nmutil.restart_NM_service()
 
     if context.IS_NMTUI:
@@ -299,11 +306,18 @@ def _after_scenario(context, scenario):
 
     excepts = []
 
+    nmci.misc.journal_send(
+        f"Starting to process cleanups after scenario: {scenario.name}"
+    )
     for ex in nmci.cleanup.process_cleanup():
         if not isinstance(ex, nmci.misc.SkipTestException):
             excepts.append(
                 "".join(traceback.format_exception(ex, ex, ex.__traceback__))
             )
+
+    nmci.misc.journal_send(
+        f"Finished processing cleanups after scenario: {scenario.name}"
+    )
 
     nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
@@ -323,10 +337,9 @@ def _after_scenario(context, scenario):
         # Attach journalctl logs
         print("Attaching NM log")
         log = nmci.misc.journal_show(
-            "NetworkManager",
             cursor=context.log_cursor,
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-            journal_args="-o cat",
+            journal_args="_SYSTEMD_UNIT=NetworkManager.service + SYSLOG_IDENTIFIER=runtest -o cat",
         )
         nmci.embed.embed_data("NM", log)
 
