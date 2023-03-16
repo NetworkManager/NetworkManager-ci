@@ -7,10 +7,15 @@ include = '''
           )
           '''
 
+[tool.mypy]
+show_error_codes = true
+
 [[tool.mypy.overrides]]
 module = [
-    "behave",
+    "behave.*",
     "dbus",
+    "features.steps.nmtui.*",
+    "ipdb",
     "pexpect",
     "pyinotify",
     "pyroute2",
