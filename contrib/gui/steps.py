@@ -15,6 +15,7 @@
 from behave import step  # pylint: disable=no-name-in-module
 from qecore.step_matcher import use_step_matcher
 import subprocess
+import shutil
 import os
 import sys
 import re
@@ -432,13 +433,12 @@ def restore_device(context, device, connection):
     assert os.path.isfile(
         cfile
     ), f"unable to find configuration file for '{connection}' on {device}:\n{check_cmd_out}"
-    assert (
-        subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True)
-        == 0
-    ), f"unable to backup file '{cfile}'"
+    # copy2 preserves selinux context
+    shutil.copy2(cfile, f"/tmp/backup_{connection}")
 
     def restore(connection, cfile):
-        subprocess.call(f"sudo mv '/tmp/backup_{connection}' '{cfile}'", shell=True)
+        # move preserves selinux context
+        shutil.move(f"/tmp/backup_{connection}", cfile)
         subprocess.call("sudo nmcli con reload", shell=True)
         assert (
             subprocess.call(f"sudo nmcli con up '{connection}'", shell=True) == 0
