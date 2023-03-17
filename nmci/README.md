@@ -2289,6 +2289,32 @@ Get journalctl cursor, which can be used with argument `--after`
 
 
 
+### nmci.misc.journal_send(msg: str, prefix: str = '<nmci> ', priority: int = 6, MESSAGE_ID='c93c2505-a0c5-4e26-9053-7c889d59a3de', SYSLOG_IDENTIFIER='nmci', \*\*kw)
+A convenience wrapper around from systemd.journal.send() Unrecognized
+keyword arguments are passed to send() as-is to be recorded as
+eponymous journal fields.
+
+
+* **Parameters**
+
+    
+    * **msg** – A message to be logged to jounal
+
+
+    * **prefix** – The message will be prefixed by this (by default: ‘<nmci> ‘)
+
+
+    * **priority** – syslog priority. By default journal.LOG_INFO == 6
+
+
+    * **MESSAGE_ID** – sets journal MESSAGE_ID to given value. By default: c93c2505-a0c5-4e26-9053-7c889d59a3de
+
+
+    * **SYSLOG_IDENTIFIER** – identifier allowing to retrieve the messages from
+    journal by specifiying ‘-t ID’ or ‘SYSLOG_IDENTIFIER=ID’. Defaults to ‘nmci’
+
+
+
 ### nmci.misc.journal_show(service=None, \*, syslog_identifier=None, cursor=None, short=False, journal_args=None, as_bytes=False, max_size=None, warn_max_size=True, prefix=None, suffix=None)
 Get journal messgages satisfying the filters.
 

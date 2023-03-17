@@ -5,6 +5,17 @@ import subprocess
 import yaml
 import json
 import xml.etree.ElementTree as ET
+import warnings
+
+try:
+    from systemd import journal  # type: ignore [import]
+except ModuleNotFoundError:
+    if "pytest" in os.environ["_"]:
+        warnings.warn(
+            "ModuleNotFoundError: systemd.journal module is missing", UserWarning
+        )
+        pass
+
 
 import nmci
 
@@ -16,6 +27,7 @@ def __getattr__(attr):
 class _Misc:
 
     TEST_NAME_VALID_CHAR_SET = "-a-zA-Z0-9_.+=/"
+    NMCI_JOURNAL_MESSAGE_ID = "c93c2505-a0c5-4e26-9053-7c889d59a3de"
 
     def test_name_normalize(self, test_name):
         """
@@ -1062,6 +1074,34 @@ class _Misc:
             timeout=15,
         )
         return m.group(1)
+
+    def journal_send(
+        self,
+        msg: str,
+        prefix: str = "<nmci> ",
+        priority: int = 6,
+        MESSAGE_ID=NMCI_JOURNAL_MESSAGE_ID,
+        SYSLOG_IDENTIFIER="nmci",
+        **kw,
+    ) -> None:
+        """
+        A convenience wrapper around from systemd.journal.send() Unrecognized
+        keyword arguments are passed to send() as-is to be recorded as
+        eponymous journal fields.
+
+        :param msg: A message to be logged to jounal
+        :param prefix: The message will be prefixed by this (by default: '<nmci> ')
+        :param priority: syslog priority. By default journal.LOG_INFO == 6
+        :param MESSAGE_ID: sets journal MESSAGE_ID to given value. By default: c93c2505-a0c5-4e26-9053-7c889d59a3de
+        :param SYSLOG_IDENTIFIER: identifier allowing to retrieve the messages from
+            journal by specifiying '-t ID' or 'SYSLOG_IDENTIFIER=ID'. Defaults to 'nmci'
+        """
+        journal.send(
+            prefix + msg,
+            priority=priority,
+            SYSLOG_IDENTIFIER=SYSLOG_IDENTIFIER,
+            **kw,
+        )
 
     def journal_show(
         self,
