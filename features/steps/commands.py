@@ -575,6 +575,12 @@ def find_tailing_journal(context, content):
 def wait_for_x_seconds(context, secs):
     time.sleep(float(secs))
 
+@step(u'Wait for up to "{secs}" random seconds')
+def wait_for_x_seconds(context, secs):
+    rnd = nmci.util.random_float(3288708979)
+    secs = float(secs)
+    secs = secs * rnd
+    time.sleep(secs)
 
 @step(u'Look for "{content}" in tailed file')
 def find_tailing(context, content):
