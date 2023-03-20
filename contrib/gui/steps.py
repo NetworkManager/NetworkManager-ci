@@ -433,7 +433,7 @@ def restore_device(context, device, connection):
         cfile
     ), f"unable to find configuration file for '{connection}' on {device}:\n{check_cmd_out}"
     assert (
-        subprocess.call(f"sudo cp '{cfile}' '/tmp/backup_{connection}'", shell=True)
+        subprocess.call(f"sudo cp -a '{cfile}' '/tmp/backup_{connection}'", shell=True)
         == 0
     ), f"unable to backup file '{cfile}'"
 
