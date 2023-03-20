@@ -42,7 +42,8 @@ install_el8_packages () {
 
     # openvpn not in s390x repo
     if [ $(arch) == s390x ] ; then
-        dnf -4 -y install $KOJI/openvpn/2.4.9/1.fc30/s390x/openvpn-2.4.9-1.fc30.s390x.rpm
+        dnf -4 -y install $KOJI/openvpn/2.4.9/1.fc30/s390x/openvpn-2.4.9-1.fc30.s390x.rpm \
+        $KOJI/NetworkManager-openvpn/1.8.10/1.el8.1/s390x/NetworkManager-openvpn-1.8.10-1.el8.1.s390x.rpm
     fi
 
     # Install various NM dependencies
