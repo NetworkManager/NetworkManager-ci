@@ -259,12 +259,19 @@ def json_compare(pattern, out):
 
 
 def check_pattern_command(context, command, pattern, seconds, check_type="default", check_class='default', timeout=180, maxread=100000,):
+    seconds = float(seconds)
     xtimeout = nmci.util.start_timeout(seconds)
-    interval = 1
-    if int(seconds) < 60:
+
+    # Adjust the poll interval based the timeout. Since the command output gets
+    # recorded in the test artifacts, we want to keep the number of polls
+    # reasonable.
+    if seconds < 60:
         interval = 0.5
-    if int(seconds) > 200:
+    elif seconds <= 200:
+        interval = 1
+    else:
         interval = 4
+
     while xtimeout.loop_sleep(interval):
         proc = context.pexpect_spawn(command, shell=True, timeout=timeout, maxread=maxread, codec_errors='ignore')
         if check_class == 'exact':
@@ -285,9 +292,9 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
         elif check_type == "not_full":
             assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.elapsed_time(), proc.before, proc.after)
     if check_type == "default":
-        assert False, 'Did not see the pattern "%s" in %d seconds, output was:\n%s' % (pattern, int(seconds), proc.before)
+        assert False, 'Did not see the pattern "%s" in %s seconds, output was:\n%s' % (pattern, seconds, proc.before)
     elif check_type == "not":
-        assert False, 'Did still see the pattern "%s" in %d seconds, output was:\n%s%s' % (pattern, int(seconds), proc.before, proc.after)
+        assert False, 'Did still see the pattern "%s" in %s seconds, output was:\n%s%s' % (pattern, seconds, proc.before, proc.after)
 
 
 
