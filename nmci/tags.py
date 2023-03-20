@@ -1352,9 +1352,6 @@ _register_tag("main")
 
 
 def openvpn_bs(context, scenario):
-    if context.arch == "s390x":
-        nmci.veth.wait_for_testeth0()
-        context.cext.skip("Skipping on s390x")
     context.ovpn_proc = nmci.prepare.setup_openvpn(context, scenario.tags)
 
 
@@ -1362,7 +1359,11 @@ def openvpn_as(context, scenario):
     nmci.veth.restore_testeth0()
     context.process.nmcli_force("connection delete openvpn")
     context.process.nmcli_force("connection delete tun0")
-    context.process.run("pkill -F /tmp/openvpn.pid", shell=True)
+    context.process.run(
+        "pkill -F /tmp/openvpn.pid",
+        shell=True,
+        ignore_stderr=True,
+    )
 
 
 _register_tag("openvpn", openvpn_bs, openvpn_as)
