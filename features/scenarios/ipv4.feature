@@ -3356,3 +3356,19 @@ Feature: nmcli: ipv4
     Then "(?m)dev eth10\s*$" is visible with command "ip mptcp endpoint" in "5" seconds
     When Bring "down" connection "eth3"
     Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
+
+
+    @rhbz2102212
+    @ver+=1.43.3
+    @ipv4_no_route_without_addr
+    Scenario: Only configure IPv4 routes when having an IP address
+    * Prepare simulated test "testX" device
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Add "ethernet" connection named "con" for device "testX" with options
+          """
+          ipv4.routes '192.168.155.0/24 144'
+          """
+    Then "192.168.155.0" is not visible with command "ip -4 route show dev testX" for full "3.5" seconds
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "4" seconds
+    Then "192.168.155.0" is visible with command "ip -4 route show dev testX"
