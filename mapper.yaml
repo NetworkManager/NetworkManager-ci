@@ -1190,6 +1190,8 @@ testmapper:
         feature: ipv4
     - ipv4_prefsrc_route:
         feature: ipv4
+    - ipv4_no_route_without_addr:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:

@@ -3391,3 +3391,19 @@ Feature: nmcli: ipv4
     Then "1.52.0.52 proto static scope link src 192.168.52.10 metric 162" is visible with command "ip -d -4 route show dev testX2"
     Then "1.51.0.51 proto static scope link src 192.168.51.10 metric 161" is visible with command "ip -d -4 route show dev testX1"
     Then "1.51.0.52 proto static scope link src 192.168.52.10 metric 161" is visible with command "ip -d -4 route show dev testX1"
+
+
+    @rhbz2102212
+    @ver+=1.43.3
+    @ipv4_no_route_without_addr
+    Scenario: Only configure IPv4 routes when having an IP address
+    * Prepare simulated test "testX" device
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Add "ethernet" connection named "con" for device "testX" with options
+          """
+          ipv4.routes '192.168.155.0/24 144'
+          """
+    Then "192.168.155.0" is not visible with command "ip -4 route show dev testX" for full "3.5" seconds
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "4" seconds
+    Then "192.168.155.0" is visible with command "ip -4 route show dev testX"
