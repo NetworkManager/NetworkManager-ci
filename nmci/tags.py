@@ -1111,6 +1111,9 @@ def simwifi_bs(context, scenario):
 
 
 def simwifi_as(context, scenario):
+    if context.arch != "x86_64":
+        context.cext.skip("Skipping as not on x86_64")
+
     if context.IS_NMTUI:
         print("deleting all wifi connections")
         conns = (
@@ -1151,6 +1154,9 @@ def simwifi_ap_bs(context, scenario):
 
 
 def simwifi_ap_as(context, scenario):
+    if context.arch != "x86_64":
+        context.cext.skip("Skipping as not on x86_64")
+
     context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
@@ -1208,6 +1214,9 @@ def simwifi_p2p_bs(context, scenario):
 
 
 def simwifi_p2p_as(context, scenario):
+    if context.arch != "x86_64":
+        context.cext.skip("Skipping as not on x86_64")
+
     print("---------------------------")
     if (
         context.rh_release_num >= 8

@@ -623,12 +623,6 @@ Feature: nmcli - wifi
     And "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id wifi" in "45" seconds
 
 
-    @simwifi_teardown
-    @nmcli_simwifi_teardown
-    Scenario: teardown wifi setup
-    * Execute "echo 'this is skipped'"
-
-
     @ver+=1.16 @rhelver+=8 @fedoraver-=0
     @simwifi_p2p @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_p2p_connect
@@ -757,6 +751,7 @@ Feature: nmcli - wifi
     And Check noted values "wifi-hw_reported" and "wifi-hw_real" are the same
 
 
+    @simwifi
     @simwifi_setting_bogus_values
     Scenario: nmcli - simwifi - setting bogus values
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -771,6 +766,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1002553
+    @simwifi
     @simwifi_set_mac_address
     Scenario: simwifi - set mac adress
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -797,6 +793,7 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.mac-address '00:13:DA:7F:54:CF:AA'"
 
 
+    @simwifi
     @simwifi_mac_address_blacklist
     Scenario: simwifi - mac adress blacklist
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -832,6 +829,7 @@ Feature: nmcli - wifi
     Then "\*\s+wpa2-eap" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
+    @simwifi
     @simwifi_set_channel
     Scenario: simwifi - set channel < 7 (bz 999999)
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -853,6 +851,7 @@ Feature: nmcli - wifi
     Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.channel 15"
 
 
+    @simwifi
     @simwifi_set_nonexistent_bssid
     Scenario: nmcli - simwifi - set non-existent bssid
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -870,6 +869,7 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.bssid 00:13:DA:7F:54:CF:AA"
 
 
+    @simwifi
     @simwifi_set_txpower
     Scenario: nmcli - wifi - set bogus txpower
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -883,7 +883,8 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.tx-power 9999999999"
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.tx-power 5"
 
-    
+
+    @simwifi
     @simwifi_set_rate
     Scenario: nmcli - wifi - set bogus rate
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -901,6 +902,7 @@ Feature: nmcli - wifi
 
     @rhbz1702203
     @ver+=1.18
+    @simwifi
     @simwifi_wifisec_validity
     Scenario: nmcli - simwifi - set wireless security values
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -919,6 +921,7 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk G234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B"
 
 
+    @simwifi
     @simwifi_set_hidden_property_values
     Scenario: nmcli - simwifi - set hidden property values
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -939,6 +942,7 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.hidden 999999999999"
 
 
+    @simwifi
     @simwifi_wifisec_keymgmt_wrong_values
     Scenario: nmcli - simwifi - set wrong keymgmt values
     * Add "wifi" connection named "wifi0" for device "wlan0" with options
@@ -947,13 +951,14 @@ Feature: nmcli - wifi
       autoconnect off
       """
     # Invalid inputs
-    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt ieee8021x123"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 'ieee8021x sth'"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt -1"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 0"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 999999999999999999999"    
+    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt ieee8021x123"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 'ieee8021x sth'"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt -1"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 0"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.key-mgmt 999999999999999999999"
 
 
+    @simwifi
     @simwifi_wifisec_authalg_wrong_values
     Scenario: nmcli - simwifi - set wrong authalg & leap with from keymgmt
     * Add insecure "wifi" connection named "wifi0" for device "wlan0" with options
@@ -963,13 +968,14 @@ Feature: nmcli - wifi
       802-11-wireless-security.key-mgmt none
       """
     # Invalid inputs
-    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 0"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg null"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 999999999999999999"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 'open shared'"    
-    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg leap"    
+    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 0"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg null"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 999999999999999999"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg 'open shared'"
+    And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.auth-alg leap"
 
 
+    @simwifi
     @simwifi_describe
     Scenario: simwifi - describe
     * Open editor for a type "wifi"
@@ -990,6 +996,7 @@ Feature: nmcli - wifi
 
 
     @rhelver-=8
+    @simwifi
     @simwifi_wifisec_describe
     Scenario: simwifi-sec - describe
     * Open editor for a type "wifi"
@@ -1014,6 +1021,7 @@ Feature: nmcli - wifi
 
 
     @rhelver+=9
+    @simwifi
     @simwifi_wifisec_describe
     Scenario: simwifi- wifisec - describe
     * Open editor for a type "wifi"
@@ -1031,6 +1039,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1182567
+    @simwifi
     @simwifi_dbus_invalid_cert_input
     Scenario: nmcli - wifi - dbus invalid certificate input
     Then "Connection.InvalidProperty" is visible with command "/usr/bin/python contrib/dbus/dbus-set-wifi-bad-cert.py"
@@ -1172,3 +1181,10 @@ Feature: nmcli - wifi
     * Dismiss Proxy configuration in editor
     Then "\*\s+open" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "30" seconds
     Then "open" is visible with command "iw dev wlan0 link" in "30" seconds
+
+
+    # Leave this test at the end please
+    @simwifi_teardown
+    @nmcli_simwifi_teardown
+    Scenario: teardown wifi setup
+    * Execute "echo 'this is skipped'"
