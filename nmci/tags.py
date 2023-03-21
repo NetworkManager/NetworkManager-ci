@@ -177,10 +177,10 @@ def gsm_sim_as(context, scenario):
     context.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     context.process.nmcli_force("con del id gsm")
-    nmci.embed.embed_data(
-        "GSM_SIM", nmci.util.file_get_content_simple("/tmp/gsm_sim.log")
+    nmci.embed.embed_file_if_exists(
+        "GSM_SIM",
+        "/tmp/gsm_sim.log",
     )
-    os.remove("/tmp/gsm_sim.log")
 
 
 _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
@@ -1879,14 +1879,14 @@ def openvswitch_bs(context, scenario):
 
 
 def openvswitch_as(context, scenario):
-    data1 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovsdb-server.log")
-    if data1:
-        print("Attaching OVSDB log")
-        nmci.embed.embed_data("OVSDB", data1)
-    data2 = nmci.util.file_get_content_simple("/var/log/openvswitch/ovs-vswitchd.log")
-    if data2:
-        print("Attaching OVSDemon log")
-        nmci.embed.embed_data("OVSDemon", data2)
+    nmci.embed.embed_file_if_exists(
+        "OVSDB Log",
+        "/var/log/openvswitch/ovsdb-server.log",
+    )
+    nmci.embed.embed_file_if_exists(
+        "OVSDaemon Log",
+        "/var/log/openvswitch/ovs-vswitchd.log",
+    )
 
     # Restart in case we have openvswitch stopped from the test
     if context.process.systemctl("is-active openvswitch").returncode != 0:
