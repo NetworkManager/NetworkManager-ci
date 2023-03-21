@@ -979,14 +979,12 @@ Feature: nmcli - wifi
     @simwifi_describe
     Scenario: simwifi - describe
     * Open editor for a type "wifi"
-    Then Check "ssid|mode|band|channel|bssid|rate|tx-power|mac-address|cloned-mac-address|mac-address-blacklist|mtu|seen-bssids|hidden" are present in describe output for object "802-11-wireless"
+    Then Check "ssid|mode|band|channel|bssid|mac-address|cloned-mac-address|mac-address-blacklist|mtu|seen-bssids|hidden" are present in describe output for object "802-11-wireless"
     Then Check "\[ssid\]" are present in describe output for object "802-11-wireless.ssid"
     Then Check "\[mode\]" are present in describe output for object "802-11-wireless.mode"
     Then Check "\[band\]" are present in describe output for object "802-11-wireless.band"
     Then Check "\[channel\]" are present in describe output for object "802-11-wireless.channel"
     Then Check "\[bssid\]" are present in describe output for object "802-11-wireless.bssid"
-    Then Check "\[rate\]" are present in describe output for object "802-11-wireless.rate"
-    Then Check "\[tx-power\]" are present in describe output for object "802-11-wireless.tx-power"
     Then Check "\[mac-address\]" are present in describe output for object "802-11-wireless.mac-address"
     Then Check "\[cloned-mac-address\]" are present in describe output for object "802-11-wireless.cloned-mac-address"
     Then Check "\[mac-address-blacklist\]" are present in describe output for object "802-11-wireless.mac-address-blacklist"
