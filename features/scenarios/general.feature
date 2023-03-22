@@ -1964,8 +1964,7 @@ Feature: nmcli - general
 
     # Skip on broken RHEL8.8
     @rhelver+=8.4
-    @rhelver-8.8
-    @rhelver+=8.9
+    @x86_64_only
     @nmstate_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
