@@ -36,7 +36,8 @@ install_el7_packages () {
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
-        openvpn rp-pppoe
+        openvpn rp-pppoe s390utils-base \
+        --skip-broken
 
     yum -y install \
         $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm

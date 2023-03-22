@@ -27,7 +27,7 @@ install_fedora_packages () {
         git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
         tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
-        mptcpd wpa_supplicant NetworkManager-initscripts-ifcfg-rh \
+        mptcpd wpa_supplicant NetworkManager-initscripts-ifcfg-rh s390utils-base \
         --skip-broken
 
     install_behave_pytest
