@@ -1445,7 +1445,8 @@ Feature: NM: dracut
     @rhbz1879014
     @rhelver+=9.1 @fedoraver+=32
     @ver+=1.41.4
-    @dracut @long @not_on_ppc64le @skip_in_centos
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
     @dracut_NM_team_over_2_ifaces
     Scenario: NM - dracut - NM module - team over 2 ifaces
     * Run dracut test
