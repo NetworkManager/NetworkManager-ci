@@ -11,24 +11,28 @@ from os.path import basename, exists, getmtime, isdir
 from shutil import copy2
 from sys import argv, stdout
 from time import localtime, sleep, strftime
-from xml.etree.ElementTree import parse as et_parse
 from selinux import restorecon
+import re
 import pyinotify
 
 
 def copy_file(src):
-    """copy the file, add FAIL_ prefix if failed or not (x)html"""
+    """copy the file, add FAIL_ prefix if scenarion not marked as passed"""
     prefix = "FAIL_"
+    success_re = re.compile(
+        r"""<div[^>]+class="(scenario-header[^"]+passed|passed[^"]+scenario-header)"""
+    )
+    skip_re = re.compile(
+        r"""<div[^>]+class="(scenario-header[^"]+skipped|skipped[^"]+scenario-header)"""
+    )
+    read_size = 2**20  # read only 1st MB
     try:
-        tree = et_parse(src)
-        # getElementById('behave-header')
-        for div in tree.iter("div"):
-            if "id" in div.attrib and div.attrib["id"] == "behave-header":
-                if ("class" not in div.attrib) or (
-                    "class" in div.attrib and "failed" not in div.attrib["class"]
-                ):
-                    prefix = ""
-                break
+        f = open(src, "r")
+        cont = f.read(read_size)
+        if success_re.search(cont):
+            prefix = ""
+        elif skip_re.search(cont):
+            prefix = "SKIP_"
     except:
         pass
     file_name = basename(src).rsplit(".", 1)[0]
