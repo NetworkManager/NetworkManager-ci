@@ -288,13 +288,13 @@ def check_pattern_command(context, command, pattern, seconds, check_type="defaul
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert ret == 0, 'Pattern "%s" disappeared after %s seconds, ouput was:\n%s' % (pattern, xtimeout.elapsed_time(), proc.before)
+            assert ret == 0, f'Pattern "{pattern}" disappeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{proc.before}'
         elif check_type == "not_full":
-            assert ret != 0, 'Pattern "%s" appeared after %s seconds, output was:\n%s%s' % (pattern, xtimeout.elapsed_time(), proc.before, proc.after)
+            assert ret != 0, f'Pattern "{pattern}" appeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{proc.before}{proc.after}'
     if check_type == "default":
-        assert False, 'Did not see the pattern "%s" in %s seconds, output was:\n%s' % (pattern, seconds, proc.before)
+        assert False, f'Did not see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{proc.before}'
     elif check_type == "not":
-        assert False, 'Did still see the pattern "%s" in %s seconds, output was:\n%s%s' % (pattern, seconds, proc.before, proc.after)
+        assert False, f'Did still see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{proc.before}{proc.after}'
 
 
 
