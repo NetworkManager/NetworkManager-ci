@@ -976,21 +976,9 @@ Feature: nmcli - general
      Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
 
 
-    @rhbz1673321
-    @ver+=1.25.90 @ver-=1.29
-    @not_on_veth @restart_if_needed
-    @match_connections_with_pci_address
-    Scenario: NM - general - connection matching for dhcp with infinite leasetime
-    * Add "ethernet" connection named "con_general"
-    * Execute "nmcli con mod con_general +match.path $(udevadm info /sys/class/net/eth1 | grep ID_PATH= | awk -F '=' '{print $2}')"
-    * Bring "up" connection "con_general"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
-
-
     @rhbz1673321 @rhbz1942741
-    # Fixed in 1.30.0-7
     @ver+=1.30
-    @eth0 @restart_if_needed
+    @x86_64_only @eth0 @restart_if_needed
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add "ethernet" connection named "con_general"
