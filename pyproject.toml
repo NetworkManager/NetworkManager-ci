@@ -42,13 +42,21 @@ exclude = '''
             | run/utils/j-dump/j-dump.py
           )
           '''
+include = '''
+          (
+            ^.*\.pyi?$
+            | run/publish_behave_logs/publish_behave_logs$
+          )
+          '''
 
 [[tool.mypy.overrides]]
 module = [
     "behave",
     "dbus",
     "pexpect",
+    "pyinotify",
     "pyroute2",
+    "selinux",
 ]
 ignore_missing_imports = true
 
