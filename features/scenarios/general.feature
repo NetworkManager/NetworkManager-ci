@@ -540,17 +540,19 @@ Feature: nmcli - general
     @general_networking_disabled
     Scenario: nmcli - networking - status - disabled
     When "enabled" is visible with command "nmcli networking"
+    When "inet 1" is not visible with command "ip a s eth0"
     * Execute "nmcli networking off"
-    Then "disabled" is visible with command "nmcli networking"
+    When "disabled" is visible with command "nmcli networking"
     Then Execute "nmcli networking on"
+    Then "inet 1" is visible with command "ip a s eth0" in "40" seconds
 
 
     @networking_on
     @general_networking_off
     Scenario: nmcli - networking - turn off
-    When "state UP" is visible with command "ip link show eth0"
+    When "inet 1" is visible with command "ip a s eth0" in "40" seconds
     * Execute "nmcli networking off"
-    Then "state DOWN" is visible with command "ip link show eth0" in "5" seconds
+    Then "inet 1" is not visible with command "ip a s eth0"
     Then Execute "nmcli networking on"
 
 
@@ -558,9 +560,9 @@ Feature: nmcli - general
     @general_networking_on
     Scenario: nmcli - networking - turn on
     * Execute "nmcli networking off"
-    Then "state DOWN" is visible with command "ip link show eth0" in "5" seconds
+    When "inet 1" is not visible with command "ip a s eth0"
     * Execute "nmcli networking on"
-    Then "state UP" is visible with command "ip link show eth0" in "5" seconds
+    Then "inet 1" is visible with command "ip a s eth0" in "40" seconds
 
 
     @ver-1.37.3
