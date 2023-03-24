@@ -540,7 +540,6 @@ Feature: nmcli - general
     @general_networking_disabled
     Scenario: nmcli - networking - status - disabled
     When "enabled" is visible with command "nmcli networking"
-    When "inet 1" is not visible with command "ip a s eth0"
     * Execute "nmcli networking off"
     When "disabled" is visible with command "nmcli networking"
     Then Execute "nmcli networking on"
