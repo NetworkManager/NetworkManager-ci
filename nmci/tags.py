@@ -2001,7 +2001,10 @@ _register_tag("wireless_certs", wireless_certs_bs)
 
 def selinux_allow_ifup_bs(context, scenario):
     if not context.process.run_search_stdout("semodule -l", "ifup_policy"):
-        context.process.run_stdout("semodule -i contrib/selinux-policy/ifup_policy.pp")
+        context.process.run_stdout(
+            "semodule -i contrib/selinux-policy/ifup_policy.pp",
+            timeout=40,
+        )
 
 
 _register_tag("selinux_allow_ifup", selinux_allow_ifup_bs)
@@ -2017,8 +2020,12 @@ _register_tag("no_testeth10", no_testeth10_bs)
 def pppoe_bs(context, scenario):
     pass
     if context.arch == "aarch64":
-        print("enable pppd selinux policy on aarch64")
-        context.process.run_stdout("semodule -i contrib/selinux-policy/pppd.pp")
+        if not context.process.run_search_stdout("semodule -l", "pppd"):
+            print("enable pppd selinux policy on aarch64")
+            context.process.run_stdout(
+                "semodule -i contrib/selinux-policy/pppd.pp",
+                timeout=40,
+            )
     if not os.path.isabs("/dev/ppp"):
         context.process.run("mknod /dev/ppp c 108 0")
 
