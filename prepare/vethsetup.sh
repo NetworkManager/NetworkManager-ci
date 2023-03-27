@@ -5,10 +5,12 @@
 
 function dump_state ()
 {
+    echo -e "\n\n** STATE DUMP Start"
     ip a
     PAGER= nmcli -f All c
     PAGER= nmcli -f All dev
     PAGER= nmcli gen
+    echo -e "** STATE DUMP End\n\n"
 
 }
 
@@ -127,7 +129,7 @@ function setup_veth_env ()
 
     else
         # Backup original nmconnection file
-        FILE="$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" | sed "s/$DEV:yes//")"
+        FILE="$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" | sed "s/:$DEV:yes//")"
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
             mv $FILE /tmp/$DEV.nmconnection
