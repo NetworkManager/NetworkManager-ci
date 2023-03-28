@@ -2294,6 +2294,26 @@ testmapper:
     - veth_profile_restart_persistnce:
         feature: veth
         tags: gate
+    - loopback_modify_iface_address:
+        feature: loopback
+    - loopback_invalid_profile_options:
+        feature: loopback
+    - loopback_dns_dnsmasq_default:
+        feature: loopback
+    - loopback_set_route_with_options:
+        feature: loopback
+    - loopback_add_connection:
+        feature: loopback
+    - loopback_multi_connect:
+        feature: loopback
+    - loopback_set_iface_as_ovs_port:
+        feature: loopback
+    - loopback_set_iface_as_bond_port:
+        feature: loopback
+    - loopback_match_renamed_iface:
+        feature: loopback
+    - loopback_multiple_profiles:
+        feature: loopback
     - set_fq_codel_queue:
         feature: tc
     - set_pfifo_fast_queue:
@@ -2360,7 +2380,7 @@ testmapper:
         tags: hostapd
     - simwifi_wpa1psk_no_profile:
         feature: wifi_hwsim
-        tags: gate libnl3 wpa_supplicant   
+        tags: gate libnl3 wpa_supplicant
     - simwifi_wpa2psk_profile:
         feature: wifi_hwsim
         tags: gate libnl3 wpa_supplicant
@@ -3091,28 +3111,9 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_teardown:
         feature: nmtui_wifi_hwsim
+    # Please leave test as the last one as it sanitizes the network properly
     - crashing_NM_binary:
         feature: general
-    - loopback_modify_iface_address:
-        feature: loopback
-    - loopback_invalid_profile_options:
-        feature: loopback
-    - loopback_dns_dnsmasq_default:
-        feature: loopback
-    - loopback_set_route_with_options:
-        feature: loopback
-    - loopback_add_connection:
-        feature: loopback
-    - loopback_multi_connect:
-        feature: loopback
-    - loopback_set_iface_as_ovs_port:
-        feature: loopback
-    - loopback_set_iface_as_bond_port:
-        feature: loopback
-    - loopback_match_renamed_iface:
-        feature: loopback
-    - loopback_multiple_profiles:
-        feature: loopback
 
 
   NetworkManager-gsm:
