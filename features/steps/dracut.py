@@ -145,8 +145,12 @@ def dracut_run(context):
         kernel_args += kernel_arch_args[arch]
     initrd = "initramfs.client.NM"
     checks = []
-    timeout = "6m"
-    ram = "1200"
+    if arch == 'ppc64le':
+        timeout = "12m"
+        ram = "2560"
+    else:
+        timeout = "6m"
+        ram = "1200"
     for row in context.table:
         if "qemu" in row[0].lower():
             qemu_args.extend(row[1].split(" "))
