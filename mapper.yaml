@@ -1820,6 +1820,7 @@ testmapper:
         feature: general
     - stable_mem_consumption:
         feature: general
+        timeout: 15m
     - stable_mem_consumption2:
         feature: general
     - dummy_connection:
