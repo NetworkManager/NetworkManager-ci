@@ -55,11 +55,18 @@ test_setup() {
       export initdir=$TESTDIR/nfs/client
       . $basedir/dracut-init.sh
 
+      if [ $(arch) == "ppc64le" ]; then
       inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount umount \
                     dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
                     echo sync rm sed uname lsblk df du free strace head tail \
-                    reset loadkeys setfont login sushell sulogin gzip sleep \
-                    modprobe tr
+                    reset loadkeys setfont login sulogin gzip sleep modprobe tr
+      else
+        inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount umount \
+                      dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
+                      echo sync rm sed uname lsblk df du free strace head tail \
+                      reset loadkeys setfont login sushell sulogin gzip sleep \
+                      modprobe tr
+      fi
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
