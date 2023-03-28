@@ -3011,10 +3011,11 @@
     @bond_expose_iaid
     Scenario: bond - expose DHCP IAID
     * Add "bond" connection named "bond0" for device "nm-bond" with options "ipv4.method disabled ipv6.method auto"
-    * Add "ethernet" connection named "bond0.0" for device "eth10" with options "master bond0"
+    * Prepare simulated test "eth11" device
+    * Add "ethernet" connection named "bond0.0" for device "eth11" with options "master bond0"
     * Bring "up" connection "bond0.0"
     * Bring "up" connection "bond0"
-    When "2620:52" is visible with command "ip -6 a show nm-bond" in "15" seconds
+    When "2620:dead:beaf" is visible with command "ip -6 a show nm-bond" in "15" seconds
     Then "iaid" is visible with command "nmcli -t -f DHCP6.OPTION d show nm-bond" in "5" seconds
     * Commentary
         """
