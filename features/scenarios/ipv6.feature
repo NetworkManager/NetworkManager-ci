@@ -2168,6 +2168,10 @@
 
 
     @rhbz1861527
+    # at least two bugs:
+    #   * https://bugzilla.redhat.com/show_bug.cgi?id=2179890 and
+    #   * not-yet-reported memory issue somewhere causing OOMs
+    @may_fail
     @ver+=1.35.7
     @logging_info_only
     @ipv6_ignore_nonstatic_routes
