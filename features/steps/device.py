@@ -29,40 +29,44 @@ def add_secondary_addr_same_subnet(context, device):
 def dns_check(dns_plugin, device, kind, arg, has):
     info = None
     ex = None
-    try:
-        info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
+    attempt = 0
+    while attempt < 8:
+        try:
+            info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
 
-        assert info['default_route'] is not None or dns_plugin == 'systemd-resolved'
+            assert info['default_route'] is not None or dns_plugin == 'systemd-resolved'
 
-        if kind == 'dns':
-            xhas = (arg in info['dns'])
-            if has == xhas:
-                return
-        elif kind in ['domain-search', 'domain-routing']:
-            xkind = kind[7:]
-            xhas = any((arg == d[0] and xkind == d[1] for d in info['domains']))
-            if has == xhas:
-                return
-        elif kind == 'domain':
-            xhas = any((arg == d[0] for d in info['domains']))
-            if has == xhas:
-                return
-        elif kind == 'default-route':
-            if arg == 'no':
-                if info['default_route'] in [None, False] and not any((d[0] == '.' for d in info['domains'])):
-                   return
-            elif arg == 'default':
-                if info['default_route'] in [None, True] and not any((d[0] == '.' for d in info['domains'])):
-                   return
-            elif arg in ['routing', 'search']:
-                if info['default_route'] in [None, True] and any((d[0] == '.' and d[1] == arg for d in info['domains'])):
-                   return
+            if kind == 'dns':
+                xhas = (arg in info['dns'])
+                if has == xhas:
+                    return
+            elif kind in ['domain-search', 'domain-routing']:
+                xkind = kind[7:]
+                xhas = any((arg == d[0] and xkind == d[1] for d in info['domains']))
+                if has == xhas:
+                    return
+            elif kind == 'domain':
+                xhas = any((arg == d[0] for d in info['domains']))
+                if has == xhas:
+                    return
+            elif kind == 'default-route':
+                if arg == 'no':
+                    if info['default_route'] in [None, False] and not any((d[0] == '.' for d in info['domains'])):
+                        return
+                elif arg == 'default':
+                    if info['default_route'] in [None, True] and not any((d[0] == '.' for d in info['domains'])):
+                        return
+                elif arg in ['routing', 'search']:
+                    if info['default_route'] in [None, True] and any((d[0] == '.' and d[1] == arg for d in info['domains'])):
+                        return
+                else:
+                    raise ValueError(f"unsupported default-route kind {arg}")
             else:
-                raise ValueError(f"unsupported default-route kind {arg}")
-        else:
-            raise ValueError(f"unsupported kind \"{kind}\"")
-    except Exception as e:
-        ex = e
+                raise ValueError(f"unsupported kind \"{kind}\"")
+        except Exception as e:
+            ex = e
+        attempt+=1
+        time.sleep(1)
 
     assert False, "DNS %s \"%s\" is unexpectedly %sset for device \"%s\" (plugin %s) (settings: %s) (exception: %s)" % \
         (kind, arg, 'not ' if has else '', device, dns_plugin, info, ex)
