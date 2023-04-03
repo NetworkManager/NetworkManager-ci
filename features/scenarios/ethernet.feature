@@ -1154,16 +1154,40 @@ Feature: nmcli - ethernet
           ethtool.coalesce-tx-usecs-low 1
           """
     * Bring "up" connection "con_ethernet"
-    When "Adaptive RX: on  TX: on\s*stats-block-usecs: 2\s*sample-interval: 2\s*pkt-rate-low: 2\s*pkt-rate-high: 3" is visible with command "ethtool -c eth11"
-    When "rx-usecs: 1\s*rx-frames: 1\s*rx-usecs-irq: 2\s*rx-frames-irq: 2" is visible with command "ethtool -c eth11"
-    When "rx-frames-irq: 2\s*tx-usecs: 1\s*tx-frames: 1\s*tx-usecs-irq: 2\s*tx-frames-irq: 2" is visible with command "ethtool -c eth11"
-    When "rx-usecs-low: 1\s*rx-frames?-low: 1\s*tx-usecs-low: 1\s*tx-frames?-low: 1" is visible with command "ethtool -c eth11"
-    When "rx-usecs-high: 3\s*rx-frames?-high: 3\s*tx-usecs-high: 3\s*tx-frames?-high: 3\s*" is visible with command "ethtool -c eth11"
+    When "Adaptive RX: on  TX: on\s*stats-block-usecs:\s*2\s*sample-interval:\s*2\s*pkt-rate-low:\s*2\s*pkt-rate-high:\s*3" is visible with command "ethtool -c eth11"
+    When "rx-usecs:\s*1\s*rx-frames:\s*1\s*rx-usecs-irq:\s*2\s*rx-frames-irq:\s*2" is visible with command "ethtool -c eth11"
+    When "rx-frames-irq:\s*2\s*tx-usecs:\s*1\s*tx-frames:\s*1\s*tx-usecs-irq:\s*2\s*tx-frames-irq:\s*2" is visible with command "ethtool -c eth11"
+    When "rx-usecs-low:\s*1\s*rx-frames?-low:\s*1\s*tx-usecs-low:\s*1\s*tx-frames?-low:\s*1" is visible with command "ethtool -c eth11"
+    When "rx-usecs-high:\s*3\s*rx-frames?-high:\s*3\s*tx-usecs-high:\s*3\s*tx-frames?-high:\s*3\s*" is visible with command "ethtool -c eth11"
     * Disconnect device "eth11"
-    When "Adaptive RX: off  TX: off\s*stats-block-usecs: 0\s*sample-interval: 0\s*pkt-rate-low: 0\s*pkt-rate-high: 0\s*rx-usecs: 0\s*rx-frames: 0\s*rx-usecs-irq: 0\s*rx-frames-irq: 0\s*tx-usecs: 0\s*tx-frames: 0\s*tx-usecs-irq: 0\s*tx-frames-irq: 0\s*rx-usecs-low: 0\s*rx-frames?-low: 0\s*tx-usecs-low: 0\s*tx-frames?-low: 0\s*rx-usecs-high: 0\s*rx-frames?-high: 0\s*tx-usecs-high: 0\s*tx-frames?-high: 0\s*" is visible with command "ethtool -c eth11"
-    * Modify connection "con_ethernet" changing options "ethtool.coalesce-adaptive-rx 0 ethtool.coalesce-adaptive-tx 0 ethtool.coalesce-pkt-rate-high 0 ethtool.coalesce-pkt-rate-low 0 ethtool.coalesce-rx-frames 0 ethtool.coalesce-rx-frames-high 0 ethtool.coalesce-rx-frames-irq 0 ethtool.coalesce-rx-frames-low 0 ethtool.coalesce-rx-usecs 0 ethtool.coalesce-rx-usecs-high 0 ethtool.coalesce-rx-usecs-irq 0 ethtool.coalesce-rx-usecs-low 0 ethtool.coalesce-sample-interval 0 ethtool.coalesce-stats-block-usecs 0 ethtool.coalesce-tx-frames 0 ethtool.coalesce-tx-frames-high 0 ethtool.coalesce-tx-frames-irq 0 ethtool.coalesce-tx-frames-low 0 ethtool.coalesce-tx-usecs 0 ethtool.coalesce-tx-usecs-high 0 ethtool.coalesce-tx-usecs-irq 0 ethtool.coalesce-tx-usecs-low 0"
+    When "Adaptive RX:\s*off  TX:\s*off\s*stats-block-usecs:\s*0\s*sample-interval:\s*0\s*pkt-rate-low:\s*0\s*pkt-rate-high:\s*0\s*rx-usecs:\s*0\s*rx-frames:\s*0\s*rx-usecs-irq:\s*0\s*rx-frames-irq:\s*0\s*tx-usecs:\s*0\s*tx-frames:\s*0\s*tx-usecs-irq:\s*0\s*tx-frames-irq:\s*0\s*rx-usecs-low:\s*0\s*rx-frames?-low:\s*0\s*tx-usecs-low:\s*0\s*tx-frames?-low:\s*0\s*rx-usecs-high:\s*0\s*rx-frames?-high:\s*0\s*tx-usecs-high:\s*0\s*tx-frames?-high:\s*0\s*" is visible with command "ethtool -c eth11"
+    * Modify connection "con_ethernet" changing options
+          """
+          ethtool.coalesce-adaptive-rx 0
+          ethtool.coalesce-adaptive-tx 0
+          ethtool.coalesce-pkt-rate-high 0
+          ethtool.coalesce-pkt-rate-low 0
+          ethtool.coalesce-rx-frames 0
+          ethtool.coalesce-rx-frames-high 0
+          ethtool.coalesce-rx-frames-irq 0
+          ethtool.coalesce-rx-frames-low 0
+          ethtool.coalesce-rx-usecs 0
+          ethtool.coalesce-rx-usecs-high 0
+          ethtool.coalesce-rx-usecs-irq 0
+          ethtool.coalesce-rx-usecs-low 0
+          ethtool.coalesce-sample-interval 0
+          ethtool.coalesce-stats-block-usecs 0
+          ethtool.coalesce-tx-frames 0
+          ethtool.coalesce-tx-frames-high 0
+          ethtool.coalesce-tx-frames-irq 0
+          ethtool.coalesce-tx-frames-low 0
+          ethtool.coalesce-tx-usecs 0
+          ethtool.coalesce-tx-usecs-high 0
+          ethtool.coalesce-tx-usecs-irq 0
+          ethtool.coalesce-tx-usecs-low 0
+          """
     * Bring "up" connection "con_ethernet"
-    Then "Adaptive RX: off  TX: off\s*stats-block-usecs: 0\s*sample-interval: 0\s*pkt-rate-low: 0\s*pkt-rate-high: 0\s*rx-usecs: 0\s*rx-frames: 0\s*rx-usecs-irq: 0\s*rx-frames-irq: 0\s*tx-usecs: 0\s*tx-frames: 0\s*tx-usecs-irq: 0\s*tx-frames-irq: 0\s*rx-usecs-low: 0\s*rx-frames?-low: 0\s*tx-usecs-low: 0\s*tx-frames?-low: 0\s*rx-usecs-high: 0\s*rx-frames?-high: 0\s*tx-usecs-high: 0\s*tx-frames?-high: 0\s*" is visible with command "ethtool -c eth11"
+    Then "Adaptive RX:\s*off  TX:\s*off\s*stats-block-usecs:\s*0\s*sample-interval:\s*0\s*pkt-rate-low:\s*0\s*pkt-rate-high:\s*0\s*rx-usecs:\s*0\s*rx-frames:\s*0\s*rx-usecs-irq:\s*0\s*rx-frames-irq:\s*0\s*tx-usecs:\s*0\s*tx-frames:\s*0\s*tx-usecs-irq:\s*0\s*tx-frames-irq:\s*0\s*rx-usecs-low:\s*0\s*rx-frames?-low:\s*0\s*tx-usecs-low:\s*0\s*tx-frames?-low:\s*0\s*rx-usecs-high:\s*0\s*rx-frames?-high:\s*0\s*tx-usecs-high:\s*0\s*tx-frames?-high:\s*0\s*" is visible with command "ethtool -c eth11"
 
 
     @rhbz1942331
