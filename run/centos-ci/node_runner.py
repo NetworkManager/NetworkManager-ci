@@ -187,8 +187,8 @@ class Machine:
     def cmd_is_failed(self):
         return not self._last_cmd_ret
 
-    def _wait_for_machine(self):
-        for _ in range(12):
+    def _wait_for_machine(self, retry=12):
+        for _ in range(retry):
             if self.ssh("true", check=False).returncode == 0:
                 return
         self.ssh("true")
@@ -222,6 +222,9 @@ class Machine:
 
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
+        # upgrade
+        self.ssh("dnf -y upgrade")
+        self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
             "contrib/conf/99-test.conf", "/etc/NetworkManager/conf.d/99-test.conf"
@@ -237,6 +240,13 @@ class Machine:
 
     def prepare_async(self):
         self.cmd_async(self.prepare)
+
+    def reboot(self):
+        self.ssh("reboot", check=False)
+        # give some time to shutdown, _wait_for_machine() succeedes when machine is shutting down
+        time.sleep(10)
+        self._wait_for_machine(retry=60)
+        logging.debug(f"Machine {self.id} is back online")
 
     def build(self, refspec, mr="custom", repo=""):
         run("mkdir -p ../rpms/")
