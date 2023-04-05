@@ -26,7 +26,7 @@ function setup () {
         elif grep -E "release 8.[5,6,7,8,9]" /etc/redhat-release; then
             PATCH="0001-netdevsim-physical-address-ring.patch"
         elif grep -E "CentOS Stream" /etc/redhat-release; then
-            URL="https://koji.mbox.centos.org/pkgs/packages/kernel/"
+            URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
             PATCH="0001-netdevsim-physical-address-ring.patch"
         fi
     elif grep "release 9" /etc/redhat-release; then

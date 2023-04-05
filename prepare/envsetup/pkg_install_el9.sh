@@ -87,8 +87,8 @@ install_el9_packages () {
 
     # Install kernel-modules-internal for mac80211_hwsim
     # in case we have more kernels take the first (as we do no reboot)
-    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel |head -n 1)
-    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |head -n 1)
+    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel |tail -n1)
+    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |tail -n1)
     if grep Red /etc/redhat-release; then
         dnf -4 -y install \
             $BREW/rhel-9/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \

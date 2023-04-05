@@ -52,17 +52,17 @@ install_el8_packages () {
 
     # Install kernel-modules-internal for mac80211_hwsim
     # in case we have more kernels take the first (as we do no reboot)
-    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel |head -n 1)
-    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |head -n 1)
+    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel |tail -n1)
+    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel |tail -n1)
     if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
         dnf -4 -y install \
             $BREW/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
             $BREW/rhel-8/packages/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm
     else
         dnf -4 -y install \
-            $MBOX/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
-            $MBOX/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm \
-            $MBOX/kernel/$VER/$REL/$(arch)/kernel-devel-$VER-$REL.$(arch).rpm
+            $KHUB/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
+            $KHUB/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm \
+            $KHUB/kernel/$VER/$REL/$(arch)/kernel-devel-$VER-$REL.$(arch).rpm
     fi
 
     # Add OVS repo and install OVS
