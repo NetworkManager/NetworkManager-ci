@@ -10,7 +10,7 @@ def __getattr__(attr):
 
 IP_NAMESPACE_ALL = object()
 IP_LINK_NOMASTER = object()
-IGNORED_STDERR_MESSAGES = ["Dump was interrupted and may be inconsistent."]
+IGNORED_STDERR_MESSAGES = ["Dump was interrupted and may be inconsistent.\n"]
 
 
 class _IP:
