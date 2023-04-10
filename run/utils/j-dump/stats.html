@@ -49,6 +49,7 @@
   var failure_builds = {};
   var tests = {};
   var tags = {};
+  var steps = {};
   var stats = {};
   var queue = {};
   var state = {};
@@ -64,6 +65,7 @@
     "Last failures": "build:-1",
     "Tests": "tests:",
     "Tags": "tags",
+    "Steps": "steps",
   };
 
   function build_date(build) {
@@ -140,7 +142,7 @@
     if ("project" in state && !load_all) {
       projs = projects.filter(function (p) { return p.project ==state.project; });
     }
-    if(("tests" in state || "tags" in state) && !("search" in state) && !("project" in state)) {
+    if(("tests" in state || "tags" in state || "steps" in state) && !("search" in state) && !("project" in state)) {
       alert("Please filter out some results first, or browser might crash!");
       return;
     }
@@ -167,6 +169,25 @@
         <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_num">AS Num</th> \
         <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg">BS Time [s]</th> \
         <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg">AS Time [s]</th> \
+      </tr> \
+      </thead>'));
+    }
+    else if("steps" in state && "build" in state) {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Step decorator</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg">Time [s]</th> \
+      </tr> \
+      </thead>'));
+    }
+    else if("steps" in state) {
+      $(table).append($('<thead> \
+      <tr> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Step decorator</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num_avg">Avg Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg">Time [s]</th> \
       </tr> \
       </thead>'));
     }
@@ -220,10 +241,13 @@
       $(table).append('<tbody id="tbody-' + project.id + '"></tbody>');
       var url = "cache/" + project.project + "-";
       if("tags" in state) {
-        url += "tags"
+        url += "tags";
       }
       else if ("tests" in state) {
         url += "tests";
+      }
+      else if ("steps" in state) {
+        url += "steps";
       }
       else {
         url += "builds";
@@ -258,6 +282,16 @@
             });
             if(state.sort) {
               tags[project.project].sort(cmp(state.sort, state.reverse));
+            }
+          }
+          else if("steps" in state) {
+            steps[project.project] = [];
+            Object.entries(data["py/tuple"][0]).forEach(function (step) {
+              step[1].name = step[0];
+              steps[project.project].push(step[1]);
+            });
+            if(state.sort) {
+              steps[project.project].sort(cmp(state.sort, state.reverse));
             }
           }
           else if ("tests" in state) {
@@ -302,6 +336,9 @@
             else if ("tags" in state) {
               show_tags(project);
             }
+            else if ("steps" in state) {
+              show_steps(project);
+            }
             else if("build" in state) {
               show_failures(project);
             }
@@ -331,7 +368,6 @@
           return;
         }
       }
-      console.log(build);
       var failure_num = Object.keys(build.failures).length;
       var tr = $("<tr></tr>");
       var cls = "";
@@ -367,6 +403,7 @@
         var artifacts = "/artifact/";
         if(build.url.indexOf("centos") == -1) {artifacts += "artifacts/";}
         links.push('<a target="_blank" href="' + build.url + artifacts + '">Artifacts</a>');
+        links.push('<a href="#project:' + project.project + ';build:' + build.id + ';steps">Step Stats</a>');
       }
       if(build.description != "--") {
         links.push(build.description);
@@ -380,12 +417,6 @@
     var tbody = $('#tbody-' + project.id);
     var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append(head_line);
-
     var build_id = state.build;
     if (!isNaN(build_id) && build_id < 0) {
       var max_build = 0;
@@ -394,6 +425,15 @@
       });
       build_id = max_build+build_id - stats[project.project].running + 1;
     }
+    if(build_id) {
+      $(head_line).append($(' <i> #' + build_id + '</i>'));
+    }
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+
 
     failures[project.project].forEach(function (failure) {
       if (!isNaN(build_id)) {
@@ -473,7 +513,6 @@
       }
       var tr = $("<tr></tr>");
       $(tr).append("<td>" + tag.name + "</td>")
-      var td = $("<td></td>");
       if (tag.bs_num === undefined) {
         tag.bs_num = 0;
       }
@@ -498,6 +537,50 @@
     });
   }
 
+  function show_steps(project) {
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
+    var head_line = $('<th colspan="4" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
+    var build_id = state.build;
+    console.log(build_id)
+    if (build_id == "-1") {
+      build_id = steps[project.project].last_build_id;
+    }
+    if(build_id) {
+      $(head_line).append($(' <i> #' + build_id + '</i>'));
+    }
+    console.log(build_id)
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+    steps[project.project].forEach(function (step) {
+      if (state.search) {
+        if (step.name.indexOf(state.search) == -1) {
+          return;
+        }
+      }
+      if (build_id) {
+        var step_build = step.builds["json://" + build_id];
+        if (!step_build) {
+          return;
+        }
+        var tr = $("<tr></tr>");
+        $(tr).append("<td>" + step.name + "</td>")
+        $(tr).append('<td>'+step_build.num+'</td>')
+        $(tr).append($("<td></td>").append(format_time_stats(step_build.avg, undefined, step_build.min, step_build.max, step_build.dev)));
+        $(tbody).append(tr);
+        return;
+      }
+      var tr = $("<tr></tr>");
+      $(tr).append("<td>" + step.name + "</td>")
+      $(tr).append('<td>'+step.num+'</td>')
+      $(tr).append('<td>'+step.num_avg.toFixed(2)+'</td>')
+      $(tr).append($("<td></td>").append(format_time_stats(step.avg, undefined, step.min, step.max, step.dev)));
+      $(tbody).append(tr);
+    });
+  }
 
   function format_time_stats(avg, last, min, max, dev) {
     var tb = $('<table style="font-size:0.8rem; line-height:0.85rem;"></table>');
@@ -654,6 +737,9 @@
       if (e == "tags") {
         state["tags"] = true;
       }
+      if (e == "steps") {
+        state["steps"] = true;
+      }
       if (e == "preserve_search") {
         state["preserve_search"] = true;
       }
@@ -685,6 +771,9 @@
     }
     if("tags" in state && state.tags) {
       hash +=";tags";
+    }
+    if("steps" in state && state.steps) {
+      hash +=";steps";
     }
     if("preserve_search" in state) {
         hash += "preserve_search";
@@ -724,7 +813,6 @@
     var new_hash_split = newURL.replace(/^[^#]*#?/, "").split(";");
     var old_state = state;
     hash_split_to_state(new_hash_split);
-    console.log(old_state, state);
     if("project" in state) {
       $('#search_mode').val("current");
     }

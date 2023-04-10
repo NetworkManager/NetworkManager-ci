@@ -154,6 +154,8 @@ process_job() {
 
 	unset JDUMP_OPTIONS
 	[ -n "$USER" -a -n "$PASSWORD" ] && JDUMP_OPTIONS="--user $USER --password $PASSWORD"
+	unset JSUMP_STEPS_DIR
+	[ -n "$STEPS_DIR" ] && JDUMP_STEPS_DIR="--steps_dir $STEPS_DIR"
 
 	log "***  $CI_NICK_LABEL ***"
 	index_html_ci_begin "$CI_NICK_LABEL"
@@ -162,7 +164,7 @@ process_job() {
 		JOB_FULL_NAME="${JOB_HEADER}${job}"
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
-		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1 &
+		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_STEPS_DIR $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1 &
 		if (( ++i > 6 ))
 		then
 			i=0

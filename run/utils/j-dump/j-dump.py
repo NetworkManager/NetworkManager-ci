@@ -7,6 +7,11 @@ from subprocess import call
 import jsonpickle
 import math
 import time
+import re
+
+import behave.step_registry
+import behave.runner
+from behave.model import Step as BStep
 
 import requests
 import jenkinsapi
@@ -23,6 +28,8 @@ HTML_STYLE = """
                a:link { background-color: none; text-decoration: none; }\n
                a:hover { color: red; background-color: none; text-decoration: none; }\n
            </style>\n"""
+
+STEP_RE = re.compile("^ *(\*|When|Then|And|Given) *(.*) *\.\.\. *(.*) *in *([0-9.]*)s *")
 
 
 def eprint(*args, **kwargs):
@@ -58,6 +65,7 @@ class Job:
         self.failures = {}
         self.tags = {}
         self.tests = {}
+        self.steps = {}
         self.state = {}
         self.cache_dir = cache_dir_prefix
         if not os.path.isdir(self.cache_dir):
@@ -85,7 +93,7 @@ class Job:
 
     def add_build(self, build):
         self.builds.append(build)
-        self.process_tests_and_tags(build)
+        self.process_stats(build)
 
     def add_failure(self, failure_name, build, artifact_url=None):
         if failure_name in self.failures:
@@ -98,8 +106,8 @@ class Job:
             failure.add_artifact(build.id, artifact_url)
         build.add_failure(failure_name, failure)
 
-    def process_tests_and_tags(self, build):
-        tests, tags = self.process_taskout_log(build)
+    def process_stats(self, build):
+        tests, tags, steps = self.process_taskout_log(build)
 
         build.tests_passed, build.tests_failed, build.tests_skipped = 0, 0, 0
 
@@ -120,6 +128,12 @@ class Job:
             else:
                 self.tags[tag_name] = {"builds": {build.id: tag_stats}}
 
+        for step_decorator, step_stats in steps.items():
+            if step_decorator in self.steps:
+                self.steps[step_decorator]["builds"][build.id] = step_stats
+            else:
+                self.steps[step_decorator] = {"builds": {build.id: step_stats}}
+
         build.tests_passed = statuses.count("PASS")
         #build.tests_failed = statuses.count("FAIL")
         build.tests_failed = len(build.failures)
@@ -130,6 +144,7 @@ class Job:
         t_s = time.time()
         tests = {}
         tags = {}
+        steps = {}
         when = "bs"
         test_time = 0
         bs_time = 0
@@ -158,6 +173,16 @@ class Job:
                     tags_bs_time += tag_time
                 else:
                     tags_as_time += tag_time
+            if re.match(STEP_RE, line):
+                keyword, text, step_status, duration = re.match(STEP_RE, line).groups()
+                step = BStep("stdin", 1, keyword, "step", text.strip(" "))
+                decorator = behave.step_registry.registry.find_step_definition(step)
+                if decorator is None:
+                    eprint(f"Step definition not found: '{text}'")
+                    continue
+                durations = steps.get(decorator.string, {"times": []})
+                durations["times"].append(float(duration))
+                steps[decorator.string] = durations
             if "before_scenario ... " in line and " in " in line and line.endswith("s"):
                 bs_time = str_to_time(line.split(" ")[-1]) - tags_bs_time
                 when = "as"
@@ -171,7 +196,7 @@ class Job:
                                     "tags_as": tags_as_time, "tags_bs": tags_bs_time,
                                     "status": status}
         dprint(f"taskout-log-processing: {time.time() - t_s:.3f}s")
-        return tests, tags
+        return tests, tags, steps
 
     def get_taskout_log(self, build):
         t_s = time.time()
@@ -255,6 +280,11 @@ class Job:
         data = (self.tags, self.stats)
         data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file.replace(".json", "-tags.json"), "w") as fd:
+            fd.write(data_json)
+
+        data = (self.steps, self.stats)
+        data_json = jsonpickle.encode(data, keys=True)
+        with open(self.cache_file.replace(".json", "-steps.json"), "w") as fd:
             fd.write(data_json)
 
     def builds_retrieve(self, max_builds):
@@ -345,6 +375,27 @@ class Job:
                 tag_stats["as_min"] = min(as_times)
                 tag_stats["as_max"] = max(as_times)
                 tag_stats["as_dev"] = math.sqrt(sum([t**2 for t in as_times])/as_num)
+
+        for step_decorator, step_stats in self.steps.items():
+            times = [t for build in step_stats["builds"].values()
+                        for t in build["times"]]
+            num = len(times)
+            step_stats["num"] = num
+            step_stats["num_avg"] = num/len(step_stats["builds"])
+            step_stats["avg"] = sum(times)/num
+            step_stats["min"] = min(times)
+            step_stats["max"] = max(times)
+            step_stats["dev"] = math.sqrt(sum([t**2 for t in times])/num)
+            step_stats["last_build_id"] = max(step_stats["builds"].keys())
+            for build_id, build_stats in step_stats["builds"].items():
+                times = build_stats["times"]
+                num = len(times)
+                build_stats["num"] = num
+                build_stats["avg"] = sum(times)/num
+                build_stats["min"] = min(times)
+                build_stats["max"] = max(times)
+                build_stats["dev"] = math.sqrt(sum([t**2 for t in times])/num)
+                build_stats.pop("times")
 
         self.stats = {"last_pass": 0, "last_fail": 0, "last_skip": 0}
         self.stats["health"] = len(list(filter(lambda b: b.status == "SUCCESS", list(
@@ -740,11 +791,16 @@ def main():
         '--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
     parser.add_argument('--max_builds', type=int,
                         help="maximum number of builds considered for the job")
+    parser.add_argument("--steps_dir", help="directory containing behave steps definitions", default="../../../features/steps/")
     args = parser.parse_args()
 
     user = None
     password = None
     url = args.url
+
+    steps_dir = args.steps_dir
+    sys.path.append(steps_dir.replace("features/steps","").rstrip("/"))
+    behave.runner.load_step_modules([steps_dir])
 
     # TODO: accept multiple jobs
     job_name = args.job
