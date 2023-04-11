@@ -1298,6 +1298,8 @@ testmapper:
         feature: vlan
     - vlan_stacking:
         feature: vlan
+    - vlan_preserve_ip_on_reload:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate

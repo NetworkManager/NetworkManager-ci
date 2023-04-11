@@ -1046,3 +1046,20 @@ Feature: nmcli - vlan
     * Bring "up" connection "vlan47"
     Then "vlan protocol 802.1ad" is visible with command "ip -d l show dev vlan_eth.42"
     Then "vlan protocol 802.1Q" is visible with command "ip -d l show dev vlan_eth.42.47"
+
+
+    @rhbz2155885
+    @ver+=1.43.3
+    @vlan_preserve_ip_on_reload
+    Scenario: nmcli - vlan - keep IP address on connection reload
+    * Create "veth" device named "vlan_eth" with options "peer name vlan_eth_peer"
+    * Execute "ip link add link vlan_eth name vlan80 type vlan id 80"
+    * Execute "ip link set vlan_eth up"
+    * Execute "ip link set vlan80 up"
+    * Execute "ip addr add dev vlan80 fd01::12/64"
+    * Execute "ip addr add dev vlan80 172.25.42.1/24"
+    Then "fd01::12/64" is visible with command "ip addr show vlan80" in "10" seconds
+    And "172.25.42.1/24" is visible with command "ip addr show vlan80" in "10" seconds
+    * Reload connections
+    Then "fd01::12/64" is visible with command "ip addr show vlan80" in "10" seconds
+    And "172.25.42.1/24" is visible with command "ip addr show vlan80" in "10" seconds
