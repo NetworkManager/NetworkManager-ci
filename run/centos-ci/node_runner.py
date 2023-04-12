@@ -223,8 +223,10 @@ class Machine:
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
         # upgrade
-        self.ssh("dnf -y upgrade")
-        self.reboot()
+        # temporary skip el9 https://bugzilla.redhat.com/show_bug.cgi?id=2184745
+        if int(self.release_num) != 9:
+            self.ssh("dnf -y upgrade")
+            self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
             "contrib/conf/99-test.conf", "/etc/NetworkManager/conf.d/99-test.conf"
