@@ -19,8 +19,7 @@ def fill_file_with_content(context, path):
 @step('Create NM config file "{filename}" with content and "{operation}" NM')
 def create_config_file(context, filename="99-xxcustom.conf", operation=None):
     path = os.path.join("/etc/NetworkManager/conf.d", filename)
-    nmci.cleanup.cleanup_file(path)
-    nmci.cleanup.cleanup_add_NM_service("restart")
+    nmci.cleanup.cleanup_nm_config(path)
     nmci.util.file_set_content(path, context.text)
     if operation is not None:
         nmci.nmutil.do_NM_service(operation)
