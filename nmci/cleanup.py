@@ -182,8 +182,10 @@ class _Cleanup:
 
             if self.op == "reset":
                 nmci.veth.reset_hwaddr_nmcli(self.iface)
-                if self.iface != "eth0":
-                    nmci.process.run(["ip", "addr", "flush", self.iface])
+                # Why oh why was eth0 filtered out?
+                # if self.iface != "eth0":
+                nmci.process.run(["ip", "addr", "flush", self.iface])
+                time.sleep(0.1)
                 return
             if self.op == "delete":
                 nmci.process.nmcli_force(["device", "delete", self.iface])
