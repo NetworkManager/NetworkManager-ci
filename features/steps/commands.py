@@ -38,7 +38,7 @@ def check_same_noted_values_equals(context, i1, i2):
 
 @step(u'Check noted value "{i2}" difference from "{i1}" is "{operator_kw}" "{dif}"')
 def check_dif_in_values_temp(context, i1, i2, operator_kw, dif):
-    real_dif = abs(int(context.noted[i2].strip()) - int(context.noted[i1].strip()))
+    real_dif = int(context.noted[i2].strip()) - int(context.noted[i1].strip())
     assert compare_values(operator_kw.lower(), real_dif, int(dif)), (
         f'The difference between "{i2}" and "{i1}" is '
         f'"|{context.noted[i2].strip()}-{context.noted[i1].strip()}| = {real_dif}", '
@@ -717,6 +717,19 @@ def note_NM_log(context):
     if not hasattr(context, 'noted'):
         context.noted = {}
     context.noted['noted-value'] = nmci.misc.journal_show("NetworkManager", cursor=context.log_cursor, journal_args="-o cat")
+
+
+@step(u'Note NM memory consumption as value "{index}"')
+def note_NM_mem_consumption(context, index):
+    try:
+        mem = str(nmci.nmutil.nm_size_kb())
+        context.noted[index] = mem
+        context.process.run_stdout(
+            f"echo {mem} >> /tmp/mem_consumption",
+            shell=True
+        )
+    except nmci.util.ExpectedException as e:
+        msg = f"<b>Daemon memory consumption:</b> unknown ({e})\n"
 
 
 @step(u'Check coredump is not found in "{seconds}" seconds')
