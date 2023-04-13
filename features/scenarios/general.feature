@@ -3324,3 +3324,111 @@ Feature: nmcli - general
     Then Check noted values "1-before" and "1-after" are the same
     Then Check noted values "2-before" and "2-after" are the same
     Then Check noted values "3-before" and "3-after" are the same
+
+
+    @rhbz2156684
+    @rhbz2180363
+    @ver+=1.43.9
+    @autoconnect_port
+    Scenario: NM - general - ignore-carrier with bond
+    # First we create a port profile with autoconnect=yes. The port profile
+    # starts autoconnecting, finds no controller, fails and gets blocked from
+    # autoconnect.
+    #
+    # Then add the controller profile with autoconnect disabled. The addition
+    # of the controller profile needs to unblock the port, which starts autoconnecting
+    # and bringing both up.
+    * Prepare simulated test "testA" device
+    * Add "ethernet" connection named "c-testA" for device "testA" with options
+          """
+          autoconnect yes
+          master bond1
+          slave-type bond
+          """
+    *  Add "bond" connection named "c-bond1" for device "bond1" with options
+          """
+          autoconnect no
+          """
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then Check bond "bond1" state is "up"
+
+    @rhbz2156684
+    @rhbz2180363
+    @ver+=1.43.9
+    @ignore_carrier_with_bond_noauto
+    Scenario: NM - general - ignore-carrier with bond without autoconnect
+    # Have controller and port devices without autoconnect enabled. Check that
+    # with "ignore-carrier=no" on the controller, the controller goes down
+    # after carrier timeout and stays down.
+    #
+    # This is rather straight forward, because once it goes down, it won't
+    # autoconnect again, as that is disabled.
+    * Create NM config file "97-ignore-carrier-for-bond.conf" with content and "reload" NM
+      """
+      [device-97-ignore-carrier-for-bond]
+      match-device=interface-name:bond1
+      ignore-carrier=no
+      carrier-wait-timeout=1500
+      """
+    * Prepare simulated test "testA" device
+    * Add "ethernet" connection named "c-testA" for device "testA" with options
+          """
+          autoconnect no
+          master bond1
+          slave-type bond
+          """
+    *  Add "bond" connection named "c-bond1" for device "bond1" with options
+          """
+          autoconnect no
+          """
+    * Bring "up" connection "c-testA"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then Check bond "bond1" state is "up"
+    * Execute "ip netns exec testA_ns ip link set testAp down"
+    Then Check bond "bond1" link state is "down"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" in "3" seconds
+    # What we really want here, is that bond1 interface was deleted and
+    # is not visible.
+    #   Then "bond1" is not visible with command "nmcli device ; ip link" for full "5" seconds
+    # But there is a bug in NetworkManager, so test the opposite.
+    Then "bond1" is visible with command "nmcli device ; ip link" in "5" seconds
+
+
+    @rhbz2156684
+    @rhbz2180363
+    @ver+=1.43.9
+    @ignore_carrier_with_bond
+    Scenario: NM - general - ignore-carrier with bond
+    # Have controller and port devices with only the port autoconnect=yes. Check that
+    # with "ignore-carrier=no" on the controller, the controller goes down
+    # after carrier timeout and stays down.
+    #
+    # This is rather straight forward, because once it goes down, it won't
+    # autoconnect again, as that is disabled.
+    * Create NM config file "97-ignore-carrier-for-bond.conf" with content and "reload" NM
+      """
+      [device-97-ignore-carrier-for-bond]
+      match-device=interface-name:bond1
+      ignore-carrier=no
+      carrier-wait-timeout=1500
+      """
+    * Prepare simulated test "testA" device
+    * Add "ethernet" connection named "c-testA" for device "testA" with options
+          """
+          autoconnect yes
+          master bond1
+          slave-type bond
+          """
+    *  Add "bond" connection named "c-bond1" for device "bond1" with options
+          """
+          autoconnect no
+          """
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then Check bond "bond1" state is "up"
+    * Execute "ip netns exec testA_ns ip link set testAp down"
+    Then Check bond "bond1" link state is "down"
+    # What we test here is not yet correct NetworkManager behavior. We want that the profiles
+    # don't just autoconnect without carrier, but they do. Test for the wrong behavior for now.
+    #
+    # The behavior in NetworkManager needs to change and we should check that the profile
+    # can autoconnect.
