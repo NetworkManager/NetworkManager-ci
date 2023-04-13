@@ -287,19 +287,13 @@ _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
+    nmci.cleanup.cleanup_nm_config(conf)
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
     nmci.nmutil.restart_NM_service()
 
 
-def logging_info_only_as(context, scenario):
-    conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-    context.process.run_stdout(f"rm -rf {conf}")
-    # this is after performance tests, so NM restart can take a while
-    nmci.nmutil.restart_NM_service(timeout=120)
-
-
-_register_tag("logging_info_only", logging_info_only_bs, logging_info_only_as)
+_register_tag("logging_info_only", logging_info_only_bs, None)
 
 
 def _is_container():
