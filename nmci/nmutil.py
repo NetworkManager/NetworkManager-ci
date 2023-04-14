@@ -117,8 +117,7 @@ class _NMUtil:
             return
         # Send an async SIGHUP signal.
         nmci.process.run_stdout("pkill -HUP NetworkManager")
-        timeout = nmci.util.start_timeout(self.DEFAULT_TIMEOUT)
-        self.wait_for_nm_bus(timeout)
+        self.wait_for_nm_bus(0)
 
     def restart_NM_service(self, reset=True, timeout=15):
         print("restart NM service")
