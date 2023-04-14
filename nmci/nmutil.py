@@ -108,8 +108,14 @@ class _NMUtil:
         print("reload NM connections")
         nmci.process.nmcli("con reload")
 
-    def reload_NM_service(self):
+    def reload_NM_service(self, synchronous=False):
         print("reload NM service")
+        if synchronous:
+            # ExecReload= uses busctl and waits for a response.
+            r = nmci.process.systemctl("reload NetworkManager.service")
+            assert r.returncode == 0, f"systemctl reload NetworkManager failed with {r}"
+            return
+        # Send an async SIGHUP signal.
         nmci.process.run_stdout("pkill -HUP NetworkManager")
         timeout = nmci.util.start_timeout(self.DEFAULT_TIMEOUT)
         self.wait_for_nm_bus(timeout)
