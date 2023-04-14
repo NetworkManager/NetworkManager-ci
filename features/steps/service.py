@@ -7,7 +7,6 @@ import nmci
 @step("Reboot")
 @step('Reboot within "{timeout}" seconds')
 def reboot(context, timeout=None):
-    context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service()
 
     links = nmci.ip.link_show_all()
@@ -75,20 +74,17 @@ def reboot(context, timeout=None):
 
 @step("Start NM")
 def start_nm(context):
-    context.nm_restarted = True
     assert nmci.nmutil.start_NM_service(), "NM start failed"
 
 
 @step("Start NM without PID wait")
 def start_nm_no_pid(context):
-    context.nm_restarted = True
     assert nmci.nmutil.start_NM_service(pid_wait=False), "NM start failed"
 
 
 @step("Restart NM")
 @step('Restart NM within "{timeout}" seconds')
 def restart_nm(context, timeout=None):
-    context.nm_restarted = True
     assert nmci.nmutil.restart_NM_service(timeout=timeout), "NM restart failed"
 
 
@@ -121,13 +117,11 @@ def kill_nm(context, signal=""):
 
 @step("Stop NM")
 def stop_nm(context):
-    context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service(), "NM stop failed"
 
 
 @step('Stop NM and clean "{device}"')
 def stop_nm_and_clean(context, device):
-    context.nm_restarted = True
     assert nmci.nmutil.stop_NM_service(), "NM stop failed"
     nmci.ip.link_set(ifname=device, up=False)
     nmci.ip.address_flush(ifname=device)

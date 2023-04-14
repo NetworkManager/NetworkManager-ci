@@ -136,6 +136,7 @@ class _NMUtil:
 
     def restart_NM_service(self, reset=True, timeout=15):
         print("restart NM service")
+        self.context_set_nm_restarted()
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
@@ -148,6 +149,7 @@ class _NMUtil:
 
     def start_NM_service(self, pid_wait=True, reset=True, timeout=DEFAULT_TIMEOUT):
         print("start NM service")
+        self.context_set_nm_restarted()
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
@@ -161,6 +163,7 @@ class _NMUtil:
 
     def stop_NM_service(self):
         print("stop NM service")
+        self.context_set_nm_restarted()
         nmci.cleanup.cleanup_add_NM_service(operation="start")
         r = nmci.process.systemctl("stop NetworkManager.service")
         nmci.cext.context.nm_pid = 0

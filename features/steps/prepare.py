@@ -651,7 +651,6 @@ def mptcp(context, num, veth, typ="subflow"):
     nmci.cleanup.cleanup_add_NM_service("restart")
     nmci.process.run(["sysctl", "-w", "net.mptcp.enabled=0"])
     nmci.process.run(["ip", "mptcp", "endpoint", "flush"])
-    context.nm_restarted = True
     nmci.nmutil.restart_NM_service()
     ### end workaround
 

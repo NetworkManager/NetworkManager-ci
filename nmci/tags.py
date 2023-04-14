@@ -1892,7 +1892,6 @@ def openvswitch_as(context, scenario):
     if context.process.systemctl("is-active openvswitch").returncode != 0:
         context.process.systemctl("restart openvswitch")
     nmci.nmutil.stop_NM_service()
-    context.nm_restarted = True
 
     context.process.run(
         "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",
