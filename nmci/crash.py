@@ -303,7 +303,6 @@ def after_crash_reset(context):
     """
     print("@after_crash_reset")
 
-    print("Stop NM")
     nmci.nmutil.stop_NM_service()
 
     print("Remove all links except eth*")

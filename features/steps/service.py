@@ -55,12 +55,12 @@ def kill_nm(context, signal=""):
 
 @step("Stop NM")
 def stop_nm(context):
-    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
+    nmci.nmutil.stop_NM_service()
 
 
 @step('Stop NM and clean "{device}"')
 def stop_nm_and_clean(context, device):
-    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
+    nmci.nmutil.stop_NM_service()
     nmci.ip.link_set(ifname=device, up=False)
     nmci.ip.address_flush(ifname=device)
 

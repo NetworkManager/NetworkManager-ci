@@ -167,10 +167,10 @@ class _NMUtil:
         nmci.cleanup.cleanup_add_NM_service(operation="start")
         r = nmci.process.systemctl("stop NetworkManager.service")
         nmci.cext.context.nm_pid = 0
-        return r.returncode == 0
+        assert r.returncode == 0, f"systemctl stop NetworkManager failed with {r}"
 
     def reboot_NM_service(self, timeout=None):
-        assert self.stop_NM_service()
+        self.stop_NM_service()
 
         links = nmci.ip.link_show_all()
         link_ifnames = [li["ifname"] for li in links]
