@@ -156,10 +156,10 @@ class _NMUtil:
         r = nmci.process.systemctl(
             "start NetworkManager.service", timeout=timeout.remaining_time()
         )
+        assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
             self.wait_for_nm_bus(timeout)
-        return r.returncode == 0
 
     def stop_NM_service(self):
         print("stop NM service")
@@ -232,7 +232,7 @@ class _NMUtil:
 
         nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
 
-        assert self.start_NM_service(timeout=timeout)
+        self.start_NM_service(timeout=timeout)
 
     def dbus_props_for_dev(
         self,

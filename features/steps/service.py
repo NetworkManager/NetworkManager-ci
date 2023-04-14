@@ -12,12 +12,12 @@ def reboot(context, timeout=None):
 
 @step("Start NM")
 def start_nm(context):
-    assert nmci.nmutil.start_NM_service(), "NM start failed"
+    nmci.nmutil.start_NM_service()
 
 
 @step("Start NM without PID wait")
 def start_nm_no_pid(context):
-    assert nmci.nmutil.start_NM_service(pid_wait=False), "NM start failed"
+    nmci.nmutil.start_NM_service(pid_wait=False)
 
 
 @step("Restart NM")
