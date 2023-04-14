@@ -2946,7 +2946,7 @@ Feature: nmcli: ipv4
     @rhbz2040683
     @ver+=1.35.7
     @ipv4_route-table_reapply
-    Scenario: nmcli - ipv4 - route-table	config and reapply take	effect immediately
+    Scenario: nmcli - ipv4 - route-table config and reapply take effect immediately
     * Prepare simulated test "testX4" device
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
           """
