@@ -1009,6 +1009,7 @@ Feature: nmcli - ethernet
     @ver+=1.14
     @ethtool_features_connection
     Scenario: nmcli - ethernet - change ethtool feature in connection
+    * Doc: "Configuring network adapter offload settings"
     Given "fixed" is not visible with command "ethtool -k eth1 | grep tx-checksum-ip-generic:"
     * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out1"
     * Add "ethernet" connection named "con_ethernet" for device "eth1" with options

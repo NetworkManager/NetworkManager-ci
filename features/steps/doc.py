@@ -153,6 +153,7 @@ chapters = {
     "Configuring 802.3 link settings with nmcli tool": "configuring-link-settings-with-nmcli-tool_configuring-802-3-link-settings",
     "Offload features supported by NetworkManager": "offload-features-supported-by-networkmanager_configuring-ethtool-offload-features",
     "Configuring an ethtool offload feature using NetworkManager": "configuring-an-ethtool-offload-feature-using-networkmanager_configuring-ethtool-offload-features",
+    "Configuring network adapter offload settings": "configuring-network-adapter-offload-settings_tuning-the-network-performance",
     "Using System Roles to set ethtool features": "proc_using-system-roles-to-set-ethtool-features_configuring-ethtool-offload-features",
     "Coalesce settings supported by NetworkManager": "ref_coalesce-settings-supported-by-networkmanager_assembly_configuring-ethtool-coalesce-settings",
     "Configuring ethtool coalesce settings using NetworkManager": "proc_configuring-ethtool-coalesce-settings-using-networkmanager_assembly_configuring-ethtool-coalesce-settings",
