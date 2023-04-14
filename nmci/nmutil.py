@@ -75,7 +75,7 @@ class _NMUtil:
                 "/org/freedesktop/NetworkManager",
                 ignore_stderr=True,
                 ignore_returncode=True,
-                timeout=timeout.remaining_time(),
+                timeout=20,
             ):
                 return True
         if do_assert:
