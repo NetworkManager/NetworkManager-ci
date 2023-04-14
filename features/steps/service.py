@@ -33,6 +33,11 @@ def restart_nm_background(context):
     context.nm_pid_refresh_count = 2
 
 
+@step("Reload NM")
+def restart_nm(context):
+    nmci.nmutil.reload_NM_service(synchronous=True)
+
+
 @step('Kill NM with signal "{signal}"')
 @step("Kill NM")
 def kill_nm(context, signal=""):
