@@ -145,7 +145,7 @@ class _NMUtil:
         )
         nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
         self.wait_for_nm_bus(timeout)
-        return r.returncode == 0
+        assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
 
     def start_NM_service(self, pid_wait=True, reset=True, timeout=DEFAULT_TIMEOUT):
         print("start NM service")

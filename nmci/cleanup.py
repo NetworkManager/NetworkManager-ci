@@ -424,7 +424,7 @@ class _Cleanup:
             if self._operation == "start":
                 nmci.nmutil.start_NM_service()
             elif self._operation == "restart":
-                assert nmci.nmutil.restart_NM_service()
+                nmci.nmutil.restart_NM_service()
             else:
                 assert self._operation == "reload"
                 nmci.nmutil.reload_NM_service()

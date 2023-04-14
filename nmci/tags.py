@@ -217,7 +217,7 @@ def crash_bs(context, scenario):
 
 
 def crash_as(context, scenario):
-    assert nmci.nmutil.restart_NM_service()
+    nmci.nmutil.restart_NM_service()
     if "systemd-coredump" not in context.core_pattern:
         context.process.run_stdout(
             f"sysctl -w kernel.core_pattern='{context.core_pattern}'"
@@ -1150,7 +1150,7 @@ def simwifi_ap_bs(context, scenario):
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
+    nmci.nmutil.restart_NM_service()
 
 
 def simwifi_ap_as(context, scenario):
@@ -1160,7 +1160,7 @@ def simwifi_ap_as(context, scenario):
     context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
