@@ -90,7 +90,7 @@ def restart_nm(context, timeout=None):
 
 @step("Restart NM in background")
 def restart_nm_background(context):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     context.pexpect_service("systemctl restart NetworkManager")
     context.nm_pid_refresh_count = 2
 
@@ -98,7 +98,7 @@ def restart_nm_background(context):
 @step('Kill NM with signal "{signal}"')
 @step("Kill NM")
 def kill_nm(context, signal=""):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
 
     signal_args = []
     if signal:
@@ -129,5 +129,5 @@ def stop_nm_and_clean(context, device):
 
 @step('NM is restarted within next "{steps}" steps')
 def pause_restart_check(context, steps):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     context.nm_pid_refresh_count = int(steps) + 1

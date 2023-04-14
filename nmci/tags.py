@@ -1638,7 +1638,7 @@ def performance_bs(context, scenario):
 
 
 def performance_as(context, scenario):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     # Settings device number to 0
     context.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
     context.nm_pid = nmci.nmutil.nm_pid()

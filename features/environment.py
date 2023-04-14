@@ -65,7 +65,7 @@ def _before_scenario(context, scenario):
     assert not context.cext.scenario_skipped
     nmci.util.set_verbose(False)
     context.step_level = 0
-    context.nm_restarted = False
+    nmci.nmutil.context_set_nm_restarted(context, reset=True)
     context.nm_pid = nmci.nmutil.nm_pid()
     context.crashed_step = False
     context.noted = {}
