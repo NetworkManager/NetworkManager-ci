@@ -7,69 +7,7 @@ import nmci
 @step("Reboot")
 @step('Reboot within "{timeout}" seconds')
 def reboot(context, timeout=None):
-    assert nmci.nmutil.stop_NM_service()
-
-    links = nmci.ip.link_show_all()
-    link_ifnames = [li["ifname"] for li in links]
-
-    ifnames_to_delete = [
-        "nm-bond",
-        "nm-team",
-        "nm-bridge",
-        "team7",
-        "bridge7",
-        "bond-bridge",
-        # for nmtui
-        "bond0",
-        "team0",
-        # for vrf devices
-        "vrf0",
-        "vrf1",
-        # for veths
-        "veth11",
-        "veth12",
-        # for macsec
-        "macsec0",
-        "macsec_veth.42",
-    ]
-
-    ifnames_to_down = [
-        *[f"eth{i}" for i in range(1, 12)],
-        "em1",
-        # for sriov
-        "p4p1",
-        # for loopback
-        "lo",
-    ]
-
-    ifnames_to_flush = [
-        *[f"eth{i}" for i in range(1, 12)],
-        "em1",
-        # for sriov
-        "p4p1",
-        # for pppoe
-        "test11",
-        # for loopback
-        "lo",
-    ]
-
-    for ifname in ifnames_to_delete:
-        nmci.ip.link_delete(ifname=ifname, accept_nodev=True)
-
-    for ifname in ifnames_to_down:
-        if ifname in link_ifnames:
-            nmci.ip.link_set(ifname=ifname, up=False)
-            # We need to clean DNS records when shutting down devices
-            if nmci.process.systemctl("is-active systemd-resolved").returncode == 0:
-                nmci.process.run(f"resolvectl revert {ifname}", ignore_stderr=True)
-
-    for ifname in ifnames_to_flush:
-        if ifname in link_ifnames:
-            nmci.ip.address_flush(ifname=ifname)
-
-    nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
-
-    assert nmci.nmutil.start_NM_service(timeout=timeout), "NM start failed"
+    nmci.nmutil.reboot_NM_service()
 
 
 @step("Start NM")
