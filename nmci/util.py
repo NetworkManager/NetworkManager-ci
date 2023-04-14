@@ -420,12 +420,12 @@ class _Util:
         time.sleep(0.2)
         nmci.process.run_stdout(
             "udevadm control --reload-rules",
-            timeout=15,
+            timeout=45,
             ignore_stderr=True,
         )
         nmci.process.run_stdout(
-            "udevadm settle --timeout=5",
-            timeout=15,
+            "udevadm settle --timeout=15",
+            timeout=20,
             ignore_stderr=True,
         )
         time.sleep(0.8)
