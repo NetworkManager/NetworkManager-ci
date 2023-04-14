@@ -104,6 +104,21 @@ class _NMUtil:
             memsize += int(fields[1])
         return memsize
 
+    def context_set_nm_restarted(self, context=None, reset=False):
+        # Set context.nm_restarted, which indicates that NetworkManager
+        # service was restarted during the test.
+        #
+        # Note that this parameter is currently not used anywhere,
+        # but it might be useful for detecting whether a PID change
+        # was expected or not (crash).
+        if context is None:
+            context = nmci.cext.context
+        if context is not None:
+            if reset:
+                context.nm_restarted = False
+            else:
+                context.nm_restarted = True
+
     def reload_NM_connections(self):
         print("reload NM connections")
         nmci.process.nmcli("con reload")
