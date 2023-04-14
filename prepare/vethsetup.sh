@@ -146,18 +146,12 @@ function setup_veth_env ()
     fi
 
 
-    # Bring up the device and prepare final profile testeth0
+    # Bring device down and rename it to temp0 as there can be eth0
     ip link set $DEV down
-    ip link set $DEV name eth0
-    ip link set eth0 up
-    nmcli con mod $UUID connection.id testeth0
-    nmcli con mod $UUID connection.interface-name eth0
-    nmcli connection modify $UUID ipv6.method auto
-    nmcli connection modify $UUID ipv4.may-fail no
-    sleep 1
+    ip link set $DEV name temp0
 
     # Rename additional devices
-    for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v eth0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do
+    for DEV in $(nmcli -f TYPE,DEVICE -t d | grep -v temp0 | grep ethernet | awk '{split($0,a,":"); print a[2]}'); do
         ip link set $DEV down
         ip link set $DEV name orig-$DEV
         # Rename their profiles
@@ -174,6 +168,15 @@ function setup_veth_env ()
         nmcli device set orig-$DEV managed off
         ip addr flush dev orig-$DEV
     done
+
+    # Now move temp0 to eth0 and modify testeth0
+    ip link set temp0 name eth0
+    ip link set eth0 up
+    nmcli con mod $UUID connection.id testeth0
+    nmcli con mod $UUID connection.interface-name eth0
+    nmcli connection modify $UUID ipv6.method auto
+    nmcli connection modify $UUID ipv4.may-fail no
+    sleep 1
 
     # unmanage orig- devices
     echo -e "[keyfile]\nunmanaged-devices=interface-name:orig-*" > /etc/NetworkManager/conf.d/99-unmanage-orig.conf
