@@ -2039,6 +2039,9 @@ def test_behave_steps_in_feature_files(capfd):
 
 
 def test_nmci_doc():
+    # Minimal dependencies are listed in .gitlab-ci.yml file
+    # Required python modules for this tests are:
+    #  python3 -m pip install --prefix /usr/ sphinx==4.2.0 sphinx-markdown-builder
 
     if sys.version.startswith("3.6."):
         pytest.skip("sphinx markdown builder does not work with python3.6 :(")
