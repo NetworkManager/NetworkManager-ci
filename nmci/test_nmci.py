@@ -1268,19 +1268,23 @@ def test_process_run():
             "echo Hallo >&2", b"hallo", shell=True, pattern_flags=re.I
         )
 
-    assert os.getcwd() + "\n" == nmci.process.run_stdout("pwd", cwd=None)
+    assert os.getcwd() + "\n" == nmci.process.run_stdout("/bin/pwd", cwd=None)
 
-    assert os.getcwd() + "\n" == nmci.process.run_stdout("pwd", shell=True, cwd=None)
+    assert os.getcwd() + "\n" == nmci.process.run_stdout(
+        "/bin/pwd", shell=True, cwd=None
+    )
 
-    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout("pwd")
+    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout("/bin/pwd")
 
-    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout("pwd", shell=True)
+    assert nmci.util.base_dir() + "\n" == nmci.process.run_stdout(
+        "/bin/pwd", shell=True
+    )
 
     d = nmci.util.base_dir("nmci")
-    assert d + "\n" == nmci.process.run_stdout("pwd", shell=True, cwd=d)
+    assert d + "\n" == nmci.process.run_stdout("/bin/pwd", shell=True, cwd=d)
 
     d = nmci.util.base_dir("nmci/helpers")
-    assert d + "\n" == nmci.process.run_stdout("pwd", cwd=d)
+    assert d + "\n" == nmci.process.run_stdout("/bin/pwd", cwd=d)
 
     os.environ["NMCI_TEST_XXX1"] = "global"
 
