@@ -234,6 +234,20 @@ class _NMUtil:
 
         self.start_NM_service(timeout=timeout)
 
+    def do_NM_service(self, operation):
+        if operation == "reload":
+            self.reload_NM_service(synchronous=True)
+        elif operation == "start":
+            self.start_NM_service()
+        elif operation == "restart":
+            self.restart_NM_service()
+        elif operation == "stop":
+            self.stop_NM_service()
+        elif operation == "reboot":
+            self.reboot_NM_service()
+        else:
+            assert False, f"invalid operation do_NM_service({operation})"
+
     def dbus_props_for_dev(
         self,
         dev_obj_path,
