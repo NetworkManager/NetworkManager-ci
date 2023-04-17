@@ -420,16 +420,7 @@ class _Cleanup:
             )
 
         def _do_cleanup(self):
-
-            if self._operation == "start":
-                r = nmci.nmutil.start_NM_service()
-            elif self._operation == "restart":
-                r = nmci.nmutil.restart_NM_service()
-            else:
-                assert self._operation == "reload"
-                nmci.nmutil.reload_NM_service()
-                r = True
-            assert r
+            nmci.nmutil.do_NM_service(operation=self._operation)
 
     class CleanupNMConfig(CleanupFile):
         def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):

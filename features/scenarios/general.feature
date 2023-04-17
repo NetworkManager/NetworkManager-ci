@@ -2773,7 +2773,7 @@ Feature: nmcli - general
     * Expect "Connection type"
     * Submit "<double_tab>"
     Then Expect "adsl.*bluetooth.*bond.*bond-slave.*bridge"
-	* Send "t" in editor
+    * Send "t" in editor
     * Submit "<double_tab>"
     Then Expect "team\s+team-slave\s+tun"
 
@@ -3275,7 +3275,7 @@ Feature: nmcli - general
           link.tx-queue-length 1555
           link.gso-max-size 32000
           link.gso-max-segments 4242
-	  """
+      """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
     Then "qlen 1555" is visible with command "ip -d link show eth8"
     Then "gso_max_size 32000" is visible with command "ip -d link show eth8"
@@ -3308,7 +3308,7 @@ Feature: nmcli - general
           link.tx-queue-length 1555
           link.gso-max-size 32000
           link.gso-max-segments 4242
-	  """
+      """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
     Then "qlen 1555" is visible with command "ip -d link show eth8"
     Then "gso_max_size 32000" is visible with command "ip -d link show eth8"

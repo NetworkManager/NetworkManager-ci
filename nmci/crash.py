@@ -303,7 +303,6 @@ def after_crash_reset(context):
     """
     print("@after_crash_reset")
 
-    print("Stop NM")
     nmci.nmutil.stop_NM_service()
 
     print("Remove all links except eth*")
@@ -356,14 +355,7 @@ def after_crash_reset(context):
     nmci.process.run_stdout("ip addr flush dev eth0")
     nmci.process.run_stdout("ip -6 addr flush dev eth0")
 
-    print("Start NM")
-    if not nmci.nmutil.start_NM_service():
-        print(
-            "Unable to start NM! Something very bad happened, trying to `pkill NetworkManager`"
-        )
-        if nmci.process.run_code("pkill NetworkManager") == 0:
-            if not nmci.nmutil.start_NM_service():
-                print("NM still not up!")
+    nmci.nmutil.start_NM_service()
 
     print("Wait for testeth0")
     nmci.veth.wait_for_testeth0()

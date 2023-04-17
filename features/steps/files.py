@@ -14,13 +14,16 @@ def fill_file_with_content(context, path):
     nmci.util.file_set_content(path, context.text)
 
 
-@step('Create NM config file with content')
+@step("Create NM config file with content")
 @step('Create NM config file "{filename}" with content')
-def create_config_file(context, filename="99-xxcustom.conf"):
+@step('Create NM config file "{filename}" with content and "{operation}" NM')
+def create_config_file(context, filename="99-xxcustom.conf", operation=None):
     path = os.path.join("/etc/NetworkManager/conf.d", filename)
     nmci.cleanup.cleanup_file(path)
     nmci.cleanup.cleanup_add_NM_service("restart")
     nmci.util.file_set_content(path, context.text)
+    if operation is not None:
+        nmci.nmutil.do_NM_service(operation)
 
 
 @step('Append lines to file "{name}"')

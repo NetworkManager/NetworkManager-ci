@@ -217,7 +217,7 @@ def crash_bs(context, scenario):
 
 
 def crash_as(context, scenario):
-    assert nmci.nmutil.restart_NM_service()
+    nmci.nmutil.restart_NM_service()
     if "systemd-coredump" not in context.core_pattern:
         context.process.run_stdout(
             f"sysctl -w kernel.core_pattern='{context.core_pattern}'"
@@ -1150,7 +1150,7 @@ def simwifi_ap_bs(context, scenario):
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
+    nmci.nmutil.restart_NM_service()
 
 
 def simwifi_ap_as(context, scenario):
@@ -1160,7 +1160,7 @@ def simwifi_ap_as(context, scenario):
     context.process.nmcli("radio wifi on")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.systemctl("restart wpa_supplicant")
-    assert nmci.nmutil.restart_NM_service(), "NM stop failed"
+    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
@@ -1638,7 +1638,7 @@ def performance_bs(context, scenario):
 
 
 def performance_as(context, scenario):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     # Settings device number to 0
     context.process.run_stdout("contrib/gi/./setup.sh 0", timeout=120)
     context.nm_pid = nmci.nmutil.nm_pid()
@@ -1892,7 +1892,6 @@ def openvswitch_as(context, scenario):
     if context.process.systemctl("is-active openvswitch").returncode != 0:
         context.process.systemctl("restart openvswitch")
     nmci.nmutil.stop_NM_service()
-    context.nm_restarted = True
 
     context.process.run(
         "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",

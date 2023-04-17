@@ -7,102 +7,41 @@ import nmci
 @step("Reboot")
 @step('Reboot within "{timeout}" seconds')
 def reboot(context, timeout=None):
-    context.nm_restarted = True
-    assert nmci.nmutil.stop_NM_service()
-
-    links = nmci.ip.link_show_all()
-    link_ifnames = [li["ifname"] for li in links]
-
-    ifnames_to_delete = [
-        "nm-bond",
-        "nm-team",
-        "nm-bridge",
-        "team7",
-        "bridge7",
-        "bond-bridge",
-        # for nmtui
-        "bond0",
-        "team0",
-        # for vrf devices
-        "vrf0",
-        "vrf1",
-        # for veths
-        "veth11",
-        "veth12",
-        # for macsec
-        "macsec0",
-        "macsec_veth.42",
-    ]
-
-    ifnames_to_down = [
-        *[f"eth{i}" for i in range(1, 12)],
-        "em1",
-        # for sriov
-        "p4p1",
-        # for loopback
-        "lo",
-    ]
-
-    ifnames_to_flush = [
-        *[f"eth{i}" for i in range(1, 12)],
-        "em1",
-        # for sriov
-        "p4p1",
-        # for pppoe
-        "test11",
-        # for loopback
-        "lo",
-    ]
-
-    for ifname in ifnames_to_delete:
-        nmci.ip.link_delete(ifname=ifname, accept_nodev=True)
-
-    for ifname in ifnames_to_down:
-        if ifname in link_ifnames:
-            nmci.ip.link_set(ifname=ifname, up=False)
-            # We need to clean DNS records when shutting down devices
-            if nmci.process.systemctl("is-active systemd-resolved").returncode == 0:
-                nmci.process.run(f"resolvectl revert {ifname}", ignore_stderr=True)
-
-    for ifname in ifnames_to_flush:
-        if ifname in link_ifnames:
-            nmci.ip.address_flush(ifname=ifname)
-
-    nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
-
-    assert nmci.nmutil.start_NM_service(timeout=timeout), "NM start failed"
+    nmci.nmutil.reboot_NM_service()
 
 
 @step("Start NM")
 def start_nm(context):
-    context.nm_restarted = True
-    assert nmci.nmutil.start_NM_service(), "NM start failed"
+    nmci.nmutil.start_NM_service()
 
 
 @step("Start NM without PID wait")
 def start_nm_no_pid(context):
-    context.nm_restarted = True
-    assert nmci.nmutil.start_NM_service(pid_wait=False), "NM start failed"
+    nmci.nmutil.start_NM_service(pid_wait=False)
 
 
 @step("Restart NM")
 @step('Restart NM within "{timeout}" seconds')
 def restart_nm(context, timeout=None):
-    context.nm_restarted = True
-    assert nmci.nmutil.restart_NM_service(timeout=timeout), "NM restart failed"
+    nmci.nmutil.restart_NM_service(timeout=timeout)
 
 
 @step("Restart NM in background")
 def restart_nm_background(context):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     context.pexpect_service("systemctl restart NetworkManager")
     context.nm_pid_refresh_count = 2
+
+
+@step("Reload NM")
+def restart_nm(context):
+    nmci.nmutil.reload_NM_service(synchronous=True)
 
 
 @step('Kill NM with signal "{signal}"')
 @step("Kill NM")
 def kill_nm(context, signal=""):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
 
     signal_args = []
     if signal:
@@ -121,19 +60,17 @@ def kill_nm(context, signal=""):
 
 @step("Stop NM")
 def stop_nm(context):
-    context.nm_restarted = True
-    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
+    nmci.nmutil.stop_NM_service()
 
 
 @step('Stop NM and clean "{device}"')
 def stop_nm_and_clean(context, device):
-    context.nm_restarted = True
-    assert nmci.nmutil.stop_NM_service(), "NM stop failed"
+    nmci.nmutil.stop_NM_service()
     nmci.ip.link_set(ifname=device, up=False)
     nmci.ip.address_flush(ifname=device)
 
 
 @step('NM is restarted within next "{steps}" steps')
 def pause_restart_check(context, steps):
-    context.nm_restarted = True
+    nmci.nmutil.context_set_nm_restarted(context)
     context.nm_pid_refresh_count = int(steps) + 1

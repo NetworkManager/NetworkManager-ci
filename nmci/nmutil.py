@@ -75,7 +75,7 @@ class _NMUtil:
                 "/org/freedesktop/NetworkManager",
                 ignore_stderr=True,
                 ignore_returncode=True,
-                timeout=timeout.remaining_time(),
+                timeout=20,
             ):
                 return True
         if do_assert:
@@ -104,18 +104,39 @@ class _NMUtil:
             memsize += int(fields[1])
         return memsize
 
+    def context_set_nm_restarted(self, context=None, reset=False):
+        # Set context.nm_restarted, which indicates that NetworkManager
+        # service was restarted during the test.
+        #
+        # Note that this parameter is currently not used anywhere,
+        # but it might be useful for detecting whether a PID change
+        # was expected or not (crash).
+        if context is None:
+            context = nmci.cext.context
+        if context is not None:
+            if reset:
+                context.nm_restarted = False
+            else:
+                context.nm_restarted = True
+
     def reload_NM_connections(self):
         print("reload NM connections")
         nmci.process.nmcli("con reload")
 
-    def reload_NM_service(self):
+    def reload_NM_service(self, synchronous=False):
         print("reload NM service")
+        if synchronous:
+            # ExecReload= uses busctl and waits for a response.
+            r = nmci.process.systemctl("reload NetworkManager.service")
+            assert r.returncode == 0, f"systemctl reload NetworkManager failed with {r}"
+            return
+        # Send an async SIGHUP signal.
         nmci.process.run_stdout("pkill -HUP NetworkManager")
-        timeout = nmci.util.start_timeout(self.DEFAULT_TIMEOUT)
-        self.wait_for_nm_bus(timeout)
+        self.wait_for_nm_bus(0)
 
     def restart_NM_service(self, reset=True, timeout=15):
         print("restart NM service")
+        self.context_set_nm_restarted()
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
@@ -124,27 +145,108 @@ class _NMUtil:
         )
         nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
         self.wait_for_nm_bus(timeout)
-        return r.returncode == 0
+        assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
 
     def start_NM_service(self, pid_wait=True, reset=True, timeout=DEFAULT_TIMEOUT):
         print("start NM service")
+        self.context_set_nm_restarted()
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
         r = nmci.process.systemctl(
             "start NetworkManager.service", timeout=timeout.remaining_time()
         )
+        assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
             self.wait_for_nm_bus(timeout)
-        return r.returncode == 0
 
     def stop_NM_service(self):
         print("stop NM service")
+        self.context_set_nm_restarted()
         nmci.cleanup.cleanup_add_NM_service(operation="start")
         r = nmci.process.systemctl("stop NetworkManager.service")
         nmci.cext.context.nm_pid = 0
-        return r.returncode == 0
+        assert r.returncode == 0, f"systemctl stop NetworkManager failed with {r}"
+
+    def reboot_NM_service(self, timeout=None):
+        self.stop_NM_service()
+
+        links = nmci.ip.link_show_all()
+        link_ifnames = [li["ifname"] for li in links]
+
+        ifnames_to_delete = [
+            "nm-bond",
+            "nm-team",
+            "nm-bridge",
+            "team7",
+            "bridge7",
+            "bond-bridge",
+            # for nmtui
+            "bond0",
+            "team0",
+            # for vrf devices
+            "vrf0",
+            "vrf1",
+            # for veths
+            "veth11",
+            "veth12",
+            # for macsec
+            "macsec0",
+            "macsec_veth.42",
+        ]
+
+        ifnames_to_down = [
+            *[f"eth{i}" for i in range(1, 12)],
+            "em1",
+            # for sriov
+            "p4p1",
+            # for loopback
+            "lo",
+        ]
+
+        ifnames_to_flush = [
+            *[f"eth{i}" for i in range(1, 12)],
+            "em1",
+            # for sriov
+            "p4p1",
+            # for pppoe
+            "test11",
+            # for loopback
+            "lo",
+        ]
+
+        for ifname in ifnames_to_delete:
+            nmci.ip.link_delete(ifname=ifname, accept_nodev=True)
+
+        for ifname in ifnames_to_down:
+            if ifname in link_ifnames:
+                nmci.ip.link_set(ifname=ifname, up=False)
+                # We need to clean DNS records when shutting down devices
+                if nmci.process.systemctl("is-active systemd-resolved").returncode == 0:
+                    nmci.process.run(f"resolvectl revert {ifname}", ignore_stderr=True)
+
+        for ifname in ifnames_to_flush:
+            if ifname in link_ifnames:
+                nmci.ip.address_flush(ifname=ifname)
+
+        nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
+
+        self.start_NM_service(timeout=timeout)
+
+    def do_NM_service(self, operation):
+        if operation == "reload":
+            self.reload_NM_service(synchronous=True)
+        elif operation == "start":
+            self.start_NM_service()
+        elif operation == "restart":
+            self.restart_NM_service()
+        elif operation == "stop":
+            self.stop_NM_service()
+        elif operation == "reboot":
+            self.reboot_NM_service()
+        else:
+            assert False, f"invalid operation do_NM_service({operation})"
 
     def dbus_props_for_dev(
         self,
