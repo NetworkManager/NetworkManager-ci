@@ -3,7 +3,8 @@
 set -x
 
 # redirect stdout+stderr into stdout and logger (force line buffering)
-stdbuf -oL -eL exec &> >(tee - >(logger -t "runtest"))
+export PYTHONUNBUFFERED=1
+exec > >(stdbuf -i0 -o0 -e0 tee - >(logger -t "runtest")) 2>&1
 
 die() {
     printf '%s\n' "$*"
