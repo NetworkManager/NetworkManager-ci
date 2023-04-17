@@ -651,7 +651,7 @@ Feature: nmcli - vlan
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @rhbz1553595 @rhbz1701585 @rhbz1937723
+    @rhbz1553595 @rhbz1701585 @rhbz1937723 @rhbz2155991
     @ver+=1.30.0
     @restart_if_needed
     @vlan_on_bond_autoconnect
@@ -672,6 +672,20 @@ Feature: nmcli - vlan
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
     * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
     * Reboot
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond" in "20" seconds
+    Then "9000" is visible with command "ip a s eth1" in "20" seconds
+    Then "9000" is visible with command "ip a s eth4" in "20" seconds
+    * Reload connections
+    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
+    Then "9000" is visible with command "ip a s nm-bond" in "20" seconds
+    Then "9000" is visible with command "ip a s eth1" in "20" seconds
+    Then "9000" is visible with command "ip a s eth4" in "20" seconds
+    * Reload NM
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "9000" is visible with command "ip a s nm-bond.7" in "20" seconds
