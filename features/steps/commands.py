@@ -257,18 +257,14 @@ def note_the_output_as(context, command, index="noted-value"):
 def note_the_output_lines_as(context, command, index="noted-value", pattern=None):
     if not hasattr(context, "noted"):
         context.noted = {}
+    out = nmci.process.run_stdout(command, ignore_stderr=True)
     if pattern is not None:
-        out = [
-            line
-            for line in nmci.process.run_stdout(command, ignore_stderr=True).split("\n")
-            if re.search(pattern, line)
-        ]
+        out = [line for line in out.split("\n") if re.search(pattern, line)]
     else:
-        out = [
-            line
-            for line in nmci.process.run_stdout(command, ignore_stderr=True).split("\n")
-            if line
-        ]
+        out = [line for line in out.split("\n") if line]
+    nmci.embed.embed_data(
+        "Noted", f"[{index}] counted {len(out)} lines ({out})", fail_only=True
+    )
     context.noted[index] = str(len(out))
 
 
