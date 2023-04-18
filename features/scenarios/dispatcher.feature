@@ -91,6 +91,25 @@ Feature: NM: dispatcher
     #Then "eth2.*\s+up" is not visible with command "cat /tmp/dispatcher.txt"
     Then "eth1.*\s+up.*\s+quicketh1.*\s+up.*\s+eth2.*\s+up.*\s+quicketh2.*\s+up" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
+
+    @rhbz2179537
+    @ver+=1.43.5 @ver+=1.42.5 @ver+=1.40.19
+    @permissive
+    @dispatcher_dhcp4_change_on_renewal
+    Scenario: NM - dispatcher - check that dhcp4-change is emitted on lease renewal
+    * Write dispatcher "99-disp" file with params "[ "$2" != "dhcp4-change" ] && exit 0;"
+    * Prepare simulated test "testX" device with "60" leasetime
+    * Add "ethernet" connection named "con_ipv4" for device "testX" with options
+          """
+          autoconnect no
+          ipv6.method disabled
+          """
+    * Bring "up" connection "con_ipv4"
+    Then "dhcp4-change" is visible with command "cat /tmp/dispatcher.txt"
+    * Execute "rm -f /tmp/dispatcher.txt"
+    Then "dhcp4-change" is visible with command "cat /tmp/dispatcher.txt" in "90" seconds
+
+
     @rhbz1663253
     @ver+=1.20
     @permissive @disp @dhclient_DHCP

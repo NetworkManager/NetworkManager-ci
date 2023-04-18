@@ -2017,6 +2017,8 @@ testmapper:
         tags: gate
     - dispatcher_serialization:
         feature: dispatcher
+    - dispatcher_dhcp4_change_on_renewal:
+        feature: dispatcher
     - dispatcher_private_dhcp_option_dhclient:
         feature: dispatcher
     - dispatcher_private_dhcp_option_internal:
