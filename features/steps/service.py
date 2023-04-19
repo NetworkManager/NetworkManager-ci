@@ -7,7 +7,7 @@ import nmci
 @step("Reboot")
 @step('Reboot within "{timeout}" seconds')
 def reboot(context, timeout=None):
-    nmci.nmutil.reboot_NM_service()
+    nmci.nmutil.reboot_NM_service(timeout)
 
 
 @step("Start NM")
