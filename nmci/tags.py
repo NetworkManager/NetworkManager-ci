@@ -267,7 +267,7 @@ _register_tag("not_on_veth", not_on_veth_bs, None)
 
 def not_when_no_veths_bs(context, scenario):
     if not os.path.isfile("/tmp/nm_veth_configured"):
-        context.cext.skip("skipping on veth")
+        context.cext.skip("skipping on defaults")
 
 
 _register_tag("not_when_no_veths", not_when_no_veths_bs, None)
@@ -2120,7 +2120,7 @@ def need_config_server_as(context, scenario):
         context.process.run_stdout(
             "sudo yum -y remove NetworkManager-config-server", timeout=120
         )
-        nmci.nmutil.reload_NM_service()
+        nmci.cleanup.cleanup_add_NM_service("restart")
 
 
 _register_tag("need_config_server", need_config_server_bs, need_config_server_as)
@@ -2161,7 +2161,7 @@ def no_config_server_as(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
-        nmci.nmutil.reload_NM_service()
+        nmci.cleanup.cleanup_add_NM_service("restart")
     conns = (
         nmci.process.nmcli("-t -f UUID,NAME c", embed_combine_tag=nmci.embed.NO_EMBED)
         .strip()
@@ -2172,7 +2172,6 @@ def no_config_server_as(context, scenario):
     if uuids:
         print("* delete connections with UUID in: " + " ".join(uuids))
         context.process.nmcli(["con", "del"] + uuids)
-    nmci.veth.restore_testeth0()
 
 
 _register_tag("no_config_server", no_config_server_bs, no_config_server_as)
