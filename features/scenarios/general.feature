@@ -1970,9 +1970,12 @@ Feature: nmcli - general
 
     @rhbz1433303
     @ver+=1.4.0
+    @not_on_aarch64
+    @not_when_no_veths
     @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
+    * Cleanup device "eth0"
     * Cleanup device "brX"
     * Create NM config file with content
       """
@@ -1980,11 +1983,15 @@ Feature: nmcli - general
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
     * Restart NM
+    * Wait for "5" seconds
     * Execute reproducer "repro_1433303.sh" for "2" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "0"
-    * Execute reproducer "repro_1433303.sh" for "4" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
-    When Check noted value "1" difference from "0" is "less than" "500"
+    * Wait for "10" seconds
+    * Note NM memory consumption as value "0"
+    * Execute reproducer "repro_1433303.sh" for "2" times
+    * Wait for "10" seconds
+    * Note NM memory consumption as value "1"
+    * Execute "echo '--------' >> /tmp/mem_consumption"
+    When Check noted value "1" difference from "0" is "less than" "130"
 
 
     @rhbz1461643 @rhbz1945282
@@ -1992,26 +1999,27 @@ Feature: nmcli - general
     @ver/rhel/8+=1.36.0.8
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
-    @allow_veth_connections @logging_info_only
+    @not_when_no_veths
+    @not_on_aarch64
+    @no_config_server
+    @logging_info_only @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
+    * Cleanup device "eth0"
     * Create NM config file with content
       """
       [keyfile]
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
     * Restart NM
-    * Add "ethernet" connection named "con_gen" for device "\*" with options
-       """
-       connection.multi-connect multiple
-       ipv6.method disabled
-       ipv4.method disabled
-       """
-    * Execute reproducer "repro_1461643.sh" for "5" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "1"
+    * Execute reproducer "repro_1461643.sh" for "20" times
+    * Note NM memory consumption as value "1"
     * Execute reproducer "repro_1461643.sh" for "30" times
-    * Note the output of "pmap -x $(pidof NetworkManager) |grep 'total' | awk '{print $4}'" as value "2"
-    When Check noted value "2" difference from "1" is "less than" "3000"
+    * Wait for "5" seconds
+    * Note NM memory consumption as value "2"
+    * Execute "echo '--------' >> /tmp/mem_consumption"
+    When Check noted value "2" difference from "1" is "less than" "400"
+
 
 
     @rhbz1398932
