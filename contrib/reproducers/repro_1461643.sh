@@ -17,20 +17,20 @@ cleanup_dev() {
 
 wait_for_dev() {
   for i in {1..20}; do
-      nmcli -t d |grep ':connected' |grep "$1:" && return
+      nmcli -t d |grep ':connecting' |grep "$1:" && return
       sleep 0.5
   done
-  echo "device '$1' is not connected:"
+  echo "device '$1' is not connecting:"
   nmcli c | cat
   die
 }
 
 wait_for_not_dev() {
   for i in {1..20}; do
-      nmcli -t d |grep ':connected' |grep "$1:" || return 0
+      nmcli -t d |grep ':connecting' |grep "$1:" || return 0
       sleep 0.5
   done
-  echo "Device '$1' is still connected"
+  echo "Device '$1' is still connecting"
   nmcli c | cat
   die
 }
@@ -40,6 +40,7 @@ for i in {1..20}; do
     ip l add veth$i type veth peer name veth${i}p
     ip l set veth$i up
     ip l set veth${i}p up
+    sleep 0.05
 done
 
 echo "Wait for devices"
@@ -53,3 +54,5 @@ echo "Wait until connections disappears"
 time for i in {1..20}; do
     wait_for_not_dev veth"$i"p
 done
+
+sleep 1
