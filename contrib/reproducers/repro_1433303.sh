@@ -1,4 +1,8 @@
 #!/bin/bash
+
+ip l del brX
+sleep 0.5
+
 ip l add brX type bridge
 
 add_ports() {
@@ -7,12 +11,13 @@ add_ports() {
         ip l set veth$i up
         ip a a dev veth$i 9.9.9.9
         ip l set veth$i master brX
-        ip l del veth$i
+        sleep 0.05
+        ip l del veth$i &
     done
     return 0
 }
 
-add_ports 1 250 &
-add_ports 251 500 &
-add_ports 501 750 &
-add_ports 751 1000 &
+add_ports 1 500 &
+add_ports 501 1000 &
+
+sleep 3
