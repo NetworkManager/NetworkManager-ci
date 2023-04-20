@@ -2,6 +2,7 @@
 include = '''
           (
             ^.*\.pyi?$
+            | run/fedora-vagrant/nmtest$
             | run/publish_behave_logs/publish_behave_logs$
           )
           '''
