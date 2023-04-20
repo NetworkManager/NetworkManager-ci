@@ -2047,6 +2047,9 @@ def test_nmci_doc():
     # Required python modules for this tests are:
     #  python3 -m pip install --prefix /usr/ sphinx==4.2.0 sphinx-markdown-builder
 
+    if os.environ.get("NMCI_NO_SPHINX") == "1":
+        pytest.skip("skip generating docs with sphinx-build (NMCI_NO_SPHINX=1)")
+
     if sys.version.startswith("3.6."):
         pytest.skip("sphinx markdown builder does not work with python3.6 :(")
 
