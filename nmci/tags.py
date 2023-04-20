@@ -2845,16 +2845,13 @@ _register_tag("custom_ns", None, custom_ns_as)
 def radius_bs(context, scenario):
     if context.process.systemctl("is-active radiusd.service").returncode == 0:
         context.process.systemctl("disable --now radiusd.service")
-    if os.path.isdir("/tmp/nmci-raddb"):
+    if os.path.isfile("/tmp/nmci_raddb_configured"):
         if context.process.run_code("radiusd -XC") != 0:
             context.process.run_stdout("rm -rf /etc/raddb")
-            context.process.run_stdout("cp -a /tmp/nmci-raddb")
+            context.process.run_stdout("cp -a /tmp/nmci-raddb /etc/raddb")
     else:
-        # set up radius from scratch, full install is required to get freeradius configuration to fresh state
-        if context.process.run_code("rpm -q freeradius", ignore_stderr=True) == 0:
-            context.process.run_stdout("yum -y remove freeradius", timeout=120)
-        shutil.rmtree("/etc/raddb", ignore_errors=True)
-        context.process.run_stdout("yum -y install freeradius", timeout=120)
+        context.process.run_stdout("rm -rf /etc/raddb")
+        context.process.run_stdout("cp -a /tmp/nmci-raddb /etc/raddb")
         shutil.copy("contrib/8021x/certs/server/hostapd.dh.pem", "/etc/raddb/certs/dh")
         context.process.run_stdout(
             "cd /etc/raddb/certs; make all", shell=True, ignore_stderr=True
@@ -2904,7 +2901,7 @@ def radius_bs(context, scenario):
             f.seek(0)
             f.write(users_new)
         context.process.run_stdout("radiusd -XC")
-        context.process.run_stdout("cp -a /etc/raddb /tmp/nmci-raddb")
+        nmci.util.file_set_content("/tmp/nmci_raddb_configured")
     context.process.run_stdout("chown -R radiusd:radiusd /var/run/radiusd")
     if context.process.systemctl("is-active radiusd").returncode == 0:
         context.process.systemctl("stop radiusd")

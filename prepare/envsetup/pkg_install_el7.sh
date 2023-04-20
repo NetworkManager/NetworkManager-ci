@@ -39,6 +39,13 @@ install_el7_packages () {
         openvpn rp-pppoe s390utils-base \
         --skip-broken
 
+    # freeradius
+    rm -rf /etc/raddb
+    yum -4 -y remove freeradius
+    yum -4 -y install freeradius
+    rm -rf /tmp/nmci-raddb
+    cp -ar /etc/raddb/ /tmp/nmci-raddb/
+
     yum -y install \
         $KOJI/hostapd/2.8/1.el7/$(arch)/hostapd-2.8-1.el7.$(arch).rpm
     yum -y remove \

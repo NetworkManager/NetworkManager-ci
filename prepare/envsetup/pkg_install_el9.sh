@@ -22,6 +22,13 @@ install_el9_packages () {
         wireguard-tools python3-pyyaml tuned sos openssl-pkcs11 podman mptcpd \
         --skip-broken
 
+    # freeradius
+    rm -rf /etc/raddb
+    dnf -4 -y remove freeradius
+    dnf -4 -y install freeradius
+    rm -rf /tmp/nmci-raddb
+    cp -ar /etc/raddb/ /tmp/nmci-raddb/
+
     # Install non distro deps
     dnf -4 -y install \
         $KOJI/tcpreplay/4.3.3/3.fc34/$(arch)/tcpreplay-4.3.3-3.fc34.$(arch).rpm \

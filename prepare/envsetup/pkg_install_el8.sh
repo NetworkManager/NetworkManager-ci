@@ -33,6 +33,13 @@ install_el8_packages () {
         abrt-plugin-sosreport podman mptcpd s390utils-base \
         --skip-broken
 
+    # freeradius
+    rm -rf /etc/raddb
+    dnf -4 -y remove freeradius
+    dnf -4 -y install freeradius
+    rm -rf /tmp/nmci-raddb
+    cp -ar /etc/raddb/ /tmp/nmci-raddb/
+
     install_behave_pytest
 
     # Install vpn dependencies
