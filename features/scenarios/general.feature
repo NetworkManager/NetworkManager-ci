@@ -3106,12 +3106,10 @@ Feature: nmcli - general
     * Bring "up" connection "testeth10"
     When "default" is visible with command "ip r" in "20" seconds
     When "default" is visible with command "ip -6 r" in "20" seconds
-    # dev lo is not managed by NM
-    * Note the number of lines with pattern "^(?=^\S+)(?=^(?:(?!dev lo).)*$).*$" of "ip -6 r" as value "ip6_route"
-    # ff00::/8 are not shown in `ip -6 r`
-    * Note the number of lines with pattern "^\s*route6\s*((?!ff80::\/8).)*$" of "nmcli" as value "nmcli6_route"
-    * Note the number of lines of "ip r" as value "ip4_route"
-    * Note the number of lines with pattern "route4" of "nmcli" as value "nmcli4_route"
+    * Note the number of lines of "ip -6 route show dev eth10" as value "ip6_route"
+    * Note the number of lines with pattern "route6" of "nmcli | sed '/^eth10:/,/^$/!d'" as value "nmcli6_route"
+    * Note the number of lines of "ip -4 route show dev eth10" as value "ip4_route"
+    * Note the number of lines with pattern "route4" of "nmcli | sed '/^eth10:/,/^$/!d'" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
 
