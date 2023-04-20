@@ -20,25 +20,25 @@
 import dbus
 import sys
 
-s_con = dbus.Dictionary({
-    'type': '802-3-ethernet',
-    'uuid': '10000000-0000-0000-0000-000000000001',
-    'id': 'con_con2',
-    'interface-name': 'ens99'
-})
+s_con = dbus.Dictionary(
+    {
+        "type": "802-3-ethernet",
+        "uuid": "10000000-0000-0000-0000-000000000001",
+        "id": "con_con2",
+        "interface-name": "ens99",
+    }
+)
 
-s_ip4 = dbus.Dictionary({'method': 'auto'})
-s_ip6 = dbus.Dictionary({'method': 'ignore'})
+s_ip4 = dbus.Dictionary({"method": "auto"})
+s_ip6 = dbus.Dictionary({"method": "ignore"})
 
-con = dbus.Dictionary({
-    'connection': s_con,
-    'ipv4': s_ip4,
-    'ipv6': s_ip6
-})
+con = dbus.Dictionary({"connection": s_con, "ipv4": s_ip4, "ipv6": s_ip6})
 
 bus = dbus.SystemBus()
 
-proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
+proxy = bus.get_object(
+    "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings"
+)
 settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
 settings.AddConnection(con)

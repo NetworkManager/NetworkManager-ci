@@ -2,9 +2,11 @@
 # Author: Beniamino Galvani <bgalvani@redhat.com>
 
 import gi
-gi.require_version('NM', '1.0')
+
+gi.require_version("NM", "1.0")
 from gi.repository import GLib, NM
 import sys, socket, uuid
+
 
 def create_profile():
     profile = NM.SimpleConnection.new()
@@ -19,7 +21,7 @@ def create_profile():
 
     s_ip4 = NM.SettingIP4Config.new()
     s_ip4.set_property(NM.SETTING_IP_CONFIG_METHOD, "manual")
-    s_ip4.add_address(NM.IPAddress.new(socket.AF_INET, "172.19.0.1", 32));
+    s_ip4.add_address(NM.IPAddress.new(socket.AF_INET, "172.19.0.1", 32))
 
     s_ip6 = NM.SettingIP6Config.new()
     s_ip6.set_property(NM.SETTING_IP_CONFIG_METHOD, "ignore")
@@ -31,6 +33,7 @@ def create_profile():
 
     return profile
 
+
 def activate_cb(client, result, data):
     try:
         client.activate_connection_finish(result)
@@ -40,6 +43,7 @@ def activate_cb(client, result, data):
 
     main_loop.quit()
 
+
 def add_cb(client, result, data):
     try:
         con = client.add_connection_finish(result)
@@ -48,6 +52,7 @@ def add_cb(client, result, data):
     except Exception as e:
         sys.stderr.write("Error adding connection: %s\n" % e)
         main_loop.quit()
+
 
 if __name__ == "__main__":
     main_loop = GLib.MainLoop()

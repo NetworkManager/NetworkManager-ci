@@ -6,7 +6,7 @@ from subprocess import check_output
 import socket
 import sys
 
-gi.require_version('NM', '1.0')
+gi.require_version("NM", "1.0")
 from gi.repository import Gio, GLib, NM
 
 # callback function, data should contain dictionary, with name of the function to call under "fn_name" key
@@ -18,9 +18,11 @@ def cb(caller, result, data):
         print("Error: %s" % e)
     main_loop.quit()
 
+
 def die(msg="Error: exiting..."):
     print(msg)
     sys.exit(1)
+
 
 # parse arguments - connection name and device name
 try:
@@ -32,8 +34,12 @@ nmclient = NM.Client.new()
 main_loop = GLib.MainLoop()
 
 # ged device and connection objects
-d = nmclient.get_device_by_iface(d_name) or die("Error: could not find device %s" % d_name)
-c = nmclient.get_connection_by_id(c_name) or die("Error: could not find connection %s" % c_name)
+d = nmclient.get_device_by_iface(d_name) or die(
+    "Error: could not find device %s" % d_name
+)
+c = nmclient.get_connection_by_id(c_name) or die(
+    "Error: could not find connection %s" % c_name
+)
 
 # create new connection and copy settings, do not copy wired settings
 nc = NM.SimpleConnection.new()

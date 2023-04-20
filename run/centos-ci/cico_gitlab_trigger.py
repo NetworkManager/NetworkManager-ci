@@ -324,7 +324,9 @@ def get_rebuild_detail(gt, message, overrides={}):
 
 # 'os_version' param for 'rebuild RHEL8.9' etc., good for nm less for desktop as it is mainly determined by branching
 # build is TEST_BRANCH for NM, REFSPEC for NM-ci
-def execute_build(gt, content, os_version=default_os, features="best", build="main", mr_id=None):
+def execute_build(
+    gt, content, os_version=default_os, features="best", build="main", mr_id=None
+):
     params = []
     if gt.repository == "NetworkManager":
         # NM CODE will use main unless we know branch mr/abcd exists

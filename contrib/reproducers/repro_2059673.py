@@ -13,8 +13,10 @@ SERVER_MAC_OTHER = "00:10:22:30:44:55"
 SUBNET_MASK = "255.255.255.0"
 GATEWAY = "172.25.1.254"
 
+
 def log(msg):
     print("{} | {}".format(datetime.now(), msg))
+
 
 def handle_dhcp_packet(pkt):
 
@@ -46,7 +48,7 @@ def handle_dhcp_packet(pkt):
                 ]
             ),
             iface=IFACE,
-            verbose=0
+            verbose=0,
         )
         log("-> DHCP Offer")
 
@@ -75,7 +77,7 @@ def handle_dhcp_packet(pkt):
                 ]
             ),
             iface=IFACE,
-            verbose=0
+            verbose=0,
         )
         log("-> DHCP Nak")
 
@@ -107,7 +109,7 @@ def handle_dhcp_packet(pkt):
                 ]
             ),
             iface=IFACE,
-            verbose=0
+            verbose=0,
         )
         log("-> DHCP Ack")
 

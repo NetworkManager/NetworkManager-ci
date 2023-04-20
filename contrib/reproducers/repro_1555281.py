@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import gi
-gi.require_version('NM', '1.0')
+
+gi.require_version("NM", "1.0")
 from gi.repository import GLib, NM, Gio
 import uuid
 import sys
@@ -25,6 +26,7 @@ def add_con_cb(client, result, data):
             print("Operation was not cancelled: %s" % s_e)
             test_res.append(1)
     main_loop.quit()
+
 
 ################################################
 
@@ -58,7 +60,7 @@ profile.add_setting(s_wired)
 client = NM.Client.new(None)
 
 # add connection asynchronously
-client.add_connection_async(profile, False,  cancellable, add_con_cb, None)
+client.add_connection_async(profile, False, cancellable, add_con_cb, None)
 # cancel it
 cancellable.cancel()
 main_loop.run()

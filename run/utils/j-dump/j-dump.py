@@ -16,7 +16,8 @@ from behave.model import Step as BStep
 import requests
 import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
-#logging.basicConfig(level=logging.DEBUG)
+
+# logging.basicConfig(level=logging.DEBUG)
 
 HTML_STYLE = """
            <style>\n
@@ -29,7 +30,9 @@ HTML_STYLE = """
                a:hover { color: red; background-color: none; text-decoration: none; }\n
            </style>\n"""
 
-STEP_RE = re.compile("^ *(\*|When|Then|And|Given) *(.*) *\.\.\. *(.*) *in *([0-9.]*)s *")
+STEP_RE = re.compile(
+    "^ *(\*|When|Then|And|Given) *(.*) *\.\.\. *(.*) *in *([0-9.]*)s *"
+)
 
 
 def eprint(*args, **kwargs):
@@ -41,13 +44,12 @@ def dprint(*args, **kwargs):
 
 
 class BuildCreationError(Exception):
-
     def __init__(self, msg):
         self.msg = msg
 
 
 class Job:
-    """ Represents a Jenkins job, comprising several builds (runs).
+    """Represents a Jenkins job, comprising several builds (runs).
     attributes:
         - server: connection to the jenkins server
         - name: relative link to the jenkins job main page
@@ -135,7 +137,7 @@ class Job:
                 self.steps[step_decorator] = {"builds": {build.id: step_stats}}
 
         build.tests_passed = statuses.count("PASS")
-        #build.tests_failed = statuses.count("FAIL")
+        # build.tests_failed = statuses.count("FAIL")
         build.tests_failed = len(build.failures)
         build.tests_skipped = statuses.count("SKIP")
 
@@ -192,9 +194,14 @@ class Job:
                 test_time = str_to_time(line.split(" ")[-1])
             if "echo '------------ Test result: " in line:
                 status = line.split("Test result: ")[1].split(" ")[0]
-                tests[test_name] = {"time": test_time, "as": as_time, "bs": bs_time,
-                                    "tags_as": tags_as_time, "tags_bs": tags_bs_time,
-                                    "status": status}
+                tests[test_name] = {
+                    "time": test_time,
+                    "as": as_time,
+                    "bs": bs_time,
+                    "tags_as": tags_as_time,
+                    "tags_bs": tags_bs_time,
+                    "status": status,
+                }
         dprint(f"taskout-log-processing: {time.time() - t_s:.3f}s")
         return tests, tags, steps
 
@@ -304,14 +311,26 @@ class Job:
                 dprint("Build #{:d} - {:s} - skipped".format(build_id, error.msg))
                 continue
             except Exception as e:
-                eprint("Build #{:d} - exception [{:s}] - skipped\n".format(build_id, str(type(e))))
+                eprint(
+                    "Build #{:d} - exception [{:s}] - skipped\n".format(
+                        build_id, str(type(e))
+                    )
+                )
                 dprint("---- traceback ----")
                 traceback.print_exc(file=sys.stderr)
                 dprint("----   -----   ----")
                 continue
-            dprint("Build #{:d} - preprocessed in {:.3f}s".format(build_id, time.time()-t_s))
+            dprint(
+                "Build #{:d} - preprocessed in {:.3f}s".format(
+                    build_id, time.time() - t_s
+                )
+            )
             self.add_build(build)
-            dprint("Build #{:d} - processed - total time: {:.3f}s".format(build_id, time.time()-t_s))
+            dprint(
+                "Build #{:d} - processed - total time: {:.3f}s".format(
+                    build_id, time.time() - t_s
+                )
+            )
 
         t_s = time.time()
         self.builds.sort(key=lambda build: build.id, reverse=True)
@@ -327,80 +346,111 @@ class Job:
             builds_stats.sort(key=lambda x: -x[0])
             builds_stats = [b[1] for b in builds_stats]
             test_stats["num"] = num
-            test_stats["num_pass"] = len([t for t in builds_stats if t["status"] == "PASS"])
-            test_stats["num_fail"] = len([t for t in builds_stats if t["status"] == "FAIL"])
-            test_stats["num_skip"] = len([t for t in builds_stats if t["status"] == "SKIP"])
-            test_stats["time_avg"] = sum([t["time"] for t in builds_stats])/num
+            test_stats["num_pass"] = len(
+                [t for t in builds_stats if t["status"] == "PASS"]
+            )
+            test_stats["num_fail"] = len(
+                [t for t in builds_stats if t["status"] == "FAIL"]
+            )
+            test_stats["num_skip"] = len(
+                [t for t in builds_stats if t["status"] == "SKIP"]
+            )
+            test_stats["time_avg"] = sum([t["time"] for t in builds_stats]) / num
             test_stats["time_last"] = builds_stats[0]["time"]
             test_stats["time_min"] = min([t["time"] for t in builds_stats])
             test_stats["time_max"] = max([t["time"] for t in builds_stats])
-            test_stats["time_dev"] = math.sqrt(sum([t["time"]**2 for t in builds_stats])/num)
-            test_stats["bs_avg"] = sum([t["bs"] for t in builds_stats])/num
+            test_stats["time_dev"] = math.sqrt(
+                sum([t["time"] ** 2 for t in builds_stats]) / num
+            )
+            test_stats["bs_avg"] = sum([t["bs"] for t in builds_stats]) / num
             test_stats["bs_last"] = builds_stats[0]["bs"]
             test_stats["bs_min"] = min([t["bs"] for t in builds_stats])
             test_stats["bs_max"] = max([t["bs"] for t in builds_stats])
-            test_stats["bs_dev"] = math.sqrt(sum([t["bs"]**2 for t in builds_stats])/num)
-            test_stats["as_avg"] = sum([t["as"] for t in builds_stats])/num
+            test_stats["bs_dev"] = math.sqrt(
+                sum([t["bs"] ** 2 for t in builds_stats]) / num
+            )
+            test_stats["as_avg"] = sum([t["as"] for t in builds_stats]) / num
             test_stats["as_last"] = builds_stats[0]["as"]
             test_stats["as_min"] = min([t["as"] for t in builds_stats])
             test_stats["as_max"] = max([t["as"] for t in builds_stats])
-            test_stats["as_dev"] = math.sqrt(sum([t["as"]**2 for t in builds_stats])/num)
-            test_stats["tags_bs_avg"] = sum([t["tags_bs"] for t in builds_stats])/num
+            test_stats["as_dev"] = math.sqrt(
+                sum([t["as"] ** 2 for t in builds_stats]) / num
+            )
+            test_stats["tags_bs_avg"] = sum([t["tags_bs"] for t in builds_stats]) / num
             test_stats["tags_bs_last"] = builds_stats[0]["tags_bs"]
             test_stats["tags_bs_min"] = min([t["tags_bs"] for t in builds_stats])
             test_stats["tags_bs_max"] = max([t["tags_bs"] for t in builds_stats])
-            test_stats["tags_bs_dev"] = math.sqrt(sum([t["tags_bs"]**2 for t in builds_stats])/num)
-            test_stats["tags_as_avg"] = sum([t["tags_as"] for t in builds_stats])/num
+            test_stats["tags_bs_dev"] = math.sqrt(
+                sum([t["tags_bs"] ** 2 for t in builds_stats]) / num
+            )
+            test_stats["tags_as_avg"] = sum([t["tags_as"] for t in builds_stats]) / num
             test_stats["tags_as_last"] = builds_stats[0]["tags_as"]
             test_stats["tags_as_min"] = min([t["tags_as"] for t in builds_stats])
             test_stats["tags_as_max"] = max([t["tags_as"] for t in builds_stats])
-            test_stats["tags_as_dev"] = math.sqrt(sum([t["tags_as"]**2 for t in builds_stats])/num)
+            test_stats["tags_as_dev"] = math.sqrt(
+                sum([t["tags_as"] ** 2 for t in builds_stats]) / num
+            )
 
         for tag_name, tag_stats in self.tags.items():
-            bs_times = [t["bs"] for tt in tag_stats["builds"].values()
-                        for t in tt if "bs" in t]
+            bs_times = [
+                t["bs"] for tt in tag_stats["builds"].values() for t in tt if "bs" in t
+            ]
             bs_num = len(bs_times)
-            as_times = [t["as"] for tt in tag_stats["builds"].values()
-                        for t in tt if "as" in t]
+            as_times = [
+                t["as"] for tt in tag_stats["builds"].values() for t in tt if "as" in t
+            ]
             as_num = len(as_times)
             if bs_num:
                 tag_stats["bs_num"] = bs_num
-                tag_stats["bs_avg"] = sum(bs_times)/bs_num
+                tag_stats["bs_avg"] = sum(bs_times) / bs_num
                 tag_stats["bs_min"] = min(bs_times)
                 tag_stats["bs_max"] = max(bs_times)
-                tag_stats["bs_dev"] = math.sqrt(sum([t**2 for t in bs_times])/bs_num)
+                tag_stats["bs_dev"] = math.sqrt(
+                    sum([t**2 for t in bs_times]) / bs_num
+                )
             if as_num:
                 tag_stats["as_num"] = as_num
-                tag_stats["as_avg"] = sum(as_times)/as_num
+                tag_stats["as_avg"] = sum(as_times) / as_num
                 tag_stats["as_min"] = min(as_times)
                 tag_stats["as_max"] = max(as_times)
-                tag_stats["as_dev"] = math.sqrt(sum([t**2 for t in as_times])/as_num)
+                tag_stats["as_dev"] = math.sqrt(
+                    sum([t**2 for t in as_times]) / as_num
+                )
 
         for step_decorator, step_stats in self.steps.items():
-            times = [t for build in step_stats["builds"].values()
-                        for t in build["times"]]
+            times = [
+                t for build in step_stats["builds"].values() for t in build["times"]
+            ]
             num = len(times)
             step_stats["num"] = num
-            step_stats["num_avg"] = num/len(step_stats["builds"])
-            step_stats["avg"] = sum(times)/num
+            step_stats["num_avg"] = num / len(step_stats["builds"])
+            step_stats["avg"] = sum(times) / num
             step_stats["min"] = min(times)
             step_stats["max"] = max(times)
-            step_stats["dev"] = math.sqrt(sum([t**2 for t in times])/num)
+            step_stats["dev"] = math.sqrt(sum([t**2 for t in times]) / num)
             step_stats["last_build_id"] = max(step_stats["builds"].keys())
             for build_id, build_stats in step_stats["builds"].items():
                 times = build_stats["times"]
                 num = len(times)
                 build_stats["num"] = num
-                build_stats["avg"] = sum(times)/num
+                build_stats["avg"] = sum(times) / num
                 build_stats["min"] = min(times)
                 build_stats["max"] = max(times)
-                build_stats["dev"] = math.sqrt(sum([t**2 for t in times])/num)
+                build_stats["dev"] = math.sqrt(sum([t**2 for t in times]) / num)
                 build_stats.pop("times")
 
         self.stats = {"last_pass": 0, "last_fail": 0, "last_skip": 0}
-        self.stats["health"] = len(list(filter(lambda b: b.status == "SUCCESS", list(
-            filter(lambda b: b.status != "RUNNING", self.builds))[0:5])))
-        self.stats["running"] = len(list(filter(lambda b: b.status == "RUNNING", self.builds)))
+        self.stats["health"] = len(
+            list(
+                filter(
+                    lambda b: b.status == "SUCCESS",
+                    list(filter(lambda b: b.status != "RUNNING", self.builds))[0:5],
+                )
+            )
+        )
+        self.stats["running"] = len(
+            list(filter(lambda b: b.status == "RUNNING", self.builds))
+        )
         self.stats["last_status"] = "ABORTED"
         for b in self.builds:
             if b.status != "RUNNING":
@@ -441,11 +491,19 @@ class Job:
             "       </head>\n"
             "       <body>\n"
             "           <h1>%s</h1>\n"
-            "           <p style=\"font-weight:bold\">\n"
-            "               [ <a href=%s style=\"%s\">builds</a> ]\n"
-            "               [ <a href=%s style=\"%s\">failures</a> ]\n"
+            '           <p style="font-weight:bold">\n'
+            '               [ <a href=%s style="%s">builds</a> ]\n'
+            '               [ <a href=%s style="%s">failures</a> ]\n'
             "           </p>\n"
-            % (HTML_STYLE, self.nick, file_builds, style_build, file_failures, style_failure))
+            % (
+                HTML_STYLE,
+                self.nick,
+                file_builds,
+                style_build,
+                file_failures,
+                style_failure,
+            )
+        )
 
     def __html_write_buildstats__(self, fd):
         fd.write(
@@ -457,23 +515,26 @@ class Job:
             "                   <th>Status</th>\n"
             "                   <th>Failures</th>\n"
             "                   <th>Links</th>\n"
-            "               </tr>\n")
+            "               </tr>\n"
+        )
 
         for build in self.builds:
             if build.failed:
-                l_build = '<td style="background:black;color:white;font-weight:bold">' \
-                          '{:s}</td>'.format(build.status)
-                l_failures = '<td>--</td>'
+                l_build = (
+                    '<td style="background:black;color:white;font-weight:bold">'
+                    "{:s}</td>".format(build.status)
+                )
+                l_failures = "<td>--</td>"
             else:
-                if build.status in ('FAILURE', 'NOT_BUILT'):
+                if build.status in ("FAILURE", "NOT_BUILT"):
                     l_build = '<td style="color:red;font-weight:bold">'
-                elif build.status == 'RUNNING':
+                elif build.status == "RUNNING":
                     l_build = '<td style="color:brown;font-weight:bold">'
-                elif build.status == 'SUCCESS':
+                elif build.status == "SUCCESS":
                     l_build = '<td style="color:green;font-weight:bold">'
                 else:
                     l_build = "<td>"
-                l_build += '%s</td>' % build.status
+                l_build += "%s</td>" % build.status
 
                 n_failures = len(build.failures)
                 if n_failures > 9:
@@ -481,23 +542,27 @@ class Job:
                 elif n_failures > 2:
                     l_failures = '<td style="background:yellow">%d</td>' % n_failures
                 else:
-                    l_failures = '<td>%d</td>' % n_failures
+                    l_failures = "<td>%d</td>" % n_failures
 
             fd.write(
-                '               <tr>'
+                "               <tr>"
                 '<td><a target="_blank" href="%s">%s</a></td>'
-                '<td>%s</td>'
-                '<td>%s</td>'
-                '%s%s'
-                '<td>%s</td>'
-                '</tr>\n' %
-                (artifacts_url(build), build.id,
-                 build.timestamp.ctime(),
-                 str(build.duration).split('.')[0],
-                 l_build, l_failures,
-                 build.description))
-        fd.write(
-            "           </table>\n")
+                "<td>%s</td>"
+                "<td>%s</td>"
+                "%s%s"
+                "<td>%s</td>"
+                "</tr>\n"
+                % (
+                    artifacts_url(build),
+                    build.id,
+                    build.timestamp.ctime(),
+                    str(build.duration).split(".")[0],
+                    l_build,
+                    l_failures,
+                    build.description,
+                )
+            )
+        fd.write("           </table>\n")
 
     def __html_write_failurestats__(self, fd):
         fd.write(
@@ -509,7 +574,8 @@ class Job:
             "                   <th>Num</th>\n"
             "                   <th>Score</th>\n"
             "                   <th>Bugzilla</th>\n"
-            "               </tr>\n")
+            "               </tr>\n"
+        )
 
         sorted_failures = getattr(self, "sorted_failures", [])
 
@@ -530,44 +596,53 @@ class Job:
                 l_last = '<td style="background:red">{:d}</td>'.format(failure.last)
 
             fd.write(
-                '               <tr>'
+                "               <tr>"
                 '<td><a href="#%s">%s</a></td>'
-                '<td>%s</td>'
-                '%s'
-                '<td>%d</td>'
-                '<td>%d</td>'
-                '<td>%s</td>'
-                '</tr>\n' % (failure.name, failure.name,
-                             l_perm,
-                             l_last,
-                             len(failure.builds),
-                             failure.score,
-                             failure.bugzilla))
+                "<td>%s</td>"
+                "%s"
+                "<td>%d</td>"
+                "<td>%d</td>"
+                "<td>%s</td>"
+                "</tr>\n"
+                % (
+                    failure.name,
+                    failure.name,
+                    l_perm,
+                    l_last,
+                    len(failure.builds),
+                    failure.score,
+                    failure.bugzilla,
+                )
+            )
 
-        fd.write(
-            "           </table>\n")
+        fd.write("           </table>\n")
 
         sorted_failures = getattr(self, "sorted_failures", [])
 
         for failure in sorted_failures:
-            fd.write('           <hr>\n\t<h3 id="%s">%s</h3>\n' % (failure.name, failure.name))
-            fd.write('           <p>\n')
+            fd.write(
+                '           <hr>\n\t<h3 id="%s">%s</h3>\n'
+                % (failure.name, failure.name)
+            )
+            fd.write("           <p>\n")
             builds = failure.builds
             for build in builds:
                 if build.id in failure.artifact_urls:
                     artifact_url = failure.artifact_urls[build.id]
-                    fd.write('          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n' %
-                             (artifact_url, artifacts_url(build), build.id))
+                    fd.write(
+                        '          <a target="_blank" href="%s">report</a> from <a href="%s">#%d</a><br>\n'
+                        % (artifact_url, artifacts_url(build), build.id)
+                    )
                 else:
-                    fd.write('          <a target="_blank" href="%s">#%d</a><br>\n' %
-                             (artifacts_url(build), build.id))
-            fd.write('           </p>\n')
+                    fd.write(
+                        '          <a target="_blank" href="%s">#%d</a><br>\n'
+                        % (artifacts_url(build), build.id)
+                    )
+            fd.write("           </p>\n")
 
     @staticmethod
     def __html_write_footer__(fd):
-        fd.write(
-            "       </body>\n"
-            "    <html>\n")
+        fd.write("       </body>\n" "    <html>\n")
 
     def print_html(self, file_name=None):
         if not file_name:
@@ -587,7 +662,7 @@ class Job:
 
 
 class Build:
-    """ Represents a job's run.
+    """Represents a job's run.
 
     Attributes:
         - build_id: build id
@@ -611,7 +686,7 @@ class Build:
         self.duration = build.get_duration()
         self.failures = {}
 
-        if self.status == 'NOT_BUILT' or self.status == 'ABORTED':
+        if self.status == "NOT_BUILT" or self.status == "ABORTED":
             self.failed = True
 
         if build.has_resultset():
@@ -619,7 +694,7 @@ class Build:
             for result in results.iteritems():
                 # item states: 'PASSED', 'SKIPPED', 'REGRESSION', 'FAILED', ??
                 result = result[1]
-                if result.status == 'REGRESSION' or result.status == 'FAILED':
+                if result.status == "REGRESSION" or result.status == "FAILED":
                     result_name = result.name
                     if result_name.startswith("Test"):
                         result_name = result_name.split("_", 1)[1]
@@ -635,7 +710,7 @@ class Build:
                 else:
                     raise BuildCreationError("build has no status nor results")
 
-        if self.status != 'SUCCESS':
+        if self.status != "SUCCESS":
             artifacts = build.get_artifact_dict()
             # if trere is small number of artifatcs, the build failed
             if len(artifacts) < 10:
@@ -648,9 +723,12 @@ class Build:
                 # let's check that the failure name in the artifact is as expected or skip...
                 # something like "FAIL-Test252_ipv6_honor_ip_order.html" (We already stripped "FAIL")
                 # or "FAIL_report_NetworkManager-ci_Test252_ipv6_honor_ip_order.html"
-                split_artifact = split_artifact[1].replace(
-                    r'report_NetworkManager-ci', '').strip("_-")
-                if split_artifact.startswith('M'):
+                split_artifact = (
+                    split_artifact[1]
+                    .replace(r"report_NetworkManager-ci", "")
+                    .strip("_-")
+                )
+                if split_artifact.startswith("M"):
                     split_artifact = split_artifact[3:]
                 split_artifact = split_artifact.split("_", 1)
                 if len(split_artifact) != 2:
@@ -661,9 +739,13 @@ class Build:
                 split_artifact = split_artifact[1].split(".")
                 if split_artifact[-1] != "html" and split_artifact[-1] != "log":
                     # no .html suffix?? not sure, skip...
-                    eprint("No .html or .log suffix in artifact '{:s}': skip...".format(artifact))
+                    eprint(
+                        "No .html or .log suffix in artifact '{:s}': skip...".format(
+                            artifact
+                        )
+                    )
                     continue
-                failure_name = '.'.join(split_artifact[:-1])
+                failure_name = ".".join(split_artifact[:-1])
                 # artifact should not end with _timeout now,
                 # but it is possible in older build, before test renaming
                 if failure_name.endswith("_timeout"):
@@ -683,7 +765,7 @@ def failure_last(failure):
 
 
 class Failure:
-    """ Represents test failures.
+    """Represents test failures.
 
     Instance Attributes:
         name - the name of the test
@@ -741,10 +823,10 @@ class Failure:
 
 
 def artifacts_url(job):
-    if job.status != 'RUNNING':
-        if 'centos' in job.url:
+    if job.status != "RUNNING":
+        if "centos" in job.url:
             return job.url + "/artifact/"
-        if 'desktopqe' in job.url:
+        if "desktopqe" in job.url:
             return job.url + "/artifact/artifacts/"
     return job.url
 
@@ -775,23 +857,34 @@ def str_to_time(time_str):
     if len(time_split) == 1:
         return float(time_split[0])
     else:
-        return int(time_split[0])*60 + float(time_split[1])
+        return int(time_split[0]) * 60 + float(time_split[1])
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Summarize NetworkManager jenkins results.')
-    parser.add_argument('url', help="Jenkins base url")
-    parser.add_argument('job', help="Jenkins job")
-    parser.add_argument('--name', help="Job nickname to use in results")
-    parser.add_argument('--user', help="username to access Jenkins url")
-    parser.add_argument('--password', help="password to access Jenkins url")
+    parser = argparse.ArgumentParser(
+        description="Summarize NetworkManager jenkins results."
+    )
+    parser.add_argument("url", help="Jenkins base url")
+    parser.add_argument("job", help="Jenkins job")
+    parser.add_argument("--name", help="Job nickname to use in results")
+    parser.add_argument("--user", help="username to access Jenkins url")
+    parser.add_argument("--password", help="password to access Jenkins url")
     parser.add_argument(
-        '--token', help="Jenkins API token to access Jenkins url (use instead of password)")
+        "--token",
+        help="Jenkins API token to access Jenkins url (use instead of password)",
+    )
     parser.add_argument(
-        '--ca_cert', help="file path of private CA to be used for https validation or 'disabled'")
-    parser.add_argument('--max_builds', type=int,
-                        help="maximum number of builds considered for the job")
-    parser.add_argument("--steps_dir", help="directory containing behave steps definitions", default="../../../features/steps/")
+        "--ca_cert",
+        help="file path of private CA to be used for https validation or 'disabled'",
+    )
+    parser.add_argument(
+        "--max_builds", type=int, help="maximum number of builds considered for the job"
+    )
+    parser.add_argument(
+        "--steps_dir",
+        help="directory containing behave steps definitions",
+        default="../../../features/steps/",
+    )
     args = parser.parse_args()
 
     user = None
@@ -799,7 +892,7 @@ def main():
     url = args.url
 
     steps_dir = args.steps_dir
-    sys.path.append(steps_dir.replace("features/steps","").rstrip("/"))
+    sys.path.append(steps_dir.replace("features/steps", "").rstrip("/"))
     behave.runner.load_step_modules([steps_dir])
 
     # TODO: accept multiple jobs
@@ -836,5 +929,5 @@ def main():
     process_job(server, job_name, job_nick, max_builds)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
