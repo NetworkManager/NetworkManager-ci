@@ -3378,3 +3378,5 @@ testmapper:
   NetworkManager-cloud-setup:
     - cloud_aliyun_basic:
         feature: cloud
+    - cloud_azure_basic:
+        feature: cloud

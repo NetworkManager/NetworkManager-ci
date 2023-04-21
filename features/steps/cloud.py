@@ -67,3 +67,47 @@ def aliyun_ip(context, gw_addr, mac):
     nmci.process.run_stdout(
         f"curl -s -X PUT http://localhost/2016-01-01/meta-data/network/interfaces/macs/{mac_addr}/gateway --data '{gw_addr}'"
     )
+
+
+@step('Mock Azure metadata for device "{dev}" with MAC address "{mac}"')
+def azure_mac(context, dev, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/?format=text&api-version=2017-04-02' --data '0'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/macAddress?format=text&api-version=2017-04-02' --data '{mac_addr}'"
+    )
+
+
+@step('Mock Azure IP address "{ip_addr}" with for device "{dev}"')
+def azure_ip(context, ip_addr, dev):
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/ipAddress/?format=text&api-version=2017-04-02' --data '0\n'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/ipAddress/0/privateIpAddress?format=text&api-version=2017-04-02' --data '{ip_addr}'"
+    )
+
+
+@step('Mock Azure IP addresses "{ip_addr1}" and "{ip_addr2}" with for device "{dev}"')
+def azure_ip(context, ip_addr1, ip_addr2, dev):
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/ipAddress/?format=text&api-version=2017-04-02' --data '0\n1\n'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/ipAddress/0/privateIpAddress?format=text&api-version=2017-04-02' --data '{ip_addr1}'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/ipAddress/1/privateIpAddress?format=text&api-version=2017-04-02' --data '{ip_addr2}'"
+    )
+
+
+@step('Mock Azure subnet "{subnet}" with prefix "{prefix}" for device "{dev}"')
+def azure_cidr(context, subnet, prefix, dev):
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/subnet/0/address?format=text&api-version=2017-04-02' --data '{subnet}'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/subnet/0/prefix?format=text&api-version=2017-04-02' --data '{prefix}'"
+    )
