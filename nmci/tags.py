@@ -385,39 +385,6 @@ def many_vlans_as(context, scenario):
 _register_tag("many_vlans", many_vlans_bs, many_vlans_as)
 
 
-def remove_vlan_range(context, scenario):
-    vlan_range = getattr(context, "vlan_range", None)
-    if vlan_range is None:
-        return
-
-    # remove ifcfg (if any)
-    ifcfg_list = " ".join(
-        (f"/etc/sysconfig/network-scripts/ifcfg-{dev}" for dev in vlan_range)
-    )
-    context.process.run_stdout("rm -rvf " + ifcfg_list, shell=True)
-
-    # remove keyfile (if any)
-    keyfile_list = " ".join(
-        (f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range)
-    )
-    context.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
-
-    # remove vlans and bridgess
-    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
-    context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
-
-    nmci.nmutil.restart_NM_service(timeout=120)
-
-    # remove vlans and bridgess
-    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
-    context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
-
-    nmci.nmutil.restart_NM_service(timeout=120)
-
-
-_register_tag("remove_vlan_range", None, remove_vlan_range)
-
-
 def captive_portal_bs(context, scenario):
     # run as service
     context.pexpect_service("bash prepare/captive_portal.sh")

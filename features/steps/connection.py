@@ -356,8 +356,28 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 
     vlan_range = [f"{ifname}.{id}" for id in range(begin, end + 1)]
     vlan_range += [f"br{id}" for id in range(begin, end + 1)]
-    context.vlan_range = getattr(context, "vlan_range", [])
-    context.vlan_range += vlan_range
+
+    callbacks = []
+    callbacks.append(lambda: nmci.nmutil.stop_NM_service(timeout=120))
+    callbacks.extend(lambda dev=dev: nmci.ip.link_delete(dev) for dev in vlan_range)
+    callbacks.extend(
+        lambda dev=dev: nmci.cleanup.CleanupFile.delete_file(
+            f"/etc/sysconfig/network-scripts/ifcfg-{dev}"
+        )
+        for dev in vlan_range
+    )
+    callbacks.extend(
+        lambda dev=dev: nmci.cleanup.CleanupFile.delete_glob(
+            f"/etc/NetworkManager/system-connections/{dev}*"
+        )
+        for dev in vlan_range
+    )
+    callbacks.append(lambda: nmci.nmutil.restart_NM_service())
+    nmci.cleanup.add_callback(
+        name="cleanup-add_bridges_vlans_range",
+        callback=callbacks,
+        priority=nmci.Cleanup.PRIORITY_CALLBACK_DEFAULT,
+    )
 
     NM = nmci.util.NM  # pylint: disable=invalid-name
     GLib = nmci.util.GLib  # pylint: disable=invalid-name

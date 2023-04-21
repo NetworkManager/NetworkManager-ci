@@ -897,7 +897,7 @@ Feature: nmcli - vlan
 
 
     @ver+=1.32 @rhelver+=8 @skip_in_kvm @skip_in_centos
-    @logging_info_only @remove_vlan_range
+    @logging_info_only
     @vlan_create_1000_bridges_over_1000_vlans
     Scenario: NM - vlan - create 1000 bridges over 1000 VLANs
     * Add bridges over VLANs in range from "1" to "1000" on interface "eth7" via libnm
