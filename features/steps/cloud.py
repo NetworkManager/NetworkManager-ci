@@ -111,3 +111,46 @@ def azure_cidr(context, subnet, prefix, dev):
     nmci.process.run_stdout(
         f"curl -s -X PUT 'http://localhost/metadata/instance/network/interface/{dev}/ipv4/subnet/0/prefix?format=text&api-version=2017-04-02' --data '{prefix}'"
     )
+
+
+@step('Mock EC2 metadata for device with MAC address "{mac}"')
+def ec2_mac(context, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/ --data '{mac_addr}'"
+    )
+
+
+@step('Mock EC2 metadata for devices with MAC addresses "{mac0}" and "{mac1}"')
+def ec2_macs(context, mac0, mac1):
+    mac_addr0 = context.noted[mac0].strip()
+    mac_addr1 = context.noted[mac1].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/ --data '{mac_addr0}\n{mac_addr1}'"
+    )
+
+
+@step('Mock EC2 IP address "{ip_addr}" for device with MAC address "{mac}"')
+def ec2_ip(context, ip_addr, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/{mac_addr}/local-ipv4s --data '{ip_addr}'"
+    )
+
+
+@step(
+    'Mock EC2 IP addresses "{ip_addr1}" and "{ip_addr2}" for device with MAC address "{mac}"'
+)
+def ec2_ip(context, ip_addr1, ip_addr2, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/{mac_addr}/local-ipv4s --data '{ip_addr1}\n{ip_addr2}'"
+    )
+
+
+@step('Mock EC2 CIDR block "{cidr}" for device with MAC address "{mac}"')
+def ec2_cidr(context, cidr, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/{mac_addr}/subnet-ipv4-cidr-block --data '{cidr}'"
+    )
