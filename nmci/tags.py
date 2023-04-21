@@ -287,7 +287,15 @@ _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-    nmci.cleanup.cleanup_nm_config(conf)
+    nmci.cleanup.cleanup_nm_config(
+        conf,
+        schedule_nm_restart=False,
+        priority=nmci.Cleanup.PRIORITY_TAG,
+    )
+    nmci.cleanup.cleanup_add_NM_service(
+        timeout=120,
+        priority=nmci.Cleanup.PRIORITY_TAG,
+    )
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
     time.sleep(0.5)
     nmci.nmutil.restart_NM_service()
