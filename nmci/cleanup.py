@@ -161,16 +161,17 @@ class _Cleanup:
             :param priority: cleanup priority, defaults to PRIORITY_IFACE_DELETE or PRIORITY_IFACE_RESET
             :type priority: int, optional
             """
+            assert op in [None, "reset", "delete", "ip-delete"]
             if op is None:
                 if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                     op = "reset"
                 else:
                     op = "delete"
             if priority is None:
-                if op == "delete":
-                    priority = PRIORITY_IFACE_DELETE
-                else:
+                if op == "reset":
                     priority = PRIORITY_IFACE_RESET
+                else:
+                    priority = PRIORITY_IFACE_DELETE
 
             self.op = op
             self.iface = iface
@@ -179,18 +180,17 @@ class _Cleanup:
             )
 
         def _do_cleanup(self):
-
-            if self.op == "reset":
+            if self.op == "ip-delete":
+                nmci.ip.link_delete(self.iface)
+            elif self.op == "reset":
                 nmci.veth.reset_hwaddr_nmcli(self.iface)
                 # Why oh why was eth0 filtered out?
                 # if self.iface != "eth0":
                 nmci.process.run(["ip", "addr", "flush", self.iface])
                 time.sleep(0.1)
-                return
-            if self.op == "delete":
+            else:
+                assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
                 nmci.process.nmcli_force(["device", "delete", self.iface])
-                return
-            raise Exception(f'Unexpected cleanup op "{self.op}"')
 
     class CleanupSysctls(Cleanup):
         def __init__(self, sysctls_pattern, namespace=None):
