@@ -365,27 +365,66 @@ class _Cleanup:
             nmci.util.update_udevadm()
 
     class CleanupFile(Cleanup):
-        def __init__(self, *files, priority=PRIORITY_FILE, name=None, unique_tag=None):
+        def __init__(
+            self, *files, glob=None, priority=PRIORITY_FILE, name=None, unique_tag=None
+        ):
             """File cleanup, removes file if exists.
 
             :param priority: cleanup priority, defaults to PRIORITY_FILE
             :type priority: int, optional
             :param name: description of cleanup, defaults to None
             :type name: str, optional
+            :param glob: glob expression(s) of filenames
+            :type glob: string or iterable of string, optional
             """
-            self.files = tuple(files)
-            if name is None:
-                name = f"file-{self.files}"
+            self.files = list(files)
+
+            if not glob:
+                self.globs = []
+            elif isinstance(glob, str):
+                self.globs = [glob]
+            else:
+                self.globs = list(glob)
+
             if unique_tag is None:
                 unique_tag = (self.files,)
-            super().__init__(name=name, unique_tag=unique_tag, priority=priority)
+            if name is None:
+                if self.files and self.globs:
+                    name = f"file-{self.files}-{self.globs}"
+                elif self.globs:
+                    name = f"file-globs-{self.globs}"
+                else:
+                    name = f"file-{self.files}"
+
+            super().__init__(name=name, unique_tag=(files,), priority=priority)
+
+        def _get_files(self):
+            seen = set()
+            for f in self.files:
+                if f not in seen:
+                    seen.add(f)
+                    yield f
+            if self.globs:
+                import glob
+
+                for g in self.globs:
+                    for f in glob.glob(g):
+                        if f not in seen:
+                            seen.add(f)
+                            yield f
 
         def _do_cleanup(self):
-            for f in self.files:
+            error = None
+            for f in self._get_files():
                 try:
                     os.remove(f)
                 except FileNotFoundError:
                     pass
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
 
     class CleanupUdevRule(CleanupFile):
         def __init__(self, rule, priority=PRIORITY_UDEV_RULE):
