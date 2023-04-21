@@ -52,7 +52,7 @@ Feature: nmcli: veth
     @veth_device_remove
     Scenario: nmcli - veth - remove device
     * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
-    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "autoconnect no veth.peer veth11 ip4 10.42.0.1"
     * Bring "up" connection "con_veth2"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
@@ -62,6 +62,22 @@ Feature: nmcli: veth
     Then "veth11" is not visible with command "nmcli device"
     Then "veth12" is not visible with command "ip a s"
     Then "veth12" is not visible with command "nmcli device"
+
+
+    @rhbz1915278
+    @ver+=1.43.6
+    @veth_device_remove_return
+    Scenario: nmcli - veth - remove device but the veth peer gets autoconnected again
+    * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
+    * Add "veth" connection named "con_veth2" for device "veth12" with options "veth.peer veth11 ip4 10.42.0.1"
+    * Bring "up" connection "con_veth2"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth1" in "45" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
+    # Null error, both connections should go down 1915278
+    * Delete device "veth11"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_veth2" in "45" seconds
+    Then "veth11:unmanaged" is visible with command "nmcli -g DEVICE,STATE d"
+    Then "veth12:connected" is visible with command "nmcli -g DEVICE,STATE d"
 
 
     # @veth_change_peer

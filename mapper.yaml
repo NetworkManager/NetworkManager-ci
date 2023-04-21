@@ -2294,6 +2294,8 @@ testmapper:
         feature: veth
     - veth_device_remove:
         feature: veth
+    - veth_device_remove_return:
+        feature: veth
     - veth_profile_restart_persistnce:
         feature: veth
         tags: gate
