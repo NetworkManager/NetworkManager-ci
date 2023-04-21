@@ -3016,3 +3016,28 @@ def copy_ifcfg_bs(context, scenario):
 
 
 _register_tag("copy_ifcfg", copy_ifcfg_bs, None)
+
+
+def cloud_bs(context, scenario):
+    pwd = os.getcwd()
+    nmci.process.run_stdout("ip addr add 169.254.169.254/32 dev lo")  # ec2, azure
+    nmci.process.run_stdout("ip addr add 100.100.100.200/32 dev lo")  # aliyun
+    nmci.process.run_stdout(
+        "echo 127.0.0.1 metadata.google.internal >>/etc/hosts", shell=True
+    )  # gcp
+    nmci.process.run_stdout(
+        f"systemd-run --remain-after-exit --working-directory={pwd} --unit=test-cloud-meta-mock systemd-socket-activate -l 80 python contrib/cloud/test-cloud-meta-mock.py",
+        ignore_stderr=True,
+    )
+
+
+def cloud_as(context, scenario):
+    nmci.process.run_stdout("systemctl reset-failed test-cloud-meta-mock.service")
+    nmci.process.run_stdout("systemctl stop test-cloud-meta-mock.service")
+    nmci.process.run_stdout("ip addr del 169.254.169.254/32 dev lo")  # ec2, azure
+    nmci.process.run_stdout("ip addr del 100.100.100.200/32 dev lo")  # aliyun
+    nmci.process.run_stdout("sed '/metadata.google.internal/d' -i /etc/hosts")  # gcp
+    nmci.veth.restore_testeth0()
+
+
+_register_tag("cloud", cloud_bs, cloud_as)

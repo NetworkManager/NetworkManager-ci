@@ -3374,3 +3374,5 @@ testmapper:
         feature: ovs
     - add_dpdk_bond_sriov:
         feature: ovs
+
+  NetworkManager-cloud-setup:
