@@ -376,7 +376,7 @@ class _Cleanup:
             self.files = tuple(files)
             if name is None:
                 name = f"file-{self.files}"
-            super().__init__(name=name, unique_tag=(files,), priority=priority)
+            super().__init__(name=name, unique_tag=(self.files,), priority=priority)
 
         def _do_cleanup(self):
             for f in self.files:
