@@ -28,6 +28,10 @@ def http_put_azure(url, data):
     http_put(url, data)
 
 
+def http_put_ec2(url, data):
+    http_put(url, data)
+
+
 @step("Start test-cloud-meta-mock.py")
 def start_test_cloud_meta_mock(context):
     nmci.cleanup.add_callback(
@@ -232,4 +236,52 @@ def mock_azure_cidr(context, subnet, prefix, dev):
     http_put_azure(
         f"metadata/instance/network/interface/{dev}/ipv4/subnet/0/prefix?format=text&api-version=2017-04-02",
         prefix,
+    )
+
+
+@step('Mock EC2 metadata for device with MAC address "{mac}"')
+def mock_ec2_mac(context, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_ec2(
+        "2018-09-24/meta-data/network/interfaces/macs/",
+        mac,
+    )
+
+
+@step('Mock EC2 metadata for devices with MAC addresses "{mac0}" and "{mac1}"')
+def mock_ec2_macs(context, mac0, mac1):
+    mac0 = _resolve_mac(context, mac0)
+    mac1 = _resolve_mac(context, mac1)
+    http_put_ec2(
+        "2018-09-24/meta-data/network/interfaces/macs/",
+        f"{mac0}\n{mac1}",
+    )
+
+
+@step('Mock EC2 IP address "{ip_addr}" for device with MAC address "{mac}"')
+def mock_ec2_ip(context, ip_addr, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_ec2(
+        f"2018-09-24/meta-data/network/interfaces/macs/{mac}/local-ipv4s",
+        ip_addr,
+    )
+
+
+@step(
+    'Mock EC2 IP addresses "{ip_addr1}" and "{ip_addr2}" for device with MAC address "{mac}"'
+)
+def mock_ec2_ip(context, ip_addr1, ip_addr2, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_ec2(
+        f"2018-09-24/meta-data/network/interfaces/macs/{mac}/local-ipv4s",
+        f"{ip_addr1}\n{ip_addr2}",
+    )
+
+
+@step('Mock EC2 CIDR block "{cidr}" for device with MAC address "{mac}"')
+def mock_ec2_cidr(context, cidr, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_ec2(
+        f"2018-09-24/meta-data/network/interfaces/macs/{mac}/subnet-ipv4-cidr-block",
+        cidr,
     )
