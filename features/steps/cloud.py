@@ -24,6 +24,10 @@ def http_put_aliyun(url, data):
     http_put(url, data)
 
 
+def http_put_azure(url, data):
+    http_put(url, data)
+
+
 @step("Start test-cloud-meta-mock.py")
 def start_test_cloud_meta_mock(context):
     nmci.cleanup.add_callback(
@@ -175,4 +179,57 @@ def mock_aliyun_ip(context, gw_addr, mac):
     http_put_aliyun(
         f"2016-01-01/meta-data/network/interfaces/macs/{mac}/gateway",
         gw_addr,
+    )
+
+
+@step('Mock Azure metadata for device "{dev}" with MAC address "{mac}"')
+def mock_azure_mac(context, dev, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_azure(
+        f"metadata/instance/network/interface/?format=text&api-version=2017-04-02",
+        "0",
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/macAddress?format=text&api-version=2017-04-02",
+        mac,
+    )
+
+
+@step('Mock Azure IP address "{ip_addr}" with for device "{dev}"')
+def mock_azure_ip(context, ip_addr, dev):
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/?format=text&api-version=2017-04-02",
+        "0\n",
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/0/privateIpAddress?format=text&api-version=2017-04-02",
+        ip_addr,
+    )
+
+
+@step('Mock Azure IP addresses "{ip_addr1}" and "{ip_addr2}" with for device "{dev}"')
+def mock_azure_ip(context, ip_addr1, ip_addr2, dev):
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/?format=text&api-version=2017-04-02",
+        "0\n1\n",
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/0/privateIpAddress?format=text&api-version=2017-04-02",
+        ip_addr1,
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/1/privateIpAddress?format=text&api-version=2017-04-02",
+        ip_addr2,
+    )
+
+
+@step('Mock Azure subnet "{subnet}" with prefix "{prefix}" for device "{dev}"')
+def mock_azure_cidr(context, subnet, prefix, dev):
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/subnet/0/address?format=text&api-version=2017-04-02",
+        subnet,
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/subnet/0/prefix?format=text&api-version=2017-04-02",
+        prefix,
     )
