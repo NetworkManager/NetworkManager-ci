@@ -365,7 +365,7 @@ class _Cleanup:
             nmci.util.update_udevadm()
 
     class CleanupFile(Cleanup):
-        def __init__(self, *files, priority=PRIORITY_FILE, name=None):
+        def __init__(self, *files, priority=PRIORITY_FILE, name=None, unique_tag=None):
             """File cleanup, removes file if exists.
 
             :param priority: cleanup priority, defaults to PRIORITY_FILE
@@ -376,7 +376,9 @@ class _Cleanup:
             self.files = tuple(files)
             if name is None:
                 name = f"file-{self.files}"
-            super().__init__(name=name, unique_tag=(self.files,), priority=priority)
+            if unique_tag is None:
+                unique_tag = (self.files,)
+            super().__init__(name=name, unique_tag=unique_tag, priority=priority)
 
         def _do_cleanup(self):
             for f in self.files:
@@ -426,7 +428,13 @@ class _Cleanup:
             nmci.nmutil.do_NM_service(operation=self._operation, timeout=self._timeout)
 
     class CleanupNMConfig(CleanupFile):
-        def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
+        def __init__(
+            self,
+            config_file,
+            config_directory=None,
+            priority=PRIORITY_FILE,
+            schedule_nm_restart=True,
+        ):
             """Cleanup NetworkManager config file and restart.
 
             :param config_file: NetworkManager config file name, either full path, or relative path accepted.
@@ -442,11 +450,19 @@ class _Cleanup:
             elif not config_file.startswith("/"):
                 config_file = _Cleanup.NM_CONF_DIRS["etc"] + config_file
 
+            schedule_nm_restart = bool(schedule_nm_restart)
+            self._schedule_nm_restart = schedule_nm_restart
+
             super().__init__(
-                config_file, name=f"NM-config-{config_file}", priority=priority
+                config_file,
+                name=f"NM-config-{config_file}",
+                priority=priority,
+                unique_tag=(config_file, schedule_nm_restart),
             )
 
         def also_needs(self):
+            if not self._schedule_nm_restart:
+                return ()
             return (_Cleanup.CleanupNMService("restart"),)
 
     NM_CONF_DIRS = {

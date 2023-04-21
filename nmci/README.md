@@ -174,7 +174,7 @@ Cleanup NetworkManager connection
 
 
 
-### _class_ nmci.cleanup.CleanupFile(\*files, priority=70, name=None)
+### _class_ nmci.cleanup.CleanupFile(\*files, priority=70, name=None, unique_tag=None)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
 
 File cleanup, removes file if exists.
@@ -227,7 +227,7 @@ MPTCP limits cleanup
 
 
 
-### _class_ nmci.cleanup.CleanupNMConfig(config_file, config_directory=None, priority=70)
+### _class_ nmci.cleanup.CleanupNMConfig(config_file, config_directory=None, priority=70, schedule_nm_restart=True)
 Bases: `nmci.cleanup._Cleanup.CleanupFile`
 
 Cleanup NetworkManager config file and restart.
