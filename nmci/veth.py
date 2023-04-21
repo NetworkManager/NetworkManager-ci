@@ -111,10 +111,10 @@ class _Veth:
             print(" ** we don't have testeth0 activat{ing,ed}, let's do it now")
             if "(connected)" in nmci.process.nmcli("device show eth0"):
                 profile = nmci.process.nmcli(
-                    "-g GENERAL.DEVICE device show eth0"
+                    "-g GENERAL.CONNECTION device show eth0"
                 ).strip()
                 print(
-                    f" ** device eth0 is connected to {profile}, let's disconnect it first"
+                    f" ** device eth0 is connected to '{profile}', let's disconnect it first"
                 )
                 nmci.process.nmcli_force("dev disconnect eth0")
             nmci.process.nmcli("con up testeth0")
