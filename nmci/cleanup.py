@@ -402,7 +402,7 @@ class _Cleanup:
             return (_Cleanup.CleanupUdevUpdate(),)
 
     class CleanupNMService(Cleanup):
-        def __init__(self, operation, timeout=None, priority=None):
+        def __init__(self, operation="restart", timeout=None, priority=None):
             """NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 
             :param operation: operation on systemd service, one of 'start', 'restart' or 'reload'.
