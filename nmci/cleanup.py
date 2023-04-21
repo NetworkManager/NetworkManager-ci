@@ -400,7 +400,7 @@ class _Cleanup:
             return (_Cleanup.CleanupUdevUpdate(),)
 
     class CleanupNMService(Cleanup):
-        def __init__(self, operation, priority=None):
+        def __init__(self, operation, timeout=None, priority=None):
             """NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 
             :param operation: operation on systemd service, one of 'start', 'restart' or 'reload'.
@@ -415,14 +415,15 @@ class _Cleanup:
                 else:
                     priority = PRIORITY_NM_SERVICE_RESTART
             self._operation = operation
+            self._timeout = timeout
             super().__init__(
                 name=f"NM-service-{operation}",
                 priority=priority,
-                unique_tag=(operation,),
+                unique_tag=(operation, timeout),
             )
 
         def _do_cleanup(self):
-            nmci.nmutil.do_NM_service(operation=self._operation)
+            nmci.nmutil.do_NM_service(operation=self._operation, timeout=self._timeout)
 
     class CleanupNMConfig(CleanupFile):
         def __init__(self, config_file, config_directory=None, priority=PRIORITY_FILE):
