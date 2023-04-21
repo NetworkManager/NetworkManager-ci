@@ -297,7 +297,6 @@ def logging_info_only_bs(context, scenario):
         priority=nmci.Cleanup.PRIORITY_TAG,
     )
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
-    time.sleep(0.5)
     nmci.nmutil.restart_NM_service()
 
 
