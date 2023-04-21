@@ -744,5 +744,30 @@ class _NMUtil:
 
         return result
 
+    # TCP port used for mocking HTTP service with nm-cloud-setup tests
+    # ("contrib/cloud/test-cloud-meta-mock.py")
+    NMCS_MOCK_PORT = 19080
+    NMCI_MOCK_BASE_URL = f"http://127.0.0.1:{NMCS_MOCK_PORT}"
+    NMCI_MOCK_BASE_URL_NOWHERE = f"http://127.0.0.1:10404"
+
+    NMCS_PROVIDERS = {
+        "azure": {
+            "env_enable": "NM_CLOUD_SETUP_AZURE",
+            "env_mock": "NM_CLOUD_SETUP_AZURE_HOST",
+        },
+        "aliyun": {
+            "env_enable": "NM_CLOUD_SETUP_ALIYUN",
+            "env_mock": "NM_CLOUD_SETUP_ALIYUN_HOST",
+        },
+        "ec2": {
+            "env_enable": "NM_CLOUD_SETUP_EC2",
+            "env_mock": "NM_CLOUD_SETUP_EC2_HOST",
+        },
+        "gcp": {
+            "env_enable": "NM_CLOUD_SETUP_GCP",
+            "env_mock": "NM_CLOUD_SETUP_GCP_HOST",
+        },
+    }
+
 
 _module = _NMUtil()
