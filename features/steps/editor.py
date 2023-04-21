@@ -3,35 +3,40 @@ import time
 from behave import step  # pylint: disable=no-name-in-module
 
 
-@step(u'Autoconnect warning is shown')
+@step("Autoconnect warning is shown")
 def autoconnect_warning(context):
-    r = context.prompt.expect(["Saving the connection with \'autoconnect=yes\'. That might result in an immediate activation of the connection.\\s+Do you still want to save?", "successfully"])
-    assert r == 0, 'Autoconnect warning was not shown'
+    r = context.prompt.expect(
+        [
+            "Saving the connection with 'autoconnect=yes'. That might result in an immediate activation of the connection.\\s+Do you still want to save?",
+            "successfully",
+        ]
+    )
+    assert r == 0, "Autoconnect warning was not shown"
 
 
-@step(u'Backspace in editor')
+@step("Backspace in editor")
 def backspace_in_editor(context):
-    context.prompt.send('\b')
+    context.prompt.send("\b")
 
 
-@step(u'Send "{commands}" via editor to "{connection}"')
+@step('Send "{commands}" via editor to "{connection}"')
 def send_com_via_editor(context, commands, connection):
-    coms = commands.split(';')
+    coms = commands.split(";")
     final = "echo -e '"
     for c in coms:
-        final = final+"%s\n" % c.strip()
-    final = final+"print\nsave\nquit\n' | nmcli c edit %s" % connection
+        final = final + "%s\n" % c.strip()
+    final = final + "print\nsave\nquit\n' | nmcli c edit %s" % connection
     context.command_output(final)
 
 
-@step(u'Send "{what}" in editor')
+@step('Send "{what}" in editor')
 def send_sth_in_editor(context, what):
     context.prompt.send(what)
 
 
-@step(u'Clear the text typed in editor')
+@step("Clear the text typed in editor")
 def clear_text_typed(context):
-    context.prompt.send("\b"*128)
+    context.prompt.send("\b" * 128)
 
 
 def check_obj_output_in_editor(context, obj, regexes):
@@ -72,138 +77,165 @@ def check_describe_output_in_editor_regex(context, regex, obj):
     check_describe_output_in_editor(context, obj, [regex])
 
 
-@step(u'Check value saved message showed in editor')
+@step("Check value saved message showed in editor")
 def check_saved_in_editor(context):
-    context.prompt.expect('successfully')
+    context.prompt.expect("successfully")
 
 
-@step(u'Delete connection "{name}" and hit enter')
+@step('Delete connection "{name}" and hit enter')
 def delete_connection_with_enter(context, name):
-    assert context.command_code('nmcli connection delete id %s' % name) == 0
+    assert context.command_code("nmcli connection delete id %s" % name) == 0
     time.sleep(5)
-    context.prompt.send('\n')
+    context.prompt.send("\n")
     time.sleep(2)
-    assert context.prompt.isalive() is True, 'Something went wrong'
+    assert context.prompt.isalive() is True, "Something went wrong"
 
 
-@step(u'Enter in editor')
+@step("Enter in editor")
 def enter_in_editor(context):
-    context.prompt.send('\n')
+    context.prompt.send("\n")
 
 
-@step(u'Expect "{what}"')
+@step('Expect "{what}"')
 def expect(context, what):
     context.prompt.expect(what)
 
 
-@step(u'Error appeared in editor')
-@step(u'Error appeared in editor in "{seconds}" seconds')
+@step("Error appeared in editor")
+@step('Error appeared in editor in "{seconds}" seconds')
 def error_appeared_in_editor(context, seconds=0):
     timeout = int(seconds)
     if timeout > 0:
-        r = context.prompt.expect(['Error', pexpect.TIMEOUT, pexpect.EOF], timeout=timeout)
+        r = context.prompt.expect(
+            ["Error", pexpect.TIMEOUT, pexpect.EOF], timeout=timeout
+        )
     else:
-        r = context.prompt.expect(['Error', pexpect.TIMEOUT, pexpect.EOF])
+        r = context.prompt.expect(["Error", pexpect.TIMEOUT, pexpect.EOF])
         timeout = context.prompt.timeout
-    assert r == 0, 'Did not see an Error in editor - reason: %s' % ["Error", "TIMEOUT", "EOF"][r]
+    assert r == 0, (
+        "Did not see an Error in editor - reason: %s" % ["Error", "TIMEOUT", "EOF"][r]
+    )
 
 
-@step(u'Error type "{type}" shown in editor')
+@step('Error type "{type}" shown in editor')
 def check_error_in_editor(context, type):
     context.prompt.expect("%s" % type)
 
 
-@step(u'Error type "{type}" while saving in editor')
+@step('Error type "{type}" while saving in editor')
 def check_error_while_saving_in_editor(context, type):
     context.prompt.expect("%s" % type)
 
 
-@step(u'Mode missing message shown in editor')
+@step("Mode missing message shown in editor")
 def mode_missing_in_editor(context):
-    context.prompt.expect("Error: connection verification failed: bond.options: mandatory option 'mode' is missing")
+    context.prompt.expect(
+        "Error: connection verification failed: bond.options: mandatory option 'mode' is missing"
+    )
 
 
-@step(u'No error appeared in editor')
+@step("No error appeared in editor")
 def no_error_appeared_in_editor(context):
-    r = context.prompt.expect([pexpect.TIMEOUT, pexpect.EOF, 'Error', 'CRITICAL'], timeout=1)
-    assert r != 2, 'Got an Error in editor'
-    assert r != 3, 'Got a CRITICAL warning in editor'
+    r = context.prompt.expect(
+        [pexpect.TIMEOUT, pexpect.EOF, "Error", "CRITICAL"], timeout=1
+    )
+    assert r != 2, "Got an Error in editor"
+    assert r != 3, "Got a CRITICAL warning in editor"
 
 
-@step(u'Note the "{prop}" property from editor print output')
+@step('Note the "{prop}" property from editor print output')
 def note_print_property(context, prop):
-    category, item = prop.split('.')
-    context.prompt.sendline('print %s' % category)
-    context.prompt.expect('%s.%s:\\s+(\\S+)' % (category, item))
+    category, item = prop.split(".")
+    context.prompt.sendline("print %s" % category)
+    context.prompt.expect("%s.%s:\\s+(\\S+)" % (category, item))
 
-    if not hasattr(context, 'noted'):
+    if not hasattr(context, "noted"):
         context.noted = {}
-    context.noted['noted-value'] = context.prompt.match.group(1)
+    context.noted["noted-value"] = context.prompt.match.group(1)
 
 
-@step(u'Open editor for connection "{con_name}"')
+@step('Open editor for connection "{con_name}"')
 def open_editor_for_connection(context, con_name):
     time.sleep(0.2)
-    prompt = context.pexpect_service('/bin/nmcli connection ed %s' % con_name)
+    prompt = context.pexpect_service("/bin/nmcli connection ed %s" % con_name)
     context.prompt = prompt
-    r = prompt.expect([con_name, 'Error'])
-    assert r == 0, 'Got an Error while opening profile %s\n%s%s' % (con_name, prompt.after, prompt.buffer)
+    r = prompt.expect([con_name, "Error"])
+    assert r == 0, "Got an Error while opening profile %s\n%s%s" % (
+        con_name,
+        prompt.after,
+        prompt.buffer,
+    )
 
 
-@step(u'Open editor for "{con_name}" with timeout')
+@step('Open editor for "{con_name}" with timeout')
 def open_editor_for_connection_with_timeout(context, con_name):
-    prompt = context.pexpect_service('nmcli connection ed %s' % (con_name), maxread=6000, timeout=5)
+    prompt = context.pexpect_service(
+        "nmcli connection ed %s" % (con_name), maxread=6000, timeout=5
+    )
     time.sleep(2)
     context.prompt = prompt
-    r = prompt.expect(['Error', con_name])
-    assert r == 1, 'Got an Error while opening profile %s\n%s%s' % (con_name, prompt.after, prompt.buffer)
+    r = prompt.expect(["Error", con_name])
+    assert r == 1, "Got an Error while opening profile %s\n%s%s" % (
+        con_name,
+        prompt.after,
+        prompt.buffer,
+    )
 
 
-@step(u'Open editor for new connection "{con_name}" type "{type}"')
+@step('Open editor for new connection "{con_name}" type "{type}"')
 def open_editor_for_connection_type(context, con_name, type):
-    prompt = context.pexpect_service('nmcli connection ed type %s con-name %s' % (type, con_name), maxread=6000)
+    prompt = context.pexpect_service(
+        "nmcli connection ed type %s con-name %s" % (type, con_name), maxread=6000
+    )
     context.prompt = prompt
     time.sleep(1)
-    r = prompt.expect(['nmcli interactive connection editor', 'Error'])
-    assert r == 0, 'Got an Error while opening %s profile %s\n%s%s' % (type, con_name, prompt.after, prompt.buffer)
+    r = prompt.expect(["nmcli interactive connection editor", "Error"])
+    assert r == 0, "Got an Error while opening %s profile %s\n%s%s" % (
+        type,
+        con_name,
+        prompt.after,
+        prompt.buffer,
+    )
 
 
-@step(u'Open editor for a new connection')
+@step("Open editor for a new connection")
 def open_editor_for_new_connection(context):
-    prompt = context.pexpect_service('nmcli connection edit')
+    prompt = context.pexpect_service("nmcli connection edit")
     context.prompt = prompt
 
 
-@step(u'Open editor for a type "{typ}"')
+@step('Open editor for a type "{typ}"')
 def open_editor_for_a_type(context, typ):
-    prompt = context.pexpect_service('nmcli connection edit type %s con-name %s0' % (typ, typ))
+    prompt = context.pexpect_service(
+        "nmcli connection edit type %s con-name %s0" % (typ, typ)
+    )
     context.prompt = prompt
 
 
-@step(u'Open interactive connection addition mode for a type "{typ}"')
+@step('Open interactive connection addition mode for a type "{typ}"')
 def open_interactive_for_a_type(context, typ):
-    prompt = context.pexpect_service('nmcli -a connection add type %s' % typ, timeout=5)
+    prompt = context.pexpect_service("nmcli -a connection add type %s" % typ, timeout=5)
     context.prompt = prompt
 
 
-@step(u'Open interactive connection addition mode')
+@step("Open interactive connection addition mode")
 def open_interactive(context):
-    prompt = context.pexpect_service('nmcli -a connection add', timeout=5)
+    prompt = context.pexpect_service("nmcli -a connection add", timeout=5)
     context.prompt = prompt
 
 
-@step(u'Open wizard for adding new connection')
+@step("Open wizard for adding new connection")
 def add_novice_connection(context):
     prompt = context.pexpect_service("nmcli -a connection add")
     context.prompt = prompt
 
 
-@step(u'Print in editor')
+@step("Print in editor")
 def print_in_editor(context):
-    context.prompt.sendline('print')
+    context.prompt.sendline("print")
 
 
-@step(u'Prompt is not running')
+@step("Prompt is not running")
 def prompt_is_not_running(context):
     time.sleep(0.2)
     if context.prompt.pid:
@@ -218,119 +250,134 @@ def prompt_is_not_running(context):
         return True
 
 
-@step(u'Quit editor')
+@step("Quit editor")
 def quit_editor(context):
-    context.prompt.sendline('quit')
+    context.prompt.sendline("quit")
     # VVV We shouldn't go lower here
     time.sleep(0.3)
 
 
-@step(u'Save in editor')
+@step("Save in editor")
 def save_in_editor(context):
-    context.prompt.sendline('save')
+    context.prompt.sendline("save")
     time.sleep(0.2)
 
 
-@step(u'See Error while saving in editor')
+@step("See Error while saving in editor")
 def check_error_while_saving_in_editor_2(context):
     context.prompt.expect("Error")
 
 
-@step(u'Set a property named "{name}" to "{value}" in editor')
+@step('Set a property named "{name}" to "{value}" in editor')
 def set_property_in_editor(context, name, value):
-    if value == 'noted-value':
-        context.prompt.sendline('set %s %s' % (name, context.noted[value]))
+    if value == "noted-value":
+        context.prompt.sendline("set %s %s" % (name, context.noted[value]))
     else:
-        context.prompt.sendline('set %s %s' % (name, value))
+        context.prompt.sendline("set %s %s" % (name, value))
     time.sleep(0.25)
 
 
-@step(u'Submit "{what}"')
+@step('Submit "{what}"')
 def submit(context, what):
-    if what == 'noted-value':
-        context.prompt.sendline(context.noted['noted-value'])
-    elif what == '<enter>':
+    if what == "noted-value":
+        context.prompt.sendline(context.noted["noted-value"])
+    elif what == "<enter>":
         context.prompt.send("\n")
-    elif what == '<tab>':
+    elif what == "<tab>":
         context.prompt.send("\t")
-    elif what == '<double_tab>':
+    elif what == "<double_tab>":
         context.prompt.send("\t\t")
     else:
         context.prompt.sendline(what)
 
 
-@step(u'Submit "{command}" in editor')
+@step('Submit "{command}" in editor')
 def submit_in_editor(context, command):
-    command = command.replace('\\', '')
+    command = command.replace("\\", "")
     context.prompt.sendline("%s" % command)
 
 
-@step(u'Dismiss IP configuration in editor')
+@step("Dismiss IP configuration in editor")
 def dismiss_in_editor(context):
-    cpl = context.prompt.compile_pattern_list(['There are \\d+ optional settings for IPv4 protocol.',
-                                               'Do you want to add IP addresses?'])
+    cpl = context.prompt.compile_pattern_list(
+        [
+            "There are \\d+ optional settings for IPv4 protocol.",
+            "Do you want to add IP addresses?",
+        ]
+    )
     if context.prompt.expect_list(cpl) == 0:
-        context.execute_steps(u'* Submit "no" in editor')
-    context.execute_steps(u'* Submit "no" in editor')
+        context.execute_steps('* Submit "no" in editor')
+    context.execute_steps('* Submit "no" in editor')
 
 
-@step(u'Dismiss Proxy configuration in editor')
+@step("Dismiss Proxy configuration in editor")
 def dismiss_proxy_in_editor(context):
-    cpl = context.prompt.compile_pattern_list(['There are \\d+ optional settings for Proxy.', pexpect.EOF])
+    cpl = context.prompt.compile_pattern_list(
+        ["There are \\d+ optional settings for Proxy.", pexpect.EOF]
+    )
     if context.prompt.expect_list(cpl) == 0:
-        context.execute_steps(u'* Submit "no" in editor')
+        context.execute_steps('* Submit "no" in editor')
 
 
-@step(u'Agree to add IPv4 configuration in editor')
+@step("Agree to add IPv4 configuration in editor")
 def agree4_in_editor(context):
-    context.prompt.compile_pattern_list(['There are \\d+ optional settings for IPv4 protocol.',
-                                         'Do you want to add IP addresses?'])
-    context.execute_steps(u"""
+    context.prompt.compile_pattern_list(
+        [
+            "There are \\d+ optional settings for IPv4 protocol.",
+            "Do you want to add IP addresses?",
+        ]
+    )
+    context.execute_steps(
+        """
         * Submit "yes" in editor
         * Expect "IPv4 address"
-    """)
+    """
+    )
 
 
-@step(u'Agree to add IPv6 configuration in editor')
+@step("Agree to add IPv6 configuration in editor")
 def agree6_in_editor(context):
-    cpl = context.prompt.compile_pattern_list(['There are \\d+ optional settings for IPv6 protocol.',
-                                               'IPv6 address'])
+    cpl = context.prompt.compile_pattern_list(
+        ["There are \\d+ optional settings for IPv6 protocol.", "IPv6 address"]
+    )
     if context.prompt.expect_list(cpl) == 0:
-        context.execute_steps(u"""
+        context.execute_steps(
+            """
             * Submit "yes" in editor
             * Expect "IPv6 address"
-        """)
+        """
+        )
 
 
-@step(u'Submit team \'{command}\' in editor')
+@step("Submit team '{command}' in editor")
 def submit_team_command_in_editor(context, command):
-    context.prompt.sendline('%s' % command)
+    context.prompt.sendline("%s" % command)
 
 
-@step(u'Spawn "{command}" command')
+@step('Spawn "{command}" command')
 def spawn_command(context, command):
     context.prompt = context.pexpect_service(command)
 
 
-@step(u'Value saved message showed in editor')
+@step("Value saved message showed in editor")
 def check_showed_in_editor(context):
-    context.prompt.expect('successfully')
+    context.prompt.expect("successfully")
 
 
-@step(u'"{value}" appeared in editor')
+@step('"{value}" appeared in editor')
 def value_appeared_in_editor(context, value):
     r = context.prompt.expect([value, pexpect.TIMEOUT, pexpect.EOF])
     assert r == 0, 'Did not see "%s" in editor' % value
 
 
-@step(u'Wrong bond options message shown in editor')
+@step("Wrong bond options message shown in editor")
 def wrong_bond_options_in_editor(context):
     context.prompt.expect("Error: failed to set 'options' property:")
 
 
-@step(u'Check if object item "{item}" has value "{value}" via print')
+@step('Check if object item "{item}" has value "{value}" via print')
 def value_printed(context, item, value):
-    context.prompt.sendline('print')
+    context.prompt.sendline("print")
     # time.sleep(2)
     if value == "current_time":
         t_int = int(time.time())
@@ -338,5 +385,5 @@ def value_printed(context, item, value):
         value = t_str[:-3]
         print(value)
 
-    context.prompt.expect('%s:\\s+%s' % (item, value))
+    context.prompt.expect("%s:\\s+%s" % (item, value))
     print(context.prompt)

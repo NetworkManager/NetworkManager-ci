@@ -20,7 +20,7 @@ if __name__ == "__main__":
                         shell=True,
                         stdout=subprocess.PIPE,
                         check=False,
-                        encoding='utf-8',
+                        encoding="utf-8",
                     ).stdout
                     data = json.loads(output)
                     if "error" in data.keys():

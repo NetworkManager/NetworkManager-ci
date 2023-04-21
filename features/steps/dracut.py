@@ -18,7 +18,9 @@ def get_dracut_vm_state(mount=True):
     if mount:
         cmd.append("umount $DEV_LOG")
     command = nmci.process.WithShell("; ".join(cmd))
-    return nmci.process.run_stdout(command, embed_combine_tag=nmci.embed.NO_EMBED).strip("\n")
+    return nmci.process.run_stdout(
+        command, embed_combine_tag=nmci.embed.NO_EMBED
+    ).strip("\n")
 
 
 def handle_timeout(proc, timeout):

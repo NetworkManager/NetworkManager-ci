@@ -197,9 +197,9 @@ chapters = {
     "Setting up a DHCP relay agent": "setting-up-a-dhcp-relay-agent_providing-dhcp-services",
     "Installing BIND": "proc_installing-bind_assembly_configuring-and-managing-a-bind-dns-server",
     "Configuring BIND as a caching name server": "proc_configuring-bind-as-a-caching-name-server_assembly_configuring-and-managing-a-bind-dns-server",
-    "Getting started with <code class=\"literal\">firewalld</code>": "getting-started-with-firewalld_using-and-configuring-firewalld",
-    "Viewing the current status and settings of <code class=\"literal\">firewalld</code>": "viewing-the-current-status-and-settings-of-firewalld_using-and-configuring-firewalld",
-    "Controlling network traffic using <code class=\"literal\">firewalld</code>": "controlling-network-traffic-using-firewalld_using-and-configuring-firewalld",
+    'Getting started with <code class="literal">firewalld</code>': "getting-started-with-firewalld_using-and-configuring-firewalld",
+    'Viewing the current status and settings of <code class="literal">firewalld</code>': "viewing-the-current-status-and-settings-of-firewalld_using-and-configuring-firewalld",
+    'Controlling network traffic using <code class="literal">firewalld</code>': "controlling-network-traffic-using-firewalld_using-and-configuring-firewalld",
     "Controlling ports using CLI": "controlling-ports-using-cli_using-and-configuring-firewalld",
     "Working with firewalld zones": "working-with-firewalld-zones_using-and-configuring-firewalld",
     "Using zones to manage incoming traffic depending on a source": "using-zones-to-manage-incoming-traffic-depending-on-a-source_using-and-configuring-firewalld",
@@ -207,7 +207,7 @@ chapters = {
     "Configuring NAT using firewalld": "assembly_configuring-nat-using-firewalld_using-and-configuring-firewalld",
     "Port forwarding": "port-forwarding_using-and-configuring-firewalld",
     "Managing ICMP requests": "managing-icmp-requests_using-and-configuring-firewalld",
-    "Setting and controlling IP sets using <code class=\"literal\">firewalld</code>": "setting-and-controlling-ip-sets-using-firewalld_using-and-configuring-firewalld",
+    'Setting and controlling IP sets using <code class="literal">firewalld</code>': "setting-and-controlling-ip-sets-using-firewalld_using-and-configuring-firewalld",
     "Prioritizing rich rules": "prioritizing-rich-rules_using-and-configuring-firewalld",
     "Configuring firewall lockdown": "configuring-firewall-lockdown_using-and-configuring-firewalld",
     "Enabling traffic forwarding between different interfaces or sources within a firewalld zone": "assembly_enabling-traffic-forwarding-between-different-interfaces-or-sources-within-a-firewalld-zone_using-and-configuring-firewalld",
@@ -250,7 +250,7 @@ chapters = {
 }
 
 
-@step(u'Doc: "{name}"')
+@step('Doc: "{name}"')
 def doc_step(context, name):
     links = []
     if name not in chapters:
