@@ -54,3 +54,17 @@ Feature: nmcli: cloud
     * Mock EC2 IP addresses "172.31.186.249" and "172.31.18.249" for device with MAC address "CC:00:00:00:00:01"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+
+    @ver+=1.43.8
+    @cloud_gcp_basic
+    Scenario: cloud - gcp - Basic GCP nm-cloud-setup checks
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    * Mock GCP metadata for device "0" with MAC address "CC:00:00:00:00:01"
+    * Mock GCP IP addresses "172.31.176.249" and "172.31.17.249" with for device "0"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Execute nm-cloud-setup for "gcp" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then "local 172.31.176.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
+    Then "local 172.31.17.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
