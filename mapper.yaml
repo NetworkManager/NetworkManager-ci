@@ -1362,6 +1362,8 @@ testmapper:
         feature: ethernet
     - no_assumed_connection_for_veth:
         feature: ethernet
+    - cloud_aliyun_basic:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
