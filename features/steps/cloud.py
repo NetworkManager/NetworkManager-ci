@@ -32,6 +32,10 @@ def http_put_ec2(url, data):
     http_put(url, data)
 
 
+def http_put_gcp(url, data):
+    http_put(url, data)
+
+
 @step("Start test-cloud-meta-mock.py")
 def start_test_cloud_meta_mock(context):
     nmci.cleanup.add_callback(
@@ -284,4 +288,45 @@ def mock_ec2_cidr(context, cidr, mac):
     http_put_ec2(
         f"2018-09-24/meta-data/network/interfaces/macs/{mac}/subnet-ipv4-cidr-block",
         cidr,
+    )
+
+
+@step('Mock GCP metadata for device "{dev}" with MAC address "{mac}"')
+def mock_gcp_mac(context, dev, mac):
+    mac = _resolve_mac(context, mac)
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/",
+        "0",
+    )
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/mac",
+        mac,
+    )
+
+
+@step('Mock GCP IP address "{ip_addr}" with for device "{dev}"')
+def mock_gcp_ip(context, ip_addr, dev):
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/",
+        "0",
+    )
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/0",
+        ip_addr,
+    )
+
+
+@step('Mock GCP IP addresses "{ip_addr1}" and "{ip_addr2}" with for device "{dev}"')
+def mock_gcp_ip2(context, ip_addr1, ip_addr2, dev):
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/",
+        "0\n1\n",
+    )
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/0",
+        ip_addr1,
+    )
+    http_put_gcp(
+        f"computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/1",
+        ip_addr2,
     )

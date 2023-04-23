@@ -1368,6 +1368,8 @@ testmapper:
         feature: cloud
     - cloud_ec2_basic:
         feature: cloud
+    - cloud_gcp_basic:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
