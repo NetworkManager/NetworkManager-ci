@@ -59,3 +59,17 @@ Feature: nmcli: cloud
     * Mock EC2 IP addresses "172.31.186.249" and "172.31.18.249" for device with MAC address "mac0"
     * Execute "NM_CLOUD_SETUP_EC2=yes NM_CLOUD_SETUP_LOG=trace /usr/libexec/nm-cloud-setup"
     Then Check "ipv4" address list "/192.168.[0-9]+.[0-9]+/24$ 172.31.186.249/20 172.31.18.249/20" on device "eth0"
+
+
+    @cloud
+    @ethernet
+    @cloud_gcp_basic
+    Scenario: cloud - gcp - Basic GCP nm-cloud-setup checks
+    * Bring "up" connection "testeth1"
+    * Note MAC address output for device "eth0" via ip command as "mac0"
+    * Mock GCP metadata for device "0" with MAC address "mac0"
+    * Mock GCP IP addresses "172.31.176.249" and "172.31.17.249" with for device "0"
+    * Check "ipv4" address list "/192.168.[0-9]+.[0-9]+/24$" on device "eth0"
+    * Execute "NM_CLOUD_SETUP_GCP=yes NM_CLOUD_SETUP_LOG=trace /usr/libexec/nm-cloud-setup"
+    Then "local 172.31.176.249 dev eth0 table local proto static scope host metric 100" is visible with command "ip route show table all"
+    Then "local 172.31.17.249 dev eth0 table local proto static scope host metric 100" is visible with command "ip route show table all"

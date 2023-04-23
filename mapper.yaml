@@ -3382,3 +3382,5 @@ testmapper:
         feature: cloud
     - cloud_ec2_basic:
         feature: cloud
+    - cloud_gcp_basic:
+        feature: cloud

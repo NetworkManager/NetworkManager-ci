@@ -154,3 +154,37 @@ def ec2_cidr(context, cidr, mac):
     nmci.process.run_stdout(
         f"curl -s -X PUT http://localhost/2018-09-24/meta-data/network/interfaces/macs/{mac_addr}/subnet-ipv4-cidr-block --data '{cidr}'"
     )
+
+
+@step('Mock GCP metadata for device "{dev}" with MAC address "{mac}"')
+def azure_mac(context, dev, mac):
+    mac_addr = context.noted[mac].strip()
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/' --data '0'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/mac' --data '{mac_addr}'"
+    )
+
+
+@step('Mock GCP IP address "{ip_addr}" with for device "{dev}"')
+def azure_ip(context, ip_addr, dev):
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/' --data '0'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/0' --data '{ip_addr}'"
+    )
+
+
+@step('Mock GCP IP addresses "{ip_addr1}" and "{ip_addr2}" with for device "{dev}"')
+def azure_ip(context, ip_addr1, ip_addr2, dev):
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/' --data '0\n1\n'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/0' --data '{ip_addr1}'"
+    )
+    nmci.process.run_stdout(
+        f"curl -s -X PUT 'http://localhost/computeMetadata/v1/instance/network-interfaces/{dev}/forwarded-ips/1' --data '{ip_addr2}'"
+    )
