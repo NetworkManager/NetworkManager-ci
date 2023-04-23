@@ -3376,3 +3376,5 @@ testmapper:
         feature: ovs
 
   NetworkManager-cloud-setup:
+    - cloud_aliyun_basic:
+        feature: cloud
