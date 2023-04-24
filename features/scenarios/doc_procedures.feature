@@ -259,18 +259,17 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=8
-    @eth0
     @qdisc_doc_procedure
     Scenario: nmcli - docs - Permanently setting the current qdisk of a network interface
-    * Execute "tc qdisc replace dev eth0 root fq_codel"
-    Given "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth0"
-    * Add "ethernet" connection named "con_tc" for device "eth0"
+    * Execute "tc qdisc replace dev eth1 root fq_codel"
+    Given "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth1"
+    * Add "ethernet" connection named "con_tc" for device "eth1"
     * Modify connection "con_tc" changing options "tc.qdisc 'root pfifo_fast'"
     * Modify connection "con_tc" changing options "+tc.qdisc 'ingress handle ffff:'"
-    When "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth0"
+    When "qdisc fq_codel .*: root refcnt .*" is visible with command "tc qdisc show dev eth1"
     * Bring "up" connection "con_tc"
-    Then "qdisc pfifo_fast .*: root refcnt .* bands 3 priomap\s+1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth0"
-    And  "qdisc ingress ffff: parent ffff:fff1\s+----------------" is visible with command "tc qdisc show dev eth0"
+    Then "qdisc pfifo_fast .*: root refcnt .* bands 3 priomap\s+1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1" is visible with command "tc qdisc show dev eth1"
+    And  "qdisc ingress ffff: parent ffff:fff1\s+----------------" is visible with command "tc qdisc show dev eth1"
 
 
     @rhelver+=8
