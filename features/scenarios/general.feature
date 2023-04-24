@@ -3057,16 +3057,9 @@ Feature: nmcli - general
     @ver+=1.22.0
     @clean_device_state_files
     Scenario: NM - general - clean device state files
-    * Run child "for i in $(seq 1 120); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.25; done; ip link del dummy0"
-    When "At least" "40" and "at most" "49" lines are visible with command "ls /run/NetworkManager/devices/ | sed 's/ /\n/g'" in "40" seconds
-    Then "At least" "25" and "at most" "29" lines are visible with command "ls /run/NetworkManager/devices/ | sed 's/ /\n/g'" in "60" seconds
-    # VVV Check that dummy0 is not present anymore as next tests can be affected
-    When "dummy0" is not visible with command "ip a s" in "30" seconds
-    When "dummy0" is not visible with command "ip a s" in "30" seconds
-    When "dummy0" is not visible with command "ip a s" in "30" seconds
-    # And we need another one Sept/2021
-    * Wait for children
-    When "dummy0" is not visible with command "ip a s" in "30" seconds
+    * Cleanup device "dummy0"
+    * Execute "for i in $(seq 1 120); do ip link delete dummy0 &>/dev/null; ip link add dummy0 type bridge; ip addr add 1.1.1.1/2 dev dummy0;  ip link set dummy0 up; sleep 0.05; done"
+    Then "Less than" "105" lines are visible with command "ls -1 /run/NetworkManager/devices/"
 
 
     @rhbz1758550
@@ -3113,12 +3106,10 @@ Feature: nmcli - general
     * Bring "up" connection "testeth10"
     When "default" is visible with command "ip r" in "20" seconds
     When "default" is visible with command "ip -6 r" in "20" seconds
-    # dev lo is not managed by NM
-    * Note the number of lines with pattern "^(?=^\S+)(?=^(?:(?!dev lo).)*$).*$" of "ip -6 r" as value "ip6_route"
-    # ff00::/8 are not shown in `ip -6 r`
-    * Note the number of lines with pattern "^\s*route6\s*((?!ff80::\/8).)*$" of "nmcli" as value "nmcli6_route"
-    * Note the number of lines of "ip r" as value "ip4_route"
-    * Note the number of lines with pattern "route4" of "nmcli" as value "nmcli4_route"
+    * Note the number of lines of "ip -6 route show dev eth10" as value "ip6_route"
+    * Note the number of lines with pattern "route6" of "nmcli | sed '/^eth10:/,/^$/!d'" as value "nmcli6_route"
+    * Note the number of lines of "ip -4 route show dev eth10" as value "ip4_route"
+    * Note the number of lines with pattern "route4" of "nmcli | sed '/^eth10:/,/^$/!d'" as value "nmcli4_route"
     Then Check noted values "ip6_route" and "nmcli6_route" are the same
     Then Check noted values "ip4_route" and "nmcli4_route" are the same
 

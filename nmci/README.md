@@ -174,7 +174,7 @@ Cleanup NetworkManager connection
 
 
 
-### _class_ nmci.cleanup.CleanupFile(\*files, priority=70, name=None, unique_tag=None)
+### _class_ nmci.cleanup.CleanupFile(\*files, glob=None, priority=70, name=None, unique_tag=None)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
 
 File cleanup, removes file if exists.
@@ -187,6 +187,9 @@ File cleanup, removes file if exists.
 
 
     * **name** (*str**, **optional*) – description of cleanup, defaults to None
+
+
+    * **glob** (*string** or **iterable of string**, **optional*) – glob expression(s) of filenames
 
 
 

@@ -257,7 +257,7 @@ def note_the_output_as(context, command, index="noted-value"):
 def note_the_output_lines_as(context, command, index="noted-value", pattern=None):
     if not hasattr(context, "noted"):
         context.noted = {}
-    out = nmci.process.run_stdout(command, ignore_stderr=True)
+    out = nmci.process.run_stdout(command, ignore_stderr=True, shell=True)
     if pattern is not None:
         out = [line for line in out.split("\n") if re.search(pattern, line)]
     else:
