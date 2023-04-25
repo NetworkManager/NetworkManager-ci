@@ -7,13 +7,13 @@ Feature: nmcli: gsm
     # @test_name (compiled from scenario name)
     # Scenario:
 
-    @gsm_hub
-    Scenario: nmcli - gsm - hub
-    * Execute "echo 'This should not be reached' && false"
+    # @gsm_hub
+    # Scenario: nmcli - gsm - hub
+    # * Execute "echo 'This should not be reached' && false"
 
-    @gsm_hub_simple
-    Scenario: nmcli - gsm - hub
-    * Execute "echo 'This should not be reached' && false"
+    # @gsm_hub_simple
+    # Scenario: nmcli - gsm - hub
+    # * Execute "echo 'This should not be reached' && false"
 
     @gsm
     @gsm_create_default_connection
