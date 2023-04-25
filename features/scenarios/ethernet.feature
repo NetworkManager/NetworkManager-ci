@@ -1364,5 +1364,5 @@ Feature: nmcli - ethernet
      Then "Exactly" "302" lines with pattern "mtu 9000" are visible with command "ip link show" in "120" seconds
      * Stop NM
      * Execute "for i in $(seq 0 301); do ip link set veth_dev_$i down; ip addr flush veth_dev_$i; done;"
-     * Reboot 
+     * Reboot within "20" seconds
      Then "Exactly" "302" lines with pattern "mtu 9000" are visible with command "ip link show" in "120" seconds
