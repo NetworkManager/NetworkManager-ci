@@ -135,8 +135,11 @@ class _Cleanup:
             """
 
             assert callback
-            assert callable(callback)
-            self._callback = callback
+            if callable(callback):
+                self._callbacks = (callback,)
+            else:
+                self._callbacks = tuple(callback)
+                assert all(callable(c) for c in self._callbacks)
 
             assert also_needs is None or callable(also_needs)
             self._also_needs = also_needs
@@ -156,7 +159,18 @@ class _Cleanup:
             return self._also_needs()
 
         def _do_cleanup_impl(self):
-            self._callback()
+            if len(self._callbacks) == 1:
+                (self._callbacks[0])()
+                return
+            error = None
+            for c in self._callbacks:
+                try:
+                    c()
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
 
     class CleanupConnection(Cleanup):
         def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
