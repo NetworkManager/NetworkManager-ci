@@ -390,10 +390,6 @@ def remove_vlan_range(context, scenario):
     if vlan_range is None:
         return
 
-    # remove vlans and bridgess
-    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
-    context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
-
     # remove ifcfg (if any)
     ifcfg_list = " ".join(
         (f"/etc/sysconfig/network-scripts/ifcfg-{dev}" for dev in vlan_range)
@@ -405,6 +401,16 @@ def remove_vlan_range(context, scenario):
         (f"/etc/NetworkManager/system-connections/{dev}*" for dev in vlan_range)
     )
     context.process.run_stdout("rm -rvf " + keyfile_list, shell=True)
+
+    # remove vlans and bridgess
+    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
+    context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
+
+    nmci.nmutil.restart_NM_service(timeout=120)
+
+    # remove vlans and bridgess
+    ip_cleanup_cmd = "; ".join((f"ip link del {dev}" for dev in vlan_range))
+    context.process.run(ip_cleanup_cmd, shell=True, ignore_stderr=True, timeout=180)
 
     nmci.nmutil.restart_NM_service(timeout=120)
 
