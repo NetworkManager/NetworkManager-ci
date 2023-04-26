@@ -88,6 +88,11 @@ class _Cleanup:
 
             _module._cleanup_add(self)
 
+        def _also_needs_impl(self):
+            if self._also_needs is None:
+                return ()
+            return self._also_needs()
+
         def also_needs(self):
             """Dependent cleanups, should return iterable of Cleanup instances.
 
@@ -97,9 +102,7 @@ class _Cleanup:
             :return: tuple of Cleanup
             :rtype: iterable
             """
-            if self._also_needs is None:
-                return ()
-            return self._also_needs()
+            return self._also_needs_impl()
 
         def do_cleanup(self):
             """This is called automatically after scenario. Do not call at other places."""
@@ -453,7 +456,7 @@ class _Cleanup:
             """
             super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
-        def also_needs(self):
+        def _also_needs_impl(self):
             return (_Cleanup.CleanupUdevUpdate(),)
 
     class CleanupNMService(Cleanup):
@@ -519,7 +522,7 @@ class _Cleanup:
                 unique_tag=(config_file, schedule_nm_restart),
             )
 
-        def also_needs(self):
+        def _also_needs_impl(self):
             if not self._schedule_nm_restart:
                 return ()
             return (_Cleanup.CleanupNMService("restart"),)
