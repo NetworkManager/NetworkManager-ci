@@ -918,22 +918,19 @@ def rename_device(context, orig_name, new_name):
     # Rename interface back in cleanup
     nmci.cleanup.cleanup_add_NM_service("restart")
     nmci.cleanup.cleanup_add(
-        callback=nmci.ip.link_set,
+        callback=lambda: nmci.ip.link_set(ifname=orig_name, up=True),
         name=f"link-up: {orig_name}",
         unique_tag=(orig_name, True),
-        args={"ifname": orig_name, "up": True},
     )
     nmci.cleanup.cleanup_add(
-        callback=nmci.ip.link_set,
+        callback=lambda: nmci.ip.link_set(ifname=new_name, name=orig_name),
         name=f"link-rename: {new_name} -> {orig_name}",
         unique_tag=(new_name, orig_name),
-        args={"ifname": new_name, "name": orig_name},
     )
     nmci.cleanup.cleanup_add(
-        callback=nmci.ip.link_set,
+        callback=lambda: nmci.ip.link_set(ifname=new_name, up=False),
         name=f"link-down: {new_name}",
         unique_tag=(new_name, False),
-        args={"ifname": new_name, "up": False},
     )
 
     nmci.ip.link_set(ifname=orig_name, up=False)
