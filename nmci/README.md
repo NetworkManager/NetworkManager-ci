@@ -202,10 +202,10 @@ Cleanup the network interafce
 * **Parameters**
 
     
-    * **iface** (*str*) – name of the interface
+    * **iface** (*str** or **list of str*) – name of the interface
 
 
-    * **op** (*str**, **optional*) – operation, one of ‘delete’ or ‘reset’, defaults to ‘reset’ on eth0…eth10, ‘delete’ otherwise
+    * **op** (*str**, **optional*) – operation, one of ‘delete’, ‘ip-delete’ or ‘reset’, defaults to ‘reset’ on eth0…eth10, ‘delete’ otherwise
 
 
     * **priority** (*int**, **optional*) – cleanup priority, defaults to PRIORITY_IFACE_DELETE or PRIORITY_IFACE_RESET

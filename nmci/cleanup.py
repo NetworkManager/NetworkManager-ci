@@ -155,14 +155,15 @@ class _Cleanup:
             """Cleanup the network interafce
 
             :param iface: name of the interface
-            :type iface: str
-            :param op: operation, one of 'delete' or 'reset', defaults to 'reset' on eth0...eth10, 'delete' otherwise
+            :type iface: str or list of str
+            :param op: operation, one of 'delete', 'ip-delete' or 'reset', defaults to 'reset' on eth0...eth10, 'delete' otherwise
             :type op: str, optional
             :param priority: cleanup priority, defaults to PRIORITY_IFACE_DELETE or PRIORITY_IFACE_RESET
             :type priority: int, optional
             """
             assert op in [None, "reset", "delete", "ip-delete"]
             if op is None:
+                assert isinstance(iface, str)
                 if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                     op = "reset"
                 else:
@@ -173,24 +174,43 @@ class _Cleanup:
                 else:
                     priority = PRIORITY_IFACE_DELETE
 
-            self.op = op
-            self.iface = iface
-            super().__init__(
-                name=f"iface-{op}-{iface}", unique_tag=(iface, op), priority=priority
-            )
+            if isinstance(iface, str):
+                ifaces = [iface]
+            else:
+                ifaces = list(iface)
 
-        def _do_cleanup(self):
+            if len(ifaces) == 1:
+                name = f"iface-{op}-{ifaces[0]}"
+            else:
+                name = f"iface-{op}-{ifaces}"
+
+            self.op = op
+            self.ifaces = ifaces
+            super().__init__(name=name, unique_tag=(self.ifaces, op), priority=priority)
+
+        def _do_cleanup_one(self, iface):
             if self.op == "ip-delete":
-                nmci.ip.link_delete(self.iface)
+                nmci.ip.link_delete(iface)
             elif self.op == "reset":
-                nmci.veth.reset_hwaddr_nmcli(self.iface)
+                nmci.veth.reset_hwaddr_nmcli(iface)
                 # Why oh why was eth0 filtered out?
-                # if self.iface != "eth0":
-                nmci.process.run(["ip", "addr", "flush", self.iface])
+                # if iface != "eth0":
+                nmci.process.run(["ip", "addr", "flush", iface])
                 time.sleep(0.1)
             else:
                 assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
-                nmci.process.nmcli_force(["device", "delete", self.iface])
+                nmci.process.nmcli_force(["device", "delete", iface])
+
+        def _do_cleanup(self):
+            error = None
+            for iface in self.ifaces:
+                try:
+                    self._do_cleanup_one(iface)
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
 
     class CleanupSysctls(Cleanup):
         def __init__(self, sysctls_pattern, namespace=None):
