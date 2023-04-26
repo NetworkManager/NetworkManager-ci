@@ -249,7 +249,7 @@ Cleanup NetworkManager config file and restart.
 
 
 
-### _class_ nmci.cleanup.CleanupNMService(operation='restart', timeout=None, priority=None)
+### _class_ nmci.cleanup.CleanupNMService(operation='restart', timeout=None, priority=None, name=None)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
 
 NetworkManager systemd service cleanup. Accepts start, restart, and reload.
