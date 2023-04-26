@@ -93,28 +93,22 @@ Skip scenario and stop executing (raise SkipTestException).
 # cleanup
 
 
-### _class_ nmci.cleanup.Cleanup(callback=None, name=None, unique_tag=None, priority=0, also_needs=None)
+### _class_ nmci.cleanup.Cleanup(name, unique_tag=None, priority=0)
 Bases: `object`
 
-Generic cleanup
+Cleanup base class
 
 
 * **Parameters**
 
     
-    * **callback** (*callable**, **optional*) – cleanup method to be called, defaults to None
-
-
-    * **name** (*str**, **optional*) – human readable description, defaults to None
+    * **name** (*str*) – human readable description, defaults to None
 
 
     * **unique_tag** (*object**, **optional*) – comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
 
 
     * **priority** (*int**, **optional*) – defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
-
-
-    * **also_needs** (*callable**, **optional*) – dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
 
 
 
@@ -151,6 +145,31 @@ Generic cleanup
 #### PRIORITY_UDEV_UPDATE(_ = 30_ )
 
 #### UNIQ_TAG_DISTINCT(_ = <object object_ )
+
+### _class_ nmci.cleanup.CleanupCallback(callback, name=None, unique_tag=<object object>, priority=0, also_needs=None)
+Bases: `nmci.cleanup._Cleanup.Cleanup`
+
+Generic cleanup
+
+
+* **Parameters**
+
+    
+    * **callback** (*callable**, **optional*) – cleanup method to be called, defaults to None
+
+
+    * **name** (*str**, **optional*) – human readable description, defaults to None
+
+
+    * **unique_tag** (*object**, **optional*) – comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
+
+
+    * **priority** (*int**, **optional*) – defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
+
+
+    * **also_needs** (*callable**, **optional*) – dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
+
+
 
 ### _class_ nmci.cleanup.CleanupConnection(con_name, qualifier=None, priority=20)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
@@ -265,25 +284,19 @@ NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 ### _class_ nmci.cleanup.CleanupNamespace(namespace, teardown=True, priority=30)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
 
-Generic cleanup
+Cleanup base class
 
 
 * **Parameters**
 
     
-    * **callback** (*callable**, **optional*) – cleanup method to be called, defaults to None
-
-
-    * **name** (*str**, **optional*) – human readable description, defaults to None
+    * **name** (*str*) – human readable description, defaults to None
 
 
     * **unique_tag** (*object**, **optional*) – comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
 
 
     * **priority** (*int**, **optional*) – defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
-
-
-    * **also_needs** (*callable**, **optional*) – dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
 
 
 
@@ -348,7 +361,7 @@ Udev update cleanup, calls updates and settles udev
 
 
 ### nmci.cleanup.cleanup_add()
-alias of `nmci.cleanup._Cleanup.Cleanup`
+alias of `nmci.cleanup._Cleanup.CleanupCallback`
 
 
 ### nmci.cleanup.cleanup_add_NM_service()

@@ -52,29 +52,24 @@ class _Cleanup:
 
         def __init__(
             self,
-            callback=None,
-            name=None,
+            name,
             unique_tag=None,
             priority=PRIORITY_CALLBACK_DEFAULT,
-            also_needs=None,
         ):
-            """Generic cleanup
+            """Cleanup base class
 
-            :param callback: cleanup method to be called, defaults to None
-            :type callback: callable, optional
             :param name: human readable description, defaults to None
-            :type name: str, optional
+            :type name: str
             :param unique_tag: comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
             :type unique_tag: object, optional
             :param priority: defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
             :type priority: int, optional
-            :param also_needs: dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
-            :type also_needs: callable, optional
             """
+            assert name
+            assert type(self) is not _Cleanup.Cleanup
+
             self.name = name
-            if unique_tag is UNIQ_TAG_DISTINCT or (
-                unique_tag is None and type(self) is _Cleanup.Cleanup
-            ):
+            if unique_tag is UNIQ_TAG_DISTINCT:
                 # This instance only compares equal to itself.
                 self.unique_tag = (id(self),)
             elif unique_tag is None:
@@ -82,16 +77,12 @@ class _Cleanup:
             else:
                 self.unique_tag = ("arg", type(self), *unique_tag)
             self.priority = priority
-            self._callback = callback
-            self._also_needs = also_needs
             self._do_cleanup_called = False
 
             _module._cleanup_add(self)
 
         def _also_needs_impl(self):
-            if self._also_needs is None:
-                return ()
-            return self._also_needs()
+            return ()
 
         def also_needs(self):
             """Dependent cleanups, should return iterable of Cleanup instances.
@@ -118,8 +109,53 @@ class _Cleanup:
             print(f" passed in {(time.monotonic() - t):.3f}s")
 
         def _do_cleanup_impl(self):
-            if self._callback is None:
-                raise NotImplementedError("cleanup not implemented")
+            raise NotImplementedError("cleanup not implemented")
+
+    class CleanupCallback(Cleanup):
+        def __init__(
+            self,
+            callback,
+            name=None,
+            unique_tag=UNIQ_TAG_DISTINCT,
+            priority=PRIORITY_CALLBACK_DEFAULT,
+            also_needs=None,
+        ):
+            """Generic cleanup
+
+            :param callback: cleanup method to be called, defaults to None
+            :type callback: callable, optional
+            :param name: human readable description, defaults to None
+            :type name: str, optional
+            :param unique_tag: comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
+            :type unique_tag: object, optional
+            :param priority: defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
+            :type priority: int, optional
+            :param also_needs: dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
+            :type also_needs: callable, optional
+            """
+
+            assert callback
+            assert callable(callback)
+            self._callback = callback
+
+            assert also_needs is None or callable(also_needs)
+            self._also_needs = also_needs
+
+            if name is None:
+                name = str(callback)
+
+            super().__init__(
+                name=name,
+                unique_tag=unique_tag,
+                priority=priority,
+            )
+
+        def _also_needs_impl(self):
+            if self._also_needs is None:
+                return ()
+            return self._also_needs()
+
+        def _do_cleanup_impl(self):
             self._callback()
 
     class CleanupConnection(Cleanup):
@@ -534,7 +570,7 @@ class _Cleanup:
     }
 
     # Aliases to remain compatible
-    cleanup_add = Cleanup
+    cleanup_add = CleanupCallback
     cleanup_add_connection = CleanupConnection
     cleanup_add_iface = CleanupIface
     cleanup_add_namespace = CleanupNamespace
