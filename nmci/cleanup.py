@@ -57,7 +57,6 @@ class _Cleanup:
             unique_tag=None,
             priority=PRIORITY_CALLBACK_DEFAULT,
             also_needs=None,
-            args=None,
         ):
             """Generic cleanup
 
@@ -71,8 +70,6 @@ class _Cleanup:
             :type priority: int, optional
             :param also_needs: dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
             :type also_needs: callable, optional
-            :param args: arguments for callback
-            :type args: dic, optional
             """
             self.name = name
             if unique_tag is UNIQ_TAG_DISTINCT or (
@@ -84,7 +81,6 @@ class _Cleanup:
                 self.unique_tag = (type(self),)
             else:
                 self.unique_tag = ("arg", type(self), *unique_tag)
-            self.args = args or {}
             self.priority = priority
             self._callback = callback
             self._also_needs = also_needs
@@ -121,7 +117,7 @@ class _Cleanup:
         def _do_cleanup(self):
             if self._callback is None:
                 raise NotImplementedError("cleanup not implemented")
-            self._callback(**self.args)
+            self._callback()
 
     class CleanupConnection(Cleanup):
         def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):

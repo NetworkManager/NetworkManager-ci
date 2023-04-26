@@ -93,7 +93,7 @@ Skip scenario and stop executing (raise SkipTestException).
 # cleanup
 
 
-### _class_ nmci.cleanup.Cleanup(callback=None, name=None, unique_tag=None, priority=0, also_needs=None, args=None)
+### _class_ nmci.cleanup.Cleanup(callback=None, name=None, unique_tag=None, priority=0, also_needs=None)
 Bases: `object`
 
 Generic cleanup
@@ -115,9 +115,6 @@ Generic cleanup
 
 
     * **also_needs** (*callable**, **optional*) – dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
-
-
-    * **args** (*dic**, **optional*) – arguments for callback
 
 
 
@@ -287,9 +284,6 @@ Generic cleanup
 
 
     * **also_needs** (*callable**, **optional*) – dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
-
-
-    * **args** (*dic**, **optional*) – arguments for callback
 
 
 
