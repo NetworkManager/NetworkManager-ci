@@ -199,7 +199,7 @@ class _PExpect:
 
         # These get reaped during the cleanup at the end of the scenario.
 
-        nmci.cleanup.cleanup_add(
+        nmci.cleanup.add_callback(
             callback=lambda: self._pexpect_service_cleanup(data),
             name=f"pexpect {proc.name}",
             unique_tag=nmci.Cleanup.UNIQ_TAG_DISTINCT,

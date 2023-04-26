@@ -584,18 +584,18 @@ class _Cleanup:
     }
 
     # Aliases to remain compatible
-    cleanup_add = CleanupCallback
-    cleanup_add_connection = CleanupConnection
-    cleanup_add_iface = CleanupIface
-    cleanup_add_namespace = CleanupNamespace
-    cleanup_add_nft = CleanupNft
-    cleanup_add_ip_mptcp_limits = CleanupMptcpLimits
-    cleanup_add_ip_mptcp_endpoints = CleanupMptcpEndpoints
-    cleanup_add_sysctls = CleanupSysctls
-    cleanup_file = CleanupFile
-    cleanup_add_udev_rule = CleanupUdevRule
-    cleanup_add_NM_service = CleanupNMService
-    cleanup_nm_config = CleanupNMConfig
+    add_callback = CleanupCallback
+    add_connection = CleanupConnection
+    add_iface = CleanupIface
+    add_namespace = CleanupNamespace
+    add_nft = CleanupNft
+    add_mptcp_limits = CleanupMptcpLimits
+    add_mptcp_endpoints = CleanupMptcpEndpoints
+    add_sysctls = CleanupSysctls
+    add_file = CleanupFile
+    add_udev_rule = CleanupUdevRule
+    add_NM_service = CleanupNMService
+    add_NM_config = CleanupNMConfig
 
     def __init__(self):
         self._cleanup_lst = []

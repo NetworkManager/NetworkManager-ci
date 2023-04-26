@@ -6,7 +6,7 @@ import nmci
 
 @step('Add "{vpn}" VPN connection named "{name}" for device "{ifname}"')
 def add_vpnc_connection_for_iface(context, name, ifname, vpn):
-    nmci.cleanup.cleanup_add_connection(name)
+    nmci.cleanup.add_connection(name)
     command = (
         f'connection add con-name "{name}" type vpn ifname {ifname} vpn-type {vpn}'
     )

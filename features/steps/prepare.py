@@ -306,7 +306,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
             device=device
         )
     )
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns")
 
 
 @step(
@@ -385,7 +385,7 @@ def prepare_simdev(
     nmci.veth.manage_device(device)
 
     nmci.ip.netns_add(f"{device}_ns")
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
@@ -443,8 +443,8 @@ def prepare_simdev(
     pid_file = f"/tmp/{device}_ns.pid"
     lease_file = f"/tmp/{device}_ns.lease"
 
-    nmci.cleanup.cleanup_file(pid_file)
-    nmci.cleanup.cleanup_file(lease_file)
+    nmci.cleanup.add_file(pid_file)
+    nmci.cleanup.add_file(lease_file)
 
     dnsmasq_command = "ip netns exec {device}_ns dnsmasq \
                                 --interface={device}p \
@@ -580,8 +580,8 @@ def prepare_simdev(context, device):
             device=device
         )
     )
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
+    nmci.cleanup.add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns2")
 
 
 @step('Prepare simulated test "{device}" device without DHCP')
@@ -589,7 +589,7 @@ def prepare_simdev_no_dhcp(context, device):
     nmci.veth.manage_device(device)
 
     context.execute_steps(f'* Add namespace "{device}_ns"')
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
     )
@@ -694,8 +694,8 @@ def prepare_simdev(context, device):
         "ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device),
         shell=True,
     )
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns2")
+    nmci.cleanup.add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns2")
 
 
 @step('Prepare simulated veth device "{device}" without carrier')
@@ -756,7 +756,7 @@ def prepare_simdev_no_carrier(context, device):
     context.command_code(
         "ip netns exec {device}_ns ip link set {device} netns 1".format(device=device)
     )
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns")
 
 
 @step('Prepare simulated test "{device}" device with a bridged peer')
@@ -784,7 +784,7 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
                 |                       |
                 +-----------------------+
     """
-    nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
+    nmci.cleanup.add_namespace(f"{device}_ns")
     nmci.process.run_stdout(f"ip netns add {device}_ns")
     nmci.process.run_stdout(
         f"ip l add {device} type veth peer name {device}p netns {device}_ns"
@@ -800,7 +800,7 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
     namespaces = [ns.strip() for ns in namespaces.split(",")]
     for ns in namespaces:
         ns
-        nmci.cleanup.cleanup_add_namespace(ns)
+        nmci.cleanup.add_namespace(ns)
         nmci.process.run_stdout(f"ip netns add {ns}")
         nmci.process.run_stdout(
             f"ip -n {ns} l add veth0 type veth peer name {ns} netns {device}_ns"
@@ -988,8 +988,8 @@ def mptcp(context, num, veth, typ="subflow"):
     # A workaround is to disable MPTCP, restart NM and flush the endpoints
     # early in the Prepare so that the rest of scenario works exactly the same
     # as on systems with MPTCP disabled.
-    nmci.cleanup.cleanup_add_sysctls("net.mptcp.enabled")
-    nmci.cleanup.cleanup_add_NM_service("restart")
+    nmci.cleanup.add_sysctls("net.mptcp.enabled")
+    nmci.cleanup.add_NM_service("restart")
     nmci.process.run(["sysctl", "-w", "net.mptcp.enabled=0"])
     nmci.process.run(["ip", "mptcp", "endpoint", "flush"])
     nmci.nmutil.restart_NM_service()
@@ -1000,13 +1000,13 @@ def mptcp(context, num, veth, typ="subflow"):
     run_in_ns = ["ip", "netns", "exec", nsname]
     ip_in_ns = ["ip", "-n", nsname]
 
-    nmci.cleanup.cleanup_add_namespace(nsname)
+    nmci.cleanup.add_namespace(nsname)
     nmci.process.run(["ip", "netns", "add", nsname])
 
-    nmci.cleanup.cleanup_add_sysctls("\.rp_filter")
-    nmci.cleanup.cleanup_add_sysctls("net.mptcp.enabled")
-    nmci.cleanup.cleanup_add_ip_mptcp_limits()
-    nmci.cleanup.cleanup_add_ip_mptcp_endpoints()
+    nmci.cleanup.add_sysctls("\.rp_filter")
+    nmci.cleanup.add_sysctls("net.mptcp.enabled")
+    nmci.cleanup.add_mptcp_limits()
+    nmci.cleanup.add_mptcp_endpoints()
     nmci.process.run_stdout([*ip_in_ns, "mptcp", "endpoint", "flush"])
     nmci.process.run_stdout(
         [
@@ -1029,7 +1029,7 @@ def mptcp(context, num, veth, typ="subflow"):
         v6_start = hex(v4_start)[2:]
         ipv4 = f"192.168.{v4_start}.1"
         ipv6 = f"2620:dead:beaf:{v6_start}::1"
-        nmci.cleanup.cleanup_add_iface(iface)
+        nmci.cleanup.add_iface(iface)
         nmci.process.run(
             [
                 "ip",
@@ -1101,6 +1101,6 @@ def mptcp(context, num, veth, typ="subflow"):
 @step('Set ip mptcp limits to "{lim}"')
 @step('Set ip mptcp limits to "{lim}" in "{ns}"')
 def lims(context, lim, ns=None):
-    nmci.cleanup.cleanup_add_ip_mptcp_limits(namespace=ns)
+    nmci.cleanup.add_mptcp_limits(namespace=ns)
     if lim is not None:
         nmci.process.run(f"ip mptcp limits set {lim}", namespace=ns)

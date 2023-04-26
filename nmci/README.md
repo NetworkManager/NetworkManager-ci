@@ -360,52 +360,52 @@ Udev update cleanup, calls updates and settles udev
 
 
 
-### nmci.cleanup.cleanup_add()
-alias of `nmci.cleanup._Cleanup.CleanupCallback`
+### nmci.cleanup.add_NM_config()
+alias of `nmci.cleanup._Cleanup.CleanupNMConfig`
 
 
-### nmci.cleanup.cleanup_add_NM_service()
+### nmci.cleanup.add_NM_service()
 alias of `nmci.cleanup._Cleanup.CleanupNMService`
 
 
-### nmci.cleanup.cleanup_add_connection()
+### nmci.cleanup.add_callback()
+alias of `nmci.cleanup._Cleanup.CleanupCallback`
+
+
+### nmci.cleanup.add_connection()
 alias of `nmci.cleanup._Cleanup.CleanupConnection`
 
 
-### nmci.cleanup.cleanup_add_iface()
-alias of `nmci.cleanup._Cleanup.CleanupIface`
-
-
-### nmci.cleanup.cleanup_add_ip_mptcp_endpoints()
-alias of `nmci.cleanup._Cleanup.CleanupMptcpEndpoints`
-
-
-### nmci.cleanup.cleanup_add_ip_mptcp_limits()
-alias of `nmci.cleanup._Cleanup.CleanupMptcpLimits`
-
-
-### nmci.cleanup.cleanup_add_namespace()
-alias of `nmci.cleanup._Cleanup.CleanupNamespace`
-
-
-### nmci.cleanup.cleanup_add_nft()
-alias of `nmci.cleanup._Cleanup.CleanupNft`
-
-
-### nmci.cleanup.cleanup_add_sysctls()
-alias of `nmci.cleanup._Cleanup.CleanupSysctls`
-
-
-### nmci.cleanup.cleanup_add_udev_rule()
-alias of `nmci.cleanup._Cleanup.CleanupUdevRule`
-
-
-### nmci.cleanup.cleanup_file()
+### nmci.cleanup.add_file()
 alias of `nmci.cleanup._Cleanup.CleanupFile`
 
 
-### nmci.cleanup.cleanup_nm_config()
-alias of `nmci.cleanup._Cleanup.CleanupNMConfig`
+### nmci.cleanup.add_iface()
+alias of `nmci.cleanup._Cleanup.CleanupIface`
+
+
+### nmci.cleanup.add_mptcp_endpoints()
+alias of `nmci.cleanup._Cleanup.CleanupMptcpEndpoints`
+
+
+### nmci.cleanup.add_mptcp_limits()
+alias of `nmci.cleanup._Cleanup.CleanupMptcpLimits`
+
+
+### nmci.cleanup.add_namespace()
+alias of `nmci.cleanup._Cleanup.CleanupNamespace`
+
+
+### nmci.cleanup.add_nft()
+alias of `nmci.cleanup._Cleanup.CleanupNft`
+
+
+### nmci.cleanup.add_sysctls()
+alias of `nmci.cleanup._Cleanup.CleanupSysctls`
+
+
+### nmci.cleanup.add_udev_rule()
+alias of `nmci.cleanup._Cleanup.CleanupUdevRule`
 
 
 ### nmci.cleanup.process_cleanup()

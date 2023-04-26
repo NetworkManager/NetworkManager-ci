@@ -18,12 +18,12 @@ import nmci
 def add_new_connection(context, typ, name=None, ifname=None, options=None):
     conn_name = ""
     if name is not None:
-        nmci.cleanup.cleanup_add_connection(name)
+        nmci.cleanup.add_connection(name)
         conn_name = f"con-name {name}"
 
     iface = ""
     if ifname is not None:
-        nmci.cleanup.cleanup_add_iface(ifname)
+        nmci.cleanup.add_iface(ifname)
         iface = f"ifname {ifname}"
 
     if options is None:
@@ -53,7 +53,7 @@ def add_multiple_new_connections(
     'Add insecure "{typ}" connection named "{name}" for device "{ifname}" with options'
 )
 def add_insecure(context, typ, name, ifname):
-    nmci.cleanup.cleanup_add_connection(name)
+    nmci.cleanup.add_connection(name)
     options = context.text.replace("\n", " ") if context.text is not None else " "
     options = nmci.misc.str_replace_dict(options, context.noted)
     command = f"con add type {typ} con-name {name} ifname {ifname} {options}"
@@ -103,8 +103,8 @@ def open_slave_connection(context, master, device, name):
     else:
         raise ValueError("could not guess connection type")
 
-    nmci.cleanup.cleanup_add_connection(name)
-    nmci.cleanup.cleanup_add_iface(device)
+    nmci.cleanup.add_connection(name)
+    nmci.cleanup.add_iface(device)
 
     nmci.process.nmcli(
         f"connection add type {con_type} ifname {device} con-name {name} master {master}"
@@ -200,7 +200,7 @@ def parse_nm_settings_flags_string(nm_flags, flags):
     'Add connection with name "{name}" and uuid "{uuid}" using libnm with flags "{flags}"'
 )
 def add_connection(context, name, uuid, flags="TO_DISK"):
-    nmci.cleanup.cleanup_add_connection(name)
+    nmci.cleanup.add_connection(name)
 
     NM = nmci.util.NM  # pylint: disable=invalid-name
     GLib = nmci.util.GLib  # pylint: disable=invalid-name
@@ -247,7 +247,7 @@ def add_connection(context, name, uuid, flags="TO_DISK"):
 @step('Clone connection "{con_src}" to "{con_dst}" using libnm')
 @step('Clone connection "{con_src}" to "{con_dst}" using libnm with flags "{flags}"')
 def clone_connection(context, con_src, con_dst, flags="TO_DISK"):
-    nmci.cleanup.cleanup_add_connection(con_dst)
+    nmci.cleanup.add_connection(con_dst)
 
     NM = nmci.util.NM  # pylint: disable=invalid-name
     GLib = nmci.util.GLib  # pylint: disable=invalid-name
@@ -410,7 +410,7 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 @step('Cleanup connection "{connection}"')
 @step('Cleanup connection "{connection}" and device "{device}"')
 def cleanup_connection(context, connection, device=None):
-    nmci.cleanup.cleanup_add_connection(connection)
+    nmci.cleanup.add_connection(connection)
     if device is not None:
         context.execute_steps(f'* Cleanup device "{device}"')
 

@@ -10,7 +10,7 @@ import nmci
 
 @step('Write file "{path}" with content')
 def fill_file_with_content(context, path):
-    nmci.cleanup.cleanup_file(path)
+    nmci.cleanup.add_file(path)
     nmci.util.file_set_content(path, context.text)
 
 
@@ -19,7 +19,7 @@ def fill_file_with_content(context, path):
 @step('Create NM config file "{filename}" with content and "{operation}" NM')
 def create_config_file(context, filename="99-xxcustom.conf", operation=None):
     path = os.path.join("/etc/NetworkManager/conf.d", filename)
-    nmci.cleanup.cleanup_nm_config(path)
+    nmci.cleanup.add_NM_config(path)
     nmci.util.file_set_content(path, context.text)
     if operation is not None:
         nmci.nmutil.do_NM_service(operation)
@@ -45,7 +45,7 @@ def replace_substring(context, substring, replacement, path):
 def append_to_ifcfg(context, line, name):
     cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
-    nmci.cleanup.cleanup_add_connection(name)
+    nmci.cleanup.add_connection(name)
 
 
 @step('Check file "{file1}" is contained in file "{file2}"')
@@ -161,13 +161,13 @@ def write_dispatcher_file(context, path, params=None):
     if not params and bool(context.text):
         params = context.text
 
-    nmci.cleanup.cleanup_file(
+    nmci.cleanup.add_file(
         "/tmp/dispatcher.txt",
         priority=nmci.Cleanup.PRIORITY_FILE + 1,
     )
     nmci.util.file_set_content("/tmp/dispatcher.txt", "")
 
-    nmci.cleanup.cleanup_file(path)
+    nmci.cleanup.add_file(path)
 
     with open(path, "w") as f:
         f.write("#!/bin/bash\n")
@@ -242,8 +242,8 @@ def create_network_profile_file(context, file):
         if re.match(r"(id|name)=", line):
             name = line.split("=")[1]
             if name:
-                nmci.cleanup.cleanup_add_connection(name)
+                nmci.cleanup.add_connection(name)
         elif re.match(r"(DEVICE|interface-name)=", line):
             iface = line.split("=")[1]
             if iface:
-                nmci.cleanup.cleanup_add_iface(iface)
+                nmci.cleanup.add_iface(iface)

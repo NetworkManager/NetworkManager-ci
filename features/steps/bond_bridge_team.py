@@ -123,7 +123,7 @@ def settle(context):
 def external_bridge_check(context, number):
     addr = "10.1.1.1/24"
     ifname = "br0"
-    nmci.cleanup.cleanup_add_iface(ifname)
+    nmci.cleanup.add_iface(ifname)
     for _ in range(int(number)):
         nmci.ip.link_add(ifname=ifname, link_type="bridge")
         nmci.ip.address_add(addr, ifname=ifname)

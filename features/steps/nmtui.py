@@ -464,9 +464,9 @@ def set_specific_field_to(context, field, value):
     context.tui.send(keys["BACKSPACE"] * 100)
     context.tui.send(value)
     if "Profile name" in field:
-        nmci.cleanup.cleanup_add_connection(value)
+        nmci.cleanup.add_connection(value)
     elif "Device" in field:
-        nmci.cleanup.cleanup_add_iface(value)
+        nmci.cleanup.add_iface(value)
 
 
 @step('Empty the field "{field}"')

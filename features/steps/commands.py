@@ -993,7 +993,7 @@ def load_nftables(context, ns=None, ruleset=None):
     if ruleset is None:
         ruleset = context.text
 
-    nmci.cleanup.cleanup_add_nft(ns)
+    nmci.cleanup.add_nft(ns)
     if ns is None:
         nsprefix = ""
         nft = nftables.Nftables()
@@ -1023,7 +1023,7 @@ def load_nftables(context, ns=None, ruleset=None):
 @step("Cleanup nftables")
 @step('Cleanup nftables in namespace "{ns}"')
 def flush_nftables(context, ns=None):
-    nmci.cleanup.cleanup_add_nft(ns)
+    nmci.cleanup.add_nft(ns)
 
 
 @step('Run tier0 nmstate tests with log in "{log_file}"')
@@ -1105,7 +1105,7 @@ def run_nmstate(context, log_file):
 
 @step('Set sysctl "{sysctl}" to "{value}"')
 def set_sysctl(context, sysctl, value):
-    nmci.cleanup.cleanup_add_sysctls(sysctl)
+    nmci.cleanup.add_sysctls(sysctl)
     nmci.process.run(["sysctl", "-w", f"{sysctl}={value}"])
 
 

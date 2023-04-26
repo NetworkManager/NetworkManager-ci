@@ -749,7 +749,7 @@ def device_lldp_status_libnm(context, device):
 @step('Activate "{device_num}" devices in "{sec_high}" seconds')
 @step('Activate "{device_num}" devices in "{sec_low}" to "{sec_high}" seconds')
 def activate_devices_check(context, device_num, sec_high, sec_low=0):
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         callback=lambda: nmci.process.systemctl(
             ["unmask", "NetworkManager-dispatcher"]
         ),
@@ -826,7 +826,7 @@ def check_route_count(context, cmp, routes_count, ip_version, device, seconds=1)
 
 @step('Cleanup device "{iface}"')
 def cleanup_connection(context, iface):
-    nmci.cleanup.cleanup_add_iface(iface)
+    nmci.cleanup.add_iface(iface)
 
 
 @step('Create "{typ}" device named "{name}"')
@@ -839,7 +839,7 @@ def cleanup_connection(context, iface):
     'Create "{typ}" device named "{name}" in namespace "{namespace}" with ifindex "{ifindex}" and options "{options}"'
 )
 def add_device(context, typ, name, namespace=None, ifindex=None, options=""):
-    nmci.cleanup.cleanup_add_iface(name)
+    nmci.cleanup.add_iface(name)
     if ifindex == "None":
         ifindex = None
     if not ifindex:
@@ -890,7 +890,7 @@ def add_multiple_devices(context, typ, name, count):
         _name = f"{name}_{i}"
         context.ifindex += _increment_size
         options = f"peer name {_name}p" if typ == "veth" else ""
-        nmci.cleanup.cleanup_add_iface(_name)
+        nmci.cleanup.add_iface(_name)
         nmci.ip.link_add(
             _name,
             typ,
@@ -903,31 +903,31 @@ def add_multiple_devices(context, typ, name, count):
 @step('Add namespace "{name}"')
 @step('Add namespace "{name}" with options "{options}"')
 def add_namespace(context, name, options=""):
-    nmci.cleanup.cleanup_add_namespace(name, teardown=False)
+    nmci.cleanup.add_namespace(name, teardown=False)
     nmci.process.run(f"ip netns add {name} {options}")
 
 
 @step('Cleanup namespace "{name}"')
 def cleanup_ns(context, name):
-    nmci.cleanup.cleanup_add_namespace(name)
+    nmci.cleanup.add_namespace(name)
 
 
 @step('Rename device "{orig_name}" to "{new_name}"')
 def rename_device(context, orig_name, new_name):
 
     # Rename interface back in cleanup
-    nmci.cleanup.cleanup_add_NM_service("restart")
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_NM_service("restart")
+    nmci.cleanup.add_callback(
         callback=lambda: nmci.ip.link_set(ifname=orig_name, up=True),
         name=f"link-up: {orig_name}",
         unique_tag=(orig_name, True),
     )
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         callback=lambda: nmci.ip.link_set(ifname=new_name, name=orig_name),
         name=f"link-rename: {new_name} -> {orig_name}",
         unique_tag=(new_name, orig_name),
     )
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         callback=lambda: nmci.ip.link_set(ifname=new_name, up=False),
         name=f"link-down: {new_name}",
         unique_tag=(new_name, False),

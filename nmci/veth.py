@@ -36,7 +36,7 @@ class _Veth:
             )
             nmci.util.file_set_content(rule_file, [rule])
             nmci.util.update_udevadm()
-            nmci.cleanup.cleanup_add_udev_rule(rule_file)
+            nmci.cleanup.add_udev_rule(rule_file)
 
     def manage_veths(self):
         if not os.path.isfile("/tmp/nm_veth_configured"):
