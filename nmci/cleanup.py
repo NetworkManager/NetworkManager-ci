@@ -108,13 +108,13 @@ class _Cleanup:
             t = time.monotonic()
             print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
             try:
-                self._do_cleanup()
+                self._do_cleanup_impl()
             except Exception as e:
                 print(f" failed ({e}) in {(time.monotonic() - t):.3f}s")
                 raise
             print(f" passed in {(time.monotonic() - t):.3f}s")
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             if self._callback is None:
                 raise NotImplementedError("cleanup not implemented")
             self._callback()
@@ -138,7 +138,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.qualifier is not None:
                 args = [self.qualifier, self.con_name]
@@ -197,7 +197,7 @@ class _Cleanup:
                 assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
                 nmci.process.nmcli_force(["device", "delete", iface])
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             error = None
             for iface in self.ifaces:
                 try:
@@ -231,7 +231,7 @@ class _Cleanup:
                 unique_tag=UNIQ_TAG_DISTINCT,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -267,7 +267,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.teardown:
                 nmci.veth.teardown_testveth(self.namespace)
@@ -305,7 +305,7 @@ class _Cleanup:
 
             super().__init__(name="MPTCP-endpoints", priority=PRIORITY_MPTCP)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             # do not import by default, it takes non-trivial time to load
             from pyroute2 import (  # pylint: disable=import-outside-toplevel,no-name-in-module
                 MPTCP,
@@ -329,7 +329,7 @@ class _Cleanup:
             )
             super().__init__(name="MPTCP-limits", priority=PRIORITY_MPTCP)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             nmci.process.run(
                 f"ip mptcp limits set {self.mptcp_limits}", namespace=self.namespace
             )
@@ -355,7 +355,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             cmd = ["nft", "flush", "ruleset"]
             if self.namespace is not None:
@@ -376,7 +376,7 @@ class _Cleanup:
             """
             super().__init__(name="udev-update", priority=priority)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             nmci.util.update_udevadm()
 
@@ -429,7 +429,7 @@ class _Cleanup:
                             seen.add(f)
                             yield f
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             error = None
             for f in self._get_files():
                 try:
@@ -483,7 +483,7 @@ class _Cleanup:
                 unique_tag=(operation, timeout),
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             nmci.nmutil.do_NM_service(operation=self._operation, timeout=self._timeout)
 
     class CleanupNMConfig(CleanupFile):
