@@ -482,13 +482,41 @@ class _Cleanup:
                             seen.add(f)
                             yield f
 
-        def _do_cleanup_impl(self):
+        @classmethod
+        def delete_file(cls, filename):
+            try:
+                os.remove(filename)
+            except FileNotFoundError:
+                pass
+
+        @classmethod
+        def delete_glob(cls, file_glob):
+            import glob
+
+            files = list(glob.glob(file_glob))
+            if len(files) == 1:
+                cls.delete_file(files[0])
+                return
             error = None
-            for f in self._get_files():
+            for f in files:
                 try:
-                    os.remove(f)
-                except FileNotFoundError:
-                    pass
+                    cls.delete_file(f)
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
+
+        def _do_cleanup_impl(self):
+            files = list(self._get_files())
+            if len(files) == 1:
+                self.delete_file(files[0])
+                return
+
+            error = None
+            for f in files:
+                try:
+                    self.delete_file(f)
                 except Exception as e:
                     if error is None:
                         error = e

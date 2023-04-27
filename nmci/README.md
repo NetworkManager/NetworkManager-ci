@@ -209,6 +209,10 @@ File cleanup, removes file if exists.
 
 
 
+#### _classmethod_ delete_file(filename)
+
+#### _classmethod_ delete_glob(file_glob)
+
 ### _class_ nmci.cleanup.CleanupIface(iface, op=None, priority=None)
 Bases: `nmci.cleanup._Cleanup.Cleanup`
 
