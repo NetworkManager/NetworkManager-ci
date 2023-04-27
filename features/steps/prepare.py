@@ -323,6 +323,7 @@ def prepare_dhcpd_simdev(context, device, server_id):
 )
 @step('Prepare simulated test "{device}" device with "{lease_time}" leasetime')
 @step('Prepare simulated test "{device}" device with dhcp option "{option}"')
+@step('Prepare simulated test "{device}" device with ifindex "{ifindex}"')
 @step('Prepare simulated test "{device}" device')
 @step('Prepare simulated test "{device}" device with daemon options "{daemon_options}"')
 def prepare_simdev(
@@ -331,6 +332,7 @@ def prepare_simdev(
     lease_time="2m",
     ipv4=None,
     ipv6=None,
+    ifindex=None,
     option=None,
     daemon_options=None,
 ):
@@ -385,7 +387,7 @@ def prepare_simdev(
     nmci.ip.netns_add(f"{device}_ns")
     nmci.cleanup.cleanup_add_namespace(f"{device}_ns")
     context.execute_steps(
-        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
+        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
     context.command_code(
         "ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(

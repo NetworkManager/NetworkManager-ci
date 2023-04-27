@@ -835,29 +835,38 @@ def cleanup_connection(context, iface):
 @step(
     'Create "{typ}" device named "{name}" in namespace "{namespace}" with options "{options}"'
 )
-def add_device(context, typ, name, namespace=None, options=""):
+@step(
+    'Create "{typ}" device named "{name}" in namespace "{namespace}" with ifindex "{ifindex}" and options "{options}"'
+)
+def add_device(context, typ, name, namespace=None, ifindex=None, options=""):
     nmci.cleanup.cleanup_add_iface(name)
-    # Make sure the new device gets the hightest ifindex of all links.
-    # This is what generally happens when adding a new link and some tests
-    # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
-    # not guarranteed and doesn't happen when the device is moved across
-    # namespaces and got a lower ifindex in the old namespace.
-    ifindices = (
-        link["ifindex"]
-        for link in nmci.ip.link_show_all(namespace=nmci.ip.IP_NAMESPACE_ALL)
-    )
+    if ifindex == "None":
+        ifindex = None
+    if not ifindex:
+        # Make sure the new device gets the hightest ifindex of all links.
+        # This is what generally happens when adding a new link and some tests
+        # (such as @bond_slaves_ordering_by_ifindex) rely on this; but it's
+        # not guarranteed and doesn't happen when the device is moved across
+        # namespaces and got a lower ifindex in the old namespace.
+        ifindices = (
+            link["ifindex"]
+            for link in nmci.ip.link_show_all(namespace=nmci.ip.IP_NAMESPACE_ALL)
+        )
 
-    # Bump, so that we don't try to use the same ifindex even before the
-    # result of previous link add is visible. Bump by two, because a veth
-    # pair might be created.
-    context.ifindex = max(context.ifindex, *ifindices) + 3
+        # Bump, so that we don't try to use the same ifindex even before the
+        # result of previous link add is visible. Bump by two, because a veth
+        # pair might be created.
+        ifindex = max(context.ifindex, *ifindices) + 3
+        context.ifindex = ifindex
+    else:
+        ifindex = int(ifindex)
 
     nmci.ip.link_add(
         name,
         typ,
         *shlex.split(options),
         namespace=namespace,
-        ifindex=context.ifindex,
+        ifindex=ifindex,
         wait_for_device=5,
     )
 
