@@ -151,9 +151,7 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
-        r = nmci.process.systemctl(
-            "restart NetworkManager.service", timeout=timeout.remaining_time()
-        )
+        r = nmci.process.systemctl("restart NetworkManager.service", timeout=timeout)
         nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
         self.wait_for_nm_bus(timeout)
         assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
@@ -166,9 +164,7 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
-        r = nmci.process.systemctl(
-            "start NetworkManager.service", timeout=timeout.remaining_time()
-        )
+        r = nmci.process.systemctl("start NetworkManager.service", timeout=timeout)
         assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
