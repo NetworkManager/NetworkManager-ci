@@ -1583,7 +1583,7 @@
      When Check "\[method\]|\[dns\]|\[dns-search\]|\[addresses\]|\[gateway\]|\[routes\]|\[ignore-auto-routes\]|\[ignore-auto-dns\]|\[never-default\]|\[may-fail\]" are present in describe output for object "ipv6"
      * Submit "goto ipv6" in editor
 
-     Then Check "=== \[method\] ===\s+\[NM property description\]\s+IP configuration method. NMSettingIP4Config and NMSettingIP6Config both support \"disabled\", \"auto\", \"manual\", and \"link-local\". See the subclass-specific documentation for other values. In general, for the \"auto\" method, properties such as \"dns\" and \"routes\" specify information that is added on to the information returned from automatic configuration.  The \"ignore-auto-routes\" and \"ignore-auto-dns\" properties modify this behavior. For methods that imply no upstream network, such as \"shared\" or \"link-local\", these properties must be empty. For IPv4 method \"shared\", the IP subnet can be configured by adding one manual IPv4 address or otherwise 10.42.x.0\/24 is chosen. Note that the shared method must be configured on the interface which shares the internet to a subnet, not on the uplink which is shared." are present in describe output for object "method"
+    Then Check regex "=== \[method\] ===\s+\[NM property description\]\s+(The IPv6 connection method|IP configuration method).*" in describe output for object "method"
 
      Then Check "=== \[dns\] ===\s+\[NM property description\]\s+.*DNS.*2607:f0d0:1002:51::4" are present in describe output for object "dns"
 

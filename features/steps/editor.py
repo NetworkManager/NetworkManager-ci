@@ -62,9 +62,9 @@ def check_obj_output_in_editor_regex(context, regex, obj):
 def check_describe_output_in_editor(context, obj, regexes):
     context.prompt.sendline("describe %s" % obj)
     for opt in regexes:
-        assert context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5) == 0, (
-            "Option %s was not described!" % opt
-        )
+        assert (
+            context.prompt.expect(["%s" % opt, pexpect.TIMEOUT], timeout=5) == 0
+        ), f'Option "{opt}" was not described!\nPexpect: {context.prompt}'
 
 
 @step('Check "{options}" are present in describe output for object "{obj}"')
