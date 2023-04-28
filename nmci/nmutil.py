@@ -69,6 +69,9 @@ class _NMUtil:
             "GetAllDevices",
         ]
         timeout = nmci.util.start_timeout(timeout)
+        _, nm_ver = nmci.misc.nm_version_detect()
+        ready_at_first_check = nm_ver >= [1, 43, 5]
+        nm_ver_str = ".".join(f"{i}" for i in nm_ver)
         while timeout.loop_sleep(0.1):
             if nmci.process.run_search_stdout(
                 busctl_argv,
@@ -78,6 +81,12 @@ class _NMUtil:
                 timeout=max(20, timeout.remaining_time() or 20),
             ):
                 return True
+            # We know first check was unsuccessful here, because of return above.
+            if ready_at_first_check and do_assert:
+                raise nmci.util.ExpectedException(
+                    "Bus was not ready on the first check on NM "
+                    f"{nm_ver_str}, as it should be since NM 1.43.5"
+                )
         if do_assert:
             raise nmci.util.ExpectedException(
                 f"NetworkManager bus not running in {timeout.elapsed_time()} seconds"
