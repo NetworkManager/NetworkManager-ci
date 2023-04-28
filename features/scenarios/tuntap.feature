@@ -68,6 +68,7 @@ Feature: nmcli: tuntap
 
     @rhbz1357738 @rhbz1816202
     @ver+=1.25
+    @ver-1.43.6
     @preserve_master_and_ip_settings
     Scenario: NM - tuntap - preserve master and IP settings
     * Cleanup device "tap0"
@@ -88,6 +89,33 @@ Feature: nmcli: tuntap
     And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
     # This is racy and should be uncommented to show rhbz2178269
     # And "tap0:connected \(externally\):tap0" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Execute "ip link set dev tap0 up"
+    Then "master" is visible with command "ip link show tap0" in "2" seconds
+    And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
+    And "tap0:connected \(externally\):tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+
+
+    @rhbz1357738 @rhbz1816202 @rhbz2178269
+    @ver+=1.43.6
+    @preserve_master_and_ip_settings
+    Scenario: NM - tuntap - preserve master and IP settings
+    * Cleanup device "tap0"
+    * Create "bridge" device named "brY"
+    * Execute "ip addr add 192.0.2.1/24 dev brY"
+    * Execute "ip tuntap add tap0 mode tap"
+    * Execute "ip addr add 192.0.2.2/24 dev tap0"
+    * Execute "ip link set tap0 master brY"
+    * Execute "ip link set tap0 up"
+    * Execute "ip link set brY up"
+    When "master" is visible with command "ip link show tap0" in "2" seconds
+    And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
+    And "tap0:connected \(externally\):tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    * Execute "ip link set dev tap0 down"
+    * Execute "ip link set dev tap0 up"
+    * Execute "ip link set dev tap0 down"
+    When "master" is visible with command "ip link show tap0" in "2" seconds
+    And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
+    And "tap0:connected \(externally\):tap0" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Execute "ip link set dev tap0 up"
     Then "master" is visible with command "ip link show tap0" in "2" seconds
     And "192.0.2.2\/24" is visible with command "ip a s tap0" in "2" seconds
