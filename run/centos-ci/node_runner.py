@@ -108,6 +108,13 @@ class Machine:
     def scp_from(self, what, where, check=True):
         return self._scp(f"root@{self.name}:{what}", where, check=check)
 
+    def rsync_from(self, what, where, check=True):
+        return run(
+            f"rsync -aq root@{self.name}:{what} {where}",
+            check=check,
+            verbose=True,
+        )
+
     def _scp(self, what, where, check=True):
         return run(f"scp -v {self.ssh_options} -r {what} {where}", check=check)
 
@@ -127,9 +134,11 @@ class Machine:
 
         return run
 
-    def cmd_wait(self):
+    def cmd_wait(self, timeout=None):
         if self._proc is not None:
-            self._proc.join()
+            self._proc.join(timeout=timeout)
+            if self._proc.is_alive():
+                return False
             self._cmd_wait_pipe()
             self._proc = None
             self._pipe = None
@@ -338,7 +347,7 @@ class Machine:
             f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
         )
         # copy artefacts
-        self.scp_from(f"{self.results_internal}/*.*", self.results)
+        self.rsync_from(f"{self.results_internal}/*.*", self.results)
         return ret
 
     def runtests_async(self, tests):
@@ -805,8 +814,9 @@ class Runner:
                 self.copr_repo = f"NetworkManager-{branch}-debug"
         logging.debug(f"COPR repo: {self.copr_repo}")
 
-    def wait_for_machines(self, abort_on_fail=True):
+    def wait_for_machines(self, abort_on_fail=True, poll_results=False):
         logging.debug(f"Waiting for {self.phase} to finish...")
+        check_interval = 60 if poll_results else 5
         build_machine = []
         if self.build_machine is not None:
             build_machine.append(self.build_machine)
@@ -814,6 +824,10 @@ class Runner:
         while len(running_machines):
             for m in running_machines:
                 if m.cmd_is_active():
+                    if poll_results:
+                        m.rsync_from(
+                            f"{m.results_internal}/*.*", m.results, check=False
+                        )
                     continue
                 # m is finished
                 running_machines.remove(m)
@@ -822,7 +836,7 @@ class Runner:
                         self._abort(f"Failed {self.phase} on machine {m.id}.")
                     else:
                         logging.debug(f"Failed {self.phase} on machine {m.id}.")
-            time.sleep(5)
+            time.sleep(check_interval)
 
     def _get_nodes(self, number):
         nodes = []
@@ -968,7 +982,7 @@ def main():
     runner.install_NM_on_machines()
     runner.wait_for_machines(abort_on_fail=True)
     runner.run_tests_on_machines()
-    runner.wait_for_machines(abort_on_fail=False)
+    runner.wait_for_machines(abort_on_fail=False, poll_results=True)
     runner.merge_machines_results()
 
 
