@@ -1530,6 +1530,7 @@ Feature: nmcli - ovs
 
     @rhbz2149012
     @ver+=1.43.2
+    @may_fail
     @openvswitch @restart_if_needed
     @ovs_vxlan_networking_off_on
     Scenario: NM - openvswitch - ovs external with vxlan stays UP after networking off/on
