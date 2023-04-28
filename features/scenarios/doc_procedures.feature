@@ -113,6 +113,8 @@ Feature: nmcli - procedures in documentation
           firewall-backend=nftables
           """
     Given Restart NM
+    # We need small delay here after restarting NM service
+    * Wait for "1" seconds
     * Doc: "Identifying whether a wireless device supports the access point mode"
     * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
     * Cleanup connection "Example-Hotspot"
@@ -156,6 +158,8 @@ Feature: nmcli - procedures in documentation
           firewall-backend=nftables
           """
     Given Restart NM
+    # We need small delay here after restarting NM service
+    * Wait for "1" seconds
     * Doc: "Configuring RHEL as a WPA2 or WPA3 Personal access point"
     * Cleanup connection "Example-Hotspot"
     * Execute "nmcli device wifi hotspot ifname wlan0 con-name Example-Hotspot ssid Example-Hotspot password 'password'"
