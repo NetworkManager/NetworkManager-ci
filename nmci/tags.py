@@ -3016,3 +3016,11 @@ def copy_ifcfg_bs(context, scenario):
 
 
 _register_tag("copy_ifcfg", copy_ifcfg_bs, None)
+
+
+def skip_outside_ec2_bs(context, scenario):
+    if nmci.process.run_stdout("dmidecode --string system-uuid").startswith("ec2"):
+        context.cext.skip("Skipped outside of EC2 cloud")
+
+
+_register_tag("skip_outside_ec2", None)
