@@ -66,7 +66,6 @@ Feature: nmcli: veth
 
     @rhbz1915278
     @ver+=1.43.6
-    @temporary_skip
     @veth_device_remove_return
     Scenario: nmcli - veth - remove device but the veth peer gets autoconnected again
     * Add "veth" connection named "con_veth1" for device "veth11" with options "veth.peer veth12 ip4 10.42.0.2"
