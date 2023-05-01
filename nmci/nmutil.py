@@ -82,11 +82,10 @@ class _NMUtil:
             ):
                 return True
             # We know first check was unsuccessful here, because of return above.
-            if ready_at_first_check:
-                raise nmci.util.ExpectedException(
-                    "Bus was not ready on the first check on NM "
-                    f"{nm_ver_str}, as it should be since NM 1.43.5"
-                )
+            raise nmci.util.ExpectedException(
+                "Bus was not ready on the first check on NM "
+                f"{nm_ver_str}, as it should be since NM 1.43.5"
+            )
         if do_assert:
             raise nmci.util.ExpectedException(
                 f"NetworkManager bus not running in {timeout.elapsed_time()} seconds"
