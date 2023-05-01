@@ -3324,3 +3324,15 @@ Feature: nmcli - general
     Then Check noted values "1-before" and "1-after" are the same
     Then Check noted values "2-before" and "2-after" are the same
     Then Check noted values "3-before" and "3-after" are the same
+
+
+    @rhbz2179718
+    @ver+=1.43.3
+    @skip_outside_ec2
+    @cloud_setup_ec2
+    Scenario: nm-cloud-setup - get EC2 metadata using the AWS IMDSv2 token
+    * Run child "tcpdump -i any -w .tmp/ec2.pcap 'host 169.254.169.254'"
+    * Run child "NM_CLOUD_SETUP_LOG=trace NM_CLOUD_SETUP_EC2=yes /usr/libexec/nm-cloud-setup"
+    When "\S+" is visible with command "tshark -r .tmp/ec2.pcap  -T fields -e http.file_data http.response_number eq 1 and tcp.stream eq 0 2>/dev/null" in "5" seconds
+    * Note the output of "printf "X-aws-ec2-metadata-token: $(tshark -r .tmp/ec2.pcap  -T fields -e http.file_data http.response_number eq 1 and tcp.stream eq 0 2>/dev/null)""
+    Then Noted value is visible with command "tshark -r .tmp/ec2.pcap -V -2 -R http"

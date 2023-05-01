@@ -1944,6 +1944,8 @@ testmapper:
         feature: general
     - apply_link_settings:
         feature: general
+    - cloud_setup_ec2:
+        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
