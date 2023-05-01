@@ -30,7 +30,7 @@ class Tag:
 
     def before_scenario(self, context, scenario):
         if self._after_scenario is not None:
-            nmci.cleanup.cleanup_add(
+            nmci.cleanup.add_callback(
                 callback=lambda: self.after_scenario(context, scenario),
                 name=f"tag-{self.tag_name}",
                 unique_tag=(self,),
@@ -287,12 +287,12 @@ _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/99-xlogging.conf"
-    nmci.cleanup.cleanup_nm_config(
+    nmci.cleanup.add_NM_config(
         conf,
         schedule_nm_restart=False,
         priority=nmci.Cleanup.PRIORITY_TAG,
     )
-    nmci.cleanup.cleanup_add_NM_service(
+    nmci.cleanup.add_NM_service(
         timeout=120,
         priority=nmci.Cleanup.PRIORITY_TAG,
     )
@@ -2046,8 +2046,8 @@ _register_tag("pppoe", pppoe_bs, pppoe_as)
 
 
 def del_test1112_veths_bs(context, scenario):
-    nmci.cleanup.cleanup_add_iface("test11")
-    nmci.cleanup.cleanup_add_udev_rule("/etc/udev/rules.d/99-veths.rules")
+    nmci.cleanup.add_iface("test11")
+    nmci.cleanup.add_udev_rule("/etc/udev/rules.d/99-veths.rules")
     rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="test11|test12", ENV{NM_UNMANAGED}="0"'
     nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
     nmci.util.update_udevadm()
@@ -2133,7 +2133,7 @@ def need_config_server_as(context, scenario):
         context.process.run_stdout(
             "sudo yum -y remove NetworkManager-config-server", timeout=120
         )
-        nmci.cleanup.cleanup_add_NM_service("restart")
+        nmci.cleanup.add_NM_service("restart")
 
 
 _register_tag("need_config_server", need_config_server_bs, need_config_server_as)
@@ -2174,7 +2174,7 @@ def no_config_server_as(context, scenario):
                 context.process.run_stdout(
                     f"sudo mv -f {config_file}.off {config_file}"
                 )
-        nmci.cleanup.cleanup_add_NM_service("restart")
+        nmci.cleanup.add_NM_service("restart")
     conns = (
         nmci.process.nmcli("-t -f UUID,NAME c", embed_combine_tag=nmci.embed.NO_EMBED)
         .strip()

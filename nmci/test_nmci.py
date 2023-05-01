@@ -1762,25 +1762,25 @@ def test_context_cleanup():
 
     create_test_context()
 
-    nmci.cleanup.cleanup_add_iface("eth0")
+    nmci.cleanup.add_iface("eth0")
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == ["iface-reset-eth0"]
 
-    nmci.cleanup.cleanup_add_iface("eth1")
+    nmci.cleanup.add_iface("eth1")
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "iface-reset-eth1",
         "iface-reset-eth0",
     ]
 
-    nmci.cleanup.cleanup_add_iface("eth0")
+    nmci.cleanup.add_iface("eth0")
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "iface-reset-eth0",
         "iface-reset-eth1",
     ]
 
-    nmci.cleanup.cleanup_add(lambda: None, name="foo")
+    nmci.cleanup.add_callback(lambda: None, name="foo")
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == [
         "foo",
@@ -1789,7 +1789,7 @@ def test_context_cleanup():
     ]
 
     nmci.cleanup._cleanup_add(
-        nmci.Cleanup(name="foo", callback=lambda: None, priority=50)
+        nmci.cleanup.CleanupCallback(name="foo", callback=lambda: None, priority=50)
     )
 
     assert [c.name for c in nmci.cleanup._cleanup_lst] == [
@@ -1799,7 +1799,7 @@ def test_context_cleanup():
         "foo",
     ]
 
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         name="bar", unique_tag=(1,), callback=lambda: None, priority=49
     )
 
@@ -1811,7 +1811,7 @@ def test_context_cleanup():
         "foo",
     ]
 
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         name="bar", unique_tag=(1,), callback=lambda: None, priority=19
     )
 
@@ -1836,7 +1836,7 @@ def test_context_cleanup():
 
     assert nmci.cleanup._cleanup_lst == []
 
-    nmci.cleanup.cleanup_add(
+    nmci.cleanup.add_callback(
         name="bar", unique_tag=(1,), callback=lambda: 1 / 0, priority=19
     )
 

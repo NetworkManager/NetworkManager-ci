@@ -52,12 +52,73 @@ class _Cleanup:
 
         def __init__(
             self,
-            callback=None,
-            name=None,
+            name,
             unique_tag=None,
             priority=PRIORITY_CALLBACK_DEFAULT,
+        ):
+            """Cleanup base class
+
+            :param name: human readable description, defaults to None
+            :type name: str
+            :param unique_tag: comparison key to merge duplicit cleanups, by default, all instances of Cleanup are considered distinct, all instances of descendant classes are considered equal
+            :type unique_tag: object, optional
+            :param priority: defines order in which the cleanups are executed, defaults to PRIORITY_CALLBACK_DEFAULT
+            :type priority: int, optional
+            """
+            assert name
+            assert type(self) is not _Cleanup.Cleanup
+
+            self.name = name
+            if unique_tag is UNIQ_TAG_DISTINCT:
+                # This instance only compares equal to itself.
+                self.unique_tag = (id(self),)
+            elif unique_tag is None:
+                self.unique_tag = (type(self),)
+            else:
+                self.unique_tag = ("arg", type(self), *unique_tag)
+            self.priority = priority
+            self._do_cleanup_called = False
+
+            _module._cleanup_add(self)
+
+        def _also_needs_impl(self):
+            return ()
+
+        def also_needs(self):
+            """Dependent cleanups, should return iterable of Cleanup instances.
+
+            Those cleanups will be enqueued *after* the current one
+            (however, self.priority will be still honored.
+
+            :return: tuple of Cleanup
+            :rtype: iterable
+            """
+            return self._also_needs_impl()
+
+        def do_cleanup(self):
+            """This is called automatically after scenario. Do not call at other places."""
+            assert not self._do_cleanup_called
+            self._do_cleanup_called = True
+            t = time.monotonic()
+            print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
+            try:
+                self._do_cleanup_impl()
+            except Exception as e:
+                print(f" failed ({e}) in {(time.monotonic() - t):.3f}s")
+                raise
+            print(f" passed in {(time.monotonic() - t):.3f}s")
+
+        def _do_cleanup_impl(self):
+            raise NotImplementedError("cleanup not implemented")
+
+    class CleanupCallback(Cleanup):
+        def __init__(
+            self,
+            callback,
+            name=None,
+            unique_tag=UNIQ_TAG_DISTINCT,
+            priority=PRIORITY_CALLBACK_DEFAULT,
             also_needs=None,
-            args=None,
         ):
             """Generic cleanup
 
@@ -71,57 +132,45 @@ class _Cleanup:
             :type priority: int, optional
             :param also_needs: dependent cleanups, should be callable returning iterable of Cleanup objects, defaults to None
             :type also_needs: callable, optional
-            :param args: arguments for callback
-            :type args: dic, optional
             """
-            self.name = name
-            if unique_tag is UNIQ_TAG_DISTINCT or (
-                unique_tag is None and type(self) is _Cleanup.Cleanup
-            ):
-                # This instance only compares equal to itself.
-                self.unique_tag = (id(self),)
-            elif unique_tag is None:
-                self.unique_tag = (type(self),)
+
+            assert callback
+            if callable(callback):
+                self._callbacks = (callback,)
             else:
-                self.unique_tag = ("arg", type(self), *unique_tag)
-            self.args = args or {}
-            self.priority = priority
-            self._callback = callback
+                self._callbacks = tuple(callback)
+                assert all(callable(c) for c in self._callbacks)
+
+            assert also_needs is None or callable(also_needs)
             self._also_needs = also_needs
-            self._do_cleanup_called = False
 
-            _module._cleanup_add(self)
+            if name is None:
+                name = str(callback)
 
-        def also_needs(self):
-            """Dependent cleanups, should return iterable of Cleanup instances.
+            super().__init__(
+                name=name,
+                unique_tag=unique_tag,
+                priority=priority,
+            )
 
-            Those cleanups will be enqueued *after* the current one
-            (however, self.priority will be still honored.
-
-            :return: tuple of Cleanup
-            :rtype: iterable
-            """
+        def _also_needs_impl(self):
             if self._also_needs is None:
                 return ()
             return self._also_needs()
 
-        def do_cleanup(self):
-            """This is called automatically after scenario. Do not call at other places."""
-            assert not self._do_cleanup_called
-            self._do_cleanup_called = True
-            t = time.monotonic()
-            print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
-            try:
-                self._do_cleanup()
-            except Exception as e:
-                print(f" failed ({e}) in {(time.monotonic() - t):.3f}s")
-                raise
-            print(f" passed in {(time.monotonic() - t):.3f}s")
-
-        def _do_cleanup(self):
-            if self._callback is None:
-                raise NotImplementedError("cleanup not implemented")
-            self._callback(**self.args)
+        def _do_cleanup_impl(self):
+            if len(self._callbacks) == 1:
+                (self._callbacks[0])()
+                return
+            error = None
+            for c in self._callbacks:
+                try:
+                    c()
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
 
     class CleanupConnection(Cleanup):
         def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
@@ -142,7 +191,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.qualifier is not None:
                 args = [self.qualifier, self.con_name]
@@ -155,14 +204,15 @@ class _Cleanup:
             """Cleanup the network interafce
 
             :param iface: name of the interface
-            :type iface: str
-            :param op: operation, one of 'delete' or 'reset', defaults to 'reset' on eth0...eth10, 'delete' otherwise
+            :type iface: str or list of str
+            :param op: operation, one of 'delete', 'ip-delete' or 'reset', defaults to 'reset' on eth0...eth10, 'delete' otherwise
             :type op: str, optional
             :param priority: cleanup priority, defaults to PRIORITY_IFACE_DELETE or PRIORITY_IFACE_RESET
             :type priority: int, optional
             """
             assert op in [None, "reset", "delete", "ip-delete"]
             if op is None:
+                assert isinstance(iface, str)
                 if re.match(r"^(eth[0-9]|eth10|lo)$", iface):
                     op = "reset"
                 else:
@@ -173,24 +223,43 @@ class _Cleanup:
                 else:
                     priority = PRIORITY_IFACE_DELETE
 
-            self.op = op
-            self.iface = iface
-            super().__init__(
-                name=f"iface-{op}-{iface}", unique_tag=(iface, op), priority=priority
-            )
+            if isinstance(iface, str):
+                ifaces = [iface]
+            else:
+                ifaces = list(iface)
 
-        def _do_cleanup(self):
+            if len(ifaces) == 1:
+                name = f"iface-{op}-{ifaces[0]}"
+            else:
+                name = f"iface-{op}-{ifaces}"
+
+            self.op = op
+            self.ifaces = ifaces
+            super().__init__(name=name, unique_tag=(self.ifaces, op), priority=priority)
+
+        def _do_cleanup_one(self, iface):
             if self.op == "ip-delete":
-                nmci.ip.link_delete(self.iface)
+                nmci.ip.link_delete(iface)
             elif self.op == "reset":
-                nmci.veth.reset_hwaddr_nmcli(self.iface)
+                nmci.veth.reset_hwaddr_nmcli(iface)
                 # Why oh why was eth0 filtered out?
-                # if self.iface != "eth0":
-                nmci.process.run(["ip", "addr", "flush", self.iface])
+                # if iface != "eth0":
+                nmci.process.run(["ip", "addr", "flush", iface])
                 time.sleep(0.1)
             else:
                 assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
-                nmci.process.nmcli_force(["device", "delete", self.iface])
+                nmci.process.nmcli_force(["device", "delete", iface])
+
+        def _do_cleanup_impl(self):
+            error = None
+            for iface in self.ifaces:
+                try:
+                    self._do_cleanup_one(iface)
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
 
     class CleanupSysctls(Cleanup):
         def __init__(self, sysctls_pattern, namespace=None):
@@ -215,7 +284,7 @@ class _Cleanup:
                 unique_tag=UNIQ_TAG_DISTINCT,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -251,7 +320,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             if self.teardown:
                 nmci.veth.teardown_testveth(self.namespace)
@@ -289,7 +358,7 @@ class _Cleanup:
 
             super().__init__(name="MPTCP-endpoints", priority=PRIORITY_MPTCP)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             # do not import by default, it takes non-trivial time to load
             from pyroute2 import (  # pylint: disable=import-outside-toplevel,no-name-in-module
                 MPTCP,
@@ -313,7 +382,7 @@ class _Cleanup:
             )
             super().__init__(name="MPTCP-limits", priority=PRIORITY_MPTCP)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             nmci.process.run(
                 f"ip mptcp limits set {self.mptcp_limits}", namespace=self.namespace
             )
@@ -339,7 +408,7 @@ class _Cleanup:
                 priority=priority,
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             cmd = ["nft", "flush", "ruleset"]
             if self.namespace is not None:
@@ -360,7 +429,7 @@ class _Cleanup:
             """
             super().__init__(name="udev-update", priority=priority)
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
 
             nmci.util.update_udevadm()
 
@@ -413,13 +482,41 @@ class _Cleanup:
                             seen.add(f)
                             yield f
 
-        def _do_cleanup(self):
+        @classmethod
+        def delete_file(cls, filename):
+            try:
+                os.remove(filename)
+            except FileNotFoundError:
+                pass
+
+        @classmethod
+        def delete_glob(cls, file_glob):
+            import glob
+
+            files = list(glob.glob(file_glob))
+            if len(files) == 1:
+                cls.delete_file(files[0])
+                return
             error = None
-            for f in self._get_files():
+            for f in files:
                 try:
-                    os.remove(f)
-                except FileNotFoundError:
-                    pass
+                    cls.delete_file(f)
+                except Exception as e:
+                    if error is None:
+                        error = e
+            if error is not None:
+                raise error
+
+        def _do_cleanup_impl(self):
+            files = list(self._get_files())
+            if len(files) == 1:
+                self.delete_file(files[0])
+                return
+
+            error = None
+            for f in files:
+                try:
+                    self.delete_file(f)
                 except Exception as e:
                     if error is None:
                         error = e
@@ -437,11 +534,11 @@ class _Cleanup:
             """
             super().__init__(rule, name=f"ude-rule-{rule}", priority=priority)
 
-        def also_needs(self):
+        def _also_needs_impl(self):
             return (_Cleanup.CleanupUdevUpdate(),)
 
     class CleanupNMService(Cleanup):
-        def __init__(self, operation="restart", timeout=None, priority=None):
+        def __init__(self, operation="restart", timeout=None, priority=None, name=None):
             """NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 
             :param operation: operation on systemd service, one of 'start', 'restart' or 'reload'.
@@ -455,15 +552,19 @@ class _Cleanup:
                     priority = PRIORITY_NM_SERVICE_START
                 else:
                     priority = PRIORITY_NM_SERVICE_RESTART
+
+            if name is None:
+                name = f"NM-service-{operation}"
+
             self._operation = operation
             self._timeout = timeout
             super().__init__(
-                name=f"NM-service-{operation}",
+                name=name,
                 priority=priority,
                 unique_tag=(operation, timeout),
             )
 
-        def _do_cleanup(self):
+        def _do_cleanup_impl(self):
             nmci.nmutil.do_NM_service(operation=self._operation, timeout=self._timeout)
 
     class CleanupNMConfig(CleanupFile):
@@ -499,7 +600,7 @@ class _Cleanup:
                 unique_tag=(config_file, schedule_nm_restart),
             )
 
-        def also_needs(self):
+        def _also_needs_impl(self):
             if not self._schedule_nm_restart:
                 return ()
             return (_Cleanup.CleanupNMService("restart"),)
@@ -511,18 +612,18 @@ class _Cleanup:
     }
 
     # Aliases to remain compatible
-    cleanup_add = Cleanup
-    cleanup_add_connection = CleanupConnection
-    cleanup_add_iface = CleanupIface
-    cleanup_add_namespace = CleanupNamespace
-    cleanup_add_nft = CleanupNft
-    cleanup_add_ip_mptcp_limits = CleanupMptcpLimits
-    cleanup_add_ip_mptcp_endpoints = CleanupMptcpEndpoints
-    cleanup_add_sysctls = CleanupSysctls
-    cleanup_file = CleanupFile
-    cleanup_add_udev_rule = CleanupUdevRule
-    cleanup_add_NM_service = CleanupNMService
-    cleanup_nm_config = CleanupNMConfig
+    add_callback = CleanupCallback
+    add_connection = CleanupConnection
+    add_iface = CleanupIface
+    add_namespace = CleanupNamespace
+    add_nft = CleanupNft
+    add_mptcp_limits = CleanupMptcpLimits
+    add_mptcp_endpoints = CleanupMptcpEndpoints
+    add_sysctls = CleanupSysctls
+    add_file = CleanupFile
+    add_udev_rule = CleanupUdevRule
+    add_NM_service = CleanupNMService
+    add_NM_config = CleanupNMConfig
 
     def __init__(self):
         self._cleanup_lst = []

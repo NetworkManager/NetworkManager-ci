@@ -177,7 +177,7 @@ class _NMUtil:
     def stop_NM_service(self):
         print("stop NM service")
         self.context_set_nm_restarted()
-        nmci.cleanup.cleanup_add_NM_service(operation="start")
+        nmci.cleanup.add_NM_service(operation="start")
         r = nmci.process.systemctl("stop NetworkManager.service")
         nmci.cext.context.nm_pid = 0
         assert r.returncode == 0, f"systemctl stop NetworkManager failed with {r}"
