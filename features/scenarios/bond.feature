@@ -2815,8 +2815,8 @@
 
     @rhbz2128216
     @fedoraver+=36 @rhelver+=9.2
-    @ver+=1.41.3
-    @skip_in_centos
+    @ver+=1.43.6
+    @ver+=1.42.7
     @bond_set_balance_slb_options
     Scenario: bond - create bond with "balance-slb" bonding mode (multi chassis link aggregation (MLAG)
      * Add "bond" connection named "bond0" for device "nm-bond" with options
