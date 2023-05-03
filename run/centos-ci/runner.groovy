@@ -1,6 +1,7 @@
 node('cico-workspace') {
     try {
         stage ('set env') {
+            currentBuild.description = '<a href="' + env.BUILD_URL + '/execution/node/3/ws/">Live Artifacts</a>'
             if (params['VERSION']) {
                 currentBuild.displayName = "${VERSION}"
             }
@@ -101,6 +102,7 @@ node('cico-workspace') {
         }
         finally {
             stage('return cico nodes') {
+                currentBuild.description = ""
                 sh "python3 NetworkManager-ci/run/centos-ci/return_nodes.py"
             }
         }
