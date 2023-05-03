@@ -64,6 +64,7 @@ class Machine:
         self.id = id
         self.name = name
         self.copr_repo = False
+        self.results_common = f"../"
         self.results = f"../results_m{self.id}/"
         run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
@@ -346,7 +347,8 @@ class Machine:
             f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
         )
         # copy artefacts
-        self.rsync_from(f"{self.results_internal}/*.*", self.results)
+        self.rsync_from(f"{self.results_internal}/*.txt", self.results)
+        self.rsync_from(f"{self.results_internal}/*.html", self.results_common)
         return ret
 
     def runtests_async(self, tests):
@@ -825,7 +827,9 @@ class Runner:
                 if m.cmd_is_active():
                     if poll_results:
                         m.rsync_from(
-                            f"{m.results_internal}/*.*", m.results, check=False
+                            f"{m.results_internal}/*.html",
+                            self.results_common,
+                            check=False,
                         )
                     continue
                 # m is finished
@@ -937,10 +941,6 @@ class Runner:
             m.runtests_async(tests)
 
     def merge_machines_results(self):
-        for m in self.machines:
-            # run is short for subprocess.run()
-            run(f"mv {m.results}/*.html {self.results_common}")
-
         for m in self.machines:
             with open(m.runtest_log, errors="ignore") as f:
                 logging.debug(f"runtest.log of machine #{m.id}:")
