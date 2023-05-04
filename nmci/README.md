@@ -1927,13 +1927,17 @@ Convert bytes to MAC address string
 
 
 
-### nmci.ip.netns_add(name)
+### nmci.ip.netns_add(name, cleanup=True)
 Add namespace
 
 
 * **Parameters**
 
-    **name** (*str*) – name if the namespace
+    
+    * **name** (*str*) – name if the namespace
+
+
+    * **cleanup** (*bool*) – whether to clean up the namespace after scenario. Defaults to True
 
 
 

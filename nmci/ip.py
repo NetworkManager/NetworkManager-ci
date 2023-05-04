@@ -1060,13 +1060,17 @@ class _IP:
 
         return namespaces
 
-    def netns_add(self, name):
+    def netns_add(self, name, cleanup=True):
         """
         Add namespace
 
         :param name: name if the namespace
         :type name: str
+        :param cleanup: whether to clean up the namespace after scenario. Defaults to True
+        :type cleanup: bool
         """
+        if cleanup:
+            nmci.cleanup.add_namespace(name)
         if name in self.netns_list():
             self.netns_delete(name)
             # fail scenario if we didn't succeed in cleaning up the NS

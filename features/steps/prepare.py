@@ -259,7 +259,7 @@ def prepare_dhcpd_simdev(context, device, server_id, ifindex=None):
     nmci.veth.manage_device(device)
 
     ipv4 = "192.168.99"
-    context.execute_steps(f'* Add namespace "{device}_ns"')
+    nmci.ip.netns_add(f"{device}_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
@@ -311,7 +311,6 @@ def prepare_dhcpd_simdev(context, device, server_id, ifindex=None):
             device=device
         )
     )
-    nmci.cleanup.add_namespace(f"{device}_ns")
 
 
 @step(
@@ -390,7 +389,6 @@ def prepare_simdev(
     nmci.veth.manage_device(device)
 
     nmci.ip.netns_add(f"{device}_ns")
-    nmci.cleanup.add_namespace(f"{device}_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
@@ -516,8 +514,8 @@ def prepare_simdev(context, device):
     # (DHCP   | 172.16.0.1  10.0.0.2  | |  10.0.0.1   |
     # client) |(dhcrelay + forwarding)| | (DHCP serv) |
     #         +-----------------------+ +-------------+
-    context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Add namespace "{device}2_ns"')
+    nmci.ip.netns_add(f"{device}_ns")
+    nmci.ip.netns_add(f"{device}2_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" with options "peer name {device}p"'
     )
@@ -585,16 +583,13 @@ def prepare_simdev(context, device):
             device=device
         )
     )
-    nmci.cleanup.add_namespace(f"{device}_ns")
-    nmci.cleanup.add_namespace(f"{device}_ns2")
 
 
 @step('Prepare simulated test "{device}" device without DHCP')
 def prepare_simdev_no_dhcp(context, device):
     nmci.veth.manage_device(device)
 
-    context.execute_steps(f'* Add namespace "{device}_ns"')
-    nmci.cleanup.add_namespace(f"{device}_ns")
+    nmci.ip.netns_add(f"{device}_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
     )
@@ -614,8 +609,8 @@ def prepare_simdev(context, device):
     #         |  fd01::1     fd02::1  | |   fd02::2   |
     # mtu 1500|   1500        1400    | |    1500     |
     #         +-----------------------+ +-------------+
-    context.execute_steps(f'* Add namespace "{device}_ns"')
-    context.execute_steps(f'* Add namespace "{device}2_ns"')
+    nmci.ip.netns_add(f"{device}_ns")
+    nmci.ip.netns_add(f"{device}2_ns")
     context.execute_steps(
         f'* Create "veth" device named "{device}" with options "peer name {device}p"'
     )
@@ -699,8 +694,6 @@ def prepare_simdev(context, device):
         "ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device),
         shell=True,
     )
-    nmci.cleanup.add_namespace(f"{device}_ns")
-    nmci.cleanup.add_namespace(f"{device}_ns2")
 
 
 @step('Prepare simulated veth device "{device}" without carrier')
@@ -709,7 +702,7 @@ def prepare_simdev_no_carrier(context, device):
 
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
-    context.execute_steps(f'* Add namespace "{device}_ns"')
+    nmci.ip.netns_add(f"{device}_ns")
     context.command_code(
         "ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(
             device=device
@@ -761,7 +754,6 @@ def prepare_simdev_no_carrier(context, device):
     context.command_code(
         "ip netns exec {device}_ns ip link set {device} netns 1".format(device=device)
     )
-    nmci.cleanup.add_namespace(f"{device}_ns")
 
 
 @step('Prepare simulated test "{device}" device with a bridged peer')
@@ -789,8 +781,7 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
                 |                       |
                 +-----------------------+
     """
-    nmci.cleanup.add_namespace(f"{device}_ns")
-    nmci.process.run_stdout(f"ip netns add {device}_ns")
+    nmci.ip.netns_add(f"{device}_ns")
     nmci.process.run_stdout(
         f"ip l add {device} type veth peer name {device}p netns {device}_ns"
     )
@@ -804,8 +795,7 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
         return
     namespaces = [ns.strip() for ns in namespaces.split(",")]
     for ns in namespaces:
-        nmci.cleanup.add_namespace(ns)
-        nmci.process.run_stdout(f"ip netns add {ns}")
+        nmci.ip.netns_add(ns)
         nmci.process.run_stdout(
             f"ip -n {ns} l add veth0 type veth peer name {ns} netns {device}_ns"
         )
@@ -846,7 +836,7 @@ def start_pppoe_server(context, name, ip, dev):
 def setup_macsec_psk(context, cak, ckn, vid=None):
     nmci.veth.manage_device("macsec_veth")
     context.command_code("modprobe macsec")
-    context.execute_steps(f'* Add namespace "macsec_ns"')
+    nmci.ip.netns_add(f"macsec_ns")
     context.execute_steps(
         f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"'
     )
@@ -926,7 +916,7 @@ def prepare_iptunnel_doc(context, mode):
     # prepare Network A (range 192.0.2.1/2) and Network B in namespace (range 172.16.0.1/24)
     context.execute_steps('* Prepare simulated test "netA" device without DHCP')
     context.execute_steps('* Prepare simulated test "netB" device without DHCP')
-    context.execute_steps('* Add namespace "iptunnelB"')
+    nmci.ip.netns_add("iptunnelB")
     nmci.ip.link_set(ifname="netB", netns="iptunnelB")
     if bridge:
         # if bridge, add addresses to "computers" in local networks
@@ -1004,8 +994,7 @@ def mptcp(context, num, veth, typ="subflow"):
     run_in_ns = ["ip", "netns", "exec", nsname]
     ip_in_ns = ["ip", "-n", nsname]
 
-    nmci.cleanup.add_namespace(nsname)
-    nmci.process.run(["ip", "netns", "add", nsname])
+    nmci.ip.netns_add(nsname)
 
     nmci.cleanup.add_sysctls("\.rp_filter")
     nmci.cleanup.add_sysctls("net.mptcp.enabled")

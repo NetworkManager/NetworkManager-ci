@@ -1613,7 +1613,7 @@ def test_namespaces(cleanup_namespace):
         pytest.skip("Not enough privilegies to run the test.")
     assert ns[0] in nmci.ip.netns_list()
 
-    nmci.ip.netns_add(ns[1])
+    nmci.ip.netns_add(ns[1], cleanup=False)
     assert ns[1] in nmci.ip.netns_list()
     nmci.ip.netns_delete(ns[1])
     assert ns[1] not in nmci.ip.netns_list()
