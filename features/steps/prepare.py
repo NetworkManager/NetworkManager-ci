@@ -804,7 +804,6 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
         return
     namespaces = [ns.strip() for ns in namespaces.split(",")]
     for ns in namespaces:
-        ns
         nmci.cleanup.add_namespace(ns)
         nmci.process.run_stdout(f"ip netns add {ns}")
         nmci.process.run_stdout(
