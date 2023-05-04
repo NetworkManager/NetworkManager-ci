@@ -1067,6 +1067,11 @@ class _IP:
         :param name: name if the namespace
         :type name: str
         """
+        if name in self.netns_list():
+            self.netns_delete(name)
+            # fail scenario if we didn't succeed in cleaning up the NS
+            if name in self.netns_list():
+                raise Exception(f"Failed to clean up leftover netns {name}!")
         nmci.process.run_stdout(["ip", "netns", "add", name])
 
     def netns_delete(self, name, check=True):
