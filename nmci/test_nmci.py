@@ -775,7 +775,7 @@ def test_feature_tags():
 
     def check_ver(tag):
         for ver_prefix, ver_len in [
-            ["ver", 3],
+            ["ver", 4],
             ["rhelver", 2],
             ["fedoraver", 1],
         ]:
@@ -796,16 +796,7 @@ def test_feature_tags():
                 assert ver
             assert all([type(v) is int for v in ver])
             assert all([v >= 0 for v in ver])
-            if ver_prefix == "ver":
-                assert ver_len == 3
-                if not stream:
-                    assert len(ver) <= 4
-                elif stream[0] == "rhel":
-                    assert len(ver) <= 4
-                else:
-                    assert len(ver) <= 3
-            else:
-                assert len(ver) <= ver_len
+            assert len(ver) <= ver_len
             if ver_prefix == "ver":
                 assert type(stream) is list
                 assert tag.startswith("/".join(("ver", *stream)) + op)
