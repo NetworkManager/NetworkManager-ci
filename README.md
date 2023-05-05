@@ -213,6 +213,50 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   1. or you can create a Merge Request in [Freedesktop Gitlab](https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci)
      right away and CI tooling will run both of these for you (changed scenarios only if unit tests pass successfully).
 
+#### `@ver` Version Tags
+
+Tests have tags (with an `@`). The @ver tag checks the version of NetworkManager to run or skip the test.
+See also `nmci/helpers/version_control.py` script. Use following best practice for choosing a version tag.
+
+- prefer `@ver+=NUMBER` over `@ver+NUMBER` because it is nicer to state the version when the feature starts working,
+  and not the version before.
+
+- similarly, prefer `@ver-NUMBER` over `@ver-=NUMBER` to mirror a `@ver+=NUMBER`. We can write two variants of
+  a test with different version tags, and the version selection must only match for one variants of the test.
+  Hence there should always be separate ranges. The use of `@ver-NUMBER` to mirror `@ver+=NUMBER` makes that clear.
+
+- in NetworkManager, stable releases have an even second version number and an even third number (e.g. 1.42.2).
+  A patch/feature/bugfix can only be added in a development version that leads up to a stable release. In the example,
+  between the tag 1.42.1 and 1.42.2. The right way for a `@ver+=` tag is thus always the development version, like
+  `@ver+=1.42.1`, because the patch is already upstream in `nm-1-42` branch, which is currently between 1.42.1 and
+  1.42.2. The test should start working with 1.42.1+ already. Yes, early versions of 1.42.1+ don't have the patch
+  yet, but it's more important to test the later versions of the development branch and run the test.
+  The right `@ver+=NUMBER` is what `git describe` gives for the commit with the patch.
+
+  * on main branch, the second number is odd and the third number can be odd or even. For example, 1.43.6 is a
+    development version leading towards the next major release 1.44.0. Also there, a patch is always introduced
+    between two development snapshots, like between 1.43.5 and 1.43.6. Here too, we shall use `@ver+=1.43.5`,
+    so that testing current `main` branch (when 1.43.6 is not yet tagged) also covers the test. Note that
+    we may take a devel snapshot (1.43.5) and package in RHEL. But that version doesn't have the patch yet,
+    so for that RHEL package the test `@ver+=1.43.5` will run but fail. There are are three possibilities.
+    First, don't care. These are all just development versions and the situation resolves itself in a few days.
+    Second, choose `@ver+=1.43.5.2000`, which would match for upstream builds
+    but not for RHEL (note the package version from upstream builds adds a large 4th number).
+    Third, add a RHEL specific override like `@ver+=1.43.5 @ver/rhel+=1.43.6`.
+
+The tested NetworkManager version is parsed with a "stream" along the version
+number. The stream is a variant of the NetworkManager package or a specific
+build configuration. For example, we can have upstream release 1.44.2, which we
+can build in copr, as a Fedora package or as a CentOS Stream 9 package. The
+build configurations may slightly differ for the same tarball. For example, a
+RHEL 8.7 package will be detected to have "rhel/8/7" stream. For most cases,
+downstream RHEL/Fedora is very close to upstream so there is no difference
+between streams. However, when having a stream like rhel/8/7, then the runner
+will first search for version tags `@ver/rhel/8/7`, then `@ver/rhel/8`, then
+`@ver/rhel` and finally `@ver`. If any stream specific version tag is found, it
+is evaluated and more general tags (like `@ver`) are ignored. For example,
+`@ver+=1.43.5 @ver/rhel/9+=1.43.6` means that RHEL 9 packages require a version
+1.43.6 or newer, but all other packages require at least version 1.43.5.
 
 ### Gitlab merge request pipelines (CI/CD)
 
