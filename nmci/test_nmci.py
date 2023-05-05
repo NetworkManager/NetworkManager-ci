@@ -799,7 +799,7 @@ def test_feature_tags():
             if ver_prefix == "ver":
                 assert ver_len == 3
                 if not stream:
-                    assert len(ver) <= 3
+                    assert len(ver) <= 4
                 elif stream[0] == "rhel":
                     assert len(ver) <= 4
                 else:
@@ -840,9 +840,12 @@ def test_feature_tags():
         return tag in mapper_tests
 
     assert check_ver("ver+=1.3")
+    assert check_ver("ver+=1.43.16.2000")
     assert ([], "+=", [1, 3]) == nmci.misc.test_version_tag_parse_ver("ver+=1.03")
     with pytest.raises(AssertionError):
         assert check_ver("ver+=1.03")
+    with pytest.raises(AssertionError):
+        assert check_ver("ver+=1.43.16.2000.1")
 
     for test_tags in all_test_tags:
         assert test_tags
