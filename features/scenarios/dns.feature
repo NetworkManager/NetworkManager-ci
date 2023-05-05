@@ -1115,6 +1115,7 @@ Feature: nmcli - dns
 
     @rhbz1676635
     @ver+=1.17.3
+    @ver-1.40.16.4
     @not_with_systemd_resolved
     @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
@@ -1133,6 +1134,31 @@ Feature: nmcli - dns
     Then "options[^\n]*attempts:2" is visible with command "cat /etc/resolv\.conf" in "5" seconds
      And "options[^\n]*timeout:5" is visible with command "cat /etc/resolv\.conf" in "5" seconds
      And "options[^\n]*ndots:1" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+
+
+    @rhbz1676635
+    @rhbz2176137
+    @ver+=1.40.16.4
+    @ver+=1.43.6.1
+    @not_with_systemd_resolved
+    @dns_multiple_options
+    Scenario: nmcli - dns - add more options to ipv4.dns-options
+    * Add "ethernet" connection named "con_dns" for device "\*" with options "autoconnect no ipv4.dns-options ndots:2"
+    * Modify connection "con_dns" changing options "+ipv4.dns-options timeout:2"
+    Then "timeout\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "-ipv4.dns-options ndots:2"
+    Then "timeout\\:2" is visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "-ipv4.dns-options timeout:2"
+    Then "timeout\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+     And "ndots\\:2" is not visible with command "nmcli -g ipv4.dns-options con show id con_dns"
+    * Modify connection "con_dns" changing options "ifname eth2 +ipv4.dns-options 'attempts:2 timeout:5 ndots:1 no-aaaa'"
+    * Bring "up" connection "con_dns"
+    Then "options[^\n]*attempts:2" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+     And "options[^\n]*timeout:5" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+     And "options[^\n]*ndots:1" is visible with command "cat /etc/resolv\.conf" in "5" seconds
+     And "options[^\n]*no-aaaa" is visible with command "cat /etc/resolv\.conf" in "5" seconds
 
 
     @remove_dns_clean @restart_if_needed
