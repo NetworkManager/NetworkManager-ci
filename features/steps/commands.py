@@ -1171,3 +1171,9 @@ def check_last_copr_build(context):
     assert (
         "Worker failed build" not in resp.text
     ), f"Latest copr build in {context.copr_baseurl} is failed."
+
+
+@step('Skip on RPM "{rpm}"')
+def skip_on_rpm(context, rpm):
+    if nmci.process.run_search_stdout(["rpm", "-qa"], rpm):
+        nmci.cext.skip(f"Skipping, {rpm} found installed")
