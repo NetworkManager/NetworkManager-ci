@@ -1992,6 +1992,8 @@ testmapper:
         feature: ovs
     - ovs_nmstate:
         feature: ovs
+    - ovs_nmstate_add_bond:
+        feature: ovs
     - ovs_set_firewalld_zone:
         feature: ovs
     - ovs_service_disabled_error:

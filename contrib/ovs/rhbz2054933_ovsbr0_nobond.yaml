@@ -1,0 +1,21 @@
+interfaces:
+- name: ovs-br0
+  type: ovs-bridge
+  state: up
+  bridge:
+    port:
+    - name: ovs0
+    - name: testOVS1
+- name: ovs0
+  type: ovs-interface
+  state: up
+  ipv4:
+    enabled: true
+    address:
+    - ip: 1.1.1.1
+      prefix-length: 24
+  ipv6:
+    enabled: true
+    address:
+    - ip: 1::1
+      prefix-length: 64

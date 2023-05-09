@@ -1,0 +1,17 @@
+interfaces:
+- name: ovs-br0
+  type: ovs-bridge
+  state: up
+  bridge:
+    port:
+    - name: ovs0
+    - name: testOVS1
+    - name: ovsbond0
+      link-aggregation:
+        mode: balance-slb
+        port:
+        - name: testOVS2
+        - name: dummy0
+- name: dummy0
+  type: dummy
+  state: up

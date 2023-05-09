@@ -1284,6 +1284,44 @@ Feature: nmcli - ovs
      And "Port .*veth0c[\"]?\s+Interface [\"]?veth0c[\"]?\s+type: system" is not visible with command "ovs-vsctl show"
 
 
+    @openvswitch
+    @ovs_nmstate_add_bond
+    Scenario: NM - openvswitch - nmstate
+    * Cleanup device "testOVS1"
+    * Cleanup device "testOVS2"
+    * Cleanup connection "testOVS1"
+    * Cleanup connection "testOVS2"
+    * Cleanup connection "ovs0-port"
+    * Cleanup connection "ovsbond0-port"
+    * Cleanup connection "testOVS1-port"
+    * Cleanup connection "ovs-br0-br"
+    * Cleanup connection "ovs0-if"
+    * Cleanup device "ovs0"
+    * Cleanup connection "dummy0"
+    * Cleanup device "dummy0"
+    * Execute "ip link add testOVS1 type veth peer name testOVS1_ep"
+    * Execute "ip link set testOVS1 up"
+    * Execute "ip link set testOVS1_ep up"
+    * Execute "nmcli device set testOVS1 managed yes"
+    * Execute "nmcli device set testOVS1_ep managed yes"
+    * Execute "ip link add testOVS2 type veth peer name testOVS2_ep"
+    * Execute "ip link set testOVS2 up"
+    * Execute "ip link set testOVS2_ep up"
+    * Execute "nmcli device set testOVS2 managed yes"
+    * Execute "nmcli device set testOVS2_ep managed yes"
+#     * Prepare simulated test "testOVS1" device
+#     * Prepare simulated test "testOVS2" device
+    * Execute "nmstatectl apply contrib/ovs/rhbz2054933_ovsbr0_nobond.yaml"
+    * Execute "nmstatectl apply contrib/ovs/rhbz2054933_ovsbr0_add_bond.yaml"
+    * Execute "nmstatectl show ovs0,dummy0,testOVS[01] | nmstatectl apply"
+    Then "Bridge [\"]?ovs-br0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port .*ovsbond0[\"]?\s+Interface.*Interface" is visible with command "ovs-vsctl show"
+     And "Interface [\"]?testOVS2[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Interface [\"]?dummy0[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port .*ovs0[\"]?\s+Interface [\"]?ovs0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port .*testOVS1[\"]?\s+Interface [\"]?testOVS1[\"]?\s+type: system" is visible with command "ovs-vsctl show"
+
+
     @rhbz1921107
     @ver+=1.30 @ver-=1.31
     @openvswitch @firewall
