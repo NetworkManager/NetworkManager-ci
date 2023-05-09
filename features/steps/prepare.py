@@ -252,16 +252,21 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(
     'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"'
 )
-def prepare_dhcpd_simdev(context, device, server_id):
+@step(
+    'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}" and ifindex "{ifindex}"'
+)
+def prepare_dhcpd_simdev(context, device, server_id, ifindex=None):
     nmci.veth.manage_device(device)
 
     ipv4 = "192.168.99"
     context.execute_steps(f'* Add namespace "{device}_ns"')
     context.execute_steps(
-        f'* Create "veth" device named "{device}" with options "peer name {device}p"'
+        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
     context.command_code(
-        "ip link set {device}p netns {device}_ns".format(device=device)
+        "ip netns exec {device}_ns ip link set {device} netns {pid}".format(
+            device=device, pid=os.getpid()
+        )
     )
     context.command_code(
         "ip netns exec {device}_ns ip link set lo up".format(device=device)

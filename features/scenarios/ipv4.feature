@@ -2918,29 +2918,28 @@ Feature: nmcli: ipv4
 
     @rhbz1861527
     # at least two bugs:
-    #   * https://bugzilla.redhat.com/show_bug.cgi?id=2179890 and
-    #   * not-yet-reported memory issue somewhere causing OOMs
-    @may_fail
+    #   * NM < 1.43.6: https://bugzilla.redhat.com/show_bug.cgi?id=2179890
+    #   * iproute 6.1: https://bugzilla.redhat.com/show_bug.cgi?id=2183967
     @ver+=1.35.7
     @logging_info_only
     @ipv4_ignore_nonstatic_routes
     Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP
-    * Prepare simulated test "testX4" device using dhcpd and server identifier "192.168.1.1"
-    * Add "ethernet" connection named "con_ipv4" for device "testX4"
+    * Prepare simulated test "many_routes4" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
+    * Add "ethernet" connection named "con_ipv4" for device "many_routes4"
     * Bring "up" connection "con_ipv4"
     * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_before"
-    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev testX4; done"
+    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev many_routes4; done"
     * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_after_types"
-    * Execute "nmcli -f ip6.route d show testX4"
+    * Execute "nmcli -f ip6.route d show many_routes4"
     Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
     # If more routes are needed, just adjust argument to the generating script and When check
-    * Execute "prepare/bird_routes.py testX4 4 2000000 > /tmp/nmci-bird-routes-v4"
+    * Execute "prepare/bird_routes.py many_routes4 4 2000000 > /tmp/nmci-bird-routes-v4"
     * Execute "ip -b /tmp/nmci-bird-routes-v4"
-    When There are "at least" "2000000" IP version "4" routes for device "testX4" in "5" seconds
+    When There are "at least" "2000000" IP version "4" routes for device "many_routes4" in "5" seconds
     Then "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
-     And Execute "nmcli -f ip4.route d show testX4"
+     And Execute "nmcli -f ip4.route d show many_routes4"
     * Delete connection "con_ipv4"
-    Then There are "at most" "5" IP version "4" routes for device "testX4" in "5" seconds
+    Then There are "at most" "5" IP version "4" routes for device "many_routes4" in "5" seconds
 
 
     @rhbz2040683
