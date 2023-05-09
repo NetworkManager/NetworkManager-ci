@@ -1116,6 +1116,7 @@ Feature: nmcli - dns
     @rhbz1676635
     @ver+=1.17.3
     @ver-1.40.16.4
+    @ver-1.42.5
     @not_with_systemd_resolved
     @dns_multiple_options
     Scenario: nmcli - dns - add more options to ipv4.dns-options
@@ -1139,6 +1140,7 @@ Feature: nmcli - dns
     @rhbz1676635
     @rhbz2176137
     @ver+=1.40.16.4
+    @ver+=1.42.5
     @ver+=1.43.6.1
     @not_with_systemd_resolved
     @dns_multiple_options
