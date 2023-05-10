@@ -2928,7 +2928,8 @@ Feature: nmcli: ipv4
     """
     RHEL 9.2 has iproute-6.1, which is bug mentioned above (`ip` is killed by OOM).
     """
-    * Skip on RPM "iproute-6.1"
+    * Skip if next step fails:
+    * "6.1" is not visible with command "ip -V" in "0" seconds
     * Prepare simulated test "many_routes4" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
     * Add "ethernet" connection named "con_ipv4" for device "many_routes4"
     * Bring "up" connection "con_ipv4"

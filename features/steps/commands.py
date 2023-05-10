@@ -1173,7 +1173,8 @@ def check_last_copr_build(context):
     ), f"Latest copr build in {context.copr_baseurl} is failed."
 
 
-@step('Skip on RPM "{rpm}"')
-def skip_on_rpm(context, rpm):
-    if nmci.process.run_search_stdout(["rpm", "-qa"], rpm):
-        nmci.cext.skip(f"Skipping, {rpm} found installed")
+@step("Skip if next step fails:")
+def skip_if(context):
+    # Do the check in the second after_step() call,
+    # the first call is after_step() of this step.
+    context.skip_check_count = 2

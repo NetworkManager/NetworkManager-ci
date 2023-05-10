@@ -67,6 +67,9 @@ def _before_scenario(context, scenario):
     context.step_level = 0
     nmci.nmutil.context_set_nm_restarted(context, reset=True)
     context.nm_pid = nmci.nmutil.nm_pid()
+    # if skip_check_count == 1 in after_scenario(),
+    # the failed status is treated as skip.
+    context.skip_check_count = 0
     context.crashed_step = False
     context.noted = {}
     context.log_cursor = ""
@@ -222,11 +225,19 @@ def after_step(context, step):
         if os.path.isfile("/tmp/nm_skip_restarts"):
             time.sleep(0.4)
 
+    # after_step() is called for each substep of context.execute_steps() call,
+    # this code is to be executed only for steps present in feature file
     if context.step_level == 0:
         nmci.crash.check_crash(context, step.name)
         nmci.embed.after_step()
         if step.name.startswith("Prepare "):
             nmci.util.dump_status("After this step")
+
+        # handle skip_check_count as last part, only for feature file steps
+        if context.skip_check_count == 1:
+            if step.status != Status.passed:
+                nmci.cext.skip(f"Skipping because step is {step.status.name}")
+        context.skip_check_count -= 1
 
 
 # print exception traceback
