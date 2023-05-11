@@ -9,6 +9,8 @@ REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
 REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
 REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 
+KVM_HW_ERROR = "KVM: entry failed, hardware error"
+
 
 def get_dracut_vm_state(mount=True):
     cmd = ["cd contrib/dracut/", ". ./setup.sh"]
@@ -24,9 +26,11 @@ def get_dracut_vm_state(mount=True):
 
 
 def handle_timeout(proc, timeout):
-    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=timeout / 2)
+    res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=timeout / 2)
     if res == 0:
         return True
+    if res == 1:
+        nmci.cext.skip("KVM hardware error detected.")
     vm_state = get_dracut_vm_state()
     print("vmstate is " + vm_state)
     if vm_state == "NOBOOT":
