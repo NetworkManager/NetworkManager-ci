@@ -14,7 +14,9 @@ THRESHOLD=5
 ARGS=()
 [[ -x /usr/libexec/qemu-kvm ]] && BIN=/usr/libexec/qemu-kvm
 [[ -x /usr/bin/qemu-kvm ]] && BIN=/usr/bin/qemu-kvm
-if [[ -c /dev/kvm ]] ; then
+if grep -i "stream release 9" /etc/redhat-release; then
+  ARGS+=(-cpu Nehalem)
+elif [[ -c /dev/kvm ]] ; then
 	ARGS+=(-cpu host)
 else
 	ARGS+=(-cpu max)
