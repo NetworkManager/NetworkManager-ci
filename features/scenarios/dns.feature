@@ -1360,3 +1360,23 @@ Feature: nmcli - dns
     * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/99-resolv.conf"
     * Restart NM
     Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
+
+
+    @rhbz2189247
+    @ver+=1.43.4
+    @ver+=1.42.5
+    @ver+=1.40.17
+    @ver+=1.38.7
+    @not_with_systemd_resolved
+    @dns_reapply_on_disabled_ipv6
+    Scenario: NM - dns - reapply after disabling IPv6
+    # Create connection on eth2 with manual IPv6 address and IPv6 DNS specified
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv6.method manual ipv6.addresses 2607:f0d0:1002:51::4/64 ipv6.dns 2000::1"
+    * Bring "up" connection "con_dns"
+    Then "2000::1" is visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
+    Then "exactly" "2" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
+    * Execute "nmcli connection modify con_dns -ipv6.addresses 2607:f0d0:1002:51::4/64 -ipv6.dns 2000::1 ipv6.method disabled"
+    * Execute "nmcli device reapply eth2"
+    Then "2000::1" is not visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
+    Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
