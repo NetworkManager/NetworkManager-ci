@@ -264,7 +264,7 @@
      Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
-    @ver-1.20
+    @ver-1.21.1
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
@@ -284,7 +284,8 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
-    @ver+=1.21.1 @ver-=1.32
+    @ver+=1.21.1
+    @ver-1.33
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
@@ -306,7 +307,8 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
-    @ver+=1.33 @ver-=1.39.6
+    @ver+=1.33
+    @ver-1.39.7
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
