@@ -222,17 +222,19 @@ class _Process:
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
+        timeout = nmci.util.start_timeout(timeout)
+        time_measure = nmci.util.start_timeout()
+
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra, namespace
         )
 
-        time_measure = nmci.util.start_timeout()
         proc = subprocess.run(
             argv_real,
             shell=shell,
             stdout=stdout,
             stderr=stderr,
-            timeout=timeout,
+            timeout=timeout.remaining_time(),
             cwd=cwd,
             env=env,
         )

@@ -151,9 +151,7 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
-        r = nmci.process.systemctl(
-            "restart NetworkManager.service", timeout=timeout.remaining_time()
-        )
+        r = nmci.process.systemctl("restart NetworkManager.service", timeout=timeout)
         nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
         self.wait_for_nm_bus(timeout)
         assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
@@ -166,24 +164,24 @@ class _NMUtil:
         timeout = nmci.util.start_timeout(timeout)
         if reset:
             nmci.process.systemctl("reset-failed NetworkManager.service")
-        r = nmci.process.systemctl(
-            "start NetworkManager.service", timeout=timeout.remaining_time()
-        )
+        r = nmci.process.systemctl("start NetworkManager.service", timeout=timeout)
         assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
         if pid_wait:
             nmci.cext.context.nm_pid = self.wait_for_nm_pid(timeout)
             self.wait_for_nm_bus(timeout)
 
-    def stop_NM_service(self):
+    def stop_NM_service(self, timeout=60):
         print("stop NM service")
         self.context_set_nm_restarted()
         nmci.cleanup.add_NM_service(operation="start")
-        r = nmci.process.systemctl("stop NetworkManager.service")
+        r = nmci.process.systemctl("stop NetworkManager.service", timeout=timeout)
         nmci.cext.context.nm_pid = 0
         assert r.returncode == 0, f"systemctl stop NetworkManager failed with {r}"
 
     def reboot_NM_service(self, timeout=None):
-        self.stop_NM_service()
+        timeout = nmci.util.start_timeout(timeout)
+
+        self.stop_NM_service(timeout=timeout)
 
         links = nmci.ip.link_show_all()
         link_ifnames = [li["ifname"] for li in links]
@@ -256,8 +254,7 @@ class _NMUtil:
         elif operation == "restart":
             self.restart_NM_service(timeout=timeout)
         elif operation == "stop":
-            assert timeout is None
-            self.stop_NM_service()
+            self.stop_NM_service(timeout=timeout)
         elif operation == "reboot":
             self.reboot_NM_service(timeout=timeout)
         else:
