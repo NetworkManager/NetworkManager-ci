@@ -90,19 +90,6 @@ install_plugins_dnf () {
 }
 
 
-enable_abrt () {
-    if which abrt-auto-reporting > /dev/null; then
-        systemctl stop systemd-coredump.socket
-        systemctl mask systemd-coredump.socket
-        abrt-auto-reporting enabled
-        systemctl restart abrt-journal-core.service
-        systemctl restart abrt-ccpp.service
-    else
-        echo "ABRT probably not installed !!!"
-    fi
-}
-
-
 configure_nm_dcb () {
     [ -e /tmp/dcb_configured ] && return
 

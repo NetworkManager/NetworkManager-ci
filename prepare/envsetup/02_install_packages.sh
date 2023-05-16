@@ -13,10 +13,8 @@ install_packages () {
             release="fedora"
         elif grep -q -e 'release 8' /etc/redhat-release; then
             release="el8"
-            need_abrt="yes"
         elif grep -q -e 'release 9' /etc/redhat-release; then
             release="el9"
-            need_abrt="yes"
         elif grep -q -e 'release 7' /etc/redhat-release; then
             release="el7"
         fi
@@ -27,10 +25,6 @@ install_packages () {
         if ! check_packages; then
             sleep 20
             install_"$release"_packages
-        fi
-
-        if [ $need_abrt == "yes" ]; then
-            enable_abrt
         fi
 
         # install formatter html-pretty
