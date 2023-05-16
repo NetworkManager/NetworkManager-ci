@@ -3416,3 +3416,22 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "4" seconds
     Then "192.168.155.0" is visible with command "ip -4 route show dev testX"
+
+
+    @rhbz2169512
+    @ver+=1.43.4
+    @ipv4_keep_track_l3_despite_too_many_netlink
+    Scenario: Keep track of NM-requested l3 changes (v4)
+    * Cleanup namespace "nll3ev"
+    * Add "101" "dummy" connections named "v4con" for devices "dummy" with options
+        """
+        autoconnect yes
+        ipv4.method disabled
+        ipv6.method disabled
+        """
+    * Execute "for i in {0..100} ; do nmcli c modify v4con_$i ipv4.method manual ipv4.addresses 172.16.${i}.1/24; done"
+    * Run child "contrib/netlink-events-l3.sh 90 210 180"
+    * Execute "for i in {0..100} ; do nmcli d reapply dummy_$i & done"
+    Then "exactly" "101" lines with pattern "172\.16" are visible with command "ip -o -4 addr show type dummy" in "10" seconds
+    * Execute "pkill -F .tmp/nll3-events.pid"
+    Then "exactly" "101" lines with pattern "^172\.16" are visible with command "for i in dummy_{0..100}; do nmcli -g IP4.ADDRESS device show $i; done" in "60" seconds
