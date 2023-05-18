@@ -2109,6 +2109,12 @@ Bases: `Exception`
 Exception to be thrown when test shoud be skipped, to prevent further code execution.
 
 
+### _exception_ nmci.misc.TestNotFoundException()
+Bases: `Exception`
+
+Exception to be thrown when test is not found.
+
+
 ### nmci.misc.distro_detect(use_cached=True)
 Get distribution name and version.
 

@@ -593,6 +593,13 @@ class _Misc:
 
         return test_tags
 
+    class TestNotFoundException(Exception):
+        """
+        Exception to be thrown when test is not found.
+        """
+
+        pass
+
     class SkipTestException(Exception):
         """
         Exception to be thrown when test shoud be skipped, to prevent further code execution.
@@ -867,12 +874,16 @@ class _Misc:
         :rtype: str
         """
         test_name = self.test_name_normalize(test_name=test_name)
-        mapper_feature = [
+        mapper_features = [
             i["feature"]
             for i in self.get_mapper_tests(self.get_mapper_obj(), feature)
             if i["testname"] == test_name
-        ][0]
-        return f"{nmci.util.base_dir('features', 'scenarios')}/{mapper_feature}.feature"
+        ]
+        if not mapper_features:
+            raise _Misc.TestNotFoundException(
+                f"test with tag '{test_name}' not defined in feature \"{feature}\"!\n"
+            )
+        return f"{nmci.util.base_dir('features', 'scenarios')}/{mapper_features[0]}.feature"
 
     def test_version_check(self, test_name, feature="*"):
         """
@@ -909,7 +920,9 @@ class _Misc:
         )
 
         if not test_tags_list:
-            raise Exception(f"test with tag '{test_name}' not defined!\n")
+            raise _Misc.TestNotFoundException(
+                f"test with tag '{test_name}' not defined!\n"
+            )
 
         try:
             result = self.test_tags_select(

@@ -12,11 +12,16 @@ if len(sys.argv) != 2:
     print("Invalid arguments. Call with test name as parameter")
     sys.exit(1)
 
+test_name = sys.argv[1]
+
 try:
-    (feature, test_name, tags) = nmci.misc.test_version_check(test_name=sys.argv[1])
+    (feature, test_name, tags) = nmci.misc.test_version_check(test_name=test_name)
+except nmci.misc.SkipTestException as e:
+    sys.exit(77)
+except nmci.misc.TestNotFoundException as e:
+    print(f'Test "{test_name}" not found')
+    sys.exit(1)
 except Exception as e:
-    if isinstance(e, nmci.misc.SkipTestException):
-        sys.exit(77)
     traceback.print_exc()
     sys.exit(1)
 

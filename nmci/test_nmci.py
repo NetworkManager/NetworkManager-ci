@@ -1715,7 +1715,7 @@ def test_misc_test_find_feature_file():
     assert nmci.misc.test_find_feature_file("pass", "general") == nmci.util.base_dir(
         "features/scenarios/general.feature"
     )
-    with pytest.raises(Exception):
+    with pytest.raises(nmci.misc.TestNotFoundException):
         nmci.misc.test_find_feature_file("no-exist")
 
 
