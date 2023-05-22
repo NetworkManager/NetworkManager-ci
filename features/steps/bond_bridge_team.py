@@ -79,7 +79,10 @@ def check_bond_link_state(context, bond, state):
         return
     timeout = nmci.util.start_timeout(8)
     while timeout.loop_sleep(0.2):
-        proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+        try:
+            proc_file = nmci.util.file_get_content_simple(f"/proc/net/bonding/{bond}")
+        except FileNotFoundError:
+            continue
         if f"MII Status: {state}" in proc_file:
             return True
     assert False, f"{bond} is not in {state} link state"
