@@ -233,8 +233,7 @@ class Machine:
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
         # upgrade
-        # temporary skip el9 https://bugzilla.redhat.com/show_bug.cgi?id=2184745
-        self.ssh("dnf -y upgrade")
+        self.ssh("dnf -y upgrade --nobest")
         self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
