@@ -176,14 +176,18 @@ class _Cleanup:
         def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
             """Cleanup NetworkManager connection
 
-            :param con_name: name or UUID of the connection to cleanup
-            :type con_name: str
+            :param con_name: name or UUID or list of names or UUIDs of the connection to cleanup
+            :type con_name: str, list
             :param qualifier: optional qualifier ('id' or 'uuid'), defaults to None
             :type qualifier: str, optional
             :param priority: cleanup priority, defaults to PRIORITY_CONNECTION
             :type priority: int, optional
             """
-            self.con_name = con_name
+            if isinstance(con_name, str):
+                self.con_names = [con_name]
+            else:
+                self.con_names = con_name
+
             self.qualifier = qualifier
             super().__init__(
                 name=f"nmcli-connection-{con_name}",
@@ -194,10 +198,10 @@ class _Cleanup:
         def _do_cleanup_impl(self):
 
             if self.qualifier is not None:
-                args = [self.qualifier, self.con_name]
+                args = [self.qualifier, *self.con_names]
             else:
-                args = [self.con_name]
-            nmci.process.nmcli_force(["connection", "delete"] + args)
+                args = self.con_names
+            nmci.process.nmcli_force(["connection", "delete", *args])
 
     class CleanupIface(Cleanup):
         def __init__(self, iface, op=None, priority=None):

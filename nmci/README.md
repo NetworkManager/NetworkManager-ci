@@ -180,7 +180,7 @@ Cleanup NetworkManager connection
 * **Parameters**
 
     
-    * **con_name** (*str*) – name or UUID of the connection to cleanup
+    * **con_name** (*str**, **list*) – name or UUID or list of names or UUIDs of the connection to cleanup
 
 
     * **qualifier** (*str**, **optional*) – optional qualifier (‘id’ or ‘uuid’), defaults to None

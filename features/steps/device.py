@@ -886,11 +886,11 @@ def add_multiple_devices(context, typ, name, count):
     # see add_device()
     context.ifindex = max(context.ifindex, *ifindices)
 
-    for i in range(int(count)):
-        _name = f"{name}_{i}"
+    names = [f"{name}_{i}" for i in range(int(count))]
+    nmci.cleanup.add_iface(names, op="delete")
+    for _name in names:
         context.ifindex += _increment_size
         options = f"peer name {_name}p" if typ == "veth" else ""
-        nmci.cleanup.add_iface(_name)
         nmci.ip.link_add(
             _name,
             typ,

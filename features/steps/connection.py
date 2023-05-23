@@ -15,15 +15,19 @@ import nmci
 @step(
     'Add "{typ}" connection named "{name}" for device "{ifname}" with options "{options}"'
 )
-def add_new_connection(context, typ, name=None, ifname=None, options=None):
+def add_new_connection(
+    context, typ, name=None, ifname=None, options=None, cleanup=True
+):
     conn_name = ""
     if name is not None:
-        nmci.cleanup.add_connection(name)
+        if cleanup:
+            nmci.cleanup.add_connection(name)
         conn_name = f"con-name {name}"
 
     iface = ""
     if ifname is not None:
-        nmci.cleanup.add_iface(ifname)
+        if cleanup:
+            nmci.cleanup.add_iface(ifname)
         iface = f"ifname {ifname}"
 
     if options is None:
@@ -43,10 +47,11 @@ def add_new_connection(context, typ, name=None, ifname=None, options=None):
 def add_multiple_new_connections(
     context, count, typ, name=None, ifname=None, options=None
 ):
-    for i in range(int(count)):
-        _con_name = f"{name}_{i}"
-        _dev_name = f"{ifname}_{i}"
-        add_new_connection(context, typ, _con_name, _dev_name, options)
+    cons = {f"{name}_{i}": f"{ifname}_{i}" for i in range(int(count))}
+    nmci.cleanup.add_connection(list(cons.keys()))
+    nmci.cleanup.add_iface(list(cons.values()), op="delete")
+    for _con_name, _dev_name in cons.items():
+        add_new_connection(context, typ, _con_name, _dev_name, options, cleanup=False)
 
 
 @step(
