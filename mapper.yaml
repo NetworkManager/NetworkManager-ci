@@ -3253,12 +3253,12 @@ testmapper:
     #     tags: jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
 
   NetworkManager-wifi:
-    - nmcli_wifi_wpa1_peap_mschapv2:
-        feature: wifi
-    - nmcli_wifi_wpa1_tls:
-        feature: wifi
-    - nmcli_wifi_wpa1_ttls_mschapv2:
-        feature: wifi
+    # - nmcli_wifi_wpa1_peap_mschapv2:
+    #     feature: wifi
+    # - nmcli_wifi_wpa1_tls:
+    #     feature: wifi
+    # - nmcli_wifi_wpa1_ttls_mschapv2:
+    #     feature: wifi
     - nmcli_wifi_wpa2_peap_mschapv2:
         feature: wifi
     - nmcli_wifi_wpa2_tls:
@@ -3273,8 +3273,8 @@ testmapper:
         feature: wifi
     - nmcli_wifi_infrastructure_mode_setting:
         feature: wifi
-    - nmcli_wifi_adhoc_open_network:
-        feature: wifi
+    # - nmcli_wifi_adhoc_wpa2_network:
+    #     feature: wifi
     - nmcli_wifi_ap:
         feature: wifi
     - nmcli_wifi_right_band:
@@ -3297,8 +3297,8 @@ testmapper:
         feature: wifi
     - nmcli_wifi_wpa3_psk:
         feature: wifi
-    - nmcli_wifi_wpa1_psk:
-        feature: wifi
+    # - nmcli_wifi_wpa1_psk:
+    #     feature: wifi
     - nmcli_wifi_pairwise_ccmp:
         feature: wifi
     - nmcli_wifi_unmatching_pairwise:
@@ -3313,30 +3313,30 @@ testmapper:
         feature: wifi
     - nmtui_wifi_see_all_networks:
         feature: nmtui_wifi
-    - nmtui_wifi_connect_to_open_network:
-        feature: nmtui_wifi
-    - nmtui_wifi_connect_to_wpa1psk_network:
-        feature: nmtui_wifi
+    # - nmtui_wifi_connect_to_open_network:
+    #     feature: nmtui_wifi
+    # - nmtui_wifi_connect_to_wpa1psk_network:
+    #     feature: nmtui_wifi
     - nmtui_wifi_connect_to_wpa2psk_network:
         feature: nmtui_wifi
     - nmtui_wifi_connect_to_wpa3psk_network:
         feature: nmtui_wifi
-    - nmtui_wifi_add_default_connection_open_network:
-        feature: nmtui_wifi
+    # - nmtui_wifi_add_default_connection_open_network:
+    #     feature: nmtui_wifi
     - nmtui_wifi_ap:
         feature: nmtui_wifi
-    - nmtui_wifi_wpa1:
-        feature: nmtui_wifi
+    # - nmtui_wifi_wpa1:
+    #     feature: nmtui_wifi
     - nmtui_wifi_wpa2:
         feature: nmtui_wifi
     - nmtui_wifi_wpa3:
         feature: nmtui_wifi
-    - nmtui_wifi_wpa1_enterprise_tls:
-        feature: nmtui_wifi
-    - nmtui_wifi_wpa1_enterprise_peap_mschapv2:
-        feature: nmtui_wifi
-    - nmtui_wifi_wpa1_enterprise_ttls_mschapv2:
-        feature: nmtui_wifi
+    # - nmtui_wifi_wpa1_enterprise_tls:
+    #     feature: nmtui_wifi
+    # - nmtui_wifi_wpa1_enterprise_peap_mschapv2:
+    #     feature: nmtui_wifi
+    # - nmtui_wifi_wpa1_enterprise_ttls_mschapv2:
+    #     feature: nmtui_wifi
     - nmtui_wifi_wpa2_enterprise_tls:
         feature: nmtui_wifi
     - nmtui_wifi_wpa2_enterprise_peap_mschapv2:

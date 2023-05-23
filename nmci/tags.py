@@ -2436,18 +2436,6 @@ def mtu_as(context, scenario):
 _register_tag("mtu", None, mtu_as)
 
 
-def mtu_wlan0_as(context, scenario):
-    context.process.nmcli(
-        "con add type wifi ifname wlan0 con-name qe-open autoconnect off ssid qe-open"
-    )
-    context.process.nmcli("con modify qe-open 802-11-wireless.mtu 1500")
-    context.process.nmcli("con up id qe-open")
-    context.process.nmcli("con del id qe-open")
-
-
-_register_tag("mtu_wlan0", None, mtu_wlan0_as)
-
-
 def macsec_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/wpa_supplicant_ms.pid")
     context.process.run_stdout("pkill -F /tmp/dnsmasq_ms.pid")
