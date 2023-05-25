@@ -28,6 +28,7 @@ install_fedora_packages () {
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
         tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
         mptcpd wpa_supplicant NetworkManager-initscripts-ifcfg-rh s390utils-base \
+        NetworkManager-cloud-setup \
         --skip-broken
 
     # freeradius
