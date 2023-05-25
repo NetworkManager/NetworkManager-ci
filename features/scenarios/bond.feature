@@ -3004,6 +3004,28 @@
     Then "client1234" is visible with command "hostname" in "10" seconds
 
 
+    @rhbz2196441 @rhbz2209357 @rhbz2209355 @rhbz2209359
+    @ver+=1.42.7
+    @ver/rhel/9+=1.42.2.2
+    @ver/rhel/8+=1.40.16.2
+    @ver/rhel/8+=1.36.0.14
+    @ver+=1.34.0
+    @bond_stay_up_when_ipv6_flushed
+    Scenario: bond - keep profile up after ipv6 flush
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
+        """
+        ipv4.method disabled ipv6.addr-gen-mode eui64
+        connection.autoconnect no
+        """
+    * Add "dummy" connection named "dummy0*" for device "dummy0" with options "master bond0"
+    * Bring "up" connection "dummy0*"
+    * Wait for "3" seconds
+    * Execute "ip -6 addr flush dev nm-bond"
+    * Wait for "3" seconds
+    Then "bond0" is visible with command "nmcli -g name connection show --active"
+
+
+
     @rhbz2171827
     @rhbz2171832
     @ver+=1.42
