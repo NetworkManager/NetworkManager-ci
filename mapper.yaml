@@ -117,6 +117,8 @@ testmapper:
         feature: bond
     - bond_add_slaves_with_queue-id:
         feature: bond
+    - bond_port_prio_with_active_backup:
+        feature: bond
     - add_bond_master_via_uuid:
         feature: bond
     - bond_ifcfg_master_as_device:

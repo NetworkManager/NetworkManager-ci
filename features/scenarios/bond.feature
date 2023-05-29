@@ -462,6 +462,44 @@
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0.0" in "40" seconds
 
 
+    @rhbz2152304
+    @ver+=1.43.7
+    @rhelver+=9.3
+    @bond_port_prio_with_active_backup
+    Scenario: nmcli - bond - port priority
+    * Add "ethernet" connection named "bond0.0" for device "eth1" with options
+           """
+            connection.slave-type bond master nm-bond bond-port.prio 2 connection.autoconnect no
+           """
+    * Add "ethernet" connection named "bond0.1" for device "eth4" with options
+           """
+            connection.slave-type bond master nm-bond bond-port.prio 4 connection.autoconnect no
+           """
+    * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ipv4.addresses 1.2.3.4/24 ipv4.method manual
+           bond.options mode=active-backup
+           autoconnect yes
+           connection.autoconnect-slaves yes
+           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
+    Then "eth4" is visible with command "cat /sys/class/net/nm-bond/bonding/active_slave"
+    * Bring "up" connection "bond0.0"
+    * Bring "up" connection "bond0.1"
+    Then "eth4" is visible with command "cat /sys/class/net/nm-bond/bonding/active_slave"
+    * Bring "up" connection "bond0.0"
+    Then "eth4" is visible with command "cat /sys/class/net/nm-bond/bonding/active_slave"
+    * Modify connection "bond0.0" changing options
+           """
+           bond-port.prio 8
+           """
+    * Bring "up" connection "bond0.0"
+    * Bring "up" connection "bond0.1"
+    Then "eth1" is visible with command "cat /sys/class/net/nm-bond/bonding/active_slave"
+    * Bring "up" connection "bond0.0"
+    Then "eth1" is visible with command "cat /sys/class/net/nm-bond/bonding/active_slave"
+
+
     @rhbz1057494
     @add_bond_master_via_uuid
     Scenario: nmcli - bond - master via uuid
