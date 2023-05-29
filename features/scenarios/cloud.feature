@@ -1,7 +1,7 @@
 Feature: nmcli: cloud
 
 
-    @ver+=1.43.8
+    @ver+=1.43.8.2
     @cloud_aliyun_basic
     Scenario: cloud - aliyun - Basic Aliyun nm-cloud-setup checks
     * Start test-cloud-meta-mock.py
@@ -20,7 +20,7 @@ Feature: nmcli: cloud
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
 
 
-    @ver+=1.43.8
+    @ver+=1.43.8.2
     @cloud_azure_basic
     Scenario: cloud - azure - Basic Azure nm-cloud-setup checks
     * Start test-cloud-meta-mock.py
@@ -38,7 +38,7 @@ Feature: nmcli: cloud
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
 
 
-    @ver+=1.43.8
+    @ver+=1.43.8.2
     @cloud_ec2_basic
     Scenario: cloud - ec2 - Basic EC2 nm-cloud-setup checks
     * Start test-cloud-meta-mock.py
@@ -55,7 +55,7 @@ Feature: nmcli: cloud
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
 
-    @ver+=1.43.8
+    @ver+=1.43.8.2
     @cloud_gcp_basic
     Scenario: cloud - gcp - Basic GCP nm-cloud-setup checks
     * Start test-cloud-meta-mock.py
