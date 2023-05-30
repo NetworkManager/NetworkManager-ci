@@ -187,51 +187,11 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
 def crash_bs(context, scenario):
-    # get core pattern
-    context.core_pattern = context.process.run_stdout("sysctl -n kernel.core_pattern")
-    if "systemd-coredump" not in context.core_pattern:
-        # search for core pattern it in sysctl.d, if not found use default
-        if os.path.isfile("/usr/lib/sysctl.d/50-coredump.conf"):
-            context.process.run_stdout("sysctl -p /usr/lib/sysctl.d/50-coredump.conf")
-        else:
-            systemd_core_pattern = (
-                "|/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e"
-            )
-            context.process.run_stdout(
-                f"sysctl -w kernel.core_pattern='{systemd_core_pattern}'"
-            )
-    # unmask systemd-coredump.socket if needed
-    rc, out, _ = context.process.systemctl("is-enabled systemd-coredump.socket")
-    context.systemd_coredump_masked = rc != 0 and "masked" in out
-    if context.systemd_coredump_masked:
-        context.process.systemctl("unmask systemd-coredump.socket")
-        context.process.systemctl("restart systemd-coredump.socket")
-    rc, out, _ = context.process.systemctl("is-active abrtd.service")
-    context.abrt_active = rc == 0
-    if context.abrt_active:
-        # this stops also other abrt services
-        print("stopping abrtd")
-        context.process.systemctl("stop abrtd.service")
-    # set core file size limit of Networkmanager (centos workaround)
-    # context.process.run_stdout("prlimit --core=unlimited:unlimited --pid $(pidof NetworkManager)", shell=True)
+    nmci.util.file_set_content("/tmp/disable-qe-abrt")
 
 
 def crash_as(context, scenario):
-    nmci.nmutil.restart_NM_service()
-    if "systemd-coredump" not in context.core_pattern:
-        context.process.run_stdout(
-            f"sysctl -w kernel.core_pattern='{context.core_pattern}'"
-        )
-    if context.systemd_coredump_masked:
-        context.process.systemctl("stop systemd-coredump.socket")
-        context.process.systemctl("mask systemd-coredump.socket")
-
-    if context.abrt_active:
-        print("starting abrt services")
-        context.process.systemctl("start abrtd.service")
-        context.process.systemctl("start abrt-journal-core.service")
-        context.process.systemctl("start abrt-oops.service")
-        context.process.systemctl("start abrt-vmcore.service")
+    nmci.util.file_remove("/tmp/disable-qe-abrt")
 
 
 _register_tag("crash", crash_bs, crash_as)
