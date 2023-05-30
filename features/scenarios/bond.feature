@@ -2902,7 +2902,6 @@
      * Add "ethernet" connection named "bond0.0" for device "eth7" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0"
      When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
      And "vlan\+srcmac\s+5" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
      And "balance-xor" is visible with command "cat /sys/class/net/nm-bond/bonding/mode"
