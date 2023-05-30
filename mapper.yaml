@@ -3310,6 +3310,8 @@ testmapper:
         feature: infiniband
     - inf_mtu:
         feature: infiniband
+    - inf_ifcfg_pkey_via_single_digit:
+        feature: infiniband
     - inf_reload:
         feature: infiniband
 

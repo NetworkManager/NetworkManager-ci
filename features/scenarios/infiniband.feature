@@ -141,7 +141,6 @@ Feature: nmcli: inf
     Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
 
 
-
     @inf
     @inf_disable_port
     Scenario: nmcli - inf - disable port connection
@@ -282,9 +281,36 @@ Feature: nmcli: inf
     Then "4092" is visible with command "ip a s inf_ib0.8010"
 
 
+    @rhbz2209164
+    @ver/rhel/8+=1.40.16.3
+    @inf
+    @inf_ifcfg_pkey_via_single_digit
+    Scenario: nmcli - inf - ifcfg - single digit pkey
+    * Add "infiniband" connection named "inf" for device "inf_ib0"
+    * Cleanup connection "inf_ib0.8002"
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-inf_ib0.8002"
+      """
+      DEVICE=inf_ib0.8002
+      PHYSDEV=inf_ib0
+      PKEY=yes
+      PKEY_ID=2
+      TYPE=InfiniBand
+      ONBOOT=no
+      BOOTPROTO=dhcp
+      IPV4_FAILURE_FATAL=yes
+      IPV6INIT=yes
+      NAME=inf_ib0.8002
+      """
+    * Reload connections
+    * Bring "up" connection "inf"
+    * Bring "up" connection "inf_ib0.8002"
+    When "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+     And "inet 172" is visible with command "ip a s inf_ib0.8002"
+
+
     # Keep this test at the end as it may leave residues
     @rhbz2122703
-    @ver+=1.40.2
+    @ver+=1.40.16.4
     @inf
     @inf_reload
     Scenario: nmcli - inf - reload
