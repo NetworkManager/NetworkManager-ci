@@ -42,6 +42,9 @@ install_plugins_yum () {
     if ! rpm -q --quiet NetworkManager-tui; then
         yum -y install NetworkManager-tui
     fi
+    if ! rpm -q --quiet NetworkManager-cloud-setup; then
+        yum -y install NetworkManager-cloud-setup
+    fi
     if ! rpm -q --quiet NetworkManager-pptp; then
         yum -y install NetworkManager-pptp
     fi
@@ -68,6 +71,9 @@ install_plugins_dnf () {
     fi
     if ! rpm -q --quiet NetworkManager-tui; then
         dnf -4 -y install NetworkManager-tui
+    fi
+    if ! rpm -q --quiet NetworkManager-cloud-setup; then
+        dnf -y install NetworkManager-cloud-setup
     fi
     if ! rpm -q --quiet NetworkManager-pptp; then
         dnf -4 -y install NetworkManager-pptp

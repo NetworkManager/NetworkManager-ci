@@ -20,7 +20,6 @@ install_el9_packages () {
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc perl-IO-Tty dhcp-client rpm-build gcc initscripts s390utils-base \
         wireguard-tools python3-pyyaml tuned sos openssl-pkcs11 podman mptcpd \
-        NetworkManager-cloud-setup \
         --skip-broken
 
     # freeradius
