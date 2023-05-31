@@ -598,6 +598,13 @@ class _Util:
             )
         )
 
+        procs.append(
+            Echo(
+                f"<b>Detected version:</b> {nmci.misc.nm_version_detect()} on {nmci.misc.distro_detect()}",
+                escape=False,
+            )
+        )
+
         msg = []
         for proc in procs:
             if isinstance(proc, Echo):
