@@ -179,23 +179,13 @@ def wait_faf_complete(context, dump_dir):
     last = False
     last_timestamp = 0
     backtrace = False
-    reported_bordell = False
+    reported_faf_lab = False
     for i in range(context.faf_countdown):
         if not os.path.isdir(dump_dir):
             # Seems like FAF found it to be a duplicate one
             context.abrt_dir_change = True
             print("* report dir went away, skipping.")
             return False
-
-        if not NM_pkg and os.path.isfile(f"{dump_dir}/psubprockg_name"):
-            pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
-            if not check_dump_package(pkg):
-                print("* not NM related FAF")
-                context.faf_countdown -= i
-                context.faf_countdown = max(10, context.faf_countdown)
-                return False
-            else:
-                NM_pkg = True
 
         last = last or os.path.isfile(f"{dump_dir}/last_occurrence")
         if last and not last_timestamp:
@@ -209,21 +199,46 @@ def wait_faf_complete(context, dump_dir):
                 return False
             print("* not yet reported, new crash")
 
-        backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
+        if not NM_pkg and os.path.isfile(f"{dump_dir}/psubprockg_name"):
+            pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
+            if not check_dump_package(pkg):
+                print("* not NM related FAF")
+                context.faf_countdown -= i
+                context.faf_countdown = max(10, context.faf_countdown)
+                return False
+            else:
+                NM_pkg = True
+                # Do after_crash_reset, if FAF upload is not disabled
+                if context.crash_upload:
+                    after_crash_reset(context)
+                # Wait a bit, sometimes DNS is not ready and FAF reporter reports
+                #  curl: Could not resolve host: faf.lab...
+                time.sleep(2)
+                # continue reporting now
+                nmci.util.file_remove("/tmp/pause_faf_reporting")
 
-        if not reported_bordell and os.path.isfile(f"{dump_dir}/reported_to"):
+        backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
+        backtrace = backtrace or os.path.isfile(f"{dump_dir}/core_backtrace")
+
+        if not reported_faf_lab and os.path.isfile(f"{dump_dir}/reported_to"):
             # embed content of reported_to for debug purposes
             nmci.process.run_stdout(f"cat {dump_dir}/reported_to", shell=True)
-            reported_bordell = "bordell" in nmci.util.file_get_content_simple(
-                f"{dump_dir}/reported_to"
-            )
+            reported_to = nmci.util.file_get_content_simple(f"{dump_dir}/reported_to")
+            reported_faf_lab = "faf.lab" in reported_to and "upload" in reported_to
             # if there is no sosreport.log file, crash is already reported in FAF server
             # give it 5s to be 100% sure it is not starting
             time.sleep(5)
-            if not reported_bordell and not os.path.isfile(f"{dump_dir}/sosreport.log"):
-                reported_bordell = True
+            if not reported_faf_lab and not os.path.isfile(f"{dump_dir}/sosreport.log"):
+                reported_faf_lab = True
 
-        if NM_pkg and last and backtrace and reported_bordell:
+        if (
+            NM_pkg
+            and last
+            and (
+                backtrace or not context.crash_upload
+            )  # If FAF upload is disabled, backtrace is not generated
+            and (reported_faf_lab or not context.crash_upload)
+        ):
             print(f"* all FAF files exist in {i} seconds, should be complete")
             context.faf_countdown -= i
             context.faf_countdown = max(5, context.faf_countdown)
@@ -232,6 +247,7 @@ def wait_faf_complete(context, dump_dir):
         nmci.process.run(
             f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}",
             ignore_stderr=True,
+            shell=True,
         )
         time.sleep(1)
     if backtrace:
@@ -281,11 +297,12 @@ def check_faf(context):
             if urls:
                 nmci.embed.embed_dump("FAF", dump_id, links=urls)
             else:
-                if os.path.isfile("%s/backtrace" % (dump_dir)):
+                bfile = "%s/backtrace" % (dump_dir)
+                if not os.path.isfile(bfile):
+                    bfile = "%s/core_backtrace" % (dump_dir)
+                if os.path.isfile(bfile):
                     data = "Report not yet uploaded, please check FAF portal.\n\nBacktrace:\n"
-                    data += nmci.util.file_get_content_simple(
-                        "%s/backtrace" % (dump_dir)
-                    )
+                    data += nmci.util.file_get_content_simple(bfile)
                     nmci.embed.embed_dump("FAF", dump_id, data=data)
                 else:
                     nmci.embed.embed_dump(
@@ -293,6 +310,11 @@ def check_faf(context):
                         dump_id,
                         data="Report not yet uploaded, no backtrace yet, please check FAF portal.",
                     )
+            # This is to be done only when some FAF processed
+            # Do not use cleanups for this, cleanups are executed before and hence we would spam FAF
+            nmci.util.file_remove("/tmp/disable-qe-abrt")
+    # Make sure, pause is set again for the next tests
+    nmci.util.file_set_content("/tmp/pause_faf_reporting")
 
 
 def after_crash_reset(context):

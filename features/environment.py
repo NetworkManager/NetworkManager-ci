@@ -71,6 +71,7 @@ def _before_scenario(context, scenario):
     # the failed status is treated as skip.
     context.skip_check_count = 0
     context.crashed_step = False
+    context.crash_upload = True
     context.noted = {}
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()

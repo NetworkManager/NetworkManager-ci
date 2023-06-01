@@ -187,14 +187,11 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
 def crash_bs(context, scenario):
+    context.crash_upload = False
     nmci.util.file_set_content("/tmp/disable-qe-abrt")
 
 
-def crash_as(context, scenario):
-    nmci.util.file_remove("/tmp/disable-qe-abrt")
-
-
-_register_tag("crash", crash_bs, crash_as)
+_register_tag("crash", crash_bs)
 
 
 def not_with_systemd_resolved_bs(context, scenario):
