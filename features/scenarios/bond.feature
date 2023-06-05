@@ -2542,10 +2542,10 @@
 
     @rhbz1686634
     @ver+=1.22
-    @modprobe_cfg_remove
     @bond_reconnect_previously_unavailable_device
     Scenario: NM - bond - reconnect device
-    * Execute "echo 'blacklist bonding' > /etc/modprobe.d/99-test.conf && modprobe -r bonding"
+    * Cleanup file "/etc/modprobe.d/97-nmci-test.conf"
+    * Execute "echo 'blacklist bonding' > /etc/modprobe.d/97-nmci-test.conf && modprobe -r bonding"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
           """
           connection.autoconnect-slaves 1
@@ -2553,7 +2553,7 @@
           """
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Bring "up" connection "bond0" ignoring error
-    * Execute "rm -rf /etc/modprobe.d/99-test.conf"
+    * Execute "rm -rf /etc/modprobe.d/97-nmci-test.conf"
     * Bring "up" connection "bond0"
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show nm-bond" in "40" seconds
 

@@ -2444,13 +2444,6 @@ def dhcpd_as(context, scenario):
 _register_tag("dhcpd", None, dhcpd_as)
 
 
-def modprobe_cfg_remove_as(context, scenario):
-    context.process.run_stdout("rm -rf /etc/modprobe.d/99-test.conf")
-
-
-_register_tag("modprobe_cfg_remove", None, modprobe_cfg_remove_as)
-
-
 def kill_dnsmasq_from_pid_file(pid_file):
     def finished(pid):
         try:
