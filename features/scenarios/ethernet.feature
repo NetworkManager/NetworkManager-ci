@@ -153,7 +153,7 @@ Feature: nmcli - ethernet
     @restart_if_needed
     @ethernet_mac_address_preserve
     Scenario: NM - ethernet - mac address preserve
-    * Create NM config file "99-mac.conf" with content
+    * Create NM config file "95-nmci-mac.conf" with content
       """
       [connection]
       ethernet.cloned-mac-address=preserve
@@ -172,7 +172,7 @@ Feature: nmcli - ethernet
     @ethernet_mac_address_permanent
     Scenario: NM - ethernet - mac address permanent
     * Note the output of "nmcli -t --mode tabular --fields GENERAL.HWADDR device show eth1" as value "orig_eth1"
-    * Create NM config file "99-mac.conf" with content
+    * Create NM config file "95-nmci-mac.conf" with content
       """
       [connection]
       ethernet.cloned-mac-address=permanent

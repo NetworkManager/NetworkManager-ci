@@ -863,7 +863,7 @@
     * Add "ethernet" connection named "con_ipv6" for device "eth10"
     * Bring "up" connection "con_ipv6"
     When "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
-    * Create NM config file "99-xxcustom.conf" with content
+    * Create NM config file "96-nmci-custom.conf" with content
       """
       [connection.ip6-privacy]
       ipv6.ip6-privacy=2

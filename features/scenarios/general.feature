@@ -242,7 +242,7 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_priority
     Scenario: nmcli - general - Hostname priority
-    * Create NM config file "90-hostname.conf" with content
+    * Create NM config file "90-nmci-hostname.conf" with content
       """
       [connection-hostname]
       match-device=interface-name:test?
@@ -290,7 +290,7 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full
     Scenario: NM - general - hostname mode full
-    * Create NM config file "90-hostname.conf" with content
+    * Create NM config file "90-nmci-hostname.conf" with content
       """
       [main]
       hostname-mode=full
@@ -312,7 +312,7 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_dhcp
     Scenario: NM - general - hostname mode dhcp
-    * Create NM config file "90-hostname.conf" with content
+    * Create NM config file "90-nmci-hostname.conf" with content
       """
       [main]
       hostname-mode=dhcp
@@ -355,7 +355,7 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_full_without_dhcp_hosts
     Scenario: NM - general - hostname mode dhcp without dhcp hosts
-    * Create NM config file "90-hostname.conf" with content
+    * Create NM config file "90-nmci-hostname.conf" with content
       """
       [main]
       hostname-mode=dhcp
@@ -379,7 +379,7 @@ Feature: nmcli - general
     @delete_testeth0 @restore_hostname @restart_if_needed
     @hostname_mode_none
     Scenario: NM - general - hostname mode none
-    * Create NM config file "90-hostname.conf" with content
+    * Create NM config file "90-nmci-hostname.conf" with content
       """
       [main]
       hostname-mode=none
@@ -1223,7 +1223,7 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "15" seconds
-    * Create NM config file "01-run-once.conf" with content
+    * Create NM config file "01-nmci-run-once.conf" with content
       """
       [main]
       configure-and-quit=yes
@@ -1251,7 +1251,7 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
-    * Create NM config file "01-run-once.conf" with content
+    * Create NM config file "01-nmci-run-once.conf" with content
       """
       [main]
       configure-and-quit=yes
@@ -1281,7 +1281,7 @@ Feature: nmcli - general
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
-    * Create NM config file "01-run-once.conf" with content
+    * Create NM config file "01-nmci-run-once.conf" with content
       """
       [main]
       configure-and-quit=yes
@@ -1305,7 +1305,7 @@ Feature: nmcli - general
     * Stop NM and clean "eth0"
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
-    * Create NM config file "01-run-once.conf" with content
+    * Create NM config file "01-nmci-run-once.conf" with content
       """
       [main]
       configure-and-quit=yes
@@ -1330,7 +1330,7 @@ Feature: nmcli - general
     When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
     * Execute "hostnamectl set-hostname localhost.localdomain"
     ## VVV Just to make sure slow devices will catch carrier
-    * Create NM config file "01-run-once.conf" with content
+    * Create NM config file "01-nmci-run-once.conf" with content
       """
       [main]
       configure-and-quit=yes
@@ -2213,7 +2213,7 @@ Feature: nmcli - general
     @connectivity @restart_if_needed
     @disable_connectivity_check
     Scenario: NM - general - disable connectivity check
-    * Execute "rm -rf /etc/NetworkManager/conf.d/99-connectivity.conf"
+    * Execute "rm -rf /etc/NetworkManager/conf.d/95-nmci-connectivity.conf"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
      And "full" is visible with command "nmcli  -g CONNECTIVITY g"

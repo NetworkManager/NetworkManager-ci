@@ -26,7 +26,7 @@ function run_needed_workarounds ()
 function enable_debug_log ()
 {
     # Enable trace level logs for all domains
-    echo -e "[logging]\nlevel=TRACE\ndomains=ALL\n" > /etc/NetworkManager/conf.d/99-test.conf
+    echo -e "[logging]\nlevel=TRACE\ndomains=ALL\n" > /etc/NetworkManager/conf.d/95-nmci-test.conf
     systemctl reload NetworkManager
 
 }

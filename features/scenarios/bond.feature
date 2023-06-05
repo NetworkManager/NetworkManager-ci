@@ -889,7 +889,7 @@
     * Bring "down" connection "bond0.0" ignoring error
     * Bring "down" connection "bond0.1" ignoring error
     * Bring "down" connection "bond0.2" ignoring error
-    * Create NM config file "99-bond.conf" with content
+    * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
       slaves-order=index
@@ -940,7 +940,7 @@
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Create NM config file "99-bond.conf" with content
+    * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
       slaves-order=index
@@ -994,7 +994,7 @@
     * Bring "down" connection "bond0.0" ignoring error
     * Bring "down" connection "bond0.1" ignoring error
     * Bring "down" connection "bond0.2" ignoring error
-    * Create NM config file "99-bond.conf" with content
+    * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
       slaves-order=name
@@ -1045,7 +1045,7 @@
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
     * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
-    * Create NM config file "99-bond.conf" with content
+    * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
       slaves-order=name

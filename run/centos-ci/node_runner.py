@@ -237,7 +237,8 @@ class Machine:
         self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
-            "contrib/conf/99-test.conf", "/etc/NetworkManager/conf.d/99-test.conf"
+            "contrib/conf/95-nmci-test.conf",
+            "/etc/NetworkManager/conf.d/95-nmci-test.conf",
         )
         self.ssh("systemctl restart NetworkManager")
         # copy NetworkManager-ci repo (already checked out at correct commit)

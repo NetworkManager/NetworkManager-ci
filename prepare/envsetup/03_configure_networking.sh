@@ -98,13 +98,13 @@ configure_networking () {
 
     # Drop compiled in defaults into proper config
     if grep -q -e 'release 8' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+        echo -e "[main]\ndhcp=nettools\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
     elif grep -q -e 'release 7' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/99-test.conf
+        echo -e "[main]\ndhcp=dhclient\nplugins=ifcfg-rh,keyfile" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
     elif grep -q -e 'release 9' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
     elif grep -q -e 'Fedora' /etc/redhat-release; then
-        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/99-test.conf
+        echo -e "[main]\ndhcp=nettools\nplugins=keyfile,ifcfg-rh" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
     fi
 
     # Remove dnsmasq's mapping to lo only RHEL9 and Fedora 33+

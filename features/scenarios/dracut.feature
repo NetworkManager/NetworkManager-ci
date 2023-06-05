@@ -65,7 +65,7 @@ Feature: NM: dracut
     @dracut @long
     @dracut_NM_NFS_root_dhcp_nm_debug
     Scenario: NM - dracut - NM module - NFSv3 root=dhcp
-    * Remove "/etc/NetworkManager/conf.d/99-test.conf" from dracut NFS root
+    * Remove "/etc/NetworkManager/conf.d/95-nmci-test.conf" from dracut NFS root
     * Run dracut test
       | Param  | Value                                                                  |
       | kernel | root=dhcp ro nm.debug                                                  |

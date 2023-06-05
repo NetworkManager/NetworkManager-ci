@@ -272,7 +272,7 @@ EOF
       . $basedir/dracut-init.sh
 
       # enable trace logs
-      inst /etc/NetworkManager/conf.d/99-test.conf
+      inst /etc/NetworkManager/conf.d/95-nmci-test.conf
 
       for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd -e ^dbus | grep -v -F '.build-id' |sort); do
         rpm -ql $_rpm | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l

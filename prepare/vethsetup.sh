@@ -179,7 +179,7 @@ function setup_veth_env ()
     sleep 1
 
     # unmanage orig- devices
-    echo -e "[keyfile]\nunmanaged-devices=interface-name:orig-*" > /etc/NetworkManager/conf.d/99-unmanage-orig.conf
+    echo -e "[keyfile]\nunmanaged-devices=interface-name:orig-*" > /etc/NetworkManager/conf.d/94-nmci-unmanage-orig.conf
 
     # Create a network namespace for veth setup
     ip netns add vethsetup

@@ -62,10 +62,8 @@ EOF
     systemctl restart abrt-journal-core
 
     # if this isn't yet configured
-    if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/99-test.conf; then
-        # delete file created by desktop-ci prepare task
-        rm -f /etc/NetworkManager/conf.d/95-nmci-test.conf
-        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
+    if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/95-nmci-test.conf; then
+        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
     fi
 
     # Set max corefile size to infinity

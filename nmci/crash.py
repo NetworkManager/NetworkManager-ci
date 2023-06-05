@@ -356,12 +356,13 @@ def after_crash_reset(context):
     key_files = glob.glob(dir + "/*")
     nmci.process.run_stdout("rm -vrf " + " ".join(key_files))
 
-    print("Remove all config in /etc except 99-test.conf")
+    print("Remove all config in /etc except 95-nmci-test.conf")
     dir = "/etc/NetworkManager/conf.d"
     conf_files = [
         f
         for f in glob.glob(dir + "/*")
-        if not f.endswith("/99-test.conf") and not f.endswith("/99-unmanage-orig.conf")
+        if not f.endswith("/95-nmci-test.conf")
+        and not f.endswith("/94-nmci-unmanage-orig.conf")
     ]
     nmci.process.run_stdout(["rm", "-vrf", *conf_files])
 

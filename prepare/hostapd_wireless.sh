@@ -465,9 +465,9 @@ function prepare_test_bed ()
     fi
 
     # Disable mac randomization to avoid rhbz1490885
-    echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/99-wifi.conf
-    echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/99-wifi.conf
-    echo -e "[device]\nmatch-device=interface-name:wlan1\nmanaged=0" >> /etc/NetworkManager/conf.d/99-wifi.conf
+    echo -e "[device-wifi]\nwifi.scan-rand-mac-address=no" > /etc/NetworkManager/conf.d/95-nmci-wifi.conf
+    echo -e "[connection-wifi]\nwifi.cloned-mac-address=preserve" >> /etc/NetworkManager/conf.d/95-nmci-wifi.conf
+    echo -e "[device]\nmatch-device=interface-name:wlan1\nmanaged=0" >> /etc/NetworkManager/conf.d/95-nmci-wifi.conf
 
     if lsmod | grep -q -w mac80211_hwsim; then
         modprobe -r mac80211_hwsim
@@ -551,7 +551,7 @@ function wireless_hostapd_teardown ()
     ip addr flush dev wlan1
     modprobe -r mac80211_hwsim
     [ -f /run/hostapd/wlan1 ] && rm -rf /run/hostapd/wlan1
-    rm -rf /etc/NetworkManager/conf.d/99-wifi.conf
+    rm -rf /etc/NetworkManager/conf.d/95-nmci-wifi.conf
     systemctl reload NetworkManager
     rm -rf /tmp/nm_wifi_supp_configured
     rm -rf $HOSTAPD_CFG.*

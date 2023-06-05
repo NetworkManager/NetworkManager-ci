@@ -1129,7 +1129,7 @@ Feature: nmcli - dns
     @dns_dnsmasq_kill_when_nm_restarts
     Scenario: Kill dnsmasq process upon NM restart when dns=none in config
     When "dnsmasq" is visible with command "pgrep dnsmasq -laf | grep -v 'dhcp-range'"
-    * Replace "dns=dnsmasq" with "dns=none" in file "/etc/NetworkManager/conf.d/99-xtest-dns.conf"
+    * Replace "dns=dnsmasq" with "dns=none" in file "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
     * Restart NM
     Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"
 
@@ -1193,7 +1193,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @dns_none
     Scenario: NM - dns none setting
-    * Create NM config file "90-test-dns-none.conf" with content
+    * Create NM config file "90-nmci-test-dns-none.conf" with content
       """
       [main]
       dns=none
@@ -1211,7 +1211,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @remove_dns_none
     Scenario: NM - dns  none removal
-    * Create NM config file "90-test-dns-none.conf" with content
+    * Create NM config file "90-nmci-test-dns-none.conf" with content
       """
       [main]
       dns=none
@@ -1223,7 +1223,7 @@ Feature: nmcli - dns
     * Execute "systemctl unmask sendmail"
     When Nameserver "1[0-9]" is not set in "5" seconds
     When Nameserver "1.2.3.4" is set in "5" seconds
-    * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-test-dns-none.conf"
+    * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-nmci-test-dns-none.conf"
     * Restart NM
     * Bring "up" connection "testeth0"
     Then Nameserver "1.2.3.4" is not set in "5" seconds
@@ -1383,7 +1383,7 @@ Feature: nmcli - dns
     @not_with_systemd_resolved
     @dns_global
     Scenario: NM - dns global options
-    * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/99-resolv.conf"
+    * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
     * Restart NM
     Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
 
