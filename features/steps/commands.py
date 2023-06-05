@@ -1028,6 +1028,11 @@ def load_nftables(context, ns=None, ruleset=None):
     os.remove(file)
 
 
+@step('Cleanup file "{pattern}"')
+def cleanup_files(context, pattern):
+    nmci.cleanup.add_file(glob=pattern)
+
+
 @step("Cleanup nftables")
 @step('Cleanup nftables in namespace "{ns}"')
 def flush_nftables(context, ns=None):
