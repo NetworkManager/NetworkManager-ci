@@ -63,6 +63,14 @@ def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
     ), f'Noted value "{context.noted[index]}" is not within range: "{r_min}"-"{r_max}"'
 
 
+@step('Cleanup execute "{command}"')
+def add_execute_to_cleanup(context, command):
+    nmci.cleanup.add_callback(
+        callback=lambda: context.process.run_stdout(command),
+        priority=nmci.cleanup.Cleanup.PRIORITY_EXECUTE_DEFAULT,
+    )
+
+
 @step('Execute "{command}"')
 def execute_command(context, command):
     context.process.run_stdout(
@@ -374,7 +382,6 @@ def check_lines_command(
     pattern=None,
     condition2=None,
 ):
-
     xtimeout = nmci.util.start_timeout(seconds)
 
     while xtimeout.loop_sleep(interval):
@@ -925,7 +932,6 @@ def check_no_coredump(context, seconds):
     'Check "{family}" address list "{expected}" on device "{ifname}" in "{seconds}" seconds'
 )
 def check_address_expect(context, family, expected, ifname, seconds=None):
-
     if seconds is not None:
         seconds = float(seconds)
     family = nmci.ip.addr_family_norm(family)
@@ -950,13 +956,11 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
     'Check "{addr_family}" route list on NM device "{ifname}" matches "{expected}" in "{timeout}" seconds'
 )
 def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
-
     addr_family = nmci.ip.addr_family_norm(addr_family)
 
     timeout = float(timeout)
 
     def do():
-
         devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
         assert len(devices) == 1
 

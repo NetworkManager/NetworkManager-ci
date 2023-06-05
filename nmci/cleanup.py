@@ -14,6 +14,7 @@ UNIQ_TAG_DISTINCT = object()
 PRIORITY_NM_SERVICE_START = -30
 PRIORITY_CALLBACK_DEFAULT = 0
 PRIORITY_TAG = 10
+PRIORITY_EXECUTE_DEFAULT = 11
 PRIORITY_CONNECTION = 20
 PRIORITY_SYSCTL = 25
 PRIORITY_NAMESPACE = 30
@@ -36,6 +37,7 @@ class _Cleanup:
         PRIORITY_NM_SERVICE_START = PRIORITY_NM_SERVICE_START
         PRIORITY_CALLBACK_DEFAULT = PRIORITY_CALLBACK_DEFAULT
         PRIORITY_TAG = PRIORITY_TAG
+        PRIORITY_EXECUTE_DEFAULT = PRIORITY_EXECUTE_DEFAULT
         PRIORITY_CONNECTION = PRIORITY_CONNECTION
         PRIORITY_SYSCTL = PRIORITY_SYSCTL
         PRIORITY_NAMESPACE = PRIORITY_NAMESPACE
@@ -192,7 +194,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.qualifier is not None:
                 args = [self.qualifier, self.con_name]
             else:
@@ -285,7 +286,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
                     return
@@ -321,7 +321,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.teardown:
                 nmci.veth.teardown_testveth(self.namespace)
 
@@ -409,7 +408,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             cmd = ["nft", "flush", "ruleset"]
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -430,7 +428,6 @@ class _Cleanup:
             super().__init__(name="udev-update", priority=priority)
 
         def _do_cleanup_impl(self):
-
             nmci.util.update_udevadm()
 
     class CleanupFile(Cleanup):

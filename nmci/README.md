@@ -116,6 +116,8 @@ Cleanup base class
 
 #### PRIORITY_CONNECTION(_ = 2_ )
 
+#### PRIORITY_EXECUTE_DEFAULT(_ = 1_ )
+
 #### PRIORITY_FILE(_ = 7_ )
 
 #### PRIORITY_IFACE_DELETE(_ = 3_ )

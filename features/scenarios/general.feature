@@ -3439,3 +3439,31 @@ Feature: nmcli - general
     #
     # The behavior in NetworkManager needs to change and we should check that the profile
     # can autoconnect.
+
+
+    @rhbz2161915
+    @rhelver+=9
+    @ver+=1.43.6
+    @restart_if_needed
+    @nm_bind_to_dbus
+    Scenario: NM - general - NetworkManager binds to dbus.service
+    * Cleanup execute "systemctl start dbus.service"
+    * Commentary
+      """
+      If 'BindsTo=dbus.service' parameter is set, NM is running on systemd system,
+      and if dbus.service is restarted, the NetworkManager.service should restart as well.
+      """
+    * Note the output of "pidof NetworkManager" as value "orig_pid"
+    * NM is restarted within next "1" steps
+    * Execute "systemctl restart dbus.service"
+    When "running" is visible with command "nmcli -t -f RUNNING general" in "10" seconds
+    * Note the output of "pidof NetworkManager" as value "new_pid"
+    Then Check noted values "orig_pid" and "new_pid" are not the same
+    * Commentary
+      """
+      If 'BindsTo=dbus.service' parameter is set, NM is running on systemd system,
+      and if dbus.service is stopped, the NetworkManager.service should stop as well.
+      """
+    When "running" is visible with command "systemctl status dbus.service | grep Active"
+    * Execute "systemctl stop dbus.service"
+    Then "not running" is visible with command "nmcli -t -f RUNNING general" in "10" seconds
