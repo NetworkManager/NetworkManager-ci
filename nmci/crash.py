@@ -360,9 +360,11 @@ def after_crash_reset(context):
     dir = "/etc/NetworkManager/conf.d"
     conf_files = [
         f
-        for f in glob.glob(dir + "/*")
-        if not f.endswith("/95-nmci-test.conf")
-        and not f.endswith("/94-nmci-unmanage-orig.conf")
+        for f in glob.glob(dir + "/*-nmci-*.conf")
+        if not (
+            f.endswith("/95-nmci-test.conf")
+            or f.endswith("/94-nmci-unmanage-orig.conf")
+        )
     ]
     nmci.process.run_stdout(["rm", "-vrf", *conf_files])
 
