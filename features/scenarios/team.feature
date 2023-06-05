@@ -23,12 +23,24 @@
 
     @rhbz1393853
     @ver+=1.8
+    @ver-=1.40.15
     @restart_if_needed
     @add_default_team_after_journal_restart
     Scenario: nmcli - team - add default team after journal restart
      * Execute "systemctl restart systemd-journald"
      * Add "team" connection named "team0" for device "nm-team"
      Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+
+
+    @rhbz1393853 @rhbz2182029
+    @ver+=1.40.16.5
+    @restart_if_needed
+    @add_default_team_after_journal_restart
+    Scenario: nmcli - team - add default team after journal restart
+     * Execute "systemctl restart systemd-journald"
+     * Add "team" connection named "team0" for device "nm-team"
+     Then "(Failed|Error)" is not visible with command "journalctl -u NetworkManager --since '30 seconds ago' --no-pager | grep libteamdctl"
+     And "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
 
 
     @ifcfg-rh
