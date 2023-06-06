@@ -78,7 +78,7 @@ class _Cleanup:
                 self.unique_tag = ("arg", type(self), *unique_tag)
             self.priority = priority
             self._do_cleanup_called = False
-
+            self._combined = False
             _module._cleanup_add(self)
 
         def _also_needs_impl(self):
@@ -99,6 +99,8 @@ class _Cleanup:
             """This is called automatically after scenario. Do not call at other places."""
             assert not self._do_cleanup_called
             self._do_cleanup_called = True
+            if self._combined:
+                return
             t = time.monotonic()
             print(f"cleanup action {self.name} (priority {self.priority}) ...", end="")
             try:
@@ -110,6 +112,24 @@ class _Cleanup:
 
         def _do_cleanup_impl(self):
             raise NotImplementedError("cleanup not implemented")
+
+        def combine(self, other):
+            """
+            This is done to merge cleanups of the same type.
+            :param other: other instance to combine with
+            :type other: Cleanup instance
+            :return: True if the other was merged into this instance, False otherwise
+            :trype: bool
+            """
+            if type(self) != type(other):
+                return False
+            if self.priority != other.priority:
+                return False
+            other._combined = self._combine_impl(other)
+            return other._combined
+
+        def _combine_impl(self, other):
+            return False
 
     class CleanupCallback(Cleanup):
         def __init__(
@@ -181,16 +201,26 @@ class _Cleanup:
             :param priority: cleanup priority, defaults to PRIORITY_CONNECTION
             :type priority: int, optional
             """
-            self.con_name = con_name
+            if isinstance(con_name, str):
+                self.con_names = [con_name]
+            else:
+                self.con_names = con_name
             super().__init__(
-                name=f"nmcli-connection-{con_name}",
+                name="nmcli-connection-" + ",".join(self.con_names),
                 unique_tag=(con_name),
                 priority=priority,
             )
 
         def _do_cleanup_impl(self):
-            args = [self.con_name]
+            args = self.con_names
             nmci.process.nmcli_force(["connection", "delete"] + args)
+
+        def _combine_impl(self, other):
+            for c in other.con_names:
+                if c not in self.con_names:
+                    self.con_names.append(c)
+            self.name = "nmcli-connection-" + ",".join(self.con_names)
+            return True
 
     class CleanupIface(Cleanup):
         def __init__(self, iface, op=None, priority=None):
@@ -669,6 +699,13 @@ class _Cleanup:
         :return: list of Exceptions that hapenned during cleanups
         :rtype: list of Exception
         """
+        last = None
+        for i, a in list(enumerate(self._cleanup_lst)):
+            if last and last.combine(a):
+                self._cleanup_lst.remove(a)
+            else:
+                last = a
+
         ex = []
 
         for cleanup_action in nmci.util.consume_list(self._cleanup_lst):
