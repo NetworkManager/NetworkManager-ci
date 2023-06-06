@@ -10,6 +10,10 @@ Feature: nmcli - general
     @pass
     Scenario: Dummy scenario that is supposed to pass
     * Execute "nmcli --version"
+    * Cleanup connection "xxx"
+    * Cleanup connection "xxxy"
+    * Cleanup connection "xxx"
+    * Cleanup connection "wiidwjdw"
 
 
     @last_copr_build_check
