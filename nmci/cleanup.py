@@ -116,6 +116,7 @@ class _Cleanup:
         def combine(self, other):
             """
             This is done to merge cleanups of the same type.
+
             :param other: other instance to combine with
             :type other: Cleanup instance
             :return: True if the other was merged into this instance, False otherwise
@@ -693,22 +694,24 @@ class _Cleanup:
             for c in cleanup_action.also_needs():
                 self._cleanup_add(c)
 
+    def _process_prepare(self):
+        prev = None
+        for curr in nmci.util.consume_list(self._cleanup_lst):
+            if prev is None or not prev.combine(curr):
+                if prev is not None:
+                    yield prev
+                prev = curr
+        if prev is not None:
+            yield prev
+
     def process_cleanup(self):
         """Exectue the cleanups honoring its order.
 
         :return: list of Exceptions that hapenned during cleanups
         :rtype: list of Exception
         """
-        last = None
-        for i, a in list(enumerate(self._cleanup_lst)):
-            if last and last.combine(a):
-                self._cleanup_lst.remove(a)
-            else:
-                last = a
-
         ex = []
-
-        for cleanup_action in nmci.util.consume_list(self._cleanup_lst):
+        for cleanup_action in self._process_prepare():
             try:
                 cleanup_action.do_cleanup()
             except Exception as e:
