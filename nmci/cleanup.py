@@ -173,30 +173,23 @@ class _Cleanup:
                 raise error
 
     class CleanupConnection(Cleanup):
-        def __init__(self, con_name, qualifier=None, priority=PRIORITY_CONNECTION):
+        def __init__(self, con_name, priority=PRIORITY_CONNECTION):
             """Cleanup NetworkManager connection
 
             :param con_name: name or UUID of the connection to cleanup
             :type con_name: str
-            :param qualifier: optional qualifier ('id' or 'uuid'), defaults to None
-            :type qualifier: str, optional
             :param priority: cleanup priority, defaults to PRIORITY_CONNECTION
             :type priority: int, optional
             """
             self.con_name = con_name
-            self.qualifier = qualifier
             super().__init__(
                 name=f"nmcli-connection-{con_name}",
-                unique_tag=(con_name, qualifier),
+                unique_tag=(con_name),
                 priority=priority,
             )
 
         def _do_cleanup_impl(self):
-
-            if self.qualifier is not None:
-                args = [self.qualifier, self.con_name]
-            else:
-                args = [self.con_name]
+            args = [self.con_name]
             nmci.process.nmcli_force(["connection", "delete"] + args)
 
     class CleanupIface(Cleanup):
