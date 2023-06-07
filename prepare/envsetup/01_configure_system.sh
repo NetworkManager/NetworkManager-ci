@@ -55,6 +55,10 @@ EOF
     #Copy over files from /run/log to /var/log
     journalctl --flush
 
+    # restart abrt service, because journald was restarted
+    systemctl restart abrtd
+    systemctl restart abrt-journal-core
+
     # if this isn't yet configured
     if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/99-test.conf; then
         echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/99-test.conf
