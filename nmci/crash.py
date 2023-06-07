@@ -177,6 +177,7 @@ def wait_faf_complete(context, dump_dir):
     """
     NM_pkg = False
     last = False
+    sleeps = 0
     last_timestamp = 0
     backtrace = False
     reported_faf_lab = False
@@ -213,12 +214,18 @@ def wait_faf_complete(context, dump_dir):
                     after_crash_reset(context)
                 # Wait a bit, sometimes DNS is not ready and FAF reporter reports
                 #  curl: Could not resolve host: faf.lab...
-                time.sleep(2)
+                time.sleep(1)
+                sleeps += 1
                 # continue reporting now
                 nmci.util.file_remove("/tmp/pause_faf_reporting")
+                # Make sure abrt event noticed file change, it checks every 5s
+                # without this sleep, the following code is processed quickly and
+                # abrt eent will process and upload report after 120s
+                # (which is not desired for crash test)
+                time.sleep(5)
+                sleeps += 5
 
         backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
-        backtrace = backtrace or os.path.isfile(f"{dump_dir}/core_backtrace")
 
         if not reported_faf_lab and os.path.isfile(f"{dump_dir}/reported_to"):
             # embed content of reported_to for debug purposes
@@ -227,6 +234,7 @@ def wait_faf_complete(context, dump_dir):
             reported_faf_lab = "faf.lab" in reported_to and "upload" in reported_to
             # if there is no sosreport.log file, crash is already reported in FAF server
             # give it 5s to be 100% sure it is not starting
+            sleeps += 5
             time.sleep(5)
             if not reported_faf_lab and not os.path.isfile(f"{dump_dir}/sosreport.log"):
                 reported_faf_lab = True
@@ -239,8 +247,8 @@ def wait_faf_complete(context, dump_dir):
             )  # If FAF upload is disabled, backtrace is not generated
             and (reported_faf_lab or not context.crash_upload)
         ):
-            print(f"* all FAF files exist in {i} seconds, should be complete")
-            context.faf_countdown -= i
+            print(f"* all FAF files exist in {sleeps} seconds, should be complete")
+            context.faf_countdown -= sleeps
             context.faf_countdown = max(5, context.faf_countdown)
             return True
         print(f"* report not complete yet, try #{i}")
@@ -249,15 +257,14 @@ def wait_faf_complete(context, dump_dir):
             ignore_stderr=True,
             shell=True,
         )
+        sleeps += 1
         time.sleep(1)
-    if backtrace:
+    if backtrace or os.path.isfile(f"{dump_dir}/core_backtrace"):
         print("* inclomplete report, but we have backtrace")
         return True
     # give other FAF 5 seconds (already waited 300 seconds)
     context.faf_countdown = 5
-    print(
-        f"* incomplete FAF report in {context.faf_countdown}s, skipping in this test."
-    )
+    print(f"* incomplete FAF report in {sleeps}s, skipping in this test.")
     return False
 
 
