@@ -245,7 +245,7 @@ def wait_faf_complete(context, dump_dir):
             return True
         print(f"* report not complete yet, try #{i}")
         nmci.process.run(
-            f"ls -l {dump_dir}/{{backtrace,coredump,last_occurrence,pkg_name,reported_to}}",
+            f"ls -l {dump_dir}/{{backtrace,core_backtrace,coredump,last_occurrence,pkg_name,reported_to,sosreport.log}}",
             ignore_stderr=True,
             shell=True,
         )
