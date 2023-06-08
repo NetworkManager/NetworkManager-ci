@@ -3388,9 +3388,13 @@ Feature: nmcli - general
     Then Check bond "bond1" link state is "down"
     Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" in "3" seconds
     # What we really want here, is that bond1 interface was deleted and
-    # is not visible.
+    # no longer visible. So what we would check is instead:
     #   Then "bond1" is not visible with command "nmcli device ; ip link" for full "5" seconds
-    # But there is a bug in NetworkManager, so test the opposite.
+    # NetworkManager does currently not do that. There was a merge request
+    #   https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/1651
+    #   https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/-/merge_requests/1437
+    # to address that, but it isn't merged because it breaks other tests.
+    # Instead, we test the opposite, the behavior that is exhibited but not desired.
     Then "bond1" is visible with command "nmcli device ; ip link" in "5" seconds
 
 
