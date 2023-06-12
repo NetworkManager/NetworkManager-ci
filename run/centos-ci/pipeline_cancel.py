@@ -1,22 +1,25 @@
 #!/usr/bin/python3
 import logging
 import sys
+import os
 
 from node_runner import Runner
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("reading params")
-    gl_token, trigger_data, build_id, release = None, None, None, ""
-    if len(sys.argv) > 3:
+    gl_token = os.environ.get("GL_TOKEN", None)
+    if gl_token is None:
+        print("Gitlab token missing. Exitting...")
+        sys.exit(1)
+    trigger_data, build_id, release = None, None, ""
+    if len(sys.argv) > 2:
         build_id = sys.argv[1]
         logging.debug(f"Build id: {build_id}")
-        gl_token = sys.argv[2]
-        logging.debug(f"Gitlab Token Set? {not not gl_token}")
-        trigger_data = sys.argv[3]
+        trigger_data = sys.argv[2]
         logging.debug(f"Trigger Data Set? {not not trigger_data}")
-    if len(sys.argv) > 4:
-        release = sys.argv[4].replace("-stream", "")
+    if len(sys.argv) > 3:
+        release = sys.argv[3].replace("-stream", "")
     else:
         logging.debug(f"Not enough arguments {len(sys.argv)-1}, skipping...")
         exit(0)

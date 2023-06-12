@@ -67,7 +67,7 @@ node('cico-workspace') {
             sh "cd NetworkManager-ci; git checkout ${TEST_BRANCH}"
         }
         stage('run tests on cico nodes') {
-            run = "python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f '${FEATURES}' -b ${env.BUILD_URL} -g ${GL_TOKEN} -v ${RELEASE} -d '${TD}'"
+            run = "python3 run/centos-ci/node_runner.py -t ${TEST_BRANCH} -c ${REFSPEC} -f '${FEATURES}' -b ${env.BUILD_URL} -v ${RELEASE} -d '${TD}'"
             sh """
               set +x
               cd NetworkManager-ci
@@ -84,7 +84,7 @@ node('cico-workspace') {
                         println("Pipeline canceled (or crashed)! We do have no junit.xml or config.log")
                         sh """
                             set +x
-                            cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} ${GL_TOKEN} '${TD}' ${RELEASE}
+                            cd NetworkManager-ci; python3 run/centos-ci/pipeline_cancel.py ${env.BUILD_URL} '${TD}' ${RELEASE}
                         """
                     }
                 }

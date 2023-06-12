@@ -790,7 +790,10 @@ class Runner:
         self.release_num = self.release.split("-")[0]
 
         self.mr = "custom"
-        self._set_gitlab(args.trigger_data, args.gitlab_token)
+        gl_token = args.gitlab_token
+        if gl_token is None:
+            gl_token = os.environ.get("GL_TOKEN", None)
+        self._set_gitlab(args.trigger_data, gl_token)
         if self.gitlab is not None:
             if self.gitlab.repository == "NetworkManager":
                 self.mr = f"mr{self.gitlab.merge_request_id}"
