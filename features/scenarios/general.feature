@@ -3410,8 +3410,8 @@ Feature: nmcli - general
     # with "ignore-carrier=no" on the controller, the controller goes down
     # after carrier timeout and stays down.
     #
-    # This is rather straight forward, because once it goes down, it won't
-    # autoconnect again, as that is disabled.
+    # The device goes down after carrier timeout and stays down. After carrier
+    # comes back, the port autoconnects and brings the bond up.
     * Create NM config file "97-ignore-carrier-for-bond.conf" with content and "reload" NM
       """
       [device-97-ignore-carrier-for-bond]
@@ -3434,8 +3434,112 @@ Feature: nmcli - general
     Then Check bond "bond1" state is "up"
     * Execute "ip netns exec testA_ns ip link set testAp down"
     Then Check bond "bond1" link state is "down"
-    # What we test here is not yet correct NetworkManager behavior. We want that the profiles
-    # don't just autoconnect without carrier, but they do. Test for the wrong behavior for now.
+    # The device goes down and stays down...
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" in "3" seconds
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" for full "3" seconds
+    * Execute "ip netns exec testA_ns ip link set testAp up"
+    # After carrier return, the device autoactivates again.
+    Then "GENERAL.STATE:.*(activated|activating)" is visible with command "nmcli connection show c-bond1" in "5" seconds
+
+    @rhbz2156684
+    @rhbz2180363
+    @ver+=1.43.9
+    @ver/rhel/9+=1.43.10
+    @ignore_carrier_with_bond_two_ports
+    Scenario: NM - general - ignore-carrier with bond and two ports
+    # Have controller and port devices with only the port autoconnect=yes. Check that
+    # with "ignore-carrier=no" on the controller, the controller goes down
+    # after carrier timeout and stays down.
     #
-    # The behavior in NetworkManager needs to change and we should check that the profile
-    # can autoconnect.
+    # The device goes down after carrier timeout and stays down. After carrier
+    # on one port comes back, the port autoconnects and brings the bond up.
+    # The other port also comes up.
+    * Create NM config file "97-ignore-carrier-for-bond.conf" with content and "reload" NM
+      """
+      [device-97-ignore-carrier-for-bond]
+      match-device=interface-name:bond1
+      ignore-carrier=no
+      carrier-wait-timeout=1500
+      """
+    * Prepare simulated test "testA" device
+    * Prepare simulated test "testB" device
+    * Add "ethernet" connection named "c-testA" for device "testA" with options
+          """
+          autoconnect yes
+          master bond1
+          slave-type bond
+          """
+    * Add "ethernet" connection named "c-testB" for device "testB" with options
+          """
+          autoconnect yes
+          master bond1
+          slave-type bond
+          """
+    *  Add "bond" connection named "c-bond1" for device "bond1" with options
+          """
+          autoconnect no
+          """
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "25" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
+    Then Check bond "bond1" state is "up"
+
+    * Commentary
+        """
+        After one interface looses carrier, nothing happens and all interfaces stay up.
+        """
+    * Execute "ip netns exec testA_ns ip link set testAp down"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" for full "10" seconds
+    Then Check bond "bond1" state is "up"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
+
+    * Commentary
+        """
+        The bond device goes down and stays down...
+        """
+    * Execute "ip netns exec testB_ns ip link set testBp down"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" in "3" seconds
+    Then Check bond "bond1" link state is "down"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" for full "3" seconds
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-testB"
+
+    * Commentary
+        """
+        After carrier return, the device autoactivates again (but not testB, which has no carrier)
+        """
+    * Execute "ip netns exec testA_ns ip link set testAp up"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-testB"
+
+    * Commentary
+        """
+        After carrier return, also testB autoactivates
+        """
+    * Execute "ip netns exec testB_ns ip link set testBp up"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
+
+    * Commentary
+        """
+        bring the devices down again, after loss of carrier.
+        """
+    * Execute "ip netns exec testA_ns ip link set testAp down"
+    * Execute "ip netns exec testB_ns ip link set testBp down"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-bond1" in "3" seconds
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*(activated|activating)" is not visible with command "nmcli connection show c-testB"
+
+    * Commentary
+        """
+        We enable autoconnect-slaves on the bond and give carrier on one port. The port autoconnects,
+        brings up the bond, and the bond connects testB port too (despite having no carrier).
+        """
+    * Execute "nmcli connection modify c-bond1 connection.autoconnect-slaves yes"
+    * Execute "ip netns exec testA_ns ip link set testAp up"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
