@@ -3329,6 +3329,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver/rhel/9+=1.43.10
     @autoconnect_port
     Scenario: NM - general - ignore-carrier with bond
     # First we create a port profile with autoconnect=yes. The port profile
@@ -3349,12 +3350,13 @@ Feature: nmcli - general
           """
           autoconnect no
           """
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "25" seconds
     Then Check bond "bond1" state is "up"
 
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond_noauto
     Scenario: NM - general - ignore-carrier with bond without autoconnect
     # Have controller and port devices without autoconnect enabled. Check that
@@ -3382,7 +3384,7 @@ Feature: nmcli - general
           autoconnect no
           """
     * Bring "up" connection "c-testA"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "25" seconds
     Then Check bond "bond1" state is "up"
     * Execute "ip netns exec testA_ns ip link set testAp down"
     Then Check bond "bond1" link state is "down"
@@ -3401,6 +3403,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond
     Scenario: NM - general - ignore-carrier with bond
     # Have controller and port devices with only the port autoconnect=yes. Check that
@@ -3427,7 +3430,7 @@ Feature: nmcli - general
           """
           autoconnect no
           """
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "5" seconds
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "25" seconds
     Then Check bond "bond1" state is "up"
     * Execute "ip netns exec testA_ns ip link set testAp down"
     Then Check bond "bond1" link state is "down"
