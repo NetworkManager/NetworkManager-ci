@@ -66,6 +66,11 @@ def _before_scenario(context, scenario):
     nmci.util.set_verbose(False)
     context.step_level = 0
     nmci.nmutil.context_set_nm_restarted(context, reset=True)
+    # Pause FAF reporting - to prevent incomplete/missing reports
+    #  With this file present, FAF wait up to 120s until it starts uploading
+    #  This file is removed after, after_crash_reset() is called and machine is back online
+    #  It is then restored after the test that removed it (via nmci.cleanup)
+    nmci.util.file_set_content("/tmp/pause_faf_reporting")
     context.nm_pid = nmci.nmutil.nm_pid()
     # if skip_check_count == 1 in after_scenario(),
     # the failed status is treated as skip.
