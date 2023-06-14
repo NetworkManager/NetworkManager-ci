@@ -55,7 +55,9 @@ EOF
     #Copy over files from /run/log to /var/log
     journalctl --flush
 
-    # restart abrt service, because journald was restarted
+    # restart and set abrt service, because journald was restarted
+    sed '/OpenGPGCheck/d' -i /etc/abrt/abrt-action-save-package-data.conf
+    echo "OpenGPGCheck = no" >> /etc/abrt/abrt-action-save-package-data.conf
     systemctl restart abrtd
     systemctl restart abrt-journal-core
 
