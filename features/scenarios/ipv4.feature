@@ -3419,6 +3419,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz2169512
+    @logging_info_only
     @ver+=1.43.4
     @ipv4_keep_track_l3_despite_too_many_netlink
     Scenario: Keep track of NM-requested l3 changes (v4)
@@ -3442,4 +3443,4 @@ Feature: nmcli: ipv4
       """
       NM should receive the updates when number of messages decreases.
       """
-    Then "exactly" "101" lines with pattern "^172\.16" are visible with command "for i in dummy_{0..100}; do nmcli -g IP4.ADDRESS device show $i; done" in "60" seconds
+    Then "exactly" "101" lines with pattern "inet4 172\.16" are visible with command "nmcli" in "60" seconds
