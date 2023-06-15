@@ -195,7 +195,7 @@ def wait_faf_complete(context, dump_dir):
             )
             if coredump_is_reported(f"{dump_dir}-{last_timestamp}"):
                 print("* Already reported")
-                context.faf_countdown -= i
+                context.faf_countdown -= int(t.remaining_time())
                 context.faf_countdown = max(5, context.faf_countdown)
                 return False
             print("* not yet reported, new crash")
@@ -204,7 +204,7 @@ def wait_faf_complete(context, dump_dir):
             pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
-                context.faf_countdown -= i
+                context.faf_countdown -= int(t.remaining_time())
                 context.faf_countdown = max(10, context.faf_countdown)
                 return False
             else:
