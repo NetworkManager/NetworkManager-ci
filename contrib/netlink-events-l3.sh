@@ -7,40 +7,41 @@
 
 # Clean up
 cleanup () {
-    ip netns del nll3ev
-    rm -f .tmp/nll3-events.pid
+    ip netns del ${NAME}ev
+    rm -f .tmp/${NAME}-events.pid
     exit 0
 }
 
-if [ $# -eq 3 ]
+if [ $# -eq 4 ]
 then
-    NUM_IF=$1
-    NUM_AD=$2
-    TIMEOUT=$3
+    NAME=$1
+    NUM_IF=$2
+    NUM_AD=$3
+    TIMEOUT=$4
 else
     cleanup
 fi
 
 # Set up
-touch .tmp/nll3-events.pid || exit 1
-echo $$ > .tmp/nll3-events.pid || exit 1
-ip netns add nll3ev
+touch .tmp/${NAME}-events.pid || exit 1
+echo $$ > .tmp/${NAME}-events.pid || exit 1
+ip netns add ${NAME}ev
 
 trap cleanup SIGTERM
 
 for i in $(seq 0 $NUM_IF); do
-    echo "link add nll3_$i type veth peer name nll3_$i netns nll3ev"
-    echo "link set nll3_$i up"
+    echo "link add ${NAME}$i type veth peer NAME ${NAME}$i netns ${NAME}ev"
+    echo "link set ${NAME}$i up"
 done | ip -b -
 
 for i in $(seq 0 $NUM_IF); do
-    echo "link set nll3_$i up"
-done | ip -n nll3ev -b -
+    echo "link set ${NAME}$i up"
+done | ip -n ${NAME}ev -b -
 
 # Run loop
 
-ADDR_ADD=$(for i in $(seq 0 $NUM_IF); do for j in $(seq 1 $NUM_AD); do echo "addr add dev nll3_$i 172.32.${i}.${j}/24"; done; done )
-ADDR_DEL=$(for i in $(seq 0 $NUM_IF); do for j in $(seq 1 $NUM_AD); do echo "addr del dev nll3_$i 172.32.${i}.${j}/24"; done; done )
+ADDR_ADD=$(for i in $(seq 0 $NUM_IF); do for j in $(seq 1 $NUM_AD); do echo "addr add dev ${NAME}$i 172.32.${i}.${j}/24"; done; done )
+ADDR_DEL=$(for i in $(seq 0 $NUM_IF); do for j in $(seq 1 $NUM_AD); do echo "addr del dev ${NAME}$i 172.32.${i}.${j}/24"; done; done )
 
 STARTTIME=$(date -u +%s)
 ENDTIME=$(($STARTTIME + $TIMEOUT))
@@ -48,7 +49,6 @@ ENDTIME=$(($STARTTIME + $TIMEOUT))
 while [ $(date -u +%s) -le $ENDTIME ]; do
     printf "$ADDR_ADD" | sort -R | ip -b -
     printf "$ADDR_DEL" | sort -R | ip -b -
-    sleep 0.1
 done
 
 cleanup
