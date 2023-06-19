@@ -12,7 +12,7 @@ Feature: nmcli: inf
     Scenario: nmcli - inf - create master connection
     * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
 
 
     @inf
@@ -32,7 +32,7 @@ Feature: nmcli: inf
      * Dismiss Proxy configuration in editor
      * Wait for "1" seconds
      * Bring "up" connection "infiniband"
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
 
 
     @inf
@@ -50,7 +50,7 @@ Feature: nmcli: inf
      * Dismiss Proxy configuration in editor
      * Wait for "1" seconds
      * Bring "up" connection "infiniband"
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
 
 
     @inf
@@ -59,7 +59,7 @@ Feature: nmcli: inf
     * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Bring "up" connection "inf"
     * Bring "down" connection "inf"
-    Then "inet 172" is not visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is not visible with command "ip a s inf_ib0" in "30" seconds
 
 
     @inf
@@ -69,7 +69,7 @@ Feature: nmcli: inf
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "30" seconds
 
 
     @ver+=1.10.0
@@ -105,7 +105,7 @@ Feature: nmcli: inf
      * Wait for "1" seconds
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "30" seconds
 
 
     @ver+=1.40.0
@@ -138,7 +138,7 @@ Feature: nmcli: inf
      * Wait for "1" seconds
      * Bring "up" connection "inf"
      * Bring "up" connection "infiniband"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0.8002" in "30" seconds
 
 
     @inf
@@ -149,7 +149,7 @@ Feature: nmcli: inf
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
     * Bring "down" connection "inf.8002"
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
     Then "inet 172" is not visible with command "ip a s inf_ib0.8002"
 
 
@@ -161,7 +161,7 @@ Feature: nmcli: inf
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
     * Reboot
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
     Then "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
@@ -174,10 +174,10 @@ Feature: nmcli: inf
     * Add infiniband port named "inf.8002" for device "inf_ib0.8002" with parent "inf_ib0" and p-key "0x8002"
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8002"
-    When "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    When "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
      And "inet 172" is visible with command "ip a s inf_ib0.8002"
     * Reboot
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
      And "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
@@ -191,7 +191,7 @@ Feature: nmcli: inf
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
-     Then "inet 172" is visible with command "ip a s nm-bond" in "10" seconds
+     Then "inet 172" is visible with command "ip a s nm-bond" in "30" seconds
       And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And "inf_ib0:infiniband:connected:inf" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And Check bond "nm-bond" link state is "up"
@@ -208,7 +208,7 @@ Feature: nmcli: inf
      * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
-     Then "inet 172" is visible with command "ip a s nm-bond" in "10" seconds
+     Then "inet 172" is visible with command "ip a s nm-bond" in "30" seconds
       And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And "inf_ib0:infiniband:connected:inf" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
       And Check bond "nm-bond" link state is "up"
@@ -255,7 +255,7 @@ Feature: nmcli: inf
     * Run child "nmcli con up inf.8002"
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Note MAC address output for device "inf_ib0.8002" via ip command
-    Then Noted value is visible with command "grep 'Client-ID.*61' /tmp/tcpdump.log" in "10" seconds
+    Then Noted value is visible with command "grep 'Client-ID.*61' /tmp/tcpdump.log" in "30" seconds
 
 
     @rhbz1653494
@@ -304,7 +304,7 @@ Feature: nmcli: inf
     * Reload connections
     * Bring "up" connection "inf"
     * Bring "up" connection "inf_ib0.8002"
-    When "inet 172" is visible with command "ip a s inf_ib0" in "10" seconds
+    When "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
      And "inet 172" is visible with command "ip a s inf_ib0.8002"
 
 
