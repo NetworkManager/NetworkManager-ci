@@ -9,6 +9,7 @@ Feature: nmcli - general
 
     @pass
     Scenario: Dummy scenario that is supposed to pass
+    * Execute "sleep 65"
     * Execute "nmcli --version"
 
 

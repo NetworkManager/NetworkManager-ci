@@ -99,6 +99,7 @@ testmapper:
   default:
     - pass:
         feature: general
+        timeout: 1m
     - last_copr_build_check:
         feature: general
     - bond_add_default_bond:
