@@ -1,10 +1,82 @@
 #!/bin/bash
 
-set -x
+start_logger() {
+    # redirect stdout+stderr into stdout and logger (force line buffering)
+    export PYTHONUNBUFFERED=1
+    # make pipes
+    rm -rf .tmp/{logger,tee}_p
+    mkfifo .tmp/logger_p
+    mkfifo .tmp/tee_p
+    # start logger and tee processes outside main program group
+    #  - will not be killed by timeout (or harness)
+    setsid -f -w logger -t "runtest" < .tmp/logger_p &!
+    LOGGER_PID=$!
+    setsid -f -w stdbuf -i0 -o0 -e0 tee .tmp/logger_p < .tmp/tee_p &!
+    TEE_PID=$!
+    # redirect output of this shell to tee pipe
+    exec > .tmp/tee_p 2>&1
+    set -x
+}
 
-# redirect stdout+stderr into stdout and logger (force line buffering)
-export PYTHONUNBUFFERED=1
-exec > >(stdbuf -i0 -o0 -e0 tee - >(logger -t "runtest")) 2>&1
+wait_for_process_finish() {
+    # do not log this, continue logging before exit and return
+    set +x
+    local PID="$1"
+    local INTERVAL="$2"
+    local RETRIES="$3"
+    for i in $(seq 1 "$RETRIES"); do
+        if kill -0 "$PID" &> /dev/null; then
+            sleep "$INTERVAL"
+            continue
+        fi
+        echo "Process $PID finished"
+        set -x
+        return
+    done
+    echo "Killing $PID with SIGKILL"
+    kill -9 "$PID"
+    set -x
+}
+
+report_result() {
+    echo "Report results"
+    # If RESULT is unset, process was killed by watchdog (or CTRL-c)
+    [ -z $RESULT ] && RESULT=FAIL
+    # If we have running harness.py then upload logs
+    if ps aux | grep -v grep | grep -q harness.py; then
+        # check for empty file: -s means nonempty
+        if [ -s "$NMTEST_REPORT" ]; then
+            timeout 1m rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
+        else
+            echo "removing empty report file"
+            rm -f "$NMTEST_REPORT"
+            timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
+        fi
+    fi
+    cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
+    echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
+    echo "------------ Test result: $RESULT ------------"
+}
+
+finish_runtest() {
+    # do not execute again - EXIT is executed with SIGINT and SIGTERM
+    trap - EXIT SIGINT SIGTERM
+    # Executed on clean run as well as on watchdog kill (or CTRL-c)
+    # Behave handles cleanups internally, we just have to wait for PID
+    echo "Wait for behave to finish"
+    wait_for_process_finish "$BEHAVE_PID" 0.1 100
+    # When behave is finished, upload logs
+    report_result
+    # Cleanup logger
+    echo "Stop logging processes and remove pipes"
+    kill $LOGGER_PID $TEE_PID
+    rm -rf .tmp/{logger,tee}_p
+    exit $rc
+}
+
+trap finish_runtest EXIT SIGINT SIGTERM
+
+start_logger
 
 die() {
     printf '%s\n' "$*"
@@ -26,7 +98,7 @@ array_contains() {
 
 get_rhel_compose() {
     for file in /etc/yum.repos.d/repofile.repo /etc/yum.repos.d/beaker-BaseOS.repo; do
-        if [ -f "$file" ]; then 
+        if [ -f "$file" ]; then
             grep -F -e baseurl= -e BaseOS "$file" 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
             return
         fi
@@ -92,7 +164,11 @@ call_behave() {
         TAGS+=("-t" "$a")
     done
 
-    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture -k -f html-pretty -o "$NMTEST_REPORT" -f plain
+    rc=1
+    # start behave in background to remember PID
+    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture -k -f html-pretty -o "$NMTEST_REPORT" -f plain &
+    BEHAVE_PID=$!
+    wait $BEHAVE_PID
 }
 
 ###############################################################################
@@ -283,24 +359,4 @@ if [ "$RESULT" = "FAIL" -a ! -s "$NMTEST_REPORT" ]; then
     ) > "$NMTEST_REPORT"
 fi
 
-# If we have running harness.py then upload logs
-if ps aux | grep -v grep | grep -q harness.py; then
-    # check for empty file: -s means nonempty
-    if [ -s "$NMTEST_REPORT" ]; then
-        timeout 1m rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
-    else
-        echo "removing empty report file"
-        rm -f "$NMTEST_REPORT"
-        timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
-    fi
-fi
-
 running_NM_version_check
-
-logger -t $0 "Test $TAG finished with result $RESULT: $rc"
-
-cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
-
-echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
-echo "------------ Test result: $RESULT ------------"
-exit $rc
