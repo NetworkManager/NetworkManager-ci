@@ -3,18 +3,18 @@
 start_logger() {
     # redirect stdout+stderr into stdout and logger (force line buffering)
     export PYTHONUNBUFFERED=1
-    # make pipes
-    rm -rf .tmp/{logger,tee}_p
-    mkfifo .tmp/logger_p
-    mkfifo .tmp/tee_p
+    # make pipes, use $TAG as $NMTEST is not defined yet
+    rm -rf .tmp/{logger,tee}_${TAG}_p
+    mkfifo .tmp/logger_${TAG}_p
+    mkfifo .tmp/tee_${TAG}_p
     # start logger and tee processes outside main program group
     #  - will not be killed by timeout (or harness)
-    setsid -f -w logger -t "runtest" < .tmp/logger_p &!
+    setsid -f -w logger -t "runtest" < .tmp/logger_${TAG}_p &!
     LOGGER_PID=$!
-    setsid -f -w stdbuf -i0 -o0 -e0 tee .tmp/logger_p < .tmp/tee_p &!
+    setsid -f -w stdbuf -i0 -o0 -e0 tee .tmp/logger_${TAG}_p < .tmp/tee_${TAG}_p &!
     TEE_PID=$!
     # redirect output of this shell to tee pipe
-    exec > .tmp/tee_p 2>&1
+    exec > .tmp/tee_${TAG}_p 2>&1
     set -x
 }
 
@@ -70,13 +70,11 @@ finish_runtest() {
     # Cleanup logger
     echo "Stop logging processes and remove pipes"
     kill $LOGGER_PID $TEE_PID
-    rm -rf .tmp/{logger,tee}_p
+    rm -rf .tmp/{logger,tee}"_${TAG}_p"
     exit $rc
 }
 
 trap finish_runtest EXIT SIGINT SIGTERM
-
-start_logger
 
 die() {
     printf '%s\n' "$*"
@@ -272,7 +270,9 @@ function gsm_hub_test() {
 # if $1 starts with @, cut it away
 TAG="${1#@}"
 
-logger -t $0 "Running test $TAG"
+start_logger
+
+echo "Running test $TAG"
 
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 DIR=$(pwd)
@@ -281,14 +281,14 @@ TS=$(get_timestamp)
 
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
-    logger "setting test name to NetworkManager_Test0_$TAG"
+    echo "setting test name to NetworkManager_Test0_$TAG"
     NMTEST="NetworkManager-ci_Test0_$TAG"
 elif ! [ "$TEST" == "sanity-tests" ]; then
     NMTEST="$TEST"
 fi
 
 if [ -z "$NMTEST" ]; then
-    logger "cannot set NMTEST var"
+    echo "cannot set NMTEST var"
     exit 128
 fi
 
@@ -320,7 +320,7 @@ if [ -n "$FEATURE_FILE" ]; then
         rc=$?
     else
         # Test nmtui and nmcli
-        logger "Running  $NMTEST  with tags '${ALL_TAGS[@]}'"
+        echo "Running  $NMTEST  with tags '${ALL_TAGS[@]}'"
         call_behave "$FEATURE_FILE" "$NMTEST_REPORT" "${ALL_TAGS[@]}"
         rc=$?
     fi
