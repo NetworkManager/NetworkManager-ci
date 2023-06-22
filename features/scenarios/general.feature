@@ -3543,3 +3543,10 @@ Feature: nmcli - general
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
+
+    @rhbz2161915
+    @rhelver+=9
+    @ver+=1.43.6
+    @nm_binds_to_dbus_check
+    Scenario: NM - general - NetworkManager binds to dbus.service
+    Then "BindsTo=dbus.*.service" is visible with command "systemctl show NetworkManager.service"

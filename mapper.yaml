@@ -1966,6 +1966,8 @@ testmapper:
         feature: general
     - ignore_carrier_with_bond_two_ports:
         feature: general
+    - nm_binds_to_dbus_check:
+        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
