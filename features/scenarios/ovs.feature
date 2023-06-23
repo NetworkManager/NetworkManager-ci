@@ -875,6 +875,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1786937
+    @rhelver-=8
     @ver+=1.18.8
     @openvswitch @mtu @restart_if_needed
     @ovs_mtu
