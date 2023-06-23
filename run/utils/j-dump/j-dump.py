@@ -156,8 +156,8 @@ class Job:
         test_name = ""
         for line in log.split("\n"):
             line = line.strip(" ")
-            if "runtest.sh 'Running test " in line:
-                test_name = line.split("runtest.sh 'Running test ")[1][:-1]
+            if "'Running test " in line:
+                test_name = line.split("'Running test ")[1][:-1]
                 when = "bs"
                 test_time = 0
                 bs_time = 0
