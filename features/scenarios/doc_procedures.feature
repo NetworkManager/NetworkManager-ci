@@ -535,3 +535,34 @@ Feature: nmcli - procedures in documentation
     Then Execute "ping -c1 -Mdo -s 8972 192.168.99.1"
     * Note the output of "nstat -az IpReasm*" as value "nstat2"
     Then Check noted values "nstat1" and "nstat2" are the same
+
+
+    @rhelver+=9.3 @rhelver+=8.9
+    @dns_dnsmasq
+    @doc_split_dns_dnsmasq
+    Scenario: Using different DNS servers for different domains - dnsmasq
+    * Doc: "Using different DNS servers for different domains"
+    Given Create NM config file with content
+          """
+          [main]
+          dns=dnsmasq
+          """
+    * Restart NM
+    Then Execute "grep '^nameserver 127.0.0.1$' /etc/resolv.conf"
+    Then "exactly" "1" lines are visible with command "grep '^nameserver' /etc/resolv.conf"
+
+
+    @rhelver+=9.3 @rhelver+=8.9
+    @dns_systemd_resolved
+    @doc_split_dns_resolved
+    Scenario: Using different DNS servers for different domains - dnsmasq
+    * Doc: "Using different DNS servers for different domains"
+    Given Create NM config file with content
+          """
+          [main]
+          dns=systemd-resolved
+          """
+    * Restart NM
+    Then Execute "grep '^nameserver 127.0.0.53$' /etc/resolv.conf"
+    Then "exactly" "1" lines are visible with command "grep '^nameserver' /etc/resolv.conf"
+

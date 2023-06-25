@@ -2613,6 +2613,12 @@ testmapper:
     - doc_set_mtu_9000:
         feature: doc_procedures
         tags: gate
+    - doc_split_dns_dnsmasq:
+        feature: doc_procedures
+        tags: gate
+    - doc_split_dns_resolved:
+        feature: doc_procedures
+        tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:
