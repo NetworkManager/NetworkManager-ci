@@ -2051,6 +2051,7 @@ Feature: nmcli - general
 
     @rhbz1512316
     @ver+=1.10.1
+    @ver-1.43.7
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
     * Cleanup device "dummy0"
