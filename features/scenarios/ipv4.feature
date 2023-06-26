@@ -111,7 +111,7 @@ Feature: nmcli: ipv4
     * Append "PREFIX='24'" to ifcfg file "con_ipv4"
     * Append "GATEWAY='10.0.0.1'" to ifcfg file "con_ipv4"
     * Restart NM
-    Then "aa17d688-a38d-481d-888d-6d69cca781b8" is visible with command "nmcli -f UUID connection show -a"
+    Then "aa17d688-a38d-481d-888d-6d69cca781b8" is visible with command "nmcli -f UUID connection show -a" in "5" seconds
 
 
     @ipv4_addresses_IP_slash_mask_and_route
