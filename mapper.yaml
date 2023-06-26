@@ -1962,6 +1962,8 @@ testmapper:
         feature: general
     - apply_link_settings:
         feature: general
+    - modify_link_settings_ifcfg:
+        feature: general
     - autoconnect_port:
         feature: general
     - ignore_carrier_with_bond_noauto:

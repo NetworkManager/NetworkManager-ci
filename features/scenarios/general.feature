@@ -3215,6 +3215,19 @@ Feature: nmcli - general
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
 
 
+    @rhbz2217527
+    @ifcfg-rh
+    @ver+=1.43.10
+    @modify_link_settings_ifcfg
+    Scenario: NM - general - try to modify link settings in ifcfg format
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
+          """
+          connection.autoconnect no
+          """
+    Then "con_general.nmconnection" is visible with command "ls -l /etc/sysconfig/network-scripts/con_general.nmconnection"
+    Then "The ifcfg-rh plugin doesn't support setting 'link'" is visible with command "nmcli connection modify con_general link.tx-queue-length 1554"
+
+
     @rhbz2158328
     @rhelver-=8
     @ver+=1.43.2
@@ -3229,7 +3242,7 @@ Feature: nmcli - general
           link.tx-queue-length 1555
           link.gso-max-size 32000
           link.gso-max-segments 4242
-      """
+          """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "30" seconds
     Then "qlen 1555" is visible with command "ip -d link show eth8"
     Then "gso_max_size 32000" is visible with command "ip -d link show eth8"
