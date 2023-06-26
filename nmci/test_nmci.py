@@ -2039,7 +2039,7 @@ def test_behave_steps_in_feature_files(capfd):
 def test_nmci_doc():
     # Minimal dependencies are listed in .gitlab-ci.yml file
     # Required python modules for this tests are:
-    #  python3 -m pip install --prefix /usr/ sphinx==4.2.0 sphinx-markdown-builder
+    #  python3 -m pip install --prefix /usr/ sphinx==4.2.0 sphinx-markdown-builder==0.5.5
 
     if os.environ.get("NMCI_NO_SPHINX") == "1":
         pytest.skip("skip generating docs with sphinx-build (NMCI_NO_SPHINX=1)")

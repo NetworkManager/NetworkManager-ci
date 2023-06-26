@@ -21,7 +21,7 @@ install_behave_pytest () {
   python -m pip install --prefix /usr/ black==22.3.0
   # install sphinx to build nmci documentation
   python -m pip install --prefix /usr/ sphinx==4.2.0
-  python -m pip install sphinx-markdown-builder
+  python -m pip install sphinx-markdown-builder==0.5.5
 }
 
 
