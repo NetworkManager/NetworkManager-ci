@@ -2447,6 +2447,23 @@ Feature: nmcli: ipv4
 
     @rhbz1636715
     @ver+=1.12
+    @ver-1.36
+    @ipv4_prefix_route_missing_after_ip_link_down_up
+    Scenario: NM - ipv4 - preffix route is missing after putting link down and up
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.3.10/24
+          """
+    When "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
+    * Execute "ip link set eth3 down; ip link set eth3 up"
+    * Wait for "1" seconds
+    * Execute "ip link set eth3 down; ip link set eth3 up"
+    Then "192.168.3.0/24 dev eth3" is visible with command "ip r" in "5" seconds
+
+
+    @rhbz1636715
+    @ver+=1.36
     @ipv4_prefix_route_missing_after_ip_link_down_up
     Scenario: NM - ipv4 - preffix route is missing after putting link down and up
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
