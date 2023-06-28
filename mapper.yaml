@@ -2619,6 +2619,9 @@ testmapper:
     - doc_split_dns_resolved:
         feature: doc_procedures
         tags: gate
+    - doc_transmit_queue_length:
+        feature: doc_procedures
+        tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:

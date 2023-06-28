@@ -566,3 +566,26 @@ Feature: nmcli - procedures in documentation
     Then Execute "grep '^nameserver 127.0.0.53$' /etc/resolv.conf"
     Then "exactly" "1" lines are visible with command "grep '^nameserver' /etc/resolv.conf"
 
+
+    @rhelver+=8.9 @rhelver-9.0
+    @disp
+    @doc_transmit_queue_length
+    Scenario: docs - Increasing the transmit queue length of a NIC to reduce the number of transmit errors
+    * Doc "Monitoring and managing system status and performance": "Increasing the transmit queue length of a NIC to reduce the number of transmit errors"
+    * Add "dummy" connection named "con_ethernet" for device "dummy0" with options "autoconnect no"
+    * Write dispatcher "99-disp" file with params "if [ "$1" == "dummy0" ] && [ "$2" == "up" ] ; then ip link set dev dummy0 txqueuelen 2000; fi"
+    * Wait for "0.5" seconds
+    When Bring "up" connection "con_ethernet"
+    Then "default qlen 2000" is visible with command "ip -s link show dummy0" in "5" seconds
+
+
+    @rhelver+=9.3
+    @doc_transmit_queue_length
+    Scenario: docs - Increasing the transmit queue length of a NIC to reduce the number of transmit errors
+    * Doc "Monitoring and managing system status and performance": "Increasing the transmit queue length of a NIC to reduce the number of transmit errors"
+    * Add "dummy" connection named "con_ethernet" for device "dummy0" with options
+        """
+        autoconnect no link.tx-queue-length 2000
+        """
+    When Bring "up" connection "con_ethernet"
+    Then "default qlen 2000" is visible with command "ip -s link show dummy0" in "5" seconds
