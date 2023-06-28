@@ -25,6 +25,33 @@ def autocomplete_command(context, cmd):
     bash.sendeof()
 
 
+@step('Note active connection on device "{device}" as "{noted_value}"')
+def note_active_connection_on_device(context, device, noted_value):
+    ac = context.process.run_stdout(
+        ["nmcli", "-g", "GENERAL.CON-PATH", "device", "show", device]
+    )
+    ac = ac.strip()
+    assert re.match("^/org/freedesktop/NetworkManager/ActiveConnection/[0-9]+$", ac)
+    context.noted[noted_value] = ac
+
+
+@step('Noted active connection "{noted_value}" is gone')
+@step('Noted active connection "{noted_value}" is gone in "{seconds}" seconds')
+def noted_active_connection_is_gone(context, noted_value, seconds=0):
+    timeout = nmci.util.start_timeout(seconds)
+    ac = context.noted[noted_value]
+    assert re.match("^/org/freedesktop/NetworkManager/ActiveConnection/[0-9]+$", ac)
+    while timeout.loop_sleep(0.2):
+        p = context.process.run(
+            ["nmcli", "connection", "show", "apath", ac], ignore_stderr=True
+        )
+        if p.returncode == 10 and "no such connection profile" in p.stderr:
+            return
+    raise AssertionError(
+        f"Active connection {ac} is expected to be gone, but something is wrong"
+    )
+
+
 @step('Check noted values "{i1}" and "{i2}" are the same')
 def check_same_noted_values(context, i1, i2):
     assert (
