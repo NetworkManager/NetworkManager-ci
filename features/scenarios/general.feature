@@ -3330,6 +3330,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver+=1.42.9
     @ver/rhel/9+=1.43.10
     @autoconnect_port
     Scenario: NM - general - ignore-carrier with bond
@@ -3357,6 +3358,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver+=1.42.9
     @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond_noauto
     Scenario: NM - general - ignore-carrier with bond without autoconnect
@@ -3396,6 +3398,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver+=1.42.9
     @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond
     Scenario: NM - general - ignore-carrier with bond
@@ -3437,6 +3440,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver+=1.42.9
     @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond_two_ports
     Scenario: NM - general - ignore-carrier with bond and two ports
@@ -3541,6 +3545,7 @@ Feature: nmcli - general
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
+    @ver+=1.42.9
     @ver/rhel/9+=1.43.10
     @ignore_carrier_with_bond_two_ports_vlan
     Scenario: NM - general - ignore-carrier with bond and two ports
