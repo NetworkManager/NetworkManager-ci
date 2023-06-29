@@ -267,7 +267,7 @@ def doc_step(context, name):
         if "team" in context.scenario.tags and f"Teaming: {name}" in chapters:
             name = f"Teaming: {name}"
     assert name in chapters, "Chapter not found"
-    for rh_ver in ["8", "9-beta"]:
+    for rh_ver in ["8", "9"]:
         link = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux"
         link = f"{link}/{rh_ver}/html-single/configuring_and_managing_networking/index"
         link = f"{link}#{chapters[name]}"
