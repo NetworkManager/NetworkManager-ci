@@ -1349,6 +1349,7 @@ Feature: nmcli - ethernet
           ethtool.ring-rx=512
           """
 
+
     @rhbz2154350
     @ver+=1.40.12
     @ethernet_keep_mtu_on_reboot
