@@ -257,9 +257,15 @@ guides = {
     "Monitoring and managing system status and performance": "monitoring_and_managing_system_status_and_performance",
 }
 
+guides = {
+    "Configuring and managing networking": "configuring_and_managing_networking",
+    "Monitoring and managing system status and performance": "monitoring_and_managing_system_status_and_performance",
+}
+
 
 @step('Doc: "{name}"')
-def doc_step(context, name):
+@step('Doc "{guide}": "{name}"')
+def doc_step(context, name, guide="Configuring and managing networking"):
     links = []
     if name not in chapters:
         if "bond" in context.scenario.tags and f"Bonding: {name}" in chapters:
@@ -267,9 +273,15 @@ def doc_step(context, name):
         if "team" in context.scenario.tags and f"Teaming: {name}" in chapters:
             name = f"Teaming: {name}"
     assert name in chapters, "Chapter not found"
+    assert guide in guides, "Guide not found"
     for rh_ver in ["8", "9"]:
-        link = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux"
-        link = f"{link}/{rh_ver}/html-single/configuring_and_managing_networking/index"
-        link = f"{link}#{chapters[name]}"
-        links.append((link, f"RHEL {rh_ver}"))
+        link = [
+            "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/",
+            rh_ver,
+            "/html-single/",
+            guides[guide],
+            "/index#",
+            chapters[name],
+        ]
+        links.append(("".join(link), f"RHEL {rh_ver}"))
     nmci.embed.embed_link("Links", links)
