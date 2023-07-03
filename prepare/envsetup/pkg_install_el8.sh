@@ -17,6 +17,10 @@ install_el8_packages () {
     python -m pip install pyte
     python -m pip install IPy
 
+    # Workaround for broken urllib3 in 8.8
+    python -m pip uninstall urllib3 -y
+    python -m pip install urllib3
+
     # Needed for gsm_sim
     dnf -4 -y install \
         $KOJI/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
