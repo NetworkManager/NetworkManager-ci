@@ -1535,10 +1535,13 @@ Feature: nmcli - ovs
     @ovs_vxlan_networking_off_on
     Scenario: NM - openvswitch - ovs external with vxlan stays UP after networking off/on
     * Cleanup device "vxlan1"
+    * Execute "killall -STOP NetworkManager"
     * Execute "ip link add vxlan1 type vxlan remote 172.25.12.1 id 120 dstport 0"
     * Execute "ip link set vxlan1 up"
     * Execute "ovs-vsctl add-br ovs-br0"
     * Execute "ovs-vsctl add-port ovs-br0 vxlan1"
+    * Wait for ".4" seconds
+    * Execute "killall -CONT NetworkManager"
     Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
     * Execute "nmcli networking off"
     * Execute "nmcli networking on"
