@@ -780,7 +780,7 @@ Feature: nmcli - bridge
 
 
     @rhbz1593939
-    @ver+=1.14 @ver-1.41.2
+    @ver+=1.14
     @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
@@ -802,7 +802,7 @@ Feature: nmcli - bridge
     @rhbz1593939
     @ver+=1.41.2
     @eth4_disconnect @cleanup @restart_if_needed
-    @bridge_detect_initrd_device
+    @bridge_detect_initrd_device_diff_name_for_profile
     Scenario: NM - bridge - nm detects initrd bridge
     * Add "bridge" connection named "bridge-br0" for device "br0" with options "bridge.stp no"
     * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge-br0"
