@@ -447,6 +447,8 @@ testmapper:
         tags: gate
     - bridge_detect_initrd_device:
         feature: bridge
+    - bridge_detect_initrd_device_diff_name_for_profile:
+        feature: bridge
     - bridge_vlan_filtering_no_pvid:
         feature: bridge
     - bridge_vlan_filtering_default_pvid:
