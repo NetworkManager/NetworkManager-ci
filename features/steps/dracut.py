@@ -62,10 +62,10 @@ def embed_dracut_logs(context):
             journal_args=REMOTE_JOURNAL,
             fail_only=False,
         )
-        # nmci.embed.embed_service_log("Dracut NM", service="NetworkManager", journal_args=REMOTE_JOURNAL, fail_only=True)
-        nmci.embed.embed_service_log(
-            "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False
-        )
+
+    nmci.embed.embed_service_log(
+        "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False
+    )
 
     check_core_dumps(context)
 
