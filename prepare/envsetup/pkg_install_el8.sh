@@ -17,9 +17,9 @@ install_el8_packages () {
     python -m pip install pyte
     python -m pip install IPy
 
-    # Workaround for broken urllib3 in 8.8
-    python -m pip uninstall urllib3 -y
-    python -m pip install urllib3
+    # Workaround for broken urllib3 and six in 8.8
+    python -m pip uninstall urllib3 six -y
+    python -m pip install --prefix=/usr urllib3 six
 
     # Needed for gsm_sim
     dnf -4 -y install \
