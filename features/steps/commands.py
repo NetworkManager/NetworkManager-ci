@@ -374,7 +374,6 @@ def check_lines_command(
     pattern=None,
     condition2=None,
 ):
-
     xtimeout = nmci.util.start_timeout(seconds)
 
     while xtimeout.loop_sleep(interval):
@@ -722,12 +721,24 @@ def start_tailing_journal(context):
                 break
 
 
-@step('Look for "{content}" in journal')
-def find_tailing_journal(context, content):
+@step('"{content}" is visible in journal')
+def find_in_tailing_journal(context, content):
     if context.journal.expect([content, pexpect.TIMEOUT, pexpect.EOF]) == 1:
         raise Exception(
             'Did not see the "%s" in journal output before timeout (180s)' % content
         )
+
+
+@step('"{content}" is not visible in journal')
+@step('"{content}" is not visible in journal in "{timeout}" seconds')
+def find_not_in_tailing_journal(context, content, timeout=2):
+    if (
+        context.journal.expect(
+            [content, pexpect.TIMEOUT, pexpect.EOF], timeout=float(timeout)
+        )
+        == 0
+    ):
+        raise Exception('"%s" was found in the journal output.' % content)
 
 
 @step('Wait for "{secs}" seconds')
@@ -925,7 +936,6 @@ def check_no_coredump(context, seconds):
     'Check "{family}" address list "{expected}" on device "{ifname}" in "{seconds}" seconds'
 )
 def check_address_expect(context, family, expected, ifname, seconds=None):
-
     if seconds is not None:
         seconds = float(seconds)
     family = nmci.ip.addr_family_norm(family)
@@ -950,13 +960,11 @@ def check_address_expect(context, family, expected, ifname, seconds=None):
     'Check "{addr_family}" route list on NM device "{ifname}" matches "{expected}" in "{timeout}" seconds'
 )
 def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
-
     addr_family = nmci.ip.addr_family_norm(addr_family)
 
     timeout = float(timeout)
 
     def do():
-
         devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
         assert len(devices) == 1
 
