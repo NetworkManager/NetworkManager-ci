@@ -825,7 +825,7 @@ Feature: nmcli - wifi
       """
     * Start following journal
     Then "Error" is visible with command "nmcli connection up wifi0"
-    Then Look for "added 'proto' value 'WPA'" in journal
+    Then "added 'proto' value 'WPA'" is visible in journal
     Then "\*\s+wpa2-eap" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 

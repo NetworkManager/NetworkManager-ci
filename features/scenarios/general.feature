@@ -3191,10 +3191,11 @@ Feature: nmcli - general
     * Add "dummy" connection named "dummy0" for device "dummy1" with options "ip4 172.26.1.1/24 autoconnect no"
     * Bring "up" connection "dummy0"
     * Execute "ip route add blackhole 172.25.1.0/24 proto bird"
+    * Start following journal
     * Execute "nmcli -g uuid connection show --active | xargs nmcli -w 10 connection down"
-    When "succeeded" is visible with command "journalctl -u NetworkManager --no-pager -n 10"
-    Then "wait for ACK" is not visible with command "journalctl -u NetworkManager --no-pager -n 1000"
-     And "blackhole" is visible with command "ip route"
+    Then "succeeded" is visible in journal
+    And  "wait for ACK" is not visible in journal in "15" seconds
+    And "blackhole" is visible with command "ip route"
 
 
     @rhbz2033643
@@ -3224,8 +3225,8 @@ Feature: nmcli - general
       ethernet.cloned-mac-address 00:11:22:33:44:55
       """
     * Bring "up" connection "veth0+"
-    * "name1" is visible with command "hostname" in "20" seconds
-    * "search nodhcp test-dhcp-this-one-here-is-a-very-very-long-domain.example.com" is visible with command "cat /etc/resolv.conf"
+    Then "name1" is visible with command "hostname" in "20" seconds
+    And "search nodhcp test-dhcp-this-one-here-is-a-very-very-long-domain.example.com" is visible with command "cat /etc/resolv.conf"
 
 
     @rhbz2090946

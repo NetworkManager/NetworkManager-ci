@@ -412,7 +412,7 @@ Feature: nmcli - wifi
       """
     * Start following journal
     * Bring "up" connection "qe-wpa2-psk"
-    Then Look for "added 'pairwise' value 'CCMP'" in journal
+    Then "added 'pairwise' value 'CCMP'" is visible in journal
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -430,7 +430,7 @@ Feature: nmcli - wifi
       """
     * Start following journal
     Then "Error" is visible with command "nmcli connection up qe-wpa2-psk ifname wlan0"
-    Then Look for "added 'pairwise' value 'TKIP'" in journal
+    Then "added 'pairwise' value 'TKIP'" is visible in journal
     Then "\*\s+qe-wpa2-psk" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
@@ -447,7 +447,7 @@ Feature: nmcli - wifi
       """
     * Start following journal
     * Bring "up" connection "qe-wpa2-psk"
-    Then Look for "added 'group' value 'CCMP'" in journal
+    Then "added 'group' value 'CCMP'" is visible in journal
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
@@ -465,7 +465,7 @@ Feature: nmcli - wifi
       """
     * Start following journal
     Then "Error" is visible with command "nmcli connection up qe-wpa2-psk ifname wlan0"
-    Then Look for "added 'group' value 'TKIP'" in journal
+    Then "added 'group' value 'TKIP'" is visible in journal
     Then "\*\s+qe-wpa2-psk" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
