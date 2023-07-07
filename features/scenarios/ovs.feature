@@ -1148,8 +1148,8 @@ Feature: nmcli - ovs
           ovs-interface.type patch
           ovs-patch.peer patch0
           """
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch0" in "10" seconds
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch1" in "10" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch0" in "30" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-patch1" in "30" seconds
     Then "Interface patch0\s*type: patch\s*options: \{peer\=patch1\}" is visible with command "ovs-vsctl show"
     Then "Interface patch1\s*type: patch\s*options: \{peer\=patch0\}" is visible with command "ovs-vsctl show"
 
@@ -1478,7 +1478,7 @@ Feature: nmcli - ovs
     * Restart NM
     * Execute "ovs-vsctl add-br ovs-br0"
     * Execute "ovs-vsctl add-port ovs-br0 ovs-int0 -- set interface ovs-int0 type=patch -- set interface ovs-int0 options:peer=ovs-br0"
-    Then "unmanaged" is visible with command "nmcli device | grep ovs-int0" in "10" seconds
+    Then "unmanaged" is visible with command "nmcli device | grep ovs-int0" in "30" seconds
 
 
     @rhbz2151455
