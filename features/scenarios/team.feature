@@ -34,6 +34,7 @@
 
     @rhbz1393853 @rhbz2182029
     @ver+=1.40.16.5
+    @ver+=1.42.9
     @restart_if_needed
     @add_default_team_after_journal_restart
     Scenario: nmcli - team - add default team after journal restart
