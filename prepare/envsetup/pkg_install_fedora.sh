@@ -8,7 +8,7 @@ install_fedora_packages () {
     ln -s /usr/bin/python3 /usr/bin/python
 
     # Pip down some deps
-    dnf -4 -y install python3-pip libyaml-devel
+    dnf -y install python3-pip libyaml-devel
 
     # Doesn't work on the newest aarch64 RHEL8
     python -m pip install --upgrade pip
@@ -20,10 +20,10 @@ install_fedora_packages () {
     python -m pip install --upgrade --force pyyaml
 
     # Needed for gsm_sim
-    dnf -4 -y install perl-IO-Pty-Easy perl-IO-Tty
+    dnf -y install perl-IO-Pty-Easy perl-IO-Tty
 
     # Dnf more deps
-    dnf -4 -y install \
+    dnf -y install \
         git nmap-ncat hostapd tcpreplay python3-netaddr dhcp-relay iw net-tools \
         psmisc firewalld dhcp-server ethtool python3-dbus python3-gobject dnsmasq \
         tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
@@ -32,39 +32,39 @@ install_fedora_packages () {
 
     # freeradius
     rm -rf /etc/raddb
-    dnf -4 -y remove freeradius
-    dnf -4 -y install freeradius
+    dnf -y remove freeradius
+    dnf -y install freeradius
     rm -rf /tmp/nmci-raddb
     cp -ar /etc/raddb/ /tmp/nmci-raddb/
 
     install_behave_pytest
 
     # Install vpn dependencies
-    dnf -4 -y install NetworkManager-libreswan NetworkManager-openvpn openvpn ipsec-tools
+    dnf -y install NetworkManager-libreswan NetworkManager-openvpn openvpn ipsec-tools
 
     # Remove connectivity packages
-    dnf -4 -y remove \
+    dnf -y remove \
         NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat
 
 
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install NetworkManager-pptp
+        dnf -y install NetworkManager-pptp
     fi
 
     if ! rpm -q --quiet NetworkManager-strongswan; then
-        dnf -4 -y install NetworkManager-strongswan
+        dnf -y install NetworkManager-strongswan
     fi
 
     if ! rpm -q --quiet strongswan; then
-        dnf -4 -y install strongswan strongswan-charon-nm
+        dnf -y install strongswan strongswan-charon-nm
     fi
 
     if ! rpm -q --quiet NetworkManager-vpnc || ! rpm -q --quiet vpnc; then
-        dnf -4 -y install NetworkManager-vpnc
+        dnf -y install NetworkManager-vpnc
     fi
 
     # dracut testing
-    dnf -4 -y install \
+    dnf -y install \
         qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils \
         nfs-utils radvd gdb dracut-network scsi-target-utils dhcp-client
 
@@ -74,7 +74,7 @@ install_fedora_packages () {
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
     # Install kernel-modules for currently running kernel
-    dnf -4 -y install kernel-modules-*-$(uname -r)
+    dnf -y install kernel-modules-*-$(uname -r)
 
     # Make device mac address policy behave like old one
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/

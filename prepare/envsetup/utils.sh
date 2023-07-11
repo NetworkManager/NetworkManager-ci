@@ -64,28 +64,28 @@ install_plugins_yum () {
 install_plugins_dnf () {
     # Installing plugins if missing
     if ! rpm -q --quiet NetworkManager-wifi; then
-        dnf -4 -y install NetworkManager-wifi
+        dnf -y install NetworkManager-wifi
     fi
     if ! rpm -q --quiet NetworkManager-team; then
-        dnf -4 -y install NetworkManager-team
+        dnf -y install NetworkManager-team
     fi
     if ! rpm -q --quiet NetworkManager-tui; then
-        dnf -4 -y install NetworkManager-tui
+        dnf -y install NetworkManager-tui
     fi
     if ! rpm -q --quiet NetworkManager-cloud-setup; then
         dnf -y install NetworkManager-cloud-setup
     fi
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -4 -y install NetworkManager-pptp
+        dnf -y install NetworkManager-pptp
     fi
     if ! rpm -q --quiet NetworkManager-ovs; then
-        dnf -4 -y install NetworkManager-ovs
+        dnf -y install NetworkManager-ovs
     fi
     if ! rpm -q --quiet NetworkManager-ppp; then
-        dnf -4 -y install NetworkManager-ppp
+        dnf -y install NetworkManager-ppp
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
-        dnf -4 -y install NetworkManager-openvpn
+        dnf -y install NetworkManager-openvpn
     fi
 }
 
