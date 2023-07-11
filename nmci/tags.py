@@ -721,6 +721,7 @@ _register_tag("dns_systemd_resolved", dns_systemd_resolved_bs, dns_systemd_resol
 
 
 def internal_DHCP_bs(context, scenario):
+    nmci.cleanup.add_NM_config("99-xtest-dhcp-internal.conf")
     conf = ["# configured by beaker-test", "[main]", "dhcp=internal"]
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf", conf
@@ -728,14 +729,7 @@ def internal_DHCP_bs(context, scenario):
     nmci.nmutil.restart_NM_service()
 
 
-def internal_DHCP_as(context, scenario):
-    context.process.run_stdout(
-        "rm -f /etc/NetworkManager/conf.d/99-xtest-dhcp-internal.conf"
-    )
-    nmci.nmutil.restart_NM_service()
-
-
-_register_tag("internal_DHCP", internal_DHCP_bs, internal_DHCP_as)
+_register_tag("internal_DHCP", internal_DHCP_bs)
 
 
 def dhclient_DHCP_bs(context, scenario):
