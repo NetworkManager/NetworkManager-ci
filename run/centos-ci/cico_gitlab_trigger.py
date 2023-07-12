@@ -371,6 +371,7 @@ def execute_build(
 
         cmd = f"curl -k -s -X POST {job_url}/build --data 'token={token}' {url_part}"
         os.system(cmd)
+        print(f"Executing {job_url}...")
     os.system(f"echo {gt.commit} >> /tmp/gl_commits")
 
 
