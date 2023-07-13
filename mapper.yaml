@@ -345,6 +345,8 @@ testmapper:
         feature: bond
     - bond_expose_iaid:
         feature: bond
+    - bond_vlan_reconnect_on_link_revive:
+        feature: bond
     - bond_stay_up_when_ipv6_flushed:
         feature: bond
     - update_firewall_zone_upon_reconnect:

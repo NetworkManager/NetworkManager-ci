@@ -3112,3 +3112,43 @@
     * Note the output of "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options | sed -e 's/.*iaid" s "\([^"]*\).*$/\1/'" as value "iaid_dbus"
     Then Check noted values "iaid_nmcli" and "iaid_run" are the same
     Then Check noted values "iaid_nmcli" and "iaid_dbus" are the same
+
+
+    @rhbz2207690
+    @ver+=1.40.16
+    @ver+=1.43.9
+    @bond_vlan_reconnect_on_link_revive
+    Scenario: bond - VLAN of bond will be autoconnected once bond port link revives
+    * Create NM config file "97-ignore-carrier-for-bond.conf" with content and "reload" NM
+      """
+      [main]
+      ignore-carrier=no
+      carrier-wait-timeout=1500
+      """
+    * Add "ethernet" connection named "c-eth1" for device "eth1" with options
+          """
+          autoconnect yes
+          master nm-bond
+          slave-type bond
+          """
+    *  Add "bond" connection named "c-bond1" for device "nm-bond" with options
+          """
+          autoconnect yes
+          ipv4.method disable
+          ipv6.method disable
+          bond.options mode=1,miimon=100
+          """
+    * Add "vlan" connection named "c-vlan" for device "bond0.1656" with options
+          """
+          autoconnect yes
+          dev nm-bond
+          id 1656
+          ipv4.addresses '192.168.122.10/24'
+          ipv6.method disable
+          """
+     Then Check bond "nm-bond" state is "up"
+     And "192.168.122.10" is visible with command "ip addr show bond0.1656"
+     * Execute "ip link set eth1 down"
+     Then "192.168.122.10" is not visible with command "ip addr show bond0.1656" in "15" seconds
+     * Execute "ip link set eth1 up"
+     Then "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
