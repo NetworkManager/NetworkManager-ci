@@ -1291,7 +1291,6 @@ def openvpn_bs(context, scenario):
 
 def openvpn_as(context, scenario):
     nmci.veth.restore_testeth0()
-    context.process.nmcli_force("connection delete openvpn")
     context.process.nmcli_force("connection delete tun0")
     context.process.run(
         "pkill -F /tmp/openvpn.pid",
