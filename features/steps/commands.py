@@ -1034,6 +1034,23 @@ def flush_nftables(context, ns=None):
     nmci.cleanup.add_nft(ns)
 
 
+@step('Cleanup execute "{command}"')
+@step('Cleanup execute "{command}" with {timeout} and {priority}')
+def cleanup_execute(context, command, timeout=5, priority=None):
+    callbacks = lambda: nmci.process.run_stdout(
+        command, ignore_stderr=True, shell=True, timeout=timeout
+    )
+    if priority:
+        priority = priority
+    else:
+        priority = nmci.Cleanup.PRIORITY_CALLBACK_DEFAULT
+    nmci.cleanup.add_callback(
+        name="cleanup-execute",
+        callback=callbacks,
+        priority=priority,
+    )
+
+
 @step('Run tier0 nmstate tests with log in "{log_file}"')
 def run_nmstate(context, log_file):
     # Install podman and git clone nmstate
