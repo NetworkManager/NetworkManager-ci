@@ -2538,3 +2538,13 @@
     Then "2::52 proto static scope global src 2621:dead:beaf::52 metric 162" is visible with command "ip -d -6 route show dev testX2"
     Then "1::51 proto static scope global src 2620:dead:beaf::51 metric 161" is visible with command "ip -d -6 route show dev testX1"
     Then "1::52 proto static scope global src 2621:dead:beaf::52 metric 161" is visible with command "ip -d -6 route show dev testX1"
+
+
+    @rhbz2207878
+    @ver+=1.43.11
+    @not_enable_ipv6_on_external
+    Scenario: NM - ipv6 - do not re-enable IPv6 on the externally connected interface
+    * Execute "echo 1 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
+    * Restart NM
+    Then "lo\s+loopback\s+connected \(externally\)\s+lo" is visible with command "nmcli device"
+    Then "0" is not visible with command "cat /proc/sys/net/ipv6/conf/lo/disable_ipv6"

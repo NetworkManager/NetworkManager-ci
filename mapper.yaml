@@ -860,6 +860,8 @@ testmapper:
         feature: ipv6
     - ipv6_prefsrc_route:
         feature: ipv6
+    - not_enable_ipv6_on_external:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
