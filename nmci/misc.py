@@ -1059,6 +1059,7 @@ class _Misc:
             "journalctl --lines=0 --quiet --show-cursor --system",
             "^-- cursor: +([^ ].*[^ ]) *\n$",
             ignore_stderr=True,
+            timeout=15,
         )
         return m.group(1)
 
