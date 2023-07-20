@@ -1198,6 +1198,10 @@ testmapper:
         feature: ipv4
     - ipv4_prefsrc_route:
         feature: ipv4
+    - ipv4_do_not_readd_route_removed_externally_dhcp:
+        feature: ipv4
+    - ipv4_do_not_readd_route_removed_externally_static:
+        feature: ipv4
     - ipv4_no_route_without_addr:
         feature: ipv4
     - ipv4_keep_track_l3_despite_too_many_netlink:

@@ -3419,6 +3419,67 @@ Feature: nmcli: ipv4
     Then "1.51.0.52 proto static scope link src 192.168.52.10 metric 161" is visible with command "ip -d -4 route show dev testX1"
 
 
+    @rhbz2218866
+    @ver-1.43.3
+    @ver+=1.43.11
+    @ipv4_do_not_readd_route_removed_externally_dhcp
+    Scenario: do not re-add route that is removed externally (DHCP)
+    * Prepare simulated test "testX" device with "192.168.99" ipv4 and "2620:1111" ipv6 dhcp address prefix and "60m" leasetime and daemon options "--dhcp-host=00:11:22:33:44:55,192.168.99.10"
+    * Add "ethernet" connection named "con" for device "testX" with options
+          """
+          ethernet.cloned-mac-address 00:11:22:33:44:55
+          ipv4.route-metric 104
+          ipv4.may-fail no
+          ipv6.may-fail no
+          """
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "10" seconds
+    Then "default via 192.168.99.1 proto dhcp src 192.168.99.10 metric 104" is visible with command "ip route show dev testX"
+    * Commentary
+      """
+      Replace the default route provided via DHCP with one having a different source address
+      """
+    * Execute "ip addr add dev testX 192.168.99.200/24"
+    * Execute "ip route change to default via 192.168.99.1 proto dhcp src 192.168.99.200 metric 104"
+    Then "1" is visible with command "ip route show to default dev testX | wc -l"
+    Then "default via 192.168.99.1 proto dhcp src 192.168.99.200 metric 104" is visible with command "ip route show to default dev testX"
+    * Commentary
+      """
+      Check that the old route is not restored
+      """
+    Then "1" is visible with command "ip route show to default dev testX | wc -l" for full "30" seconds
+    Then "default via 192.168.99.1 proto dhcp src 192.168.99.200 metric 104" is visible with command "ip route show to default dev testX"
+
+
+    @rhbz2218866
+    @ver-1.43.3
+    @ver+=1.43.11
+    @ipv4_do_not_readd_route_removed_externally_static
+    Scenario: do not re-add route that is removed externally (static)
+    * Prepare simulated test "testX" device
+    * Add "ethernet" connection named "con" for device "testX" with options
+          """
+          ethernet.cloned-mac-address 00:11:22:33:44:55
+          ipv4.route-metric 104
+          ipv4.method manual
+          ipv4.addresses 192.168.99.10/24
+          ipv4.route-metric 104
+          ipv4.routes "172.25.1.1 192.168.99.1 src=192.168.99.10"
+          ipv6.may-fail no
+          """
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "10" seconds
+    Then "172.25.1.1 via 192.168.99.1 proto static src 192.168.99.10 metric 104" is visible with command "ip route show dev testX"
+    * Commentary
+      """
+      Delete the static route
+      """
+    * Execute "ip route delete 172.25.1.1 via 192.168.99.1 dev testX src 192.168.99.10 metric 104"
+    * Commentary
+      """
+      Check that the old route is not restored
+      """
+    Then "0" is visible with command "ip route show to 172.25.1.1 dev testX | wc -l" for full "30" seconds
+
+
     @rhbz2102212
     @ver+=1.43.3
     @ipv4_no_route_without_addr
