@@ -28,13 +28,15 @@ install_el8_packages () {
         $KOJI/tcpreplay/4.2.5/4.fc28/$(arch)/tcpreplay-4.2.5-4.fc28.$(arch).rpm \
         $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm
 
+    # Enable nmstate-2 from copr
+    dnf copr enable nmstate/nmstate-git
 
     # Dnf more deps
     dnf -4 -y install \
         git nmap-ncat python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
-        podman mptcpd s390utils-base \
+        podman mptcpd s390utils-base nmstate \
         --skip-broken
 
     # freeradius
