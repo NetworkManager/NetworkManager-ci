@@ -29,7 +29,7 @@ install_el8_packages () {
         $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm
 
     # Enable nmstate-2 from copr
-    dnf copr enable nmstate/nmstate-git
+    dnf copr enable -y nmstate/nmstate-git
 
     # Dnf more deps
     dnf -4 -y install \
