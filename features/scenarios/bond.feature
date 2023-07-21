@@ -3003,6 +3003,88 @@
     Then "bond0" is visible with command "nmcli -g name connection show --active"
 
 
+    @ver/rhel/8/4+=1.30.0.18
+    @ver/rhel/8/6+=1.36.0.15
+    @ver/rhel/8/8+=1.40.16.4
+    @ver/rhel/8/9+=1.40.16.8
+    @ver/rhel/9/2+=1.42.2.4
+    @ver+=1.43.11
+    @vlan_over_bond_reconnect_on_link_revive
+    Scenario: autoconnect vlan over bond once bond port link revives - nmstate
+    * Cleanup connection "testXa"
+    * Cleanup connection "testXb"
+    * Cleanup connection "bond0"
+    * Cleanup connection "bond0.1656"
+    * Create NM config file "99-xxvlan-bond.conf" with content and "restart" NM
+      """
+      [device]
+      match-device=interface-name:*
+      ignore-carrier=no
+      [main]
+      plugins=keyfile
+      """
+    * Prepare simulated test "testXa" device without DHCP
+    * Prepare simulated test "testXb" device without DHCP
+    * Write file "/tmp/vlan_bond_create.yaml" with content
+      """
+      interfaces:
+      - name: bond0
+        type: bond
+        state: up
+        ipv4:
+          enabled: false
+        ipv6:
+          enabled: false
+        link-aggregation:
+          mode: active-backup
+          options:
+            miimon: 100
+          port:
+          - testXa
+          - testXb
+      - name: bond0.1656
+        type: vlan
+        state: up
+        ipv4:
+          enabled: true
+          dhcp: false
+          address:
+          - ip: 192.168.122.10
+            prefix-length: 24
+        ipv6:
+          enabled: false
+        vlan:
+          base-iface: bond0
+          id: 1656
+      """
+    * Write file "/tmp/vlan_bond_reapply.yaml" with content
+      """
+      interfaces:
+      - name: bond0
+        type: bond
+      - name: bond0.1656
+        type: vlan
+        state: up
+      """
+    * Execute "nmstatectl set /tmp/vlan_bond_create.yaml"
+    * Execute "nmstatectl set /tmp/vlan_bond_reapply.yaml"
+    * Execute "nmstatectl set /tmp/vlan_bond_reapply.yaml"
+    When "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
+    * Execute "ip link set testXa down"
+    * Execute "ip link set testXb down"
+    # This step is not consistent between rhel8 and rhel9
+    # In rhel8 vlan profile goes down and ip is removed
+    # In rhel9 vlan profile stays up and ip is not removed
+    # https://bugzilla.redhat.com/show_bug.cgi?id=2180363 to track this
+    # When "192.168.122.10" is not visible with command "ip addr show bond0.1656" in "15" seconds
+    # Use just plain sleep instead
+    * Wait for "10" seconds
+    * Execute "ip link set testXa up"
+    * Execute "ip link set testXb up"
+    Then "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
+    Then "bond0.1656" is visible with command "nmcli con show -a"
+
+
 
     @rhbz2171827
     @rhbz2171832
@@ -3113,3 +3195,5 @@
     * Note the output of "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options | sed -e 's/.*iaid" s "\([^"]*\).*$/\1/'" as value "iaid_dbus"
     Then Check noted values "iaid_nmcli" and "iaid_run" are the same
     Then Check noted values "iaid_nmcli" and "iaid_dbus" are the same
+
+

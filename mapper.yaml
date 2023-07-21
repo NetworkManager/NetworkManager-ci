@@ -278,6 +278,8 @@ testmapper:
     - vlan_over_no_L3_bond_restart_persistence:
         feature: bond
         tags: gate
+    - vlan_over_bond_reconnect_on_link_revive:
+        feature: bond
     - bond_leave_L2_only_up_when_going_down:
         feature: bond
         tags: gate
