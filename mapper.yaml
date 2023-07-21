@@ -2372,8 +2372,7 @@ testmapper:
         feature: tc
     - tc_morrir_traffic:
         feature: tc
-        tags: gate
-        tags: customer-scenario
+        tags: gate customer-scenario
     - tc_morrir_traffic_clsact:
         feature: tc
     - tc_device_filter_management:
