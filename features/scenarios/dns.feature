@@ -1391,6 +1391,7 @@ Feature: nmcli - dns
     @rhbz2189247
     @ver+=1.43.4
     @ver+=1.42.5
+    @ver/rhel/9/2+=1.42.2.6
     @ver+=1.40.17
     @ver+=1.38.7
     @not_with_systemd_resolved
