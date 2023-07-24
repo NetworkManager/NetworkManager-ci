@@ -231,6 +231,12 @@ def check_ifcfg(context, file):
 @step('Create ifcfg-file "{file}"')
 @step('Create keyfile "{file}"')
 def create_network_profile_file(context, file):
+    nmci.cleanup.add_NM_service(operation="restart")
+    nmci.cleanup.add_file(
+        file,
+        priority=nmci.Cleanup.PRIORITY_FILE + 1,
+    )
+
     with open(file, "w") as f:
         f.write(context.text)
     assert (
@@ -239,11 +245,11 @@ def create_network_profile_file(context, file):
     nmci.nmutil.reload_NM_connections()
 
     for line in context.text.split("\n"):
-        if re.match(r"(id|name)=", line):
+        if re.match(r"(id|name)=", line, re.IGNORECASE):
             name = line.split("=")[1]
             if name:
                 nmci.cleanup.add_connection(name)
-        elif re.match(r"(DEVICE|interface-name)=", line):
+        elif re.match(r"(DEVICE|interface-name)=", line, re.IGNORECASE):
             iface = line.split("=")[1]
             if iface:
                 nmci.cleanup.add_iface(iface)
