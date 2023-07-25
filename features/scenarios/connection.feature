@@ -1044,6 +1044,28 @@ Feature: nmcli: connection
     Then "eth3:connected:migration_dns" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @ver+=1.43.11
+    @copy_ifcfg
+    @connection_migrate_via_config_option
+    Scenario: nmcli - connection - migrate all ifcfg profiles to keyfile via configuration option
+    * Reload connections
+    Then "migration_bond:/etc/sysconfig/network-scripts/ifcfg-migration_bond" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_wifi:/etc/sysconfig/network-scripts/ifcfg-migration_wifi" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_team:/etc/sysconfig/network-scripts/ifcfg-migration_team" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_dns:/etc/sysconfig/network-scripts/ifcfg-migration_dns" is visible with command "nmcli -g NAME,FILENAME connection"
+    * Create NM config file with content
+      """
+      [main]
+      migrate-ifcfg-rh=yes
+      """
+    * Reboot
+    Then "ifcfg" is not visible with command "ls /etc/sysconfig/network-scripts |grep -v readme-ifcfg"
+    Then "migration_bond:/etc/NetworkManager/system-connections/migration_bond.nmconnection" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_wifi:/etc/NetworkManager/system-connections/migration_wifi.nmconnection" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_team:/etc/NetworkManager/system-connections/migration_team.nmconnection" is visible with command "nmcli -g NAME,FILENAME connection"
+    Then "migration_dns:/etc/NetworkManager/system-connections/migration_dns.nmconnection" is visible with command "nmcli -g NAME,FILENAME connection"
+
+
     @rhbz2008337
     @ver+=1.39.10
     @connection_wait-activation-delay

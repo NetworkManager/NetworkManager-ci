@@ -2309,6 +2309,8 @@ testmapper:
         feature: connection
     - connection_nmcli_migrate:
         feature: connection
+    - connection_migrate_via_config_option:
+        feature: connection
     - connection_wait-activation-delay:
         feature: connection
     - connection_dont_assume_settings_connection:
