@@ -1142,6 +1142,8 @@ Feature: nmcli - dns
     @rhbz1676635
     @ver+=1.17.3
     @ver-1.40.16.4
+    # adjust version if no-aaaa backported to rhel8.8
+    @ver/rhel/8/8-1.40.16.2000
     @ver-1.42.5
     @not_with_systemd_resolved
     @dns_multiple_options
@@ -1166,6 +1168,8 @@ Feature: nmcli - dns
     @rhbz1676635
     @rhbz2176137
     @ver+=1.40.16.4
+    # adjust version if no-aaaa backported to rhel8.8
+    @ver/rhel/8/8+=1.40.16.2000
     @ver+=1.42.5
     @ver+=1.43.6.1
     @not_with_systemd_resolved
