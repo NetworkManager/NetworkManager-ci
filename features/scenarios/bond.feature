@@ -3006,7 +3006,7 @@
     @ver/rhel/8/4+=1.30.0.18
     @ver/rhel/8/6+=1.36.0.15
     @ver/rhel/8/8+=1.40.16.4
-    @ver/rhel/8/9+=1.40.16.8
+    @ver/rhel/8+=1.40.16.8
     @ver/rhel/9/2+=1.42.2.4
     @ver+=1.43.11
     @vlan_over_bond_reconnect_on_link_revive
@@ -3021,7 +3021,7 @@
       match-device=interface-name:*
       ignore-carrier=no
       [main]
-      plugins=keyfile
+      plugins=keyfile,ifcfg-rh
       """
     * Prepare simulated test "testXa" device without DHCP
     * Prepare simulated test "testXb" device without DHCP
