@@ -3497,3 +3497,29 @@ Feature: nmcli - general
     @nm_binds_to_dbus_check
     Scenario: NM - general - NetworkManager binds to dbus.service
     Then "BindsTo=dbus.*.service" is visible with command "systemctl show NetworkManager.service"
+
+
+    @rhbz2186212
+    @ver-1.43.3
+    @ver+=1.43.8
+    @mock
+    @eth0
+    @suspend_wakeup
+    Scenario: Suspend and wakeup test
+    * Create NM config file "90-eth0-carrier.conf" with content
+      """
+      [device-eth0-carrier]
+      match-device=interface-name:eth0
+      ignore-carrier=no
+      """
+    * Restart NM
+    # Restart NM right after the test in case of fail to reset eth0 state
+    * Cleanup execute "systemctl restart NetworkManager"
+    * Modify connection "testeth0" changing options "autoconnect yes"
+    * Bring "up" connection "testeth0"
+    * Mock systemd-logind service
+    * Send "suspend" signal to mocked logind
+    # This is not needed, keeping it here in case someone finds it useful
+    #* Suspend and resume via /sys/power
+    * Send "wakeup" signal to mocked logind
+    Then "testeth0" is visible with command "nmcli c show -a" in "10" seconds
