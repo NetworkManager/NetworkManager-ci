@@ -1411,3 +1411,34 @@ Feature: nmcli - dns
     * Execute "nmcli device reapply eth2"
     Then "2000::1" is not visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
     Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
+
+
+    @rhbz2218448
+    @dns_correct_nameserver_order_after_reconnect
+    Scenario: NM - dns - preserve correct order of nameservers after device reconnects
+    * Add "dummy" connection named "dummy-dummy1" for device "dummy1" with options
+          """
+          ip4 172.25.1.1/24
+          gw4 172.25.1.254
+          ipv4.dns 172.25.1.53
+          autoconnect no
+          ipv4.route-metric 100
+          ipv6.method disabled
+          """
+    * Add "dummy" connection named "dummy-dummy2" for device "dummy2" with options
+          """
+          ip4 172.25.2.1/24
+          gw4 172.25.2.254
+          ipv4.dns 172.25.2.53
+          autoconnect no
+          ipv4.route-metric 200
+          ipv6.method disabled
+          """
+    * Bring "up" connection "dummy-dummy1"
+    * Bring "up" connection "dummy-dummy2"
+    Then "nameserver 172.25.1.53.*nameserver 172.25.2.53" is visible with command "cat /etc/resolv.conf" in "10" seconds
+    * Bring "down" connection "dummy-dummy1"
+    Then "nameserver 172.25.1.53" is not visible with command "cat /etc/resolv.conf" in "10" seconds
+    And "nameserver 172.25.2.53" is visible with command "cat /etc/resolv.conf"
+    * Bring "up" connection "dummy-dummy1"
+    Then "nameserver 172.25.1.53.*nameserver 172.25.2.53" is visible with command "cat /etc/resolv.conf" in "10" seconds
