@@ -3029,7 +3029,7 @@ Feature: nmcli - general
 
 
     @rhbz1711215
-    @ver+=1.25 @rhelver+=8
+    @ver+=1.25 @rhelver+=9
     @performance
     @NM_performance_dhcp_on_existing_veths
     Scenario: NM - general - create and activate 100 connections in 6 seconds on existing veths
