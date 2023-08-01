@@ -1384,6 +1384,8 @@ testmapper:
         feature: cloud
     - cloud_no_provider_warning:
         feature: cloud
+    - cloud_setup_keep_secondary_ips:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
