@@ -722,10 +722,17 @@ def start_tailing_journal(context):
 
 
 @step('"{content}" is visible in journal')
-def find_in_tailing_journal(context, content):
-    if context.journal.expect([content, pexpect.TIMEOUT, pexpect.EOF]) == 1:
+@step('"{content}" is visible in journal in "{timeout}" seconds')
+def find_in_tailing_journal(context, content, timeout=pexpect.TIMEOUT):
+    if (
+        context.journal.expect(
+            [content, pexpect.TIMEOUT, pexpect.EOF], timeout=float(timeout)
+        )
+        == 1
+    ):
         raise Exception(
-            'Did not see the "%s" in journal output before timeout (180s)' % content
+            'Did not see the "%s" in journal output before timeout ("%s" seconds)'
+            % (content, timeout)
         )
 
 

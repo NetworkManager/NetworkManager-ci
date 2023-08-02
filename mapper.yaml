@@ -1382,6 +1382,8 @@ testmapper:
         feature: cloud
     - cloud_gcp_basic:
         feature: cloud
+    - cloud_no_provider_warning:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
