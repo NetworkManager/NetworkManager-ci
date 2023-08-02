@@ -55,6 +55,7 @@ Feature: nmcli: cloud
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
 
+
     @ver+=1.43.8.2
     @cloud_gcp_basic
     Scenario: cloud - gcp - Basic GCP nm-cloud-setup checks
@@ -68,3 +69,20 @@ Feature: nmcli: cloud
     * Execute nm-cloud-setup for "gcp" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then "local 172.31.176.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
     Then "local 172.31.17.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
+
+
+    @rhbz2214880
+    @ver+=1.43.10
+    @skip_in_centos
+    @cloud_no_provider_warning
+    Scenario: cloud - warn user about no available providers
+    * Execute "mkdir -p /etc/systemd/system/nm-cloud-setup.service.d"
+    * Write file "/etc/systemd/system/nm-cloud-setup.service.d/overrides.conf" with content
+      """
+      [Service]
+      Environment=NM_CLOUD_SETUP_EC2=yes NM_CLOUD_SETUP_LOG=warn
+      """
+    * Start following journal
+    * Execute "systemctl daemon-reload"
+    * Execute "systemctl restart nm-cloud-setup.service"
+    Then "no provider detected" is visible in journal in "60" seconds
