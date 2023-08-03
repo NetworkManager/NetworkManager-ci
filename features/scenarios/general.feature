@@ -3220,10 +3220,24 @@ Feature: nmcli - general
     @ver+=1.43.10
     @modify_link_settings_ifcfg
     Scenario: NM - general - try to modify link settings in ifcfg format
-    * Add "ethernet" connection named "con_general" for device "eth8" with options
-          """
-          connection.autoconnect no
-          """
+    * Start following journal
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_general"
+      """
+      TYPE=Ethernet
+      PROXY_METHOD=none
+      BROWSER_ONLY=no
+      BOOTPROTO=none
+      IPADDR=192.168.1.2
+      IPV6_DISABLED=yes
+      PREFIX=24
+      NAME=con_general
+      UUID=da8403c5-307c-42c4-aafb-992014973d53
+      DEVICE=eth3
+      ONBOOT=yes
+      """
+    * Reload connections
+    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth3" in "15" seconds
+    Then "ifcfg-rh plugin is deprecated" is visible in journal in "10" seconds
     Then "con_general.nmconnection" is visible with command "ls -l /etc/sysconfig/network-scripts/con_general.nmconnection"
     Then "The ifcfg-rh plugin doesn't support setting 'link'" is visible with command "nmcli connection modify con_general link.tx-queue-length 1554"
 
@@ -3536,29 +3550,3 @@ Feature: nmcli - general
     #* Suspend and resume via /sys/power
     * Send "wakeup" signal to mocked logind
     Then "testeth0" is visible with command "nmcli c show -a" in "10" seconds
-
-
-    @rhbz2190375
-    @rhelver+=9
-    @ver+=1.43.11
-    @ifcfg_deprecated_log_warning
-    Scenario: NM - general - log warning when modyfing ifcfg-based connection
-    * Start following journal
-    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_general"
-      """
-      TYPE=Ethernet
-      PROXY_METHOD=none
-      BROWSER_ONLY=no
-      BOOTPROTO=none
-      IPADDR=192.168.1.2
-      IPV6_DISABLED=yes
-      PREFIX=24
-      NAME=con_general
-      UUID=da8403c5-307c-42c4-aafb-992014973d53
-      DEVICE=eth3
-      ONBOOT=yes
-      """
-    * Restart NM
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth3" in "15" seconds
-    Then "ifcfg-rh plugin is deprecated" is visible in journal in "10" seconds
-    And "ifcfg-rh plugin doesn't support" is visible with command "nmcli con modify con_general link.tx-queue-length 1555"

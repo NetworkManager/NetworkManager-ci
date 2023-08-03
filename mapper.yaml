@@ -1980,8 +1980,6 @@ testmapper:
         feature: general
     - suspend_wakeup:
         feature: general
-    - ifcfg_deprecated_log_warning:
-        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
