@@ -3141,6 +3141,7 @@ Feature: nmcli - general
     @permissive @eth0
     @nmcli_route_dump
     Scenario: nmcli - general - NM does not wait for route dump
+    * Cleanup execute "ip r delete blackhole 172.25.1.0/24 proto bird"
     * Add "dummy" connection named "dummy0" for device "dummy1" with options "ip4 172.26.1.1/24 autoconnect no"
     * Bring "up" connection "dummy0"
     * Execute "ip route add blackhole 172.25.1.0/24 proto bird"
