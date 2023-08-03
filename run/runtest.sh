@@ -164,7 +164,7 @@ call_behave() {
 
     rc=1
     # start behave in background to remember PID
-    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture -k -f html-pretty -o "$NMTEST_REPORT" -f plain &
+    behave "$FEATURE_FILE" "${TAGS[@]}" --no-capture --no-skipped -f html-pretty -o "$NMTEST_REPORT" -f plain &
     BEHAVE_PID=$!
     wait $BEHAVE_PID
 }
