@@ -542,14 +542,19 @@ Feature: nmcli - procedures in documentation
     @doc_split_dns_dnsmasq
     Scenario: Using different DNS servers for different domains - dnsmasq
     * Doc: "Using different DNS servers for different domains"
-    Given Create NM config file with content
-          """
-          [main]
-          dns=dnsmasq
-          """
-    * Restart NM
+    * Prepare simulated test "ethX" device with "192.168.99" ipv4 and "none" ipv6 dhcp address prefix and "2m" leasetime and daemon options "--local=/example.com/ --domain=example.com --address=/www.example.com/192.168.99.3"
+    * Start following journal
+    * Add "ethernet" connection named "con_ethX" for device "ethX" with options "ipv4.method auto ipv4.dns-search example.com autoconnect yes"
     Then Execute "grep '^nameserver 127.0.0.1$' /etc/resolv.conf"
     Then "exactly" "1" lines are visible with command "grep '^nameserver' /etc/resolv.conf"
+    Then "using nameserver 192.168.99.1.* for domain example.com" is visible in journal in "10" seconds
+    * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
+    * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
+    * Run child "tcpdump -nn -i any port 53"
+    Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
+    Then Expect "<noted:eth0_ip4>.*www.redhat.com" in children in "5" seconds
+    Then "www.example.com has address 192.168.99.3" is visible with command "host -t A www.example.com" in "20" seconds
+    And Expect "<noted:ethX_ip4>.*www.example.com" in children in "5" seconds
 
 
     @rhelver+=9.3 @rhelver+=8.9
@@ -557,14 +562,18 @@ Feature: nmcli - procedures in documentation
     @doc_split_dns_resolved
     Scenario: Using different DNS servers for different domains - dnsmasq
     * Doc: "Using different DNS servers for different domains"
-    Given Create NM config file with content
-          """
-          [main]
-          dns=systemd-resolved
-          """
-    * Restart NM
+    * Prepare simulated test "ethX" device with "192.168.99" ipv4 and "none" ipv6 dhcp address prefix and "2m" leasetime and daemon options "--local=/example.com/ --domain=example.com --address=/www.example.com/192.168.99.3"
+    * Add "ethernet" connection named "con_ethX" for device "ethX" with options "ipv4.method auto ipv4.dns-search example.com autoconnect yes"
     Then Execute "grep '^nameserver 127.0.0.53$' /etc/resolv.conf"
     Then "exactly" "1" lines are visible with command "grep '^nameserver' /etc/resolv.conf"
+    Then "\(ethX\): example.com" is visible with command "resolvectl domain" in "10" seconds
+    * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
+    * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
+    * Run child "tcpdump -nn -i any port 53"
+    Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
+    Then Expect "<noted:eth0_ip4>.*www.redhat.com" in children in "5" seconds
+    Then "www.example.com has address 192.168.99.3" is visible with command "host -t A www.example.com" in "20" seconds
+    And Expect "<noted:ethX_ip4>.*www.example.com" in children in "5" seconds
 
 
     @rhelver+=8.9 @rhelver-9.0

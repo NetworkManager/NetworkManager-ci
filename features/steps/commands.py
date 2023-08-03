@@ -678,6 +678,7 @@ def wait_for_children(context):
 @step('Expect "{pattern}" in children in "{seconds}" seconds')
 def expect_children(context, pattern, seconds):
     seconds = float(seconds)
+    pattern = nmci.misc.str_replace_dict(pattern, context.noted)
     for child in nmci.pexpect.pexpect_service_find_all("child"):
         proc = child.proc
         r = proc.expect(
@@ -694,6 +695,7 @@ def expect_children(context, pattern, seconds):
 @step('Do not expect "{pattern}" in children in "{seconds}" seconds')
 def not_expect_children(context, pattern, seconds):
     seconds = float(seconds)
+    pattern = nmci.misc.str_replace_dict(pattern, context.noted)
     for child in nmci.pexpect.pexpect_service_find_all("child"):
         proc = child.proc
         r = proc.expect(
