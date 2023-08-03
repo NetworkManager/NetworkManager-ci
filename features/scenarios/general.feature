@@ -3560,5 +3560,5 @@ Feature: nmcli - general
       """
     * Restart NM
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show eth3" in "15" seconds
-    Then "ifcfg-rh plugin is deprecated" is visible in journal
+    Then "ifcfg-rh plugin is deprecated" is visible in journal in "10" seconds
     And "ifcfg-rh plugin doesn't support" is visible with command "nmcli con modify con_general link.tx-queue-length 1555"
