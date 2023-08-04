@@ -336,10 +336,17 @@ def _after_scenario(context, scenario):
     if nmci.util.is_verbose():
         # Attach journalctl logs
         print("Attaching NM log")
+        filter_args = " + ".join(
+            [
+                "_SYSTEMD_UNIT=NetworkManager.service",
+                "SYSLOG_IDENTIFIER=runtest",
+                "SYSLOG_IDENTIFIER=nmci",
+            ]
+        )
         log = nmci.misc.journal_show(
             cursor=context.log_cursor,
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-            journal_args="_SYSTEMD_UNIT=NetworkManager.service + SYSLOG_IDENTIFIER=runtest -o cat",
+            journal_args=f"{filter_args} -o cat",
         )
         nmci.embed.embed_data("NM", log)
 
