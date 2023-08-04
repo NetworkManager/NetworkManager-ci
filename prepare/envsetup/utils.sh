@@ -8,9 +8,8 @@ MBOX="https://koji.mbox.centos.org/pkgs/packages"
 
 install_behave_pytest () {
   # stable release is old, let's use the lastest available tagged release
-  # (which is as of 2023-03-06: v1.2.7.dev2 from 2021-09-20)
   #python -m pip install behave
-  python -m pip install "git+https://github.com/behave/behave@v1.2.7.dev2#egg=behave"
+  python -m pip install "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave"
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
   ln -s /usr/bin/behave-3 /usr/bin/behave
