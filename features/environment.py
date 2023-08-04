@@ -187,13 +187,13 @@ def _before_scenario(context, scenario):
 
 
 def before_step(context, step):
-    nmci.misc.journal_send(f"At before_step() of {step.name}")
+    nmci.misc.journal_send(f"At before_step()")
     context.step_level += 1
     context.current_step = step
 
 
 def after_step(context, step):
-    nmci.misc.journal_send(f"Entering after_step() of {step.name}")
+    nmci.misc.journal_send(f"Entering after_step()")
     context.no_step = False
     context.step_level -= 1
 
@@ -248,7 +248,7 @@ def after_step(context, step):
             if step.status != Status.passed:
                 nmci.cext.skip(f"Skipping because step is {step.status.name}")
         context.skip_check_count -= 1
-    nmci.misc.journal_send(f"Leaving after_step() of {step.name}")
+    nmci.misc.journal_send(f"Leaving after_step()")
 
 
 # print exception traceback
