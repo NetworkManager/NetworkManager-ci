@@ -36,7 +36,7 @@ install_el8_packages () {
         git nmap-ncat python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
-        podman mptcpd python3-systemd s390utils-base nmstate \
+        podman mptcpd python3-systemd s390utils-base nmstate bzip2 \
         --skip-broken
 
     # freeradius
