@@ -3428,6 +3428,8 @@ testmapper:
         feature: sriov
     - sriov_nmstate_many_vfs:
         feature: sriov
+    - sriov_dont_disable_on_acitvation_fail:
+        feature: sriov
     - add_dpdk_port:
         feature: ovs
     - add_dpdk_port_n_rxq:

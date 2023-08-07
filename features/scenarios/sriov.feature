@@ -616,3 +616,66 @@
       """
     * Execute "nmstatectl apply /tmp/many-vfs.yaml"
     Then "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev"
+
+
+    @rhbz2210164
+    @ver+=1.43.11
+    @sriov
+    @sriov_dont_disable_on_acitvation_fail
+    Scenario: NM - sriov - do not deactivate connection on failed SRI-OV parameter apply
+    * Cleanup connection "p4p1"
+    * Cleanup connection "bond0" and device "bond0"
+    * Cleanup connection "p4p1_0.101"
+    * Cleanup execute "nmstatectl rollback" with timeout "20" seconds
+    * Write file "/tmp/sriov_dont_disable_on_acitvation_fail.yaml" with content
+      """
+      interfaces:
+      - name: p4p1
+        type: ethernet
+        state: up
+        ethernet:
+          sr-iov:
+            total-vfs: 2
+      """
+    * Execute "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
+    * Write file "/tmp/sriov_dont_disable_on_acitvation_fail.yaml" with content
+      """
+      interfaces:
+      - name: p4p1_0.101
+        type: vlan
+        state: up
+        vlan:
+          base-iface: p4p1_0
+          id: 101
+      """
+    * Execute "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
+    * Write file "/tmp/sriov_dont_disable_on_acitvation_fail.yaml" with content
+      """
+      interfaces:
+      - name: bond0
+        type: bond
+        state: up
+        link-aggregation:
+          mode: balance-rr
+          port:
+          - p4p1_0.101
+      """
+    * Execute "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
+    * Start following journal
+    * Write file "/tmp/sriov_dont_disable_on_acitvation_fail.yaml" with content
+      """
+      interfaces:
+      - name: p4p1
+        type: ethernet
+        state: up
+        ethernet:
+         sr-iov:
+           total-vfs: 5
+           vfs:
+           - id: 2
+             max-tx-rate: 200
+      """
+    Then "max-tx-rate desire '200', current '0'" is visible with command "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
+    And "connected" is visible with command "nmcli -g GENERAL.STATE device show p4p1_0"
+    And "connected" is visible with command "nmcli -g GENERAL.STATE device show p4p1_0.101"
+    And Check slave "p4p1_0.101" in bond "bond0" in proc
