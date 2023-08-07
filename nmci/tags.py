@@ -690,6 +690,12 @@ def dns_systemd_resolved_bs(context, scenario):
         "echo 'MulticastDNS=yes' >> /etc/systemd/resolved.conf",
         shell=True,
     )
+    # And disable DNSSEC
+    context.process.run_stdout(
+        "echo 'DNSSEC=no' >> /etc/systemd/resolved.conf",
+        shell=True,
+    )
+
     context.process.systemctl("restart systemd-resolved")
 
     # On Fedora and RHEL9+, rc-manager is "auto" by default, which doesn't touch
