@@ -1837,6 +1837,8 @@ testmapper:
         feature: general
     - snapshot_deleted_soft_device_dbus_link:
         feature: general
+    - snapshot_rollback_deleted:
+        feature: general
     - macsec_psk:
         feature: general
         tags: gate libnl3

@@ -1950,6 +1950,27 @@ Feature: nmcli - general
     When "Exactly" "0" lines with pattern "vf" are visible with command "ip -c link show eth11" in "15" seconds
 
 
+    @rhbz2177590
+    @ver+=1.45.0
+    @checkpoint_remove
+    @snapshot_rollback_deleted
+    Scenario: NM - general - deleted sw device with --disconnect-new-devices
+    * Add "dummy" connection named "con_general" for device "dummy0" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.244.4/24
+          """
+    * Bring "up" connection "con_general"
+    * Execute "contrib/gi/checkpoint.py create 0 --destroy-all --disconnect-new-devices"
+    * Execute "ip link del dummy0"
+    * Execute "nmcli connection modify con_general ipv4.address 192.168.244.5/24"
+    * Execute "contrib/gi/checkpoint.py rollback --last"
+    * Wait for "4" seconds
+    Then "con_general" is visible with command "nmcli -g name con show --active"
+    Then "dummy0:" is visible with command "ip -o link"
+    Then "192.168.244.4/24" is visible with command "ip -o addr show dummy0"
+
+
     # Skip on broken RHEL8.8
     @rhelver+=8.4
     @x86_64_only
