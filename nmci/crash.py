@@ -383,8 +383,8 @@ def after_crash_reset(context):
         print("Warning: could not find NetworkManager in /var/lib directory")
 
     print("Flush eth0 IP")
-    nmci.process.run_stdout("ip addr flush dev eth0")
-    nmci.process.run_stdout("ip -6 addr flush dev eth0")
+    nmci.process.run("ip addr flush dev eth0")
+    nmci.process.run("ip -6 addr flush dev eth0")
 
     nmci.nmutil.start_NM_service()
 
