@@ -11,6 +11,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_modify_iface_address
     Scenario: nmcli - loopback - cannot remove the loopback addresses
+    * Cleanup device "lo"
     When "lo" is visible with command "nmcli device show"
     * Execute "nmcli d modify lo ipv4.addresses '192.168.0.1/24' ipv6.addresses '2620:52:0:beef::1/64'"
     Then "Exactly" "2" lines are visible with command "nmcli -g IP4.ADDRESS -m multiline device show lo"
@@ -25,6 +26,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_invalid_profile_options
     Scenario: nmcli - loopback - set invalid profile options
+    * Cleanup device "lo"
     When "lo" is visible with command "nmcli device show"
     * Cleanup connection "conn_loopback" and device "lo"
     Then "Failed" is visible with command "nmcli con add type loopback ifname lo con-name conn_loopback ipv4.method disabled"
@@ -34,6 +36,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_add_connection
     Scenario: nmcli - loopback - add basic loopback profile with options
+    * Cleanup device "lo"
     * Add "loopback" connection named "conn_loopback" for device "lo" with options 
       """
       ipv4.method auto
@@ -59,6 +62,7 @@ Feature: nmcli: loopback
     @dns_dnsmasq
     @loopback_dns_dnsmasq_default
     Scenario: nmcli - loopback - dnsmasq - single connection with default route
+    * Cleanup device "lo"
     * Add "loopback" connection named "conn_loopback" for device "lo" with options
           """
           ipv4.method manual
@@ -77,6 +81,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_set_route_with_options
     Scenario: nmcli - loopback - set route with options
+    * Cleanup device "lo"
     * Add "loopback" connection named "conn_loopback" for device "lo" with options
           """
           autoconnect no
@@ -103,6 +108,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_set_iface_as_bond_port
     Scenario: nmcli - loopback - cannot set loopback interface as a port
+    * Cleanup device "lo"
     * Add "bond" connection named "bond0" for device "nm-bond" with options
           """
           autoconnect no
@@ -115,6 +121,7 @@ Feature: nmcli: loopback
     @openvswitch
     @loopback_set_iface_as_ovs_port
     Scenario: nmcli - loopback - cannot set loopback interface as a port
+    * Cleanup device "lo"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
     Then "loopback profile cannot be a port" is visible with command "nmcli connection add type loopback con-name conn_loopback ifname lo conn.master port1 slave-type ovs-port"
@@ -123,6 +130,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_multi_connect
     Scenario: nmcli - loopback - multi-connect option works with loopback
+    * Cleanup device "lo"
     * Add "loopback" connection named "con_con" for device "*" with options
       """
       connection.multi-connect multiple
@@ -134,6 +142,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_match_renamed_iface
     Scenario: nmcli - loopback - assign profile to renamed loopback interface
+    * Cleanup device "lo"
     * Rename device "lo" to "bestdevice"
     * Add "loopback" connection named "conn_loopback" for device "bestdevice" with options "autoconnect no"
     * Bring "up" connection "conn_loopback"
@@ -143,6 +152,7 @@ Feature: nmcli: loopback
     @ver+=1.41.6
     @loopback_multiple_profiles
     Scenario: nmcli - loopback - create multiple profiles
+    * Cleanup device "lo"
     * Add "loopback" connection named "conn_loopback" for device "lo" with options
       """
       ipv4.method manual
