@@ -103,6 +103,11 @@ class _Veth:
         time.sleep(2)
 
     def wait_for_testeth0(self):
+        eth0_link = nmci.ip.link_show_maybe("eth0")
+        if eth0_link is None:
+            print("* skip testeth0 connection, no interface eth0 found")
+            return
+
         print("* waiting for testeth0 to connect")
         if "testeth0" not in nmci.process.nmcli("connection"):
             self.restore_testeth0()
