@@ -2026,7 +2026,15 @@ def print_undefs(outs):
 
 
 def test_behave_steps_in_feature_files(capfd):
-    b_cli = ["behave", "-d", "-c", "--no-summary", "--no-snippets", "-f", "steps.usage"]
+    b_cli = [
+        "behave",
+        "-d",
+        "--no-color",
+        "--no-summary",
+        "--no-snippets",
+        "-f",
+        "steps.usage",
+    ]
     try:
         proc = subprocess.run(b_cli)
     except FileNotFoundError:
