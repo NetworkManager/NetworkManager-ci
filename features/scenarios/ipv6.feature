@@ -2544,6 +2544,7 @@
     @ver+=1.43.11
     @not_enable_ipv6_on_external
     Scenario: NM - ipv6 - do not re-enable IPv6 on the externally connected interface
+    * Cleanup execute "echo 0 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
     * Execute "echo 1 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
     * Restart NM
     Then "lo\s+loopback\s+connected \(externally\)\s+lo" is visible with command "nmcli device"
