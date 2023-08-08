@@ -245,11 +245,16 @@ class _Cleanup:
             if self.op == "ip-delete":
                 nmci.ip.link_delete(iface)
             elif self.op == "reset":
-                nmci.veth.reset_hwaddr_nmcli(iface)
-                # Why oh why was eth0 filtered out?
-                # if iface != "eth0":
-                nmci.process.run(["ip", "addr", "flush", iface])
-                time.sleep(0.1)
+                if iface == "lo":
+                    nmci.process.run(["ip", "addr", "flush", iface])
+                    nmci.process.run(["ip", "addr", "add", "127.0.0.1/8", "dev", iface])
+                    nmci.process.run(["ip", "addr", "add", "::1/128", "dev", iface])
+                else:
+                    nmci.veth.reset_hwaddr_nmcli(iface)
+                    # Why oh why was eth0 filtered out?
+                    # if iface != "eth0":
+                    nmci.process.run(["ip", "addr", "flush", iface])
+                    time.sleep(0.1)
             else:
                 assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
                 nmci.process.nmcli_force(["device", "delete", iface])
