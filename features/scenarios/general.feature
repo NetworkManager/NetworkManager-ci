@@ -2964,6 +2964,7 @@ Feature: nmcli - general
       dns-search=
       method=auto
       """
+    * Reload connections
     * Execute "chmod go-rwx /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
     * Restart NM
     When "con_general" is visible with command "nmcli connection" in "10" seconds

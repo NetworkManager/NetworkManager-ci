@@ -572,6 +572,7 @@
 
        [proxy]
        """
+     * Reload connections
      * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
      Then Check bond "nm-bond" link state is "up"
       And Check slave "eth1" in bond "nm-bond" in proc

@@ -244,7 +244,6 @@ def create_network_profile_file(context, file):
     assert (
         nmci.process.run_code(["chmod", "600", file]) == 0
     ), f"Unable to set permissions on '{file}'"
-    nmci.nmutil.reload_NM_connections()
 
     for line in context.text.split("\n"):
         if re.match(r"(id|name)=", line, re.IGNORECASE):
