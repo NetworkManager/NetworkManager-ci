@@ -1101,3 +1101,227 @@ Feature: nmcli: connection
     * Execute "nmcli c add con-name 'Wired 2' ifname 'eth2' type ethernet autoconnect no"
     Then Execute "nmcli c add con-name 'Wired 1' ifname eth2 type ethernet autoconnect no connection.secondaries 'Open VPN'"
     Then Execute "nmcli c modify 'Wired 2' connection.secondaries 'Open VPN'"
+
+
+    @rhbz2121451
+    @ver+=1.43
+    @keyfile
+    @connection_with_higher_priority_active_on_reload
+    Scenario: nmcli - connection - connection with higher priority is active after reload
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-bond0.nmconnection"
+      """
+      [connection]
+      id=bond-bond0
+      uuid=a9732df4-4570-4f64-853f-f8b21d6c8a09
+      type=bond
+      interface-name=bond0
+      permissions=
+      timestamp=1656069768
+
+      [bond]
+      mode=active-backup
+
+      [ipv4]
+      address1=192.168.50.112/24
+      address2=192.168.50.113/32
+      dns=8.8.8.8;
+      dns-search=
+      method=manual
+
+      [ipv6]
+      addr-gen-mode=stable-privacy
+      dns-search=
+      method=auto
+
+      [proxy]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth1.nmconnection"
+      """
+      [connection]
+      id=bond-slave-eth1
+      uuid=a38b0380-f8a0-4098-af0e-ece8106d4cab
+      type=ethernet
+      interface-name=eth1
+      master=bond0
+      permissions=
+      slave-type=bond
+
+      [ethernet]
+      mac-address-blacklist=
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth1-slave-ovs-clone.nmconnection"
+      """
+      [connection]
+      id=bond-slave-eth1-slave-ovs-clone
+      uuid=90e70007-17ac-496a-aae0-6f134e011314
+      type=ethernet
+      autoconnect-priority=100
+      interface-name=eth1
+      master=1141ecb1-06e5-4e55-a224-228307d3adc6
+      permissions=
+      slave-type=bond
+      timestamp=1661433563
+
+      [ethernet]
+      mac-address-blacklist=
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth2.nmconnection"
+      """
+      [connection]
+      id=bond-slave-eth2
+      uuid=7588cca3-1cb6-4213-9b90-956aa77821c2
+      type=ethernet
+      interface-name=eth2
+      master=bond0
+      permissions=
+      slave-type=bond
+
+      [ethernet]
+      mac-address-blacklist=
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth2-slave-ovs-clone.nmconnection"
+      """
+      [connection]
+      id=bond-slave-eth2-slave-ovs-clone
+      uuid=7ca5b4cd-6d15-4693-a7df-1534782d9b3a
+      type=ethernet
+      autoconnect-priority=100
+      interface-name=eth2
+      master=1141ecb1-06e5-4e55-a224-228307d3adc6
+      permissions=
+      slave-type=bond
+      timestamp=1661433563
+
+      [ethernet]
+      mac-address-blacklist=
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/br-ex.nmconnection"
+      """
+      [connection]
+      id=br-ex
+      uuid=cf097898-974d-4ef2-a804-917a04d16090
+      type=ovs-bridge
+      autoconnect-slaves=1
+      interface-name=br-ex
+      permissions=
+      timestamp=1661433563
+
+      [ethernet]
+      mac-address-blacklist=
+      mtu=1500
+
+      [ovs-bridge]
+
+      [ipv4]
+      dns-search=
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=stable-privacy
+      dns-search=
+      method=auto
+
+      [proxy]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/ovs-if-br-ex.nmconnection"
+      """
+      [connection]
+      id=ovs-if-br-ex
+      uuid=4cff5623-604b-4cd0-9a5d-62915df9460c
+      type=ovs-interface
+      interface-name=br-ex
+      master=43575ecf-f90a-464d-8843-9098a69dc599
+      permissions=
+      slave-type=ovs-port
+      timestamp=1661433563
+
+      [ethernet]
+      cloned-mac-address=F6:AB:BB:B7:64:9B
+      mac-address-blacklist=
+      mtu=1500
+
+      [bond]
+      mode=active-backup
+
+      [ovs-interface]
+      type=internal
+
+      [ipv4]
+      address1=192.168.50.112/24
+      address2=192.168.50.113/32
+      dns=8.8.8.8;
+      dns-search=
+      method=manual
+      route-metric=48
+
+      [ipv6]
+      addr-gen-mode=stable-privacy
+      dns-search=
+      method=auto
+      route-metric=48
+
+      [proxy]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/ovs-if-phys0.nmconnection"
+      """
+      [connection]
+      id=ovs-if-phys0
+      uuid=1141ecb1-06e5-4e55-a224-228307d3adc6
+      type=bond
+      autoconnect-priority=100
+      interface-name=bond0
+      master=a117fb62-a338-4c42-b4a5-6f855cd82dbd
+      permissions=
+      slave-type=ovs-port
+      timestamp=1661433563
+
+      [ethernet]
+      cloned-mac-address=F6:AB:BB:B7:64:9B
+      mac-address-blacklist=
+      mtu=1500
+
+      [bond]
+      mode=active-backup
+
+      [ovs-interface]
+      type=system
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/ovs-port-br-ex.nmconnection"
+      """
+      [connection]
+      id=ovs-port-br-ex
+      uuid=43575ecf-f90a-464d-8843-9098a69dc599
+      type=ovs-port
+      autoconnect=false
+      interface-name=br-ex
+      master=br-ex
+      permissions=
+      slave-type=ovs-bridge
+
+      [ovs-port]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/ovs-port-phys0.nmconnection"
+      """
+      [connection]
+      id=ovs-port-phys0
+      uuid=a117fb62-a338-4c42-b4a5-6f855cd82dbd
+      type=ovs-port
+      autoconnect=false
+      autoconnect-slaves=1
+      interface-name=bond0
+      master=br-ex
+      permissions=
+      slave-type=ovs-bridge
+
+      [ovs-port]
+      """
+    * Reload connections
+    Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-slave-eth1" is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth2" is not visible with command "nmcli con show --active"
+    * Restart NM
+    Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-slave-eth1" is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth2" is not visible with command "nmcli con show --active"
