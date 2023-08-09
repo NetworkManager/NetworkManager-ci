@@ -1900,6 +1900,8 @@ def dpdk_bs(context, scenario):
         "connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
     )
     context.process.nmcli("connection up dpdk-sriov")
+    time.sleep(2)
+    # Moving those two VFs from ixgbevf to vfio-pci driver
     # In newer versions of dpdk-tools there are dpdk binaries with py in the end
     context.process.run_stdout(
         "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
@@ -1911,18 +1913,11 @@ def dpdk_bs(context, scenario):
         shell=True,
         ignore_stderr=True,
     )
-    # No idea why we need to restrt OVS but we need to
+    # We need to restart openvswitch as we changed configuration
     context.process.systemctl("restart openvswitch")
 
 
-def dpdk_as(context, scenario):
-    context.process.systemctl("stop ovsdb-server")
-    context.process.systemctl("stop openvswitch")
-    time.sleep(5)
-    context.process.nmcli_force("con del dpdk-sriov")
-
-
-_register_tag("dpdk", dpdk_bs, dpdk_as)
+_register_tag("dpdk", dpdk_bs, None)
 
 
 def wireless_certs_bs(context, scenario):

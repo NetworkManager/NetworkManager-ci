@@ -1006,32 +1006,36 @@ Feature: nmcli - ovs
      And "default via" is visible with command "ip r |grep nm-bond"
 
 
-     @rhbz1676551 @rhbz1612503
-     @ver+=1.19.5
-     @openvswitch @dpdk
-     @add_dpdk_port
-     Scenario: NM -  openvswitch - add dpdk device
-     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
-           """
-           ovs-bridge.datapath-type netdev
-           """
-     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
-     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
-           """
-           conn.master port0
-           ovs-dpdk.devargs 0000:42:10.0
-           """
-     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    @rhbz1676551 @rhbz1612503
+    @ver+=1.19.5
+    @permissive @openvswitch @dpdk
+    @add_dpdk_port
+    Scenario: NM -  openvswitch - add dpdk device
+    * Cleanup connection "dpdk-sriov"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
+          """
+          ovs-bridge.datapath-type netdev
+          """
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ovs-dpdk.devargs 0000:42:10.0
+          """
+    * Bring "up" connection "ovs-iface0"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
      And "Port port0" is visible with command "ovs-vsctl show"
      And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:42:10.0[\"]?}" is visible with command "ovs-vsctl show"
+     And "Error" is not visible with command "ovs-vsctl show"
 
 
      @rhbz2001563
      @ver+=1.35.4
-     @openvswitch @dpdk
+     @permissive @openvswitch @dpdk
      @add_dpdk_port_n_rxq
      Scenario: NM -  openvswitch - add dpdk device and n_rxq argument
+    * Cleanup connection "dpdk-sriov"
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
            ovs-bridge.datapath-type netdev
@@ -1052,9 +1056,10 @@ Feature: nmcli - ovs
      @rhbz2156385
      @ver+=1.41.8
      @ver/rhel/9+=1.41.90.1
-     @openvswitch @dpdk
+     @permissive @openvswitch @dpdk
      @add_dpdk_port_n_rxq_txq_desc
      Scenario: NM -  openvswitch - add dpdk device and n_rxq_desc,n_txq_desc arguments
+    * Cleanup connection "dpdk-sriov"
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
            ovs-bridge.datapath-type netdev
@@ -1076,9 +1081,10 @@ Feature: nmcli - ovs
 
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5
-    @openvswitch @dpdk
+    @permissive @openvswitch @dpdk
     @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
+    * Cleanup connection "dpdk-sriov"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
           ovs-bridge.datapath-type netdev
