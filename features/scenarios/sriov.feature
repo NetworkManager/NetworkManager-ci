@@ -15,6 +15,7 @@
     @sriov
     @sriov_enable
     Scenario: NM - sriov - enable sriov in config
+    * Cleanup device "p4p1"
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Prepare "98-sriov.conf" config for "p4p1" device with "63" VFs
     When "Exactly" "64" lines with pattern "p4p1" are visible with command "nmcli dev" in "40" seconds
@@ -25,6 +26,7 @@
     @sriov
     @sriov_enable_with_deployed_profile
     Scenario: NM - sriov - enable sriov in config
+    * Cleanup device "p4p1"
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
     * Execute "nmcli device connect p4p1"
     When " connected" is visible with command "nmcli  device |grep p4p1"
@@ -37,10 +39,11 @@
     @sriov
     @sriov_disable
     Scenario: NM - sriov - disable sriov in config
+    * Cleanup device "p4p1"
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "2" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "2" VFs
     When "Exactly" "3" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "0" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "0" VFs
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev" in "20" seconds
 
 
@@ -49,8 +52,9 @@
     @sriov
     @sriov_connect
     Scenario: NM - sriov - connect virtual sriov device
+    * Cleanup device "p4p1"
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "2" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """
           autoconnect no
@@ -76,7 +80,7 @@
     @sriov_autoconnect
     Scenario: NM - sriov - autoconnect virtual sriov device
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "2" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """
           ipv4.method manual
@@ -110,7 +114,7 @@
     # @sriov_set_mtu
     # Scenario: NM - sriov - change mtu
     # When "Exactly" "10" lines are visible with command "nmcli dev"
-    # * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "2" VFs
+    # * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "2" VFs
     # * Add "ethernet" connection named "sriov" for device "enp5s16f1" with options
     #    """
     #    ipv4.method manual
@@ -126,7 +130,7 @@
     @sriov_reboot_persistence
     Scenario: NM - sriov - reboot persistence
     When "Exactly" "1" lines with pattern "p4p1" are visible with command "nmcli dev"
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "2" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "2" VFs
     * Add "ethernet" connection named "sriov" for device "p4p1_0" with options
           """
           ipv4.method manual
@@ -150,7 +154,7 @@
     @sriov
     @sriov_con_drv_bond_with_config
     Scenario: nmcli - sriov - drv - bond with VF and ethernet reboot persistence
-    * Prepare "95-nmci-sriov-conf" config for "p4p1" device with "1" VFs
+    * Prepare "95-nmci-sriov.conf" config for "p4p1" device with "1" VFs
     * Add "bond" connection named "sriov_bond0" for device "bond0" with options
           """
           ipv4.method manual

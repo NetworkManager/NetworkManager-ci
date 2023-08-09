@@ -1858,7 +1858,7 @@ def sriov_bs(context, scenario):
 
 
 def sriov_as(context, scenario):
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/95-nmci-sriov-conf")
+    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/95-nmci-sriov.conf")
     context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf")
 
     nmci.nmutil.reload_NM_service()
