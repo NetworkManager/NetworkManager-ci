@@ -246,9 +246,15 @@ class _Cleanup:
                 nmci.ip.link_delete(iface)
             elif self.op == "reset":
                 if iface == "lo":
-                    nmci.process.run(["ip", "addr", "flush", iface])
-                    nmci.process.run(["ip", "addr", "add", "127.0.0.1/8", "dev", iface])
-                    nmci.process.run(["ip", "addr", "add", "::1/128", "dev", iface])
+                    nmci.process.run(["ip", "addr", "flush", iface], ignore_stderr=True)
+                    nmci.process.run(
+                        ["ip", "addr", "add", "127.0.0.1/8", "dev", iface],
+                        ignore_stderr=True,
+                    )
+                    nmci.process.run(
+                        ["ip", "addr", "add", "::1/128", "dev", iface],
+                        ignore_stderr=True,
+                    )
                 else:
                     nmci.veth.reset_hwaddr_nmcli(iface)
                     # Why oh why was eth0 filtered out?
