@@ -35,6 +35,7 @@ if [ "$cmd" == "install" ]; then
         set +x
     fi
 elif [ "$cmd" == "envsetup" ]; then
+    touch /tmp/keep_old_behave
     cp /etc/shadow /etc/shadow.backup
     bash -x prepare/envsetup.sh setup "$@"
     mv /etc/shadow.backup /etc/shadow
