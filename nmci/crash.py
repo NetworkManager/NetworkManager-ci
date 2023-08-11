@@ -227,7 +227,9 @@ def wait_faf_complete(context, dump_dir):
 
         if not reported_faf_lab and os.path.isfile(f"{dump_dir}/reported_to"):
             # embed content of reported_to for debug purposes
-            nmci.process.run_stdout(f"cat {dump_dir}/reported_to", shell=True)
+            nmci.process.run_stdout(
+                f"cat {dump_dir}/reported_to", shell=True, as_bytes=True
+            )
             reported_to = nmci.util.file_get_content_simple(f"{dump_dir}/reported_to")
             reported_faf_lab = "faf.lab" in reported_to and "upload" in reported_to
             # if there is no sosreport.log file, crash is already reported in FAF server
