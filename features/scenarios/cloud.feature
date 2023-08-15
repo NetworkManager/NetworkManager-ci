@@ -106,3 +106,59 @@ Feature: nmcli: cloud
     * Mock EC2 IP addresses "172.31.186.249" and "172.31.18.249" for device with MAC address "CC:00:00:00:00:01"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+
+
+    @rhbz2207812
+    @ver+=1.43.10
+    @cloud_ec2_race_with_3_interfaces
+    Scenario: cloud - ec2 - EC2 nm-cloud-setup check race with 3 interfaces
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Prepare simulated test "testX2" device with "192.168.102.11" ipv4 and "2620:53:0:dead" ipv6 dhcp address prefix
+    * Prepare simulated test "testX3" device with "192.168.103.11" ipv4 and "2620:54:0:dead" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Add "ethernet" connection named "conX2" for device "testX2" with options "autoconnect no"
+    * Add "ethernet" connection named "conX3" for device "testX3" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    * Bring "up" connection "conX2"
+    * Bring "up" connection "conX3"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Check "ipv4" address list "192.168.102.11/24" on device "testX2"
+    * Check "ipv4" address list "192.168.103.11/24" on device "testX3"
+    * Mock EC2 metadata for devices with MAC addresses "CC:00:00:00:00:03,CC:00:00:00:00:02"
+    * Mock EC2 CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:01"
+    * Mock EC2 CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:02"
+    * Mock EC2 CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:03"
+    * Mock EC2 IP address "172.31.176.249" for device with MAC address "CC:00:00:00:00:01"
+    * Mock EC2 IP addresses "172.31.176.250" and "172.31.17.250" for device with MAC address "CC:00:00:00:00:02"
+    * Mock EC2 IP addresses "172.31.176.251" and "172.31.17.251" for device with MAC address "CC:00:00:00:00:03"
+    * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX2=CC:00:00:00:00:02;testX3=CC:00:00:00:00:03"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    Then Check "ipv4" address list "192.168.102.11/24 172.31.176.250/20 172.31.17.250/20" on device "testX2" in "2" seconds
+    Then Check "ipv4" address list "192.168.103.11/24 172.31.176.251/20 172.31.17.251/20" on device "testX3" in "2" seconds
+    * Commentary
+      """
+      The order of rules should match the order in the step * Mock EC2 metadata ...
+      In this case, *.251 and then *.251 (CC:...:03 and then CC:...:02)
+      If this is not true in future versions, the check for order can be skipped.
+      """
+    Then "172.31.176.251 .*172.31.176.250 .*172.31.176.251 .*172.31.176.250" is visible with command "ip rule"
+    * Mock EC2 metadata for devices with MAC addresses "CC:00:00:00:00:01,CC:00:00:00:00:02,CC:00:00:00:00:03"
+    * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01;testX2=CC:00:00:00:00:02;testX3=CC:00:00:00:00:03" in background
+    * Expect "<debug> config device CC:00:00:00:00:01: reapply" in children in "10" seconds and kill
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.102.11/24 172.31.176.250/20 172.31.17.250/20" on device "testX2" in "2" seconds
+    Then Check "ipv4" address list "192.168.103.11/24 172.31.176.251/20 172.31.17.251/20" on device "testX3" in "2" seconds
+    * Commentary
+      """
+      The order of rules should match the order in the step * Mock EC2 metadata ...
+      In this case, *.249, *.250 and then *.251 (CC:...:01, CC:...:02 and then CC:...:03)
+      If this is not true in future versions, the check for order can be skipped.
+      If SIGTERM not ignored (regression), table ID for *.249 address will be the same as *.251
+      """
+    Then "172.31.176.249 .*172.31.176.250 .*172.31.176.251 .*172.31.176.249 .*172.31.176.250 .*172.31.176.251" is visible with command "ip rule"
+    * Note the output of "ip rule | grep -F 172.31.176.249 | grep -o ^[0-9]*" as value "testX1"
+    * Note the output of "ip rule | grep -F 172.31.176.250 | grep -o ^[0-9]*" as value "testX2"
+    * Note the output of "ip rule | grep -F 172.31.176.251 | grep -o ^[0-9]*" as value "testX3"
+    Then Check noted values "testX1" and "testX2" are not the same
+    And Check noted values "testX1" and "testX3" are not the same

@@ -1386,6 +1386,8 @@ testmapper:
         feature: cloud
     - cloud_setup_keep_secondary_ips:
         feature: cloud
+    - cloud_ec2_race_with_3_interfaces:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
