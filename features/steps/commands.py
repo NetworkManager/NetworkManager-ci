@@ -676,7 +676,7 @@ def wait_for_children(context):
 
 
 @step('Expect "{pattern}" in children in "{seconds}" seconds')
-def expect_children(context, pattern, seconds):
+def expect_children(context, pattern, seconds, proc_action=None):
     seconds = float(seconds)
     pattern = nmci.misc.str_replace_dict(pattern, context.noted)
     for child in nmci.pexpect.pexpect_service_find_all("child"):
@@ -690,6 +690,8 @@ def expect_children(context, pattern, seconds):
         assert (
             r != 2
         ), f"Child {proc.name} did not output '{pattern}' within {seconds}s:\n{proc.before}"
+        if proc_action is not None:
+            proc_action(proc)
 
 
 @step('Do not expect "{pattern}" in children in "{seconds}" seconds')
@@ -704,6 +706,22 @@ def not_expect_children(context, pattern, seconds):
         assert (
             r != 0
         ), f"Child {proc.name} has '{pattern}' in output:\n{proc.before}{proc.after}"
+
+
+@step('Expect "{pattern}" in children in "{seconds}" seconds and kill')
+@step(
+    'Expect "{pattern}" in children in "{seconds}" seconds and kill with signal "{signal}"'
+)
+def expect_children_kill(context, pattern, seconds, signal=15):
+    signal = int(signal)
+    expect_children(context, pattern, seconds, lambda p: p.kill(signal))
+
+
+@step("Kill children")
+@step('Kill children with signal "{signal}"')
+def kill_children(context, signal=9):
+    for child in nmci.pexpect.pexpect_service_find_all("child"):
+        child.proc.kill(int(signal))
 
 
 @step("Start following journal")
