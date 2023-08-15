@@ -74,6 +74,8 @@ def execute_cloud_setup(context, provider, map_interfaces=None, background=False
 
     assert provider in nmci.nmutil.NMCS_PROVIDERS
 
+    map_interfaces = nmci.misc.str_replace_dict(map_interfaces, context.noted)
+
     env = {
         "NM_CLOUD_SETUP_LOG": "trace",
         "NM_CLOUD_SETUP_MAP_INTERFACES": map_interfaces,
