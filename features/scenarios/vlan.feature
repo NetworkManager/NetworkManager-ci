@@ -1063,3 +1063,40 @@ Feature: nmcli - vlan
     * Reload connections
     Then "fd01::12/64" is visible with command "ip addr show vlan80" in "10" seconds
     And "172.25.42.1/24" is visible with command "ip addr show vlan80" in "10" seconds
+
+
+    @rhbz2224479
+    @vlan_nic_reconnect_on_link_revive
+    Scenario: autoconnect vlan over bond once bond port link revives - nmstate
+    * Cleanup device "eth1"
+    * Create NM config file "99-ignore_carrier.conf" with content and "restart" NM
+      """
+      [device]
+      match-device=interface-name:*
+      ignore-carrier=no
+      """
+    * Add "ethernet" connection named "eth1*" for device "eth1" with options
+      """
+      connection.autoconnect yes
+      """
+    * Add "vlan" connection named "eth1.42*" for device "eth1.42" with options
+      """
+      connection.autoconnect yes
+      dev eth1
+      vlan.id 42
+      ipv4.method manual
+      ipv4.addresses 192.168.199.254/24
+      """
+    When "eth1.42\s+vlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    When "eth1\s+ethernet\s+connected" is visible with command "nmcli device" in "10" seconds
+    * Execute "ip link set eth1 down"
+    * Execute "ip link set eth1 down"
+    When "eth1.42\s+vlan\s+connected" is not visible with command "nmcli device" in "10" seconds
+    When "eth1\s+ethernet\s+connected" is not visible with command "nmcli device" in "10" seconds
+    * Execute "ip link set eth1 up"
+    * Execute "ip link set eth1 up"
+    Then "eth1.42\s+vlan\s+connected" is visible with command "nmcli device" in "25" seconds
+    Then "eth1\s+ethernet\s+connected" is visible with command "nmcli device" in "25" seconds
+     And "192.168.199.254/24" is visible with command "ip addr show eth1.42"
+     And "192.168.100" is visible with command "ip addr show eth1"
+

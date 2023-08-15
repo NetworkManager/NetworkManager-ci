@@ -1312,6 +1312,8 @@ testmapper:
         feature: vlan
     - vlan_preserve_ip_on_reload:
         feature: vlan
+    - vlan_nic_reconnect_on_link_revive:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate
