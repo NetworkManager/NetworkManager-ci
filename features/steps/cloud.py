@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 from behave import step
+import os
 
 import nmci
 
@@ -67,7 +68,7 @@ def start_test_cloud_meta_mock(context):
 @step(
     'Execute nm-cloud-setup for "{provider}" with mapped interfaces "{map_interfaces}"'
 )
-def execute_cloud_setup(context, provider, map_interfaces=None):
+def execute_cloud_setup(context, provider, map_interfaces=None, background=False):
 
     provider = provider.lower()
 
@@ -105,11 +106,23 @@ def execute_cloud_setup(context, provider, map_interfaces=None):
 
     http_put(".nmtest/providers", provider)
 
-    context.process.run_stdout(
-        "/usr/libexec/nm-cloud-setup",
-        env_extra=env,
-        timeout=120,
-    )
+    if background:
+        nmci.pexpect.pexpect_service(
+            "/usr/libexec/nm-cloud-setup", label="child", env={**os.environ, **env}
+        )
+    else:
+        context.process.run_stdout(
+            "/usr/libexec/nm-cloud-setup",
+            env_extra=env,
+            timeout=120,
+        )
+
+
+@step(
+    'Execute nm-cloud-setup for "{provider}" with mapped interfaces "{map_interfaces}" in background'
+)
+def execute_cloud_setup_in_bg(context, provider, map_interfaces=None, background=True):
+    execute_cloud_setup(context, provider, map_interfaces, background)
 
 
 def _resolve_mac(context, mac):
