@@ -252,13 +252,13 @@ def mock_ec2_mac(context, mac):
     )
 
 
-@step('Mock EC2 metadata for devices with MAC addresses "{mac0}" and "{mac1}"')
-def mock_ec2_macs(context, mac0, mac1):
-    mac0 = _resolve_mac(context, mac0)
-    mac1 = _resolve_mac(context, mac1)
+@step('Mock EC2 metadata for devices with MAC addresses "{macs}"')
+def mock_ec2_macs(context, macs):
+    splitter = " " if " " in macs else ","
+    macs = "\n".join(_resolve_mac(context, mac) for mac in macs.split(splitter))
     http_put_ec2(
         "2018-09-24/meta-data/network/interfaces/macs/",
-        f"{mac0}\n{mac1}",
+        f"{macs}",
     )
 
 
