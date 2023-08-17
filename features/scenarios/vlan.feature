@@ -1098,5 +1098,5 @@ Feature: nmcli - vlan
     Then "eth1.42\s+vlan\s+connected" is visible with command "nmcli device" in "25" seconds
     Then "eth1\s+ethernet\s+connected" is visible with command "nmcli device" in "25" seconds
      And "192.168.199.254/24" is visible with command "ip addr show eth1.42"
-     And "192.168.100" is visible with command "ip addr show eth1"
+     And "192.168.10" is visible with command "ip addr show eth1"
 
