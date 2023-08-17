@@ -2542,6 +2542,8 @@
 
     @rhbz2207878
     @ver+=1.43.11
+    @ver+=1.42.9
+    @ver/rhel/9.2+=1.42.2.8
     @not_enable_ipv6_on_external
     Scenario: NM - ipv6 - do not re-enable IPv6 on the externally connected interface
     * Cleanup execute "echo 0 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
