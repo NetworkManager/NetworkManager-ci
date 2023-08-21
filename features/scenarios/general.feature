@@ -1962,11 +1962,10 @@ Feature: nmcli - general
           """
     * Bring "up" connection "con_general"
     * Execute "contrib/gi/checkpoint.py create 0 --destroy-all --disconnect-new-devices"
-    * Execute "ip link del dummy0"
-    * Execute "nmcli connection modify con_general ipv4.address 192.168.244.5/24"
+    * Delete device "dummy0"
+    * Modify connection "con_general" changing options "ipv4.address 192.168.244.5/24"
     * Execute "contrib/gi/checkpoint.py rollback --last"
-    * Wait for "4" seconds
-    Then "con_general" is visible with command "nmcli -g name con show --active"
+    Then "con_general" is visible with command "nmcli -g name con show --active" in "10" seconds
     Then "dummy0:" is visible with command "ip -o link"
     Then "192.168.244.4/24" is visible with command "ip -o addr show dummy0"
 
