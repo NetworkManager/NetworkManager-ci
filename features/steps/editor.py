@@ -1,6 +1,8 @@
+# pylint: disable=function-redefined,no-name-in-module
+# type: ignore[no-redef]
 import pexpect
 import time
-from behave import step  # pylint: disable=no-name-in-module
+from behave import step
 
 
 @step("Autoconnect warning is shown")

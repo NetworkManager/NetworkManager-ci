@@ -1,4 +1,6 @@
-from behave import step  # pylint: disable=no-name-in-module
+# pylint: disable=function-redefined,no-name-in-module
+# type: ignore[no-redef]
+from behave import step
 
 import nmci
 

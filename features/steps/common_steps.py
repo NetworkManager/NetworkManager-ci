@@ -1,3 +1,5 @@
+# pylint: disable=function-redefined
+# type: ignore[no-redef]
 from behave import step
 
 import nmci

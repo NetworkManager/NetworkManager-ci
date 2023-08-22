@@ -1,8 +1,9 @@
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,no-name-in-module,function-redefined
+# type: ignore[no-redef]
 import time
 import os
 import re
-from behave import step  # pylint: disable=no-name-in-module
+from behave import step
 import nmci
 
 

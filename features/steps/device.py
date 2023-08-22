@@ -1,10 +1,10 @@
-# pylint: disable=function-redefined
-# type: ignore [no-redef]
+# pylint: disable=function-redefined,no-name-in-module
+# type: ignore[no-redef]
 import json
 import pexpect
 import shlex
 import time
-from behave import step, given  # pylint: disable=no-name-in-module
+from behave import step, given
 
 import nmci
 from nmci.util import NM
@@ -20,7 +20,7 @@ def do_device_stuff(context, action, what):
 
 @step('Add a secondary address to device "{device}" within the same subnet')
 def add_secondary_addr_same_subnet(context, device):
-    from netaddr import IPNetwork  # pylint: disable=no-name-in-module
+    from netaddr import IPNetwork
 
     primary_ipn = IPNetwork(
         context.command_output(

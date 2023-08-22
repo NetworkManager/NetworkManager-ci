@@ -1,5 +1,5 @@
-# pylint: disable=function-redefined
-# type: ignore [no-redef]
+# pylint: disable=function-redefined,no-name-in-module
+# type: ignore[no-redef]
 import glob
 import json
 import operator
@@ -9,7 +9,7 @@ import re
 import requests
 import shlex
 import time
-from behave import step  # pylint: disable=no-name-in-module
+from behave import step
 
 import nmci
 

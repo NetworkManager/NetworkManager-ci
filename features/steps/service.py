@@ -1,4 +1,5 @@
 # pylint: disable=no-name-in-module
+# type: ignore[no-redef]
 from behave import step
 import time
 
