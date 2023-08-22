@@ -239,13 +239,18 @@ def create_network_profile_file(context, file):
         priority=nmci.Cleanup.PRIORITY_FILE + 1,
     )
 
+    content = context.text
+    if os.path.isfile(content):
+        with open(content) as f:
+            content = f.read()
+
     with open(file, "w") as f:
-        f.write(context.text)
+        f.write(content)
     assert (
         nmci.process.run_code(["chmod", "600", file]) == 0
     ), f"Unable to set permissions on '{file}'"
 
-    for line in context.text.split("\n"):
+    for line in content.split("\n"):
         if re.match(r"(id|name)=", line, re.IGNORECASE):
             name = line.split("=")[1]
             if name:

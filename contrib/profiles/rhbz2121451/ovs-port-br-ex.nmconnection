@@ -1,0 +1,11 @@
+[connection]
+id=ovs-port-br-ex
+uuid=43575ecf-f90a-464d-8843-9098a69dc599
+type=ovs-port
+autoconnect=false
+interface-name=br-ex
+master=br-ex
+permissions=
+slave-type=ovs-bridge
+
+[ovs-port]

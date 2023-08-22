@@ -1,0 +1,12 @@
+[connection]
+id=ovs-port-phys0
+uuid=a117fb62-a338-4c42-b4a5-6f855cd82dbd
+type=ovs-port
+autoconnect=false
+autoconnect-slaves=1
+interface-name=bond0
+master=br-ex
+permissions=
+slave-type=ovs-bridge
+
+[ovs-port]

@@ -1,0 +1,13 @@
+[connection]
+id=bond-slave-eth1-slave-ovs-clone
+uuid=90e70007-17ac-496a-aae0-6f134e011314
+type=ethernet
+autoconnect-priority=100
+interface-name=eth1
+master=1141ecb1-06e5-4e55-a224-228307d3adc6
+permissions=
+slave-type=bond
+timestamp=1661433563
+
+[ethernet]
+mac-address-blacklist=

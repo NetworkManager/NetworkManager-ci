@@ -1,0 +1,11 @@
+[connection]
+id=bond-slave-eth2
+uuid=7588cca3-1cb6-4213-9b90-956aa77821c2
+type=ethernet
+interface-name=eth2
+master=bond0
+permissions=
+slave-type=bond
+
+[ethernet]
+mac-address-blacklist=
