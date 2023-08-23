@@ -3583,3 +3583,16 @@ Feature: nmcli - general
     #* Suspend and resume via /sys/power
     * Send "wakeup" signal to mocked logind
     Then "testeth0" is visible with command "nmcli c show -a" in "10" seconds
+
+
+    @rhbz2173196
+    @ver+=1.44
+    @mock
+    @nmcli_version_warning
+    Scenario: nmcli - warn at nmcli/running daemon version mismatches
+    Then "nmcli .+ and NetworkManager .+ versions don't match. Restarting NetworkManager is advised." is not visible with command "nmcli 2>&1 >/dev/null"
+    * Mock NetworkManager service
+    * Set version of the mocked NM to "lower"
+    Then "nmcli .+ and NetworkManager .+ versions don't match. Restarting NetworkManager is advised." is visible with command "nmcli 2>&1 >/dev/null"
+    * Set version of the mocked NM to "higher"
+    Then "nmcli .+ and NetworkManager .+ versions don't match. Restarting NetworkManager is advised." is visible with command "nmcli 2>&1 >/dev/null"
