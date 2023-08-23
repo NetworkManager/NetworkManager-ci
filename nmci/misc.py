@@ -224,7 +224,7 @@ class _Misc:
             os.path.getmtime("mapper.json") < os.path.getmtime("mapper.yaml")
         ):
             with open("mapper.yaml", "r") as m_yaml:
-                mapper = yaml.load(m_yaml, Loader=yaml.CSafeLoader)
+                mapper = yaml.load(m_yaml, Loader=yaml.SafeLoader)
             with open("mapper.json", "w") as m_json:
                 json.dump(mapper, m_json)
             return mapper
