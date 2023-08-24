@@ -17,9 +17,9 @@ Feature: nmcli: strongswan
     Then "172.31.70.0/24 .*dev strongswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
     Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS c show strongswan"
-    Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    Then "172.31.70.*/24" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    #Then "172.31.70.1" is visible with command "nmcli -g IP4.GATEWAY d show strongswan1"
+    Then "172.29.100.1/32" is visible with command "nmcli |grep -A 3 'VPN connection'"
+    Then "172.31.70.*/24" is visible with command "nmcli |grep -A 10 'connected to str1'"
+    Then "172.31.70.1" is visible with command "nmcli |grep -A 10 'connected to str1'"
 
 
     @ver+=1.12
@@ -33,9 +33,9 @@ Feature: nmcli: strongswan
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan" for full "130" seconds
     Then "172.31.70.0/24 .*dev strongswan1" is visible with command "ip route"
     Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS c show strongswan"
-    Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    Then "172.31.70.*/24" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    #Then "172.31.70.1" is visible with command "nmcli -g IP4.GATEWAY d show strongswan1"
+    Then "172.29.100.1/32" is visible with command "nmcli |grep -A 3 'VPN connection'"
+    Then "172.31.70.*/24" is visible with command "nmcli |grep -A 10 'connected to str1'"
+    Then "172.31.70.1" is visible with command "nmcli |grep -A 10 'connected to str1'"
 
 
     @ver+=1.12
@@ -60,7 +60,7 @@ Feature: nmcli: strongswan
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
     * Delete connection "strongswan"
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show strongswan" in "10" seconds
-    Then "172.29.100.0/24 .*dev strongswan1" is not visible with command "ip route" in "10" seconds
+    Then "172.29.100.1/32" is not visible with command "nmcli |grep -A 3 'VPN connection'" in "10" seconds
 
 
     @ver+=1.12
@@ -70,6 +70,8 @@ Feature: nmcli: strongswan
     Given Nameserver "172.31.70.1" is set in "20" seconds
     * Add "strongswan" VPN connection named "strongswan" for device "\*"
     * Use user "budulinek" with secret "12345678901234567890" for gateway "172.31.70.1" on Strongswan connection "strongswan"
+    # If this is not set all traffic goes through VPN's DNS only
+    * Modify connection "strongswan" changing options "ipv4.dns-search 'foobar.com'"
     * Bring "up" connection "strongswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
      And Nameserver "8.8.8.8" is set in "5" seconds
@@ -80,7 +82,7 @@ Feature: nmcli: strongswan
      And Nameserver "172.31.70.1" is set
 
 
-     @ver+=1.12
+    @ver+=1.12
     @strongswan
     @strongswan_start_as_secondary
     Scenario: nmcli - strongswan - start as secondary
@@ -94,7 +96,7 @@ Feature: nmcli: strongswan
     Then "str1" is visible with command "nmcli con show -a" in "60" seconds
     Then "172.31.70.0/24 .*dev strongswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show strongswan"
-    Then "IP4.ADDRESS.*172.29.100.1/32" is visible with command "nmcli c show strongswan"
-    Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    Then "172.31.70.*/24" is visible with command "nmcli -g IP4.ADDRESS d show strongswan1"
-    #Then "172.31.70.1" is visible with command "nmcli -g IP4.GATEWAY d show strongswan1"
+    Then "172.29.100.1/32" is visible with command "nmcli -g IP4.ADDRESS c show strongswan"
+    Then "172.29.100.1/32" is visible with command "nmcli |grep -A 3 'VPN connection'"
+    Then "172.31.70.*/24" is visible with command "nmcli |grep -A 10 'connected to str1'"
+    Then "172.31.70.1" is visible with command "nmcli |grep -A 10 'connected to str1'"
