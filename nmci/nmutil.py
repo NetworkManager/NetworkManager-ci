@@ -34,7 +34,7 @@ class _NMUtil:
         )
         if service_pid.returncode == 0:
             pid = int(service_pid.stdout.split("=")[-1])
-        if not pid:
+        if not pid and not self.context_get_nm_stopped():
             pgrep_pid = nmci.process.run("pgrep NetworkManager")
             if pgrep_pid.returncode == 0:
                 pid = int(pgrep_pid.stdout)
@@ -140,6 +140,23 @@ class _NMUtil:
             else:
                 context.nm_restarted = True
 
+    def context_set_nm_stopped(self, context=None, reset=False):
+        if context is None:
+            context = nmci.cext.context
+        if reset:
+            context.nm_stopped = False
+        else:
+            context.nm_stopped = True
+
+    def context_get_nm_stopped(self, context=None):
+        if context is None:
+            context = nmci.cext.context
+        if hasattr(context, "nm_stopped") and context.nm_stopped:
+            ret = True
+        else:
+            ret = False
+        return ret
+
     def reload_NM_connections(self):
         print("reload NM connections")
         nmci.process.nmcli("con reload")
@@ -158,6 +175,7 @@ class _NMUtil:
     def restart_NM_service(self, reset=True, timeout=None):
         print("restart NM service")
         self.context_set_nm_restarted()
+        self.context_set_nm_stopped(reset=True)
         if timeout is None:
             timeout = 15
         timeout = nmci.util.start_timeout(timeout)
@@ -185,6 +203,7 @@ class _NMUtil:
     def stop_NM_service(self, timeout=60):
         print("stop NM service")
         self.context_set_nm_restarted()
+        self.context_set_nm_stopped()
         nmci.cleanup.add_NM_service(operation="start")
         r = nmci.process.systemctl("stop NetworkManager.service", timeout=timeout)
         nmci.cext.context.nm_pid = 0
