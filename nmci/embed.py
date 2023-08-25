@@ -19,6 +19,7 @@ MODULE_NAME_TRANSLATIONS = {
     "Nmutil": "NM Util",
     "Process": "Commands",
     "Cext": "Commands",
+    "Crash": "Crash Detection",
 }
 
 MODULES_TO_SKIP = ["Tags"]
