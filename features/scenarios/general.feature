@@ -1970,6 +1970,27 @@ Feature: nmcli - general
     Then "192.168.244.4/24" is visible with command "ip -o addr show dummy0"
 
 
+    #@RHEL-1526
+    @ver+=1.44.0.4
+    @checkpoint_remove
+    @snapshot_rollback_delete_devices_and_profiles
+    Scenario: NM - general - deleted sw device with --disconnect-new-devices
+    * Execute "contrib/gi/checkpoint.py create 0 --destroy-all --disconnect-new-devices --delete-new-connections"
+    * Add "dummy" connection named "dummy0*" for device "dummy0"
+    * Add "vlan" connection named "dummy0.100*" with options
+        """
+        dev dummy0 id 100
+        ipv4.method manual
+        ipv4.addresses 192.168.1.2/24
+        """
+    When "dummy0.100\s+vlan\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "contrib/gi/checkpoint.py rollback --last"
+    Then "dummy0" is not visible with command "nmcli d"
+    Then "dummy0*" is not visible with command "nmcli c"
+    Then "dummy0.100" is not visible with command "nmcli d"
+    Then "dummy0.100*" is not visible with command "nmcli c"
+
+
     # Skip on broken RHEL8.8
     @rhelver+=8.4
     @x86_64_only

@@ -1839,6 +1839,8 @@ testmapper:
         feature: general
     - snapshot_rollback_deleted:
         feature: general
+    - snapshot_rollback_delete_devices_and_profiles:
+        feature: general
     - macsec_psk:
         feature: general
         tags: gate libnl3
