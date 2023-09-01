@@ -682,7 +682,7 @@ Feature: nmcli - general
     When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "25" seconds
     Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
-    And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
+    And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route" in "5" seconds
     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general" in "70" seconds
     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+src 192.168.99.[0-9]+\s+metric 21" is visible with command "ip r"
 

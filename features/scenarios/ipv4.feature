@@ -25,6 +25,7 @@ Feature: nmcli: ipv4
           ipv4.method manual
           ipv4.addresses 192.168.122.253
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.122.253/32" is visible with command "ip a s eth3"
     Then "dhclient-eth3.pid" is not visible with command "ps aux|grep dhclient"
 
@@ -36,6 +37,7 @@ Feature: nmcli: ipv4
           ipv4.method static
           ipv4.addresses 192.168.122.253
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.122.253/32" is visible with command "ip a s eth3"
 
 
@@ -59,6 +61,7 @@ Feature: nmcli: ipv4
           ipv4.method static
           ipv4.addresses 192.168.122.253/24
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.122.253/24 brd 192.168.122.255" is visible with command "ip a s eth3"
 
 
@@ -122,6 +125,7 @@ Feature: nmcli: ipv4
           ipv4.addresses 192.168.122.253/24
           ipv4.gateway 192.168.122.96
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.122.253/24" is visible with command "ip a s eth3"
     Then "default via 192.168.122.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.253" is visible with command "ip route"
@@ -137,6 +141,7 @@ Feature: nmcli: ipv4
           ipv4.addresses '192.168.22.253/24, 192.168.122.253/16, 192.168.222.253/8'
           ipv4.gateway 192.168.22.96
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.22.253/24" is visible with command "ip a s eth3"
     Then "192.168.122.253/16" is visible with command "ip a s eth3"
     Then "192.168.222.253/8" is visible with command "ip a s eth3"
@@ -218,10 +223,10 @@ Feature: nmcli: ipv4
           ipv4.routes '192.168.5.0/24 192.168.3.11 1'
           ipv4.route-metric 21
           """
-    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "5" seconds
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 22" is visible with command "ip route"
-    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
+    Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route" in "5" seconds
     Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric" is visible with command "ip route"
 
@@ -431,6 +436,8 @@ Feature: nmcli: ipv4
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4_2" in "5" seconds
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth2 weight 5" is visible with command "ip route"
@@ -449,6 +456,7 @@ Feature: nmcli: ipv4
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.12 weight=10, 192.168.5.0/24 192.168.3.11 weight=5'
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev dummy0 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev dummy0 weight 5" is visible with command "ip route"
@@ -824,7 +832,7 @@ Feature: nmcli: ipv4
           ipv4.gateway 192.168.122.1
           ipv4.routes '192.168.1.0/24 192.168.3.11 1'
           """
-    Then "\(connected\)" is visible with command "nmcli device show eth3"
+    Then "\(connected\)" is visible with command "nmcli device show eth3" in "5" seconds
     Then "192.168.3.11\s+dev eth3\s+proto static" is visible with command "ip r"
 
 
@@ -848,7 +856,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns '8.8.8.8, 8.8.4.4'"
     Then Nameserver "8.8.8.8" is set in "10" seconds
     Then Nameserver "8.8.4.4" is set
-    Then Nameserver "192.168.100.1" is set
+    Then Nameserver "192.168.100.1" is set in "5" seconds
 
 
 
@@ -2493,7 +2501,7 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
     * Run child "sleep 10 && ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
     * Run child "nmcli con up con_ipv4"
-    Then "192.168.3.10/24" is visible with command "ip a s testX4"
+    Then "192.168.3.10/24" is visible with command "ip a s testX4" in "5" seconds
      And "192.168.5.0/24 via 192.168.3.11 dev testX4\s+proto static\s+metric 101" is visible with command "ip route"
      # And "namespace 192.168.3.11" is visible with command "cat /etc/resolv.conf" in "10" seconds
      And "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
@@ -2780,6 +2788,7 @@ Feature: nmcli: ipv4
           ipv4.method manual
           ipv4.addresses 172.16.0.2/31
           """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "5" seconds
     Then "172.16.0.2/31" is visible with command "ip a s eth3"
     Then "brd 172.16.0.3" is not visible with command "ip a s eth3"
 
@@ -3432,7 +3441,7 @@ Feature: nmcli: ipv4
           """
     Then "192.168.155.0" is not visible with command "ip -4 route show dev testX" for full "3.5" seconds
     * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "4" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con" in "8" seconds
     Then "192.168.155.0" is visible with command "ip -4 route show dev testX"
 
 

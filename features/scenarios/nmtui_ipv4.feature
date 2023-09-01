@@ -123,7 +123,7 @@ Feature: IPv4 TUI tests
     * In "Addresses" property add "192.168.125.253/24"
     * Set "Gateway" field to "192.168.125.96"
     * Confirm the connection settings
-    Then "192.168.125.253/24" is visible with command "ip a s eth1"
+    Then "192.168.125.253/24" is visible with command "ip a s eth1" in "10" seconds
     Then "default via 192.168.125" is visible with command "ip route"
     Then "192.168.125.0/24 dev eth1" is visible with command "ip route"
 
@@ -141,7 +141,7 @@ Feature: IPv4 TUI tests
     * Set "Gateway" field to "192.168.125.96"
     * Confirm the connection settings
     Then "GATEWAY=192.168.125.96" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    Then "192.168.125.101/24" is visible with command "ip a s eth1"
+    Then "192.168.125.101/24" is visible with command "ip a s eth1" in "10" seconds
     Then "192.168.125.102/24" is visible with command "ip a s eth1"
     Then "192.168.125.103/24" is visible with command "ip a s eth1"
     Then "default via 192.168.125" is visible with command "ip route"
@@ -210,7 +210,7 @@ Feature: IPv4 TUI tests
     * Set "Gateway" field to "192.168.4.1"
     * Add ip route "192.168.2.0/24 192.168.1.11 2"
     * Confirm the connection settings
-    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
+    Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "10" seconds
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is visible with command "ip route"
     Then "192.168.3.0/24 dev eth1\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth1\s+proto static\s+metric 1" is visible with command "ip route"

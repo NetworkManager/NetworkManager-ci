@@ -253,7 +253,7 @@ Feature: nmcli - procedures in documentation
           """
     * Modify connection "bridge0" changing options "connection.autoconnect-slaves 1"
     Then Bring "up" connection "bridge0"
-    Then "bridge0:bridge:connected:bridge0" is visible with command "nmcli -t device"
+    Then "bridge0:bridge:connected:bridge0" is visible with command "nmcli -t device" in "5" seconds
     Then "netA:ethernet:connected:bridge0-port1" is visible with command "nmcli -t device"
     Then "gretap1:iptunnel:connected:bridge0-port2" is visible with command "nmcli -t device"
     Then Execute "ping -c 1 192.0.2.2"
