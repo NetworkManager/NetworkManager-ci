@@ -1926,6 +1926,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.method manual
           ipv4.addresses 192.168.99.1/24
+          ipv4.dad-timeout 0
           """
     * Bring "up" connection "con_ipv4"
     When "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
