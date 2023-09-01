@@ -3103,22 +3103,22 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_con" for device "testX4" with options "ipv4.method auto ipv4.may-fail no"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4"
-    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.1/24,192.168.99.2/24'"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.2/24,192.168.99.3/24'"
     * Bring "up" connection "con_con"
-    Then Check "ipv4" address list "192.168.99.1/24 192.168.99.2/24 /192.168.99.[0-9]+/24$" on device "testX4"
-    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.1/24'"
+    Then Check "ipv4" address list "192.168.99.2/24 192.168.99.3/24 /192.168.99.[0-9]+/24$" on device "testX4"
+    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.2/24'"
     * Bring "up" connection "con_con"
-    Then Check "ipv4" address list "192.168.99.1/24 /192.168.99.[0-9]+/24$" on device "testX4"
-    * Execute "nmcli device modify testX4 +ipv4.addresses '192.168.99.3/24'"
-    Then Check "ipv4" address list "192.168.99.1/24 /192.168.99.[0-9]+/24 /192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
-     And "192.168.99.1/24" is visible with command "ip addr show dev testX4 primary"
-     And "192.168.99.3/24" is visible with command "ip addr show dev testX4 secondary"
+    Then Check "ipv4" address list "192.168.99.2/24 /192.168.99.[0-9]+/24$" on device "testX4"
+    * Execute "nmcli device modify testX4 +ipv4.addresses '192.168.99.4/24'"
+    Then Check "ipv4" address list "192.168.99.2/24 /192.168.99.[0-9]+/24 /192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
+     And "192.168.99.2/24" is visible with command "ip addr show dev testX4 primary"
+     And "192.168.99.4/24" is visible with command "ip addr show dev testX4 secondary"
      And "192.168.99.([0-24-9][0-9]*|3[0-9]+)/24" is visible with command "ip addr show dev testX4 secondary"
     * Execute "nmcli device modify testX4 ipv4.addresses ''"
     Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
-    * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.1/24,192.168.99.2/24,192.168.99.3/24'"
+    * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.2/24,192.168.99.3/24,192.168.99.4/24'"
     * Bring "up" connection "con_con"
-    Then Check "ipv4" address list "192.168.99.1/24 192.168.99.2/24 192.168.99.3/24" on device "testX4"
+    Then Check "ipv4" address list "192.168.99.2/24 192.168.99.3/24 192.168.99.4/24" on device "testX4"
 
 
     @rhbz2132754
