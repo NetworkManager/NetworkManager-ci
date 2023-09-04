@@ -14,14 +14,6 @@ for i in $(seq 1 20); do
     ip netns del $i 2>&1 1>/dev/null
 done
 
-echo "default-lease-time 60;" > /tmp/dhcpd.conf
-echo "max-lease-time 120;" >> /tmp/dhcpd.conf
-echo "subnet 173.16.0.0 netmask 255.255.0.0 {" >> /tmp/dhcpd.conf
-echo "range 173.16.1.2 173.16.20.1;" >> /tmp/dhcpd.conf
-echo "option routers 173.16.1.1;"  >> /tmp/dhcpd.conf
-echo "option domain-name \"voko\";" >> /tmp/dhcpd.conf
-echo "option domain-name-servers 173.16.1.1, 8.8.8.8;}" >> /tmp/dhcpd.conf
-
 START=1
 END=$DHCP_NUM
 
@@ -39,7 +31,7 @@ for ns in $(seq 1 $((NUM_NS))); do
     ip --netns $ns link add t-br0 type bridge
     ip --netns $ns link set t-br0 type bridge stp_state 0
     ip --netns $ns link set t-br0 up
-    ip --netns $ns addr add 173.16.$ns.1/16 dev t-br0
+    ip --netns $ns addr add 173.16.$ns.1/24 dev t-br0
 
     # We might be over total wanted nuber of devs
     if [ $END -gt $NUM_DEVS ]; then
@@ -59,7 +51,17 @@ for ns in $(seq 1 $((NUM_NS))); do
     # Create a lease file and start dhcpd server
     touch /tmp/dhcpd$ns.lease
     echo "starting dhcpd"
-    ip netns exec $ns nice -n -10 dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/dhcpd"$ns"_perf.pid -lf /tmp/dhcpd$ns.lease &
+    cat > /tmp/dhcpd$ns.conf <<EOF
+default-lease-time 60;
+max-lease-time 120;
+subnet 173.16.$ns.0 netmask 255.255.255.0 {
+       range 173.16.$ns.2 173.16.$ns.254;
+       option routers 173.16.$ns.1;
+       option domain-name "voko";
+       option domain-name-servers 173.16.$ns.1;
+}
+EOF
+    ip netns exec $ns nice -n -10 dhcpd -4 -cf /tmp/dhcpd$ns.conf -pf /tmp/dhcpd"$ns"_perf.pid -lf /tmp/dhcpd$ns.lease &
 
     START=$(($START+$DHCP_NUM))
     END=$(($END+$DHCP_NUM))
