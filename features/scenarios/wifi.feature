@@ -31,7 +31,7 @@ Feature: nmcli - wifi
       """
       autoconnect off
       ssid qe-adhoc
-      802-11-wireless.mode" adhoc
+      802-11-wireless.mode adhoc
       ipv4.method shared
       ipv6.method auto
       """
