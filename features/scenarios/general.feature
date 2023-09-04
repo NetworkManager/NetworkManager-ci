@@ -3129,9 +3129,39 @@ Feature: nmcli - general
           [logging]
           level=INFO
           domains=DEFAULT,DHCP4:DEBUG
+          [connection-no-dad]
+          match-device=interface-name:t-a*
+          ipv4.dad-timeout=0
           """
     # * Restart NM  # no need to restart NM, it is stopped and started in the following step
     Then Activate "100" devices in "6" seconds
+
+
+    @rhbz1711215
+    @ver+=1.25 @rhelver+=9
+    @performance
+    @NM_performance_dhcp_on_existing_veths_with_dad
+    Scenario: NM - general - create and activate 100 connections in 6 seconds on existing veths with DAD
+    # We need up to 1/4 of dhcpd servers to be able to handle the amount of
+    # networks in the max time. If we have just one there seems to be some
+    # retransmissions needed in DHCP server so we know nothing about NM performance.
+    * Create NM config file with content
+          """
+          [main]
+          dhcp=internal
+          no-auto-default=*
+          dns=none
+          [device-99-my]
+          match-device=interface-name:t-a*
+          managed=1
+          [logging]
+          level=INFO
+          domains=DEFAULT,DHCP4:DEBUG
+          [connection-no-dad]
+          match-device=interface-name:t-a*
+          ipv4.dad-timeout=3000
+          """
+    Then Activate "100" devices in "10" seconds
 
 
     @rhbz1868982

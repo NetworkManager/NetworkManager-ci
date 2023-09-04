@@ -1967,6 +1967,8 @@ testmapper:
         feature: general
     - NM_performance_dhcp_on_existing_veths:
         feature: general
+    - NM_performance_dhcp_on_existing_veths_with_dad:
+        feature: general
     - nmcli_shows_correct_routes:
         feature: general
     - nmcli_show_gateways:
