@@ -1443,7 +1443,7 @@ Feature: NM: dracut
 
     # dracut bug: https://bugzilla.redhat.com/show_bug.cgi?id=1879014
     @rhbz1879014
-    @rhelver+=9.1 @fedoraver+=38
+    @rhelver+=9.1 @fedoraver-=0
     @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1780,7 +1780,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=8.3 @rhelver+=9.1 @fedoraver+=38
+    @rhelver+=8.3 @rhelver+=9.1 @fedoraver-=0
     @ver+=1.27
     @ver-1.40
     @ver+=1.41.4
@@ -1842,7 +1842,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=9.1 @fedoraver+=38
+    @rhelver+=9.1 @fedoraver-=0
     @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
     @dracut @long
