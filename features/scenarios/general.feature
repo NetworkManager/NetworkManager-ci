@@ -1990,7 +1990,6 @@ Feature: nmcli - general
     @rhbz1433303
     @ver+=1.4.0
     @not_on_aarch64
-    @not_when_no_veths
     @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
@@ -2019,7 +2018,6 @@ Feature: nmcli - general
     @ver/rhel/8+=1.36.0.8
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
-    @not_when_no_veths
     @not_on_aarch64
     @no_config_server
     @logging_info_only @allow_veth_connections
