@@ -1067,13 +1067,16 @@ class _Misc:
         :return: journalctl cursor
         :rtype: str
         """
-        m = nmci.process.run_search_stdout(
-            "journalctl --lines=0 --quiet --show-cursor --system",
-            "^-- cursor: +([^ ].*[^ ]) *\n$",
-            ignore_stderr=True,
-            timeout=15,
-        )
-        return m.group(1)
+        for _ in range(5):
+            m = nmci.process.run_search_stdout(
+                "journalctl --lines=0 --quiet --show-cursor --system",
+                "^-- cursor: +([^ ].*[^ ]) *\n$",
+                ignore_stderr=True,
+                timeout=5,
+            )
+            if m is not None:
+                return m.group(1)
+        assert False, "Unable to get cursor from journalctl"
 
     def journal_send(
         self,
