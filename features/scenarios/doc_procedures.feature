@@ -576,7 +576,8 @@ Feature: nmcli - procedures in documentation
     And Expect "<noted:ethX_ip4>.*www.example.com" in children in "5" seconds
 
 
-    @rhelver+=8.9 @rhelver-9.0
+    @rhelver+=8.9 @rhelver-9.0 @fedoraver-=0
+    @ver-1.44
     @disp
     @doc_transmit_queue_length
     Scenario: docs - Increasing the transmit queue length of a NIC to reduce the number of transmit errors
@@ -589,6 +590,7 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=9.3
+    @ver+=1.44
     @doc_transmit_queue_length
     Scenario: docs - Increasing the transmit queue length of a NIC to reduce the number of transmit errors
     * Doc "Monitoring and managing system status and performance": "Increasing the transmit queue length of a NIC to reduce the number of transmit errors"
