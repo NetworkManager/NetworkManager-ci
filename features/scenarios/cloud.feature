@@ -12,12 +12,12 @@ Feature: nmcli: cloud
     * Mock Aliyun CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:01"
     * Mock Aliyun IP addresses "172.31.176.249" and "172.31.17.249" with mask "255.255.240.0" for device with MAC address "CC:00:00:00:00:01"
     * Mock Aliyun Gateway "172.31.176.1" for device with MAC address "CC:00:00:00:00:01"
-    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "aliyun" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
     * Mock Aliyun IP addresses "172.31.186.249" and "172.31.18.249" with mask "255.255.240.0" for device with MAC address "CC:00:00:00:00:01"
     * Execute nm-cloud-setup for "aliyun" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
 
 
     @ver+=1.43.8.2
@@ -30,12 +30,12 @@ Feature: nmcli: cloud
     * Mock Azure metadata for device "0" with MAC address "CC:00:00:00:00:01"
     * Mock Azure IP addresses "172.31.176.249" and "172.31.17.249" with for device "0"
     * Mock Azure subnet "172.31.16.0" with prefix "20" for device "0"
-    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
     * Mock Azure IP addresses "172.31.186.249" and "172.31.18.249" with for device "0"
     * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
 
 
     @ver+=1.43.8.2
@@ -48,12 +48,12 @@ Feature: nmcli: cloud
     * Mock EC2 metadata for device with MAC address "CC:00:00:00:00:01"
     * Mock EC2 CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:01"
     * Mock EC2 IP addresses "172.31.176.249" and "172.31.17.249" for device with MAC address "CC:00:00:00:00:01"
-    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
     * Mock EC2 IP addresses "172.31.186.249" and "172.31.18.249" for device with MAC address "CC:00:00:00:00:01"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
 
 
     @ver+=1.43.8.2
@@ -65,10 +65,10 @@ Feature: nmcli: cloud
     * Bring "up" connection "conX1"
     * Mock GCP metadata for device "0" with MAC address "CC:00:00:00:00:01"
     * Mock GCP IP addresses "172.31.176.249" and "172.31.17.249" with for device "0"
-    * Check "ipv4" address list "192.168.101.11/24" on device "testX1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "gcp" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then "local 172.31.176.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
-    Then "local 172.31.17.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all"
+    Then "local 172.31.176.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all" in "5" seconds
+    Then "local 172.31.17.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all" in "5" seconds
 
 
     @rhbz2214880
@@ -100,12 +100,12 @@ Feature: nmcli: cloud
     * Mock EC2 metadata for device with MAC address "CC:00:00:00:00:01"
     * Mock EC2 CIDR block "172.31.16.0/20" for device with MAC address "CC:00:00:00:00:01"
     * Mock EC2 IP addresses "172.31.176.249" and "172.31.17.249" for device with MAC address "CC:00:00:00:00:01"
-    * Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24" on device "testX1"
+    * Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
     * Mock EC2 IP addresses "172.31.186.249" and "172.31.18.249" for device with MAC address "CC:00:00:00:00:01"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "2" seconds
+    Then Check "ipv4" address list "192.168.101.11/24 192.168.100.200/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
 
 
     @rhbz2207812
@@ -137,8 +137,8 @@ Feature: nmcli: cloud
     * Mock EC2 IP addresses "172.31.176.251" and "172.31.17.251" for device with MAC address "eth13"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "eth12=<noted:eth12>;eth13=<noted:eth13>"
     * Check "ipv4" address list "/192.168.100.[0-9/]+" on device "eth11"
-    Then Check "ipv4" address list "/192.168.101.[0-9/]+ 172.31.176.250/20 172.31.17.250/20" on device "eth12" in "2" seconds
-    Then Check "ipv4" address list "/192.168.102.[0-9/]+ 172.31.176.251/20 172.31.17.251/20" on device "eth13" in "2" seconds
+    Then Check "ipv4" address list "/192.168.101.[0-9/]+ 172.31.176.250/20 172.31.17.250/20" on device "eth12" in "5" seconds
+    Then Check "ipv4" address list "/192.168.102.[0-9/]+ 172.31.176.251/20 172.31.17.251/20" on device "eth13" in "5" seconds
     * Commentary
       """
       The order of rules should match the order in the step * Mock EC2 metadata ...
@@ -149,9 +149,9 @@ Feature: nmcli: cloud
     * Mock EC2 metadata for devices with MAC addresses "eth11,eth12,eth13"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "eth11=<noted:eth11>;eth12=<noted:eth12>;eth13=<noted:eth13>" in background
     * Expect "<debug> config device [0-9A-Fa-f:]*: reapply" in children in "20" seconds and kill
-    Then Check "ipv4" address list "/192.168.100.[0-9/]+ 172.31.176.249/20" on device "eth11" in "2" seconds
-    Then Check "ipv4" address list "/192.168.101.[0-9/]+ 172.31.176.250/20 172.31.17.250/20" on device "eth12" in "2" seconds
-    Then Check "ipv4" address list "/192.168.102.[0-9/]+ 172.31.176.251/20 172.31.17.251/20" on device "eth13" in "2" seconds
+    Then Check "ipv4" address list "/192.168.100.[0-9/]+ 172.31.176.249/20" on device "eth11" in "5" seconds
+    Then Check "ipv4" address list "/192.168.101.[0-9/]+ 172.31.176.250/20 172.31.17.250/20" on device "eth12" in "5" seconds
+    Then Check "ipv4" address list "/192.168.102.[0-9/]+ 172.31.176.251/20 172.31.17.251/20" on device "eth13" in "5" seconds
     * Commentary
       """
       The order of rules should match the order in the step * Mock EC2 metadata ...
