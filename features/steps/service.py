@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 from behave import step
+import time
 
 import nmci
 
@@ -74,3 +75,48 @@ def stop_nm_and_clean(context, device):
 def pause_restart_check(context, steps):
     nmci.nmutil.context_set_nm_restarted(context)
     context.nm_pid_refresh_count = int(steps) + 1
+
+
+@step("Start NM in valgrind")
+def NM_valgrind_start(context):
+    assert (
+        getattr(context, "nm_valgrind_proc", None) is None
+    ), "NM already running in valgrind"
+    context.nm_valgrind_proc = None
+    nmci.cleanup.add_callback(lambda: NM_valgrind_stop(context), "stop-NM-valgrind")
+    nmci.cleanup.add_NM_service("restart")
+    # do not use nmutil, we do not want cleanup NM start registered
+    nmci.process.systemctl("stop NetworkManager")
+    context.nm_valgrind_proc = nmci.pexpect.pexpect_service(
+        "valgrind --vgdb=yes --leak-check=full --errors-for-leak-kinds=definite --show-leak-kinds=definite --num-callers=99 NetworkManager --no-daemon"
+    )
+    context.nm_pid = 0
+
+    with nmci.util.start_timeout(20, "NM not ready in 20s") as t:
+        while t.loop_sleep(1):
+            if (
+                nmci.process.run_search_stdout(
+                    "nmcli c 2>&1", "not running", shell=True, ignore_returncode=True
+                )
+                is None
+            ):
+                break
+
+
+@step("Stop NM in valgrind")
+def NM_valgrind_stop(context):
+    proc = getattr(context, "nm_valgrind_proc", None)
+    if proc is None:
+        return
+    context.nm_valgrind_proc = None
+    results = ": no data"
+    proc.kill(15)
+    r = proc.expect(["ERROR SUMMARY", nmci.pexpect.TIMEOUT], timeout=5)
+    if r == 1:
+        proc.kill(9)
+        time.sleep(2)
+    proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
+    # proc.before is string between "ERROR SUMMARY" and EOF (excluded).
+    results = proc.before
+    nmci.nmutil.start_NM_service()
+    assert " 0 errors" in results, f"ERROR SUMMARY{results}"

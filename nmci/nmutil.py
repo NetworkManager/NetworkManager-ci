@@ -94,6 +94,18 @@ class _NMUtil:
         return False
 
     def nm_size_kb(self):
+        valgrind = getattr(nmci.cext.context, "nm_valgrind_proc", None)
+        if valgrind is not None:
+            leak_summary = nmci.process.run_stdout(
+                f"vgdb --pid={valgrind.pid} leak_check summary", ignore_stderr=True
+            )
+            still_reachable = int(
+                leak_summary.split("still reachable:")[1]
+                .strip()
+                .split(" ")[0]
+                .replace(",", "")
+            )
+            return int(still_reachable / 1024)
         pid = self.nm_pid()
         if not pid:
             raise nmci.util.ExpectedException(

@@ -2001,8 +2001,9 @@ Feature: nmcli - general
       [keyfile]
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
-    * Restart NM
-    * Wait for "5" seconds
+    * Start NM in valgrind
+    # Wait not needed, step before waits until it NM becomes responsive
+    #* Wait for "5" seconds
     * Execute reproducer "repro_1433303.sh" for "2" times
     * Wait for "10" seconds
     * Note NM memory consumption as value "0"
@@ -2030,10 +2031,10 @@ Feature: nmcli - general
       [keyfile]
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
-    * Restart NM
-    * Execute reproducer "repro_1461643.sh" for "20" times
+    * Start NM in valgrind
+    * Execute reproducer "repro_1461643.sh" for "3" times
     * Note NM memory consumption as value "1"
-    * Execute reproducer "repro_1461643.sh" for "30" times
+    * Execute reproducer "repro_1461643.sh" for "5" times
     * Wait for "5" seconds
     * Note NM memory consumption as value "2"
     * Execute "echo '--------' >> /tmp/mem_consumption"
