@@ -8,7 +8,7 @@ Feature: NM: dracut
     # Scenario:
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le
     @dracut @long
     @dracut_setup
@@ -22,7 +22,7 @@ Feature: NM: dracut
 
 
     @rhbz1710935
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_NFS_root_dhcp
@@ -60,7 +60,7 @@ Feature: NM: dracut
     @rhbz1710935
     @ver/rhel/9+=1.39.11
     @ver+=1.39
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le
     @dracut @long
     @dracut_NM_NFS_root_dhcp_nm_debug
@@ -96,7 +96,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -131,7 +131,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -169,7 +169,7 @@ Feature: NM: dracut
 
     @rhbz1872299
     @ver+=1.25
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_NFS_root_dhcp_vendor_class
@@ -204,7 +204,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.2                                                    |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -241,7 +241,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                  |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -281,7 +281,7 @@ Feature: NM: dracut
 
 
       @rhbz1900260
-      @rhelver+=8.4 @fedoraver+=32
+      @rhelver+=8.4 @fedoraver+=38
       @ver+=1.26.0
       @not_on_ppc64le @skip_in_centos
       @dracut @long
@@ -316,7 +316,7 @@ Feature: NM: dracut
         | check  | nfs_server 192.168.50.1                                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -359,7 +359,7 @@ Feature: NM: dracut
 
 
     @rhbz1961666
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.32
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -396,7 +396,7 @@ Feature: NM: dracut
 
 
     @rhbz1961666
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.36
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -432,7 +432,7 @@ Feature: NM: dracut
 
 
     @rhbz1961666
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.32
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -479,7 +479,7 @@ Feature: NM: dracut
 
 
     @rhbz1961666
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.32
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -527,7 +527,7 @@ Feature: NM: dracut
 
 
     @rhbz1961666
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.36
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -572,7 +572,7 @@ Feature: NM: dracut
       | check  | nfs_server [feed:beef::1]                                              |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -613,7 +613,7 @@ Feature: NM: dracut
 
 
     @rhbz1883958
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29
     @not_on_ppc64le
     @dracut @long
@@ -643,7 +643,7 @@ Feature: NM: dracut
 
 
     @rhbz1879795
-    @rhelver+=8.4 @fedoraver+=32
+    @rhelver+=8.4 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -676,7 +676,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                     |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -707,7 +707,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                  |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -740,7 +740,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                 |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -770,7 +770,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                   |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -800,7 +800,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut
@@ -830,7 +830,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                                    |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -862,7 +862,7 @@ Feature: NM: dracut
 
 
     @rhbz1883958
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -898,7 +898,7 @@ Feature: NM: dracut
 
 
     @rhbz1934122
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.32
     @not_on_ppc64le @skip_in_centos
     @dracut @dracut_remote_NFS_clean @long
@@ -969,7 +969,7 @@ Feature: NM: dracut
 
       @rhbz1934122
       @ver+=1.32
-      @rhelver+=8.3 @fedoraver+=32
+      @rhelver+=8.3 @fedoraver+=38
       @not_on_ppc64le @skip_in_centos
       @dracut @dracut_remote_NFS_clean @long
       @dracut_NM_NFS_remote_rootfs_connection_var2
@@ -1030,7 +1030,7 @@ Feature: NM: dracut
 
 
     @rhbz1854323
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_NFS_root_nfs_ip_auto6
@@ -1057,7 +1057,7 @@ Feature: NM: dracut
 
 
     @rhbz1854323
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1085,7 +1085,7 @@ Feature: NM: dracut
 
 
     @rhbz1879795
-    @rhelver+=8.4 @fedoraver+=32
+    @rhelver+=8.4 @fedoraver+=38
     @ver+=1.25.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1118,7 +1118,7 @@ Feature: NM: dracut
 
     @rhbz1840989
     @ver+=1.25
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_NFS_root_nfs_ipv6_disable
@@ -1155,7 +1155,7 @@ Feature: NM: dracut
     #########
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_iSCSI_netroot_dhcp
@@ -1185,7 +1185,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                               |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1219,7 +1219,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                   |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.36.0
     @x86_64_only @skip_in_centos
     @dracut @long
@@ -1254,7 +1254,7 @@ Feature: NM: dracut
       | check  | mount_root_type ext3                                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1313,7 +1313,7 @@ Feature: NM: dracut
 
 
     @rhbz1627820
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le
     @dracut @long
@@ -1353,7 +1353,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                   |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1400,7 +1400,7 @@ Feature: NM: dracut
     #############
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le
     @dracut @long
     @dracut_NM_bond_over_2_ifaces_rr
@@ -1443,7 +1443,7 @@ Feature: NM: dracut
 
     # dracut bug: https://bugzilla.redhat.com/show_bug.cgi?id=1879014
     @rhbz1879014
-    @rhelver+=9.1 @fedoraver+=32
+    @rhelver+=9.1 @fedoraver+=38
     @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1489,7 +1489,7 @@ Feature: NM: dracut
     ########
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver-=1.24
     @not_on_ppc64le
     @dracut @long
@@ -1521,7 +1521,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.5                              |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le
     @dracut @long
@@ -1556,7 +1556,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.5                              |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver-=1.24
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1603,7 +1603,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.9                                  |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1654,7 +1654,7 @@ Feature: NM: dracut
 
 
     @rhbz1879003
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.27
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1691,7 +1691,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.33                                 |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver-=1.24
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1740,7 +1740,7 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.55.13                                |
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1780,7 +1780,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=8.3 @rhelver+=9.1 @fedoraver+=32
+    @rhelver+=8.3 @rhelver+=9.1 @fedoraver+=38
     @ver+=1.27
     @ver-1.40
     @ver+=1.41.4
@@ -1842,7 +1842,7 @@ Feature: NM: dracut
 
 
     @rhbz2092215
-    @rhelver+=9.1 @fedoraver+=32
+    @rhelver+=9.1 @fedoraver+=38
     @ver+=1.41.4
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1924,7 +1924,7 @@ Feature: NM: dracut
     ############
 
 
-    @rhelver+=8.3 @fedoraver+=32
+    @rhelver+=8.3 @fedoraver+=38
     @dracut_teardown
     Scenario: NM - dracut tests cleanup
     * Execute "cd contrib/dracut; . ./setup.sh; { time test_clean; }"
