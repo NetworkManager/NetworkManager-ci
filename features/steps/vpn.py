@@ -1,4 +1,6 @@
 # pylint: disable=unused-argument,line-too-long
+import os
+import shutil
 import time
 from behave import step  # pylint: disable=no-name-in-module
 import nmci
@@ -18,13 +20,22 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
 )
 def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
     cert_path = nmci.util.base_dir("contrib/openvpn/")
+    tmp_dir = nmci.util.tmp_dir() + "/"
+    cert_tmp = tmp_dir + os.path.basename(cert_path + cert)
+    key_tmp = tmp_dir + os.path.basename(cert_path + key)
+    ca_file_tmp = tmp_dir + os.path.basename(cert_path + ca_file)
+
+    nmci.cleanup.add_file(cert_tmp, key_tmp, ca_file_tmp)
+    shutil.copyfile(cert_path + cert, cert_tmp)
+    shutil.copyfile(cert_path + key, key_tmp)
+    shutil.copyfile(cert_path + ca_file, ca_file_tmp)
 
     vpn_data = {
         "tunnel-mtu": "1400",
-        "key": cert_path + key,
+        "key": key_tmp,
         "connection-type": "tls",
-        "ca": cert_path + ca_file,
-        "cert": cert_path + cert,
+        "ca": ca_file_tmp,
+        "cert": cert_tmp,
         "remote": gateway,
         "cert-pass-flags": "0",
     }
