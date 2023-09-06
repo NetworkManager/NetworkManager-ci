@@ -1068,12 +1068,15 @@ class _Misc:
         :rtype: str
         """
         for _ in range(5):
-            m = nmci.process.run_search_stdout(
-                "journalctl --lines=0 --quiet --show-cursor --system",
-                "^-- cursor: +([^ ].*[^ ]) *\n$",
-                ignore_stderr=True,
-                timeout=5,
-            )
+            try:
+                m = nmci.process.run_search_stdout(
+                    "journalctl --lines=0 --quiet --show-cursor --system",
+                    "^-- cursor: +([^ ].*[^ ]) *\n$",
+                    ignore_stderr=True,
+                    timeout=5,
+                )
+            except subprocess.TimeoutExpired:
+                continue
             if m is not None:
                 return m.group(1)
         assert False, "Unable to get cursor from journalctl"
