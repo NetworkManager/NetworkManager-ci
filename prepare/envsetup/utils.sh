@@ -251,6 +251,16 @@ get_online_state() {
     for i in {1..20}; do
         nmcli general | tee --append - /tmp/nmcli_general | grep -q "^connected" && return 0
         echo "get online state #$i failed"
+        (( i % 10 )) || {
+            echo "After crash reset:";
+            python3 -c "import nmci; nmci.crash.after_crash_reset()";
+            continue;
+        }
+        (( i % 5 )) || {
+            echo "Wait for testeth0";
+            python3 -c "import nmci; nmci.veth.wait_for_testeth0()";
+            continue;
+        }
         sleep 1
     done
     return 1
