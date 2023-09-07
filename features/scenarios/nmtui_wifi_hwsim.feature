@@ -49,7 +49,7 @@ Feature: WIFI TUI tests
 
 
 
-    @rhelver-=7 @fedoraver+=32
+    @rhelver-=7 @fedoraver-32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa1psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA1-PSK network straight
@@ -80,7 +80,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @rhelver-=7 @fedoraver+=32
+    @rhelver-=7 @fedoraver-32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa2psk_network
     Scenario: nmtui - wifi_hwsim - connect to WPA2-PSK network straight
@@ -207,7 +207,7 @@ Feature: WIFI TUI tests
     Then "wlan0\s+wifi\s+disconnected" is visible with command "nmcli device"
 
 
-    @rhelver-=7 @fedoraver+=32
+    @rhelver-=7 @fedoraver-32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_wo_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection without autoconnect
@@ -248,7 +248,7 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @rhelver-=7 @fedoraver+=32
+    @rhelver-=7 @fedoraver-32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_activate_with_autoconnect
     Scenario: nmtui - wifi_hwsim - activate connection with autoconnect

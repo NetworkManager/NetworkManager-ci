@@ -3261,7 +3261,7 @@ Feature: nmcli - general
 
 
     @rhbz2158328
-    @rhelver-=8
+    @rhelver-=8 @ver/fedora-
     @ver+=1.43.2
     @apply_link_settings
     Scenario: NM - general - apply and reapply link settings

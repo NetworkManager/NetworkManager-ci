@@ -1303,6 +1303,7 @@ Feature: nmcli - ethernet
 
     @rhbz2134569
     @ver+=1.40.4 @rhelver-=8
+    @ver/fedora-
     @prepare_patched_netdevsim
     @ethtool_multiple_options_in_profile_file
     Scenario: nmcli - ethernet - check if correct ethtool options are configured in ifcfg file
