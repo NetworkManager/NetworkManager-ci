@@ -661,7 +661,6 @@
           - p4p1_0.101
       """
     * Execute "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
-    * Start following journal
     * Write file "/tmp/sriov_dont_disable_on_acitvation_fail.yaml" with content
       """
       interfaces:
@@ -676,6 +675,6 @@
              max-tx-rate: 200
       """
     Then "max-tx-rate desire '200', current '0'" is visible with command "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
-    And "connected" is visible with command "nmcli -g GENERAL.STATE device show p4p1_0"
-    And "connected" is visible with command "nmcli -g GENERAL.STATE device show p4p1_0.101"
+    And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0" in "5" seconds
+    And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0.101" in "5" seconds
     And Check slave "p4p1_0.101" in bond "bond0" in proc
