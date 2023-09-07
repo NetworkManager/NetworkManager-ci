@@ -8,6 +8,20 @@ import nmci
 
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
+    """
+    Setup Libreswan for a given mode and DH group.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    :param mode: mode of the connection
+    :type mode: str
+    :param dh_group: DH group
+    :type dh_group: str
+    :param phase1_al: phase1 algorithm, defaults to "aes"
+    :type phase1_al: str, optional
+    :param phase2_al: phase2 algorithm, defaults to None
+    :type phase2_al: str, optional
+    """
     RC = nmci.process.run_code(
         f"MODE={mode} sh prepare/libreswan.sh",
         shell=True,
@@ -20,6 +34,12 @@ def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
 
 
 def teardown_libreswan(context):
+    """
+    Teardown Libreswan.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.process.run_stdout("sh prepare/libreswan.sh teardown", ignore_stderr=True)
     print("Attach Libreswan logs")
     journal_log = nmci.misc.journal_show(
@@ -34,6 +54,16 @@ def teardown_libreswan(context):
 
 
 def setup_openvpn(context, tags):
+    """
+    Setup OpenVPN server and client for a given mode and DH group.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    :param tags: list of tags
+    :type tags: list
+    :return: OpenVPN server process
+    :rtype: pexpect.spawn
+    """
     nmci.process.run_stdout(
         "chcon -R system_u:object_r:usr_t:s0 contrib/openvpn/sample-keys/"
     )
@@ -83,6 +113,12 @@ def setup_openvpn(context, tags):
 
 
 def setup_strongswan(context):
+    """
+    Setup Strongswan.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     RC = nmci.process.run_code(
         "sh prepare/strongswan.sh", ignore_stderr=True, timeout=60
     )
@@ -92,10 +128,30 @@ def setup_strongswan(context):
 
 
 def teardown_strongswan(context):
+    """
+    Teardown Strongswan
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.process.run_stdout("sh prepare/strongswan.sh teardown", ignore_stderr=True)
 
 
 def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
+    """
+    Setup Racoon for a given mode and DH group.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    :param mode: mode of the connection
+    :type mode: str
+    :param dh_group: DH group
+    :type dh_group: str
+    :param phase1_al: phase1 algorithm, defaults to "aes"
+    :type phase1_al: str, optional
+    :param phase2_al: phase2 algorithm, defaults to None
+    :type phase2_al: str, optional
+    """
     nmci.veth.wait_for_testeth0()
     if context.arch == "s390x":
         nmci.process.run_stdout(
@@ -131,10 +187,22 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
 
 
 def teardown_racoon(context):
+    """
+    Teardown Racoon.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.process.run_stdout("sh prepare/racoon.sh teardown")
 
 
 def setup_hostapd(context):
+    """
+    Setup hostapd.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.veth.wait_for_testeth0()
     if context.arch != "s390x":
         # Install under RHEL7 only
@@ -166,14 +234,24 @@ def setup_hostapd(context):
 
 
 def teardown_hostapd(context):
+    """
+    Teardown hostapd.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.process.run_stdout("sh prepare/hostapd_wired.sh teardown", ignore_stderr=True)
     nmci.veth.wait_for_testeth0()
 
 
 def setup_pkcs11(context):
     """
+    Setup SoftHSM2 token, key and cert for 802.1x testing.
     Don't touch token, key or cert if they're already present in order
     to avoid SoftHSM errors. No teardown for this reason, too.
+
+    :param context: behave context
+    :type context: behave.runner.Context
     """
     install_packages = []
     if not shutil.which("softhsm2-util"):
@@ -218,6 +296,12 @@ def setup_pkcs11(context):
 
 
 def wifi_rescan(context):
+    """
+    Rescan for wireless networks.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     if "wpa2-psk" in nmci.process.nmcli_force("dev wifi list").stdout:
         return
     print("Commencing wireless network rescan")
@@ -235,6 +319,14 @@ def wifi_rescan(context):
 
 
 def setup_hostapd_wireless(context, args=None):
+    """
+    Setup hostapd for wireless testing.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    :param args: additional arguments for hostapd_wireless.sh, defaults to None
+    :type args: list, optional
+    """
     nmci.veth.wait_for_testeth0()
     if context.arch != "s390x":
         # Install under RHEL7 only
@@ -265,6 +357,12 @@ def setup_hostapd_wireless(context, args=None):
 
 
 def teardown_hostapd_wireless(context):
+    """
+    Teardown hostapd for wireless testing.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    """
     nmci.process.run_stdout(
         "sh prepare/hostapd_wireless.sh teardown",
         ignore_stderr=True,

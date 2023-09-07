@@ -17,6 +17,11 @@ def __getattr__(attr):
 
 
 class With:
+    """
+    Helper class to allow WithPrefix and WithNamespace to be used
+    interchangeably with strings.
+    """
+
     def __init__(self, cmd):
         self.cmd = cmd
 
@@ -49,6 +54,10 @@ class With:
 
 
 class WithShell(With):
+    """
+    Helper class to allow WithShell to be used interchangeably with strings.
+    """
+
     def __init__(self, cmd):
         self.cmd = cmd
 
@@ -57,6 +66,10 @@ class WithShell(With):
 
 
 class WithPrefix(With):
+    """
+    Helper class to allow WithPrefix to be used interchangeably with strings.
+    """
+
     def __init__(self, prefix, cmd):
         self.cmd = cmd
         self.prefix = prefix
@@ -66,11 +79,19 @@ class WithPrefix(With):
 
 
 class WithNamespace(WithPrefix):
+    """
+    Helper class to allow WithNamespace to be used interchangeably with strings.
+    """
+
     def __init__(self, namespace, cmd):
         super().__init__(["ip", "netns", "exec", namespace], cmd)
 
 
 class PopenCollect:
+    """
+    Wrapper around :code:`subprocess.Popen` that collects stdout and stderr.
+    """
+
     def __init__(self, proc, argv=None, argv_real=None, shell=None):
         self.proc = proc
         self.argv = argv
@@ -81,7 +102,12 @@ class PopenCollect:
         self.stderr = b""
 
     def read_and_poll(self):
+        """
+        Read stdout and stderr and poll for returncode.
 
+        :returns: returncode or None if process is still running
+        :rtype: int or None
+        """
         if self.returncode is None:
             c = self.proc.poll()
             if self.proc.stdout is not None:
@@ -95,6 +121,14 @@ class PopenCollect:
         return self.returncode
 
     def read_and_wait(self, timeout=None):
+        """
+        Read stdout and stderr and wait for returncode.
+
+        :param timeout: timeout in seconds
+        :type timeout: float
+        :returns: returncode or None if process is still running
+        :rtype: int or None
+        """
         xtimeout = nmci.util.start_timeout(timeout)
         while True:
             c = self.read_and_poll()
@@ -108,6 +142,14 @@ class PopenCollect:
                 pass
 
     def terminate_and_wait(self, timeout_before_kill=5):
+        """
+        Terminate process and wait for returncode.
+
+        :param timeout_before_kill: timeout in seconds before sending SIGKILL
+        :type timeout_before_kill: float
+        :returns: returncode or None if process is still running
+        :rtype: int or None
+        """
         self.proc.terminate()
         if self.read_and_wait(timeout=timeout_before_kill) is not None:
             return
@@ -116,6 +158,10 @@ class PopenCollect:
 
 
 class _Process:
+    """
+    Helper class to run commands and check their output.
+    """
+
     def __init__(self):
         self.With = With
         self.WithShell = WithShell
@@ -128,7 +174,6 @@ class _Process:
         self.exec = _Exec(self)
 
     def _run_prepare_args(self, argv, shell, env, env_extra, namespace):
-
         if namespace:
             argv = WithNamespace(namespace, argv)
 
@@ -166,7 +211,30 @@ class _Process:
         stderr=subprocess.PIPE,
         namespace=None,
     ):
+        """
+        Run a command and return a PopenCollect object. The PopenCollect object
+        can be used to read stdout and stderr and to wait for the process to
+        finish.
 
+        :param argv: command to run
+        :type argv: str or list
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param stdout: stdout for the command, defaults to subprocess.PIPE
+        :type stdout: file, optional
+        :param stderr: stderr for the command, defaults to subprocess.PIPE
+        :type stderr: file, optional
+        :param namespace: namespace for the command, defaults to None
+        :type namespace: str, optional
+        :returns: PopenCollect object
+        :rtype: PopenCollect
+        """
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra, namespace
         )
@@ -183,7 +251,17 @@ class _Process:
         return PopenCollect(proc, argv=argv, argv_real=argv_real, shell=shell)
 
     def raise_results(self, argv, header, result):
+        """
+        Helper function to raise an exception containing output of the command.
 
+        :param argv: command to run
+        :type argv: str or list
+        :param header: header for the exception
+        :type header: str
+        :param result: result of the command
+        :type result: RunResult
+        :raises Exception: exception containing output of the command
+        """
         argv_real = self._run_prepare_args(argv, False, None, None, None)[1]
 
         argv_str = " ".join(
@@ -306,6 +384,40 @@ class _Process:
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
+        """
+        Run a command and check its output. If the command fails, or
+        prints anything to stderr, an exception is raised. Otherwise, a RunResult
+        object is returned.
+
+        :param argv: command to run
+        :type argv: str or list
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 5
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to True
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to False
+        :type ignore_stderr: bool, optional
+        :param stdout: stdout for the command, defaults to subprocess.PIPE
+        :type stdout: file, optional
+        :param stderr: stderr for the command, defaults to subprocess.PIPE
+        :type stderr: file, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :param namespace: namespace for the command, defaults to None
+        :type namespace: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
+        """
         return self._run(
             argv,
             shell=shell,
@@ -338,6 +450,37 @@ class _Process:
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
+        """
+        Run a command and return its stdout. If the command fails, or prints
+        anything to stderr, an exception is raised.
+
+        :param argv: command to run
+        :type argv: str or list
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param as_bytes: return stdout as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 5
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to False
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to False
+        :type ignore_stderr: bool, optional
+        :param stderr: stderr for the command, defaults to subprocess.PIPE
+        :type stderr: file, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :param namespace: namespace for the command, defaults to None
+        :type namespace: str, optional
+        :returns: stdout of the command
+        :rtype: str or bytes
+        """
         return self._run(
             argv,
             shell=shell,
@@ -369,6 +512,35 @@ class _Process:
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
+        """
+        Run a command and return its returncode. If the command fails, or prints
+        anything to stderr, an exception is raised.
+
+        :param argv: command to run
+        :type argv: str or list
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 5
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to True
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to False
+        :type ignore_stderr: bool, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :param namespace: namespace for the command, defaults to None
+        :type namespace: str, optional
+        :returns: returncode of the command
+        :rtype: int
+        """
         return self._run(
             argv,
             shell=shell,
@@ -402,6 +574,40 @@ class _Process:
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
+        """
+        Run a command and search its stdout for a pattern. If the command fails, or
+        prints anything to stderr, an exception is raised. Otherwise, a RunResult
+        object is returned.
+
+        :param argv: command to run
+        :type argv: str or list
+        :param pattern: pattern to search for
+        :type pattern: str or bytes or re.Pattern
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param timeout: timeout for the command, defaults to 5
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to False
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to False
+        :type ignore_stderr: bool, optional
+        :param stderr: stderr for the command, defaults to subprocess.PIPE
+        :type stderr: file, optional
+        :param pattern_flags: pattern_flags for the command, defaults to re.DOTALL | re.MULTILINE
+        :type pattern_flags: int, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :param namespace: namespace for the command, defaults to None
+        :type namespace: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
+        """
         # autodetect based on the pattern
         if isinstance(pattern, bytes):
             as_bytes = True
@@ -440,6 +646,34 @@ class _Process:
         ignore_stdout_error=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
+        """
+        Run :code:`nmcli` command and check its output. If the command fails, or prints
+        anything to stderr, an exception is raised. Otherwise, a RunResult
+        object is returned.
+
+        :param argv: nmcli arguments added to the command's execution
+        :type argv: str or list
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 60
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to False
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to False
+        :type ignore_stderr: bool, optional
+        :param ignore_stdout_error: ignore stdout error of the command, defaults to False
+        :type ignore_stdout_error: bool, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
+        """
         nmcli_argv = WithPrefix(["nmcli"], argv)
 
         result = self._run(
@@ -487,6 +721,12 @@ class _Process:
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
+        """
+        Run :code:`nmcli` command and check its output. If the command fails, or prints
+        anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+        This function is used for commands that are expected to fail, but we want to check
+        the output anyway.
+        """
         nmcli_argv = WithPrefix(["nmcli"], argv)
 
         return self._run(
@@ -517,6 +757,31 @@ class _Process:
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
     ):
+        """
+        Run :code:`systemctl` command and check its output. If the command fails, or prints
+        anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+
+        :param argv: systemctl arguments added to the command's execution
+        :type argv: str or list
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 60
+        :type timeout: int, optional
+        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to True
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to True
+        :type ignore_stderr: bool, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
+        """
         s_argv = WithPrefix(["systemctl"], argv)
 
         return self._run(

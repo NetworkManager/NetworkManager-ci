@@ -8,10 +8,15 @@ def __getattr__(attr):
 
 
 class _NMUtil:
-
     DEFAULT_TIMEOUT = 10
 
     def get_metered(self):
+        """
+        Retrieves metered property from NetworkManager.
+
+        :return: metered property
+        :rtype: int
+        """
         return nmci.dbus.get_property(
             bus_name="org.freedesktop.NetworkManager",
             object_path="/org/freedesktop/NetworkManager",
@@ -21,12 +26,24 @@ class _NMUtil:
         )
 
     def get_ethernet_devices(self):
+        """
+        List all ethernet devices that are available in NetworkManager.
+
+        :return: list of all available ethernet devices
+        :rtype: list[str]
+        """
         devs = nmci.process.nmcli("-g DEVICE,TYPE dev").strip().split("\n")
         ETHERNET = ":ethernet"
         eths = [d.replace(ETHERNET, "") for d in devs if d.endswith(ETHERNET)]
         return eths
 
     def nm_pid(self):
+        """
+        Retrieves NM process ID from system.
+
+        :return: process id of NetworkManager
+        :rtype: int
+        """
         pid = 0
         service_pid = nmci.process.systemctl(
             "show -pMainPID NetworkManager.service",
@@ -41,6 +58,20 @@ class _NMUtil:
         return pid
 
     def wait_for_nm_pid(self, timeout=DEFAULT_TIMEOUT, old_pid=0, do_assert=True):
+        """
+        Waits for NetworkManager process to start and return its PID.
+
+        :param timeout: maximum wait time, defaults to DEFAULT_TIMEOUT
+        :type timeout: int, optional
+        :param old_pid: old PID of NetworkManager process, defaults to 0
+        :type old_pid: int, optional
+        :param do_assert: if True, method will raise an exception if NM is not running, defaults to True
+        :type do_assert: bool, optional
+        :raises nmci.util.ExpectedException: NetworkManager is still running with old PID
+        :raises nmci.util.ExpectedException: NetworkManager is not running in "timeout" seconds
+        :return: PID of NetworkManager process
+        :rtype: int
+        """
         # If old_pid is non-zero, wait_for_nm_pid may exit wit 0
         timeout = nmci.util.start_timeout(timeout)
         pid = 0
@@ -60,6 +91,17 @@ class _NMUtil:
         return pid
 
     def wait_for_nm_bus(self, timeout=DEFAULT_TIMEOUT, do_assert=True):
+        """
+        Waits for NetworkManager bus to start.
+
+        :param timeout: maximum wait time, defaults to DEFAULT_TIMEOUT
+        :type timeout: int, optional
+        :param do_assert: if True, method will raise an exception if NM bus is not running, defaults to True
+        :type do_assert: bool, optional
+        :raises nmci.util.ExpectedException: NetworkManager bus is not running in "timeout" seconds
+        :return: True, if NM bus is running
+        :rtype: bool
+        """
         busctl_argv = [
             "busctl",
             "call",
@@ -94,6 +136,12 @@ class _NMUtil:
         return False
 
     def nm_size_kb(self):
+        """
+        Get the memory size of NetworkManager process in KB.
+
+        :return: memory size of NetworkManager process in KB
+        :rtype: int
+        """
         valgrind = getattr(nmci.cext.context, "nm_valgrind_proc", None)
         if valgrind is not None:
             try:
@@ -122,12 +170,19 @@ class _NMUtil:
         return memsize
 
     def context_set_nm_restarted(self, context=None, reset=False):
-        # Set context.nm_restarted, which indicates that NetworkManager
-        # service was restarted during the test.
-        #
-        # Note that this parameter is currently not used anywhere,
-        # but it might be useful for detecting whether a PID change
-        # was expected or not (crash).
+        """
+        Set context.nm_restarted, which indicates that NetworkManager
+        service was restarted during the test.
+
+        Note that this parameter is currently not used anywhere,
+        but it might be useful for detecting whether a PID change
+        was expected or not (crash).
+
+        :param context: behave context
+        :type context: behave.runner.Context
+        :param reset: reset the context.nm_restarted flag, defaults to False
+        :type reset: bool, optional
+        """
         if context is None:
             context = nmci.cext.context
         if context is not None:
@@ -155,10 +210,19 @@ class _NMUtil:
         return ret
 
     def reload_NM_connections(self):
+        """
+        Wrapper around :code:`nmcli con reload`.
+        """
         print("reload NM connections")
         nmci.process.nmcli("con reload")
 
     def reload_NM_service(self, synchronous=False):
+        """
+        Reloads the running NM service.
+
+        :param synchronous: If True, method will wait for NM to finish reloading, defaults to False
+        :type synchronous: bool, optional
+        """
         print("reload NM service")
         if synchronous:
             # ExecReload= uses busctl and waits for a response.
@@ -170,6 +234,16 @@ class _NMUtil:
         self.wait_for_nm_bus(0)
 
     def restart_NM_service(self, reset=True, timeout=None):
+        """
+        Restarts the running NM service, or resets NM from failed state if `reset=True` is passed.
+
+        :param reset: If True, NM will be restarted from failed state, defaults to True
+        :type reset: bool, optional
+        :param timeout: Maximum wait time for restart to happen, defaults to 15
+        :type timeout: int, optional
+        :return: True, if NM restarted successfully
+        :rtype: bool
+        """
         print("restart NM service")
         self.context_set_nm_restarted()
         self.context_set_nm_stopped(reset=True)
@@ -184,6 +258,18 @@ class _NMUtil:
         assert r.returncode == 0, f"systemctl start NetworkManager failed with {r}"
 
     def start_NM_service(self, pid_wait=True, reset=True, timeout=None):
+        """
+        Starts the NM service.
+
+        :param pid_wait: If True, method will wait for NM to finish starting, defaults to True
+        :type pid_wait: bool, optional
+        :param reset: If True, NM will be started from failed state, defaults to True
+        :type reset: bool, optional
+        :param timeout: Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+        :type timeout: int, optional
+        :return: True, if NM started successfully
+        :rtype: bool
+        """
         print("start NM service")
         self.context_set_nm_restarted()
         if timeout is None:
@@ -198,6 +284,12 @@ class _NMUtil:
             self.wait_for_nm_bus(timeout)
 
     def stop_NM_service(self, timeout=60):
+        """
+        Stops the NM service.
+
+        :return: True, if NM stopped successfully
+        :rtype: bool
+        """
         print("stop NM service")
         self.context_set_nm_restarted()
         self.context_set_nm_stopped()
@@ -207,6 +299,14 @@ class _NMUtil:
         assert r.returncode == 0, f"systemctl stop NetworkManager failed with {r}"
 
     def reboot_NM_service(self, timeout=None):
+        """
+        Reboots the NM service.
+
+        :param timeout: Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+        :type timeout: int, optional
+        :return: True, if NM rebooted successfully
+        :rtype: bool
+        """
         timeout = nmci.util.start_timeout(timeout)
 
         self.stop_NM_service(timeout=timeout)
@@ -274,6 +374,15 @@ class _NMUtil:
         self.start_NM_service(timeout=timeout)
 
     def do_NM_service(self, operation, timeout=None):
+        """
+        Executes a given operation on the NM service.
+
+        :param operation: operation to execute
+        :type operation: str
+        :param timeout: Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+        :type timeout: int, optional
+        :raises AssertionError: invalid operation
+        """
         if operation == "reload":
             assert timeout is None
             self.reload_NM_service(synchronous=True)
@@ -293,6 +402,17 @@ class _NMUtil:
         dev_obj_path,
         interface_name="org.freedesktop.NetworkManager.Device",
     ):
+        """
+        Retrieve all properties for a given device from dbus.
+
+        :param dev_obj_path: device path
+        :type dev_obj_path: str
+        :param interface_name: name of the bus interface,
+            defaults to "org.freedesktop.NetworkManager.Device"
+        :type interface_name: str, optional
+        :return: all properties of the device in dbus
+        :rtype: Glib.Variant
+        """
         dev_obj_path = nmci.dbus.object_path_norm(
             dev_obj_path, "/org/freedesktop/NetworkManager/Devices"
         )
@@ -309,6 +429,17 @@ class _NMUtil:
         ac_obj_path,
         interface_name="org.freedesktop.NetworkManager.Connection.Active",
     ):
+        """
+        Retrieve all properties for a given active connection from dbus.
+
+        :param ac_obj_path: path to the active connection
+        :type ac_obj_path: str
+        :param interface_name: name of the bus interface,
+            defaults to "org.freedesktop.NetworkManager.Connection.Active"
+        :type interface_name: str, optional
+        :return: all properties of the connection from dbus
+        :rtype: Glib.Variant
+        """
         ac_obj_path = nmci.dbus.object_path_norm(
             ac_obj_path, "/org/freedesktop/NetworkManager/ActiveConnection"
         )
@@ -325,6 +456,17 @@ class _NMUtil:
         settings_obj_path,
         interface_name="org.freedesktop.NetworkManager.Settings.Connection",
     ):
+        """
+        Retrieves all properties of a given connection setting from dbus.
+
+        :param settings_obj_path: path to the connection setting
+        :type settings_obj_path: str
+        :param interface_name: name of the bus interface,
+            defaults to "org.freedesktop.NetworkManager.Settings.Connection"
+        :type interface_name: str, optional
+        :return: all properties of the specific connection setting from dbus
+        :rtype: Glib.Variant
+        """
         settings_obj_path = nmci.dbus.object_path_norm(
             settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
         )
@@ -337,6 +479,14 @@ class _NMUtil:
         )
 
     def dbus_get_settings(self, settings_obj_path):
+        """
+        Retrieves all settings of a given connection setting from dbus.
+
+        :param settings_obj_path: path to the connection setting
+        :type settings_obj_path: str
+        :return: all settings of the specific connection setting from dbus
+        :rtype: Glib.Variant
+        """
         settings_obj_path = nmci.dbus.object_path_norm(
             settings_obj_path, "/org/freedesktop/NetworkManager/Settings"
         )
@@ -363,7 +513,18 @@ class _NMUtil:
         return settings
 
     def dbus_get_ip_config(self, dbus_path, addr_family=None):
+        """
+        Retrieves all IP configuration of a given connection setting from dbus.
 
+        :param dbus_path: path to the connection setting
+        :type dbus_path: str
+        :param addr_family: address family, defaults to None
+        :type addr_family: str, optional
+        :raises Exception: address family not specified
+        :raises Exception: address family not detected
+        :return: all IP configuration of the specific connection setting from dbus
+        :rtype: Glib.Variant
+        """
         if isinstance(dbus_path, nmci.util.GLib.Variant):
             assert dbus_path.get_type_string() == "o"
             dbus_path = dbus_path.get_string()
@@ -590,13 +751,28 @@ class _NMUtil:
         uuid=None,
         setting_type=None,
     ):
-        # Call :code:`nmcli connection show` to get a list of profiles. It augments
-        # the result with directly fetched data from D-Bus (the fetched data
-        # is thus not in sync with the data fetched with the nmcli call).
-        #
-        # An alternative might be to use NMClient, which works hard to give
-        # a consistent result from one moment (race-free). That is not done
-        # here, but it also would be a different functionality.
+        """
+        Call :code:`nmcli connection show` to get a list of profiles. It augments
+        the result with directly fetched data from D-Bus (the fetched data
+        is thus not in sync with the data fetched with the nmcli call).
+
+        An alternative might be to use NMClient, which works hard to give
+        a consistent result from one moment (race-free). That is not done
+        here, but it also would be a different functionality.
+
+        :param only_active: only show active connections, defaults to False
+        :type only_active: bool, optional
+        :param without_active_externally: only show active connections that are not activated externally, defaults to False
+        :type without_active_externally: bool, optional
+        :param name: only show connections with this name, defaults to None
+        :type name: str, optional
+        :param uuid: only show connections with this UUID, defaults to None
+        :type uuid: str, optional
+        :param setting_type: only show connections with this type, defaults to None
+        :type setting_type: str, optional
+        :return: list of connections
+        :rtype: list
+        """
         for i in range(100):
             # Fetching multiple parts together is racy. We retry when we
             # suspect a race.
@@ -749,13 +925,24 @@ class _NMUtil:
         device_type=None,
         get_ipaddrs=False,
     ):
-        # Call :code:`nmcli device status` to get a list of profiles. It augments
-        # the result with directly fetched data from D-Bus (the fetched data
-        # is thus not in sync with the data fetched with the nmcli call).
-        #
-        # An alternative might be to use NMClient, which works hard to give
-        # a consistent result from one moment (race-free). That is not done
-        # here, but it also would be a different functionality.
+        """
+        Call :code:`nmcli device status` to get a list of profiles. It augments
+        the result with directly fetched data from D-Bus (the fetched data
+        is thus not in sync with the data fetched with the nmcli call).
+
+        An alternative might be to use NMClient, which works hard to give
+        a consistent result from one moment (race-free). That is not done
+        here, but it also would be a different functionality.
+
+        :param name: only show devices with this name, defaults to None
+        :type name: str, optional
+        :param device_type: only show devices with this type, defaults to None
+        :type device_type: str, optional
+        :param get_ipaddrs: fetch IP addresses for devices, defaults to False
+        :type get_ipaddrs: bool, optional
+        :return: list of devices
+        :rtype: list
+        """
         for i in range(100):
             # Fetching multiple parts together is racy. We retry when we
             # suspect a race.

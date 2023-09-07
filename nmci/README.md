@@ -3019,3 +3019,2373 @@ String represenation of parsed NetworkManager and distro version
 * **Return type**
 
     str
+
+
+# nmutil
+
+
+### nmci.nmutil.connection_show(\*, only_active=False, without_active_externally=False, name=None, uuid=None, setting_type=None)
+Call `nmcli connection show` to get a list of profiles. It augments
+the result with directly fetched data from D-Bus (the fetched data
+is thus not in sync with the data fetched with the nmcli call).
+
+An alternative might be to use NMClient, which works hard to give
+a consistent result from one moment (race-free). That is not done
+here, but it also would be a different functionality.
+
+
+* **Parameters**
+
+    
+    * **only_active** (*bool**, **optional*) – only show active connections, defaults to False
+
+
+    * **without_active_externally** (*bool**, **optional*) – only show active connections that are not activated externally, defaults to False
+
+
+    * **name** (*str**, **optional*) – only show connections with this name, defaults to None
+
+
+    * **uuid** (*str**, **optional*) – only show connections with this UUID, defaults to None
+
+
+    * **setting_type** (*str**, **optional*) – only show connections with this type, defaults to None
+
+
+
+* **Returns**
+
+    list of connections
+
+
+
+* **Return type**
+
+    list
+
+
+
+### nmci.nmutil.context_set_nm_restarted(context=None, reset=False)
+Set context.nm_restarted, which indicates that NetworkManager
+service was restarted during the test.
+
+Note that this parameter is currently not used anywhere,
+but it might be useful for detecting whether a PID change
+was expected or not (crash).
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context*) – behave context
+
+
+    * **reset** (*bool**, **optional*) – reset the context.nm_restarted flag, defaults to False
+
+
+
+### nmci.nmutil.dbus_get_ip_config(dbus_path, addr_family=None)
+Retrieves all IP configuration of a given connection setting from dbus.
+
+
+* **Parameters**
+
+    
+    * **dbus_path** (*str*) – path to the connection setting
+
+
+    * **addr_family** (*str**, **optional*) – address family, defaults to None
+
+
+
+* **Raises**
+
+    
+    * **Exception** – address family not specified
+
+
+    * **Exception** – address family not detected
+
+
+
+* **Returns**
+
+    all IP configuration of the specific connection setting from dbus
+
+
+
+* **Return type**
+
+    Glib.Variant
+
+
+
+### nmci.nmutil.dbus_get_settings(settings_obj_path)
+Retrieves all settings of a given connection setting from dbus.
+
+
+* **Parameters**
+
+    **settings_obj_path** (*str*) – path to the connection setting
+
+
+
+* **Returns**
+
+    all settings of the specific connection setting from dbus
+
+
+
+* **Return type**
+
+    Glib.Variant
+
+
+
+### nmci.nmutil.dbus_props_for_ac(ac_obj_path, interface_name='org.freedesktop.NetworkManager.Connection.Active')
+Retrieve all properties for a given active connection from dbus.
+
+
+* **Parameters**
+
+    
+    * **ac_obj_path** (*str*) – path to the active connection
+
+
+    * **interface_name** (*str**, **optional*) – name of the bus interface,
+    defaults to “org.freedesktop.NetworkManager.Connection.Active”
+
+
+
+* **Returns**
+
+    all properties of the connection from dbus
+
+
+
+* **Return type**
+
+    Glib.Variant
+
+
+
+### nmci.nmutil.dbus_props_for_dev(dev_obj_path, interface_name='org.freedesktop.NetworkManager.Device')
+Retrieve all properties for a given device from dbus.
+
+
+* **Parameters**
+
+    
+    * **dev_obj_path** (*str*) – device path
+
+
+    * **interface_name** (*str**, **optional*) – name of the bus interface,
+    defaults to “org.freedesktop.NetworkManager.Device”
+
+
+
+* **Returns**
+
+    all properties of the device in dbus
+
+
+
+* **Return type**
+
+    Glib.Variant
+
+
+
+### nmci.nmutil.dbus_props_for_setting(settings_obj_path, interface_name='org.freedesktop.NetworkManager.Settings.Connection')
+Retrieves all properties of a given connection setting from dbus.
+
+
+* **Parameters**
+
+    
+    * **settings_obj_path** (*str*) – path to the connection setting
+
+
+    * **interface_name** (*str**, **optional*) – name of the bus interface,
+    defaults to “org.freedesktop.NetworkManager.Settings.Connection”
+
+
+
+* **Returns**
+
+    all properties of the specific connection setting from dbus
+
+
+
+* **Return type**
+
+    Glib.Variant
+
+
+
+### nmci.nmutil.device_status(\*, name=None, device_type=None, get_ipaddrs=False)
+Call `nmcli device status` to get a list of profiles. It augments
+the result with directly fetched data from D-Bus (the fetched data
+is thus not in sync with the data fetched with the nmcli call).
+
+An alternative might be to use NMClient, which works hard to give
+a consistent result from one moment (race-free). That is not done
+here, but it also would be a different functionality.
+
+
+* **Parameters**
+
+    
+    * **name** (*str**, **optional*) – only show devices with this name, defaults to None
+
+
+    * **device_type** (*str**, **optional*) – only show devices with this type, defaults to None
+
+
+    * **get_ipaddrs** (*bool**, **optional*) – fetch IP addresses for devices, defaults to False
+
+
+
+* **Returns**
+
+    list of devices
+
+
+
+* **Return type**
+
+    list
+
+
+
+### nmci.nmutil.do_NM_service(operation, timeout=None)
+Executes a given operation on the NM service.
+
+
+* **Parameters**
+
+    
+    * **operation** (*str*) – operation to execute
+
+
+    * **timeout** (*int**, **optional*) – Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+
+
+
+* **Raises**
+
+    **AssertionError** – invalid operation
+
+
+
+### nmci.nmutil.get_ethernet_devices()
+List all ethernet devices that are available in NetworkManager.
+
+
+* **Returns**
+
+    list of all available ethernet devices
+
+
+
+* **Return type**
+
+    list[str]
+
+
+
+### nmci.nmutil.get_metered()
+Retrieves metered property from NetworkManager.
+
+
+* **Returns**
+
+    metered property
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.nmutil.nm_pid()
+Retrieves NM process ID from system.
+
+
+* **Returns**
+
+    process id of NetworkManager
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.nmutil.nm_size_kb()
+Get the memory size of NetworkManager process in KB.
+
+
+* **Returns**
+
+    memory size of NetworkManager process in KB
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.nmutil.reboot_NM_service(timeout=None)
+Reboots the NM service.
+
+
+* **Parameters**
+
+    **timeout** (*int**, **optional*) – Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+
+
+
+* **Returns**
+
+    True, if NM rebooted successfully
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.nmutil.reload_NM_connections()
+Wrapper around `nmcli con reload`.
+
+
+### nmci.nmutil.reload_NM_service(synchronous=False)
+Reloads the running NM service.
+
+
+* **Parameters**
+
+    **synchronous** (*bool**, **optional*) – If True, method will wait for NM to finish reloading, defaults to False
+
+
+
+### nmci.nmutil.restart_NM_service(reset=True, timeout=None)
+Restarts the running NM service, or resets NM from failed state if reset=True is passed.
+
+
+* **Parameters**
+
+    
+    * **reset** (*bool**, **optional*) – If True, NM will be restarted from failed state, defaults to True
+
+
+    * **timeout** (*int**, **optional*) – Maximum wait time for restart to happen, defaults to 15
+
+
+
+* **Returns**
+
+    True, if NM restarted successfully
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.nmutil.start_NM_service(pid_wait=True, reset=True, timeout=None)
+Starts the NM service.
+
+
+* **Parameters**
+
+    
+    * **pid_wait** (*bool**, **optional*) – If True, method will wait for NM to finish starting, defaults to True
+
+
+    * **reset** (*bool**, **optional*) – If True, NM will be started from failed state, defaults to True
+
+
+    * **timeout** (*int**, **optional*) – Max. wait-time for NM to start, defaults to DEFAULT_TIMEOUT
+
+
+
+* **Returns**
+
+    True, if NM started successfully
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.nmutil.stop_NM_service(timeout=60)
+Stops the NM service.
+
+
+* **Returns**
+
+    True, if NM stopped successfully
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.nmutil.wait_for_nm_bus(timeout=10, do_assert=True)
+Waits for NetworkManager bus to start.
+
+
+* **Parameters**
+
+    
+    * **timeout** (*int**, **optional*) – maximum wait time, defaults to DEFAULT_TIMEOUT
+
+
+    * **do_assert** (*bool**, **optional*) – if True, method will raise an exception if NM bus is not running, defaults to True
+
+
+
+* **Raises**
+
+    **nmci.util.ExpectedException** – NetworkManager bus is not running in “timeout” seconds
+
+
+
+* **Returns**
+
+    True, if NM bus is running
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.nmutil.wait_for_nm_pid(timeout=10, old_pid=0, do_assert=True)
+Waits for NetworkManager process to start and return its PID.
+
+
+* **Parameters**
+
+    
+    * **timeout** (*int**, **optional*) – maximum wait time, defaults to DEFAULT_TIMEOUT
+
+
+    * **old_pid** (*int**, **optional*) – old PID of NetworkManager process, defaults to 0
+
+
+    * **do_assert** (*bool**, **optional*) – if True, method will raise an exception if NM is not running, defaults to True
+
+
+
+* **Raises**
+
+    
+    * **nmci.util.ExpectedException** – NetworkManager is still running with old PID
+
+
+    * **nmci.util.ExpectedException** – NetworkManager is not running in “timeout” seconds
+
+
+
+* **Returns**
+
+    PID of NetworkManager process
+
+
+
+* **Return type**
+
+    int
+
+
+# pexpect
+
+Pexpect helper class for spawning processes and services.
+
+
+### nmci.pexpect.pexpect_service(command, args=[], timeout=30, maxread=2000, logfile=None, cwd=None, env=None, encoding='utf-8', codec_errors='strict', shell=False, label=None, check=False, cleanup_priority=40)
+Spawn a service and return the pexpect object. The service is killed at the end of the scenario.
+If the service is still running, it is killed with SIGTERM first, then with SIGKILL.
+
+
+* **Parameters**
+
+    
+    * **command** (*str*) – command to execute
+
+
+    * **args** (*list**, **optional*) – arguments to the command, defaults to []
+
+
+    * **timeout** (*int**, **optional*) – timeout in seconds, defaults to 30
+
+
+    * **maxread** (*int**, **optional*) – max bytes to read, defaults to 2000
+
+
+    * **logfile** (*file**, **optional*) – logfile to use, defaults to None
+
+
+    * **cwd** (*str**, **optional*) – current working directory, defaults to None
+
+
+    * **env** (*dict**, **optional*) – environment variables, defaults to None
+
+
+    * **encoding** (*str**, **optional*) – encoding to use, defaults to “utf-8”
+
+
+    * **codec_errors** (*str**, **optional*) – codec errors to use, defaults to “strict”
+
+
+    * **shell** (*bool**, **optional*) – use shell, defaults to False
+
+
+    * **label** (*str**, **optional*) – label for the service, defaults to None
+
+
+    * **check** (*bool**, **optional*) – check the return code, defaults to False
+
+
+    * **cleanup_priority** (*int**, **optional*) – priority for the cleanup, defaults to nmci.Cleanup.PRIORITY_PEXPECT_SERVICE
+
+
+
+* **Returns**
+
+    pexpect object
+
+
+
+* **Return type**
+
+    pexpect
+
+
+
+### nmci.pexpect.pexpect_service_find_all(label=None)
+Find all pexpect services with a given label.
+
+
+* **Parameters**
+
+    **label** (*str**, **optional*) – label to search for, defaults to None
+
+
+
+* **Returns**
+
+    list of pexpect services
+
+
+
+* **Return type**
+
+    list
+
+
+
+### nmci.pexpect.pexpect_spawn(command, args=[], timeout=30, maxread=2000, logfile=None, cwd=None, env=None, encoding='utf-8', codec_errors='strict', shell=False, label=None, check=False)
+Spawn a process and return the pexpect object. The process is killed at the end of the step.
+If the process is still running, it is killed with SIGTERM first, then with SIGKILL.
+
+
+* **Parameters**
+
+    
+    * **command** (*str*) – command to execute
+
+
+    * **args** (*list**, **optional*) – arguments to the command, defaults to []
+
+
+    * **timeout** (*int**, **optional*) – timeout in seconds, defaults to 30
+
+
+    * **maxread** (*int**, **optional*) – max bytes to read, defaults to 2000
+
+
+    * **logfile** (*file**, **optional*) – logfile to use, defaults to None
+
+
+    * **cwd** (*str**, **optional*) – current working directory, defaults to None
+
+
+    * **env** (*dict**, **optional*) – environment variables, defaults to None
+
+
+    * **encoding** (*str**, **optional*) – encoding to use, defaults to “utf-8”
+
+
+    * **codec_errors** (*str**, **optional*) – codec errors to use, defaults to “strict”
+
+
+    * **shell** (*bool**, **optional*) – use shell, defaults to False
+
+
+    * **label** (*str**, **optional*) – label for the process, defaults to None
+
+
+    * **check** (*bool**, **optional*) – check the return code, defaults to False
+
+
+
+* **Returns**
+
+    pexpect object
+
+
+
+* **Return type**
+
+    pexpect
+
+
+
+### nmci.pexpect.process_pexpect_spawn()
+Kill all pexpect processes spawned by pexpect_spawn() and pexpect_service().
+
+
+* **Raises**
+
+    **Exception** – if some process failed
+
+
+# prepare
+
+
+### nmci.prepare.setup_libreswan(context, mode, dh_group, phase1_al='aes', phase2_al=None)
+Setup Libreswan for a given mode and DH group.
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context*) – behave context
+
+
+    * **mode** (*str*) – mode of the connection
+
+
+    * **dh_group** (*str*) – DH group
+
+
+    * **phase1_al** (*str**, **optional*) – phase1 algorithm, defaults to “aes”
+
+
+    * **phase2_al** (*str**, **optional*) – phase2 algorithm, defaults to None
+
+
+
+### nmci.prepare.teardown_libreswan(context)
+Teardown Libreswan.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.setup_openvpn(context, tags)
+Setup OpenVPN server and client for a given mode and DH group.
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context*) – behave context
+
+
+    * **tags** (*list*) – list of tags
+
+
+
+* **Returns**
+
+    OpenVPN server process
+
+
+
+* **Return type**
+
+    pexpect.spawn
+
+
+
+### nmci.prepare.setup_strongswan(context)
+Setup Strongswan.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.teardown_strongswan(context)
+Teardown Strongswan
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.setup_racoon(context, mode, dh_group, phase1_al='aes', phase2_al=None)
+Setup Racoon for a given mode and DH group.
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context*) – behave context
+
+
+    * **mode** (*str*) – mode of the connection
+
+
+    * **dh_group** (*str*) – DH group
+
+
+    * **phase1_al** (*str**, **optional*) – phase1 algorithm, defaults to “aes”
+
+
+    * **phase2_al** (*str**, **optional*) – phase2 algorithm, defaults to None
+
+
+
+### nmci.prepare.teardown_racoon(context)
+Teardown Racoon.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.setup_hostapd(context)
+Setup hostapd.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.teardown_hostapd(context)
+Teardown hostapd.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.setup_pkcs11(context)
+Setup SoftHSM2 token, key and cert for 802.1x testing.
+Don’t touch token, key or cert if they’re already present in order
+to avoid SoftHSM errors. No teardown for this reason, too.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.wifi_rescan(context)
+Rescan for wireless networks.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+
+### nmci.prepare.setup_hostapd_wireless(context, args=None)
+Setup hostapd for wireless testing.
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context*) – behave context
+
+
+    * **args** (*list**, **optional*) – additional arguments for hostapd_wireless.sh, defaults to None
+
+
+
+### nmci.prepare.teardown_hostapd_wireless(context)
+Teardown hostapd for wireless testing.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context*) – behave context
+
+
+# process
+
+Helper class to run commands and check their output.
+
+
+### nmci.process.Popen(argv, \*, shell=False, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, stdout=- 1, stderr=- 1, namespace=None)
+Run a command and return a PopenCollect object. The PopenCollect object
+can be used to read stdout and stderr and to wait for the process to
+finish.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **shell** (*bool**, **optional*) – run command in shell, defaults to False
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **stdout** (*file**, **optional*) – stdout for the command, defaults to subprocess.PIPE
+
+
+    * **stderr** (*file**, **optional*) – stderr for the command, defaults to subprocess.PIPE
+
+
+    * **namespace** (*str**, **optional*) – namespace for the command, defaults to None
+
+
+
+* **Returns**
+
+    PopenCollect object
+
+
+
+* **Return type**
+
+    PopenCollect
+
+
+
+### _class_ nmci.process.PopenCollect(proc, argv=None, argv_real=None, shell=None)
+Bases: `object`
+
+Wrapper around `subprocess.Popen` that collects stdout and stderr.
+
+
+#### read_and_poll()
+Read stdout and stderr and poll for returncode.
+
+
+* **Returns**
+
+    returncode or None if process is still running
+
+
+
+* **Return type**
+
+    int or None
+
+
+
+#### read_and_wait(timeout=None)
+Read stdout and stderr and wait for returncode.
+
+
+* **Parameters**
+
+    **timeout** (*float*) – timeout in seconds
+
+
+
+* **Returns**
+
+    returncode or None if process is still running
+
+
+
+* **Return type**
+
+    int or None
+
+
+
+#### terminate_and_wait(timeout_before_kill=5)
+Terminate process and wait for returncode.
+
+
+* **Parameters**
+
+    **timeout_before_kill** (*float*) – timeout in seconds before sending SIGKILL
+
+
+
+* **Returns**
+
+    returncode or None if process is still running
+
+
+
+* **Return type**
+
+    int or None
+
+
+
+### _class_ nmci.process.RunResult(returncode, stdout, stderr)
+Bases: `tuple`
+
+Create new instance of RunResult(returncode, stdout, stderr)
+
+
+#### returncode()
+Alias for field number 0
+
+
+#### stderr()
+Alias for field number 2
+
+
+#### stdout()
+Alias for field number 1
+
+
+### _class_ nmci.process.With(cmd)
+Bases: `object`
+
+Helper class to allow WithPrefix and WithNamespace to be used
+interchangeably with strings.
+
+
+#### get_argv()
+
+#### get_shell()
+
+### _class_ nmci.process.WithNamespace(namespace, cmd)
+Bases: `nmci.process.WithPrefix`
+
+Helper class to allow WithNamespace to be used interchangeably with strings.
+
+
+### _class_ nmci.process.WithPrefix(prefix, cmd)
+Bases: `nmci.process.With`
+
+Helper class to allow WithPrefix to be used interchangeably with strings.
+
+
+#### get_argv()
+
+### _class_ nmci.process.WithShell(cmd)
+Bases: `nmci.process.With`
+
+Helper class to allow WithShell to be used interchangeably with strings.
+
+
+#### get_shell()
+
+### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
+Run `nmcli` command and check its output. If the command fails, or prints
+anything to stderr, an exception is raised. Otherwise, a RunResult
+object is returned.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – nmcli arguments added to the command’s execution
+
+
+    * **as_bytes** (*bool**, **optional*) – return stdout and stderr as bytes, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 60
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to False
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to False
+
+
+    * **ignore_stdout_error** (*bool**, **optional*) – ignore stdout error of the command, defaults to False
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+
+* **Returns**
+
+    RunResult object
+
+
+
+* **Return type**
+
+    RunResult
+
+
+
+### nmci.process.nmcli_force(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+Run `nmcli` command and check its output. If the command fails, or prints
+anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+This function is used for commands that are expected to fail, but we want to check
+the output anyway.
+
+
+### nmci.process.raise_results(argv, header, result)
+Helper function to raise an exception containing output of the command.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **header** (*str*) – header for the exception
+
+
+    * **result** (*RunResult*) – result of the command
+
+
+
+* **Raises**
+
+    **Exception** – exception containing output of the command
+
+
+
+### nmci.process.run(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, stdout=-1, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+Run a command and check its output. If the command fails, or
+prints anything to stderr, an exception is raised. Otherwise, a RunResult
+object is returned.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **shell** (*bool**, **optional*) – run command in shell, defaults to False
+
+
+    * **as_bytes** (*bool**, **optional*) – return stdout and stderr as bytes, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to True
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to False
+
+
+    * **stdout** (*file**, **optional*) – stdout for the command, defaults to subprocess.PIPE
+
+
+    * **stderr** (*file**, **optional*) – stderr for the command, defaults to subprocess.PIPE
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+    * **namespace** (*str**, **optional*) – namespace for the command, defaults to None
+
+
+
+* **Returns**
+
+    RunResult object
+
+
+
+* **Return type**
+
+    RunResult
+
+
+
+### nmci.process.run_code(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, embed_combine_tag=<object object>, namespace=None)
+Run a command and return its returncode. If the command fails, or prints
+anything to stderr, an exception is raised.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **shell** (*bool**, **optional*) – run command in shell, defaults to False
+
+
+    * **as_bytes** (*bool**, **optional*) – return stdout and stderr as bytes, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to True
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to False
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+    * **namespace** (*str**, **optional*) – namespace for the command, defaults to None
+
+
+
+* **Returns**
+
+    returncode of the command
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=RegexFlag.None, embed_combine_tag=<object object>, namespace=None)
+Run a command and search its stdout for a pattern. If the command fails, or
+prints anything to stderr, an exception is raised. Otherwise, a RunResult
+object is returned.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **pattern** (*str** or **bytes** or **re.Pattern*) – pattern to search for
+
+
+    * **shell** (*bool**, **optional*) – run command in shell, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to False
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to False
+
+
+    * **stderr** (*file**, **optional*) – stderr for the command, defaults to subprocess.PIPE
+
+
+    * **pattern_flags** (*int**, **optional*) – pattern_flags for the command, defaults to re.DOTALL | re.MULTILINE
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+    * **namespace** (*str**, **optional*) – namespace for the command, defaults to None
+
+
+
+* **Returns**
+
+    RunResult object
+
+
+
+* **Return type**
+
+    RunResult
+
+
+
+### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+Run a command and return its stdout. If the command fails, or prints
+anything to stderr, an exception is raised.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – command to run
+
+
+    * **shell** (*bool**, **optional*) – run command in shell, defaults to False
+
+
+    * **as_bytes** (*bool**, **optional*) – return stdout as bytes, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to False
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to False
+
+
+    * **stderr** (*file**, **optional*) – stderr for the command, defaults to subprocess.PIPE
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+    * **namespace** (*str**, **optional*) – namespace for the command, defaults to None
+
+
+
+* **Returns**
+
+    stdout of the command
+
+
+
+* **Return type**
+
+    str or bytes
+
+
+
+### nmci.process.systemctl(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+Run `systemctl` command and check its output. If the command fails, or prints
+anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+
+
+* **Parameters**
+
+    
+    * **argv** (*str** or **list*) – systemctl arguments added to the command’s execution
+
+
+    * **as_bytes** (*bool**, **optional*) – return stdout and stderr as bytes, defaults to False
+
+
+    * **timeout** (*int**, **optional*) – timeout for the command, defaults to 60
+
+
+    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+
+
+    * **env** (*dict**, **optional*) – env for the command, defaults to None
+
+
+    * **env_extra** (*dict**, **optional*) – env_extra for the command, defaults to None
+
+
+    * **ignore_returncode** (*bool**, **optional*) – ignore returncode of the command, defaults to True
+
+
+    * **ignore_stderr** (*bool**, **optional*) – ignore stderr of the command, defaults to True
+
+
+    * **embed_combine_tag** (*str**, **optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+
+
+
+* **Returns**
+
+    RunResult object
+
+
+
+* **Return type**
+
+    RunResult
+
+
+# sdresolved
+
+This class provides access to the sd-resolved D-Bus API. It is a singleton
+and can be accessed via the `nmci.sdresolved` module.
+
+
+### nmci.sdresolved.get_link(ifindex)
+Resolve the ifindex to a D-Bus path.
+
+
+* **Parameters**
+
+    **ifindex** (*int** or **str*) – the ifindex to resolve
+
+
+
+* **Returns**
+
+    the resolved D-Bus path
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.sdresolved.link_get_all(ifindex)
+Resolve the ifindex to a D-Bus path,
+and retrieve all DNS addresses, domains, and default routes
+for the given ifindex.
+
+
+* **Parameters**
+
+    **ifindex** (*int** or **str*) – the ifindex to resolve
+
+
+
+* **Returns**
+
+    dict of DNS addresses, domains, and default routes
+
+
+
+* **Return type**
+
+    dict
+
+
+
+### nmci.sdresolved.link_get_default_route(ifindex)
+Resolve the ifindex to a D-Bus path,
+and retrieve the default routes for the given ifindex.
+
+
+* **Parameters**
+
+    **ifindex** (*int** or **str*) – the ifindex to resolve
+
+
+
+* **Raises**
+
+    GLib.Error if the DefaultRoute property is not available
+
+
+
+* **Returns**
+
+    list of default routes
+
+
+
+* **Return type**
+
+    list of str
+
+
+
+### nmci.sdresolved.link_get_dns(ifindex)
+Resolve the ifindex to a D-Bus path,
+and retrieve all DNS addresses for the given ifindex.
+
+
+* **Parameters**
+
+    **ifindex** (*int** or **str*) – the ifindex to resolve
+
+
+
+* **Raises**
+
+    GLib.Error if the DNS property is not available
+
+
+
+* **Returns**
+
+    list of DNS addresses
+
+
+
+* **Return type**
+
+    list of str
+
+
+
+### nmci.sdresolved.link_get_domains(ifindex)
+Resolve the ifindex to a D-Bus path,
+and retrieve all domains.
+
+
+* **Parameters**
+
+    **ifindex** (*int** or **str*) – the ifindex to resolve
+
+
+
+* **Returns**
+
+    list of Domains
+
+
+
+* **Return type**
+
+    list of (str, str)
+
+
+# util
+
+Utility functions. This is a singleton class. Use `nmci.util` to access
+the singleton instance.
+
+
+### _exception_ nmci.util.ExpectedException()
+Bases: `Exception`
+
+Expected exception. We don’t want to just catch blindly all “Exception” types
+but rather only those exceptions where an API is known that it might fail and fails
+with a particular exception type.
+
+Usually, we would thus add various Exception classes that carry specific information
+about the failure reason. However, that is sometimes just cumbersome.
+
+This exception type fills this purpose. It’s not very specific but it’s specific
+enough that we can catch it for functions that are known to have certain failures
+– while not needing to swallow all exceptions.
+
+
+### _class_ nmci.util.FileGetContentResult(data, full_file)
+Bases: `tuple`
+
+Create new instance of FileGetContentResult(data, full_file)
+
+
+#### data()
+Alias for field number 0
+
+
+#### full_file()
+Alias for field number 1
+
+
+### nmci.util.base_dir(\*args)
+
+### nmci.util.binary_to_str(b, binary=None)
+Convert bytes to string. This is the same as bytes_to_str() but it
+also supports returning binary (if the caller accepts it).
+
+
+* **Parameters**
+
+    
+    * **b** (*bytes*) – bytes
+
+
+    * **binary** (*bool**, **optional*) – whether to return binary, defaults to None
+    - None (return string)
+    - False (return string)
+    - True (return binary)
+
+
+
+* **Returns**
+
+    string
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.util.bytes_to_str(s, errors='strict')
+Convert bytes to string.
+
+
+* **Parameters**
+
+    
+    * **s** (*bytes*) – bytes
+
+
+    * **errors** (*str**, **optional*) – errors, defaults to “strict”
+
+
+
+* **Returns**
+
+    string
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.util.compare_strv_list(expected, strv, match_mode='auto', ignore_extra_strv=True, ignore_order=True)
+Compare the `strv` list of strings with `@expected`. If the list differs,
+a ValueError gets raised. Otherwise it return True.
+
+
+* **Parameters**
+
+    
+    * **expected** (*list** or **str*) – the list of expected items. It can be a plain string,
+    or a regex string (see `match_mode`).
+
+
+    * **strv** (*list*) – the string list that we check.
+
+
+    * **match_mode** (*str*) – how the elements in `expected` are compared against `strv`
+    - “plain”: direct string comparison. The default is “plain” if no prefix is given
+    - “regex”: regular expression using re.search(e, s)
+    - “auto”: each element can encode whether to be an optional match (starting
+    with ‘?’), and whether to use regex/plain mode (‘/’ vs. ‘=’).
+
+
+    * **ignore_extra_strv** (*bool*) – if True, extra non-matched elementes in strv are silently accepted
+
+
+    * **ignore_order** (*bool*) – if True, the order is not checked. Otherwise, the
+    elements in `expected` must match in the right order.
+    For example, with `match_mode='plain'`, `expected=['a', '.']`,
+    `strv=['b', 'a']`, this matches when ignoring the order,
+    but fails to match otherwise.
+    An element in `expected` only can match exactly once.
+
+
+
+### nmci.util.consume_list(lst)
+Consume list. This is a generator that consumes a list (removing all elements,
+from the beginning) and returns an iterator for the elements.
+
+
+* **Parameters**
+
+    **lst** (*list*) – list
+
+
+
+* **Returns**
+
+    iterator for the elements
+
+
+
+* **Return type**
+
+    iterator
+
+
+
+### nmci.util.directory_remove(dir_name, recursive=False, do_assert=False)
+Remove directory, ignore if it does not exist.
+
+
+* **Parameters**
+
+    
+    * **dir_name** (*str*) – directory name
+
+
+    * **recursive** (*bool**, **optional*) – remove recursively, defaults to False
+
+
+    * **do_assert** (*bool**, **optional*) – raise exception if directory does not exist, defaults to False
+
+
+
+### nmci.util.dump_memory_stats()
+Dump memory stats. This is useful for debugging purposes. It dumps
+the memory consumption of NetworkManager and the memory consumption of
+the NetworkManager process itself (if it’s running under valgrind).
+
+
+* **Returns**
+
+    a string with memory stats
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.util.dump_status(when)
+Dump status of the system to the log. This is useful for debugging
+purposes. It dumps the status of NetworkManager, systemd-resolved,
+the vethsetup network namespace and the other named network namespaces. It
+also dumps the routing tables and the firewall rules. It’s a lot of
+information, so it’s only dumped when the test fails. It can be
+enabled for all tests by setting the NMCI_DUMP_STATUS environment
+variable to “1”.
+
+
+* **Parameters**
+
+    **when** (*str*) – when to dump the status
+
+
+
+### nmci.util.fd_get_content(file, max_size=None, warn_max_size=True)
+Get content of file. This is a low-level function that reads the file and
+returns the content as bytes. It also returns a flag that indicates whether
+the file was read completely or whether the maximum size was reached.
+
+
+* **Parameters**
+
+    
+    * **file** (*file*) – file
+
+
+    * **max_size** (*int**, **optional*) – maximum size of file, defaults to None
+
+
+    * **warn_max_size** (*bool**, **optional*) – warn if maximum size is reached, defaults to True
+
+
+
+* **Returns**
+
+    content of file
+
+
+
+* **Return type**
+
+    FileGetContentResult
+
+
+
+### nmci.util.file_get_content(file_name, encoding='utf-8', errors='strict', max_size=None, warn_max_size=True)
+Get content of file.
+
+
+* **Parameters**
+
+    
+    * **file_name** (*str*) – file name
+
+
+    * **encoding** (*str**, **optional*) – encoding, defaults to “utf-8”
+
+
+    * **errors** (*str**, **optional*) – errors, defaults to “strict”
+
+
+    * **max_size** (*int**, **optional*) – maximum size of file, defaults to None
+
+
+    * **warn_max_size** (*bool**, **optional*) – warn if maximum size is reached, defaults to True
+
+
+
+* **Returns**
+
+    content of file
+
+
+
+* **Return type**
+
+    FileGetContentResult
+
+
+
+### nmci.util.file_get_content_simple(file_name, as_bytes=False)
+Get content of file. This is a simplified version of file_get_content() that
+returns the content as string or bytes (depending on `as_bytes`) and does not
+return the `full_file` flag. It also does not support `max_size` and
+`warn_max_size`.
+
+
+* **Parameters**
+
+    
+    * **file_name** (*str*) – file name
+
+
+    * **as_bytes** (*bool**, **optional*) – return bytes instead of str, defaults to False
+
+
+
+* **Returns**
+
+    content of file
+
+
+
+* **Return type**
+
+    str or bytes
+
+
+
+### nmci.util.file_remove(file_name, do_assert=False)
+Remove file, ignore if it does not exist.
+
+
+* **Parameters**
+
+    
+    * **file_name** (*str*) – file name
+
+
+    * **do_assert** (*bool**, **optional*) – raise exception if file does not exist, defaults to False
+
+
+
+### nmci.util.file_set_content(file_name, data='')
+Set content of file.
+
+
+* **Parameters**
+
+    
+    * **file_name** (*str*) – file name
+
+
+    * **data** (*str**, **optional*) – data to write, defaults to “”
+
+
+
+### nmci.util.gvariant_to_dict(variant)
+Convert GVariant to dict.
+
+
+* **Parameters**
+
+    **variant** (*GLib.Variant*) – GVariant
+
+
+
+* **Returns**
+
+    dict
+
+
+
+* **Return type**
+
+    dict
+
+
+
+### nmci.util.gvariant_type(s)
+Convert a string to a GVariantType.
+
+
+* **Parameters**
+
+    **s** (*str** or **GLib.VariantType*) – the string to convert
+
+
+
+* **Returns**
+
+    the GVariantType
+
+
+
+* **Return type**
+
+    GLib.VariantType
+
+
+
+### nmci.util.is_verbose()
+Whether NM-ci runs in verbose mode.
+
+
+* **Returns**
+
+    whether NM-ci runs in verbose mode
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.util.nmci_random_seed()
+Return the global random seed. The seed is read from the environment.
+
+
+* **Returns**
+
+    the global random seed.
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.util.random_bool(seed)
+Return a random boolean value.
+
+
+* **Parameters**
+
+    **seed** (*str*) – the seed to use for the random.Random instance.
+
+
+
+* **Returns**
+
+    a random boolean value.
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.util.random_float(seed, minval=0.0, maxval=1.0)
+Return a random float in the range [minval, maxval).
+
+
+* **Parameters**
+
+    
+    * **seed** (*str*) – the seed to use for the random.Random instance.
+
+
+    * **minval** (*float*) – the minimum value of the random float.
+
+
+    * **maxval** (*float*) – the maximum value of the random float.
+
+
+
+* **Returns**
+
+    a random float in the range [minval, maxval).
+
+
+
+* **Return type**
+
+    float
+
+
+
+### nmci.util.random_generator(seed)
+Return a random.Random instance. The instance is seeded with the
+global seed and the given seed. The global seed is read from the
+environment variable NMCI_RANDOM_SEED. If the variable is not set, a
+random seed is generated and stored in a file in the .tmp directory.
+
+
+* **Parameters**
+
+    **seed** (*str*) – the seed to use for the random.Random instance.
+
+
+
+* **Returns**
+
+    a random.Random instance.
+
+
+
+* **Return type**
+
+    random.Random
+
+
+
+### nmci.util.random_int(seed, minval=0, maxval=4294967295)
+Return a random integer in the range [minval, maxval].
+
+
+* **Parameters**
+
+    
+    * **seed** (*str*) – the seed to use for the random.Random instance.
+
+
+    * **minval** (*int*) – the minimum value of the random integer.
+
+
+    * **maxval** (*int*) – the maximum value of the random integer.
+
+
+
+* **Returns**
+
+    a random integer in the range [minval, maxval].
+
+
+
+* **Return type**
+
+    int
+
+
+
+### nmci.util.random_iter_int(seed, minval=0, maxval=4294967295)
+Return an iterator that yields random integers in the range [minval, maxval].
+
+
+* **Parameters**
+
+    
+    * **seed** (*str*) – the seed to use for the random.Random instance.
+
+
+    * **minval** (*int*) – the minimum value of the random integer.
+
+
+    * **maxval** (*int*) – the maximum value of the random integer.
+
+
+
+* **Returns**
+
+    an iterator that yields random integers in the range [minval, maxval].
+
+
+
+* **Return type**
+
+    Iterator[int]
+
+
+
+### nmci.util.set_verbose(value=True)
+Set verbose mode.
+
+
+* **Parameters**
+
+    **value** (*bool**, **optional*) – whether to set verbose mode, defaults to True
+
+
+
+### nmci.util.start_timeout(timeout=None, name=None)
+Start timeout. This is useful for timeouts that are used in a `with`
+statement. It returns a timeout object that can be used to check whether
+the timeout has expired. It also raises an exception if the timeout has expired
+when the with statement ends.
+
+
+* **Parameters**
+
+    
+    * **timeout** (*_Timeout** or **str** or **number**, **optional*) – timeout, defaults to None
+    - _Timeout object (use remaining time)
+    - None (infinity)
+    - str or number (timeout in seconds)
+
+
+    * **name** (*str**, **optional*) – name of timeout, defaults to None
+
+
+
+* **Returns**
+
+    timeout object
+
+
+
+* **Return type**
+
+    _Timeout
+
+
+
+### nmci.util.str_matches(string, pattern)
+Matches “string” with “pattern”.
+
+
+* **Parameters**
+
+    
+    * **string** (*str*) – string
+
+
+    * **pattern** (*str** or **re.Pattern** or **list*) – pattern
+    - a plain string (compared with ==)
+    - a re.Pattern instance (compared with re.Pattern.search())
+    or re._pattern_type on python-=3.6
+    - an interable/list of above.
+
+
+
+* **Returns**
+
+    whether string matches pattern
+
+
+
+* **Return type**
+
+    bool
+
+
+
+### nmci.util.str_to_bytes(s)
+Convert string to bytes.
+
+
+* **Parameters**
+
+    **s** (*str*) – string
+
+
+
+* **Returns**
+
+    bytes
+
+
+
+* **Return type**
+
+    bytes
+
+
+
+### nmci.util.str_whitespace_join(args)
+Join a list of strings at whitespace, but support backslash escaping
+to prevent splitting.
+
+This basically allows to express a string list in one string,
+separated by space. It only supports a minimum of extra escaping,
+to allow a space not be treated as separator. Most backslash
+is treated verbatim.
+
+This allows to write expressions, that themselves might be backslash
+escaped, without requiring additional backslash escaping.
+For example, regexes: [“^.$”, “^ [”] gives the string “^.$ ^[”
+
+
+* **Parameters**
+
+    **args** (*list*) – the list of strings to join
+    The empty list joins to None and not to “”.
+    That’s because [“”] already joins to “”, but we want a unique
+    result for every join (so that it can be reverted). That’s why we
+    don’t return a string for the empty list.
+
+
+
+* **Returns**
+
+    the joined string
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.util.str_whitespace_split(text, remove_empty=True)
+Split a string at whitespace, but support backslash escaping
+to prevent splitting.
+
+This basically allows to express a string list in one string,
+separated by space. It only supports a minimum of extra escaping,
+to allow a space not be treated as separator. Most backslash
+is treated verbatim.
+
+This allows to write expressions, that themselves might be backslash
+escaped, without requiring additional backslash escaping.
+For example, regexes: “^.$ ^[” gives the two regexes [“^.$”, “^ [“]
+
+This will:
+
+    
+    * None gives the empty list [] (so that every input strlist can
+
+        be joined and split again).
+
+
+    * take double backslash “\\” as a single backslash “"
+
+
+    * take escaped space “” as a single space
+
+
+    * take a single whitespace to split the string (the whitespace is removed).
+
+
+    * any other escaped backslash is taken literally.
+
+
+* **Parameters**
+
+    
+    * **text** (*str*) – the string to split
+
+
+    * **remove_empty** (*bool*) – if True, empty tokens are dropped from the result.
+    With `remove_empty=False`, `split(join(strlist))` gives `strlist`.
+
+
+
+* **Returns**
+
+    the list of strings
+
+
+
+* **Return type**
+
+    list
+
+
+
+### nmci.util.tmp_dir(\*args, create_base_dir=True)
+
+### nmci.util.update_udevadm()
+Update udevadm rules and wait for udev to settle. This is useful when
+udev rules are changed and the changes should be applied immediately.
+
+
+* **Raises**
+
+    **nmci.util.ExpectedException** – if udevadm failed
+
+
+
+### nmci.util.util_dir(\*args)
+Get util directory.
+
+
+* **Parameters**
+
+    **args** (*list*) – path components
+
+
+
+* **Returns**
+
+    util directory
+
+
+
+* **Return type**
+
+    str
+
+
+
+### nmci.util.wait_for(callback, timeout=5, poll_sleep_time=0.2, handle_result=None, handle_exception=None, handle_timeout=None, op_name=None)
+Waits for up to “timeout” seconds, with a poll-interval of “poll_sleep_time”.
+
+The main mode of operation is simply that the “callback” raises an exception
+if the thing that we wait for is not yet reached. In that mode,
+- the function retries until timeout or until “callback” does not raise
+- on success, the return value of “callback” is returned.
+- on timeout, the last_exception is re-raised.
+
+You can also pass “handle_result”, “handle_exception” and “handle_timeout”
+callbacks, to modify the behavior.
+
+
+* **Parameters**
+
+    
+    * **callback** (*callable*) – the callback to call.
+
+
+    * **timeout** (*float*) – the timeout in seconds.
+
+
+    * **poll_sleep_time** (*float*) – the poll sleep time in seconds.
+
+
+    * **handle_result** (*callable*) – a callback that is called with the result of the callback.
+
+
+    * **handle_exception** (*callable*) – a callback that is called with the exception raised by the callback.
+
+
+    * **handle_timeout** (*callable*) – a callback that is called with the last exception raised by the callback.
+
+
+    * **op_name** (*str*) – the name of the operation.
+
+
+
+* **Returns**
+
+    the result of the callback.
+
+
+
+* **Return type**
+
+    any
+
+
+# veth
+
+
+### nmci.veth.check_vethsetup()
+Re-run the veth setup while validating its correct execution.
+
+
+### nmci.veth.manage_device(device, rule_name=None)
+Set device mode to ‘managed’.
+
+
+* **Parameters**
+
+    
+    * **device** (*str*) – name of the device
+
+
+    * **rule_name** (*str**, **optional*) – name of the custom udev rule, defaults to None
+
+
+
+### nmci.veth.manage_veths()
+Set the mode to ‘managed’ for all veth devices with names accepted by the regex ‘eth[0-9]\*[0-9]?’.
+
+
+### nmci.veth.reset_hwaddr_nmcli(ifname)
+Reset the link-local address of a given interface.
+
+
+* **Parameters**
+
+    **ifname** (*str*) – name of the device
+
+
+
+### nmci.veth.restore_connections()
+Delete all custom devices besides eth/lo/orig, and recreate testeth connection profiles.
+
+
+### nmci.veth.restore_testeth0()
+Restore the testeth0 configuration.
+
+
+### nmci.veth.teardown_testveth(ns)
+Remove the testveth setup in a given namespace.
+
+
+* **Parameters**
+
+    **ns** (*str*) – namespace identifier
+
+
+
+### nmci.veth.unmanage_veths()
+Removes the `88-veths-\*` udev rule, which sets the mode to “managed”
+for all veth devices with names accepted by the regex `eth[0-9]\*[0-9]?`.
+
+
+### nmci.veth.wait_for_testeth0()
+Wait for the testeth0 connection to sucessfully activate from multiple states.
+
+Possible states:
+
+    
+    * If it does not exist, restore it.
+
+
+    * If it is not running, activate it.
+
+
+    * If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.

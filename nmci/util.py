@@ -15,6 +15,11 @@ def __getattr__(attr):
 
 
 class _Timeout:
+    """
+    Timeout. This is a helper class that can be used to implement timeouts. It is
+    used by :code:`nmci.util.start_timeout()` to implement timeouts.
+    """
+
     def __init__(self, timeout, name=None):
         if name:
             self.full_name = f"Timeout '{name}'"
@@ -46,6 +51,12 @@ class _Timeout:
         ), f"{self.full_name} expired in {self.elapsed_time():.3f}s."
 
     def elapsed_time(self):
+        """
+        Get elapsed time.
+
+        :return: elapsed time
+        :rtype: float
+        """
         return time.monotonic() - self.start_timestamp
 
     def _expired(self, now):
@@ -58,22 +69,39 @@ class _Timeout:
         return True
 
     def expired(self):
+        """
+        Whether timeout is expired.
+
+        :return: whether timeout is expired
+        :rtype: bool
+        """
         return self._expired(now=time.monotonic())
 
     @property
     def was_expired(self):
-        # This returns True, iff self.expired() ever returned True.
-        # Unlike self.expired(), it does not re-evaluate the expiration
-        # based on the current timestamp.
-        #
-        # For that reason, it is a @property and not a function. Because,
-        # the result does not change if called twice in a row (without calling
-        # self.expired() in between).
+        """
+        This returns True, iff :code:`self.expired()` ever returned True.
+        Unlike :code:`self.expired()`, it does not re-evaluate the expiration
+        based on the current timestamp.
+
+        For that reason, it is a @property and not a function. Because,
+        the result does not change if called twice in a row (without calling
+        :code:`self.expired()` in between).
+
+        :return: whether timeout was expired
+        :rtype: bool
+        """
         return self._expired_called and self._is_expired
 
     def remaining_time(self, now=None):
-        # It makes sense to ask how many seconds remains
-        # (to be used as value for another timeout)
+        """
+        It makes sense to ask how many seconds remains (to be used as value for another timeout).
+
+        :param now: current time, defaults to None
+        :type now: float, optional
+        :return: remaining time
+        :rtype: float
+        """
         if now is None:
             now = time.monotonic()
         if self._expiry is None:
@@ -83,12 +111,17 @@ class _Timeout:
         return self._expiry - now
 
     def sleep(self, sleep_time):
-        # sleep "sleep_time" or until the expiry (whatever
-        # comes first).
-        #
-        # Returns False if self was already expired when calling and
-        # no sleeping was done. Otherwise, we slept some time and return
-        # True.
+        """
+        Sleep for "sleep_time" seconds or until the timeout expires (whatever comes first).
+
+        Returns False if self was already expired when calling and no sleeping was done.
+        Otherwise, we slept some time and return True.
+
+        :param sleep_time: sleep time
+        :type sleep_time: float
+        :return: whether timeout expired
+        :rtype: bool
+        """
         now = time.monotonic()
         if self._expired(now):
             return False
@@ -98,6 +131,25 @@ class _Timeout:
         return True
 
     def loop_sleep(self, sleep_time=0.1, at_least_once=True):
+        """
+        Sleep for "sleep_time" seconds or until the timeout expires (whatever comes first).
+
+        The very first call to sleep does not actually sleep. It always returns True and does nothing.
+
+        The idea is that when used with a while loop, that the loop gets run at least once:
+
+        .. code-block:: python
+            timeout = nmci.util.start_timeout(0)
+            while timeout.sleep(1):
+                hi_there()
+
+        :param sleep_time: sleep time, defaults to 0.1
+        :type sleep_time: float, optional
+        :param at_least_once: whether to run the loop at least once, defaults to True
+        :type at_least_once: bool, optional
+        :return: whether to run the loop again
+        :rtype: bool
+        """
         # The very first call to sleep does not actually sleep. It
         # Always returns True and does nothing.
         #
@@ -117,12 +169,21 @@ class _Timeout:
         return self.sleep(sleep_time)
 
     def is_none(self):
-        # timeout=None means no timeout (infinity). It can be useful
-        # to ask @self whether timeout is disabled.
+        """
+        Whether timeout is None (infinity). It can be useful to ask :code:`self` whether
+        timeout is disabled.
+
+        :return: whether timeout is None (infinity)
+        :rtype: bool
+        """
         return self._expiry is None
 
 
 class _Util:
+    """
+    Utility functions. This is a singleton class. Use :code:`nmci.util` to access
+    the singleton instance.
+    """
 
     # like time.CLOCK_BOOTTIME, which only exists since Python 3.7
     CLOCK_BOOTTIME = 7
@@ -132,23 +193,29 @@ class _Util:
         self._is_verbose = False
 
     class ExpectedException(Exception):
-        # We don't want to just catch blindly all "Exception" types
-        # but rather only those exceptions where an API is known that
-        # it might fail and fails with a particular exception type.
-        #
-        # Usually, we would thus add various Exception classes that
-        # carry specific information about the failure reason. However,
-        # that is sometimes just cumbersome.
-        #
-        # This exception type fills this purpose. It's not very specific
-        # but it's specific enough that we can catch it for functions that
-        # are known to have certain failures -- while not needing to swallow
-        # all exceptions.
+        """Expected exception. We don't want to just catch blindly all "Exception" types
+        but rather only those exceptions where an API is known that it might fail and fails
+        with a particular exception type.
+
+        Usually, we would thus add various Exception classes that carry specific information
+        about the failure reason. However, that is sometimes just cumbersome.
+
+        This exception type fills this purpose. It's not very specific but it's specific
+        enough that we can catch it for functions that are known to have certain failures
+        -- while not needing to swallow all exceptions.
+
+        """
+
         pass
 
     @property
     def GLib(self):
+        """
+        Get GLib module.
 
+        :return: GLib module
+        :rtype: module
+        """
         m = getattr(self, "_GLib", None)
         if m is None:
             from gi.repository import GLib
@@ -159,6 +226,12 @@ class _Util:
 
     @property
     def Gio(self):
+        """
+        Get Gio module.
+
+        :return: Gio module
+        :rtype: module
+        """
         m = getattr(self, "_Gio", None)
         if m is None:
             from gi.repository import Gio
@@ -169,6 +242,12 @@ class _Util:
 
     @property
     def NM(self):
+        """
+        Get NM module.
+
+        :return: NM module
+        :rtype: module
+        """
         m = getattr(self, "_NM", None)
         if m is None:
             import gi
@@ -182,6 +261,12 @@ class _Util:
 
     @property
     def JsonGLib(self):
+        """
+        Get JsonGLib module.
+
+        :return: JsonGLib module
+        :rtype: module
+        """
         m = getattr(self, "_JsonGLib", None)
         if m is None:
             import gi
@@ -194,6 +279,14 @@ class _Util:
         return m
 
     def util_dir(self, *args):
+        """
+        Get util directory.
+
+        :param args: path components
+        :type args: list
+        :return: util directory
+        :rtype: str
+        """
         if not hasattr(self, "_util_dir"):
             self._util_dir = os.path.dirname(
                 os.path.realpath(os.path.abspath(__file__))
@@ -202,6 +295,12 @@ class _Util:
 
     @property
     def BASE_DIR(self):
+        """
+        Base directory of NM-ci.
+
+        :return: base directory of NM-ci
+        :rtype: str
+        """
         if not hasattr(self, "_base_dir"):
             self._base_dir = os.path.realpath(self.util_dir(".."))
         return self._base_dir
@@ -217,6 +316,12 @@ class _Util:
 
     @property
     def DEBUG(self):
+        """
+        Whether NM-ci runs in debug mode.
+
+        :return: whether NM-ci runs in debug mode
+        :rtype: bool
+        """
         # Whether "NMCI_DEBUG" environment is set. If yes, NM-ci runs
         # in debug mode.
         v = getattr(self, "_DEBUG", None)
@@ -233,12 +338,32 @@ class _Util:
         return v
 
     def set_verbose(self, value=True):
+        """
+        Set verbose mode.
+
+        :param value: whether to set verbose mode, defaults to True
+        :type value: bool, optional
+        """
         self._is_verbose = value
 
     def is_verbose(self):
+        """
+        Whether NM-ci runs in verbose mode.
+
+        :return: whether NM-ci runs in verbose mode
+        :rtype: bool
+        """
         return self._is_verbose or self.DEBUG
 
     def gvariant_to_dict(self, variant):
+        """
+        Convert GVariant to dict.
+
+        :param variant: GVariant
+        :type variant: GLib.Variant
+        :return: dict
+        :rtype: dict
+        """
         import json
 
         JsonGLib = self.JsonGLib
@@ -246,8 +371,15 @@ class _Util:
         return json.loads(JsonGLib.to_string(j, 0))
 
     def consume_list(self, lst):
-        # consumes the list (removing all elements, from the beginning)
-        # and returns an iterator for the elements.
+        """
+        Consume list. This is a generator that consumes a list (removing all elements,
+        from the beginning) and returns an iterator for the elements.
+
+        :param lst: list
+        :type lst: list
+        :return: iterator for the elements
+        :rtype: iterator
+        """
         while True:
             # Popping at the beginning is probably O(n) so this
             # is not really efficient. Doesn't matter for our uses.
@@ -258,6 +390,20 @@ class _Util:
             yield v
 
     def binary_to_str(self, b, binary=None):
+        """
+        Convert bytes to string. This is the same as bytes_to_str() but it
+        also supports returning binary (if the caller accepts it).
+
+        :param b: bytes
+        :type b: bytes
+        :param binary: whether to return binary, defaults to None
+            - None (return string)
+            - False (return string)
+            - True (return binary)
+        :type binary: bool, optional
+        :return: string
+        :rtype: str
+        """
         assert binary is None or binary is False or binary is True
         if isinstance(b, bytes):
             if binary is True:
@@ -275,6 +421,16 @@ class _Util:
         raise ValueError("Expects bytes")
 
     def bytes_to_str(self, s, errors="strict"):
+        """
+        Convert bytes to string.
+
+        :param s: bytes
+        :type s: bytes
+        :param errors: errors, defaults to "strict"
+        :type errors: str, optional
+        :return: string
+        :rtype: str
+        """
         if isinstance(s, bytes):
             return s.decode("utf-8", errors=errors)
         if isinstance(s, str):
@@ -282,6 +438,14 @@ class _Util:
         raise ValueError("Expects either a str or bytes")
 
     def str_to_bytes(self, s):
+        """
+        Convert string to bytes.
+
+        :param s: string
+        :type s: str
+        :return: bytes
+        :rtype: bytes
+        """
         if isinstance(s, str):
             return s.encode("utf-8")
         if isinstance(s, bytes):
@@ -289,6 +453,20 @@ class _Util:
         raise ValueError("Expects either a str or bytes")
 
     def str_matches(self, string, pattern):
+        """
+        Matches "string" with "pattern".
+
+        :param string: string
+        :type string: str
+        :param pattern: pattern
+            - a plain string (compared with ==)
+            - a re.Pattern instance (compared with re.Pattern.search())
+            or re._pattern_type on python-=3.6
+            - an interable/list of above.
+        :type pattern: str or re.Pattern or list
+        :return: whether string matches pattern
+        :rtype: bool
+        """
         # Matches "string" with "pattern".
         # Pattern can be:
         # - a plain string (compared with ==)
@@ -315,6 +493,22 @@ class _Util:
     )
 
     def start_timeout(self, timeout=None, name=None):
+        """
+        Start timeout. This is useful for timeouts that are used in a :code:`with`
+        statement. It returns a timeout object that can be used to check whether
+        the timeout has expired. It also raises an exception if the timeout has expired
+        when the with statement ends.
+
+        :param timeout: timeout, defaults to None
+            - _Timeout object (use remaining time)
+            - None (infinity)
+            - str or number (timeout in seconds)
+        :type timeout: _Timeout or str or number, optional
+        :param name: name of timeout, defaults to None
+        :type name: str, optional
+        :return: timeout object
+        :rtype: _Timeout
+        """
         # timeout might be:
         #   - _Timeout object (use remaining time)
         #   - None (infinity)
@@ -327,6 +521,20 @@ class _Util:
         max_size=None,
         warn_max_size=True,
     ):
+        """
+        Get content of file. This is a low-level function that reads the file and
+        returns the content as bytes. It also returns a flag that indicates whether
+        the file was read completely or whether the maximum size was reached.
+
+        :param file: file
+        :type file: file
+        :param max_size: maximum size of file, defaults to None
+        :type max_size: int, optional
+        :param warn_max_size: warn if maximum size is reached, defaults to True
+        :type warn_max_size: bool, optional
+        :return: content of file
+        :rtype: FileGetContentResult
+        """
         if max_size is None:
             max_size = 50 * 1024 * 1024
 
@@ -354,6 +562,21 @@ class _Util:
         max_size=None,
         warn_max_size=True,
     ):
+        """Get content of file.
+
+        :param file_name: file name
+        :type file_name: str
+        :param encoding: encoding, defaults to "utf-8"
+        :type encoding: str, optional
+        :param errors: errors, defaults to "strict"
+        :type errors: str, optional
+        :param max_size: maximum size of file, defaults to None
+        :type max_size: int, optional
+        :param warn_max_size: warn if maximum size is reached, defaults to True
+        :type warn_max_size: bool, optional
+        :return: content of file
+        :rtype: FileGetContentResult
+        """
         # Set "encoding" to None to get bytes.
         if encoding is None:
             file = open(file_name, mode="rb")
@@ -365,6 +588,19 @@ class _Util:
             )
 
     def file_get_content_simple(self, file_name, as_bytes=False):
+        """
+        Get content of file. This is a simplified version of file_get_content() that
+        returns the content as string or bytes (depending on :code:`as_bytes`) and does not
+        return the :code:`full_file` flag. It also does not support :code:`max_size` and
+        :code:`warn_max_size`.
+
+        :param file_name: file name
+        :type file_name: str
+        :param as_bytes: return bytes instead of str, defaults to False
+        :type as_bytes: bool, optional
+        :return: content of file
+        :rtype: str or bytes
+        """
         if as_bytes:
             encoding = None
         else:
@@ -374,6 +610,13 @@ class _Util:
         ).data
 
     def file_set_content(self, file_name, data=""):
+        """Set content of file.
+
+        :param file_name: file name
+        :type file_name: str
+        :param data: data to write, defaults to ""
+        :type data: str, optional
+        """
         if isinstance(data, str):
             data = data.encode("utf-8")
         elif isinstance(data, bytes):
@@ -396,6 +639,14 @@ class _Util:
             f.write(data)
 
     def file_remove(self, file_name, do_assert=False):
+        """
+        Remove file, ignore if it does not exist.
+
+        :param file_name: file name
+        :type file_name: str
+        :param do_assert: raise exception if file does not exist, defaults to False
+        :type do_assert: bool, optional
+        """
         try:
             os.remove(file_name)
         except FileNotFoundError:
@@ -403,6 +654,16 @@ class _Util:
                 raise
 
     def directory_remove(self, dir_name, recursive=False, do_assert=False):
+        """
+        Remove directory, ignore if it does not exist.
+
+        :param dir_name: directory name
+        :type dir_name: str
+        :param recursive: remove recursively, defaults to False
+        :type recursive: bool, optional
+        :param do_assert: raise exception if directory does not exist, defaults to False
+        :type do_assert: bool, optional
+        """
         try:
             # Both function might raise FileNotFoundError (ignore if not do_assert).
             # Other Errors (permissions) are not ignnored, they are severe.
@@ -415,6 +676,12 @@ class _Util:
                 raise
 
     def update_udevadm(self):
+        """
+        Update udevadm rules and wait for udev to settle. This is useful when
+        udev rules are changed and the changes should be applied immediately.
+
+        :raises nmci.util.ExpectedException: if udevadm failed
+        """
         # Just wait a bit to have all files correctly written
 
         time.sleep(0.2)
@@ -431,6 +698,19 @@ class _Util:
         time.sleep(0.8)
 
     def dump_status(self, when):
+        """
+        Dump status of the system to the log. This is useful for debugging
+        purposes. It dumps the status of NetworkManager, systemd-resolved,
+        the vethsetup network namespace and the other named network namespaces. It
+        also dumps the routing tables and the firewall rules. It's a lot of
+        information, so it's only dumped when the test fails. It can be
+        enabled for all tests by setting the NMCI_DUMP_STATUS environment
+        variable to "1".
+
+        :param when: when to dump the status
+        :type when: str
+        """
+
         class Echo:
             def __init__(self, args, html_tag=None, escape=True):
                 self.args = args
@@ -624,6 +904,14 @@ class _Util:
         nmci.embed.embed_data("Status " + when, "\n".join(msg), mime_type="text/html")
 
     def dump_memory_stats(self):
+        """
+        Dump memory stats. This is useful for debugging purposes. It dumps
+        the memory consumption of NetworkManager and the memory consumption of
+        the NetworkManager process itself (if it's running under valgrind).
+
+        :return: a string with memory stats
+        :rtype: str
+        """
         if nmci.cext.context.nm_pid is not None:
             try:
                 kb = nmci.nmutil.nm_size_kb()
@@ -648,7 +936,14 @@ class _Util:
             )
 
     def gvariant_type(self, s):
+        """
+        Convert a string to a GVariantType.
 
+        :param s: the string to convert
+        :type s: str or GLib.VariantType
+        :return: the GVariantType
+        :rtype: GLib.VariantType
+        """
         if s is None:
             return None
 
@@ -662,43 +957,74 @@ class _Util:
 
     @property
     def re_Pattern(self):
+        """
+        Get re.Pattern.
+
+        :return: re.Pattern
+        :rtype: re.Pattern
+        """
         if hasattr(re, "Pattern"):
             return re.Pattern
         return re._pattern_type  # pylint: disable=no-member,protected-access
 
     def str_whitespace_join(self, args):
+        """
+        Join a list of strings at whitespace, but support backslash escaping
+        to prevent splitting.
+
+        This basically allows to express a string list in one string,
+        separated by space. It only supports a minimum of extra escaping,
+        to allow a space not be treated as separator. Most backslash
+        is treated verbatim.
+
+        This allows to write expressions, that themselves might be backslash
+        escaped, without requiring additional backslash escaping.
+        For example, regexes: ["^.$", "^ \\["] gives the string "^.$ ^\\ \\["
+
+        :param args: the list of strings to join
+            The empty list joins to None and not to "".
+            That's because [""] already joins to "", but we want a unique
+            result for every join (so that it can be reverted). That's why we
+            don't return a string for the empty list.
+        :type args: list
+        :return: the joined string
+        :rtype: str
+        """
         args = list(args)
         if not args:
-            # The empty list joins to None and not to "".
-            # That's because [""] already joins to "", but we want a unique
-            # result for every join (so that it can be reverted). That's why we
-            # don't return a string for the empty list.
             return None
         return " ".join(a.replace("\\", "\\\\").replace(" ", "\\ ") for a in args)
 
     def str_whitespace_split(self, text, remove_empty=True):
-        # Split the text at whitespace, but support backslash escaping
-        # to prevent splitting.
-        #
-        # This basically allows to express a string list in one string,
-        # separated by space. It only supports a minimum of extra escaping,
-        # to allow a space not be treated as separator. Most backslash
-        # is treated verbatim.
-        # This allows to write expressions, that themselves might be backslash
-        # escaped, without requiring additional backslash escaping.
-        # For example, regexes:
-        #    "^.$ ^\\ \\[" gives the two regexes ["^.$", "^ \\["]
-        #
-        # This will:
-        #   - None gives the empty list [] (so that every input strlist can
-        #     be joined and split again).
-        #   - take double backslash "\\\\" as a single backslash "\\"
-        #   - take escaped space "\\ " as a single space
-        #   - take a single whitespace to split the string (the whitespace is removed).
-        #   - any other escaped backslash is taken literally.
-        #   - if remove_empty=True, empty tokens are dropped from the result.
-        #     With remove_empty=False, split(join(strlist)) gives strlist.
+        """
+        Split a string at whitespace, but support backslash escaping
+        to prevent splitting.
 
+        This basically allows to express a string list in one string,
+        separated by space. It only supports a minimum of extra escaping,
+        to allow a space not be treated as separator. Most backslash
+        is treated verbatim.
+
+        This allows to write expressions, that themselves might be backslash
+        escaped, without requiring additional backslash escaping.
+        For example, regexes: "^.$ ^\\ \\[" gives the two regexes ["^.$", "^ \\["]
+
+        This will:
+            - None gives the empty list [] (so that every input strlist can
+                be joined and split again).
+            - take double backslash "\\\\" as a single backslash "\\"
+            - take escaped space "\\ " as a single space
+            - take a single whitespace to split the string (the whitespace is removed).
+            - any other escaped backslash is taken literally.
+
+        :param text: the string to split
+        :type text: str
+        :param remove_empty: if True, empty tokens are dropped from the result.
+            With :code:`remove_empty=False`, :code:`split(join(strlist))` gives :code:`strlist`.
+        :type remove_empty: bool
+        :return: the list of strings
+        :rtype: list
+        """
         if text is None:
             # None is valid and splits to the empty list. That's a special case
             # so that every strlist can be uniquely joined and split.
@@ -744,24 +1070,31 @@ class _Util:
         ignore_extra_strv=True,
         ignore_order=True,
     ):
-        # Compare the "@strv" list of strings with "@expected". If the list differs,
-        # a ValueError gets raised. Otherwise it return True.
-        #
-        # @expected: the list of expected items. It can be a plain string,
-        #   or a regex string (see @match_mode).
-        # @strv: the string list that we check.
-        # @match_mode: how the elements in @expected are compared against @strv
-        #    - "plain": direct string comparison
-        #    - "regex": regular expression using re.search(e, s)
-        #    - "auto": each element can encode whether to be an optional match (starting
-        #        with '?'), and whether to use regex/plain mode ('/' vs. '=').
-        # @ignore_extra_strv: if True, extra non-matched elementes in strv are silently accepted
-        # @ignore_order: if True, the order is not checked. Otherwise, the
-        #   elements in @expected must match in the right order.
-        #   For example, with match_mode='plain', expected=['a', '.'], strv=['b', 'a'], this
-        #   matches when ignoring the order, but fails to match otherwise.
-        #   An element in @expected only can match exactly once.
+        """
+        Compare the :code:`strv` list of strings with :code:`@expected`. If the list differs,
+        a ValueError gets raised. Otherwise it return True.
 
+        :param expected: the list of expected items. It can be a plain string,
+            or a regex string (see :code:`match_mode`).
+        :type expected: list or str
+        :param strv: the string list that we check.
+        :type strv: list
+        :param match_mode: how the elements in :code:`expected` are compared against :code:`strv`
+            - "plain": direct string comparison. The default is "plain" if no prefix is given
+            - "regex": regular expression using re.search(e, s)
+            - "auto": each element can encode whether to be an optional match (starting
+            with '?'), and whether to use regex/plain mode ('/' vs. '=').
+        :type match_mode: str
+        :param ignore_extra_strv: if True, extra non-matched elementes in strv are silently accepted
+        :type ignore_extra_strv: bool
+        :param ignore_order: if True, the order is not checked. Otherwise, the
+            elements in :code:`expected` must match in the right order.
+            For example, with :code:`match_mode='plain'`, :code:`expected=['a', '.']`,
+            :code:`strv=['b', 'a']`, this matches when ignoring the order,
+            but fails to match otherwise.
+            An element in :code:`expected` only can match exactly once.
+        :type ignore_order: bool
+        """
         if isinstance(expected, str):
             # For convenience, allow "expected" to be a space separated string.
             expected = self.str_whitespace_split(expected)
@@ -772,7 +1105,7 @@ class _Util:
         expected_match_idxes = []
         strv_matched = [False for s in strv]
         expected_required = [True for s in expected]
-        for (i, e) in enumerate(expected):
+        for i, e in enumerate(expected):
             e0 = e
             idxes = []
 
@@ -800,7 +1133,7 @@ class _Util:
                 assert match_mode == "regex"
                 f_match = lambda s: bool(re.search(e, s))
 
-            for (j, s) in enumerate(strv):
+            for j, s in enumerate(strv):
                 if f_match(s):
                     strv_matched[j] = True
                     idxes.append(j)
@@ -813,7 +1146,7 @@ class _Util:
             expected_match_idxes.append(idxes)
 
         if not ignore_extra_strv:
-            for (j, s) in enumerate(strv):
+            for j, s in enumerate(strv):
                 if not strv_matched[j]:
                     raise ValueError(
                         f'List {str(strv)} contains non expected element #{j} "{s}" (expected {str(expected)})'
@@ -829,7 +1162,6 @@ class _Util:
         # one time (depending on `expected_required[i]`). With `not ignore_order`,
         # the matches must all have indexes in ascending order.
         def _has_unique_permuation(lst, base_idx, seen_idx):
-
             if base_idx >= len(lst):
                 return True
 
@@ -879,17 +1211,35 @@ class _Util:
         handle_timeout=None,
         op_name=None,
     ):
-        # Waits for up to "timeout" seconds, with a poll-interval of "poll_sleep_time".
-        #
-        # The main mode of operation is simply that the "callback" raises an exception
-        # if the thing that we wait for is not yet reached. In that mode,
-        # - the function retries until timeout or until "callback" does not raise
-        # - on success, the return value of "callback" is returned.
-        # - on timeout, the last_exception is re-raised.
-        #
-        # you can also pass "handle_result", "handle_exception" and "handle_timeout"
-        # callbacks, to modify the behavior.
+        """
+        Waits for up to "timeout" seconds, with a poll-interval of "poll_sleep_time".
 
+        The main mode of operation is simply that the "callback" raises an exception
+        if the thing that we wait for is not yet reached. In that mode,
+        - the function retries until timeout or until "callback" does not raise
+        - on success, the return value of "callback" is returned.
+        - on timeout, the last_exception is re-raised.
+
+        You can also pass "handle_result", "handle_exception" and "handle_timeout"
+        callbacks, to modify the behavior.
+
+        :param callback: the callback to call.
+        :type callback: callable
+        :param timeout: the timeout in seconds.
+        :type timeout: float
+        :param poll_sleep_time: the poll sleep time in seconds.
+        :type poll_sleep_time: float
+        :param handle_result: a callback that is called with the result of the callback.
+        :type handle_result: callable
+        :param handle_exception: a callback that is called with the exception raised by the callback.
+        :type handle_exception: callable
+        :param handle_timeout: a callback that is called with the last exception raised by the callback.
+        :type handle_timeout: callable
+        :param op_name: the name of the operation.
+        :type op_name: str
+        :return: the result of the callback.
+        :rtype: any
+        """
         timeout = nmci.util.start_timeout(timeout)
 
         if handle_result is None:
@@ -913,7 +1263,6 @@ class _Util:
             handle_timeout = h
 
         while timeout.loop_sleep(sleep_time=poll_sleep_time):
-
             last_exception = None
 
             try:
@@ -942,9 +1291,14 @@ class _Util:
         return handle_timeout(last_exception)
 
     def nmci_random_seed(self):
+        """
+        Return the global random seed. The seed is read from the environment.
+
+        :return: the global random seed.
+        :rtype: int
+        """
         seed = getattr(self, "_random_seed", None)
         if seed is None:
-
             s = os.environ.get("NMCI_RANDOM_SEED", None)
             if s:
                 seed = int(s)
@@ -967,6 +1321,17 @@ class _Util:
         return seed
 
     def random_generator(self, seed):
+        """
+        Return a random.Random instance. The instance is seeded with the
+        global seed and the given seed. The global seed is read from the
+        environment variable NMCI_RANDOM_SEED. If the variable is not set, a
+        random seed is generated and stored in a file in the .tmp directory.
+
+        :param seed: the seed to use for the random.Random instance.
+        :type seed: str
+        :return: a random.Random instance.
+        :rtype: random.Random
+        """
         import random
 
         context = nmci.cext.context
@@ -980,18 +1345,62 @@ class _Util:
         return random.Random(rseed)
 
     def random_float(self, seed, minval=0.0, maxval=1.0):
+        """
+        Return a random float in the range [minval, maxval).
+
+        :param seed: the seed to use for the random.Random instance.
+        :type seed: str
+        :param minval: the minimum value of the random float.
+        :type minval: float
+        :param maxval: the maximum value of the random float.
+        :type maxval: float
+        :return: a random float in the range [minval, maxval).
+        :rtype: float
+        """
         r = self.random_generator(seed)
         if minval == 0.0 and maxval == 1.0:
             return r.random()
         return r.uniform(minval, maxval)
 
     def random_int(self, seed, minval=0, maxval=(2**32 - 1)):
+        """
+        Return a random integer in the range [minval, maxval].
+
+        :param seed: the seed to use for the random.Random instance.
+        :type seed: str
+        :param minval: the minimum value of the random integer.
+        :type minval: int
+        :param maxval: the maximum value of the random integer.
+        :type maxval: int
+        :return: a random integer in the range [minval, maxval].
+        :rtype: int
+        """
         return self.random_generator(seed).randint(minval, maxval)
 
     def random_bool(self, seed):
+        """
+        Return a random boolean value.
+
+        :param seed: the seed to use for the random.Random instance.
+        :type seed: str
+        :return: a random boolean value.
+        :rtype: bool
+        """
         return bool(self.random_int(seed, 0, 1))
 
     def random_iter_int(self, seed, minval=0, maxval=(2**32 - 1)):
+        """
+        Return an iterator that yields random integers in the range [minval, maxval].
+
+        :param seed: the seed to use for the random.Random instance.
+        :type seed: str
+        :param minval: the minimum value of the random integer.
+        :type minval: int
+        :param maxval: the maximum value of the random integer.
+        :type maxval: int
+        :return: an iterator that yields random integers in the range [minval, maxval].
+        :rtype: Iterator[int]
+        """
         r = self.random_generator(seed)
         while True:
             yield r.randint(minval, maxval)

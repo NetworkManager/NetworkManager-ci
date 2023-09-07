@@ -8,6 +8,10 @@ def __getattr__(attr):
 
 
 class PexpectData:
+    """
+    Data for pexpect processes spawned by pexpect_spawn() and pexpect_service().
+    """
+
     def __init__(self, is_service, proc, logfile, embed_context, label, check):
         self.is_service = is_service
         self.proc = proc
@@ -18,6 +22,10 @@ class PexpectData:
 
 
 class _PExpect:
+    """
+    Pexpect helper class for spawning processes and services.
+    """
+
     def __init__(self):
         self._pexpect_spawn_lst = []
         self._pexpect_service_lst = []
@@ -69,7 +77,6 @@ class _PExpect:
         return failed, argv, returncode, stdout
 
     def _pexpect_service_cleanup(self, data):
-
         self._pexpect_service_lst.remove(data)
 
         (
@@ -141,6 +148,36 @@ class _PExpect:
         label=None,
         check=False,
     ):
+        """Spawn a process and return the pexpect object. The process is killed at the end of the step.
+        If the process is still running, it is killed with SIGTERM first, then with SIGKILL.
+
+        :param command: command to execute
+        :type command: str
+        :param args: arguments to the command, defaults to []
+        :type args: list, optional
+        :param timeout: timeout in seconds, defaults to 30
+        :type timeout: int, optional
+        :param maxread: max bytes to read, defaults to 2000
+        :type maxread: int, optional
+        :param logfile: logfile to use, defaults to None
+        :type logfile: file, optional
+        :param cwd: current working directory, defaults to None
+        :type cwd: str, optional
+        :param env: environment variables, defaults to None
+        :type env: dict, optional
+        :param encoding: encoding to use, defaults to "utf-8"
+        :type encoding: str, optional
+        :param codec_errors: codec errors to use, defaults to "strict"
+        :type codec_errors: str, optional
+        :param shell: use shell, defaults to False
+        :type shell: bool, optional
+        :param label: label for the process, defaults to None
+        :type label: str, optional
+        :param check: check the return code, defaults to False
+        :type check: bool, optional
+        :return: pexpect object
+        :rtype: pexpect
+        """
         proc, logfile = self._pexpect_start(
             command=command,
             args=args,
@@ -178,6 +215,39 @@ class _PExpect:
         check=False,
         cleanup_priority=nmci.Cleanup.PRIORITY_PEXPECT_SERVICE,
     ):
+        """
+        Spawn a service and return the pexpect object. The service is killed at the end of the scenario.
+        If the service is still running, it is killed with SIGTERM first, then with SIGKILL.
+
+        :param command: command to execute
+        :type command: str
+        :param args: arguments to the command, defaults to []
+        :type args: list, optional
+        :param timeout: timeout in seconds, defaults to 30
+        :type timeout: int, optional
+        :param maxread: max bytes to read, defaults to 2000
+        :type maxread: int, optional
+        :param logfile: logfile to use, defaults to None
+        :type logfile: file, optional
+        :param cwd: current working directory, defaults to None
+        :type cwd: str, optional
+        :param env: environment variables, defaults to None
+        :type env: dict, optional
+        :param encoding: encoding to use, defaults to "utf-8"
+        :type encoding: str, optional
+        :param codec_errors: codec errors to use, defaults to "strict"
+        :type codec_errors: str, optional
+        :param shell: use shell, defaults to False
+        :type shell: bool, optional
+        :param label: label for the service, defaults to None
+        :type label: str, optional
+        :param check: check the return code, defaults to False
+        :type check: bool, optional
+        :param cleanup_priority: priority for the cleanup, defaults to nmci.Cleanup.PRIORITY_PEXPECT_SERVICE
+        :type cleanup_priority: int, optional
+        :return: pexpect object
+        :rtype: pexpect
+        """
         proc, logfile = self._pexpect_start(
             command=command,
             args=args,
@@ -209,7 +279,11 @@ class _PExpect:
         return proc
 
     def process_pexpect_spawn(self):
+        """
+        Kill all pexpect processes spawned by pexpect_spawn() and pexpect_service().
 
+        :raises Exception: if some process failed
+        """
         argv_failed = []
 
         for data in nmci.util.consume_list(self._pexpect_spawn_lst):
@@ -231,6 +305,14 @@ class _PExpect:
             raise Exception(f"Some process failed:\n{msg}")
 
     def pexpect_service_find_all(self, label=None):
+        """
+        Find all pexpect services with a given label.
+
+        :param label: label to search for, defaults to None
+        :type label: str, optional
+        :return: list of pexpect services
+        :rtype: list
+        """
         for proc in self._pexpect_service_lst:
             if label is not None and proc.label != label:
                 continue

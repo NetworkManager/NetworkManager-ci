@@ -6,8 +6,20 @@ def __getattr__(attr):
 
 
 class _SDResolved:
-    def get_link(self, ifindex):
+    """
+    This class provides access to the sd-resolved D-Bus API. It is a singleton
+    and can be accessed via the :code:`nmci.sdresolved` module.
+    """
 
+    def get_link(self, ifindex):
+        """
+        Resolve the ifindex to a D-Bus path.
+
+        :param ifindex: the ifindex to resolve
+        :type ifindex: int or str
+        :return: the resolved D-Bus path
+        :rtype: str
+        """
         if isinstance(ifindex, str) and ifindex.startswith(
             "/org/freedesktop/resolve1/link/"
         ):
@@ -28,7 +40,14 @@ class _SDResolved:
         return v.get_child_value(0).get_string()
 
     def link_get_domains(self, ifindex):
+        """Resolve the ifindex to a D-Bus path,
+        and retrieve all domains.
 
+        :param ifindex: the ifindex to resolve
+        :type ifindex: int or str
+        :return: list of Domains
+        :rtype: list of (str, str)
+        """
         object_path = self.get_link(ifindex)
 
         v = nmci.dbus.get_property(
@@ -45,7 +64,15 @@ class _SDResolved:
         return result
 
     def link_get_dns(self, ifindex):
+        """Resolve the ifindex to a D-Bus path,
+        and retrieve all DNS addresses for the given ifindex.
 
+        :param ifindex: the ifindex to resolve
+        :type ifindex: int or str
+        :raises: GLib.Error if the DNS property is not available
+        :return: list of DNS addresses
+        :rtype: list of str
+        """
         object_path = self.get_link(ifindex)
 
         v = nmci.dbus.get_property(
@@ -71,7 +98,15 @@ class _SDResolved:
         return result
 
     def link_get_default_route(self, ifindex):
+        """Resolve the ifindex to a D-Bus path,
+        and retrieve the default routes for the given ifindex.
 
+        :param ifindex: the ifindex to resolve
+        :type ifindex: int or str
+        :raises: GLib.Error if the DefaultRoute property is not available
+        :return: list of default routes
+        :rtype: list of str
+        """
         object_path = self.get_link(ifindex)
 
         try:
@@ -96,6 +131,15 @@ class _SDResolved:
         return v
 
     def link_get_all(self, ifindex):
+        """Resolve the ifindex to a D-Bus path,
+        and retrieve all DNS addresses, domains, and default routes
+        for the given ifindex.
+
+        :param ifindex: the ifindex to resolve
+        :type ifindex: int or str
+        :return: dict of DNS addresses, domains, and default routes
+        :rtype: dict
+        """
         ifindex = self.get_link(ifindex)
         return {
             "dns": self.link_get_dns(ifindex),

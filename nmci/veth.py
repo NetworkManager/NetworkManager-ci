@@ -11,6 +11,9 @@ def __getattr__(attr):
 
 class _Veth:
     def restore_connections(self):
+        """
+        Delete all custom devices besides eth/lo/orig, and recreate testeth connection profiles.
+        """
         print("* recreate all connections")
         conns = nmci.process.nmcli("-g NAME connection show").strip().split("\n")
         nmci.process.nmcli_force(["con", "del"] + conns)
@@ -28,6 +31,14 @@ class _Veth:
         self.restore_testeth0()
 
     def manage_device(self, device, rule_name=None):
+        """
+        Set device mode to 'managed'.
+
+        :param device: name of the device
+        :type device: str
+        :param rule_name: name of the custom udev rule, defaults to None
+        :type rule_name: str, optional
+        """
         rule_name = rule_name or device
         rule_file = f"/etc/udev/rules.d/88-veth-{rule_name}.rules"
         if not os.path.isfile(rule_file):
@@ -40,16 +51,24 @@ class _Veth:
             nmci.cleanup.add_udev_rule(rule_file)
 
     def manage_veths(self):
+        """
+        Set the mode to 'managed' for all veth devices with names accepted by the regex 'eth[0-9]*[0-9]?'.
+        """
         if not os.path.isfile("/tmp/nm_veth_configured"):
             rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
             nmci.util.file_set_content("/etc/udev/rules.d/88-veths-eth.rules", [rule])
             nmci.util.update_udevadm()
 
     def unmanage_veths(self):
+        """
+        Removes the :code:`88-veths-*` udev rule, which sets the mode to "managed"
+        for all veth devices with names accepted by the regex :code:`eth[0-9]*[0-9]?`.
+        """
         nmci.process.run_stdout("rm -f /etc/udev/rules.d/88-veths-*.rules")
         nmci.util.update_udevadm()
 
     def check_vethsetup(self):
+        """Re-run the veth setup while validating its correct execution."""
         print("Regenerate veth setup")
         nmci.process.run_stdout(
             "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
@@ -57,6 +76,12 @@ class _Veth:
         nmci.cext.context.nm_pid = nmci.nmutil.nm_pid()
 
     def teardown_testveth(self, ns):
+        """
+        Remove the testveth setup in a given namespace.
+
+        :param ns: namespace identifier
+        :type ns: str
+        """
         print(f"Removing the setup in {ns} namespace")
         if os.path.isfile(f"/tmp/{ns}.pid"):
             nmci.process.run_stdout(
@@ -73,6 +98,12 @@ class _Veth:
         nmci.nmutil.reload_NM_service()
 
     def reset_hwaddr_nmcli(self, ifname):
+        """
+        Reset the link-local address of a given interface.
+
+        :param ifname: name of the device
+        :type ifname: str
+        """
         if not os.path.isfile("/tmp/nm_veth_configured"):
             hwaddr = nmci.process.run_stdout(f"ethtool -P {ifname}").split()[2]
             if hwaddr != "not":
@@ -81,6 +112,9 @@ class _Veth:
         nmci.process.run_stdout(f"ip link set {ifname} up")
 
     def restore_testeth0(self):
+        """
+        Restore the testeth0 configuration.
+        """
         print("* restoring testeth0")
         nmci.process.nmcli_force("con delete testeth0")
 
@@ -103,11 +137,14 @@ class _Veth:
         time.sleep(2)
 
     def wait_for_testeth0(self):
-        eth0_link = nmci.ip.link_show_maybe("eth0")
-        if eth0_link is None:
-            print("* skip testeth0 connection, no interface eth0 found")
-            return
+        """
+        Wait for the testeth0 connection to sucessfully activate from multiple states.
 
+        Possible states:
+            - If it does not exist, restore it.
+            - If it is not running, activate it.
+            - If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.
+        """
         print("* waiting for testeth0 to connect")
         if "testeth0" not in nmci.process.nmcli("connection"):
             self.restore_testeth0()

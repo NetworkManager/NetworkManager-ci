@@ -87,6 +87,7 @@ crash
    :undoc-members:
    :show-inheritance:
 
+
 dbus
 ====
 
@@ -94,6 +95,7 @@ dbus
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 embed
 =====
@@ -103,6 +105,7 @@ embed
    :undoc-members:
    :show-inheritance:
 
+
 git
 ===
 
@@ -110,6 +113,7 @@ git
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 gsm
 ===
@@ -119,6 +123,7 @@ gsm
    :undoc-members:
    :show-inheritance:
 
+
 ip
 ==
 .. automodule:: nmci.ip
@@ -126,9 +131,74 @@ ip
    :undoc-members:
    :show-inheritance:
 
+
 misc
 ====
+
 .. automodule:: nmci.misc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+nmutil
+======
+
+.. automodule:: nmci.nmutil
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+pexpect
+=======
+
+.. automodule:: nmci.pexpect
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+prepare
+=======
+
+.. automodule:: nmci.prepare
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+process
+=======
+
+.. automodule:: nmci.process
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+sdresolved
+==========
+
+.. automodule:: nmci.sdresolved
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+util
+====
+
+.. automodule:: nmci.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+veth
+====
+
+.. automodule:: nmci.veth
    :members:
    :undoc-members:
    :show-inheritance:
