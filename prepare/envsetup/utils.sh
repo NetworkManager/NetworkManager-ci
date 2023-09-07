@@ -32,8 +32,11 @@ install_behave_pytest () {
 
 
 check_packages () {
-    rpm -q iw ethtool wireshark-cli NetworkManager-openvpn NetworkManager-ppp NetworkManager-pptp NetworkManager-tui NetworkManager-team NetworkManager-wifi NetworkManager-vpnc NetworkManager-strongswan && ls /usr/bin/behave
-    return $?
+    rpm -q iw ethtool wireshark-cli \
+           NetworkManager-{openvpn,ppp,pptp,tui,team,wifi,vpnc,strongswan} || \
+        return 1
+    test -x /usr/bin/behave || return 1
+    test -x /usr/bin/python -o -f /tmp/python_command || return 1
 }
 
 
