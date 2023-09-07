@@ -25,32 +25,34 @@ def get_dracut_vm_state(mount=True):
     ).strip("\n")
 
 
-def handle_timeout(proc, timeout, finish=False):
-    with nmci.util.start_timeout(timeout=timeout / 2) as t:
-        while t.loop_sleep():
-            vm_state = get_dracut_vm_state()
-            print("vmstate is: " + vm_state)
-            res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=5)
-            if res == 0:
-                return True
-            if res == 1:
-                nmci.cext.skip("KVM hardware error detected.")
-            if not finish:
-                if vm_state != "NOBOOT":
-                    print("VM boot detected")
-                    break
-            else:
-                if vm_state != "BOOT":
-                    print("Machine did not finish in 5s after poweroff, sending kill")
-                    return False
+def handle_timeout(proc, timeout, booted=False):
+    t = nmci.util.start_timeout(timeout=timeout / 2)
+    while t.loop_sleep():
+        vm_state = get_dracut_vm_state()
+        print("vmstate is: " + vm_state)
+        res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=5)
+        if res == 0:
+            return True
+        if res == 1:
+            nmci.cext.skip("KVM hardware error detected.")
+        if not booted:
+            if vm_state != "NOBOOT":
+                print("VM boot detected")
+                break
+        else:
+            if vm_state != "BOOT":
+                print("Machine did not finish in 5s after poweroff, sending kill")
+                return False
 
     if vm_state == "NOBOOT":
         print(
             f"VM did not enter the switchroot phase in half of the timeout ({timeout/2}s)"
         )
         return False
-    if not finish:
-        return handle_timeout(proc, timeout, finish=True)
+    if not booted:
+        return handle_timeout(proc, timeout, booted=True)
+    else:
+        return False
 
 
 def embed_dracut_logs(context):
