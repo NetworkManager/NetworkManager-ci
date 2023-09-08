@@ -935,6 +935,20 @@ def note_NM_mem_consumption(context, index):
         msg = f"<b>Daemon memory consumption:</b> unknown ({e})\n"
 
 
+@step(
+    'Check NM memory consumption difference from "{i1}" is "{operator_kw}" "{dif}" in "{seconds}" seconds'
+)
+def check_NM_mem_consumption(context, i1, operator_kw, dif, seconds):
+    with nmci.util.start_timeout(
+        float(seconds), f"NM mem not in range in {seconds}s"
+    ) as t:
+        while t.loop_sleep(1):
+            mem = nmci.nmutil.nm_size_kb()
+            real_dif = mem - int(context.noted[i1].strip())
+            if compare_values(operator_kw.lower(), real_dif, int(dif)):
+                break
+
+
 @step('Check coredump is not found in "{seconds}" seconds')
 def check_no_coredump(context, seconds):
     # check core limit is unlimited (soft and hard)

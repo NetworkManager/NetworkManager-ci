@@ -87,12 +87,15 @@ def NM_valgrind_start(context):
     nmci.cleanup.add_NM_service("restart")
     # do not use nmutil, we do not want cleanup NM start registered
     nmci.process.systemctl("stop NetworkManager")
-    context.nm_valgrind_proc = nmci.pexpect.pexpect_service(
-        "valgrind --vgdb=yes --leak-check=full --errors-for-leak-kinds=definite --show-leak-kinds=definite --num-callers=99 NetworkManager --no-daemon"
+    nm_valgrind_cmd = (
+        "valgrind --vgdb=yes --leak-check=full --errors-for-leak-kinds=definite "
+        "--show-leak-kinds=definite --num-callers=99 NetworkManager --no-daemon"
     )
+    context.nm_valgrind_proc = nmci.pexpect.pexpect_service(nm_valgrind_cmd)
     context.nm_pid = 0
 
-    with nmci.util.start_timeout(20, "NM not ready in 20s") as t:
+    with nmci.util.start_timeout(40, "NM not ready in 40s") as t:
+        restarted = False
         while t.loop_sleep(1):
             if (
                 nmci.process.run_search_stdout(
@@ -101,6 +104,18 @@ def NM_valgrind_start(context):
                 is None
             ):
                 break
+            if t.elapsed_time() > 15 and not restarted:
+                print("NM in valgrind not ready in 10s, restarting...")
+                restarted = True
+                proc = context.nm_valgrind_proc
+                proc.kill(15)
+                r = proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
+                if r == 1:
+                    print("NM valgrind did not exit in 5s after kill 15, doing kill 9")
+                    proc.kill(9)
+                    r = proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
+                nmci.process.systemctl("stop NetworkManager")
+                context.nm_valgrind_proc = nmci.pexpect.pexpect_service(nm_valgrind_cmd)
 
 
 @step("Stop NM in valgrind")
