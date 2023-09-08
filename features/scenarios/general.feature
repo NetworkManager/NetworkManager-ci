@@ -1686,7 +1686,7 @@ Feature: nmcli - general
 
     @rhbz1272974
     @s390x_only
-    @remove_ctcdevice @skip_in_kvm
+    @skip_in_kvm @remove_ctcdevice
     @ctc_device_recognition
     Scenario: NM - general - ctc device as ethernet recognition
     * Execute "znetconf -a $(znetconf -u |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }')"
