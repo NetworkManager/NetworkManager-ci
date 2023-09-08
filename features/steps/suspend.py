@@ -79,7 +79,7 @@ def suspend_hw(context):
 
     def read_val(file_name):
         return nmci.process.run_stdout(
-            f"grep -o '\[.*\]' /sys/power/{file_name} | tr -d '[]' ", shell=True
+            rf"grep -o '\[.*\]' /sys/power/{file_name} | tr -d '[]' ", shell=True
         ).strip("\n")
 
     def assure_val(file_name, value):

@@ -625,7 +625,7 @@ def set_dropdown(context, dropdown, setting):
 @step('Ensure "{toggle}" is {n} checked')
 def ensure_toggle_is_checked(context, toggle, n=None):
     match = go_until_pattern_matches_line(
-        context, keys["DOWNARROW"], "^.*(\[.\])\\s+%s.*" % toggle
+        context, keys["DOWNARROW"], r"^.*(\[.\])\s+%s.*" % toggle
     )
     assert match is not None, "Could not go to toggle '%s' on screen!" % toggle
     if match.group(1) == "[ ]" and n is None:

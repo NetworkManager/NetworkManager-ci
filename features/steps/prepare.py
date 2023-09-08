@@ -15,10 +15,10 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
     while xtimeout.loop_sleep(0.1):
         s = context.process.nmcli(["connection", "sh", profile])
         try:
-            m = re.search("^IP4\.ADDRESS\[1\]:\\s*(\\S+)\\s*$", s, re.MULTILINE)
+            m = re.search(r"^IP4\.ADDRESS\[1\]:\s*(\S+)\s*$", s, re.MULTILINE)
             ip, _, plen = nmci.ip.ipaddr_plen_parse(m.group(1), addr_family="inet")
 
-            m = re.search("^IP4\.GATEWAY:\\s*(\\S+)\\s*$", s, re.MULTILINE)
+            m = re.search(r"^IP4\.GATEWAY:\s*(\S+)\s*$", s, re.MULTILINE)
             gw = nmci.ip.ipaddr_norm(m.group(1), addr_family="inet")
         except Exception as e:
             continue
@@ -355,7 +355,7 @@ def prepare_simdev(
             # This is a complete IP address. This means me choose
             # the .1 address for the server, and the DHCP range only
             # contains this one IP address.
-            m = re.search("^(.*)\.([^.])+$", ipv4)
+            m = re.search(r"^(.*)\.([^.])+$", ipv4)
             ipv4addr = ipv4
             ipv4 = m.group(1)
             assert ipv4addr != ipv4 + ".1"
@@ -996,7 +996,7 @@ def mptcp(context, num, veth, typ="subflow"):
 
     nmci.ip.netns_add(nsname)
 
-    nmci.cleanup.add_sysctls("\.rp_filter")
+    nmci.cleanup.add_sysctls(r"\.rp_filter")
     nmci.cleanup.add_sysctls("net.mptcp.enabled")
     nmci.cleanup.add_mptcp_limits()
     nmci.cleanup.add_mptcp_endpoints()
