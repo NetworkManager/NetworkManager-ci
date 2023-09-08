@@ -82,7 +82,17 @@ ignore_broadcast_ssid=1
 " > $HOSTAPD_CFG.$num_ap
 
 
-if ! grep -F 'release 9' /etc/redhat-release; then
+WEP=0
+if grep -q '^ID.*rhel' /etc/os-release; then
+    . /etc/os-release
+    V_ARR=(${VERSION//./ })
+    V_MAJOR=${V_ARR[0]}
+    if [ "$V_MAJOR" -le 8 ]; then
+        WEP=1
+    fi
+fi
+
+if [ "$WEP" -eq 1 ] ; then
   ((++num_ap))
   echo "#pskwep
 $(hostapd_conf_header)
