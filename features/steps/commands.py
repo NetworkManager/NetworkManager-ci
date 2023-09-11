@@ -1114,6 +1114,10 @@ def run_nmstate(context, log_file):
     release = "el9"
     if int(context.rh_release_num) == 8:
         release = "el8"
+    if "fedora" in context.rh_release.lower():
+        release = "fed"
+    if "rawhide" in context.rh_release.lower():
+        release = "rawhide"
 
     # Create the first part of cmd to execute
     cmd = f"nmstate/automation/run-tests-in-nmci.sh --{release}"
