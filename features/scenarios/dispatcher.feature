@@ -117,7 +117,7 @@ Feature: NM: dispatcher
     Scenario: NM - dispatcher - private option 245 dhclient plugin
     * Prepare simulated test "testXd" device with "192.168.99" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix and dhcp option "245,aa:bb:cc:dd"
     * Write dispatcher "99-disp" file with params "[ "$2" != "up" ] && exit 0 || echo DHCP4_UNKNOWN_245=$DHCP4_UNKNOWN_245,DHCP4_PRIVATE_245=$DHCP4_PRIVATE_245 >> /tmp/dispatcher.txt"
-    * Add "ethernet" connection named "con_ipv4" for device "testXd"
+    * Add "ethernet" connection named "con_ipv4" for device "testXd" with options "ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
 
