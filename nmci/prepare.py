@@ -221,7 +221,8 @@ def wifi_rescan(context):
     if "wpa2-psk" in nmci.process.nmcli_force("dev wifi list").stdout:
         return
     print("Commencing wireless network rescan")
-    timeout = nmci.util.start_timeout(60)
+    timeout_len = 180
+    timeout = nmci.util.start_timeout(timeout_len)
     while timeout.loop_sleep(5):
         if (
             "wpa2-psk"
@@ -230,7 +231,7 @@ def wifi_rescan(context):
             print("* still not seeing wpa2-psk")
         else:
             return
-    assert False, "Not seeing wpa2-psk in 60 seconds"
+    assert False, f"Not seeing wpa2-psk in {timeout_len} seconds"
 
 
 def setup_hostapd_wireless(context, args=None):
