@@ -214,7 +214,7 @@
 
 
     @ver+=1.16
-    @rhelver+=8 @rhelver-=8
+    @rhelver+=8 @rhelver-=8 @fedoraver-=0
     @may_fail
     @wireguard
     @wireguard_activate_connection

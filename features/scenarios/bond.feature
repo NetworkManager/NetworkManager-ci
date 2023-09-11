@@ -1212,7 +1212,7 @@
 
     @rhbz2117202
     @rhelver-=8
-    @ver/fedora-
+    @fedoraver-=0
     @bond_options_new_arp_values
     Scenario: nmcli - bond - options - set new arp values
      * Add "bond" connection named "bond0" for device "nm-bond" with options

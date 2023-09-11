@@ -102,7 +102,7 @@ Feature: nmcli - procedures in documentation
     Then Bring "up" connection "wifi"
 
 
-    @rhelver+=8 @rhelver-=8
+    @rhelver+=8 @rhelver-=8 @fedoraver-=0
     @ver+=1.37
     @simwifi @attach_wpa_supplicant_log
     @simwifi_hotspot_doc_procedure
@@ -147,7 +147,7 @@ Feature: nmcli - procedures in documentation
     Then "chain filter_forward.*ip daddr 10.42.0.0/24 oifname .wlan0.*ip saddr 10.42.0.0/24 iifname .wlan0. accept" is visible with command "nft list ruleset"
 
 
-    @rhelver+=8 @rhelver-=8
+    @rhelver+=8 @rhelver-=8 @fedoraver-=0
     @ver+=1.37
     @simwifi @attach_wpa_supplicant_log
     @simwifi_hotspot_sae_doc_procedure

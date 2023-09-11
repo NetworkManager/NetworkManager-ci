@@ -993,7 +993,7 @@ Feature: nmcli - wifi
     Then Check "\[hidden\]" are present in describe output for object "802-11-wireless.hidden"
 
 
-    @rhelver-=8
+    @rhelver-=8 @fedoraver-=0
     @simwifi
     @simwifi_wifisec_describe
     Scenario: simwifi-sec - describe
