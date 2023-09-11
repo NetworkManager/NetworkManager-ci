@@ -327,11 +327,11 @@ Feature: nmcli: vrf
     * Bring "up" connection "vrf0.bond0.eth4"
     # These commented lines are not the same under CentOS so commented out, these are set by the kernel anyway.
     # When "broadcast 1.1.1.0 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
-    When "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001"
+    When "1.1.1.0/24 dev nm-bond proto kernel scope link src 1.1.1.1 metric 300" is visible with command "ip r show table 1001" in "5" seconds
     When "local 1.1.1.1 dev nm-bond proto kernel scope host src 1.1.1.1" is visible with command "ip r show table 1001"
     When "broadcast 1.1.1.255 dev nm-bond proto kernel scope link src 1.1.1.1" is visible with command "ip r show table 1001"
     # When "broadcast 3.3.3.0 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
-    When "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001"
+    When "3.3.3.0/24 dev nm-bridge proto kernel scope link src 3.3.3.1 metric 425" is visible with command "ip r show table 1001" in "5" seconds
     When "local 3.3.3.1 dev nm-bridge proto kernel scope host src 3.3.3.1" is visible with command "ip r show table 1001"
     When "broadcast 3.3.3.255 dev nm-bridge proto kernel scope link src 3.3.3.1" is visible with command "ip r show table 1001"
     # When "broadcast 4.4.4.0 dev nm-bond.4000 proto kernel scope link src 4.4.4.1" is visible with command "ip r show table 1001"

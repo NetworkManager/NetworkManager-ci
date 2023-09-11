@@ -192,7 +192,7 @@ Feature: nmcli - bridge
           """
     * Bring "up" connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
-    * "inet 192.168.1.15" is visible with command "ip a s br11"
+    * "inet 192.168.1.15" is visible with command "ip a s br11" in "5" seconds
     * Bring "down" connection "br11"
     * "inet 192.168.1.15" is not visible with command "ip a s br11"
 
@@ -207,7 +207,7 @@ Feature: nmcli - bridge
           """
     * Bring "up" connection "br11" ignoring error
     * "br11" is visible with command "ip link show type bridge"
-    * "inet 192.168.1.10" is visible with command "ip a s br11"
+    * "inet 192.168.1.10" is visible with command "ip a s br11" in "5" seconds
     * Disconnect device "br11"
     * "inet 192.168.1.10" is not visible with command "ip a s br11"
 
@@ -247,7 +247,7 @@ Feature: nmcli - bridge
           ip4 192.168.1.19/24
           """
     * Bring "up" connection "br12" ignoring error
-    * "inet 192.168.1.19" is visible with command "ip a s br12"
+    * "inet 192.168.1.19" is visible with command "ip a s br12" in "5" seconds
     * Delete connection "br12"
     Then "inet 192.168.1.19" is not visible with command "ip a s br12"
     Then ifcfg-"br12" file does not exist
