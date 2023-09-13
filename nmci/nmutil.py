@@ -70,7 +70,7 @@ class _NMUtil:
         ]
         timeout = nmci.util.start_timeout(timeout)
         _, nm_ver = nmci.misc.nm_version_detect()
-        ready_at_first_check = nm_ver >= [1, 43, 5]
+        ready_at_first_check = do_assert and nm_ver >= [1, 43, 5]
         nm_ver_str = ".".join(f"{i}" for i in nm_ver)
         while timeout.loop_sleep(0.1):
             if nmci.process.run_search_stdout(
