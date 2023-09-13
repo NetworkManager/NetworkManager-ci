@@ -130,7 +130,7 @@ def set_pptp_connection(context, user, password, mppe, gateway, name):
     vpn_data = {
         "password-flags": "2" if password == "file" else "0",
         "user": user,
-        "require-mppe": mppe,
+        "require-mppe-128": mppe,
         "gateway": gateway,
     }
     vpn_data_str = f"vpn.data '{nmci.misc.format_dict(vpn_data)}'"

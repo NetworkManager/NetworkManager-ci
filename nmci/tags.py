@@ -1651,11 +1651,8 @@ def pptp_bs(context, scenario):
 
         context.process.systemctl("unmask pptpd")
         context.process.systemctl("restart pptpd")
-        # context.execute_steps(u'* Add a connection named "pptp" for device "\*" to "pptp" VPN')
-        # context.execute_steps(u'* Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"')
+        context.process.run_code("echo 'require-mppe-128' >> /etc/ppp/options.pptpd")
         context.pexpect_service("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach")
-        # context.process.nmcli("con up id pptp")
-        # context.process.nmcli("con del pptp")
         nmci.util.file_set_content("/tmp/nm_pptp_configured", "")
         time.sleep(1)
 
