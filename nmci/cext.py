@@ -7,6 +7,10 @@ def __getattr__(attr):
     return getattr(_module, attr)
 
 
+class DummyContext:
+    pass
+
+
 class _CExt:
     """Context Extenstion object
     Remembers the current behave context and implements
@@ -14,7 +18,7 @@ class _CExt:
     """
 
     def __init__(self):
-        self.context = None
+        self.context = DummyContext()
         self.scenario_skipped = False
 
     def setup(self, context):
