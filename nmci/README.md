@@ -566,14 +566,8 @@ Check for new FAF reports
 
 
 
-### nmci.crash.after_crash_reset(context)
+### nmci.crash.after_crash_reset()
 Do the reset of NetworkManager config and envionment, to prevent NetworkManager crashing again.
-
-
-* **Parameters**
-
-    **context** (*behave.Context*) – behave Context object
-
 
 # dbus
 

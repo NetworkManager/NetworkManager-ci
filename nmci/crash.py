@@ -211,7 +211,7 @@ def wait_faf_complete(context, dump_dir):
                 NM_pkg = True
                 # Do after_crash_reset, if FAF upload is not disabled
                 if context.crash_upload:
-                    after_crash_reset(context)
+                    after_crash_reset()
                 # Wait a bit, sometimes DNS is not ready and FAF reporter reports
                 #  curl: Could not resolve host: faf.lab...
                 time.sleep(1)
@@ -325,12 +325,8 @@ def check_faf(context):
     nmci.util.file_set_content("/tmp/pause_faf_reporting")
 
 
-def after_crash_reset(context):
-    """Do the reset of NetworkManager config and envionment, to prevent NetworkManager crashing again.
-
-    :param context: behave Context object
-    :type context: behave.Context
-    """
+def after_crash_reset():
+    """Do the reset of NetworkManager config and envionment, to prevent NetworkManager crashing again."""
     print("@after_crash_reset")
 
     nmci.nmutil.stop_NM_service()
