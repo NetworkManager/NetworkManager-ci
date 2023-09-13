@@ -1151,10 +1151,10 @@ Feature: nmcli: connection
     * Reload connections
     Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth1" is not visible with command "nmcli con show --active"
-    Then "bond-slave-eth2" is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth1 " is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth2 " is not visible with command "nmcli con show --active"
     * Restart NM
     Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth1" is not visible with command "nmcli con show --active"
-    Then "bond-slave-eth2" is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth1 " is not visible with command "nmcli con show --active"
+    Then "bond-slave-eth2 " is not visible with command "nmcli con show --active"
