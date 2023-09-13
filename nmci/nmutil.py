@@ -143,10 +143,11 @@ class _NMUtil:
     def context_set_nm_stopped(self, context=None, reset=False):
         if context is None:
             context = nmci.cext.context
-        if reset:
-            context.nm_stopped = False
-        else:
-            context.nm_stopped = True
+        if context is not None:
+            if reset:
+                context.nm_stopped = False
+            else:
+                context.nm_stopped = True
 
     def context_get_nm_stopped(self, context=None):
         if context is None:
