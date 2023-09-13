@@ -468,7 +468,7 @@ Feature: nmcli - bridge
     @bridge_dhcp_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports
     * Prepare simulated test "test44" device
-    * Add "bridge" connection named "bridge4" for device "br4" with options "bridge.stp on"
+    * Add "bridge" connection named "bridge4" for device "br4" with options "bridge.stp on ethernet.cloned-mac-address 00:99:88:77:66:55"
     * Add "bridge-slave" connection named "bridge4.0" for device "eth4" with options "master br4"
     * Bring "up" connection "bridge4.0"
     * Add "bridge-slave" connection named "bridge4.1" for device "test44" with options "master br4"
@@ -784,7 +784,7 @@ Feature: nmcli - bridge
     @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
-    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp no"
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options "bridge.stp no ethernet.cloned-mac-address 00:99:88:77:66:55"
     * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge0"
     * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge0" in "45" seconds
     * Stop NM
@@ -804,7 +804,7 @@ Feature: nmcli - bridge
     @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device_diff_name_for_profile
     Scenario: NM - bridge - nm detects initrd bridge
-    * Add "bridge" connection named "bridge-br0" for device "br0" with options "bridge.stp no"
+    * Add "bridge" connection named "bridge-br0" for device "br0" with options "bridge.stp no ethernet.cloned-mac-address 00:99:88:77:66:55"
     * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options "master bridge-br0"
     * "." is visible with command "nmcli -g IP4.ADDRESS  c s bridge-br0" in "45" seconds
     * Stop NM
