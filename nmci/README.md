@@ -975,7 +975,31 @@ when formatter is not using pseudo steps.
 
 
 
-### nmci.embed.embed_data(\*a, embed_context=None, \*\*kw)
+### nmci.embed.embed_data(caption, data, mime_type='text/plain', fail_only=False, combine_tag=None, embed_context=None)
+Embed General Data
+
+
+* **Parameters**
+
+    
+    * **caption** (*str*) – embed caption
+
+
+    * **data** (*str*) – data to be embedded
+
+
+    * **mime_type** (*str**, **optional*) – mime-type of the data, defaults to “text/plain”
+
+
+    * **fail_only** (*bool**, **optional*) – whether to embed only if scenario failed, defaults to False
+
+
+    * **combine_tag** (*str**, **optional*) – join multiple embeds under single caption, defaults to None
+
+
+    * **embed_context** (*EmbedContext object*) – context keeping counter and data, defaults to None
+
+
 
 ### nmci.embed.embed_dump(caption, dump_id, \*, data=None, links=None)
 embed new crash dump
@@ -1029,7 +1053,28 @@ Embed file to HTML report
 
 
 
-### nmci.embed.embed_link(\*a, embed_context=None, \*\*kw)
+### nmci.embed.embed_link(caption, data, fail_only=False, combine_tag=None, embed_context=None)
+Embed links
+
+
+* **Parameters**
+
+    
+    * **caption** (*str*) – embed caption
+
+
+    * **data** (*list of pairs of str*) – data must be a list of 2-tuples, where the first element, is the link target (href) and the second the text.
+
+
+    * **fail_only** (*bool**, **optional*) – whether to embed only if scenario failed, defaults to False
+
+
+    * **combine_tag** (*str**, **optional*) – join multiple embeds under single caption, defaults to None
+
+
+    * **embed_context** (*EmbedContext object*) – context keeping counter and data, defaults to None
+
+
 
 ### nmci.embed.embed_run(argv, shell, returncode, stdout, stderr, fail_only=True, embed_context=None, combine_tag=<object object>, elapsed_time=None)
 Embed results of a process

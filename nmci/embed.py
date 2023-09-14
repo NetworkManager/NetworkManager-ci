@@ -332,11 +332,63 @@ class _Embed:
         for key, lst in combines_dict.items():
             self._embed_combines(key[0], key[1], lst)
 
-    def embed_data(self, *a, embed_context=None, **kw):
-        self._embed_queue(EmbedData(*a, **kw), embed_context=embed_context)
+    def embed_data(
+        self,
+        caption,
+        data,
+        mime_type="text/plain",
+        fail_only=False,
+        combine_tag=None,
+        embed_context=None,
+    ):
+        """Embed General Data
 
-    def embed_link(self, *a, embed_context=None, **kw):
-        self._embed_queue(EmbedLink(*a, **kw), embed_context=embed_context)
+        :param caption: embed caption
+        :type caption: str
+        :param data: data to be embedded
+        :type data: str
+        :param mime_type: mime-type of the data, defaults to "text/plain"
+        :type mime_type: str, optional
+        :param fail_only: whether to embed only if scenario failed, defaults to False
+        :type fail_only: bool, optional
+        :param combine_tag: join multiple embeds under single caption, defaults to None
+        :type combine_tag: str, optional
+        :param embed_context: context keeping counter and data, defaults to None
+        :type embed_context: EmbedContext object
+        """
+        self._embed_queue(
+            EmbedData(
+                caption=caption,
+                data=data,
+                mime_type=mime_type,
+                fail_only=fail_only,
+                combine_tag=combine_tag,
+            ),
+            embed_context=embed_context,
+        )
+
+    def embed_link(
+        self, caption, data, fail_only=False, combine_tag=None, embed_context=None
+    ):
+        """Embed links
+
+        :param caption: embed caption
+        :type caption: str
+        :param data: data must be a list of 2-tuples, where the first element, is the link target (href) and the second the text.
+        :type data: list of pairs of str
+        :param fail_only: whether to embed only if scenario failed, defaults to False
+        :type fail_only: bool, optional
+        :param combine_tag: join multiple embeds under single caption, defaults to None
+        :type combine_tag: str, optional
+        :param embed_context: context keeping counter and data, defaults to None
+        :type embed_context: EmbedContext object
+        """
+        self._embed_queue(
+            EmbedLink(
+                caption=caption, data=data, fail_only=fail_only, combine_tag=combine_tag
+            ),
+            embed_context=embed_context,
+        )
 
     def embed_dump(self, caption, dump_id, *, data=None, links=None):
         """embed new crash dump
