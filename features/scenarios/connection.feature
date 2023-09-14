@@ -1106,6 +1106,7 @@ Feature: nmcli: connection
     @rhbz2121451
     @ver+=1.43
     @keyfile
+    @openvswitch
     @connection_with_higher_priority_active_on_reload
     Scenario: nmcli - connection - connection with higher priority is active after reload
     * Create keyfile "/etc/NetworkManager/system-connections/bond-bond0.nmconnection"
