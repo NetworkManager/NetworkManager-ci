@@ -1122,16 +1122,17 @@ def run_nmstate(context, log_file):
     # Create the first part of cmd to execute
     cmd = f"nmstate/automation/run-tests-in-nmci.sh --{release}"
 
-    if os.path.exists("/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"):
-        cmd += (
-            " --rpm-dir /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"
-        )
-    elif os.path.exists(
-        "/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"
-    ):
-        cmd += (
-            " --rpm-dir /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"
-        )
+    rpm_dir = ""
+    for path in [
+        "/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/",
+        "/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/",
+        "/root/rpms/",
+    ]:
+        if os.path.exists(path):
+            rpm_dir = f" --rpm-dir {path}"
+            break
+    if rpm_dir:
+        cmd += rpm_dir
     elif os.path.exists("/etc/yum.repos.d/nm-copr.repo"):
         with open("/etc/yum.repos.d/nm-copr.repo", "r") as repo:
             for line in repo.readlines():
