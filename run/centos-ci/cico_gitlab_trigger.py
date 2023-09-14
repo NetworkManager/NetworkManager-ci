@@ -156,7 +156,15 @@ class GitlabTrigger(object):
 
     def post_commit_comment(self, text):
         com = self.gl_project.commits.get(self.commit)
-        com.comments.create({"note": text})
+        exc = None
+        for _ in range(3):
+            try:
+                com.comments.create({"note": text})
+                return
+            except Exception as e:
+                exc = e
+                time.sleep(1)
+        print(f"Unable to post comment to gitlab:\n{text}\n\nException: {exc}")
 
     def play_commit_job(self):
         pipeline = self.pipeline
