@@ -241,6 +241,7 @@ def create_network_profile_file(context, file):
 
     content = context.text
     if os.path.isfile(content):
+        nmci.embed.embed_file_if_exists(file, content)
         with open(content) as f:
             content = f.read()
 
