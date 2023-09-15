@@ -2031,6 +2031,29 @@ Feature: nmcli - general
     When Check NM memory consumption difference from "0" is "less than" "130" in "60" seconds
 
 
+    @rhbz1433303
+    @ver+=1.4.0
+    @not_on_aarch64
+    @logging_info_only
+    @stable_mem_consumption_massif
+    Scenario: NM - general - stable mem consumption using massif
+    * Cleanup device "eth0"
+    * Cleanup device "brX"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:orig*;interface-name:eth*
+      """
+    * Start NM in valgrind using tool "massif"
+    # Wait not needed, step before waits until it NM becomes responsive
+    #* Wait for "5" seconds
+    * Execute reproducer "repro_1433303.sh" for "2" times
+    * Wait for "10" seconds
+    * Note NM memory consumption as value "0"
+    * Execute reproducer "repro_1433303.sh" for "2" times
+    When Check NM memory consumption difference from "0" is "less than" "130" in "60" seconds
+
+
     @rhbz1461643 @rhbz1945282
     @ver+=1.10.0
     @ver/rhel/8+=1.36.0.8
@@ -2053,6 +2076,28 @@ Feature: nmcli - general
     * Execute reproducer "repro_1461643.sh" for "5" times
     When Check NM memory consumption difference from "0" is "less than" "400" in "60" seconds
 
+
+    @rhbz1461643 @rhbz1945282
+    @ver+=1.10.0
+    @ver/rhel/8+=1.36.0.8
+    @ver/rhel/9/0+=1.36.0.6
+    @ver/rhel/9+=1.38.7
+    @not_on_aarch64
+    @no_config_server
+    @logging_info_only @allow_veth_connections
+    @stable_mem_consumption2_massif
+    Scenario: NM - general - stable mem consumption - var 2
+    * Cleanup device "eth0"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:orig*;interface-name:eth*
+      """
+    * Start NM in valgrind using tool "massif"
+    * Execute reproducer "repro_1461643.sh" for "3" times
+    * Note NM memory consumption as value "0"
+    * Execute reproducer "repro_1461643.sh" for "5" times
+    When Check NM memory consumption difference from "0" is "less than" "400" in "60" seconds
 
 
     @rhbz1398932

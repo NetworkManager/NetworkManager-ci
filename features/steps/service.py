@@ -80,7 +80,8 @@ def pause_restart_check(context, steps):
 
 
 @step("Start NM in valgrind")
-def NM_valgrind_start(context):
+@step('Start NM in valgrind using tool "{tool}"')
+def NM_valgrind_start(context, tool="memcheck"):
     assert (
         getattr(context, "nm_valgrind_proc", None) is None
     ), "NM already running in valgrind"
@@ -90,9 +91,67 @@ def NM_valgrind_start(context):
     # do not use nmutil, we do not want cleanup NM start registered
     nmci.process.systemctl("stop NetworkManager")
     context.nm_pid = 0
+    tool_cmd = f"--tool={tool}"
+
+    if tool == "memcheck":
+        tool_cmd += " --leak-check=full --errors-for-leak-kinds=definite --show-leak-kinds=definite"
+
+        def _mem_size(pid):
+            leak_summary = nmci.process.run_stdout(
+                f"vgdb --pid={pid} leak_check summary", ignore_stderr=True
+            )
+            still_reachable = int(
+                leak_summary.split("still reachable:")[1]
+                .strip()
+                .split(" ")[0]
+                .replace(",", "")
+            )
+            return int(still_reachable / 1024)
+
+        context.nm_valgrind_mem_size = _mem_size
+
+        def _final_check(proc):
+            proc.expect(["ERROR SUMMARY", nmci.pexpect.TIMEOUT], timeout=5)
+            proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
+            # proc.before is string after "ERROR SUMMARY" and before EOF
+            return proc.before
+
+        context.nm_valgrind_final_check = _final_check
+
+    elif tool == "massif":
+        context.nm_valgrind_massif_f = nmci.util.tmp_dir(
+            f"massif.{str(nmci.util.random_int(nmci.util.nmci_random_seed()))}"
+        )
+        tool_cmd += f" --massif-out-file={context.nm_valgrind_massif_f}"
+
+        def _mem_size(pid):
+            snap_file = nmci.util.tmp_dir(f"snap.{pid}")
+            # trunc file to prevent using old data
+            nmci.util.file_set_content(snap_file)
+            nmci.process.run(
+                f"vgdb --pid={pid} snapshot {snap_file}", ignore_stderr=True
+            )
+
+            for line in nmci.util.file_get_content_simple(snap_file).split("\n"):
+                if "mem_heap_B=" in line:
+                    return int(int(line.split("=")[1]) / 1024)
+            assert False, "unable to read mem usage"
+
+        context.nm_valgrind_mem_size = _mem_size
+
+        def _final_check(proc):
+            proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
+            nmci.embed.embed_file_if_exists(
+                "MASSIF", nmci.cext.context.nm_valgrind_massif_f
+            )
+            os.remove(nmci.cext.context.nm_valgrind_massif_f)
+            # massif can not do leak checks return no error
+            return ": 0 errors"
+
+        context.nm_valgrind_final_check = _final_check
+
     nm_valgrind_cmd = (
-        "valgrind --vgdb=yes --leak-check=full --errors-for-leak-kinds=definite "
-        "--show-leak-kinds=definite --num-callers=99 NetworkManager --no-daemon"
+        f"valgrind --vgdb=yes {tool_cmd} --num-callers=99 NetworkManager --no-daemon"
     )
 
     for _ in range(2):
@@ -123,12 +182,13 @@ def NM_valgrind_stop(context):
     context.nm_valgrind_proc = None
     results = ": no data"
     proc.kill(15)
-    r = proc.expect(["ERROR SUMMARY", nmci.pexpect.TIMEOUT], timeout=5)
+    results = context.nm_valgrind_final_check(proc)
+    r = proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
     if r == 1:
+        print(
+            "NM in valgrind did not finish in 5s after signal TERM, sending signal KILL"
+        )
         proc.kill(9)
-        time.sleep(2)
-    proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
-    # proc.before is string between "ERROR SUMMARY" and EOF (excluded).
-    results = proc.before
+        proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
     nmci.nmutil.start_NM_service()
     assert " 0 errors" in results, f"ERROR SUMMARY{results}"

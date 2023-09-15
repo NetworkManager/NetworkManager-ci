@@ -967,7 +967,7 @@ class _Util:
         import random
 
         context = nmci.cext.context
-        if context is None:
+        if context is None or "DummyContext" in context.__class__.__name__:
             context = ""
         else:
             context = f"/[{context.scenario}/{context.current_step.name}/{context.current_step.location}]"
