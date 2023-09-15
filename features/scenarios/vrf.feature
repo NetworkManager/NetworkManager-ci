@@ -17,7 +17,7 @@ Feature: nmcli: vrf
           ipv4.method disabled
           ipv6.method disabled
           """
-    * Add "ethernet" connection named "vrf.eth1" for device "eth1" with options
+    * Add "ethernet" connection named "vrf.eth10" for device "eth10" with options
           """
           master vrf0
           ipv4.method manual
@@ -35,23 +35,23 @@ Feature: nmcli: vrf
           ipv4.method manual
           ipv4.address 192.0.2.1/24
           """
-    * Bring "up" connection "vrf.eth1"
+    * Bring "up" connection "vrf.eth10"
     * Bring "up" connection "vrf.eth4"
 
-    When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
-    When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device"
+    When "eth10\:ethernet\:connected\:vrf.eth10" is visible with command "nmcli -t device" in "5" seconds
+    When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device" in "5" seconds
     When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
     When "vrf1\:vrf\:connected\:vrf1" is visible with command "nmcli -t device"
 
-    When "eth1|eth4" is not visible with command "ip r"
+    When "eth10|eth4" is not visible with command "ip r"
 
-    When "192.0.2.1" is visible with command "ip a s eth1"
+    When "192.0.2.1" is visible with command "ip a s eth10"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # When "broadcast 192.0.2.0 dev eth10 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
     # VVV Reproducer for 1773908
-    When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
-    When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
-    When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "192.0.2.0\/24 dev eth10 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
+    When "local 192.0.2.1 dev eth10 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "broadcast 192.0.2.255 dev eth10 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
 
     When "192.0.2.1" is visible with command "ip a s eth4"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
@@ -121,7 +121,7 @@ Feature: nmcli: vrf
           ipv4.method disabled
           ipv6.method disabled
           """
-    * Add "ethernet" connection named "vrf.eth1" for device "eth1" with options
+    * Add "ethernet" connection named "vrf.eth10" for device "eth10" with options
           """
           master vrf0
           ipv4.method manual
@@ -139,22 +139,22 @@ Feature: nmcli: vrf
           ipv4.method manual
           ipv4.address 192.0.2.1/24
           """
-    * Bring "up" connection "vrf.eth1"
+    * Bring "up" connection "vrf.eth10"
     * Bring "up" connection "vrf.eth4"
-    When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
+    When "eth10\:ethernet\:connected\:vrf.eth10" is visible with command "nmcli -t device" in "5" seconds
     When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device"
     When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
     When "vrf1\:vrf\:connected\:vrf1" is visible with command "nmcli -t device"
 
-    * Bring "down" connection "vrf.eth1"
+    * Bring "down" connection "vrf.eth10"
     * Bring "down" connection "vrf.eth4"
 
-    When "192.0.2.1" is not visible with command "ip a s eth1"
+    When "192.0.2.1" is not visible with command "ip a s eth10"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
-    When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
-    When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
-    When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    # When "broadcast 192.0.2.0 dev eth10 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    When "192.0.2.0\/24 dev eth10 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
+    When "local 192.0.2.1 dev eth10 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
+    When "broadcast 192.0.2.255 dev eth10 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
 
     When "192.0.2.1" is not visible with command "ip a s eth4"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
@@ -174,7 +174,7 @@ Feature: nmcli: vrf
           ipv4.method disabled
           ipv6.method disabled
           """
-    * Add "ethernet" connection named "vrf.eth1" for device "eth1" with options
+    * Add "ethernet" connection named "vrf.eth10" for device "eth10" with options
           """
           master vrf0
           ipv4.method manual
@@ -192,22 +192,22 @@ Feature: nmcli: vrf
           ipv4.method manual
           ipv4.address 192.0.2.1/24
           """
-    * Bring "up" connection "vrf.eth1"
+    * Bring "up" connection "vrf.eth10"
     * Bring "up" connection "vrf.eth4"
-    When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "5" seconds
+    When "eth10\:ethernet\:connected\:vrf.eth10" is visible with command "nmcli -t device" in "5" seconds
     When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device"
     When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
     When "vrf1\:vrf\:connected\:vrf1" is visible with command "nmcli -t device"
 
-    * Delete connection "vrf.eth1"
+    * Delete connection "vrf.eth10"
     * Delete connection "vrf.eth4"
 
-    When "192.0.2.1" is not visible with command "ip a s eth1"
+    When "192.0.2.1" is not visible with command "ip a s eth10"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
-    When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
-    When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
-    When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    # When "broadcast 192.0.2.0 dev eth10 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
+    When "192.0.2.0\/24 dev eth10 proto kernel scope link src 192.0.2.1 metric 1" is not visible with command "ip r show table 1001"
+    When "local 192.0.2.1 dev eth10 proto kernel scope host src 192.0.2.1" is not visible with command "ip r show table 1001"
+    When "broadcast 192.0.2.255 dev eth10 proto kernel scope link src 192.0.2.1" is not visible with command "ip r show table 1001"
 
     When "192.0.2.1" is not visible with command "ip a s eth4"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
@@ -227,7 +227,7 @@ Feature: nmcli: vrf
           ipv4.method disabled
           ipv6.method disabled
           """
-    * Add "ethernet" connection named "vrf.eth1" for device "eth1" with options
+    * Add "ethernet" connection named "vrf.eth10" for device "eth10" with options
           """
           master vrf0
           ipv4.method manual
@@ -245,24 +245,24 @@ Feature: nmcli: vrf
           ipv4.method manual
           ipv4.address 192.0.2.1/24
           """
-    * Bring "up" connection "vrf.eth1"
+    * Bring "up" connection "vrf.eth10"
     * Bring "up" connection "vrf.eth4"
 
     * Reboot
 
-    When "eth1\:ethernet\:connected\:vrf.eth1" is visible with command "nmcli -t device" in "25" seconds
+    When "eth10\:ethernet\:connected\:vrf.eth10" is visible with command "nmcli -t device" in "25" seconds
     When "eth4\:ethernet\:connected\:vrf.eth4" is visible with command "nmcli -t device"
     When "vrf0\:vrf\:connected\:vrf0" is visible with command "nmcli -t device"
     When "vrf1\:vrf\:connected\:vrf1" is visible with command "nmcli -t device"
 
-    When "eth1|eth4" is not visible with command "ip r"
+    When "eth10|eth4" is not visible with command "ip r"
 
-    When "192.0.2.1" is visible with command "ip a s eth1"
+    When "192.0.2.1" is visible with command "ip a s eth10"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
-    # When "broadcast 192.0.2.0 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
-    When "192.0.2.0\/24 dev eth1 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
-    When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
-    When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    # When "broadcast 192.0.2.0 dev eth10 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "192.0.2.0\/24 dev eth10 proto kernel scope link src 192.0.2.1 metric 1" is visible with command "ip r show table 1001"
+    When "local 192.0.2.1 dev eth10 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
+    When "broadcast 192.0.2.255 dev eth10 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
 
     When "192.0.2.1" is visible with command "ip a s eth4"
     # Obsolete by https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=94c821c74bf5fe0c25e09df5334a16f98608db90
