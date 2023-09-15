@@ -808,24 +808,24 @@ Feature: nmcli - ovs
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     # Was not backported
     # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     # Was not backported
     # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     When "00:11:22:33:44:55" is visible with command "ip a s iface0"
     # Was not backported
     # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
 
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
@@ -854,24 +854,24 @@ Feature: nmcli - ovs
     Then "192.168.97.13/24" is visible with command "ip a s iface0"
     When "00:11:22:33:45:67" is visible with command "ip a s iface0"
     When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "192.168.97.13/24" is visible with command "ip a s iface0"
     When "00:11:22:33:45:67" is visible with command "ip a s iface0"
     When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
     # No sleep 2 as a reproducer of 1855563
     * Execute "nmcli networking off && nmcli networking on"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
     Then "192.168.97.13/24" is visible with command "ip a s iface0"
     When "00:11:22:33:45:67" is visible with command "ip a s iface0"
     When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "sudo ovs-vsctl list interface"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
 
 
     @rhbz1786937
@@ -1513,25 +1513,25 @@ Feature: nmcli - ovs
     * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bond0  +o:bond-miimon-interval 200"
     * Bring "up" connection "ovs-bond0"
     Then "other-config: \"bond-miimon-interval\" = \"200\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0"
-    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "sudo ovs-vsctl list port"
+    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "ovs-vsctl list port"
 
     * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bridge0  +o:mac-table-size 10000"
     * Bring "up" connection "ovs-bridge0"
     Then "other-config: \"mac-table-size\" = \"10000\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bridge0"
-    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "sudo ovs-vsctl list bridge"
+    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "ovs-vsctl list bridge"
 
     * Execute "python3 contrib/ovs/ovs-external-ids.py set id ovs-bond0-iface0 +o:cfm_interval 100"
     * Bring "up" connection "ovs-bond0-iface0"
     Then "other-config: \"cfm_interval\" = \"100\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0-iface0"
-    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "sudo ovs-vsctl list interface"
+    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "ovs-vsctl list interface"
 
     * Reboot
     Then "other-config: \"bond-miimon-interval\" = \"200\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0"
-    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "sudo ovs-vsctl list port"
+    Then "other_config\s+: \{bond-miimon-interval=\"200\"\}" is visible with command "ovs-vsctl list port"
     Then "other-config: \"mac-table-size\" = \"10000\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bridge0"
-    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "sudo ovs-vsctl list bridge"
+    Then "other_config\s+: \{mac-table-size=\"10000\"\}" is visible with command "ovs-vsctl list bridge"
     Then "other-config: \"cfm_interval\" = \"100\"" is visible with command "python3 contrib/ovs/ovs-external-ids.py get id ovs-bond0-iface0"
-    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "sudo ovs-vsctl list interface"
+    Then "other_config\s+: \{cfm_interval=\"100\"\}" is visible with command "ovs-vsctl list interface"
 
 
     @rhbz2149012

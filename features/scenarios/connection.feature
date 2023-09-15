@@ -159,7 +159,7 @@ Feature: nmcli: connection
      * Execute "ip link set dev br0 up"
      * Execute "ip addr add 192.168.201.3/24 dev br0"
      When "br0" is visible with command "nmcli -f NAME connection show --active" in "5" seconds
-     * Execute "sudo ip link del br0"
+     * Execute "ip link del br0"
      Then "br0" is not visible with command "nmcli -f NAME connection show --active" in "5" seconds
 
 

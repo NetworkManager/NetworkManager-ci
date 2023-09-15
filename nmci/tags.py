@@ -168,13 +168,13 @@ def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping on not intel arch")
     # run as service
-    context.pexpect_service("sudo prepare/gsm_sim.sh modemu")
+    context.pexpect_service("prepare/gsm_sim.sh modemu")
 
 
 def gsm_sim_as(context, scenario):
     context.process.nmcli_force("con down id gsm")
     time.sleep(2)
-    context.process.run("sudo prepare/gsm_sim.sh teardown", ignore_stderr=True)
+    context.process.run("prepare/gsm_sim.sh teardown", ignore_stderr=True)
     time.sleep(1)
     context.process.nmcli_force("con del id gsm")
     nmci.embed.embed_file_if_exists(
@@ -528,7 +528,7 @@ def alias_as(context, scenario):
     context.process.run_stdout("rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2")
     context.process.nmcli("connection reload")
     context.process.nmcli_force("connection down testeth7")
-    # context.process.run_stdout('sudo nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no')
+    # context.process.run_stdout('nmcli con add type ethernet ifname eth7 con-name testeth7 autoconnect no')
     # sleep(TIMER)
 
 
@@ -572,7 +572,7 @@ def mock_bs(context, scenario):
             "yum -y install dbus-x11", timeout=120, ignore_stderr=True
         )
     context.process.run_stdout(
-        "sudo python3 -m pip install python-dbusmock==0.26.1 dataclasses",
+        "python3 -m pip install python-dbusmock==0.26.1 dataclasses",
         ignore_stderr=True,
         timeout=120,
     )
@@ -598,7 +598,7 @@ def IPy_bs(context, scenario):
     ):
         print("installing IPy")
         context.process.run_stdout(
-            "sudo python -m pip install IPy", ignore_stderr=True, timeout=120
+            "python -m pip install IPy", ignore_stderr=True, timeout=120
         )
 
 
@@ -613,7 +613,7 @@ def netaddr_bs(context, scenario):
     ):
         print("install netaddr")
         context.process.run_stdout(
-            "sudo python -m pip install netaddr", ignore_stderr=True, timeout=120
+            "python -m pip install netaddr", ignore_stderr=True, timeout=120
         )
 
 
@@ -826,7 +826,7 @@ def ifcfg_rh_as(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/96-nmci-custom.conf"):
         print("resetting ifcfg plugin")
         context.process.run_stdout(
-            "sudo rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
+            "rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
         )
         nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
@@ -873,7 +873,7 @@ def keyfile_as(context, scenario):
     if os.path.isfile("/etc/NetworkManager/conf.d/96-nmci-custom.conf"):
         print("resetting ifcfg plugin")
         context.process.run_stdout(
-            "sudo rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
+            "rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
         )
         nmci.nmutil.restart_NM_service()
         if context.IS_NMTUI:
@@ -980,7 +980,7 @@ _register_tag("logging", logging_bs, logging_as)
 
 
 def netservice_bs(context, scenario):
-    context.process.run_stdout("sudo pkill -9 /sbin/dhclient")
+    context.process.run_stdout("pkill -9 /sbin/dhclient")
     # Make orig- devices unmanaged as they may be unfunctional
     devs = context.process.nmcli("-g DEVICE device").strip().split("\n")
     for dev in devs:
@@ -1205,7 +1205,7 @@ def vpnc_bs(context, scenario):
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
         context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+            "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
             ignore_stderr=True,
@@ -1213,7 +1213,7 @@ def vpnc_bs(context, scenario):
     if context.process.run_code("rpm -q NetworkManager-vpnc") != 0:
         print("install NetworkManager-vpnc")
         context.process.run_stdout(
-            "sudo yum -y install NetworkManager-vpnc",
+            "yum -y install NetworkManager-vpnc",
             timeout=120,
             ignore_stderr=True,
         )
@@ -1237,7 +1237,7 @@ def tcpreplay_bs(context, scenario):
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
         context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+            "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
             ignore_stderr=True,
@@ -1256,7 +1256,7 @@ def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
         context.process.run_stdout(
-            "sudo yum -y install NetworkManager-libreswan",
+            "yum -y install NetworkManager-libreswan",
             timeout=120,
             ignore_stderr=True,
         )
@@ -1614,25 +1614,25 @@ def pptp_bs(context, scenario):
     if "Maipo" in context.rh_release:
         print("install epel-release-7")
         context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+            "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
             shell=True,
             timeout=120,
             ignore_stderr=True,
         )
     context.process.run_stdout(
-        "[ -x /usr/sbin/pptpd ] || sudo yum -y install /usr/sbin/pptpd",
+        "[ -x /usr/sbin/pptpd ] || yum -y install /usr/sbin/pptpd",
         shell=True,
         timeout=120,
         ignore_stderr=True,
     )
     context.process.run_stdout(
-        "rpm -q NetworkManager-pptp || sudo yum -y install NetworkManager-pptp",
+        "rpm -q NetworkManager-pptp || yum -y install NetworkManager-pptp",
         shell=True,
         timeout=120,
         ignore_stderr=True,
     )
 
-    context.process.run_stdout("sudo rm -f /etc/ppp/ppp-secrets")
+    context.process.run_stdout("rm -f /etc/ppp/ppp-secrets")
     nmci.util.file_set_content("/etc/ppp/chap-secrets", ["budulinek pptpd passwd *"])
 
     if not os.path.isfile("/tmp/nm_pptp_configured"):
@@ -1672,7 +1672,7 @@ def firewall_bs(context, scenario):
         print("install firewalld")
         nmci.veth.wait_for_testeth0()
         context.process.run_stdout(
-            "sudo yum -y install firewalld", timeout=120, ignore_stderr=True
+            "yum -y install firewalld", timeout=120, ignore_stderr=True
         )
     context.process.systemctl("unmask firewalld")
     time.sleep(1)
@@ -1687,13 +1687,13 @@ def firewall_bs(context, scenario):
 
 
 def firewall_as(context, scenario):
-    context.process.run_stdout("sudo firewall-cmd --panic-off", ignore_stderr=True)
+    context.process.run_stdout("firewall-cmd --panic-off", ignore_stderr=True)
     context.process.run_stdout(
-        "sudo firewall-cmd --permanent --remove-port=51820/udp --zone=public",
+        "firewall-cmd --permanent --remove-port=51820/udp --zone=public",
         ignore_stderr=True,
     )
     context.process.run_stdout(
-        "sudo firewall-cmd --permanent --zone=public --remove-masquerade",
+        "firewall-cmd --permanent --zone=public --remove-masquerade",
         ignore_stderr=True,
     )
     context.process.systemctl("stop firewalld")
@@ -2014,15 +2014,11 @@ _register_tag("nmstate_setup", None, nmstate_setup_as)
 
 
 def backup_sysconfig_network_bs(context, scenario):
-    context.process.run_stdout(
-        "sudo cp -f /etc/sysconfig/network /tmp/sysnetwork.backup"
-    )
+    context.process.run_stdout("cp -f /etc/sysconfig/network /tmp/sysnetwork.backup")
 
 
 def backup_sysconfig_network_as(context, scenario):
-    context.process.run_stdout(
-        "sudo mv -f /tmp/sysnetwork.backup /etc/sysconfig/network"
-    )
+    context.process.run_stdout("mv -f /tmp/sysnetwork.backup /etc/sysconfig/network")
     nmci.nmutil.reload_NM_connections()
     context.process.nmcli_force("connection down testeth9")
 
@@ -2051,7 +2047,7 @@ def need_config_server_bs(context, scenario):
     else:
         print("Install NetworkManager-config-server")
         context.process.run_stdout(
-            "sudo yum -y install NetworkManager-config-server", timeout=120
+            "yum -y install NetworkManager-config-server", timeout=120
         )
         nmci.nmutil.reload_NM_service()
         context.remove_config_server = True
@@ -2061,7 +2057,7 @@ def need_config_server_as(context, scenario):
     if context.remove_config_server:
         print("removing NetworkManager-config-server")
         context.process.run_stdout(
-            "sudo yum -y remove NetworkManager-config-server", timeout=120
+            "yum -y remove NetworkManager-config-server", timeout=120
         )
         nmci.cleanup.add_NM_service("restart")
 
@@ -2073,7 +2069,7 @@ def no_config_server_bs(context, scenario):
     if context.process.run_code("rpm -q NetworkManager-config-server") == 1:
         context.restore_config_server = False
     else:
-        # context.process.run_stdout('sudo yum -y remove NetworkManager-config-server')
+        # context.process.run_stdout('yum -y remove NetworkManager-config-server')
         config_files = (
             context.process.run_stdout("rpm -ql NetworkManager-config-server")
             .strip()
@@ -2083,9 +2079,7 @@ def no_config_server_bs(context, scenario):
             config_file = config_file.strip()
             if os.path.isfile(config_file):
                 print(f"* disabling file: {config_file}")
-                context.process.run_stdout(
-                    f"sudo mv -f {config_file} {config_file}.off"
-                )
+                context.process.run_stdout(f"mv -f {config_file} {config_file}.off")
         nmci.nmutil.reload_NM_service()
         context.restore_config_server = True
 
@@ -2101,9 +2095,7 @@ def no_config_server_as(context, scenario):
             config_file = config_file.strip()
             if os.path.isfile(config_file + ".off"):
                 print(f"* enabling file: {config_file}")
-                context.process.run_stdout(
-                    f"sudo mv -f {config_file}.off {config_file}"
-                )
+                context.process.run_stdout(f"mv -f {config_file}.off {config_file}")
         nmci.cleanup.add_NM_service("restart")
     conns = (
         nmci.process.nmcli("-t -f UUID,NAME c", embed_combine_tag=nmci.embed.NO_EMBED)
@@ -2143,7 +2135,7 @@ def tcpdump_bs(context, scenario):
         ["~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"],
     )
     context.pexpect_service(
-        "sudo tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True
+        "tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True
     )
 
 
@@ -2167,9 +2159,9 @@ def wifi_as(context, scenario):
         context.process.nmcli_force(
             "connection delete id wifi wifi1 qe-open qe-wpa1-psk qe-wpa2-psk qe-wpa3-psk qe-wep"
         )
-        # context.process.run_stdout("sudo service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
+        # context.process.run_stdout("service NetworkManager restart") # debug restart to overcome the nmcli d w l flickering
     else:
-        # context.process.run_stdout('sudo nmcli device disconnect wlan0')
+        # context.process.run_stdout('nmcli device disconnect wlan0')
         context.process.nmcli_force(
             "con del wifi qe-open qe-wep qe-wep-psk qe-wep-enterprise qe-wep-enterprise-cisco"
         )
@@ -2326,9 +2318,9 @@ _register_tag("no_auto_default", no_auto_default_bs, no_auto_default_as)
 
 
 def allow_veth_connections_as(context, scenario):
-    context.process.run_stdout("sudo rm -rf /etc/udev/rules.d/99-veths.rules")
+    context.process.run_stdout("rm -rf /etc/udev/rules.d/99-veths.rules")
     context.process.run_stdout(
-        "sudo rm -rf /etc/NetworkManager/conf.d/95-nmci-unmanaged.conf"
+        "rm -rf /etc/NetworkManager/conf.d/95-nmci-unmanaged.conf"
     )
     nmci.util.update_udevadm()
     nmci.nmutil.reload_NM_service()
@@ -2752,7 +2744,7 @@ def filter_batch_bs(context, scenario):
 
 
 def filter_batch_as(context, scenario):
-    context.process.run_stdout("sudo rm /tmp/filter_batch.txt")
+    context.process.run_stdout("rm /tmp/filter_batch.txt")
 
 
 _register_tag("filter_batch", filter_batch_bs, filter_batch_as)

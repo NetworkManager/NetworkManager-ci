@@ -32,7 +32,7 @@ def create_config_file(context, filename="96-nmci-custom.conf", operation=None):
 def append_to_file(context, name, line=None):
     if line is None:
         line = context.text if context.text is not None else " "
-    cmd = 'sudo echo "%s" >> %s' % (line, name)
+    cmd = 'echo "%s" >> %s' % (line, name)
     context.command_code(cmd)
 
 
@@ -45,7 +45,7 @@ def replace_substring(context, substring, replacement, path):
 
 @step('Append "{line}" to ifcfg file "{name}"')
 def append_to_ifcfg(context, line, name):
-    cmd = 'sudo echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
+    cmd = 'echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
     nmci.cleanup.add_connection(name)
 
@@ -130,7 +130,7 @@ def remove_symlink(context, filename):
 
 @step("Create symlink {source} with destination {destination}")
 def create_symlink(context, source, destination):
-    cmd = 'sudo ln -s "%s" "%s"' % (destination, source)
+    cmd = 'ln -s "%s" "%s"' % (destination, source)
     context.command_code(cmd)
 
 

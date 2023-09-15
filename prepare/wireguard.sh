@@ -39,13 +39,13 @@ function make_from_src {
     # compile module
     git clone https://git.zx2c4.com/wireguard-linux-compat
     pushd wireguard-linux-compat/src
-        make ARCH=$ARCH && sudo make install ARCH=$ARCH
+        make ARCH=$ARCH && make install ARCH=$ARCH
     popd
 
     #compile tools
     git clone https://git.zx2c4.com/wireguard-tools
     pushd wireguard-tools/src
-        make && sudo make install
+        make && make install
     popd
 
 }
@@ -57,7 +57,7 @@ if (is_installed) ; then
 fi
 
 # install tools required for build
-sudo yum -y install libmnl-devel elfutils-libelf-devel kernel-devel-$(uname -r) pkg-config gcc git
+yum -y install libmnl-devel elfutils-libelf-devel kernel-devel-$(uname -r) pkg-config gcc git
 
 cd contrib/wireguard/
 

@@ -5,7 +5,7 @@ install_el9_packages () {
 
     # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
-        [ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+        [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     fi
 
     python -m pip install pyroute2
