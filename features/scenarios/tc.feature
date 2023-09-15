@@ -141,7 +141,7 @@
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent 10:   matchall action mirred egress mirror dev dummy0""
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
-    * Run child "sudo tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
+    * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
@@ -165,7 +165,7 @@
     * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev dummy0""
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
-    * Run child "sudo tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
+    * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds

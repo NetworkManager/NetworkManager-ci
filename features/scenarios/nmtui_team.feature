@@ -323,7 +323,7 @@ Feature: Team TUI tests
     * Set team json config to "{"device":"team0","runner":{"name":"loadbalance"},"ports":{"eth1":{},"eth2": {}}}"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl team0 state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl team0 state dump"
     Then Check slave "eth1" in team "team0" is "up"
     Then Check slave "eth2" in team "team0" is "up"
 
@@ -347,7 +347,7 @@ Feature: Team TUI tests
     * Set team json config to "{    "device":       "team0",  "runner":       {"name": "broadcast"},  "ports":        {"eth1": {}, "eth2": {}}}"
     * Ensure "Automatically connect" is checked
     * Confirm the connection settings
-    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl team0 state dump"
+    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "teamdctl team0 state dump"
     Then Check slave "eth1" in team "team0" is "up"
     Then Check slave "eth2" in team "team0" is "up"
 

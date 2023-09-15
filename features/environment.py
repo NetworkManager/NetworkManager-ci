@@ -111,7 +111,7 @@ def _before_scenario(context, scenario):
     nmci.embed.set_title(f"NMCI: {scenario.tags[-1]}")
 
     if context.IS_NMTUI:
-        nmci.process.run_code("sudo pkill nmtui", ignore_stderr=True)
+        nmci.process.run_code("pkill nmtui", ignore_stderr=True)
         context.screen_logs = []
     else:
         if not os.path.isfile("/tmp/nm_wifi_configured") and not os.path.isfile(

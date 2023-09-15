@@ -72,7 +72,7 @@ def setup_openvpn(context, tags):
     nmci.util.file_set_content("/etc/openvpn/trest-server.conf", conf)
     time.sleep(1)
     ovpn_proc = context.pexpect_service(
-        "sudo openvpn --writepid /tmp/openvpn.pid --config /etc/openvpn/trest-server.conf"
+        "openvpn --writepid /tmp/openvpn.pid --config /etc/openvpn/trest-server.conf"
     )
     res = ovpn_proc.expect(
         ["Initialization Sequence Completed", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF],
@@ -108,7 +108,7 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
             nmci.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+                "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
                 ignore_stderr=True,
@@ -140,7 +140,7 @@ def setup_hostapd(context):
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
             nmci.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+                "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
                 ignore_stderr=True,
@@ -240,7 +240,7 @@ def setup_hostapd_wireless(context, args=None):
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
             nmci.process.run_stdout(
-                "[ -f /etc/yum.repos.d/epel.repo ] || sudo rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+                "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
                 shell=True,
                 timeout=120,
                 ignore_stderr=True,

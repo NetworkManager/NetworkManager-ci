@@ -630,8 +630,8 @@ Feature: nmcli - bridge
     @bridge_assumed_connection_no_firewalld_zone
     Scenario: NM - bridge - no firewalld zone for bridge assumed connection
     * Create "bridge" device named "br0"
-    * Execute "sudo ip link set dev br0 up"
-    * Execute "sudo ip addr add 1.1.1.2/24 dev br0"
+    * Execute "ip link set dev br0 up"
+    * Execute "ip addr add 1.1.1.2/24 dev br0"
     When "IP4.ADDRESS\[1\]:\s+1.1.1.2\/24" is visible with command "nmcli con show br0" in "5" seconds
     Then "br0" is not visible with command "firewall-cmd --get-active-zones" in "5" seconds
 
@@ -641,13 +641,13 @@ Feature: nmcli - bridge
     Scenario: NM - bridge - Layer2 changes for bridge assumed connection
     * Create "bridge" device named "br0"
     * Create "dummy" device named "dummy0"
-    * Execute "sudo ip link set dummy0 master br0"
+    * Execute "ip link set dummy0 master br0"
     When "br0" is not visible with command "nmcli con"
-    * Execute "sudo ip link set dev br0 up"
-    * Execute "sudo ip link set dev dummy0 up"
-    * Execute "sudo ip addr add 1.1.1.2/24 dev dummy0"
-    * Execute "sudo ip addr add 1::3/128 dev br0"
-    * Execute "sudo ip addr add 1.1.1.3/24 dev br0"
+    * Execute "ip link set dev br0 up"
+    * Execute "ip link set dev dummy0 up"
+    * Execute "ip addr add 1.1.1.2/24 dev dummy0"
+    * Execute "ip addr add 1::3/128 dev br0"
+    * Execute "ip addr add 1.1.1.3/24 dev br0"
     Then "ipv4.method:\s+manual.*ipv4.addresses:\s+1.1.1.3\/24.*ipv6.method:\s+manual.*ipv6.addresses:\s+1::3\/128" is visible with command "nmcli connection show br0" in "5" seconds
 
 
@@ -655,7 +655,7 @@ Feature: nmcli - bridge
     @restart_if_needed @long
     @bridge_external_unmanaged
     Scenario: bridge_external_unmanaged: add external bridge, ensure is unmanaged
-    * Execute "sudo sh -c 'nmcli general logging level DEBUG'"
+    * Execute "sh -c 'nmcli general logging level DEBUG'"
     Then Externally created bridge has IP when NM overtakes it repeated "30" times
 
 
@@ -1019,7 +1019,7 @@ Feature: nmcli - bridge
     When "mtu 9000" is visible with command "ip a s br0"
     When "mtu 9000" is visible with command "ip a s dummy0"
     * Modify connection "bridge0" changing options "802-3-ethernet.mtu 1500"
-    * Execute "sudo nmcli d reapply br0"
+    * Execute "nmcli d reapply br0"
     * Bring "up" connection "bridge-slave-eth4"
     Then "mtu 1500" is visible with command "ip a s br0"
     Then "mtu 9000" is visible with command "ip a s dummy0"
@@ -1066,7 +1066,7 @@ Feature: nmcli - bridge
     When "mtu 9000" is visible with command "ip a s br0"
     When "mtu 9000" is visible with command "ip a s dummy0"
     * Modify connection "bridge0" changing options "802-3-ethernet.mtu 1500"
-    * Execute "sudo nmcli d reapply br0"
+    * Execute "nmcli d reapply br0"
     * Bring "up" connection "bridge-slave-eth4"
     Then "mtu 1500" is visible with command "ip a s br0"
     Then "mtu 9000" is visible with command "ip a s dummy0"
@@ -1085,7 +1085,7 @@ Feature: nmcli - bridge
           connection.autoconnect-slaves no
           """
     * Modify connection "bridge0" changing options "mtu 1500"
-    * Execute "sudo nmcli d reapply br0"
+    * Execute "nmcli d reapply br0"
     * Bring "up" connection "bridge0"
     When "mtu 1500" is visible with command "ip a s br0" in "5" seconds
     * Modify connection "bridge0" changing options "remove 802-3-ethernet"
@@ -1113,7 +1113,7 @@ Feature: nmcli - bridge
     When "mtu 9000" is visible with command "ip a s br0"
     When "mtu 9000" is visible with command "ip a s dummy0"
     * Modify connection "bridge0" changing options "802-3-ethernet.mtu 1500"
-    * Execute "sudo nmcli d reapply br0"
+    * Execute "nmcli d reapply br0"
     * Bring "up" connection "bridge-slave-eth4"
     Then "mtu 1500" is visible with command "ip a s br0"
     Then "mtu 9000" is visible with command "ip a s dummy0"

@@ -1203,7 +1203,7 @@ Feature: nmcli - dns
       dns=none
       """
     * Restart NM
-    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
+    * Execute "echo 'nameserver 1.2.3.4' | bash -c 'cat > /etc/resolv.conf'"
     * Execute "systemctl mask sendmail"
     * Bring "up" connection "testeth0"
     * Execute "systemctl unmask sendmail"
@@ -1221,13 +1221,13 @@ Feature: nmcli - dns
       dns=none
       """
     * Restart NM
-    * Execute "echo 'nameserver 1.2.3.4' | sudo bash -c 'cat > /etc/resolv.conf'"
+    * Execute "echo 'nameserver 1.2.3.4' | bash -c 'cat > /etc/resolv.conf'"
     * Execute "systemctl mask sendmail"
     * Bring "up" connection "testeth0"
     * Execute "systemctl unmask sendmail"
     When Nameserver "1[0-9]" is not set in "5" seconds
     When Nameserver "1.2.3.4" is set in "5" seconds
-    * Execute "sudo rm -rf /etc/NetworkManager/conf.d/90-nmci-test-dns-none.conf"
+    * Execute "rm -rf /etc/NetworkManager/conf.d/90-nmci-test-dns-none.conf"
     * Restart NM
     * Bring "up" connection "testeth0"
     Then Nameserver "1.2.3.4" is not set in "5" seconds

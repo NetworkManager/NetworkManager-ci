@@ -191,7 +191,7 @@ def prepare_veths(context, pairs_array, bridge):
         pairs.append(pair.strip())
 
     context.execute_steps(f'* Create "bridge" device named "{bridge}"')
-    context.command_code("sudo ip link set dev %s up" % bridge)
+    context.command_code("ip link set dev %s up" % bridge)
     for pair in pairs:
         nmci.veth.manage_device(pair)
         context.execute_steps(

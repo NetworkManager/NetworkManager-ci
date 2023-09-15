@@ -128,7 +128,7 @@
 
     * Reload connections
     * Bring "up" connection "eth7"
-    * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
+    * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
     * Reload connections
     * Bring "up" connection "eth7"
 
@@ -172,9 +172,9 @@
     * "inet 192.168.0.102" is visible with command "ip a s eth7"
     * "inet 192.168.0.103" is visible with command "ip a s eth7"
 
-    * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
-    * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1"
-    * Execute "sudo rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2"
+    * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:0"
+    * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:1"
+    * Execute "rm -f /etc/sysconfig/network-scripts/ifcfg-eth7:2"
     * Reload connections
     * Bring "up" connection "eth7"
 

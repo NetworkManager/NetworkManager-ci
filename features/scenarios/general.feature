@@ -29,7 +29,7 @@ Feature: nmcli - general
     @logging
     @nmcli_logging
     Scenario: NM - general - setting log level and autocompletion
-    Then "DEBUG\s+ERR\s+INFO\s+.*TRACE\s+WARN" is visible with tab after "sudo nmcli general logging level "
+    Then "DEBUG\s+ERR\s+INFO\s+.*TRACE\s+WARN" is visible with tab after "nmcli general logging level "
     * Set logging for "all" to "INFO"
     Then "INFO\s+[^:]*$" is visible with command "nmcli general logging"
     * Set logging for "default,WIFI:ERR" to " "
@@ -95,7 +95,7 @@ Feature: nmcli - general
     @restore_hostname
     @hostname_change
     Scenario: nmcli - general - set hostname
-    * Execute "sudo nmcli general hostname walderon"
+    * Execute "nmcli general hostname walderon"
     Then "walderon" is visible with command "cat /etc/hostname"
 
 
@@ -810,7 +810,7 @@ Feature: nmcli - general
     Scenario: NM - general - bring up connection after journald restart
     #* Add "ethernet" connection named "con_general" for device "eth8"
     #* Bring "up" connection "testeth0"
-    * Execute "sudo systemctl restart systemd-journald.service"
+    * Execute "systemctl restart systemd-journald.service"
     Then Bring "up" connection "testeth0"
 
 
@@ -1050,7 +1050,7 @@ Feature: nmcli - general
     @firewall
     @no_error_when_firewald_restarted
     Scenario: NM - general - no error when firewalld restarted
-    * Execute "sudo systemctl restart firewalld"
+    * Execute "systemctl restart firewalld"
     Then "nm_connection_get_setting_connection: assertion" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep nm_connection"
 
 
@@ -1072,7 +1072,7 @@ Feature: nmcli - general
     @restart_if_needed
     @wpa_supplicant_not_started
     Scenario: NM - general - do not start wpa_supplicant
-    * Execute "sudo systemctl stop wpa_supplicant"
+    * Execute "systemctl stop wpa_supplicant"
     * restart NM
     Then "^active" is not visible with command "systemctl is-active wpa_supplicant" in "5" seconds
 
@@ -2964,7 +2964,7 @@ Feature: nmcli - general
       dns-search=
       method=auto
       """
-    * Execute "sudo chmod go-rwx /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
+    * Execute "chmod go-rwx /usr/lib/NetworkManager/system-connections/con_general.nmconnection"
     * Restart NM
     When "con_general" is visible with command "nmcli connection" in "10" seconds
     * Note the output of "nmcli -g connection.uuid connection show con_general"
@@ -3269,8 +3269,8 @@ Feature: nmcli - general
     @eth0 @restore_hostname
     @nmcli_remove_static_hostname
     Scenario: nmcli - general - remove static hostname
-    * Execute "sudo nmcli general hostname example.org"
-    * Execute "sudo nmcli general hostname ''"
+    * Execute "nmcli general hostname example.org"
+    * Execute "nmcli general hostname ''"
     * Path "/etc/hostname" does not exist
     * "example.org" is not visible with command "hostname" in "10" seconds
 

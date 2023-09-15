@@ -28,7 +28,7 @@ def check_slave_in_bond_in_proc(context, slave, bond):
 
 @step('Check slave "{slave}" in team "{team}" is "{state}"')
 def check_slave_in_team_is_up(context, slave, team, state):
-    check_cmd = f"sudo teamdctl {team} port present {slave}"
+    check_cmd = f"teamdctl {team} port present {slave}"
     timeout = nmci.util.start_timeout(3)
     while timeout.loop_sleep(0.2):
         result = nmci.process.run_code(check_cmd, ignore_stderr=True)

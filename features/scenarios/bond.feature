@@ -2445,7 +2445,7 @@
      * Add "ethernet" connection named "bond0.0" for device "testXB" with options "master nm-bond autoconnect no"
      * Bring "up" connection "bond0"
      * Note MAC address output for device "nm-bond" via ip command
-     * Run child "sudo tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
+     * Run child "tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
      * Bring "up" connection "bond0.0"
      When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
      * Bring "up" connection "bond0"
@@ -2613,7 +2613,7 @@
           """
     * Bring "up" connection "bond0"
     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
-    * Execute "sudo nmcli d reapply nm-bond"
+    * Execute "nmcli d reapply nm-bond"
     Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
 
 
@@ -2629,7 +2629,7 @@
     * Bring "up" connection "bond0"
     Then "-1" is visible with command "nmcli -g connection.autoconnect-slaves con show bond0"
     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100 connection.autoconnect-slaves yes"
-    * Execute "sudo nmcli d reapply nm-bond"
+    * Execute "nmcli d reapply nm-bond"
     Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
     And "1" is visible with command "nmcli -g connection.autoconnect-slaves con show bond0"
 

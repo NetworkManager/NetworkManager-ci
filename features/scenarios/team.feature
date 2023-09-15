@@ -18,7 +18,7 @@
      * Enter in editor
      * Quit editor
     #Then Prompt is not running
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump"
 
 
     @rhbz1393853
@@ -29,7 +29,7 @@
     Scenario: nmcli - team - add default team after journal restart
      * Execute "systemctl restart systemd-journald"
      * Add "team" connection named "team0" for device "nm-team"
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump"
 
 
     @rhbz1393853 @rhbz2182029
@@ -41,7 +41,7 @@
      * Execute "systemctl restart systemd-journald"
      * Add "team" connection named "team0" for device "nm-team"
      Then "(Failed|Error)" is not visible with command "journalctl -u NetworkManager --since '30 seconds ago' --no-pager | grep libteamdctl"
-     And "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     And "ifname": "nm-team" is visible with command "teamdctl nm-team state dump"
 
 
     @ifcfg-rh
@@ -63,7 +63,7 @@
      * Submit "no" in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
+     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump" in "5" seconds
 
 
     @ver+=1.39.7
@@ -79,7 +79,7 @@
      * Enter in editor
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump" in "5" seconds
+     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump" in "5" seconds
 
 
     @ver+=1.21.1 @ver-=1.39.6
@@ -192,7 +192,7 @@
      * Disconnect device "nm-team"
     Then Team "nm-team" is down
      * Bring "up" connection "team0" ignoring error
-     Then "ifname": "nm-team" is visible with command "sudo teamdctl nm-team state dump"
+     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump"
 
 
     @rhbz1158529
@@ -338,7 +338,7 @@
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
 
@@ -351,7 +351,7 @@
         """
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
-    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
 
@@ -370,8 +370,8 @@
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
      * Restart NM
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
-     And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
+     And "\"runner_name\": \"lacp\"" is visible with command "teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
      And Check slave "eth6" in team "nm-team" is "up"
      And "Exactly" "1" lines with pattern "team0\s+" are visible with command "nmcli device"
@@ -387,7 +387,7 @@
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
-     Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
+     Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "teamdctl nm-team state dump"
       And Check slave "eth5" in team "nm-team" is "up"
       And Check slave "eth6" in team "nm-team" is "up"
 
@@ -415,14 +415,14 @@
         """
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
      * Add "ethernet" connection named "team0.1" for device "eth6" with options "master nm-team"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
      * Modify connection "team0" changing options "team.config "" "
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is not visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is not visible with command "teamdctl nm-team state dump"
     Then Check slave "eth5" in team "nm-team" is "up"
     Then Check slave "eth6" in team "nm-team" is "up"
 
@@ -566,7 +566,7 @@
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"
      * Bring "up" connection "team0.0"
-     Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
+     Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "teamdctl nm-team state dump"
       And Check slave "eth5" in team "nm-team" is "up"
       And Check slave "eth6" in team "nm-team" is "up"
 
@@ -757,36 +757,36 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set random runner
     * Execute "nmcli connection modify team0 team.runner random"
     * Bring "up" connection "team0"
     Then "{\s*\"runner\": {\s*\"name\": \"random\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"kernel_team_mode_name\": \"random\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"kernel_team_mode_name\": \"random\"" is visible with command "teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set broadcast runner
     * Execute "nmcli connection modify team0 team.runner broadcast"
     * Bring "up" connection "team0"
     Then "{\s*\"runner\": {\s*\"name\": \"broadcast\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
+     And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "teamdctl nm-team state dump"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set activebackup runner
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "teamdctl nm-team state dump"
      And "{\s*\"runner\": {\s*\"name\": \"activebackup\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set loadbalance runner
     * Execute "nmcli connection modify team0 team.runner loadbalance"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
      And "{\s*\"runner\": {\s*\"name\": \"loadbalance\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
      And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set lacp runner
     * Execute "nmcli connection modify team0 team.runner lacp"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
      And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -801,36 +801,36 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "teamdctl nm-team state dump"
     And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set random runner
     * Execute "nmcli connection modify team0 team.runner random"
     * Bring "up" connection "team0"
     Then "{\s*\"runner\": {\s*\"name\": \"random\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    And "\"kernel_team_mode_name\": \"random\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"kernel_team_mode_name\": \"random\"" is visible with command "teamdctl nm-team state dump"
     And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set broadcast runner
     * Execute "nmcli connection modify team0 team.runner broadcast"
     * Bring "up" connection "team0"
     Then "{\s*\"runner\": {\s*\"name\": \"broadcast\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "sudo teamdctl nm-team state dump"
+    And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "teamdctl nm-team state dump"
     And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set activebackup runner
     * Execute "nmcli connection modify team0 team.runner activebackup"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "teamdctl nm-team state dump"
     And "{\s*\"runner\": {\s*\"name\": \"activebackup\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set loadbalance runner
     * Execute "nmcli connection modify team0 team.runner loadbalance"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
     And "{\s*\"runner\": {\s*\"name\": \"loadbalance\" }\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And Check slave "eth5" in team "nm-team" is "up"
     # VVV Set lacp runner
     * Execute "nmcli connection modify team0 team.runner lacp"
     * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
     And "{\s*\"runner\": {\s*\"name\": \"lacp\" }\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -980,10 +980,10 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"active\": true" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"active\": true" is visible with command "teamdctl nm-team state dump"
     * Execute "nmcli connection modify team0 team.runner-active no"
     * Bring "up" connection "team0"
-    Then "\"active\": false" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"active\": false" is visible with command "teamdctl nm-team state dump"
      And "\"active\": false" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -1000,11 +1000,11 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"fast_rate\": true" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"fast_rate\": true" is visible with command "teamdctl nm-team state dump"
      And "\"fast_rate\": true" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-fast-rate no"
     * Bring "up" connection "team0"
-    Then "\"fast_rate\": false" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"fast_rate\": false" is visible with command "teamdctl nm-team state dump"
      And "\"fast_rate\": true" is not visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -1020,16 +1020,16 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
      And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
     * Execute "nmcli connection modify team0 team.runner-sys-prio 255"
     * Bring "up" connection "team0"
-    When "\"sys_prio\": 255" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"sys_prio\": 255" is visible with command "teamdctl nm-team state dump"
      And "255" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
     # This need to be fixed in 1533810
     * Execute "nmcli connection modify team0 team.runner-sys-prio default"
     * Bring "up" connection "team0"
-    Then "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
      And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
 
 
@@ -1045,16 +1045,16 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
     And "-1" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
     * Execute "nmcli connection modify team0 team.runner-sys-prio 255"
     * Bring "up" connection "team0"
-    When "\"sys_prio\": 255" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"sys_prio\": 255" is visible with command "teamdctl nm-team state dump"
     And "255" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
     # This need to be fixed in 1533810
     * Execute "nmcli connection modify team0 team.runner-sys-prio default"
     * Bring "up" connection "team0"
-    Then "\"sys_prio\": 65535" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
 
 
@@ -1133,28 +1133,28 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"lacp_prio\"" is visible with command "teamdctl nm-team state dump"
      And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy lacp_prio_stable"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"lacp_prio_stable\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy bandwidth"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"bandwidth\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"bandwidth\"" is visible with command "teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"bandwidth\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy count"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"count\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"count\"" is visible with command "teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"port_config\"" is visible with command "teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     # VVV Verify bug 1533830
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy ''"
     * Bring "up" connection "team0"
-    Then "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"select_policy\": \"port_config\"" is visible with command "teamdctl nm-team state dump"
      And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -1170,28 +1170,28 @@
           """
     * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"lacp_prio\"" is visible with command "teamdctl nm-team state dump"
     And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy lacp_prio_stable"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "teamdctl nm-team state dump"
     And "\"agg_select_policy\": \"lacp_prio_stable\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy bandwidth"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"bandwidth\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"bandwidth\"" is visible with command "teamdctl nm-team state dump"
     And "\"agg_select_policy\": \"bandwidth\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy count"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"count\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"count\"" is visible with command "teamdctl nm-team state dump"
     And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
     * Bring "up" connection "team0"
-    When "\"select_policy\": \"port_config\"" is visible with command "sudo teamdctl nm-team state dump"
+    When "\"select_policy\": \"port_config\"" is visible with command "teamdctl nm-team state dump"
     And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
     # VVV Verify bug 1533830
     * Execute "nmcli connection modify team0 team.runner-agg-select-policy ''"
     * Bring "up" connection "team0"
-    Then "\"select_policy\": \"lacp_prio\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"select_policy\": \"lacp_prio\"" is visible with command "teamdctl nm-team state dump"
     And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
@@ -1435,8 +1435,8 @@
     When Bring "up" connection "team0.0"
     And Check slave "testXT1" in team "nm-team" is "up"
     * Restart NM
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "sudo teamdctl nm-team state dump"
-     And "\"runner_name\": \"lacp\"" is visible with command "sudo teamdctl nm-team state dump"
+    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
+     And "\"runner_name\": \"lacp\"" is visible with command "teamdctl nm-team state dump"
      And Check slave "testXT1" in team "nm-team" is "up"
      And "Exactly" "1" lines with pattern "team0\s+" are visible with command "nmcli device"
 

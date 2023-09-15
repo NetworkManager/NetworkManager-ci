@@ -726,9 +726,7 @@ def kill_children(context, signal=9):
 
 @step("Start following journal")
 def start_tailing_journal(context):
-    context.journal = context.pexpect_service(
-        "sudo journalctl --follow -o cat", timeout=180
-    )
+    context.journal = context.pexpect_service("journalctl --follow -o cat", timeout=180)
     with nmci.util.start_timeout(10) as t:
         while t.loop_sleep(0.2):
             nmci.process.run_stdout("logger nmci_journal_follow")
@@ -790,7 +788,7 @@ def find_tailing(context, content):
 
 @step('Start tailing file "{archivo}"')
 def start_tailing(context, archivo):
-    context.tail = context.pexpect_service("sudo tail -f %s" % archivo, timeout=180)
+    context.tail = context.pexpect_service("tail -f %s" % archivo, timeout=180)
     time.sleep(0.3)
 
 

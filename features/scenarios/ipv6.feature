@@ -763,7 +763,7 @@
           ipv6.method dhcp
           ipv6.dhcp-hostname r.cx
           """
-    * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "245" seconds
@@ -783,11 +783,11 @@
     * Modify connection "con_ipv6" changing options "ipv6.dhcp-hostname ''"
     * Bring "up" connection "con_ipv6"
     * Bring "down" connection "con_ipv6"
-    * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Wait for "5" seconds
-    * Execute "sudo pkill tshark"
+    * Execute "pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
 
@@ -796,7 +796,7 @@
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
-    * Run child "sudo tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
     When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
