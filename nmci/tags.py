@@ -1651,7 +1651,10 @@ def pptp_bs(context, scenario):
 
         context.process.systemctl("unmask pptpd")
         context.process.systemctl("restart pptpd")
-        context.process.run_code("echo 'require-mppe-128' >> /etc/ppp/options.pptpd")
+        context.process.run_stdout(
+            "echo 'require-mppe-128' >> /etc/ppp/options.pptpd",
+            shell=True,
+        )
         context.pexpect_service("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach")
         nmci.util.file_set_content("/tmp/nm_pptp_configured", "")
         time.sleep(1)
