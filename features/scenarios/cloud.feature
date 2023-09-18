@@ -94,7 +94,7 @@ Feature: nmcli: cloud
     Scenario: cloud - ec2 - keep secondary addresses or a device
     * Start test-cloud-meta-mock.py
     * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
-    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no ipv4.may-fail no"
     * Bring "up" connection "conX1"
     * Execute "ip addr add 192.168.100.200/24 dev testX1"
     * Mock EC2 metadata for device with MAC address "CC:00:00:00:00:01"
