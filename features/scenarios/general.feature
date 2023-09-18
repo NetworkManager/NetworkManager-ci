@@ -2022,13 +2022,14 @@ Feature: nmcli - general
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
     * Start NM in valgrind
-    # Wait not needed, step before waits until it NM becomes responsive
-    #* Wait for "5" seconds
-    * Execute reproducer "repro_1433303.sh" for "2" times
-    * Wait for "10" seconds
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1433303.sh" for "2" times
-    When Check NM memory consumption difference from "0" is "less than" "130" in "60" seconds
+    * Commentary
+      """
+      Just log mem usage, do not compare, reported memory seems to vary a lot,
+      massif version is more stable.
+      """
+    * Note NM memory consumption as value "0"
 
 
     @rhbz1433303
@@ -2045,8 +2046,6 @@ Feature: nmcli - general
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
     * Start NM in valgrind using tool "massif"
-    # Wait not needed, step before waits until it NM becomes responsive
-    #* Wait for "5" seconds
     * Execute reproducer "repro_1433303.sh" for "2" times
     * Wait for "10" seconds
     * Note NM memory consumption as value "0"
@@ -2071,10 +2070,14 @@ Feature: nmcli - general
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
     * Start NM in valgrind
-    * Execute reproducer "repro_1461643.sh" for "3" times
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1461643.sh" for "5" times
-    When Check NM memory consumption difference from "0" is "less than" "400" in "60" seconds
+    * Commentary
+      """
+      Just log mem usage, do not compare, reported memory seems to vary a lot,
+      massif version is more stable.
+      """
+    * Note NM memory consumption as value "1"
 
 
     @rhbz1461643 @rhbz1945282
