@@ -159,6 +159,7 @@ strongswan_setup ()
                 ipv6.method ignore ipv4.method manual ipv4.route-metric 90 ip4 172.31.70.2/24 \
                 ipv4.gateway 172.31.70.1 ipv4.dns 172.31.70.1
         # Warning: the next command interrupts any established SSH connection to the remote machine!
+        sleep 1
         nmcli connection up id str1
 
         set +e
