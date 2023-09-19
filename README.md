@@ -271,11 +271,12 @@ Another possibility how to test the changes is to open a merge request in Gitlab
 
 1. Latest NetworkManager main copr build (CentOS) or stock NetworkManager RPM (internal) are tested.
    * To test on specific NetworkManager build, use `@Build:main` or `@Build:0e5a4638807dc34c517988432120e3a5`, in `rebuild` message, or in commit message or in merge request description.
+   * In CentOS, if specified `@Build` branch is found in COPR, COPR build will be used instead of build.
 
-1. CentOS 8 stream, CentOS 9 stream, and RHEL8.X (latest release) are tested, if not overridden.
+1. CentOS 9 stream, and RHEL8.X (latest release) are tested, if not overridden.
    * To specify CentOS / RHEL release, use `@OS:centosX-stream` or shorter `@OS:cXs`, or `@OS:rhelX.Y` in commit message or in merge request description.
 
-   * Use `rebuild cXs` or `rebuild centosX-stream` or `rebuild rhelX.Y` in rebuild message.
+   * Use `rebuild cXs` or `rebuild centosX-stream` or `rebuild rhelX.Y` or `rebuild rawhide` or `rebuild fedora-XY` in rebuild message.
 
 1. The priority of overrides is `rebuild` message, commit message, merge request description.
 
@@ -287,6 +288,12 @@ Another possibility how to test the changes is to open a merge request in Gitlab
     * In a [NetworkManager-ci merge request](https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci/merge_requests) description mention `NetworkManager!XYZ` or `https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/XYZ` and it will build NetworkManager from merge request numbered `XYZ`
 
     * Example: NetworkManager!1536 and NetworkManager-ci!1317
+
+1. New build can be triggered by:
+   * commenting to open merge request:
+     - `rebuild` message will re-trigger build with no additional overrides,
+     - message containing overrides starting with `@` will automatically execute new builds,
+   * pushing to open merge request - overrides defined in the commit message and merge-request description will be honored.
 
 
 For CentOS trigger, there is also `@RunFeatures:feature1,feature2,...` override, which executes only specified features. It can be in either in commit message, in `rebuild` message or in merge request description.
@@ -315,7 +322,7 @@ Also in CentOS, older builds running on the same CentOS release from the same me
    @Build:nm-1-38
    @RunTests:my_test1,my_test2
 
-   rebuild c8s
+   rebuild c8s  # this line can be ommited, works only in CentOS, rhel will be executed too.
    ```
 
    or specify overrides in the last commit before pushing to the merge request:
