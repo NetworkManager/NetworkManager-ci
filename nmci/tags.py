@@ -794,7 +794,7 @@ def ifcfg_rh_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
-        and context.process.run_code("rpm -q Networkmanager-initscripts-updown") != 0
+        and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
         context.process.run_stdout(
@@ -843,7 +843,7 @@ def keyfile_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
-        and context.process.run_code("rpm -q Networkmanager-initscripts-updown") != 0
+        and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
         context.process.run_stdout(
