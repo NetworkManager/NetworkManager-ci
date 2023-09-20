@@ -154,11 +154,11 @@ def NM_valgrind_start(context, tool="memcheck"):
         f"valgrind --vgdb=yes {tool_cmd} --num-callers=99 NetworkManager --no-daemon"
     )
 
-    for _ in range(2):
+    for i in range(2):
         context.nm_valgrind_proc = nmci.pexpect.pexpect_service(
             nm_valgrind_cmd, env={**os.environ, "G_SLICE": "always-malloc"}
         )
-        alive = nmci.nmutil.wait_for_nm_bus(15, do_assert=False)
+        alive = nmci.nmutil.wait_for_nm_bus(10 * (i + 1), do_assert=False)
         if alive:
             return True
         proc = context.nm_valgrind_proc
