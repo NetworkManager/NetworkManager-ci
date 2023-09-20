@@ -1,8 +1,8 @@
 [connection]
-id=bond-slave-eth1
-uuid=a38b0380-f8a0-4098-af0e-ece8106d4cab
+id=bond-port-eth2
+uuid=7588cca3-1cb6-4213-9b90-956aa77821c2
 type=ethernet
-interface-name=eth1
+interface-name=eth2
 master=bond0
 permissions=
 slave-type=bond

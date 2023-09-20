@@ -1113,21 +1113,21 @@ Feature: nmcli: connection
       """
       ./contrib/profiles/rhbz2121451/bond-bond0.nmconnection
       """
-    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth1.nmconnection"
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-port-eth1.nmconnection"
       """
-      ./contrib/profiles/rhbz2121451/bond-slave-eth1.nmconnection
+      ./contrib/profiles/rhbz2121451/bond-port-eth1.nmconnection
       """
-    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth1-slave-ovs-clone.nmconnection"
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-port-eth1-port-ovs-clone.nmconnection"
       """
-      ./contrib/profiles/rhbz2121451/bond-slave-eth1-slave-ovs-clone.nmconnection
+      ./contrib/profiles/rhbz2121451/bond-port-eth1-port-ovs-clone.nmconnection
       """
-    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth2.nmconnection"
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-port-eth2.nmconnection"
       """
-      ./contrib/profiles/rhbz2121451/bond-slave-eth2.nmconnection
+      ./contrib/profiles/rhbz2121451/bond-port-eth2.nmconnection
       """
-    * Create keyfile "/etc/NetworkManager/system-connections/bond-slave-eth2-slave-ovs-clone.nmconnection"
+    * Create keyfile "/etc/NetworkManager/system-connections/bond-port-eth2-port-ovs-clone.nmconnection"
       """
-      ./contrib/profiles/rhbz2121451/bond-slave-eth2-slave-ovs-clone.nmconnection
+      ./contrib/profiles/rhbz2121451/bond-port-eth2-port-ovs-clone.nmconnection
       """
     * Create keyfile "/etc/NetworkManager/system-connections/br-ex.nmconnection"
       """
@@ -1150,12 +1150,12 @@ Feature: nmcli: connection
       ./contrib/profiles/rhbz2121451/ovs-port-phys0.nmconnection
       """
     * Reload connections
-    Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth1 " is not visible with command "nmcli con show --active"
-    Then "bond-slave-eth2 " is not visible with command "nmcli con show --active"
+    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
+    Then "bond-port-eth2 " is not visible with command "nmcli con show --active"
     * Restart NM
-    Then "bond-slave-eth1-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth2-slave-ovs-clone" is visible with command "nmcli con show --active"
-    Then "bond-slave-eth1 " is not visible with command "nmcli con show --active"
-    Then "bond-slave-eth2 " is not visible with command "nmcli con show --active"
+    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
+    Then "bond-port-eth2 " is not visible with command "nmcli con show --active"

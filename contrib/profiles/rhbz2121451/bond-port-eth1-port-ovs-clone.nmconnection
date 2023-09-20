@@ -1,5 +1,5 @@
 [connection]
-id=bond-slave-eth1-slave-ovs-clone
+id=bond-port-eth1-port-ovs-clone
 uuid=90e70007-17ac-496a-aae0-6f134e011314
 type=ethernet
 autoconnect-priority=100
