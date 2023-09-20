@@ -10,6 +10,13 @@ function modem_setup ()
         fi
     done
 
+    # workaround for https://github.com/ppp-project/ppp/issues/419
+    if [ ! -d "/run/pppd/lock" ]
+    then
+        mkdir -p /run/pppd/lock
+        chcon -t pppd_var_run_t /run/pppd{,/lock}
+    fi
+
     # get modemu script from NM repo
     #[ -f /tmp/gsm_sim.pl ] ||  wget -O /tmp/gsm_sim.pl https://raw.githubusercontent.com/NetworkManager/NetworkManager/main/contrib/test/modemu.pl
 
