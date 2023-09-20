@@ -319,12 +319,12 @@ def _after_scenario(context, scenario):
         f"Finished processing cleanups after scenario: {scenario.name}"
     )
 
-    nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
-
     # check for crash reports and embed them
     # sets nmci.embed.coredump_reported if crash found
     nmci.crash.check_coredump(context)
     nmci.crash.check_faf(context)
+
+    nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or len(excepts) > 0
