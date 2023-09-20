@@ -427,9 +427,9 @@ test_clean() {
 }
 
 reset_images() {
-    umount -q $DEV_LOG
-    umount -q $DEV_DUMPS
-    umount -q $DEV_CHECK
+    umount $DEV_LOG 2>&1
+    umount $DEV_DUMPS 2>&1
+    umount $DEV_CHECK 2>&1
     # reset journal FS
     mkfs.ext3 -q -U $UUID_LOG $TESTDIR/client_log.img
 }
