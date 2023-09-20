@@ -17,7 +17,7 @@ def check_dump_package(pkg_name):
     :rtype: bool
     """
     if (
-        pkg_name in ["NetworkManager", "ModemManager", "nmcli", "nmtui"]
+        pkg_name in ["NetworkManager", "ModemManager", "nmcli", "nmtui", "behave"]
         or "ovs" in pkg_name
         or "openvswitch" in pkg_name
     ):
