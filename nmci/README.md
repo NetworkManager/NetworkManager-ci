@@ -3066,6 +3066,27 @@ here, but it also would be a different functionality.
 
 
 ### nmci.nmutil.context_get_nm_stopped(context=None)
+Set context.nm_stopped, which indicates that NetworkManager
+service was stopped during the test.
+
+
+* **Parameters**
+
+    **context** (*behave.runner.Context**, **optional*) – behave context, defaults to None
+
+
+
+* **Returns**
+
+    context.nm_stopped flag
+
+
+
+* **Rtype reset**
+
+    bool
+
+
 
 ### nmci.nmutil.context_set_nm_restarted(context=None, reset=False)
 Set context.nm_restarted, which indicates that NetworkManager
@@ -3079,7 +3100,7 @@ was expected or not (crash).
 * **Parameters**
 
     
-    * **context** (*behave.runner.Context*) – behave context
+    * **context** (*behave.runner.Context**, **optional*) – behave context, defaults to None
 
 
     * **reset** (*bool**, **optional*) – reset the context.nm_restarted flag, defaults to False
@@ -3087,6 +3108,19 @@ was expected or not (crash).
 
 
 ### nmci.nmutil.context_set_nm_stopped(context=None, reset=False)
+Set context.nm_stopped, which indicates that NetworkManager
+service was stopped during the test.
+
+
+* **Parameters**
+
+    
+    * **context** (*behave.runner.Context**, **optional*) – behave context, defaults to None
+
+
+    * **reset** (*bool**, **optional*) – reset the context.nm_stopped flag, defaults to False
+
+
 
 ### nmci.nmutil.dbus_get_ip_config(dbus_path, addr_family=None)
 Retrieves all IP configuration of a given connection setting from dbus.

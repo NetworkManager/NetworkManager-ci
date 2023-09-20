@@ -178,8 +178,8 @@ class _NMUtil:
         but it might be useful for detecting whether a PID change
         was expected or not (crash).
 
-        :param context: behave context
-        :type context: behave.runner.Context
+        :param context: behave context, defaults to None
+        :type context: behave.runner.Context, optional
         :param reset: reset the context.nm_restarted flag, defaults to False
         :type reset: bool, optional
         """
@@ -192,6 +192,15 @@ class _NMUtil:
                 context.nm_restarted = True
 
     def context_set_nm_stopped(self, context=None, reset=False):
+        """
+        Set context.nm_stopped, which indicates that NetworkManager
+        service was stopped during the test.
+
+        :param context: behave context, defaults to None
+        :type context: behave.runner.Context, optional
+        :param reset: reset the context.nm_stopped flag, defaults to False
+        :type reset: bool, optional
+        """
         if context is None:
             context = nmci.cext.context
         if context is not None:
@@ -201,6 +210,15 @@ class _NMUtil:
                 context.nm_stopped = True
 
     def context_get_nm_stopped(self, context=None):
+        """
+        Set context.nm_stopped, which indicates that NetworkManager
+        service was stopped during the test.
+
+        :param context: behave context, defaults to None
+        :type context: behave.runner.Context, optional
+        :return: context.nm_stopped flag
+        :rtype reset: bool
+        """
         if context is None:
             context = nmci.cext.context
         if hasattr(context, "nm_stopped") and context.nm_stopped:
