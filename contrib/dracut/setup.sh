@@ -426,10 +426,18 @@ test_clean() {
   rm -f /tmp/dracut_setup_done
 }
 
+reset_images() {
+    umount -q $DEV_LOG
+    umount -q $DEV_DUMPS
+    umount -q $DEV_CHECK
+    # reset journal FS
+    mkfs.ext3 -q -U $UUID_LOG $TESTDIR/client_log.img
+}
 
 after_test() {
     stop_dhcpd
     start_dhcpd
+    reset_images
 }
 
 

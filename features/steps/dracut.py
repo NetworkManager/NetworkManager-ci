@@ -134,7 +134,6 @@ def prepare_dracut(context, checks):
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; "
         "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
-        "rm -rf $TESTDIR/client_log/var/log/*; "
         "echo NOBOOT > $TESTDIR/client_log/var/log/vm_state; "
         "mkdir $TESTDIR/client_log/var/log/journal/; "
     )
