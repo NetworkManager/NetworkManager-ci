@@ -3065,6 +3065,8 @@ here, but it also would be a different functionality.
 
 
 
+### nmci.nmutil.context_get_nm_stopped(context=None)
+
 ### nmci.nmutil.context_set_nm_restarted(context=None, reset=False)
 Set context.nm_restarted, which indicates that NetworkManager
 service was restarted during the test.
@@ -3083,6 +3085,8 @@ was expected or not (crash).
     * **reset** (*bool**, **optional*) – reset the context.nm_restarted flag, defaults to False
 
 
+
+### nmci.nmutil.context_set_nm_stopped(context=None, reset=False)
 
 ### nmci.nmutil.dbus_get_ip_config(dbus_path, addr_family=None)
 Retrieves all IP configuration of a given connection setting from dbus.
@@ -3857,7 +3861,7 @@ Teardown hostapd for wireless testing.
 Helper class to run commands and check their output.
 
 
-### nmci.process.Popen(argv, \*, shell=False, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, stdout=- 1, stderr=- 1, namespace=None)
+### nmci.process.Popen(argv, \*, shell=False, cwd=None, env=None, env_extra=None, stdout=- 1, stderr=- 1, namespace=None)
 Run a command and return a PopenCollect object. The PopenCollect object
 can be used to read stdout and stderr and to wait for the process to
 finish.
@@ -3872,7 +3876,7 @@ finish.
     * **shell** (*bool**, **optional*) – run command in shell, defaults to False
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4020,7 +4024,7 @@ Helper class to allow WithShell to be used interchangeably with strings.
 
 #### get_shell()
 
-### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
+### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
 Run `nmcli` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult
 object is returned.
@@ -4038,7 +4042,7 @@ object is returned.
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 60
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4072,7 +4076,7 @@ object is returned.
 
 
 
-### nmci.process.nmcli_force(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+### nmci.process.nmcli_force(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
 Run `nmcli` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
 This function is used for commands that are expected to fail, but we want to check
@@ -4102,7 +4106,7 @@ Helper function to raise an exception containing output of the command.
 
 
 
-### nmci.process.run(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, stdout=-1, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, stdout=-1, stderr=-1, embed_combine_tag=<object object>, namespace=None)
 Run a command and check its output. If the command fails, or
 prints anything to stderr, an exception is raised. Otherwise, a RunResult
 object is returned.
@@ -4123,7 +4127,7 @@ object is returned.
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4163,7 +4167,7 @@ object is returned.
 
 
 
-### nmci.process.run_code(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_code(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, embed_combine_tag=<object object>, namespace=None)
 Run a command and return its returncode. If the command fails, or prints
 anything to stderr, an exception is raised.
 
@@ -4183,7 +4187,7 @@ anything to stderr, an exception is raised.
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4217,7 +4221,7 @@ anything to stderr, an exception is raised.
 
 
 
-### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=RegexFlag.None, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=RegexFlag.None, embed_combine_tag=<object object>, namespace=None)
 Run a command and search its stdout for a pattern. If the command fails, or
 prints anything to stderr, an exception is raised. Otherwise, a RunResult
 object is returned.
@@ -4238,7 +4242,7 @@ object is returned.
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4278,7 +4282,7 @@ object is returned.
 
 
 
-### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, namespace=None)
 Run a command and return its stdout. If the command fails, or prints
 anything to stderr, an exception is raised.
 
@@ -4298,7 +4302,7 @@ anything to stderr, an exception is raised.
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 5
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None
@@ -4335,7 +4339,7 @@ anything to stderr, an exception is raised.
 
 
 
-### nmci.process.systemctl(argv, \*, as_bytes=False, timeout=60, cwd='/Users/mberezny/GitLab/NetworkManager-ci', env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+### nmci.process.systemctl(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
 Run `systemctl` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
 
@@ -4352,7 +4356,7 @@ anything to stderr, an exception is raised. Otherwise, a RunResult object is ret
     * **timeout** (*int**, **optional*) – timeout for the command, defaults to 60
 
 
-    * **cwd** (*str**, **optional*) – cwd for the command, defaults to nmci.util.BASE_DIR
+    * **cwd** (*str**, **optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
 
 
     * **env** (*dict**, **optional*) – env for the command, defaults to None

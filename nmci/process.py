@@ -204,7 +204,7 @@ class _Process:
         argv,
         *,
         shell=False,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         stdout=subprocess.PIPE,
@@ -220,7 +220,7 @@ class _Process:
         :type argv: str or list
         :param shell: run command in shell, defaults to False
         :type shell: bool, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -238,6 +238,9 @@ class _Process:
         argv, argv_real, shell, env = self._run_prepare_args(
             argv, shell, env, env_extra, namespace
         )
+
+        if cwd is None:
+            cwd = nmci.util.BASE_DIR
 
         proc = subprocess.Popen(
             argv_real,
@@ -307,6 +310,9 @@ class _Process:
             argv, shell, env, env_extra, namespace
         )
 
+        if cwd is None:
+            cwd = nmci.util.BASE_DIR
+
         proc = subprocess.run(
             argv_real,
             shell=shell,
@@ -374,7 +380,7 @@ class _Process:
         shell=False,
         as_bytes=False,
         timeout=5,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=True,
@@ -397,7 +403,7 @@ class _Process:
         :type as_bytes: bool, optional
         :param timeout: timeout for the command, defaults to 5
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -441,7 +447,7 @@ class _Process:
         shell=False,
         as_bytes=False,
         timeout=5,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=False,
@@ -462,7 +468,7 @@ class _Process:
         :type as_bytes: bool, optional
         :param timeout: timeout for the command, defaults to 5
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -504,7 +510,7 @@ class _Process:
         shell=False,
         as_bytes=False,
         timeout=5,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=True,
@@ -524,7 +530,7 @@ class _Process:
         :type as_bytes: bool, optional
         :param timeout: timeout for the command, defaults to 5
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -564,7 +570,7 @@ class _Process:
         *,
         shell=False,
         timeout=5,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=False,
@@ -587,7 +593,7 @@ class _Process:
         :type shell: bool, optional
         :param timeout: timeout for the command, defaults to 5
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -638,7 +644,7 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=False,
@@ -657,7 +663,7 @@ class _Process:
         :type as_bytes: bool, optional
         :param timeout: timeout for the command, defaults to 60
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
@@ -714,7 +720,7 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=True,
@@ -750,7 +756,7 @@ class _Process:
         *,
         as_bytes=False,
         timeout=60,
-        cwd=nmci.util.BASE_DIR,
+        cwd=None,
         env=None,
         env_extra=None,
         ignore_returncode=True,
@@ -767,7 +773,7 @@ class _Process:
         :type as_bytes: bool, optional
         :param timeout: timeout for the command, defaults to 60
         :type timeout: int, optional
-        :param cwd: cwd for the command, defaults to nmci.util.BASE_DIR
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
         :type cwd: str, optional
         :param env: env for the command, defaults to None
         :type env: dict, optional
