@@ -280,7 +280,7 @@ def check_faf(context):
     :type context: behave.Context
     """
     context.abrt_dir_change = True
-    context.faf_countdown = 300
+    context.faf_countdown = 400
     while context.abrt_dir_change:
         context.abrt_dir_change = False
         for dump_dir in coredump_list_on_disk(COREDUMP_TYPE_ABRT):
