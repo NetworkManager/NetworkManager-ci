@@ -144,6 +144,10 @@ def coredump_report(dump_id):
     :param dump_id: unique ID of the crash, should differ across distinct crashes
     :type dump_id: str
     """
+
+    context = nmci.cext.context
+    if not context.crashed_step:
+        context.crashed_step = "PID change not detected, but coredump reported."
     with open(_coredump_reported_file(), "a") as f:
         f.write(dump_id + "\n")
 
