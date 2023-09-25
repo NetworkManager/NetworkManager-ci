@@ -65,10 +65,9 @@
 
     @rhbz1505886
     @ver+=1.0.8
-    @openvpn @openvpn6 @eth10_disconnect
+    @delete_testeth0 @openvpn @openvpn6 @eth10_disconnect
     @openvpn_ipv6_neverdefault
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
-    * Delete connection "testeth0"
     * Bring "up" connection "testeth10"
     * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
@@ -107,6 +106,7 @@
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "tun1" is visible with command "firewall-cmd --get-active-zones"
 
+
     @openvpn
     @openvpn_terminate
     Scenario: nmcli - openvpn - terminate connection
@@ -131,6 +131,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show openvpn" in "5" seconds
 
 
+    #RHEL-5420
     @openvpn
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection

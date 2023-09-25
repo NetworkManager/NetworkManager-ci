@@ -1304,8 +1304,10 @@ def openvpn_bs(context, scenario):
 
 
 def openvpn_as(context, scenario):
-    nmci.veth.restore_testeth0()
-    context.process.nmcli_force("connection delete tun0")
+    # commenting this seems to fix RHEL-5420
+    # nmci.veth.restore_testeth0()
+    # context.process.nmcli_force("connection delete tun0")
+
     context.process.run(
         "pkill -F /tmp/openvpn.pid",
         shell=True,
