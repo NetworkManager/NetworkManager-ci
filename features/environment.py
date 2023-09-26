@@ -387,6 +387,13 @@ def _after_scenario(context, scenario):
         status = "skipped"
     print(f"after_scenario ... {status} in {duration:.3f}s")
 
+    stdout = nmci.misc.journal_show(
+        cursor=context.log_cursor_before_tags,
+        journal_args=f"SYSLOG_IDENTIFIER=runtest -o cat",
+    )
+    nmci.embed.embed_data("STDOUT", stdout)
+    nmci.embed.process_embeds()
+
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:
         print("No crashdump found")
