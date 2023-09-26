@@ -344,7 +344,7 @@ def _after_scenario(context, scenario):
             ]
         )
         log = nmci.misc.journal_show(
-            cursor=context.log_cursor,
+            cursor=context.log_cursor_before_tags,
             prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
             journal_args=f"{filter_args} -o cat",
         )
