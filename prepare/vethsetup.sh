@@ -256,7 +256,7 @@ function setup_veth_env ()
         # Copy final connection to /tmp/testeth0 for later in test usage
         testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
         if [ ! -e /tmp/testeth0 ] ; then
-            yes | cp -rf "$testeth0_file" /tmp/testeth0
+            yes | cp -af "$testeth0_file" /tmp/testeth0
         fi
     fi
     # On s390x sometimes this extra default profile gets created in addition to custom static original one

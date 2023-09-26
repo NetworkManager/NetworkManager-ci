@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 
 import nmci
@@ -85,15 +86,14 @@ class _Veth:
 
         if not os.path.isfile("/tmp/nm_plugin_keyfiles"):
             # defaults to ifcfg files (RHELs)
-            nmci.process.run_stdout(
-                "yes | cp -rf /tmp/testeth0 /etc/sysconfig/network-scripts/ifcfg-testeth0",
-                shell=True,
+            shutil.copy2(
+                "/tmp/testeth0", "/etc/sysconfig/network-scripts/ifcfg-testeth0"
             )
         else:
             # defaults to keyfiles (F33+)
-            nmci.process.run_stdout(
-                "yes | cp -rf /tmp/testeth0 /etc/NetworkManager/system-connections/testeth0.nmconnection",
-                shell=True,
+            shutil.copy2(
+                "/tmp/testeth0",
+                "/etc/NetworkManager/system-connections/testeth0.nmconnection",
             )
 
         time.sleep(1)
