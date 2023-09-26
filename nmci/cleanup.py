@@ -576,7 +576,7 @@ class _Cleanup:
             super().__init__(
                 name=name,
                 priority=priority,
-                unique_tag=(operation, timeout),
+                unique_tag=(operation, timeout, priority),
             )
 
         def _do_cleanup_impl(self):
