@@ -1019,6 +1019,7 @@ Feature: nmcli: connection
     @rhbz2059608
     @ver+=1.38.0
     @copy_ifcfg
+    @delete_testeth0
     @connection_nmcli_migrate
     Scenario: nmcli - connection - migrate all ifcfg profiles to keyfile
     * Reload connections
@@ -1046,6 +1047,7 @@ Feature: nmcli: connection
 
     @ver+=1.43.11
     @copy_ifcfg
+    @delete_testeth0
     @connection_migrate_via_config_option
     Scenario: nmcli - connection - migrate all ifcfg profiles to keyfile via configuration option
     * Reload connections
