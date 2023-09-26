@@ -239,7 +239,7 @@ Feature: nmcli - general
 
 
     @ver+=1.29.0
-    @delete_testeth0 @restore_hostname @restart_if_needed
+    @restore_hostname @delete_testeth0 @restart_if_needed
     @hostname_priority
     Scenario: nmcli - general - Hostname priority
     * Create NM config file "90-nmci-hostname.conf" with content
