@@ -1055,7 +1055,7 @@ Feature: nmcli: connection
     Then "migration_wifi:/etc/sysconfig/network-scripts/ifcfg-migration_wifi" is visible with command "nmcli -g NAME,FILENAME connection"
     Then "migration_team:/etc/sysconfig/network-scripts/ifcfg-migration_team" is visible with command "nmcli -g NAME,FILENAME connection"
     Then "migration_dns:/etc/sysconfig/network-scripts/ifcfg-migration_dns" is visible with command "nmcli -g NAME,FILENAME connection"
-    * Create NM config file with content
+    * Create NM config file with content and cleanup priority "PRIORITY_CALLBACK_DEFAULT"
       """
       [main]
       migrate-ifcfg-rh=yes

@@ -17,11 +17,19 @@ def fill_file_with_content(context, path):
 
 
 @step("Create NM config file with content")
+@step('Create NM config file with content and cleanup priority "{priority}"')
 @step('Create NM config file "{filename}" with content')
 @step('Create NM config file "{filename}" with content and "{operation}" NM')
-def create_config_file(context, filename="96-nmci-custom.conf", operation=None):
+def create_config_file(
+    context, filename="96-nmci-custom.conf", priority="PRIORITY_FILE", operation=None
+):
     path = os.path.join("/etc/NetworkManager/conf.d", filename)
-    nmci.cleanup.add_NM_config(path)
+    prio = getattr(nmci.cleanup.Cleanup, priority, None)
+    if prio is None:
+        prio = int(priority)
+    if prio != nmci.cleanup.Cleanup.PRIORITY_FILE:
+        nmci.cleanup.add_NM_service(priority=prio)
+    nmci.cleanup.add_NM_config(path, priority=prio)
     nmci.util.file_set_content(path, context.text)
     if operation is not None:
         nmci.nmutil.do_NM_service(operation)
