@@ -1549,9 +1549,10 @@ Feature: nmcli - ovs
     * Wait for ".4" seconds
     * Execute "killall -CONT NetworkManager"
     Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
+    * Wait for "2" seconds
     * Execute "nmcli networking off"
     * Execute "nmcli networking on"
-    * Execute "sleep 1"
+    * Wait for "2" seconds
     Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
     * Execute "nmcli networking off"
     * Execute "nmcli networking on"
