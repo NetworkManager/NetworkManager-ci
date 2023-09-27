@@ -1106,7 +1106,7 @@ Feature: nmcli: connection
 
 
     @rhbz2121451
-    @ver+=1.43
+    @ver+=1.45.3.1
     @keyfile
     @openvswitch
     @connection_with_higher_priority_active_on_reload
