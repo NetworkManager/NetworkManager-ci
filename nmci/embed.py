@@ -103,6 +103,7 @@ class _Embed:
         self._html_formatter = None
         self._set_title = None
         self._combine_tags = {}
+        self._faf_embedded = False
 
         self.Embed = Embed
         self.EmbedData = EmbedData
@@ -124,6 +125,7 @@ class _Embed:
                 self._set_title = formatter.set_title
             if hasattr(formatter, "embed"):
                 self._html_formatter = formatter
+        self._faf_embedded = False
 
     def get_embed_context(self, combine_tag):
         """Returns the EmbedContext object for given combine tag, creates new if needed.
@@ -217,6 +219,15 @@ class _Embed:
         if self._html_formatter is None:
             return
         self._html_formatter.after_scenario_finish(status)
+
+    def is_faf_repored(self):
+        """
+        Whether FAF report was embedded or not.
+
+        :return: True if FAF was embedded, False otherwise
+        :rtype: bool
+        """
+        return self._faf_embedded
 
     def _get_module_from_trace(self):
         module = "Commands"
@@ -411,6 +422,8 @@ class _Embed:
             self.embed_link(caption, links)
         self.coredump_reported = True
         nmci.crash.coredump_report(dump_id)
+        if "faf" in caption.lower():
+            self._faf_embedded = True
 
     def embed_run(
         self,

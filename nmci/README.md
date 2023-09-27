@@ -1204,6 +1204,22 @@ Check if HTML formatter is set. This makes sense only after setup() call.
 
 
 
+### nmci.embed.is_faf_repored()
+Whether FAF report was embedded or not.
+
+
+* **Returns**
+
+    True if FAF was embedded, False otherwise
+
+
+
+* **Return type**
+
+    bool
+
+
+
 ### nmci.embed.process_embeds()
 This is called in after scenario to process the embeds
 and send data to the HTML formatter (if present).

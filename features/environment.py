@@ -361,7 +361,11 @@ def _after_scenario(context, scenario):
         if not nmci.embed.coredump_reported:
             msg = "!!! no crash report detected, but NM PID changed !!!"
             nmci.embed.embed_data("NO_COREDUMP/NO_FAF", msg)
-        nmci.crash.after_crash_reset()
+        if not nmci.embed.is_faf_reported():
+            try:
+                nmci.crash.after_crash_reset()
+            except Exception as e:
+                excepts.append(e)
 
     if nmci.util.is_verbose():
         nmci.util.dump_status("After Clean")
