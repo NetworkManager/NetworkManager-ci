@@ -2317,7 +2317,7 @@ anything to stderr, an exception is raised.
 * **Return type:**
   int
 
-### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=RegexFlag.None, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=<object object>, embed_combine_tag=<object object>, namespace=None)
 
 Run a command and search its stdout for a pattern. If the command fails, or
 prints anything to stderr, an exception is raised. Otherwise, a RunResult

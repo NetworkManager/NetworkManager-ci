@@ -272,7 +272,7 @@ def setup_pkcs11(context):
         ["802-1x.identity:test", "802-1x.private-key-password:1234"],
     )
     if not nmci.process.run_search_stdout(
-        "softhsm2-util --show-slots", re_token, pattern_flags=None
+        "softhsm2-util --show-slots", re_token, pattern_flags=0
     ):
         nmci.process.run_stdout(
             "softhsm2-util --init-token --free --pin 1234 --so-pin 123456 --label 'nmci'"
@@ -280,7 +280,7 @@ def setup_pkcs11(context):
     if not nmci.process.run_search_stdout(
         "pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci -y privkey -O",
         re_nmclient,
-        pattern_flags=None,
+        pattern_flags=0,
     ):
         nmci.process.run_stdout(
             "pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci --label nmclient -y privkey --write-object contrib/8021x/certs/client/test_user.key.pem"
@@ -288,7 +288,7 @@ def setup_pkcs11(context):
     if not nmci.process.run_search_stdout(
         "pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci -y cert -O",
         re_nmclient,
-        pattern_flags=None,
+        pattern_flags=0,
     ):
         nmci.process.run_stdout(
             "pkcs11-tool --module /usr/lib64/pkcs11/libsofthsm2.so -l -p 1234 --token-label nmci --label nmclient -y cert --write-object contrib/8021x/certs/client/test_user.cert.der"

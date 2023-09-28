@@ -7,6 +7,9 @@ import shlex
 RunResult = collections.namedtuple("RunResult", ["returncode", "stdout", "stderr"])
 
 IGNORE_RETURNCODE_ALL = object()
+# Introduced for nmci docs, different systems produced different default
+# either `re.DOTALL|re.MULTILINE` or `re.None`
+DEFAULT_PATTERN_FLAGS = object()
 
 import nmci
 from nmci.embed import TRACE_COMBINE_TAG
@@ -170,6 +173,7 @@ class _Process:
         self.PopenCollect = PopenCollect
         self.RunResult = RunResult
         self.IGNORE_RETURNCODE_ALL = IGNORE_RETURNCODE_ALL
+        self.DEFAULT_PATTERN_FLAGS = DEFAULT_PATTERN_FLAGS
 
         self.exec = _Exec(self)
 
@@ -576,7 +580,7 @@ class _Process:
         ignore_returncode=False,
         ignore_stderr=False,
         stderr=subprocess.PIPE,
-        pattern_flags=re.DOTALL | re.MULTILINE,
+        pattern_flags=DEFAULT_PATTERN_FLAGS,
         embed_combine_tag=TRACE_COMBINE_TAG,
         namespace=None,
     ):
@@ -615,6 +619,8 @@ class _Process:
         :rtype: RunResult
         """
         # autodetect based on the pattern
+        if pattern_flags is DEFAULT_PATTERN_FLAGS:
+            pattern_flags = re.DOTALL | re.MULTILINE
         if isinstance(pattern, bytes):
             as_bytes = True
         elif isinstance(pattern, str):
