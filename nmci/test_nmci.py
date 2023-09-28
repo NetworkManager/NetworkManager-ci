@@ -2069,6 +2069,10 @@ def run_sphinx_build_and_compare_results():
     ret["build_res"] = build_res.returncode
     ret["cur_same_as_gen"] = filecmp.cmp(file_cur, file_gen)
     ret["gen_same_as_git"] = filecmp.cmp(file_gen, file_git)
+    ret["diff"] = subprocess.run(
+        ["git", "diff", "--no-color", "--no-index", file_cur, file_gen],
+        stdout=subprocess.PIPE,
+    ).stdout.decode("utf-8")
     if not ret["cur_same_as_gen"]:
         shutil.copyfile(file_gen, file_cur)
 
@@ -2092,7 +2096,9 @@ def test_nmci_doc():
 
     sph_res = run_sphinx_build_and_compare_results()
     assert sph_res["build_res"] == 0, "Unable to build documentation"
-    assert sph_res["cur_same_as_gen"], "Outdated documentation was rebuilt"
+    assert sph_res["cur_same_as_gen"], (
+        "Outdated documentation was rebuilt:\n" + sph_res["diff"]
+    )
     assert sph_res["link"], "nmci/doc/index.md must be a symlink to ../README.md"
     if not sph_res["gen_same_as_git"]:
         w = "\n\nDocumentation in nmci/README.md is current but not committed. Commit it before pushing!\n"
