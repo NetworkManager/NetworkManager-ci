@@ -282,7 +282,7 @@ class _Util:
         """
         Get util directory.
 
-        :param args: path components
+        :param args: additional path components
         :type args: list
         :return: util directory
         :rtype: str
@@ -306,9 +306,27 @@ class _Util:
         return self._base_dir
 
     def base_dir(self, *args):
+        """
+        Base directory of NM-ci.
+
+        :param args: additional path components
+        :type args: list
+        :return: base directory of NM-ci with additional path
+        :rtype: str
+        """
         return os.path.join(self.BASE_DIR, *args)
 
     def tmp_dir(self, *args, create_base_dir=True):
+        """
+        Temporary directory of NM-ci.
+
+        :param args: additional path components
+        :type args: list
+        :param create_base_dir: whether NM-ci base directory should be created
+        :type create_base_dir: bool
+        :return: temporary directory of NM-ci with additional path
+        :rtype: str
+        """
         d = self.base_dir(".tmp")
         if create_base_dir and not os.path.isdir(d):
             os.mkdir(d)
@@ -614,8 +632,8 @@ class _Util:
 
         :param file_name: file name
         :type file_name: str
-        :param data: data to write, defaults to ""
-        :type data: str, optional
+        :param data: data to write, accepts string, bytes or list of lines, defaults to ""
+        :type data: str or bytes or list[str] or list[bytes], optional
         """
         if isinstance(data, str):
             data = data.encode("utf-8")
@@ -704,7 +722,7 @@ class _Util:
         the vethsetup network namespace and the other named network namespaces. It
         also dumps the routing tables and the firewall rules. It's a lot of
         information, so it's only dumped when the test fails. It can be
-        enabled for all tests by setting the NMCI_DUMP_STATUS environment
+        enabled for all tests by setting the :code:`NMCI_DUMP_STATUS` environment
         variable to "1".
 
         :param when: when to dump the status
@@ -979,7 +997,7 @@ class _Util:
 
         This allows to write expressions, that themselves might be backslash
         escaped, without requiring additional backslash escaping.
-        For example, regexes: ["^.$", "^ \\["] gives the string "^.$ ^\\ \\["
+        For example, regexes: :code:`["^.$", "^ \\\\["]` gives the string :code:`"^.$ ^\\\\ \\\\["`
 
         :param args: the list of strings to join
             The empty list joins to None and not to "".
@@ -1007,15 +1025,14 @@ class _Util:
 
         This allows to write expressions, that themselves might be backslash
         escaped, without requiring additional backslash escaping.
-        For example, regexes: "^.$ ^\\ \\[" gives the two regexes ["^.$", "^ \\["]
+        For example, regexes: :code:`"^.$ ^\\\\ \\\\["` gives the two regexes :code:`["^.$", "^ \\\\["]`
 
         This will:
-            - None gives the empty list [] (so that every input strlist can
-                be joined and split again).
-            - take double backslash "\\\\" as a single backslash "\\"
-            - take escaped space "\\ " as a single space
-            - take a single whitespace to split the string (the whitespace is removed).
-            - any other escaped backslash is taken literally.
+        - None gives the empty list [] (so that every input strlist can be joined and split again).
+        - take double backslash :code:`"\\\\\\\\"` as a single backslash :code:`"\\\\"`
+        - take escaped space :code:`"\\\\ "` as a single space
+        - take a single whitespace to split the string (the whitespace is removed).
+        - any other escaped backslash is taken literally.
 
         :param text: the string to split
         :type text: str
@@ -1071,7 +1088,7 @@ class _Util:
         ignore_order=True,
     ):
         """
-        Compare the :code:`strv` list of strings with :code:`@expected`. If the list differs,
+        Compare the :code:`strv` list of strings with :code:`expected`. If the list differs,
         a ValueError gets raised. Otherwise it return True.
 
         :param expected: the list of expected items. It can be a plain string,
@@ -1089,7 +1106,7 @@ class _Util:
         :type ignore_extra_strv: bool
         :param ignore_order: if True, the order is not checked. Otherwise, the
             elements in :code:`expected` must match in the right order.
-            For example, with :code:`match_mode='plain'`, :code:`expected=['a', '.']`,
+            For example, with :code:`match_mode='regex'`, :code:`expected=['a', '.']`,
             :code:`strv=['b', 'a']`, this matches when ignoring the order,
             but fails to match otherwise.
             An element in :code:`expected` only can match exactly once.

@@ -1692,7 +1692,7 @@ here, but it also would be a different functionality.
 
 ### nmci.nmutil.context_get_nm_stopped(context=None)
 
-Set context.nm_stopped, which indicates that NetworkManager
+Gets context.nm_stopped, which indicates that NetworkManager
 service was stopped during the test.
 
 * **Parameters:**
@@ -1905,6 +1905,8 @@ Starts the NM service.
 
 Stops the NM service.
 
+* **Parameters:**
+  **timeout** (*int**,* *optional*) – timeout for process to finish, defaults to 60
 * **Returns:**
   True, if NM stopped successfully
 * **Return type:**
@@ -2004,7 +2006,7 @@ If the process is still running, it is killed with SIGTERM first, then with SIGK
 
 ### nmci.pexpect.process_pexpect_spawn()
 
-Kill all pexpect processes spawned by pexpect_spawn() and pexpect_service().
+Kill all pexpect processes spawned by pexpect_spawn().
 
 * **Raises:**
   **Exception** – if some process failed
@@ -2259,6 +2261,21 @@ anything to stderr, an exception is raised. Otherwise, a RunResult object is ret
 This function is used for commands that are expected to fail, but we want to check
 the output anyway.
 
+* **Parameters:**
+  * **argv** (*str* *or* *list*) – nmcli arguments added to the command’s execution
+  * **as_bytes** (*bool**,* *optional*) – return stdout and stderr as bytes, defaults to False
+  * **timeout** (*int**,* *optional*) – timeout for the command, defaults to 60
+  * **cwd** (*str**,* *optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
+  * **env** (*dict**,* *optional*) – env for the command, defaults to None
+  * **env_extra** (*dict**,* *optional*) – env_extra for the command, defaults to None
+  * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
+  * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to True
+  * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+* **Returns:**
+  RunResult object
+* **Return type:**
+  [RunResult](#nmci.process.RunResult)
+
 ### nmci.process.raise_results(argv, header, result)
 
 Helper function to raise an exception containing output of the command.
@@ -2320,7 +2337,7 @@ anything to stderr, an exception is raised.
 ### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=<object object>, embed_combine_tag=<object object>, namespace=None)
 
 Run a command and search its stdout for a pattern. If the command fails, or
-prints anything to stderr, an exception is raised. Otherwise, a RunResult
+prints anything to stderr, an exception is raised. Otherwise, a re.Match
 object is returned.
 
 * **Parameters:**
@@ -2338,9 +2355,9 @@ object is returned.
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
   * **namespace** (*str**,* *optional*) – namespace for the command, defaults to None
 * **Returns:**
-  RunResult object
+  re.Match object
 * **Return type:**
-  [RunResult](#nmci.process.RunResult)
+  re.Match
 
 ### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, namespace=None)
 
@@ -2490,6 +2507,15 @@ Alias for field number 1
 
 ### nmci.util.base_dir(\*args)
 
+Base directory of NM-ci.
+
+* **Parameters:**
+  **args** (*list*) – additional path components
+* **Returns:**
+  base directory of NM-ci with additional path
+* **Return type:**
+  str
+
 ### nmci.util.binary_to_str(b, binary=None)
 
 Convert bytes to string. This is the same as bytes_to_str() but it
@@ -2520,7 +2546,7 @@ Convert bytes to string.
 
 ### nmci.util.compare_strv_list(expected, strv, match_mode='auto', ignore_extra_strv=True, ignore_order=True)
 
-Compare the `strv` list of strings with `@expected`. If the list differs,
+Compare the `strv` list of strings with `expected`. If the list differs,
 a ValueError gets raised. Otherwise it return True.
 
 * **Parameters:**
@@ -2535,7 +2561,7 @@ a ValueError gets raised. Otherwise it return True.
   * **ignore_extra_strv** (*bool*) – if True, extra non-matched elementes in strv are silently accepted
   * **ignore_order** (*bool*) – if True, the order is not checked. Otherwise, the
     elements in `expected` must match in the right order.
-    For example, with `match_mode='plain'`, `expected=['a', '.']`,
+    For example, with `match_mode='regex'`, `expected=['a', '.']`,
     `strv=['b', 'a']`, this matches when ignoring the order,
     but fails to match otherwise.
     An element in `expected` only can match exactly once.
@@ -2579,7 +2605,7 @@ purposes. It dumps the status of NetworkManager, systemd-resolved,
 the vethsetup network namespace and the other named network namespaces. It
 also dumps the routing tables and the firewall rules. It’s a lot of
 information, so it’s only dumped when the test fails. It can be
-enabled for all tests by setting the NMCI_DUMP_STATUS environment
+enabled for all tests by setting the `NMCI_DUMP_STATUS` environment
 variable to “1”.
 
 * **Parameters:**
@@ -2644,7 +2670,7 @@ Set content of file.
 
 * **Parameters:**
   * **file_name** (*str*) – file name
-  * **data** (*str**,* *optional*) – data to write, defaults to “”
+  * **data** (*str* *or* *bytes* *or* *list**[**str**] or* *list**[**bytes**]**,* *optional*) – data to write, accepts string, bytes or list of lines, defaults to “”
 
 ### nmci.util.gvariant_to_dict(variant)
 
@@ -2814,7 +2840,7 @@ is treated verbatim.
 
 This allows to write expressions, that themselves might be backslash
 escaped, without requiring additional backslash escaping.
-For example, regexes: [“^.$”, “^ [”] gives the string “^.$ ^[”
+For example, regexes: `["^.$", "^ \["]` gives the string `"^.$ ^\ \["`
 
 * **Parameters:**
   **args** (*list*) – the list of strings to join
@@ -2839,15 +2865,14 @@ is treated verbatim.
 
 This allows to write expressions, that themselves might be backslash
 escaped, without requiring additional backslash escaping.
-For example, regexes: “^.$ ^[” gives the two regexes [“^.$”, “^ [“]
+For example, regexes: `"^.$ ^\ \["` gives the two regexes `["^.$", "^ \["]`
 
 This will:
-: - None gives the empty list [] (so that every input strlist can
-    : be joined and split again).
-  - take double backslash “\\” as a single backslash “"
-  - take escaped space ““ as a single space
-  - take a single whitespace to split the string (the whitespace is removed).
-  - any other escaped backslash is taken literally.
+- None gives the empty list [] (so that every input strlist can be joined and split again).
+- take double backslash `"\\"` as a single backslash `"\"`
+- take escaped space `"\ "` as a single space
+- take a single whitespace to split the string (the whitespace is removed).
+- any other escaped backslash is taken literally.
 
 * **Parameters:**
   * **text** (*str*) – the string to split
@@ -2859,6 +2884,16 @@ This will:
   list
 
 ### nmci.util.tmp_dir(\*args, create_base_dir=True)
+
+Temporary directory of NM-ci.
+
+* **Parameters:**
+  * **args** (*list*) – additional path components
+  * **create_base_dir** (*bool*) – whether NM-ci base directory should be created
+* **Returns:**
+  temporary directory of NM-ci with additional path
+* **Return type:**
+  str
 
 ### nmci.util.update_udevadm()
 
@@ -2873,7 +2908,7 @@ udev rules are changed and the changes should be applied immediately.
 Get util directory.
 
 * **Parameters:**
-  **args** (*list*) – path components
+  **args** (*list*) – additional path components
 * **Returns:**
   util directory
 * **Return type:**
@@ -2921,7 +2956,7 @@ Set device mode to ‘managed’.
 
 ### nmci.veth.manage_veths()
 
-Set the mode to ‘managed’ for all veth devices with names accepted by the regex ‘eth[0-9]\*[0-9]?’.
+Set the mode to ‘managed’ for all veth devices with names accepted by the regex `eth[0-9]*[0-9]?`.
 
 ### nmci.veth.reset_hwaddr_nmcli(ifname)
 
@@ -2955,6 +2990,6 @@ for all veth devices with names accepted by the regex `eth[0-9]*[0-9]?`.
 Wait for the testeth0 connection to sucessfully activate from multiple states.
 
 Possible states:
-: - If it does not exist, restore it.
-  - If it is not running, activate it.
-  - If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.
+- If it does not exist, restore it.
+- If it is not running, activate it.
+- If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.

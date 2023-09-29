@@ -211,7 +211,7 @@ class _NMUtil:
 
     def context_get_nm_stopped(self, context=None):
         """
-        Set context.nm_stopped, which indicates that NetworkManager
+        Gets context.nm_stopped, which indicates that NetworkManager
         service was stopped during the test.
 
         :param context: behave context, defaults to None
@@ -305,6 +305,8 @@ class _NMUtil:
         """
         Stops the NM service.
 
+        :param timeout: timeout for process to finish, defaults to 60
+        :type timeout: int, optional
         :return: True, if NM stopped successfully
         :rtype: bool
         """

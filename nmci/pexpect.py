@@ -280,7 +280,7 @@ class _PExpect:
 
     def process_pexpect_spawn(self):
         """
-        Kill all pexpect processes spawned by pexpect_spawn() and pexpect_service().
+        Kill all pexpect processes spawned by pexpect_spawn().
 
         :raises Exception: if some process failed
         """

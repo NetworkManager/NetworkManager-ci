@@ -52,7 +52,7 @@ class _Veth:
 
     def manage_veths(self):
         """
-        Set the mode to 'managed' for all veth devices with names accepted by the regex 'eth[0-9]*[0-9]?'.
+        Set the mode to 'managed' for all veth devices with names accepted by the regex :code:`eth[0-9]*[0-9]?`.
         """
         if not os.path.isfile("/tmp/nm_veth_configured"):
             rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="eth[0-9]|eth[0-9]*[0-9]", ENV{NM_UNMANAGED}="0"'
@@ -141,9 +141,9 @@ class _Veth:
         Wait for the testeth0 connection to sucessfully activate from multiple states.
 
         Possible states:
-            - If it does not exist, restore it.
-            - If it is not running, activate it.
-            - If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.
+        - If it does not exist, restore it.
+        - If it is not running, activate it.
+        - If it does not have ipv4 addr/gateway/dns assigned, wait for the assignment.
         """
         print("* waiting for testeth0 to connect")
         if "testeth0" not in nmci.process.nmcli("connection"):

@@ -586,7 +586,7 @@ class _Process:
     ):
         """
         Run a command and search its stdout for a pattern. If the command fails, or
-        prints anything to stderr, an exception is raised. Otherwise, a RunResult
+        prints anything to stderr, an exception is raised. Otherwise, a re.Match
         object is returned.
 
         :param argv: command to run
@@ -615,8 +615,8 @@ class _Process:
         :type embed_combine_tag: str, optional
         :param namespace: namespace for the command, defaults to None
         :type namespace: str, optional
-        :returns: RunResult object
-        :rtype: RunResult
+        :returns: re.Match object
+        :rtype: re.Match
         """
         # autodetect based on the pattern
         if pattern_flags is DEFAULT_PATTERN_FLAGS:
@@ -738,6 +738,27 @@ class _Process:
         anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
         This function is used for commands that are expected to fail, but we want to check
         the output anyway.
+
+        :param argv: nmcli arguments added to the command's execution
+        :type argv: str or list
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param timeout: timeout for the command, defaults to 60
+        :type timeout: int, optional
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to True
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to True
+        :type ignore_stderr: bool, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
         """
         nmcli_argv = WithPrefix(["nmcli"], argv)
 
