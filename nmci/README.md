@@ -1204,7 +1204,7 @@ Check if HTML formatter is set. This makes sense only after setup() call.
 
 
 
-### nmci.embed.is_faf_repored()
+### nmci.embed.is_faf_reported()
 Whether FAF report was embedded or not.
 
 

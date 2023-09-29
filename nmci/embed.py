@@ -220,7 +220,7 @@ class _Embed:
             return
         self._html_formatter.after_scenario_finish(status)
 
-    def is_faf_repored(self):
+    def is_faf_reported(self):
         """
         Whether FAF report was embedded or not.
 
