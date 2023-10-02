@@ -271,20 +271,30 @@ class GitlabTrigger(object):
                 description == "The build has finshed successfully"
             elif status == "failed":
                 description == "The build has finshed unstable or failing"
+
             com = self.gl_project.commits.get(self.commit)
 
             name = os.environ["BUILD_URL"]
             name = re.sub(r"^.*/job/(.*)/$", "\\1", name)
             pipeline_name = f"centos{release}: {name}"
 
-            com.statuses.create(
-                {
-                    "state": status,
-                    "target_url": os.environ["BUILD_URL"],
-                    "name": pipeline_name,
-                    "description": description,
-                }
-            )
+            exc = None
+            for _ in range(3):
+                try:
+                    com.statuses.create(
+                        {
+                            "state": status,
+                            "target_url": os.environ["BUILD_URL"],
+                            "name": pipeline_name,
+                            "description": description,
+                        }
+                    )
+                    return
+                except Exception as e:
+                    exc = e
+                    time.sleep(1)
+            print(f"Unable to set commit status in gitlab:\nException: {exc}")
+
         except Exception as e:
             print(str(e))
 
