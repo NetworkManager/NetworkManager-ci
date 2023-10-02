@@ -222,7 +222,10 @@ def wait_faf_complete(context, dump_dir):
                 NM_pkg = True
                 # Do after_crash_reset, if FAF upload is not disabled
                 if context.crash_upload:
-                    after_crash_reset()
+                    try:
+                        after_crash_reset()
+                    except Exception as e:
+                        nmci.embed.embed_data("Exception in after_crash_reset:", str(e))
                 # Wait a bit, sometimes DNS is not ready and FAF reporter reports
                 #  curl: Could not resolve host: faf.lab...
                 time.sleep(1)
