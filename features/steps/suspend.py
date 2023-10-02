@@ -18,34 +18,43 @@ def mock_logind(context):
         lambda: nmci.process.systemctl("start systemd-logind"),
         name="start_systemd-logind",
     )
+    nmci.cleanup.add_callback(
+        lambda: nmci.process.systemctl("unmask systemd-logind"),
+        name="unmask_systemd-logind",
+    )
     nmci.cleanup.add_callback(_cleanup_proc, name="stop mocked logind")
 
     nmci.process.systemctl("stop systemd-logind")
+    nmci.process.systemctl("mask systemd-logind")
 
     context.logind_proc = nmci.pexpect.pexpect_service(
         "python3 -m dbusmock --template logind"
     )
-    # This sleep can not be dynamic wait, if any query to login1 sooner then
-    # systemd-logind.service starts for some reason and overtakes dbusmock.
-    time.sleep(0.2)
-    nmci.process.run_stdout(
-        [
-            "gdbus",
-            "call",
-            "--system",
-            "-d",
-            "org.freedesktop.login1",
-            "-o",
-            "/org/freedesktop/login1",
-            "-m",
-            "org.freedesktop.DBus.Mock.AddMethod",
-            "org.freedesktop.login1.Manager",
-            "Suspend",
-            "b",
-            "",
-            'self.EmitSignal("", "PrepareForSleep", "b", args)',
-        ]
-    )
+    with nmci.util.start_timeout(10, "mock suspend signal") as t:
+        while t.loop_sleep(0.2):
+            if (
+                nmci.process.run(
+                    [
+                        "gdbus",
+                        "call",
+                        "--system",
+                        "-d",
+                        "org.freedesktop.login1",
+                        "-o",
+                        "/org/freedesktop/login1",
+                        "-m",
+                        "org.freedesktop.DBus.Mock.AddMethod",
+                        "org.freedesktop.login1.Manager",
+                        "Suspend",
+                        "b",
+                        "",
+                        'self.EmitSignal("", "PrepareForSleep", "b", args)',
+                    ],
+                    ignore_stderr=True,
+                ).returncode
+                == 0
+            ):
+                break
 
 
 @step('Send "{signal}" signal to mocked logind')
