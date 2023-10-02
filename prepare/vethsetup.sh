@@ -454,8 +454,6 @@ function teardown_veth_env ()
 
     done
 
-    nmcli con reload
-    sleep 1
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
 
