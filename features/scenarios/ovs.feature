@@ -768,68 +768,10 @@ Feature: nmcli - ovs
     When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
 
 
-    @rhbz1740557 @rhbz1852612 @rhbz1855563
-    @ver+=1.18.8 @ver-=1.25
-    @permissive @openvswitch @disp
-    @ovs_cloned_mac_set_on_iface
-    Scenario: nmcli - openvswitch - mac address set iface
-    * Write dispatcher "pre-down.d/97-disp" file with params "sleep 1"
-    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
-    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
-          """
-          conn.master ovsbridge0
-          ovs-port.tag 120
-          """
-    * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
-          """
-          conn.master ovsbridge0
-          ovs-port.tag 120
-          """
-    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
-          """
-          conn.master bond0
-          slave-type ovs-port
-          """
-    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
-          """
-          conn.master bond0
-          slave-type ovs-port
-          """
-    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
-          """
-          conn.master port0
-          ipv4.may-fail no
-          802-3-ethernet.cloned-mac-address
-          00:11:22:33:44:55"
-                    *
-          Add
-          """
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    # Was not backported
-    # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-    # No sleep 2 as a reproducer of 1855563
-    * Execute "nmcli networking off && nmcli networking on"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    # Was not backported
-    # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-    # No sleep 2 as a reproducer of 1855563
-    * Execute "nmcli networking off && nmcli networking on"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
-    When "00:11:22:33:44:55" is visible with command "ip a s iface0"
-    # Was not backported
-    # When "GENERAL.HWADDR:\s+00:11:22:33:44:55" is visible with command "nmcli dev show iface0"
-    When  "mac\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-    When  "mac_in_use\s+: "00:11:22:33:44:55"" is visible with command "ovs-vsctl list interface"
-
-
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
-    @ver+=1.26
+    # RHEL-5394
+    # Move this back to 1.26 once the crash is solved and the fix backported
+    @ver+=1.44
     @rhelver+=8
     @permissive @openvswitch @disp
     @ovs_cloned_mac_set_on_iface
@@ -875,7 +817,9 @@ Feature: nmcli - ovs
 
 
     @rhbz1786937
-    @ver+=1.18.8
+    # RHEL-5394
+    # Move this back to 1.18.8 once the crash is solved and the fix backported
+    @ver+=1.44
     @openvswitch @mtu @restart_if_needed
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
