@@ -457,7 +457,6 @@ function teardown_veth_env ()
     # Restart and bring back ORIGDEV up
     systemctl restart NetworkManager; sleep 2
 
-    rm -rf /tmp/nm_veth_configured
     # Log state of net after the teardown
     dump_state
 
