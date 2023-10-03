@@ -551,6 +551,8 @@ Feature: nmcli - procedures in documentation
     * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
     * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
     * Run child "tcpdump -nn -i any port 53"
+    # We need some time to allow tcpdump to start (especially on ppc64le)
+    * Wait for "3" seconds
     Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
     Then Expect "<noted:eth0_ip4>.*www.redhat.com" in children in "5" seconds
     Then "www.example.com has address 192.168.99.3" is visible with command "host -t A www.example.com" in "20" seconds
@@ -570,6 +572,8 @@ Feature: nmcli - procedures in documentation
     * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
     * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
     * Run child "tcpdump -nn -i any port 53"
+    # We need some time to allow tcpdump to start (especially on ppc64le)
+    * Wait for "3" seconds
     Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
     Then Expect "<noted:eth0_ip4>.*www.redhat.com" in children in "5" seconds
     Then "www.example.com has address 192.168.99.3" is visible with command "host -t A www.example.com" in "20" seconds
