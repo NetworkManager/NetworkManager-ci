@@ -431,7 +431,15 @@ reset_images() {
     umount $DEV_DUMPS 2>&1
     umount $DEV_CHECK 2>&1
     # reset journal FS
-    mkfs.ext3 -q -U $UUID_LOG $TESTDIR/client_log.img
+    losetup -D
+    for file in \
+      $TESTDIR/client_log.img \
+      $TESTDIR/client_check.img \
+      $TESTDIR/client_dumps.img
+      do
+        [[ $file == *'log'* ]] && mkfs.ext3 -q -U $UUID_LOG $TESTDIR/client_log.img
+        losetup -f $file
+    done
 }
 
 after_test() {

@@ -1416,7 +1416,7 @@ def dracut_as(context, scenario):
     nmci.embed.embed_service_log("RA", syslog_identifier="radvd")
     nmci.embed.embed_service_log("NFS", syslog_identifier="rpc.mountd")
     context.process.run_stdout(
-        "cd contrib/dracut; . ./setup.sh; after_test", shell=True
+        "cd contrib/dracut; . ./setup.sh; after_test", shell=True, timeout=15
     )
 
     for file_name in getattr(context, "dracut_files_to_restore", []):
