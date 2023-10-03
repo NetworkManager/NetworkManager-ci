@@ -2606,6 +2606,10 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_dbus_invalid_cert_input:
         feature: wifi_hwsim
+    - simwifi_mac_address_blacklist_to_denylist:
+        feature: wifi_hwsim
+    - simwifi_mac_address_denylist_to_blacklist:
+        feature: wifi_hwsim
     # Add @simwifi tests before this line ^^
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim

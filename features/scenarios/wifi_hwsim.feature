@@ -1271,6 +1271,34 @@ Feature: nmcli - wifi
     Then "open" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
+    @ver+=1.47.3
+    @simwifi
+    @simwifi_mac_address_blacklist_to_denylist
+    Scenario: simwifi - nmcli - check mac address denylist property derived from blacklist
+    * Add "wifi" connection named "qe-open" for device "wlan0" with options
+      """
+      autoconnect off
+      ssid qe-open
+      802-11-wireless.mac-address-blacklist f0:de:aa:fb:bb:cc
+      """
+    Then "F0:DE:AA:FB:BB:CC" is visible with command "nmcli -f 802-11-wireless.mac-address-denylist connection show qe-open"
+    Then "F0:DE:AA:FB:BB:CC" is visible with command "nmcli -f 802-11-wireless.mac-address-blacklist connection show qe-open"
+
+
+    @ver+=1.47.3
+    @simwifi
+    @simwifi_mac_address_denylist_to_blacklist
+    Scenario: simwifi - nmcli - check mac address blacklist property derived from denylist
+    * Add "wifi" connection named "qe-open" for device "wlan0" with options
+      """
+      autoconnect off
+      ssid qe-open
+      802-11-wireless.mac-address-denylist f0:de:aa:fb:bb:cc
+      """
+    Then "F0:DE:AA:FB:BB:CC" is visible with command "nmcli -f 802-11-wireless.mac-address-denylist connection show qe-open"
+    Then "F0:DE:AA:FB:BB:CC" is visible with command "nmcli -f 802-11-wireless.mac-address-blacklist connection show qe-open"
+
+
     # Leave this test at the end please
     @simwifi_teardown
     @nmcli_simwifi_teardown
