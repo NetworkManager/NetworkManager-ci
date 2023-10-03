@@ -70,9 +70,13 @@ class _Veth:
     def check_vethsetup(self):
         """Re-run the veth setup while validating its correct execution."""
         print("Regenerate veth setup")
-        nmci.process.run_stdout(
-            "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
-        )
+        try:
+            nmci.process.run_stdout(
+                "sh prepare/vethsetup.sh check", ignore_stderr=True, timeout=60
+            )
+        except Exception as e:
+            nmci.util.file_set_content("/tmp/nm_veth_configured")
+            raise e
         nmci.cext.context.nm_pid = nmci.nmutil.nm_pid()
 
     def teardown_testveth(self, ns):
