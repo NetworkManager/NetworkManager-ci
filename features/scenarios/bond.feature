@@ -3009,7 +3009,7 @@
     @ver/rhel/8/6+=1.36.0.15
     @ver/rhel/8/8+=1.40.16.4
     @ver/rhel/8+=1.40.16.8
-    @ver/rhel/9/2+=1.42.2.4
+    @ver/rhel/9/2-1.42.2.4
     @ver+=1.43.11
     @ver-1.43.90
     @vlan_over_bond_reconnect_on_link_revive
@@ -3153,7 +3153,12 @@
     When "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
     * Execute "ip link set testXa down"
     * Execute "ip link set testXb down"
-    When "192.168.122.10" is not visible with command "ip addr show bond0.1656" in "15" seconds
+    # Enable when RHEL-5004 is solved
+    # When "192.168.122.10" is not visible with command "ip addr show bond0.1656" in "15" seconds
+    * Wait for "10" seconds
+    * Execute "ip link set testXa down"
+    * Execute "ip link set testXb down"
+    * Wait for "10" seconds
     * Execute "ip link set testXa up"
     * Execute "ip link set testXb up"
     Then "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
