@@ -133,6 +133,7 @@ clean () {
     ip link delete veth0r ||true
     ip link delete veth1c ||true
     ip link delete veth1r ||true
+    ip link delete veth0s ||true
     nmcli connection delete bond_test bond_test.3 \
                 veth0c veth1c br_test veth0c_p veth0r veth0s veth1c_p veth1r \
                 ovs-br0-br ovs1-if \
