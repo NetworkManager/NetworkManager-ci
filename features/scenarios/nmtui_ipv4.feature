@@ -14,19 +14,6 @@ Feature: IPv4 TUI tests
     Then ".*Unable to add new connection.*ipv4.addresses: this property cannot.*be empty for 'method=manual'.*" is visible on screen
 
 
-    @ver-=1.9.1
-    @nmtui_ipv4_addresses_static_no_mask
-    Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask
-    * Prepare new connection of type "Ethernet" named "ethernet"
-    * Set "Device" field to "eth1"
-    * Set "IPv4 CONFIGURATION" category to "Manual"
-    * Come in "IPv4 CONFIGURATION" category
-    * In "Addresses" property add "192.168.1.10"
-    * Confirm the connection settings
-    Then "inet 192.168.1.10/32" is visible with command "ip a s eth1" in "10" seconds
-    Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
-
-
     @ver+=1.9.2
     @nmtui_ipv4_addresses_static_no_mask
     Scenario: nmtui - ipv4 - addresses - static IPv4 without netmask
