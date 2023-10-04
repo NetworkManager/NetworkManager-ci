@@ -1926,6 +1926,7 @@ Feature: nmcli: ipv4
 
     @rhbz1259063
     @ver+=1.4.0
+    @ver-1.45
     @ipv4_dad
     Scenario: NM - ipv4 - DAD
     * Prepare simulated test "testD4" device
@@ -1943,6 +1944,34 @@ Feature: nmcli: ipv4
     When "testD4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
     * Bring "up" connection "con_ipv4"
+    Then "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+
+
+    @rhbz1259063
+    @rhbz2123212
+    @RHEL-2205
+    @ver+=1.45
+    @ipv4_dad
+    Scenario: NM - ipv4 - DAD
+    * Prepare simulated test "testD4" device
+    * Execute "ip -n testD4_ns link set testD4p addr 00:99:88:77:66:55"
+    * Add "ethernet" connection named "con_ipv4" for device "testD4" with options
+          """
+          ipv4.may-fail no
+          ipv4.method manual
+          ipv4.addresses 192.168.99.1/24
+          """
+    When Bring "up" connection "con_ipv4"
+    Then "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+    * Start following journal
+    * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.1/24 ipv4.dad-timeout 5000"
+    When Bring "up" connection "con_ipv4" ignoring error
+    * Wait for "5" seconds
+    Then "testD4:connected:con_ipv4" is not visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+    Then "192.168.99.1" is not visible with command "ip addr show dev testD4" in "10" seconds
+    Then "<info>.*192.168.99.1 cannot be configured because it is already in use in the network by host 00:99:88:77:66:55" is visible in journal in "1" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 192.168.99.2/24 ipv4.dad-timeout 5000"
+    When Bring "up" connection "con_ipv4"
     Then "testD4:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
