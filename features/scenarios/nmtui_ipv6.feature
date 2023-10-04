@@ -245,7 +245,9 @@ Feature: IPv6 TUI tests
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is not visible with command "ip -6 route"
 
 
+    # RHEL-11598
     @ver+=1.9.2
+    @may_fail
     @nmtui_ipv6_routes_remove_basic_route
     Scenario: nmtui - ipv6 - routes - remove basic route
     * Prepare new connection of type "Ethernet" named "ethernet1"
