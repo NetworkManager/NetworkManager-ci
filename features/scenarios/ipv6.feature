@@ -2400,9 +2400,11 @@
 
     @rhbz2082685
     @ver+=1.41.2
+    @ver-1.45.8
     @ipv6_stable_privacy_dad
     Scenario: nmcli - ipv6 - check that DAD is performed for stable-privacy SLAAC addresses
     * Prepare simulated test "testX6" device
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "1"
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
@@ -2422,6 +2424,37 @@
     Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
     Then Check noted values "ipv6_1" and "ipv6_2" are not the same
+
+
+    @rhbz2082685
+    @RHEL-11811
+    @ver+=1.45.8
+    @ipv6_stable_privacy_dad
+    Scenario: nmcli - ipv6 - check that DAD is performed for stable-privacy SLAAC addresses
+    * Prepare simulated test "testX6" device
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "1"
+    * Execute "ip -n testX6_ns link set testX6p addr 00:99:88:77:66:55"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
+    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
+    # Now that we know the stable-privacy address generated, set it also in the namespace
+    # and reactivate to cause a collision; then check that NM generates a different address
+    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee - /tmp/ipv6addr.txt"
+    * Bring "down" connection "con_ipv6"
+    * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
+    * Execute "sleep 5"
+    * Start following journal
+    * Bring "up" connection "con_ipv6"
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
+    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
+    Then Check noted values "ipv6_1" and "ipv6_2" are not the same
+    Then "<info>.*Conflict detected for IPv6 address: 2620:dead:beaf.*" is visible in journal in "1" seconds
 
 
     @rhbz2029636
