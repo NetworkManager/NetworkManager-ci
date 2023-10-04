@@ -59,6 +59,8 @@ beaker-hardware:
       kernel-options: biosdevname=0 net.ifnames=0
   - aarch64:
       memory: 131072
+  - ppc64le:
+      memory: 65536
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
