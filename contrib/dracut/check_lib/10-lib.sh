@@ -85,8 +85,8 @@ check_core_dumps() {
 mount_list() {
   echo "== nfs mounts =="
   mount | grep nfs
-  echo "== ext3 mounts =="
-  mount | grep ext3
+  echo "== ext4 mounts =="
+  mount | grep ext4
 }
 
 

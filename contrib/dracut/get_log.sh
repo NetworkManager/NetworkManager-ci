@@ -33,7 +33,7 @@ if [[ "$test_type" == "nfs" ]]; then
 
 elif [[ "$test_type" == "iscsi_single" ]]; then
   mkdir mnt
-  mount root.ext3 mnt/
+  mount root.ext4 mnt/
 
 elif [[ "$test_type" == "iscsi_raid" ]]; then
   mkdir mnt

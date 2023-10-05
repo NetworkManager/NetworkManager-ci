@@ -1182,7 +1182,7 @@ Feature: NM: dracut
       | check  | no_ifcfg                                                           |
       | check  | ip4_route_unique "default via 192.168.51.1"                        |
       | check  | ip4_route_unique "192.168.51.0/24 dev eth0"                        |
-      | check  | mount_root_type ext3                                               |
+      | check  | mount_root_type ext4                                               |
 
 
     @rhelver+=8.3 @fedoraver+=38
@@ -1216,7 +1216,7 @@ Feature: NM: dracut
       | check  | no_ifcfg                                               |
       | check  | ip4_route_unique "default via 192.168.51.1"            |
       | check  | ip4_route_unique "192.168.51.0/24 dev eth0"            |
-      | check  | mount_root_type ext3                                   |
+      | check  | mount_root_type ext4                                   |
 
 
     @rhelver+=8.3 @fedoraver+=38
@@ -1251,7 +1251,7 @@ Feature: NM: dracut
       | check  | no_ifcfg                                                            |
       | check  | ip4_route_unique "default via 192.168.51.1"                         |
       | check  | ip4_route_unique "192.168.51.0/24 dev eth0"                         |
-      | check  | mount_root_type ext3                                                |
+      | check  | mount_root_type ext4                                                |
 
 
     @rhelver+=8.3 @fedoraver+=38
@@ -1304,7 +1304,7 @@ Feature: NM: dracut
       | check  | ip4_route_unique "default via 192.168.52.1"              |
       | check  | ip4_route_unique "192.168.51.0/24 dev eth0"              |
       | check  | ip4_route_unique "192.168.52.0/24 dev eth1"              |
-      | check  | mount_root_type ext3                                     |
+      | check  | mount_root_type ext4                                     |
 
 
     ##########
@@ -1916,7 +1916,7 @@ Feature: NM: dracut
       # duplicit routes with legacy module
       #| check  | ip_route_unique "default via 192.168.51.1"              |
       #| check  | ip_route_unique "192.168.51.0/24 dev ibft0"             |
-      | check  | mount_root_type ext3                                    |
+      | check  | mount_root_type ext4                                    |
 
 
     ############

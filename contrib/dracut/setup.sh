@@ -77,7 +77,7 @@ test_setup() {
           done
       )
 
-      instmods nfsd ext3 sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
+      instmods nfsd ext4 sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
 
       inst /etc/nsswitch.conf
       inst /etc/passwd
@@ -97,7 +97,7 @@ test_setup() {
       cp -a /etc/ld.so.conf* $initdir/etc
       ldconfig -r "$initdir"
       echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
-      echo "$DEV_LOG /var/log/ ext3 defaults 1 1" >> $initdir/etc/fstab
+      echo "$DEV_LOG /var/log/ ext4 defaults 1 1" >> $initdir/etc/fstab
 
 
       rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
@@ -294,9 +294,9 @@ EOF
   dd if=/dev/zero of=$TESTDIR/client_log.img bs=1M count=200
   dd if=/dev/zero of=$TESTDIR/client_check.img bs=1M count=20
   dd if=/dev/zero of=$TESTDIR/client_dumps.img bs=1M count=200
-  mkfs.ext3 -U $UUID_LOG $TESTDIR/client_log.img
-  mkfs.ext3 -U $UUID_CHECK $TESTDIR/client_check.img
-  mkfs.ext3 -U $UUID_DUMPS $TESTDIR/client_dumps.img
+  mkfs.ext4 -U $UUID_LOG $TESTDIR/client_log.img
+  mkfs.ext4 -U $UUID_CHECK $TESTDIR/client_check.img
+  mkfs.ext4 -U $UUID_DUMPS $TESTDIR/client_dumps.img
   losetup -f $TESTDIR/client_log.img
   losetup -f $TESTDIR/client_check.img
   losetup -f $TESTDIR/client_dumps.img
@@ -305,14 +305,14 @@ EOF
   mkdir $TESTDIR/client_dumps
 
   # Create the blank file to use as a root iSCSI filesystem
-  dd if=/dev/zero of=$TESTDIR/root.ext3 bs=1M count=600
+  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=600
   dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=300
   dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=300
 
   # copy client files to root filesystem
-  mkfs.ext3 -j -L singleroot -F $TESTDIR/root.ext3
-  losetup -f $TESTDIR/root.ext3
-  iscsi_loop1="$(losetup -j $TESTDIR/root.ext3)"
+  mkfs.ext4 -j -L singleroot -F $TESTDIR/root.ext4
+  losetup -f $TESTDIR/root.ext4
+  iscsi_loop1="$(losetup -j $TESTDIR/root.ext4)"
   iscsi_loop1=${iscsi_loop1%%:*}
   mkdir $TESTDIR/mnt_root
   mount $iscsi_loop1 $TESTDIR/mnt_root
@@ -332,7 +332,7 @@ EOF
     lvm vgcreate dracutNMtest /dev/md0
     lvm lvcreate -y -l 100%FREE -n root dracutNMtest
     lvm vgchange -ay
-    mkfs.ext3 -j -L sysroot /dev/dracutNMtest/root
+    mkfs.ext4 -j -L sysroot /dev/dracutNMtest/root
     mount /dev/dracutNMtest/root $TESTDIR/mnt_root
     cp -a -t $TESTDIR/mnt_root/ $TESTDIR/nfs/client/*
 
@@ -375,7 +375,7 @@ EOF
   dracut -i $TESTDIR/overlay-client / \
          -o "plymouth dash dmraid network-legacy" \
          -a "debug network-manager ifcfg" \
-         -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+         -d "8021q ipvlan macvlan bonding af_packet piix ext4 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
          -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
 
@@ -384,7 +384,7 @@ EOF
       dracut -i $TESTDIR/overlay-client / \
              -o "plymouth dash dmraid network-manager" \
              -a "debug network-legacy ifcfg" \
-             -d "8021q ipvlan macvlan bonding af_packet piix ext3 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
+             -d "8021q ipvlan macvlan bonding af_packet piix ext4 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
              --no-hostonly-cmdline -N --no-compress \
              -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
   fi
@@ -410,7 +410,7 @@ test_clean() {
     $TESTDIR/client_log.img \
     $TESTDIR/client_check.img \
     $TESTDIR/client_dumps.img \
-    $TESTDIR/root.ext3 \
+    $TESTDIR/root.ext4 \
     $TESTDIR/iscsidisk2.img \
     $TESTDIR/iscsidisk3.img
   do
@@ -438,7 +438,7 @@ reset_images() {
       $TESTDIR/client_check.img \
       $TESTDIR/client_dumps.img
       do
-        [[ $file == *'log'* ]] && mkfs.ext3 -q -U $UUID_LOG $TESTDIR/client_log.img
+        [[ $file == *'log'* ]] && mkfs.ext4 -q -U $UUID_LOG $TESTDIR/client_log.img
         losetup -f $file
     done
 }
@@ -469,7 +469,7 @@ stop_nfs() {
 
 
 start_iscsi() {
-  iscsi_loop1="$(losetup -j $TESTDIR/root.ext3)"
+  iscsi_loop1="$(losetup -j $TESTDIR/root.ext4)"
   iscsi_loop1=${iscsi_loop1%%:*}
   iscsi_loop2="$(losetup -j $TESTDIR/iscsidisk2.img)"
   iscsi_loop2=${iscsi_loop2%%:*}
