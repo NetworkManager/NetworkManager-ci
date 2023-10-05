@@ -827,6 +827,13 @@ def test_feature_tags():
             return True
         return False
 
+    def check_jira(tag):
+        if tag.startswith("RHEL-"):
+            assert re.fullmatch(r"RHEL-\d+", tag)
+            return True
+        else:
+            return False
+
     def check_registry(tag):
         return tag in tags.tag_registry
 
@@ -853,21 +860,20 @@ def test_feature_tags():
             assert (
                 test_tags.count(tag) == 1
             ), f'tag "{tag}" is not unique in {test_tags}'
-            is_ver = check_ver(tag)
-            is_bugzilla = check_bugzilla(tag)
-            is_registry = check_registry(tag)
-            is_mapper = check_mapper(tag)
-            test_in_mapper = test_in_mapper or is_mapper
-            if is_registry:
+            checks = {
+                "is_ver": check_ver(tag),
+                "is_bugzilla": check_bugzilla(tag),
+                "is_jira": check_jira(tag),
+                "is_registry": check_registry(tag),
+                "is_mapper": check_mapper(tag),
+            }
+            test_in_mapper = test_in_mapper or checks["is_mapper"]
+            if checks["is_registry"]:
                 tag_registry_used.add(tag)
+            assert True in checks.values(), f'tag "{tag}" has no effect'
             assert (
-                is_ver or is_bugzilla or is_registry or is_mapper
-            ), f'tag "{tag}" has no effect'
-            assert [is_ver, is_bugzilla, is_registry, is_mapper].count(True) == 1, (
-                f'tag "{tag}" is multipurpose ({"mapper, " if is_mapper else ""}'
-                f'{"registry, " if is_registry else ""}{"ver, " if is_ver else ""}'
-                f'{"bugzilla, " if is_bugzilla else ""})'
-            )
+                list(checks.values()).count(True) == 1
+            ), f'tag "{tag}" is multipurpose: {[i[0] for i in filter(lambda j: j[1], checks.items())]}'
 
         assert test_in_mapper, f"none of {test_tags} is in mapper"
 

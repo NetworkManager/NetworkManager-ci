@@ -165,7 +165,7 @@ Feature: IPv6 TUI tests
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 112" is visible with command "ip -6 route"
 
 
-    # RHEL-11598
+    @RHEL-11598
     @ver+=1.9.2
     @may_fail
     @nmtui_ipv6_routes_remove_basic_route

@@ -1025,6 +1025,8 @@ class _Misc:
                 tag.set_link(
                     "https://bugzilla.redhat.com/" + tag_name.replace("rhbz", "")
                 )
+            elif re.fullmatch("RHEL-\d+", tag_name):
+                tag.set_link("https://issues.redhat.com/browse/" + tag_name)
             elif tag_name in tags.tag_registry and git_url:
                 lineno = tags.tag_registry[tag_name].lineno
                 tag.set_link(f"{git_url}/-/tree/{git_commit}/nmci/tags.py#L{lineno}")

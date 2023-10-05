@@ -131,7 +131,7 @@
     Then "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show openvpn" in "5" seconds
 
 
-    #RHEL-5420
+    @RHEL-5420
     @openvpn
     @openvpn_persist
     Scenario: nmcli - openvpn - persist connection

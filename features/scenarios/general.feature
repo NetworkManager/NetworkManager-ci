@@ -1970,7 +1970,7 @@ Feature: nmcli - general
     Then "192.168.244.4/24" is visible with command "ip -o addr show dummy0"
 
 
-    #@RHEL-1526
+    @RHEL-1526
     @ver+=1.44.0.4
     @checkpoint_remove
     @snapshot_rollback_delete_devices_and_profiles

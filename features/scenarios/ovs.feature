@@ -769,7 +769,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
-    # RHEL-5394
+    @RHEL-5394
     # Move this back to 1.26 once the crash is solved and the fix backported
     @ver+=1.44
     @rhelver+=8
@@ -817,7 +817,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1786937
-    # RHEL-5394
+    @RHEL-5394
     # Move this back to 1.18.8 once the crash is solved and the fix backported
     @ver+=1.44
     @openvswitch @mtu @restart_if_needed
