@@ -432,6 +432,7 @@ reset_images() {
     umount $DEV_CHECK 2>&1
     # reset journal FS
     losetup -D
+    losetup -l
     for file in \
       $TESTDIR/client_log.img \
       $TESTDIR/client_check.img \
