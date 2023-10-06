@@ -1499,6 +1499,53 @@ Feature: nmcli: ipv4
     Then "Client-ID (Option )?\(?61\)?, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
 
 
+    @ver+=1.45.4.2000
+    @ipv4_dhcp_client_id_none
+    Scenario: nmcli - ipv4 - dhcp-client-id - unset client id
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.dhcp-client-id none
+          """
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
+    Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
+
+
+    @ver+=1.45.4.2000
+    @internal_DHCP @restart_if_needed
+    @ipv4_dhcp_client_id_none_internal
+    Scenario: nmcli - ipv4 - dhcp-client-id - unset client id with internal client
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.dhcp-client-id none
+          """
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
+    Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
+
+
+    @ver+=1.45.4.2000
+    @dhclient_DHCP
+    @ipv4_dhcp_client_id_none_dhclient
+    Scenario: nmcli - ipv4 - dhcp-client-id - unset client id with dhclient
+    * Execute "rm -f /etc/dhcp/dhclient.conf /etc/dhcp/dhclient.d/*"
+    * Write file "/etc/dhcp/dhclient.conf" with content
+          """
+          send dhcp-client-identifier = 01:01:02:03:04:05:06;
+          """
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.dhcp-client-id none
+          """
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
+    Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
+
+
     @rhbz1642023
     @rhelver+=8
     @ver+=1.14
@@ -1582,6 +1629,36 @@ Feature: nmcli: ipv4
     When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
+
+
+    @ver+=1.45.4.2000
+    @dhclient_DHCP
+    @ipv4_dhcp_client_id_default_dhclient_set
+    Scenario: NM - ipv4 - ipv4 client id should default to the value from dhclient.conf
+    * Execute "rm -f /etc/dhcp/dhclient.conf /etc/dhcp/dhclient.d/*"
+    * Write file "/etc/dhcp/dhclient.conf" with content
+          """
+          send dhcp-client-identifier = 01:01:02:03:04:05:06;
+          """
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv4" for device "eth2"
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
+    Then "01:02:03:04:05:06" is visible with command "grep 'Client-ID' /tmp/tcpdump.log"
+
+
+    @ver+=1.45.4.2000
+    @dhclient_DHCP
+    @ipv4_dhcp_client_id_default_dhclient_unset
+    Scenario: NM - ipv4 - ipv4 client id should default to unset if it's missing in dhclient.conf
+    * Execute "rm -f /etc/dhcp/dhclient.conf /etc/dhcp/dhclient.d/*"
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv4" for device "eth2"
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Bring "up" connection "con_ipv4"
+    When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
+    Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
 
 
     @ipv4_may-fail_yes

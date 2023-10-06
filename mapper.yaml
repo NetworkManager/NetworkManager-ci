@@ -1017,12 +1017,22 @@ testmapper:
         tags: gate
     - ipv4_dhcp_client_id_set_internal:
         feature: ipv4
+    - ipv4_dhcp_client_id_none:
+        feature: ipv4
+    - ipv4_dhcp_client_id_none_internal:
+        feature: ipv4
+    - ipv4_dhcp_client_id_none_dhclient:
+        feature: ipv4
     - ipv4_dhcp_client_id_remove:
         feature: ipv4
         tags: gate
     - ipv4_set_very_long_dhcp_client_id:
         feature: ipv4
     - ipv4_dhcp_client_id_default:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_dhclient_set:
+        feature: ipv4
+    - ipv4_dhcp_client_id_default_dhclient_unset:
         feature: ipv4
     - ipv4_may-fail_yes:
         feature: ipv4
