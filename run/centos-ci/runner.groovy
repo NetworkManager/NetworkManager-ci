@@ -89,6 +89,7 @@ node('cico-workspace') {
                     }
                 }
                 archiveArtifacts '*.*'
+                archiveArtifacts 'rpms/*.rpm'
                 junit 'junit.xml'
             }
             stage('reserve') {

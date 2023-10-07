@@ -44,7 +44,7 @@ TestResults:
     - when: manual
   script:
     - |
-      dnf -y install wget grep sed coreutils python3 python3-pip
+      dnf -y install wget grep sed coreutils python3 python3-pip unzip
       python3 -m pip install python-gitlab
       JUNIT_URL="$(python3 run/centos-ci/gitlab_junit.py)"; RC=$?
       echo $JUNIT_URL
@@ -53,6 +53,8 @@ TestResults:
           wget -O report.xml "$JUNIT_URL" && break
           sleep 5
       done
+      RPMS_URL=$(echo "$JUNIT_URL" | sed 's@junit.xml@rpms/\*zip\*/rpms.zip@')
+      wget -O rpms.zip "$RPMS_URL" && unzip rpms.zip
       [ -s report.xml ] || rm -f report.xml
       [ -f report.xml ] || exit 1
       sed -n "/LOG:/n;p" report.xml | sed "s/<.*//g" | sort
@@ -62,3 +64,7 @@ TestResults:
     reports:
       junit:
         - report.xml
+    paths:
+        - rpms/*.rpm
+    expire_in: 1 week
+
