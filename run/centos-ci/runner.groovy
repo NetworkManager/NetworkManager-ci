@@ -89,8 +89,9 @@ node('cico-workspace') {
                     }
                 }
                 archiveArtifacts '*.*'
-                archiveArtifacts 'rpms/*.rpm'
                 junit 'junit.xml'
+                // do this at last, it might not exist when copr
+                archiveArtifacts 'rpms/*.rpm'
             }
             stage('reserve') {
                 if (RESERVE != "0s") {
