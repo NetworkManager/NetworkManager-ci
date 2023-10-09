@@ -2645,6 +2645,7 @@ testmapper:
         tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
+        tags: gate
     - gsm_sim_disconnect:
         feature: gsm_sim
     - gsm_sim_mtu:
@@ -2669,7 +2670,6 @@ testmapper:
         feature: alias
     - alias_ifcfg_reboot:
         feature: alias
-        tags: gate
     - dns_resolved_two_default:
         feature: dns
     - dns_resolved_one_default:
