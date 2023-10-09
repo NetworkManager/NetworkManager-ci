@@ -20,6 +20,8 @@ def check_dump_package(pkg_name):
         pkg_name in ["NetworkManager", "ModemManager", "nmcli", "nmtui", "behave"]
         or "ovs" in pkg_name
         or "openvswitch" in pkg_name
+        or "qemu" in pkg_name
+        or "kvm" in pkg_name
     ):
         return True
     return False
