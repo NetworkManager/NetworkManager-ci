@@ -1648,7 +1648,7 @@ Feature: nmcli: ipv4
     Then "01:02:03:04:05:06" is visible with command "grep 'Client-ID' /tmp/tcpdump.log"
 
 
-    @ver+=1.45.4.2000
+    @ver+=1.45.4.2000 @rhelver+=9
     @dhclient_DHCP
     @ipv4_dhcp_client_id_default_dhclient_unset
     Scenario: NM - ipv4 - ipv4 client id should default to unset if it's missing in dhclient.conf
