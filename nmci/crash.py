@@ -22,6 +22,8 @@ def check_dump_package(pkg_name):
         or "openvswitch" in pkg_name
         or "qemu" in pkg_name
         or "kvm" in pkg_name
+        or "swan" in pkg_name
+        or "vpn" in pkg_name
     ):
         return True
     return False
