@@ -1382,12 +1382,16 @@ testmapper:
         feature: ethernet
     - cloud_aliyun_basic:
         feature: cloud
+        tags: gate
     - cloud_azure_basic:
         feature: cloud
+        tags: gate
     - cloud_ec2_basic:
         feature: cloud
+        tags: gate
     - cloud_gcp_basic:
         feature: cloud
+        tags: gate
     - cloud_no_provider_warning:
         feature: cloud
     - cloud_setup_keep_secondary_ips:
@@ -2019,8 +2023,10 @@ testmapper:
         feature: ovs
     - nmcli_add_openvswitch_bond_configuration:
         feature: ovs
+        tags: gate
     - nmcli_add_openvswitch_vlan_configuration:
         feature: ovs
+        tags: gate
     - nmcli_remove_one_openvswitch_bond_configuration:
         feature: ovs
     - nmcli_remove_openvswitch_ports_and_master_bridge_configuration:
@@ -2033,6 +2039,7 @@ testmapper:
         feature: ovs
     - NM_reboot_openvswitch_vlan_configuration_var2:
         feature: ovs
+        tags: gate
     - restart_NM_with_mixed_setup:
         feature: ovs
     - ovs_cloned_mac_set_on_iface:
@@ -2382,6 +2389,7 @@ testmapper:
         feature: loopback
     - loopback_set_iface_as_ovs_port:
         feature: loopback
+        tags: gate
     - loopback_set_iface_as_bond_port:
         feature: loopback
     - loopback_match_renamed_iface:
@@ -2497,7 +2505,7 @@ testmapper:
         tags: gate hostapd
     - simwifi_wpa3_personal:
         feature: wifi_hwsim
-        tags: wpa_supplicant hostapd
+        tags: wpa_supplicant hostapd gate
     - simwifi_wpa3_h2e:
         feature: wifi_hwsim
         tags: wpa_supplicant hostapd
@@ -2505,7 +2513,7 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_tls_wpa3:
         feature: wifi_hwsim
-        tags: wpa_supplicant hostapd
+        tags: wpa_supplicant hostapd gate
     - simwifi_owe_connect:
         feature: wifi_hwsim
         tags: hostapd
@@ -2647,7 +2655,6 @@ testmapper:
         tags: gate
     - gsm_sim_create_default_connection:
         feature: gsm_sim
-        tags: gate
     - gsm_sim_disconnect:
         feature: gsm_sim
     - gsm_sim_mtu:
