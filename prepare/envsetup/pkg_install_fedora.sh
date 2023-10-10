@@ -75,7 +75,15 @@ install_fedora_packages () {
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 
     # Install kernel-modules for currently running kernel
-    dnf -y install kernel-modules-*-$(uname -r)
+    # Install kernel-modules-internal for mac80211_hwsim
+    # in case we have more kernels take the first (as we do no reboot)
+    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel-core |tail -n1)
+    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel-core |tail -n1)
+    dnf -4 -y install \
+        $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-$VER-$REL.$(arch).rpm \
+        $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
+        $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm
+
 
     # Make device mac address policy behave like old one
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/
