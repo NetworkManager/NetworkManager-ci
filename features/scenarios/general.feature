@@ -1550,6 +1550,7 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     * Bring "up" connection "con_general"
     * Create PBR files for profile "con_general" and "eth8" device in table "1"
+    * Wait for "1" seconds
     * Bring "down" connection "con_general"
     * Bring "up" connection "con_general"
     Then "17200:\s+from 192.168.10[0-3].* lookup 1.*17201:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
