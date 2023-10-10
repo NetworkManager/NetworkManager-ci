@@ -468,10 +468,15 @@ function prepare_test_bed ()
     systemctl restart haveged
 
     if $DO_NAMESPACE; then
-        local major_ver=$(cat /etc/redhat-release | grep -o "release [0-9]*" | sed 's/release //')
-        local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
-        (semodule -l | grep -q hostapd_wireless) || semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
         ip netns add wlan_ns
+        if grep -q 'Fedora' /etc/redhat-release; then
+            # Load semanage for hostapd for fedora
+            semodule -i contrib/selinux-policy/hostapd_wireless_fedora.pp || echo "ERROR: unable to load selinux policy !!!"
+        else
+            local major_ver=$(cat /etc/redhat-release | grep -o "release [0-9]*" | sed 's/release //')
+            local policy_file="contrib/selinux-policy/hostapd_wireless_$major_ver.pp"
+            (semodule -l | grep -q hostapd_wireless) || semodule -i $policy_file || echo "ERROR: unable to load selinux policy !!!"
+        fi
     fi
 
     # Disable mac randomization to avoid rhbz1490885
