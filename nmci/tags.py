@@ -167,6 +167,10 @@ _register_tag("not_on_aarch64_but_pegas", not_on_aarch64_but_pegas_bs)
 def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping on not intel arch")
+
+    # Load ppp_generic to avoid first test failure
+    context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
+
     # run as service
     context.pexpect_service("prepare/gsm_sim.sh modemu")
 
@@ -1611,6 +1615,10 @@ _register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
 def pptp_bs(context, scenario):
     if context.arch == "s390x":
         context.cext.skip("Skipping on s390x")
+
+    # Load ppp_generic to avoid first test failure
+    context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
+
     nmci.veth.wait_for_testeth0()
     # Install under RHEL7 only
     if "Maipo" in context.rh_release:
@@ -1657,8 +1665,12 @@ def pptp_bs(context, scenario):
             "echo 'require-mppe-128' >> /etc/ppp/options.pptpd",
             shell=True,
         )
+
+        time.sleep(0.5)
+
         context.pexpect_service("/sbin/pppd pty '/sbin/pptp 127.0.0.1' nodetach")
         nmci.util.file_set_content("/tmp/nm_pptp_configured", "")
+
         time.sleep(1)
 
 
