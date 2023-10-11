@@ -14,42 +14,31 @@ REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
-def get_dracut_vm_state(mount=True):
-    cmd = ["cd contrib/dracut/", ". ./setup.sh"]
-    if mount:
-        cmd.append("mount -o ro $DEV_LOG $TESTDIR/client_log/var/log/")
-    cmd.append("cat $TESTDIR/client_log/var/log/vm_state")
-    if mount:
-        cmd.append("umount $DEV_LOG")
-    command = nmci.process.WithShell("; ".join(cmd))
-    return nmci.process.run_stdout(
-        command, embed_combine_tag=nmci.embed.NO_EMBED
-    ).strip("\n")
-
-
 def handle_timeout(proc, timeout, booted=False):
     t = nmci.util.start_timeout(timeout=timeout / 2)
+    now_booted = False
+    boot_log_proc = None
+    if not booted:
+        nmci.process.run_stdout("touch /tmp/dracut_boot.log")
+        boot_log_proc = nmci.pexpect.pexpect_spawn(
+            "tail -f /tmp/dracut_boot.log", timeout=timeout
+        )
     while t.loop_sleep():
-        vm_state = get_dracut_vm_state()
-        print("vmstate is: " + vm_state)
-        res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=5)
+        res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=0.1)
         if res == 0:
             return True
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
-        if not booted:
-            if vm_state != "NOBOOT":
-                print("VM boot detected")
+        if boot_log_proc:
+            now_booted = (
+                boot_log_proc.expect(["== BOOT ==", pexpect.TIMEOUT], timeout=5) == 0
+            )
+            if now_booted:
+                print(f"VM boot detected in {t.elapsed_time():.3f}s")
                 break
-        else:
-            if vm_state != "BOOT":
-                print("Machine did not finish in 5s after poweroff, sending kill")
-                return False
 
-    if vm_state == "NOBOOT":
-        print(
-            f"VM did not enter the switchroot phase in half of the timeout ({timeout/2}s)"
-        )
+    if not booted and not now_booted:
+        print(f"VM did not start the testsuite in half of the timeout ({timeout/2}s)")
         return False
     if not booted:
         return handle_timeout(proc, timeout, booted=True)
@@ -64,7 +53,10 @@ def embed_dracut_logs(context):
         "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
     )
 
-    context.dracut_vm_state = get_dracut_vm_state(mount=False)
+    context.dracut_vm_state = nmci.process.run_stdout(
+        "cd contrib/dracut; . ./setup.sh; cat $TESTDIR/client_log/var/log/vm_state",
+        shell=True,
+    )
 
     nmci.embed.embed_file_if_exists(
         "Dracut boot",
