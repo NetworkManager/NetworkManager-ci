@@ -21,7 +21,9 @@ def handle_timeout(proc, timeout, booted=False):
     if not booted:
         nmci.process.run_stdout("touch /tmp/dracut_boot.log")
         boot_log_proc = nmci.pexpect.pexpect_spawn(
-            "tail -f /tmp/dracut_boot.log", timeout=timeout
+            "tail -f /tmp/dracut_boot.log",
+            timeout=timeout,
+            logfile=nmci.pexpect.DEV_NULL,
         )
     while t.loop_sleep():
         res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=0.1)
