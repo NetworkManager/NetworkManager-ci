@@ -233,7 +233,7 @@ class Machine:
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
         # upgrade
-        self.ssh("dnf -y upgrade --nobest")
+        self.ssh("dnf -y upgrade --nobest --exclude=qemu-kvm")
         self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
