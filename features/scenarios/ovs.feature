@@ -746,6 +746,7 @@ Feature: nmcli - ovs
           ipv4.method static ipv4.address 192.168.99.2/24
           ipv6.method static ipv6.address 2014:99::2/64
           """
+    * Wait for "1" seconds
     * Reboot
     When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
     When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
@@ -766,6 +767,8 @@ Feature: nmcli - ovs
     When "ovsbr0" is visible with command "ovs-vsctl show" in "5" seconds
     When "ovsbridge0" is visible with command "ovs-vsctl show" in "5" seconds
     When "ovsbridge1" is visible with command "ovs-vsctl show" in "5" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
 
 
     @rhbz1740557 @rhbz1852612 @rhbz1855563 @rhbz1868176
