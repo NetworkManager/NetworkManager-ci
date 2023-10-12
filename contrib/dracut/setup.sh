@@ -16,6 +16,7 @@ test_setup() {
   # if setup done but network is missing (after crash)
   # do not compile initrd again, just refresh network setup
   if [ -f /tmp/dracut_setup_done ] ; then
+      kill_server
       network_clean
       network_setup
       if ! run_server; then
@@ -518,7 +519,7 @@ stop_dhcpd() {
 
 
 start_radvd() {
-  mkdir /run/radvd
+  mkdir -p /run/radvd
   chown radvd:radvd /run/radvd
   radvd -C conf/radvd.conf -p $TESTDIR/radvd.pid -u radvd -d 5
 }
@@ -539,9 +540,9 @@ kill_server() {
 
 
 run_server() {
-  start_nfs
-  start_iscsi
-  start_dhcpd
+  start_nfs && \
+  start_iscsi && \
+  start_dhcpd && \
   start_radvd
 }
 
