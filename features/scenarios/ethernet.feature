@@ -1093,6 +1093,25 @@ Feature: nmcli - ethernet
     When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
 
 
+    @ver+=1.45.4 @rhelver+=8
+    @prepare_patched_netdevsim
+    @ethtool_features_channels
+    Scenario: nmcli - ethernet - ethtool set channels options
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.0.2.1/24
+          ethtool.channels-rx 4
+          ethtool.channels-tx 3
+          ethtool.channels-other 2
+          ethtool.channels-combined 2
+          """
+    * Bring "up" connection "con_ethernet"
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+2\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    * Disconnect device "eth11"
+    Then "RX:\s+1\s*TX:\s+1\s*Other:\s+1\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+
+
     @rhbz1899372
     @ver+=1.31 @rhelver+=8.5 @fedoraver+=34
     @skip_in_centos
