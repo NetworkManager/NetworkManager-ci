@@ -6,6 +6,9 @@
 # import important vars
 . ./setup.sh
 
+# unset core limit to catch qemu-kvm crashes
+ulimit -c unlimited
+
 # number of qemu-kvm retries
 REP=5
 # number of seconds qemu-kvm must be running to accept
