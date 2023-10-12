@@ -14,11 +14,13 @@ REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
-def handle_timeout(proc, timeout, booted=False):
+def handle_timeout(proc, timeout, boot_log_proc=None):
     t = nmci.util.start_timeout(timeout=timeout / 2)
     now_booted = False
-    boot_log_proc = None
-    if not booted:
+    last_before = None
+    first_half = False
+    if boot_log_proc is None:
+        first_half = True
         nmci.process.run_stdout("touch /tmp/dracut_boot.log")
         boot_log_proc = nmci.pexpect.pexpect_spawn(
             "tail -f /tmp/dracut_boot.log",
@@ -31,19 +33,27 @@ def handle_timeout(proc, timeout, booted=False):
             return True
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
-        if boot_log_proc:
-            now_booted = (
-                boot_log_proc.expect(["== BOOT ==", pexpect.TIMEOUT], timeout=5) == 0
+        now_booted = (
+            boot_log_proc.expect(
+                ["== BOOT ==", "Power down", pexpect.TIMEOUT], timeout=20
             )
-            if now_booted:
-                print(f"VM boot detected in {t.elapsed_time():.3f}s")
-                break
+            == 0
+        )
+        if first_half and now_booted:
+            print(f"VM boot detected in {t.elapsed_time():.3f}s")
+            break
+        if boot_log_proc.before == last_before:
+            print("No output in console in last 20s, exitting...")
+            return False
+        last_before = boot_log_proc.before
 
-    if not booted and not now_booted:
-        print(f"VM did not start the testsuite in half of the timeout ({timeout/2}s)")
-        return False
-    if not booted:
-        return handle_timeout(proc, timeout, booted=True)
+    if first_half:
+        if not now_booted:
+            print(
+                f"VM did not start the testsuite in half of the timeout ({timeout/2}s)"
+            )
+            return False
+        return handle_timeout(proc, timeout, boot_log_proc)
     else:
         return False
 
