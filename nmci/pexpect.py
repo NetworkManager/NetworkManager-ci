@@ -31,6 +31,7 @@ class _PExpect:
         self._pexpect_service_lst = []
         self.EOF = pexpect.EOF  # pylint: disable=invalid-name
         self.TIMEOUT = pexpect.TIMEOUT  # pylint: disable=invalid-name
+        self.DEV_NULL = object()
 
     def _pexpect_complete(self, data):
         proc = data.proc
@@ -111,6 +112,8 @@ class _PExpect:
             import tempfile
 
             logfile = tempfile.NamedTemporaryFile(dir=nmci.util.tmp_dir(), mode="w")
+        elif logfile == self.DEV_NULL:
+            logfile = open("/dev/null", "w")
 
         if shell:
             if args:
