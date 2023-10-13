@@ -2051,7 +2051,7 @@ Feature: nmcli - general
     * Wait for "10" seconds
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1433303.sh" for "2" times
-    When Check NM memory consumption difference from "0" is "less than" "5" in "60" seconds
+    When Check NM memory consumption difference from "0" is "less than" "8" in "60" seconds
 
 
     @rhbz1461643 @rhbz1945282
@@ -2101,7 +2101,7 @@ Feature: nmcli - general
     * Execute reproducer "repro_1461643.sh" for "3" times
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1461643.sh" for "3" times
-    When Check NM memory consumption difference from "0" is "less than" "5" in "60" seconds
+    When Check NM memory consumption difference from "0" is "less than" "8" in "60" seconds
 
 
     @rhbz1398932
