@@ -158,7 +158,7 @@ install_el9_packages () {
         $KOJI/perl-Config-General/2.63/14.fc34/noarch/perl-Config-General-2.63-14.fc34.noarch.rpm
 
     if rpm -q qemu-kvm | grep -q -F 8.1.0; then
-        # downgrade broken qemu 8.1.0 on c8s
+        # downgrade broken qemu 8.1.0 on c9s
         pkgs=$(rpm -qa | grep ^qemu | grep -F 8.1.0 | sed "s@^\(.*\)-8\.1\.0.*@$KHUB/qemu-kvm/8.0.0/13.el9/$(arch)/\1-8.0.0-13.el9.$(arch).rpm@g")
         dnf -4 -y install $pkgs
     fi
