@@ -64,6 +64,7 @@ def check_coredump(context):
         if len(dump_dir_split) < 6:
             print("Some garbage in %s" % (dump_dir))
             continue
+        context.coredump_pid_pkg[dump_dir_split[4]] = dump_dir_split[1]
         if not check_dump_package(dump_dir_split[1]):
             continue
         try:
@@ -210,9 +211,19 @@ def wait_faf_complete(context, dump_dir):
 
         if not NM_pkg:
             if not os.path.isfile(f"{dump_dir}/pkg_name"):
-                print("* FAF pkg name not present yet")
-                continue
-            pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
+                # try to guess pkg_name from coredumps
+                pkg = None
+                for pid in dump_dir.split(".")[-1].split("-"):
+                    if pid in context.coredump_pid_pkg:
+                        pkg = context.coredump_pid_pkg[pid]
+                        break
+                if pkg is None:
+                    print("* FAF pkg_name not present yet")
+                    continue
+                else:
+                    print(f"* guessed FAF pkg_name {pkg}")
+            if pkg is None:
+                pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
                 context.faf_countdown -= int(t.elapsed_time())

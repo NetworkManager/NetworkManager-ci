@@ -79,6 +79,7 @@ def _before_scenario(context, scenario):
     context.skip_check_count = 0
     context.crashed_step = False
     context.crash_upload = True
+    context.coredump_pid_pkg = {}
     context.noted = {}
     context.log_cursor = ""
     context.log_cursor_before_tags = nmci.misc.journal_get_cursor()
@@ -321,6 +322,7 @@ def _after_scenario(context, scenario):
 
     # check for crash reports and embed them
     # sets nmci.embed.coredump_reported if crash found
+    # always check coredumps before FAF to guess FAF pkg_name!
     nmci.crash.check_coredump(context)
     nmci.crash.check_faf(context)
 
