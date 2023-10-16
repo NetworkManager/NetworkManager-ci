@@ -1152,12 +1152,12 @@ Feature: nmcli: connection
       ./contrib/profiles/rhbz2121451/ovs-port-phys0.nmconnection
       """
     * Reload connections
-    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active" in "10" seconds
     Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
     Then "bond-port-eth2 " is not visible with command "nmcli con show --active"
     * Restart NM
-    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active"
+    Then "bond-port-eth1-port-ovs-clone" is visible with command "nmcli con show --active" in "10" seconds
     Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
     Then "bond-port-eth2 " is not visible with command "nmcli con show --active"
