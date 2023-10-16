@@ -208,7 +208,10 @@ def wait_faf_complete(context, dump_dir):
                 return False
             print("* not yet reported, new crash")
 
-        if not NM_pkg and os.path.isfile(f"{dump_dir}/pkg_name"):
+        if not NM_pkg:
+            if not os.path.isfile(f"{dump_dir}/pkg_name"):
+                print("* FAF pkg name not present yet")
+                continue
             pkg = nmci.util.file_get_content_simple(f"{dump_dir}/pkg_name")
             if not check_dump_package(pkg):
                 print("* not NM related FAF")
