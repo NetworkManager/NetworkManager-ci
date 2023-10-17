@@ -32,8 +32,9 @@
      Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump"
 
 
-    @rhbz1393853 @rhbz2182029
-    @ver+=1.40.16.5
+    @rhbz1393853 @rhbz2182029 @RHEL-14016
+    # set actual build for RHEL 8.y according to RHEL-14016
+    #@ver+=1.40.16.5
     @ver+=1.42.9
     @restart_if_needed
     @add_default_team_after_journal_restart
