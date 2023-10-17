@@ -207,7 +207,7 @@ js_trailing
 
 mv -f $OUTPUT_DIR/*.* $FINAL_DIR
 cp -r $OUTPUT_DIR/cache $FINAL_DIR
-restorecon -R $FINAL_DIR
+/sbin/restorecon -R $FINAL_DIR
 
 [ "$?" = "0" ] && log "*** Success ***"
 log "@@-------------------------------------------------------------@@"
