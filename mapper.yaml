@@ -64,8 +64,7 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: wlan-r6s4-01.wlan.rhts.eng.bos.redhat.com
-            #hostname: wlan-r2s16.wlan.rhts.eng.bos.redhat.com
+            hostname: xdiablo1-vm1-tpb-c-01.tpb.lab.eng.brq.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-dev-01.rdma.lab.eng.rdu2.redhat.com
