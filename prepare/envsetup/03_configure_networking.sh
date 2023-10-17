@@ -154,8 +154,8 @@ configure_networking () {
         if [ $wlan -eq 1 ]; then
             # obtain valid certificates
             mkdir /tmp/certs
-            wget http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/ca.pem -O /tmp/certs/eaptest_ca_cert.pem
-            wget http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/client.pem -O /tmp/certs/client.pem
+            wget http://tools.lab.eng.brq2.redhat.com:8080/client.pem -O /tmp/certs/client.pem
+            wget http://tools.lab.eng.brq2.redhat.com:8080/ca.pem -O /tmp/certs/eaptest_ca_cert.pem
             touch /tmp/nm_wifi_configured
         fi
     fi
