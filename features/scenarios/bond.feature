@@ -314,7 +314,7 @@
     @ver-1.40.19
     @ver-1.42.7
     @ver-1.43.7
-    @ver/rhel-1.40.16.5
+    @ver/rhel/8-1.40.16.9
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
@@ -339,7 +339,7 @@
     @ver+=1.40.19
     @ver+=1.42.7
     @ver+=1.43.7
-    @ver/rhel/8+=1.40.16.5
+    @ver/rhel/8+=1.40.16.9
     @nmcli_novice_mode_create_bond-slave_with_default_options
     Scenario: nmcli - bond - novice - create bond-slave with default options
      * Cleanup connection "bond-slave" and device "eth1"
