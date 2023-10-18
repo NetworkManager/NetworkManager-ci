@@ -413,7 +413,7 @@ class Mapper:
 
     def get_tests_for_machines(self, features):
         if not self.mapper:
-            return ["pass"]
+            return [["pass"]]
 
         features = self._parse_features_string(features)
         times, tests = self._get_tests_and_times_for_features(features)
@@ -446,11 +446,11 @@ class Mapper:
             logging.debug(
                 "Something unexpected happened with test processing: " + m_tests
             )
-            return ["pass"]
+            return [["pass"]]
 
         if len(m_tests) == 0:
             logging.debug("No tests to run, running just '@pass'")
-            m_tests = ["pass"]
+            m_tests = [["pass"]]
 
         return m_tests
 
