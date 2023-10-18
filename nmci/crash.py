@@ -184,7 +184,8 @@ def wait_faf_complete(context, dump_dir):
     :return: True if wait succeded, False, if report still not complete
     :rtype: bool
     """
-    NM_pkg = False
+    nm_pkg = False
+    pkg = None
     last = False
     last_timestamp = 0
     backtrace = False
@@ -209,10 +210,9 @@ def wait_faf_complete(context, dump_dir):
                 return False
             print("* not yet reported, new crash")
 
-        if not NM_pkg:
+        if not nm_pkg and pkg is None:
             if not os.path.isfile(f"{dump_dir}/pkg_name"):
                 # try to guess pkg_name from coredumps
-                pkg = None
                 for pid in dump_dir.split(".")[-1].split("-"):
                     if pid in context.coredump_pid_pkg:
                         pkg = context.coredump_pid_pkg[pid]
@@ -230,7 +230,7 @@ def wait_faf_complete(context, dump_dir):
                 context.faf_countdown = max(10, context.faf_countdown)
                 return False
             else:
-                NM_pkg = True
+                nm_pkg = True
                 # Do after_crash_reset, if FAF upload is not disabled
                 if context.crash_upload:
                     try:
@@ -264,7 +264,7 @@ def wait_faf_complete(context, dump_dir):
                 reported_faf_lab = True
 
         if (
-            NM_pkg
+            nm_pkg
             and last
             and (
                 backtrace or not context.crash_upload
