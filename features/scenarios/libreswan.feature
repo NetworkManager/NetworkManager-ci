@@ -57,7 +57,10 @@
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
-    @rhelver+=8 @rhelver-=8
+    # https://gitlab.gnome.org/GNOME/NetworkManager-libreswan/-/issues/11
+    @fedoraver-
+    # https://issues.redhat.com/browse/RHEL-14288
+    @rhelver+=9
     @libreswan
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
