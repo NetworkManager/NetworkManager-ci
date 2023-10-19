@@ -26,7 +26,6 @@ MODULES_TO_SKIP = ["Tags"]
 
 
 class Embed:
-
     EmbedContext = collections.namedtuple("EmbedContext", ["count", "embed_data"])
 
     def __init__(self, fail_only=False, combine_tag=None):
@@ -243,7 +242,6 @@ class _Embed:
         return module
 
     def _embed_queue(self, entry, embed_context=None):
-
         if embed_context is None and self._html_formatter:
             embed_context = self.get_embed_context(entry.combine_tag)
 
@@ -261,7 +259,6 @@ class _Embed:
                 print(f">>>>>> {line}")
 
     def _embed_mangle_message_for_fail(self, fail_only, mime_type, data):
-
         if not nmci.util.is_verbose() and fail_only:
             if mime_type != "text/plain":
                 return ("text/plain", f"truncated mime_type={mime_type} on success")
@@ -304,7 +301,6 @@ class _Embed:
         )
 
     def _embed_combines(self, combine_tag, embed_data, lst):
-
         counts = nmci.misc.list_to_intervals(
             [entry._embed_context.count for entry in lst]
         )
@@ -324,10 +320,13 @@ class _Embed:
         """This is called in after scenario to process the embeds
         and send data to the HTML formatter (if present).
         """
-
         combines_dict = {}
-        self._to_embed.sort(key=lambda e: e._embed_context.count)
+        self._to_embed.sort(
+            key=lambda e: e._embed_context.count if e._embed_context else 0
+        )
         for entry in nmci.util.consume_list(self._to_embed):
+            if not entry._embed_context:
+                continue
             combine_tag = entry.combine_tag
             if combine_tag is NO_EMBED:
                 continue
