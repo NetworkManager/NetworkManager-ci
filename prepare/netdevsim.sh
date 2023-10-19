@@ -19,11 +19,13 @@ function setup () {
         PATCH="0001-netdevsim-physical-address-ring.patch"
     elif grep "release 8" /etc/redhat-release; then
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
-        if grep -E "release 8.[0,1,2,3]" /etc/redhat-release; then
+        if grep -F --regexp="release 8."{0..3}" " /etc/redhat-release; then
             PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
-        elif grep "release 8.4" /etc/redhat-release; then
+        elif grep -F "release 8.4 " /etc/redhat-release; then
             PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
-        elif grep -E "release 8.[5,6,7,8,9]" /etc/redhat-release; then
+        elif grep -F --regexp="release 8."{5..9}" " /etc/redhat-release; then
+            PATCH="0001-netdevsim-physical-address-ring.patch"
+        elif grep -F --regexp="release 8."{10..99}" " /etc/redhat-release; then
             PATCH="0001-netdevsim-physical-address-ring.patch"
         elif grep -E "CentOS Stream" /etc/redhat-release; then
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
