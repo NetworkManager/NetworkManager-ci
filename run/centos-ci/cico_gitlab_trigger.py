@@ -274,9 +274,8 @@ class GitlabTrigger(object):
 
             com = self.gl_project.commits.get(self.commit)
 
-            name = os.environ["BUILD_URL"]
-            name = re.sub(r"^.*/job/(.*)/$", "\\1", name)
-            pipeline_name = f"centos{release}: {name}"
+            build_id = re.match(r"^.*/([^/]+)/$", os.environ["BUILD_URL"])[1]
+            pipeline_name = f"c{release}s: NM {build_id}"
 
             exc = None
             for _ in range(3):
