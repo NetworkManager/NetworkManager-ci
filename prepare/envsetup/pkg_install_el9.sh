@@ -38,6 +38,7 @@ install_el9_packages () {
         $BREW/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
         $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
         $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm \
+        $KHUB/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm \
         --skip-broken
 
     install_behave_pytest
