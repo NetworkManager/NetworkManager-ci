@@ -969,7 +969,7 @@ Feature: NM: dracut
 
       @rhbz1934122
       @ver+=1.32
-      @rhelver+=8.3 @fedoraver+=38
+      @rhelver+=9 @fedoraver+=38
       @not_on_ppc64le @skip_in_centos
       @dracut @dracut_remote_NFS_clean @long
       @dracut_NM_NFS_remote_rootfs_connection_var2
