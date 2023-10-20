@@ -3066,17 +3066,17 @@ Feature: nmcli: ipv4
     * Prepare simulated test "many_routes4" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
     * Add "ethernet" connection named "con_ipv4" for device "many_routes4"
     * Bring "up" connection "con_ipv4"
-    * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_before"
+    # wait until `connecting` or `activating` is finished
+    When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
+    * Note "ipv4" routes on NM device "many_routes4" as value "nm_routes_before"
     When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev many_routes4; done"
-    * Note the output of "nmcli -f ipv6.routes c show id con_ipv4" as value "nm_routes_after_types"
-    * Execute "nmcli -f ip6.route d show many_routes4"
-    Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
+    Then Check "ipv4" route list on NM device "many_routes4" matches "nm_routes_before"
     # If more routes are needed, just adjust argument to the generating script and When check
     * Execute "prepare/bird_routes.py many_routes4 4 2000000 > /tmp/nmci-bird-routes-v4"
     * Execute "ip -b /tmp/nmci-bird-routes-v4"
     When There are "at least" "2000000" IP version "4" routes for device "many_routes4" in "5" seconds
-    Then "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
-     And Execute "nmcli -f ip4.route d show many_routes4"
+    Then Check "ipv4" route list on NM device "many_routes4" matches "nm_routes_before"
+     And "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
     * Delete connection "con_ipv4"
     Then There are "at most" "5" IP version "4" routes for device "many_routes4" in "5" seconds
 
