@@ -40,7 +40,7 @@ def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
 
     username_option = "leftxauthusername"
-    if int(context.rh_release_num) != 8:
+    if context.rh_release_num[0] != 8:
         if (
             nmci.process.run_search_stdout("rpm -q libreswan", "libreswan-4")
             is not None
