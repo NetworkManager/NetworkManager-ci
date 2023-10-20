@@ -896,6 +896,8 @@ Feature: nmcli - vlan
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
+    # https://bugzilla.redhat.com/show_bug.cgi?id=2243218 https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1403
+    @fedoraver-
     @ver+=1.32 @rhelver+=8 @skip_in_kvm @skip_in_centos
     @logging_info_only
     @vlan_create_1000_bridges_over_1000_vlans
