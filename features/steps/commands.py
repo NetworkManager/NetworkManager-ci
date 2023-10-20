@@ -1005,6 +1005,9 @@ def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
 
     timeout = float(timeout)
 
+    if expected in context.noted:
+        expected = context.noted[expected]
+
     def do():
         devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
         assert len(devices) == 1
@@ -1029,6 +1032,17 @@ def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
         nmci.process.run_stdout(
             f"ip -d -{nmci.ip.addr_family_num(addr_family)} route show table all"
         )
+
+
+@step('Note "{addr_family}" routes on NM device "{ifname}" as value "{index}"')
+def note_routes_on_device(context, addr_family, ifname, index):
+    addr_family = nmci.ip.addr_family_norm(addr_family)
+    devices = nmci.nmutil.device_status(name=ifname, get_ipaddrs=True)
+    assert len(devices) == 1
+
+    routes = devices[0][f"ip{nmci.ip.addr_family_num(addr_family)}config"]["_routes"]
+
+    context.noted[index] = routes
 
 
 @step("Load nftables")

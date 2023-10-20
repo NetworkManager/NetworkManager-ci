@@ -2179,18 +2179,18 @@
     * Prepare simulated test "many_routes6" device with ifindex "65006"
     * Add "ethernet" connection named "con_ipv6" for device "many_routes6"
     * Bring "up" connection "con_ipv6"
-    * Note the output of "nmcli -f IP6.ROUTE c show id con_ipv6" as value "nm_routes_before"
+    # wait until `connecting` or `activating` is finished
+    When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
+    * Note "ipv6" routes on NM device "many_routes6" as value "nm_routes_before"
     When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip -6 r add 1000:0:0:${i}::/64 proto ${i} dev many_routes6; done"
     * Execute "nmcli -f IP6.ROUTE d show many_routes6"
-    * Note the output of "nmcli -f IP6.ROUTE c show id con_ipv6" as value "nm_routes_after_types"
-    Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
+    Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
     # If more routes are needed, just adjust argument to the generating script and When check
     * Execute "prepare/bird_routes.py many_routes6 6 500000 > /tmp/nmci-bird-routes-v6"
     * Execute "ip -b /tmp/nmci-bird-routes-v6"
     When There are "at least" "500000" IP version "6" routes for device "many_routes6" in "5" seconds
-    * Note the output of "nmcli -f IP6.ROUTE c show id con_ipv6" as value "nm_routes_after_types"
-    Then Check noted values "nm_routes_before" and "nm_routes_after_types" are the same
-     And Execute "nmcli -f IP6.ROUTE d show many_routes6"
+    * Execute "nmcli -f IP6.ROUTE d show many_routes6"
+    Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
     * Execute "nmcli con delete con_ipv6"
     Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "5" seconds
 
