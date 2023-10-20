@@ -266,17 +266,23 @@ Another possibility how to test the changes is to open a merge request in Gitlab
 
 1. Only tests in changed `.feature` files are executed (whole features), if not overridden.
    * To override, use `@RunTests:test1,test2,...` in `rebuild` message, or in commit message or in merge request description.
-
    * `@RunTests:*` forces to execute all tests.
+   * `@RunFeatures:feature1,feature2,...` override, which executes only specified features. It can be in either in the latest commit message, in the merge request description or in the `rebuild` comment.
 
 1. Latest NetworkManager main copr build (CentOS) or stock NetworkManager RPM (internal) are tested.
    * To test on specific NetworkManager build, use `@Build:main` or `@Build:0e5a4638807dc34c517988432120e3a5`, in `rebuild` message, or in commit message or in merge request description.
    * In CentOS, if specified `@Build` branch is found in COPR, COPR build will be used instead of build.
 
-1. CentOS 9 stream, and RHEL8.X (latest release) are tested, if not overridden.
-   * To specify CentOS / RHEL release, use `@OS:centosX-stream` or shorter `@OS:cXs`, or `@OS:rhelX.Y` in commit message or in merge request description.
+1. By default, builds on *CentOS 9 stream* and *RHEL8.X (latest release)* are tested. These OSs can be overriden:
+    * by `rebuild OS_STRING` GitLab comment. A build is going to be started just for the OS specified by the `OS_STRING`
+    * by `@os:OS_STRING` lines in the latest commit message or in the MR description. Push events or `rebuild` comment in gitlab will trigger builds on these OSs only.
 
-   * Use `rebuild cXs` or `rebuild centosX-stream` or `rebuild rhelX.Y` or `rebuild rawhide` or `rebuild fedora-XY` in rebuild message.
+    The format of `OS_STRING` for respective OSs is:
+    * for Centos X Stream: `centosX-stream` or short: `cXs`. So for 9 stream, it's `centos9-stream` or `c9s`
+    * for RHEL: `rhelX.Y`, so for RHEL 9.3, the string is `rhel9.3`
+    * for Fedora: `Fedora-release`, thus `Fedora-39` or `Fedora-Rawhide`. Just `rawhide` is also recognized.
+
+    All the strings mentioned are case insensitive so `@oS:fEDoRa-rAWhIdE` will still get recognized.
 
 1. The priority of overrides is `rebuild` message, commit message, merge request description.
 
@@ -295,10 +301,7 @@ Another possibility how to test the changes is to open a merge request in Gitlab
      - message containing overrides starting with `@` will automatically execute new builds,
    * pushing to open merge request - overrides defined in the commit message and merge-request description will be honored.
 
-
-For CentOS trigger, there is also `@RunFeatures:feature1,feature2,...` override, which executes only specified features. It can be in either in commit message, in `rebuild` message or in merge request description.
-
-Also in CentOS, older builds running on the same CentOS release from the same merge request are stopped to save resources. So, if you push to the merge request before the tests are finished, you may get "Aborted" message in the merge request discussion.
+In CentOS, older builds running on the same CentOS release from the same merge request are stopped to save resources. So, if you push to the merge request before the tests are finished, you may get "Aborted" message in the merge request discussion.
 
 
 #### Gitlab common use-case examples:
