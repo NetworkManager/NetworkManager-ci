@@ -89,11 +89,7 @@ def _before_scenario(context, scenario):
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     with open("/etc/redhat-release") as release_f:
         context.rh_release = release_f.read()
-    release_i = context.rh_release.find("release ")
-    if release_i >= 0:
-        context.rh_release_num = float(context.rh_release[release_i:].split(" ")[1])
-    else:
-        context.rh_release_num = 0
+    _, context.rh_release_num = nmci.misc.distro_detect()
     context.hypervisor = nmci.process.run_stdout(
         "systemd-detect-virt",
         ignore_returncode=True,

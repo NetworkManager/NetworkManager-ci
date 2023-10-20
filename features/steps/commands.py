@@ -1126,7 +1126,7 @@ def run_nmstate(context, log_file):
 
     # Get environement variables
     release = "el9"
-    if int(context.rh_release_num) == 8:
+    if context.rh_release_num[0] == 8:
         release = "el8"
     if "fedora" in context.rh_release.lower():
         release = "fed"

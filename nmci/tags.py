@@ -1114,9 +1114,10 @@ def simwifi_p2p_bs(context, scenario):
         context.cext.skip("Skipping as not on x86_64")
 
     if (
-        context.rh_release_num >= 8
-        and context.rh_release_num <= 8.4
-        and "Stream" not in context.rh_release
+        context.rh_release_num >= [8, 0]
+        and context.rh_release_num <= [8, 4]
+        # "Stream" is [8,99]
+        # and "Stream" not in context.rh_release
     ):
         context.process.run_stdout(
             "dnf -4 -y install "
@@ -1162,9 +1163,10 @@ def simwifi_p2p_as(context, scenario):
 
     print("---------------------------")
     if (
-        context.rh_release_num >= 8
-        and context.rh_release_num <= 8.4
-        and "Stream" not in context.rh_release
+        context.rh_release_num >= [8, 0]
+        and context.rh_release_num <= [8, 4]
+        # "Stream" is [8,99]
+        # and "Stream" not in context.rh_release
     ):
         if arch == "x86_64":
             print("Install patched wpa_supplicant for x86_64")
