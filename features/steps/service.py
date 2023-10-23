@@ -140,6 +140,14 @@ def NM_valgrind_start(context, tool="memcheck"):
         context.nm_valgrind_mem_size = _mem_size
 
         def _final_check(proc):
+            pid = proc.pid
+            snap_file = nmci.util.tmp_dir(f"snap.{pid}")
+            # trunc file to prevent using old data
+            nmci.util.file_set_content(snap_file)
+            nmci.process.run(
+                f"vgdb --pid={pid} detailed_snapshot {snap_file}", ignore_stderr=True
+            )
+
             proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
             nmci.embed.embed_file_if_exists(
                 "MASSIF", nmci.cext.context.nm_valgrind_massif_f
