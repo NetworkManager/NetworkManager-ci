@@ -199,3 +199,45 @@ Feature: NM: dispatcher
     * "192.168.99" is visible with command "ip a show testX6" in "10" seconds
     * "/tmp/nmci-no-stub-resolv.conf" is file in "10" seconds
     Then "nameserver 192.168.99.1" is visible with command "cat /tmp/nmci-no-stub-resolv.conf"
+
+
+    @RHEL-1671 @RHEL-10195
+    @ver+=1.45.4
+    @ver/rhel/8+=1.40.16.12
+    @restore_resolvconf @restart_if_needed
+    @dispatcher_track_dns_changes
+    Scenario: NM - dispatcher - track dns changes
+    * Cleanup execute
+      """
+      echo 'dns-resolver:
+        config:
+          search: []
+          server: [] ' | nmstatectl apply -
+      """
+    * Write file "/tmp/change_global_dns.yaml" with content
+      """
+      dns-resolver:
+        config:
+          search:
+            - example.com
+            - example.org
+          server:
+            - 2001:4860:4860::8888
+            - 8.8.8.8
+            - 2606:4700:4700::1111
+            - 8.8.4.4
+      """
+     * Start following journal
+     * Commentary
+      """
+      We modified the global dns configuration and we expect that the dispatcher event 'dns-change' will be triggered.
+      """
+     * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
+     Then "NM_DISPATCHER_ACTION=dns-change" is visible in journal in "10" seconds
+     * Start following journal
+     * Commentary
+      """
+      The dispatcher event 'dns-change' should not be triggered again, since there was no change in the dns configuration.
+      """
+     * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
+     Then "NM_DISPATCHER_ACTION=dns-change" is not visible in journal in "10" seconds
