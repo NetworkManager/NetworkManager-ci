@@ -1094,12 +1094,15 @@ def flush_nftables(context, ns=None):
     nmci.cleanup.add_nft(ns)
 
 
+@step("Cleanup execute")
 @step('Cleanup execute "{command}"')
 @step('Cleanup execute "{command}" with timeout "{timeout}" seconds')
 @step(
     'Cleanup execute "{command}" with timeout "{timeout}" seconds and priority "{priority}"'
 )
-def cleanup_execute(context, command, timeout=5, priority=None):
+def cleanup_execute(context, command=None, timeout=5, priority=None):
+    if command is None:
+        command = context.text
     callbacks = lambda: nmci.process.run_stdout(
         command, ignore_stderr=True, shell=True, timeout=timeout
     )
