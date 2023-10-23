@@ -2105,6 +2105,7 @@ Feature: nmcli - general
       """
     * Start NM in valgrind using tool "massif"
     * Execute reproducer "repro_1461643.sh" for "3" times
+    * Wait for "10" seconds
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1461643.sh" for "3" times
     When Check NM memory consumption difference from "0" is "less than" "8" in "60" seconds
