@@ -122,7 +122,9 @@ def NM_valgrind_start(context, tool="memcheck"):
         context.nm_valgrind_massif_f = nmci.util.tmp_dir(
             f"massif.{str(nmci.util.random_int(nmci.util.nmci_random_seed()))}"
         )
-        tool_cmd += f" --massif-out-file={context.nm_valgrind_massif_f}"
+        tool_cmd += (
+            f" --massif-out-file={context.nm_valgrind_massif_f} --detailed-freq=1"
+        )
 
         def _mem_size(pid):
             snap_file = nmci.util.tmp_dir(f"snap.{pid}")
