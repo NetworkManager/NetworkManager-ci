@@ -70,6 +70,7 @@
     * Execute "ip link add dummy0 type dummy"
     * Execute "ip link set dev dummy0 up"
     * Execute "tc qdisc add dev dummy0 root sfq"
+    * Wait for "0.1" seconds
     * Add "dummy" connection named "con_tc" for device "dummy0" with options
           """
           ipv4.method manual ipv4.addresses 10.0.0.2/24
@@ -87,6 +88,7 @@
     * Execute "ip link add dummy0 type dummy"
     * Execute "ip link set dev dummy0 up"
     * Execute "tc qdisc add dev dummy0 root sfq"
+    * Wait for "0.1" seconds
     * Add "dummy" connection named "con_tc" for device "dummy0" with options
           """
           ipv4.method manual ipv4.addresses 10.0.0.2/24
@@ -130,6 +132,7 @@
     * Doc: "Mirroring a network interface using nmcli"
     * Create "dummy" device named "dummy0"
     * Execute "ip link set dev dummy0 up"
+    * Wait for "0.1" seconds
     * Add "ethernet" connection named "con_tc" for device "eth2" with options
           """
           ipv4.may-fail no
@@ -155,6 +158,7 @@
     Scenario: nmcli - tc - mirror traffic clsact
     * Create "dummy" device named "dummy0"
     * Execute "ip link set dev dummy0 up"
+    * Wait for "0.1" seconds
     * Add "ethernet" connection named "con_tc" for device "eth2" with options
           """
           ipv4.may-fail no
@@ -181,6 +185,7 @@
    * Execute "ip link set dummy0 up"
    * Execute "ip link set dummy1 up"
    * Execute "tc qdisc add dev dummy0 ingress"
+    * Wait for "0.1" seconds
    Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $14 * 1000 / clk }' /proc/$(pidof NetworkManager)/stat""" as value "user_before"
    Then Note the output of """awk -v clk="$(getconf CLK_TCK)" '{ print $15 * 1000 / clk}' /proc/$(pidof NetworkManager)/stat""" as value "kernel_before"
    * Execute "tc -b /tmp/filter_batch.txt"
