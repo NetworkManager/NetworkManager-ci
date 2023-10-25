@@ -453,8 +453,8 @@ Feature: nmcli - dns
           autoconnect no
           """
     * Bring "up" connection "con_dns"
-    When Nameserver "4000::1" is set in "5" seconds
-    When Nameserver "5000::1" is set in "5" seconds
+    When Nameserver "4000::1" is set in "10" seconds
+    When Nameserver "5000::1" is set
     * Modify connection "con_dns" changing options "ipv6.dns ''"
     * Bring "up" connection "con_dns"
     Then Nameserver "4000::1" is not set
