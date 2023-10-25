@@ -767,6 +767,7 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
         timeout=60,
     )
     nmci.nmutil.start_NM_service()
+    time.sleep(5)
 
     out = context.command_output(f"cd contrib/gi; python3 activate.py {device_num}")
     # activate.py calls setup.sh which restarts NM

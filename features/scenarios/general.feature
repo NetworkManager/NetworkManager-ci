@@ -2977,7 +2977,6 @@ Feature: nmcli - general
           managed=1
           [logging]
           level=INFO
-          domains=DEFAULT,DHCP4:DEBUG
           [connection-no-dad]
           match-device=interface-name:t-a*
           ipv4.dad-timeout=0
@@ -3005,7 +3004,6 @@ Feature: nmcli - general
           managed=1
           [logging]
           level=INFO
-          domains=DEFAULT,DHCP4:DEBUG
           [connection-no-dad]
           match-device=interface-name:t-a*
           ipv4.dad-timeout=3000

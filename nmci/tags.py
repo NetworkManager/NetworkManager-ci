@@ -1581,6 +1581,8 @@ def performance_bs(context, scenario):
     context.process.run("tuned-adm profile throughput-performance", ignore_stderr=True)
     context.process.systemctl("stop tuned")
     context.process.systemctl("stop openvswitch")
+    nmci.nmutil.restart_NM_service()
+    time.sleep(5)
 
 
 def performance_as(context, scenario):
