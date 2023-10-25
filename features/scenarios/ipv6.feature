@@ -1138,11 +1138,12 @@
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
     Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth3"
     #
-    # the connection is assumed externally, meaning it has "addrgenmode none". NM is not
-    # interferring with the device, hence there is no IPv6 LL address. Which is a problem,
-    # but a problem of the user who takes over the device without setting the addrgenmode
-    # to its liking.
-    Then "addrgenmode none " is visible with command "ip -d l show eth3"
+    # the connection is assumed externally, meaning it has "addrgenmode none"
+    # or "addr_gen_mode" sysctl set to "1". NM is not interferring with the
+    # device, hence there is no IPv6 LL address. Which is a problem, but a
+    # problem of the user who takes over the device without setting the
+    # addrgenmode to its liking.
+    Then "net.ipv6.conf.eth3.addr_gen_mode = 1" is visible with command "sysctl net.ipv6.conf.eth3.addr_gen_mode"
     Then "inet6 fe80" is not visible with command "ip a s eth3" for full "45" seconds
     #
     # the assumed connection is created, give just some time for DAD to complete
@@ -1162,11 +1163,12 @@
     Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/eth3/disable_ipv6"
     Then "inet6 2001::dead:beef:1/64 scope global" is visible with command "ip a s eth3"
     #
-    # the connection is assumed externally, meaning it has "addrgenmode none". NM is not
-    # interferring with the device, hence there is no IPv6 LL address. Which is a problem,
-    # but a problem of the user who takes over the device without setting the addrgenmode
-    # to its liking.
-    Then "addrgenmode none " is visible with command "ip -d l show eth3"
+    # the connection is assumed externally, meaning it has "addrgenmode none"
+    # (or "addr_gen_mode" sysctl set to "1"). NM is not interferring with the
+    # device, hence there is no IPv6 LL address. Which is a problem, but a
+    # problem of the user who takes over the device without setting the
+    # addrgenmode to its liking.
+    Then "net.ipv6.conf.eth3.addr_gen_mode = 1" is visible with command "sysctl net.ipv6.conf.eth3.addr_gen_mode"
     Then "inet6 fe80" is not visible with command "ip a s eth3" for full "45" seconds
     #
     # the assumed connection is created, give just some time for DAD to complete
