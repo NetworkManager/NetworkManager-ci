@@ -383,25 +383,25 @@ Feature: nmcli: connection
      @firewall_zones_restart_persistence
      Scenario: nmcli - connection - zone to drop and public
       * Add "ethernet" connection named "con_con" for device "eth5"
-      When "public\s+interfaces: eth0 eth5" is visible with command "firewall-cmd --get-active-zones"
+      When "public(\s+[(]default[)])?\s+interfaces: eth0 eth5" is visible with command "firewall-cmd --get-active-zones" in "10" seconds
       * Execute "nmcli c modify con_con connection.zone internal"
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Restart NM
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "nmcli c modify con_con connection.zone trusted"
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "nmcli c modify con_con connection.zone work"
       Then "work\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
-       And "public\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
+       And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
 
 
     @rhbz663730
