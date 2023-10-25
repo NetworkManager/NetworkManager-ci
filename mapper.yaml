@@ -1858,15 +1858,6 @@ testmapper:
         feature: general
     - snapshot_rollback_delete_devices_and_profiles:
         feature: general
-    - macsec_psk:
-        feature: general
-        tags: gate libnl3
-    - macsec_reboot:
-        feature: general
-    - macsec_vlan_reboot:
-        feature: general
-    - macsec_set_mtu_from_parent:
-        feature: general
     - dummy_non_utf_device:
         feature: general
     - stable_mem_consumption:
@@ -1903,8 +1894,6 @@ testmapper:
     - NM_starts_with_incorrect_logging_config:
         feature: general
     - resolv_conf_overwrite_after_stop:
-        feature: general
-    - macsec_send-sci_by_default:
         feature: general
     - libnm_async_tasks_cancelable:
         feature: general
@@ -1995,8 +1984,6 @@ testmapper:
     - nmcli_dhcp_overlong_hostname:
         feature: general
     - nmcli_remove_static_hostname:
-        feature: general
-    - macsec_managed_macsec_from_unmanaged_parent:
         feature: general
     - apply_link_settings:
         feature: general
@@ -2185,6 +2172,19 @@ testmapper:
     - wireguard_activate_connection:
         feature: vpn
         timeout: 20m
+    - macsec_psk:
+        feature: macsec
+        tags: gate libnl3
+    - macsec_reboot:
+        feature: macsec
+    - macsec_vlan_reboot:
+        feature: macsec
+    - macsec_set_mtu_from_parent:
+        feature: macsec
+    - macsec_send-sci_by_default:
+        feature: macsec
+    - macsec_managed_macsec_from_unmanaged_parent:
+        feature: macsec
     - openvpn_ipv4:
         feature: openvpn
     - openvpn_ipv4_neverdefault:

@@ -2139,133 +2139,6 @@ Feature: nmcli - general
     Then Execute reproducer "repro_1512316.sh" for "8" times
 
 
-    @rhbz1337997
-    @ver+=1.6.0
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_psk
-    Scenario: NM - general - MACsec PSK
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
-          """
-          ipv4.method disabled
-          ipv6.method ignore
-          """
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect no
-          macsec.parent macsec_veth
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    * Bring "up" connection "test-macsec-base"
-    * Bring "up" connection "test-macsec"
-    Then Ping "172.16.10.1" "10" times
-
-
-    @rhbz2122564
-    @ver+=1.41.0
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_reboot
-    Scenario: NM - general - MACsec PSK
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
-          """
-          autoconnect yes
-          ipv4.method disabled
-          ipv6.method ignore
-          """
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect yes
-          macsec.parent macsec_veth
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    * Bring "up" connection "test-macsec-base"
-    * Bring "up" connection "test-macsec"
-    Then Ping "172.16.10.1" "10" times
-    * Restart NM
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
-    * Reboot
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
-
-
-    @rhbz2122564
-    @ver+=1.41.0
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_vlan_reboot
-    Scenario: NM - general - MACsec PSK on VLAN
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100" on VLAN "42"
-    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
-          """
-          autoconnect yes
-          ipv4.method disabled
-          ipv6.method ignore
-          """
-    * Add "vlan" connection named "test-macsec-vlan" for device "macsec_veth.42" with options
-          """
-          autoconnect yes
-          ipv4.method disabled
-          ipv6.method ignore
-          vlan.parent macsec_veth
-          vlan.id 42
-          """
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect yes
-          macsec.parent macsec_veth.42
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    * Bring "up" connection "test-macsec-base"
-    * Bring "up" connection "test-macsec-vlan"
-    * Bring "up" connection "test-macsec"
-    Then Ping "172.16.10.1" "10" times
-    * Restart NM
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-vlan" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
-    * Reboot
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-base" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec-vlan" in "45" seconds
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
-
-
-    @rhbz1723690
-    @ver+=1.18 @rhelver+=8
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_set_mtu_from_parent
-    Scenario: NM - general - MACsec MTU from parent
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
-          """
-          ipv4.method disabled
-          ipv6.method ignore
-          802-3-ethernet.mtu 1536
-          """
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect no
-          macsec.parent macsec_veth
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    * Bring "up" connection "test-macsec-base"
-    * Bring "up" connection "test-macsec"
-    #Then Ping "172.16.10.1" "10" times
-    When "1536" is visible with command "ip a s macsec_veth"
-    When "1504" is visible with command "ip a s macsec0"
-    * Bring "up" connection "test-macsec-base"
-    Then "1536" is visible with command "ip a s macsec_veth"
-    Then "1504" is visible with command "ip a s macsec0"
-
-
     @rhbz1443114
     @ver+=1.8.0
     @restart_if_needed @non_utf_device
@@ -2433,31 +2306,6 @@ Feature: nmcli - general
       level=DEFAULT:WARN,TEAM:TRACE
       """
     Then Start NM
-
-
-    @rhbz1588041
-    @ver+=1.12
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_send-sci_by_default
-    Scenario: NM - general - MACsec send-sci option should be true by default
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
-          """
-          ipv4.method disabled
-          ipv6.method ignore
-          """
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect no
-          macsec.parent macsec_veth
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    Then "yes" is visible with command "nmcli -f macsec.send-sci con show test-macsec"
-    * Bring "up" connection "test-macsec-base"
-    * Bring "up" connection "test-macsec"
-    Then "send_sci on" is visible with command "ip macsec show macsec0"
 
 
     @rhbz1555281
@@ -3305,27 +3153,6 @@ Feature: nmcli - general
     * Execute "nmcli general hostname ''"
     * Path "/etc/hostname" does not exist
     * "example.org" is not visible with command "hostname" in "10" seconds
-
-
-    @rhbz2110307
-    @ver+=1.41.3
-    @macsec @not_on_aarch64_but_pegas @long
-    @macsec_managed_macsec_from_unmanaged_parent
-    Scenario: NM - general - MACsec managed from an unmanaged parent
-    * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
-    * Execute "nmcli device set macsec_veth managed off"
-    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
-          """
-          autoconnect yes
-          macsec.parent macsec_veth
-          macsec.mode psk
-          macsec.mka-cak 00112233445566778899001122334455
-          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
-          """
-    * Execute "ip link set macsec_veth up"
-    * Bring "up" connection "test-macsec"
-    Then Ping "172.16.10.1" "10" times
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
 
 
     @rhbz2217527
