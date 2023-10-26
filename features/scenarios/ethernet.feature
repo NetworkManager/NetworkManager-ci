@@ -1097,6 +1097,8 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_channels
     Scenario: nmcli - ethernet - ethtool set channels options
+    * Note the output of "ethtool -l eth11" as value "channels_before"
+    * Note the output of "ethtool -l eth11 | grep -i combined" as value "channels_combined_before"
     * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
           """
           ipv4.method manual
@@ -1108,8 +1110,16 @@ Feature: nmcli - ethernet
           """
     * Bring "up" connection "con_ethernet"
     When "RX:\s+4\s*TX:\s+3\s*Other:\s+2\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    * Modify connection "con_ethernet" changing options "ethtool.channels-other 9"
+    * Bring "up" connection "con_ethernet"
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    * Modify connection "con_ethernet" changing options "ethtool.channels-combined ''"
+    * Bring "up" connection "con_ethernet"
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    * Note the output of "ethtool -l eth11 | grep -i combined" as value "channels_combined_after"
+    Then Check noted values "channels_combined_before" and "channels_combined_after" are the same
     * Disconnect device "eth11"
-    Then "RX:\s+1\s*TX:\s+1\s*Other:\s+1\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    Then Noted value "channels_before" is visible with command "ethtool -l eth11"
 
 
     @rhbz1899372
