@@ -316,7 +316,7 @@ def check_pattern_command(
             command, shell=True, timeout=timeout, maxread=maxread, codec_errors="ignore"
         )
         if check_class == "exact":
-            ret = proc.expect_exact([pattern, pexpect.EOF])
+            ret = proc.expect_exact([pattern.replace("\n", "\r\n"), pexpect.EOF])
         elif check_class == "json":
             proc.expect([pexpect.EOF])
             ret = json_compare(json.loads(pattern), json.loads(proc.before))
