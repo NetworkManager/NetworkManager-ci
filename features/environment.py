@@ -268,6 +268,9 @@ def _after_scenario(context, scenario):
     nmci.misc.html_report_tag_links()
     nmci.misc.html_report_file_links()
 
+    if scenario.status == "failed":
+        nmci.util.set_verbose(True)
+
     skipped = context.cext.scenario_skipped
 
     nm_pid_after = nmci.nmutil.nm_pid()
