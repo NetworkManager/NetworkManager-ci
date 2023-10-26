@@ -254,9 +254,11 @@ class Machine:
 
     def reboot(self):
         self.ssh("reboot", check=False)
-        # give some time to shutdown, _wait_for_machine() succeedes when machine is shutting down
+        # give some time to shutdown, _wait_for_machine()
+        # succeedes when machine is shutting down
         time.sleep(10)
-        self._wait_for_machine(retry=60)
+        # give even more time as 60s seems to be nt enough
+        self._wait_for_machine(retry=120)
         logging.debug(f"Machine {self.id} is back online")
 
     def build(self, refspec, mr="custom", repo=""):
