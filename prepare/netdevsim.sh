@@ -105,7 +105,7 @@ function setup () {
             insmod /lib/modules/$(uname -r)/extra/netdevsim.ko
         fi
         sleep 0.5
-        echo "0 $NUM" > /sys/bus/netdevsim/new_device
+        echo "0 $NUM 128" > /sys/bus/netdevsim/new_device
 
         # Make sure the netdevsim devices based from eth11,
         # even if eth0-eth10 are not there yet.

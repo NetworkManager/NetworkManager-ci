@@ -1,21 +1,11 @@
-diff --git a/drivers/net/netdevsim/netdev.c.orig b/drivers/net/netdevsim/netdev.c
-index 7178468..df23115 100644
---- a/drivers/net/netdevsim/netdev.c.orig
-+++ b/drivers/net/netdevsim/netdev.c
-@@ -267,6 +267,7 @@ static void nsim_setup(struct net_device *dev)
- {
- 	ether_setup(dev);
- 	eth_hw_addr_random(dev);
-+	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
- 
- 	dev->tx_queue_len = 0;
- 	dev->flags |= IFF_NOARP;
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+index ffd9f84..dbfac37 100644
 --- a/drivers/net/netdevsim/ethtool.c
 +++ b/drivers/net/netdevsim/ethtool.c
-@@ -49,6 +49,10 @@ nsim_set_ringparam(struct net_device *dev, struct ethtool_ringparam *pause)
+@@ -71,6 +71,10 @@ static void nsim_get_ringparam(struct net_device *dev,
  {
  	struct netdevsim *ns = netdev_priv(dev);
-
+ 
 +	ns->ethtool.ring.rx_max_pending = 4096;
 +	ns->ethtool.ring.rx_jumbo_max_pending = 4096;
 +	ns->ethtool.ring.rx_mini_max_pending = 4096;
@@ -23,3 +13,78 @@ index 7178468..df23115 100644
  	memcpy(ring, &ns->ethtool.ring, sizeof(ns->ethtool.ring));
  }
  
+@@ -93,8 +97,14 @@ nsim_get_channels(struct net_device *dev, struct ethtool_channels *ch)
+ {
+ 	struct netdevsim *ns = netdev_priv(dev);
+ 
++	ch->max_rx = ns->nsim_bus_dev->num_queues;
++	ch->max_tx = ns->nsim_bus_dev->num_queues;
++	ch->max_other = ns->nsim_bus_dev->num_queues;
+ 	ch->max_combined = ns->nsim_bus_dev->num_queues;
+-	ch->combined_count = ns->ethtool.channels;
++	ch->rx_count = ns->ethtool.channels_rx;
++	ch->tx_count = ns->ethtool.channels_tx;
++	ch->other_count = ns->ethtool.channels_other;
++	ch->combined_count = ns->ethtool.channels_comb;
+ }
+ 
+ static int
+@@ -103,12 +113,15 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
+ 	struct netdevsim *ns = netdev_priv(dev);
+ 	int err;
+ 
+-	err = netif_set_real_num_queues(dev, ch->combined_count,
+-					ch->combined_count);
++	err = netif_set_real_num_queues(dev, ch->rx_count + ch->combined_count,
++					ch->tx_count + ch->combined_count);
+ 	if (err)
+ 		return err;
+ 
+-	ns->ethtool.channels = ch->combined_count;
++	ns->ethtool.channels_rx = ch->rx_count;
++	ns->ethtool.channels_tx = ch->tx_count;
++	ns->ethtool.channels_other = ch->other_count;
++	ns->ethtool.channels_comb = ch->combined_count;
+ 	return 0;
+ }
+ 
+@@ -174,7 +187,10 @@ void nsim_ethtool_init(struct netdevsim *ns)
+ 	ns->ethtool.fec.fec = ETHTOOL_FEC_NONE;
+ 	ns->ethtool.fec.active_fec = ETHTOOL_FEC_NONE;
+ 
+-	ns->ethtool.channels = ns->nsim_bus_dev->num_queues;
++	ns->ethtool.channels_rx = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels_tx = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels_other = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels_comb = ns->nsim_bus_dev->num_queues/2;
+ 
+ 	ethtool = debugfs_create_dir("ethtool", ns->nsim_dev_port->ddir);
+ 
+diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
+index 35fa1ca..6807d12 100644
+--- a/drivers/net/netdevsim/netdev.c
++++ b/drivers/net/netdevsim/netdev.c
+@@ -273,6 +273,7 @@ static void nsim_setup(struct net_device *dev)
+ {
+ 	ether_setup(dev);
+ 	eth_hw_addr_random(dev);
++	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
+ 
+ 	dev->tx_queue_len = 0;
+ 	dev->flags |= IFF_NOARP;
+diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim.h
+index 7d8ed8d..6ef2ae0 100644
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -62,7 +62,10 @@ struct nsim_ethtool_pauseparam {
+ struct nsim_ethtool {
+ 	u32 get_err;
+ 	u32 set_err;
+-	u32 channels;
++	u32 channels_rx;
++	u32 channels_tx;
++	u32 channels_other;
++	u32 channels_comb;
+ 	struct nsim_ethtool_pauseparam pauseparam;
+ 	struct ethtool_coalesce coalesce;
+ 	struct ethtool_ringparam ring;
