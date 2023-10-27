@@ -80,7 +80,7 @@ class Machine:
             [
                 "-o UserKnownHostsFile=/dev/null",
                 "-o StrictHostKeyChecking=no",
-                "-o ServerAliveInterval=60",
+                "-o ServerAliveInterval=120",
                 "-o ServerAliveCountMax=10",
             ]
         )
