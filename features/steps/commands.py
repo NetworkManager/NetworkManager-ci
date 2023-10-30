@@ -1125,6 +1125,7 @@ def run_nmstate(context, log_file):
     nmci.process.run_stdout(
         "git clone https://github.com/nmstate/nmstate.git",
         ignore_stderr=True,
+        timeout=20,
     )
 
     # Get environement variables
