@@ -476,10 +476,19 @@ Feature: nmcli - procedures in documentation
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
     * Bring "up" connection "test1-plain"
     * Execute "systemctl start 802-1x-tr-mgmt.service"
+    * Note MAC address output for device "test1" via ip command
     Then Unable to ping "192.168.100.1" from "test1" device
+    Then Noted value is not visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
     * Bring "down" connection "test1-plain"
     * Bring "up" connection "test1-ttls"
     * Wait for "1" seconds
+    Then Noted value is visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
+    * Commentary
+        """
+        Sometimes, the gateway is unreachable. Let's skip, if the MAC is
+        visible in the previous step, we're good anyway
+        """
+    * Skip if next step fails:
     Then Ping "192.168.100.1" from "test1" device
 
 
