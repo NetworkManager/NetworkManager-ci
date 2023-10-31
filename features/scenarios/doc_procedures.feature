@@ -481,10 +481,6 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "test1-ttls"
     * Wait for "1" seconds
     Then Ping "192.168.100.1" from "test1" device
-    ### Uncomment next steps if https://bugzilla.redhat.com/show_bug.cgi?id=2067124 gets approved, remove if rejected
-    #* Bring "down" connection "test1-ttls"
-    #* Execute "ip l set test1 up; ip a add 192.168.123/24 dev test1"
-    #Then Unable to ping "192.168.100.1" from "test1" device
 
 
     @doc_set_gateway_on_existing_profile
