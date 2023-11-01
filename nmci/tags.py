@@ -1692,6 +1692,16 @@ def firewall_bs(context, scenario):
         context.process.run_stdout(
             "yum -y install firewalld", timeout=120, ignore_stderr=True
         )
+    # configure log verbosity
+    log_level = "4"
+    override_file = "/etc/systemd/system/firewalld.service.d/30-firewalld-debug.conf"
+    override = f"[Service]\nEnvironment=FIREWALLD_ARGS=--debug={log_level}\n"
+    service_cat = nmci.process.run_stdout("systemctl cat firewalld.service")
+    if f"FIREWALLD_ARGS=--debug={log_level}" not in service_cat:
+        os.makedirs(os.path.dirname(override_file), exist_ok=True)
+        nmci.util.file_set_content(override_file, override)
+        nmci.process.systemctl("daemon-reload")
+
     context.process.systemctl("unmask firewalld")
     time.sleep(1)
     context.process.systemctl("stop firewalld")
@@ -1715,6 +1725,7 @@ def firewall_as(context, scenario):
         ignore_stderr=True,
     )
     context.process.systemctl("stop firewalld")
+    nmci.embed.embed_service_log("firewalld", syslog_identifier="firewalld")
 
 
 _register_tag("firewall", firewall_bs, firewall_as)
