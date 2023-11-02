@@ -61,6 +61,7 @@ def before_scenario(context, scenario):
 
 def _before_scenario(context, scenario):
     time_begin = time.time()
+    context.time_begin_scen = time_begin
 
     # set important context attributes
     assert not nmci.cleanup._cleanup_lst
@@ -327,6 +328,11 @@ def _after_scenario(context, scenario):
 
     nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
+    ausearch_ts = time.strftime("%x %X", time.localtime(context.time_begin_scen))
+    avc_log = nmci.process.run_stdout(
+        f"ausearch -m avc -ts {ausearch_ts}", ignore_stderr=True, ignore_returncode=True
+    )
+
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or len(excepts) > 0
     )
@@ -367,6 +373,9 @@ def _after_scenario(context, scenario):
                 nmci.crash.after_crash_reset()
             except Exception as e:
                 excepts.append(e)
+
+    if len(avc_log) > 0:
+        nmci.embed.embed_data("SELinux AVCs", avc_log)
 
     if nmci.util.is_verbose():
         nmci.util.dump_status("After Clean")
