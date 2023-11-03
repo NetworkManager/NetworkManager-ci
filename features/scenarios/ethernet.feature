@@ -1124,7 +1124,6 @@ Feature: nmcli - ethernet
 
     @rhbz1899372
     @ver+=1.31 @rhelver+=8.5 @fedoraver+=34
-    @skip_in_centos
     @prepare_patched_netdevsim
     @ethtool_features_pause
     Scenario: nmcli - ethernet - ethtool set pause options
