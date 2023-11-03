@@ -3,6 +3,8 @@ import os
 import sys
 import time
 import signal
+import re
+import shutil
 import traceback
 
 from behave.model_core import Status
@@ -61,6 +63,7 @@ def before_scenario(context, scenario):
 
 def _before_scenario(context, scenario):
     time_begin = time.time()
+    context.time_begin_scen = time_begin
 
     # set important context attributes
     assert not nmci.cleanup._cleanup_lst
@@ -327,6 +330,13 @@ def _after_scenario(context, scenario):
 
     nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
+    ausearch_ts = time.strftime("%x %X", time.localtime(context.time_begin_scen))
+    avc_log = nmci.process.run_stdout(
+        f"ausearch -m avc -ts {ausearch_ts} --format interpret",
+        ignore_stderr=True,
+        ignore_returncode=True,
+    )
+
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or len(excepts) > 0
     )
@@ -367,6 +377,27 @@ def _after_scenario(context, scenario):
                 nmci.crash.after_crash_reset()
             except Exception as e:
                 excepts.append(e)
+
+    if len(avc_log) > 0:
+        nmci.embed.embed_data("SELinux AVCs", avc_log)
+
+        if nmci.util.is_verbose() and shutil.which("sealert"):
+            avc_journal = nmci.misc.journal_show(
+                cursor=context.log_cursor_before_tags,
+                syslog_identifier="setroubleshoot",
+            )
+            sealert_commands = re.findall(r"sealert -l [0-9a-f-]+", avc_journal)
+            sealert_msgs = []
+            for cmd in sealert_commands:
+                sealert_msgs.append(
+                    cmd
+                    + "\n"
+                    + nmci.process.run_stdout(
+                        cmd, embed_combine_tag=nmci.embed.NO_EMBED
+                    )
+                )
+
+            nmci.embed.embed_data("sealerts of AVCs", "\n\n".join(sealert_msgs))
 
     if nmci.util.is_verbose():
         nmci.util.dump_status("After Clean")
