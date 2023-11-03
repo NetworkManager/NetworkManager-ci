@@ -8,7 +8,7 @@ function setup () {
     MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     LINUX=linux-$MAJOR-$MINOR
     # We need this patched netdevsim device to support ring/coal ethtool options and physical address
-    PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
+    PATCH="0001-netdevsim-add-coal-ring-channels-8.3.patch"
     # for newer kernels, only physical address patch must be applied
     # PATCH="0001-netdevsim-physical-address.patch"
     DRIVER="drivers/net/netdevsim"
@@ -16,28 +16,26 @@ function setup () {
     if grep Fedora /etc/redhat-release; then
         URL='https://kojipkgs.fedoraproject.org//packages/kernel'
         LINUX="$(echo $LINUX |awk -F '.' '{print $1 "." $2}')"
-        PATCH="0001-netdevsim-physical-address-ring.patch"
+        PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
     elif grep "release 8" /etc/redhat-release; then
+        PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
-        if grep -F --regexp="release 8."{0..3}" " /etc/redhat-release; then
-            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-1.patch"
-        elif grep -F "release 8.4 " /etc/redhat-release; then
-            PATCH="0001-netdevsim-add-mock-support-for-coalescing-and-ring-o-2.patch"
-        elif grep -F --regexp="release 8."{5..9}" " /etc/redhat-release; then
-            PATCH="0001-netdevsim-physical-address-ring.patch"
-        elif grep -F --regexp="release 8."{10..99}" " /etc/redhat-release; then
-            PATCH="0001-netdevsim-physical-address-ring.patch"
+        if grep -F --regexp="release 8."{0..4}" " /etc/redhat-release; then
+            PATCH="0001-netdevsim-add-coal-ring-channels.patch"
+        elif grep -F --regexp="release 8."{5..6}" " /etc/redhat-release; then
+            PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-add-channels.patch"
         elif grep -E "CentOS Stream" /etc/redhat-release; then
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
-            PATCH="0001-netdevsim-physical-address-ring.patch"
         fi
     elif grep "release 9" /etc/redhat-release; then
+        PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
-        if grep "CentOS" /etc/redhat-release; then
+        if grep -F --regexp="release 9.0 " /etc/redhat-release; then
+            PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-add-channels.patch"
+        elif grep "CentOS" /etc/redhat-release; then
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
         fi
         LINUX=linux-$MAJOR-${MINOR%.el9}
-        PATCH="0001-netdevsim-physical-address-ring.patch"
     fi
 
     # If we have all necessary things done
@@ -59,10 +57,15 @@ function setup () {
             sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
         mkdir -p /var/src/
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /var/src
-        cp contrib/netdevsim/$PATCH /var/src/$LINUX
+        cd contrib/netdevsim
+        cp -f *.patch /var/src/$LINUX
         cd /var/src/$LINUX
-        # Patch module
-        patch -p1 < $PATCH || { echo "Unable to patch, please fix the patch"; exit 1; }
+        # Patch critical features:
+        #  - either add features for old kernels
+        #  - or fix in new kernels
+        cat $PATCH | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
+        # Set permanent address - needed for GUI and cloud test
+        cat "0001-netdevsim-physical-address.patch" | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
 
         ARCH="$(arch)"
 
@@ -94,7 +97,7 @@ function setup () {
     fi
 
     # Change dir to the patched driver dir
-        cd /var/src/$LINUX/$DRIVER
+    cd /var/src/$LINUX/$DRIVER
 
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"

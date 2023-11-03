@@ -1,0 +1,65 @@
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Mon, 30 Oct 2023 15:50:13 +0200
+Subject: [PATCH] netdevsim: support all ethtool channels
+
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+index ffd9f84..dbfac37 100644
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -93,8 +97,11 @@ nsim_get_channels(struct net_device *dev, struct ethtool_channels *ch)
+ {
+ 	struct netdevsim *ns = netdev_priv(dev);
+ 
+-	ch->max_combined = ns->nsim_bus_dev->num_queues;
+-	ch->combined_count = ns->ethtool.channels;
++	ns->ethtool.channels.max_rx = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.max_tx = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.max_other = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.max_combined = ns->nsim_bus_dev->num_queues/2;
++	memcpy(ch, &ns->ethtool.channels, sizeof(ns->ethtool.channels));
+ }
+ 
+ static int
+@@ -103,12 +110,12 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
+ 	struct netdevsim *ns = netdev_priv(dev);
+ 	int err;
+ 
+-	err = netif_set_real_num_queues(dev, ch->combined_count,
+-					ch->combined_count);
++	err = netif_set_real_num_queues(dev, ch->rx_count + ch->combined_count,
++					ch->tx_count + ch->combined_count);
+ 	if (err)
+ 		return err;
+ 
+-	ns->ethtool.channels = ch->combined_count;
++	memcpy(&ns->ethtool.channels, ch, sizeof(ns->ethtool.channels));
+ 	return 0;
+ }
+ 
+@@ -174,7 +181,10 @@ void nsim_ethtool_init(struct netdevsim *ns)
+ 	ns->ethtool.fec.fec = ETHTOOL_FEC_NONE;
+ 	ns->ethtool.fec.active_fec = ETHTOOL_FEC_NONE;
+ 
+-	ns->ethtool.channels = ns->nsim_bus_dev->num_queues;
++	ns->ethtool.channels.rx_count = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.tx_count = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.other_count = ns->nsim_bus_dev->num_queues/2;
++	ns->ethtool.channels.combined_count = ns->nsim_bus_dev->num_queues/2;
+ 
+ 	ethtool = debugfs_create_dir("ethtool", ns->nsim_dev_port->ddir);
+ 
+diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim.h
+index 7d8ed8d..6ef2ae0 100644
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -62,7 +62,7 @@ struct nsim_ethtool_pauseparam {
+ struct nsim_ethtool {
+ 	u32 get_err;
+ 	u32 set_err;
+-	u32 channels;
++	struct ethtool_channels channels;
+ 	struct nsim_ethtool_pauseparam pauseparam;
+ 	struct ethtool_coalesce coalesce;
+ 	struct ethtool_ringparam ring;
+-- 
+2.26.2

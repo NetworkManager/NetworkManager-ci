@@ -1,0 +1,21 @@
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Mon, 30 Oct 2023 15:50:13 +0200
+Subject: [PATCH] netdevsim: fix ring max values
+
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+index ffd9f84..dbfac37 100644
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -71,6 +71,10 @@ static void nsim_get_ringparam(struct net_device *dev,
+ {
+ 	struct netdevsim *ns = netdev_priv(dev);
+ 
++	ns->ethtool.ring.rx_max_pending = 4096;
++	ns->ethtool.ring.rx_jumbo_max_pending = 4096;
++	ns->ethtool.ring.rx_mini_max_pending = 4096;
++	ns->ethtool.ring.tx_max_pending = 4096;
+ 	memcpy(ring, &ns->ethtool.ring, sizeof(ns->ethtool.ring));
+ }
+ 
+-- 
+2.26.2

@@ -1,0 +1,67 @@
+From 6f1f6afc0f593e8e8328784268ae52d46bcfc8b0 Mon Sep 17 00:00:00 2001
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Mon, 30 Oct 2023 15:50:13 +0200
+Subject: [PATCH] netdevsim: add mock support for channels
+
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+index f1884d9..030951c 100644
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -42,6 +42,27 @@ static int nsim_set_coalesce(struct net_device *dev,
+ 	memcpy(&ns->ethtool.coalesce, coal, sizeof(ns->ethtool.coalesce));
+ 	return 0;
+ }
++
++static void nsim_get_channels(struct net_device *dev,
++				struct ethtool_channels *ch)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	ns->ethtool.channels.max_rx = 128;
++	ns->ethtool.channels.max_tx = 128;
++	ns->ethtool.channels.max_combined = 128;
++	ns->ethtool.channels.max_other = 128;
++	memcpy(ch, &ns->ethtool.channels, sizeof(ns->ethtool.channels));
++}
++
++static int nsim_set_channels(struct net_device *dev,
++				struct ethtool_channels *ch)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	memcpy(&ns->ethtool.channels, ch, sizeof(ns->ethtool.channels));
++	return 0;
++}
+ 
+ static void nsim_get_ringparam(struct net_device *dev,
+ 			       struct ethtool_ringparam *ring)
+@@ -108,4 +129,6 @@ static const struct ethtool_ops nsim_ethtool_ops = {
+ 	.set_coalesce			= nsim_set_coalesce,
+ 	.get_coalesce			= nsim_get_coalesce,
++	.get_channels			= nsim_get_channels,
++ 	.set_channels			= nsim_set_channels,
+ 	.get_ringparam			= nsim_get_ringparam,
+ 	.set_ringparam			= nsim_set_ringparam,
+@@ -145,1 +168,5 @@ void nsim_ethtool_init(struct netdevsim *ns)
++	ns->ethtool.channels.rx_count = 64;
++	ns->ethtool.channels.tx_count = 64;
++	ns->ethtool.channels.combined_count = 64;
++	ns->ethtool.channels.other_count = 64;
+ }
+diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim.h
+index bf898af..fe62f81 100644
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -16,6 +16,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
++#include <linux/ethtool.h>
+ #include <linux/list.h>
+ #include <linux/netdevice.h>
+ #include <linux/u64_stats_sync.h>
+@@ -55,3 +56,4 @@ struct nsim_ethtool {
++	struct ethtool_channels channels;
+ };
+ 
+ struct netdevsim {

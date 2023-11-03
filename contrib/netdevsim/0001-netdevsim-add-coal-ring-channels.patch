@@ -1,7 +1,8 @@
 From 6f1f6afc0f593e8e8328784268ae52d46bcfc8b0 Mon Sep 17 00:00:00 2001
 From: Antonio Cardace <acardace@redhat.com>
+From: Filip Pokryvka <fpokryvk@redhat.com>
 Date: Mon, 15 Jun 2020 15:50:13 +0200
-Subject: [PATCH] netdevsim: add mock support for coalescing and ring options
+Subject: [PATCH] netdevsim: add mock support for coalescing, ring and channels
 
 ---
  drivers/net/netdevsim/netdev.c    | 49 +++++++++++++++++++++++++++++++
@@ -12,7 +13,7 @@ diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
 index 2908e0a0d6e1..16e1621bea8b 100644
 --- a/drivers/net/netdevsim/netdev.c
 +++ b/drivers/net/netdevsim/netdev.c
-@@ -239,6 +239,54 @@ static struct devlink_port *nsim_get_devlink_port(struct net_device *dev)
+@@ -239,6 +239,76 @@ static struct devlink_port *nsim_get_devlink_port(struct net_device *dev)
  	return &ns->nsim_dev_port->devlink_port;
  }
  
@@ -21,7 +22,7 @@ index 2908e0a0d6e1..16e1621bea8b 100644
 +{
 +	struct netdevsim *ns = netdev_priv(dev);
 +
-+	memcpy(ec, &ns->coalesce, sizeof(ns->coalesce));
++	memcpy(ec, &ns->ethtool.coalesce, sizeof(ns->ethtool.coalesce));
 +	return 0;
 +}
 +
@@ -30,7 +31,7 @@ index 2908e0a0d6e1..16e1621bea8b 100644
 +{
 +	struct netdevsim *ns = netdev_priv(dev);
 +
-+	memcpy(&ns->coalesce, ec, sizeof(ns->coalesce));
++	memcpy(&ns->ethtool.coalesce, ec, sizeof(ns->ethtool.coalesce));
 +	return 0;
 +}
 +
@@ -38,13 +39,11 @@ index 2908e0a0d6e1..16e1621bea8b 100644
 +				struct ethtool_ringparam *ring)
 +{
 +	struct netdevsim *ns = netdev_priv(dev);
-+
-+	ns->ring.rx_max_pending = 1024;
-+	ns->ring.rx_jumbo_max_pending = 1024;
-+	ns->ring.rx_mini_max_pending = 1024;
-+	ns->ring.tx_max_pending = 1024;
-+
-+	memcpy(ring, &ns->ring, sizeof(ns->ring));
++	ns->ethtool.ring.rx_max_pending = 4096;
++	ns->ethtool.ring.rx_jumbo_max_pending = 4096;
++	ns->ethtool.ring.rx_mini_max_pending = 4096;
++	ns->ethtool.ring.tx_max_pending = 4096;
++	memcpy(ring, &ns->ethtool.ring, sizeof(ns->ethtool.ring));
 +}
 +
 +static int nsim_set_ringparam(struct net_device *dev,
@@ -52,34 +51,54 @@ index 2908e0a0d6e1..16e1621bea8b 100644
 +{
 +	struct netdevsim *ns = netdev_priv(dev);
 +
-+	memcpy(&ns->ring, ring, sizeof(ns->ring));
++	memcpy(&ns->ethtool.ring, ring, sizeof(ns->ethtool.ring));
++	return 0;
++}
++
++static void nsim_get_channels(struct net_device *dev,
++				struct ethtool_channels *ch)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	ns->ethtool.channels.max_rx = 128;
++	ns->ethtool.channels.max_tx = 128;
++	ns->ethtool.channels.max_combined = 128;
++	ns->ethtool.channels.max_other = 128;
++	memcpy(ch, &ns->ethtool.channels, sizeof(ns->ethtool.channels));
++}
++
++static int nsim_set_channels(struct net_device *dev,
++				struct ethtool_channels *ch)
++{
++	struct netdevsim *ns = netdev_priv(dev);
++
++	memcpy(&ns->ethtool.channels, ch, sizeof(ns->ethtool.channels));
 +	return 0;
 +}
 +
 +static const struct ethtool_ops nsim_ethtool_ops = {
++	/* .supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES | ETHTOOL_COALESCE_USECS, */
 +	.supported_coalesce_params = GENMASK(21, 0),
 +	.set_coalesce = nsim_set_coalesce,
 +	.get_coalesce = nsim_get_coalesce,
 +	.get_ringparam = nsim_get_ringparam,
 +	.set_ringparam = nsim_set_ringparam,
++	.get_channels = nsim_get_channels,
++	.set_channels = nsim_set_channels,
 +};
 +
  static const struct net_device_ops nsim_netdev_ops = {
  	.ndo_start_xmit		= nsim_start_xmit,
  	.ndo_set_rx_mode	= nsim_set_rx_mode,
-@@ -264,6 +312,7 @@ static void nsim_setup(struct net_device *dev)
- {
- 	ether_setup(dev);
- 	eth_hw_addr_random(dev);
-+	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
- 
- 	dev->tx_queue_len = 0;
- 	dev->flags |= IFF_NOARP;
-@@ -297,6 +346,7 @@ nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
+@@ -297,6 +368,11 @@ nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
  	ns->nsim_bus_dev = nsim_dev->nsim_bus_dev;
  	SET_NETDEV_DEV(dev, &ns->nsim_bus_dev->dev);
  	dev->netdev_ops = &nsim_netdev_ops;
 +	dev->ethtool_ops = &nsim_ethtool_ops;
++	ns->ethtool.channels.rx_count = 64;
++	ns->ethtool.channels.tx_count = 64;
++	ns->ethtool.channels.combined_count = 64;
++	ns->ethtool.channels.other_count = 64;
  
  	rtnl_lock();
  	err = nsim_bpf_init(ns);
@@ -87,21 +106,21 @@ diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim
 index 2eb7b0dc1594..aa9f42a65901 100644
 --- a/drivers/net/netdevsim/netdevsim.h
 +++ b/drivers/net/netdevsim/netdevsim.h
-@@ -15,6 +15,7 @@
+@@ -14,6 +14,7 @@
+  */
  
- #include <linux/debugfs.h>
  #include <linux/device.h>
 +#include <linux/ethtool.h>
  #include <linux/kernel.h>
  #include <linux/list.h>
  #include <linux/netdevice.h>
-@@ -80,6 +81,9 @@ struct netdevsim {
- 		u32 ports[2][NSIM_UDP_TUNNEL_N_PORTS];
- 		struct debugfs_u32_array dfs_ports[2];
- 	} udp_ports;
+@@ -72,3 +73,9 @@ struct netdevsim {
 +
-+	struct ethtool_coalesce coalesce;
-+	struct ethtool_ringparam ring;
++	struct {
++		struct ethtool_coalesce coalesce;
++		struct ethtool_ringparam ring;
++		struct ethtool_channels channels;
++	} ethtool;
  };
  
  struct netdevsim *
