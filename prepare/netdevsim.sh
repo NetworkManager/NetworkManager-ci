@@ -53,7 +53,7 @@ function setup () {
             --no-check-certificate -O /root/kernel-$MAJOR-$MINOR.src.rpm && \
           rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm
         [ -f /root/rpmbuild/SOURCES/$LINUX.tar.xz ] || \
-          LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%.*}*.tar.xz | tail -n1 | \
+          LINUX=$(ls /root/rpmbuild/SOURCES/linux-${MAJOR%%.*}*.tar.xz | tail -n1 | \
             sed 's@/root/rpmbuild/SOURCES/@@;s@\.tar\.xz@@')
         mkdir -p /var/src/
         tar xf /root/rpmbuild/SOURCES/$LINUX.tar.xz -C /var/src
