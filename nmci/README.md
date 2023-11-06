@@ -1428,6 +1428,18 @@ combining the dictionary into one and solving conflits.
 * **Return type:**
   str
 
+### nmci.misc.systemd_list_units(states=[], patterns=['\*.service'], names_only=True)
+
+Returns list of systemd units (what ‘systemctl list-units’ would return
+in CLI) filtered by states and patterns as just a list of unit names or
+list of all the information returned by Systemd API:
+
+> [https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1.html#:~:text=listunits()%20returns%20an%20array%20of%20all%20currently%20loaded%20units](https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1.html#:~:text=listunits()%20returns%20an%20array%20of%20all%20currently%20loaded%20units).
+* **Parameters:**
+  * **states** – Return only units in on of the given states. Defaults to “[]”
+  * **patterns** (*Iterable**[**str**]*) – Return only units matching one of the given patterns. Defaults to “\*.service”
+  * **names_only** (*bool*) – Whether to return just list of unit names or list of full tuples as returned by Systemd DBus API. Defaults to True
+
 ### nmci.misc.test_find_feature_file(test_name, feature='\*')
 
 Return feature filename for given test name, gets data from `mapper.yaml`

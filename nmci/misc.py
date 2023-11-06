@@ -1232,6 +1232,37 @@ class _Misc:
 
         return d
 
+    def systemd_list_units(self, states=[], patterns=["*.service"], names_only=True):
+        """
+        Returns list of systemd units (what 'systemctl list-units' would return
+        in CLI) filtered by states and patterns as just a list of unit names or
+        list of all the information returned by Systemd API:
+            https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1.html#:~:text=listunits()%20returns%20an%20array%20of%20all%20currently%20loaded%20units.
+
+        :param states: Return only units in on of the given states. Defaults to "`[]`"
+        :type state: Iterable[str]
+        :param patterns: Return only units matching one of the given patterns. Defaults to "`*.service`"
+        :type patterns: Iterable[str]
+        :param names_only: Whether to return just list of unit names or list of full tuples as returned by Systemd DBus API. Defaults to True
+        :type names_only: bool
+        """
+        GLib = nmci.util.GLib
+        res = nmci.dbus.call(
+            bus_name="org.freedesktop.systemd1",
+            object_path="/org/freedesktop/systemd1",
+            interface_name="org.freedesktop.systemd1.Manager",
+            method_name="ListUnitsByPatterns",
+            parameters=GLib.Variant.new_tuple(
+                GLib.Variant("as", states),
+                GLib.Variant("as", patterns),
+            ),
+        )[0]
+        if names_only:
+            ret = [i[0] for i in res]
+        else:
+            ret = res
+        return ret
+
     def list_to_intervals(self, numbers):
         """
         Converts list of sorted numbers to string containing intervals.
