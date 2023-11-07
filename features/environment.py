@@ -102,6 +102,24 @@ def _before_scenario(context, scenario):
 
     os.environ["TERM"] = "dumb"
 
+    # collect failed services' logs and reset them
+    failed_services = nmci.misc.systemd_list_units(states=["failed"])
+    if len(failed_services) > 0:
+        statuses = nmci.process.systemctl(
+            f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
+        )
+        nmci.embed.embed_data("failed services' statuses", statuses)
+    for s in failed_services:
+        nmci.embed.embed_service_log(
+            f"service in failed state: {s}",
+            syslog_identifier=s,
+            fail_only=True,
+            cursor=False,
+            journal_args="--since -12h",
+        )
+    if len(failed_services) > 0:
+        nmci.process.systemctl("reset-failed")
+
     if "dump_status_verbose" in scenario.tags:
         nmci.util.dump_status_verbose = True
 
@@ -398,6 +416,23 @@ def _after_scenario(context, scenario):
                 )
 
             nmci.embed.embed_data("sealerts of AVCs", "\n\n".join(sealert_msgs))
+
+    # collect failed services' logs and reset them
+    failed_services = nmci.misc.systemd_list_units(states=["failed"])
+    if len(failed_services) > 0:
+        statuses = nmci.process.systemctl(
+            f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
+        )
+        nmci.embed.embed_data("failed services' statuses", statuses)
+    for s in failed_services:
+        nmci.embed.embed_service_log(
+            f"service failed during scenario run: {s}",
+            syslog_identifier=s,
+            cursor=False,
+            journal_args="--since -12h",
+        )
+    if len(failed_services) > 0:
+        nmci.process.systemctl("reset-failed")
 
     if nmci.util.is_verbose():
         nmci.util.dump_status("After Clean")
