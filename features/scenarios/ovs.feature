@@ -822,7 +822,8 @@ Feature: nmcli - ovs
     @rhbz1786937
     @RHEL-5394
     # Move this back to 1.18.8 once the crash is solved and the fix backported
-    @ver+=1.44
+    # So far just 9.2	
+    @ver+=1.42.2.10
     @openvswitch @mtu @restart_if_needed
     @ovs_mtu
     Scenario: nmcli - openvswitch - mtu
