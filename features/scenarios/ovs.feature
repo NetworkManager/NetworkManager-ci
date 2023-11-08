@@ -1504,3 +1504,61 @@ Feature: nmcli - ovs
     * Execute "nmcli networking off"
     * Execute "nmcli networking on"
     Then "UP,LOWER_UP" is visible with command "ip link show vxlan1"
+
+
+    @RHEL-5886
+    @ver+=1.45.6.1
+    @openvswitch
+    @ovs_datapath_type_netdev_with_cloned_mac
+    Scenario: NM - openvswitch - DHCP works with data-type netdev and cloned MAC set
+    * Prepare simulated test "testX" device
+    * Commentary
+        """
+        Disable tx-checksumming on both veth ends, as advised in the issue.
+        """
+    * Execute "ethtool -K testX tx-checksumming off"
+    * Execute "ip netns exec testX_ns ethtool -K testXp tx-checksumming off"
+    * Add "ovs-bridge" connection named "br-ex" for device "br-ex" with options
+        """
+        802-3-ethernet.mtu 1500
+        connection.autoconnect-slaves 1
+        ovs-bridge.datapath-type netdev
+        connection.autoconnect no
+        """
+    * Add "ovs-port" connection named "ovs-port-phys0" for device "testX" with options
+        """
+        master br-ex
+        connection.autoconnect-slaves 1
+        connection.autoconnect no
+        """
+    * Add "ovs-port" connection named "ovs-port-br-ex" for device "br-ex" with options
+        """
+        master br-ex
+        connection.autoconnect no
+        """
+    * Add "ethernet" connection named "ovs-if-phys0" for device "testX" with options
+        """
+        master ovs-port-phys0
+        connection.autoconnect-priority 100
+        connection.autoconnect-slaves 1
+        802-3-ethernet.mtu 1500
+        802-3-ethernet.cloned-mac-address 52:54:f8:da:c3:04
+        connection.autoconnect no
+        """
+    * Add "ovs-interface" connection named "ovs-if-br-ex" for device "br-ex" with options
+        """
+        slave-type ovs-port
+        master ovs-port-br-ex
+        802-3-ethernet.mtu 1500
+        802-3-ethernet.cloned-mac-address 52:54:f8:da:c3:04
+        ipv4.method auto
+        ipv4.route-metric 48
+        ipv6.method disabled
+        ipv4.may-fail no
+        connection.autoconnect no
+        """
+    * Bring "up" connection "br-ex"
+    * Modify connection "br-ex" changing options "autoconnect yes"
+    * Modify connection "ovs-if-phys0" changing options "autoconnect yes"
+    Then Bring "up" connection "ovs-if-br-ex"
+    And "192.168.99" is visible with command "ip a show dev br-ex"
