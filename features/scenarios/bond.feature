@@ -3079,8 +3079,8 @@
     # once decided. For now, we only check finaly outcome: ip found on VLAN of
     # bond after bond port revive.
     * Wait for "10" seconds
-    * Execute "ip link set testXa up"
-    * Execute "ip link set testXb up"
+    * Execute "ip netns exec testXa_ns ip link set testXap up"
+    * Execute "ip netns exec testXb_ns ip link set testXbp up"
     Then "192.168.122.10" is visible with command "ip addr show bond0.1656" in "15" seconds
     Then "bond0.1656" is visible with command "nmcli con show -a"
 
