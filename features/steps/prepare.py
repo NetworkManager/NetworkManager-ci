@@ -255,7 +255,7 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(
     'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}" and ifindex "{ifindex}"'
 )
-def prepare_dhcpd_simdev(context, device, server_id, ifindex=None):
+def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None):
     nmci.veth.manage_device(device)
 
     ipv4 = "192.168.99"
