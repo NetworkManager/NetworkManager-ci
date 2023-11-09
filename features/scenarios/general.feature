@@ -884,7 +884,7 @@ Feature: nmcli - general
 
     @rhbz1371433
     @ver+=1.7.9
-    @ifcfg-rh @manage_eth8 @eth8_disconnect
+    @manage_eth8 @eth8_disconnect
     @nmcli_general_set_device_back_to_managed
     Scenario: NM - general - set device back from unmanaged state
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
@@ -910,13 +910,12 @@ Feature: nmcli - general
      And "192" is visible with command "ip r |grep eth8"
 
 
-    @ifcfg-rh
-    @nmcli_general_ifcfg_tailing_whitespace
-    Scenario: nmcli - general - ifcfg tailing whitespace ignored
+    @nmcli_general_keyfile_tailing_whitespace
+    Scenario: nmcli - general - keyfile tailing whitespace ignored
     * Cleanup device "eth8.100"
     * Add "vlan" connection named "eth8.100" with options "autoconnect no dev eth8 id 100"
-    * Check ifcfg-name file created for connection "eth8.100"
-    * Replace "PHYSDEV=eth8" with "PHYSDEV=eth9" in file "/etc/sysconfig/network-scripts/ifcfg-eth8.100"
+    When "/etc/NetworkManager/system-connections/eth8.100.nmconnection" is file
+    Then Replace "parent=eth8" with "parent=eth9" in file "/etc/NetworkManager/system-connections/eth8.100.nmconnection"
     * Reload connections
     Then "eth9" is visible with command "nmcli con show eth8.100"
 
@@ -929,15 +928,16 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @add_testeth8 @ifcfg-rh @remove_ifcfg_con_general
+    @add_testeth8
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
+    * Cleanup device "eth8.100"
+    * Cleanup execute "nmcli device set eth8 managed on"
     # We need to delete keyfile testeth8
     * Execute "nmcli con del testeth8"
-    # And add ifcfg one
     * Add "ethernet" connection named "con_general" for device "eth8"
-    Given Check ifcfg-name file created for connection "con_general"
-    * Execute "echo -e NM_CONTROLLED=no >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    Given "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
+    * Execute "nmcli device set eth8 managed off"
     * Reload connections
     * Execute "ip link add link eth8 name eth8.100 type vlan id 100"
     Then "eth8\s+ethernet\s+unmanaged" is visible with command "nmcli device" in "5" seconds
@@ -950,28 +950,40 @@ Feature: nmcli - general
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
     Scenario: nmcli - general - connect correct profile with DHCP_HOSTNAME
     * Add "ethernet" connection named "con_general" for device "eth8" with options "ipv4.dns 8.8.4.4"
-    * Execute "echo -e 'DHCP_HOSTNAME=walderon' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+    * Update the keyfile "/etc/NetworkManager/system-connections/con_general.nmconnection"
+      """
+      [ipv4]
+      dhcp-hostname=walderon
+      """
     * Bring "up" connection "con_general"
     * Restart NM
     Then "con_general" is visible with command "nmcli  -t -f CONNECTION device"
+    And "walderon" is visible with command "nmcli  -t -f ipv4.dhcp-hostname connection show con_general"
 
 
     @rhbz1171751
     @ver+=1.8.0
-    @add_testeth8 @restart_if_needed @not_on_s390x
+    @restart_if_needed @not_on_s390x
     @match_connections_when_no_var_run_exists
     Scenario: NM - general - connection matching for anaconda
      * Stop NM
-     * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-testeth8"
      * Execute "rm -rf /var/run/NetworkManager/*"
-     * Execute "echo 'DEVICE=eth8' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-     * Execute "echo 'NAME=testeth8' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-     * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-     * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-     * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-testeth8"
-     Then "testeth8" is not visible with command "nmcli con sh -a"
+     * Create keyfile "/etc/NetworkManager/system-connections/con_general.nmconnection"
+      """
+      [connection]
+      interface-name=eth8
+      id=con_general
+      type=ethernet
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      method=auto
+      """
+     Then "con_general" is not visible with command "nmcli con sh -a"
      * Start NM
-     Then "testeth8" is visible with command "nmcli con sh -a" in "5" seconds
+     Then "con_general" is visible with command "nmcli con sh -a" in "5" seconds
 
 
     @rhbz1673321 @rhbz1942741
@@ -1031,16 +1043,24 @@ Feature: nmcli - general
 
     @rhbz1460760
     @ver+=1.8.0
-    @mtu
-    @ifcfg_respect_externally_set_mtu
+    @mtu @add_testeth8
+    @keyfile_respect_externally_set_mtu
     Scenario: NM - general - respect externally set mtu
     * Cleanup connection "con_general"
     * Execute "ip link set dev eth8 mtu 1400"
-    * Execute "echo 'DEVICE=eth8' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
-    * Execute "echo 'NAME=con_general' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
-    * Execute "echo 'BOOTPROTO=dhcp' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
-    * Execute "echo 'IPV6INIT=yes' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
-    * Execute "echo 'TYPE=Ethernet' >> /etc/sysconfig/network-scripts/ifcfg-con_general"
+     * Create keyfile "/etc/NetworkManager/system-connections/con_general.nmconnection"
+      """
+      [connection]
+      interface-name=eth8
+      id=con_general
+      type=ethernet
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      method=auto
+      """
     * Reload connections
     * Bring "up" connection "con_general"
     Then "1400" is visible with command "ip a s eth8" in "5" seconds
@@ -1543,15 +1563,12 @@ Feature: nmcli - general
 
 
     @rhbz1160013
-    @permissive @need_dispatcher_scripts @ifcfg-rh
+    @permissive @need_dispatcher_scripts
     @policy_based_routing
     Scenario: NM - general - policy based routing
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Bring "up" connection "con_general"
-    * Bring "up" connection "con_general"
     * Create PBR files for profile "con_general" and "eth8" device in table "1"
-    * Wait for "1" seconds
-    * Bring "down" connection "con_general"
     * Bring "up" connection "con_general"
     Then "17200:\s+from 192.168.10[0-3].* lookup 1.*17201:\s+from all iif eth8 lookup 1" is visible with command "ip rule"
     Then "default via 192.168.100.1 dev eth8" is visible with command "ip r s table 1"
@@ -1562,7 +1579,7 @@ Feature: nmcli - general
 
     @rhbz1384799
     @ver+=1.10
-    @permissive @need_dispatcher_scripts @ifcfg-rh @restart_if_needed
+    @permissive @need_dispatcher_scripts @restart_if_needed
     @modify_policy_based_routing_connection
     Scenario: NM - general - modify policy based routing connection
     * Prepare simulated test "testG" device
@@ -1570,7 +1587,7 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     * Create PBR files for profile "con_general" and "testG" device in table "1"
     * Modify connection "con_general" changing options "connection.autoconnect yes ipv6.method ignore"
-    * Reboot
+    * Execute "nmcli device reapply testG"
     Then "17200:\s+from 192.168.99.* lookup 1.*17201:\s+from all iif testG lookup 1" is visible with command "ip rule" in "20" seconds
      And "default via 192.168.99.1 dev testG" is visible with command "ip r s table 1" in "20" seconds
      And "2620" is not visible with command "ip a s testG" in "20" seconds
@@ -1692,25 +1709,6 @@ Feature: nmcli - general
     Scenario: NM - general - ctc device as ethernet recognition
     * Execute "znetconf -a $(znetconf -u |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }')"
     Then "ethernet" is visible with command "nmcli dev |grep $(znetconf -c |grep ctc | awk '{print $5}')"
-
-
-    #@rhbz1128581
-    #@eth0
-    #@connect_to_slow_router
-    #Scenario: NM - general - connection up to 60 seconds
-    #* Prepare simulated test "testM" device
-    #* Add "ethernet" connection named "con_general" for device "testM" with options "autoconnect no"
-    #* Modify connection "con_general" changing options "ipv4.method manual ipv4.address '192.168.99.99/24' ipv4.gateway '192.168.99.1' ipv6.method ignore"
-    #* Append "GATEWAY_PING_TIMEOUT=60" to ifcfg file "con_general"
-    #* Reload connections
-    ## VVV Remove gateway's ip address so it is unpingable
-    #* Execute "ip netns exec testM_ns ip a del 192.168.99.1/24 dev testM_bridge"
-    #* Run child "nmcli con up con_general"
-    #When "gateway ping failed with error code 1" is visible with command "journalctl -u NetworkManager -o cat --since '50 seconds ago' |grep testM" in "20" seconds
-    ## VVV Add gateway's ip address so it is pingable again
-    #* Run child "sleep 40 && ip netns exec testM_ns ip a add 192.168.99.1/24 dev testM_bridge"
-    #Then "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "55" seconds
-    #And "connected:full" is visible with command "nmcli -t -f STATE,CONNECTIVITY general status"
 
 
     @rhbz1034158
@@ -2261,16 +2259,19 @@ Feature: nmcli - general
 
 
     @ver+=1.10
-    @add_testeth8 @eth8_disconnect @ifcfg-rh
+    @add_testeth8 @eth8_disconnect
     @overtake_external_device
     Scenario: nmcli - general - overtake external device
     * Execute "ip add add 1.2.3.4/24 dev eth8"
-    When "No such file" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
+    When Path "/etc/NetworkManager/system-connections/eth8.nmconnection" does not exist
      And "eth8\s+ethernet\s+connected" is visible with command "nmcli d" in "15" seconds
      And "dhclient" is not visible with command "ps aux| grep client-eth8"
     * Modify connection "eth8" changing options "ipv4.method auto"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show eth8" in "45" seconds
-     And "BOOTPROTO=dhcp" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-eth8"
+     And Check keyfile "/etc/NetworkManager/system-connections/eth8.nmconnection" has options
+      """
+      ipv4.method=auto
+      """
      And "dhclient" is visible with command "ps aux| grep dhclient-eth8"
      And "192.168" is visible with command "ip a s eth8" in "20" seconds
 
@@ -2545,7 +2546,8 @@ Feature: nmcli - general
 
     @rhbz1578436
     @ver+=1.14
-    @rhelver+=8 @fedoraver+=31 @ifcfg-rh
+    @rhelver+=8 @fedoraver+=31
+    @ifupdown
     @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
     * Add "ethernet" connection named "con_general" for device "eth8" with options
@@ -2568,27 +2570,8 @@ Feature: nmcli - general
 
     @rhbz1954607
     @ver+=1.32.2
-    @rhelver+=9 @ifcfg-rh
-    @ifup_ifdown_scripts_new_conn_from_ifcfg
-    Scenario: NM - general - test ifup (ifdown) loads new connection from ifcfg file of same name automagically
-    Given "con_general" is not visible with command "nmcli c show"
-    * Cleanup connection "con_general"
-    * Execute """echo -e 'NAME=con_general\nTYPE=Ethernet\nDEVICE=eth8\nBOOTPROTO=static\nIPADDR=1.2.3.4\nPREFIX=24\nIPV6=no\nONBOOT=no' >> /etc/sysconfig/network-scripts/ifcfg-con_general"""
-    * Execute "/usr/sbin/ifup con_general"
-    When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
-     And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
-     And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
-     And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "/usr/sbin/ifdown con_general"
-    Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
-     And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
-     And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
-     And "1.2.3.4/24" is not visible with command "ip a s eth8" in "5" seconds
-
-
-    @rhbz1954607
-    @ver+=1.32.2
     @rhelver+=9 @keyfile
+    @ifupdown
     @ifup_ifdown_keyfile
     Scenario: NM - general - test ifup (ifdown) script uses NM with keyfile-defined connection
     * Add "ethernet" connection named "con_general" for device "eth8" with options
@@ -2597,26 +2580,6 @@ Feature: nmcli - general
           ipv4.address 1.2.3.4/24
           ipv4.method manual
           """
-    * Execute "/usr/sbin/ifup con_general"
-    When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
-     And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
-     And "activated" is visible with command "nmcli -f GENERAL.STATE connection show con_general"
-     And "1.2.3.4/24" is visible with command "ip a s eth8" in "5" seconds
-    * Execute "/usr/sbin/ifdown con_general"
-    Then "disconnected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
-     And "1.2.3.4/24" is not visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
-     And "activated" is not visible with command "nmcli -f GENERAL.STATE connection show con_general"
-     And "1.2.3.4/24" is not visible with command "ip a s eth8" in "5" seconds
-
-
-    @rhbz1954607
-    @ver+=1.32.2
-    @rhelver+=9 @keyfile
-    @ifup_ifdown_keyfile_new_conn_from_ifcfg
-    Scenario: NM - general - test ifup (ifdown) loads new connection from ifcfg file of same name automagically
-    Given "con_general" is not visible with command "nmcli c show"
-    * Cleanup connection "con_general"
-    * Execute """echo -e 'NAME=con_general\nTYPE=Ethernet\nDEVICE=eth8\nBOOTPROTO=static\nIPADDR=1.2.3.4\nPREFIX=24\nIPV6=no\nONBOOT=no' >> /etc/sysconfig/network-scripts/ifcfg-con_general"""
     * Execute "/usr/sbin/ifup con_general"
     When "connected" is visible with command "nmcli -f GENERAL.STATE device show eth8" in "5" seconds
      And "1.2.3.4/24" is visible with command "nmcli -f IP4.ADDRESS device show eth8" in "5" seconds
@@ -2720,37 +2683,6 @@ Feature: nmcli - general
     @libnm_nmclient_init_crash
     Scenario: nmcli - general - libnm crash when cancelling initialization of NMClient
     Then Execute reproducer "repro_2027674.py"
-
-
-    @rhbz1697858
-    @rhelver-=7 @rhel_pkg @fedoraver-=0 
-    @keyfile_nmconnection_extension
-    Scenario: NM - general - keyfile does not have .nmconnection extension
-    * Create NM config file with content
-      """
-      [main]
-      plugins=keyfile,ifcfg-rh
-      """
-    * Restart NM
-    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
-    Then "/etc/NetworkManager/system-connections/con_general" is file
-     And Path "/etc/NetworkManager/system-connections/con_general.nmconnection" does not exist
-
-
-    @rhbz1697858
-    @ver+=1.19
-    @rhelver+=8 @rhel_pkg
-    @keyfile_nmconnection_extension
-    Scenario: NM - general - keyfile does have .nmconnection extension
-    * Create NM config file with content
-      """
-      [main]
-      plugins=keyfile,ifcfg-rh
-      """
-    * Restart NM
-    * Add "ethernet" connection named "con_general" for device "\*" with options "autoconnect no"
-    Then "/etc/NetworkManager/system-connections/con_general.nmconnection" is file
-     And Path "/etc/NetworkManager/system-connections/con_general" does not exist
 
 
     @rhbz1697858
@@ -3170,8 +3102,8 @@ Feature: nmcli - general
 
 
     @rhbz2217527
+    @rhelver-=9 @fedoraver-=38 @ver+=1.43.10
     @ifcfg-rh
-    @ver+=1.43.10
     @modify_link_settings_ifcfg
     Scenario: NM - general - try to modify link settings in ifcfg format
     * Start following journal

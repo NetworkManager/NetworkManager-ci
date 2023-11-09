@@ -28,21 +28,21 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
             f"Profile {profile} has no suitable IPv4 address. Output:\n\n{s})"
         )
 
-    context.util.file_set_content(
-        f"/etc/sysconfig/network-scripts/route-{profile}",
-        [
-            f"{ip}/{plen} dev {dev} table {table}",
-            f"default via {gw} dev {dev} table {table}",
-        ],
-    )
+    _ip = ip.rsplit(".", 1)[0]
 
-    context.util.file_set_content(
-        f"/etc/sysconfig/network-scripts/rule-{profile}",
-        [
-            f"prio 17201 iif {dev} table {table}",
-            f"prio 17200 from {ip} table {table}",
-        ],
+    nmci.misc.keyfile_update(
+        f"/etc/NetworkManager/system-connections/{profile}.nmconnection",
+        f"""
+        [ipv4]
+        route1={_ip}.0/{plen},{ip}
+        route1_options=table={table}
+        route2={_ip}.0/0,{gw}
+        route2_options=table={table}
+        routing-rule1=priority 17201 from 0.0.0.0/0 iif {dev} table {table}
+        routing-rule2=priority 17200 from {ip} table {table}   
+        """,
     )
+    nmci.nmutil.restart_NM_service(timeout=timeout)
 
 
 @step('Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
@@ -340,7 +340,6 @@ def prepare_simdev(
     option=None,
     daemon_options=None,
 ):
-
     ipv4addr = None
     if ipv4 is None:
         ipv4 = "192.168.99"

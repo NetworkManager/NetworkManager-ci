@@ -788,6 +788,23 @@ def ethernet_bs(context, scenario):
 _register_tag("ethernet", ethernet_bs, None)
 
 
+def ifupdown_bs(context, scenario):
+    _, nm_ver = nmci.misc.nm_version_detect()
+    if (
+        nm_ver >= [1, 36]
+        and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
+    ):
+        print("install NetworkManager-initscripts-updown")
+        context.process.run_stdout(
+            "dnf install -y NetworkManager-initscripts-updown",
+            ignore_stderr=True,
+            timeout=120,
+        )
+
+
+_register_tag("ifupdown", ifupdown_bs, None)
+
+
 def ifcfg_rh_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
@@ -2441,6 +2458,13 @@ def allow_veth_connections_as(context, scenario):
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
             context.process.nmcli(f"device disconnect {dev}")
+
+    connections = nmci.process.nmcli(
+        "-t -f NAME c s", embed_combine_tag=nmci.embed.NO_EMBED
+    )
+    for connection in connections.strip().split("\n"):
+        if connection and "Wired" in connection:
+            context.process.nmcli(f"connection delete '{connection}'")
 
 
 _register_tag(
