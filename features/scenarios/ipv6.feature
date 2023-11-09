@@ -901,15 +901,20 @@
 
     @rhbz1073824
     @restart_if_needed
-    @ipv6_take_manually_created_ifcfg
-    Scenario: ifcfg - ipv6 - use manually created link-local profile
-    * Append "DEVICE='eth10'" to ifcfg file "con_ipv6"
-    * Append "ONBOOT=yes" to ifcfg file "con_ipv6"
-    * Append "NETBOOT=yes" to ifcfg file "con_ipv6"
-    * Append "UUID='aa17d688-a38d-481d-888d-6d69cca781b8'" to ifcfg file "con_ipv6"
-    * Append "BOOTPROTO=dhcp" to ifcfg file "con_ipv6"
-    * Append "TYPE=Ethernet" to ifcfg file "con_ipv6"
-    * Append "NAME='con_ipv6'" to ifcfg file "con_ipv6"
+    @ipv6_take_manually_created_keyfile
+    Scenario: keyfile - ipv6 - use manually created link-local profile
+    * Create keyfile "/etc/NetworkManager/system-connections/con_ipv6.nmconnection"
+      """
+      [connection]
+      autoconnect=yes
+      interface-name=eth10
+      uuid=aa17d688-a38d-481d-888d-6d69cca781b8
+      type=ethernet
+      id=con_ipv6
+
+      [ipv6]
+      method=dhcp
+      """
     * Restart NM
     Then "aa17d688-a38d-481d-888d-6d69cca781b8" is visible with command "nmcli -f UUID connection show -a"
 
@@ -1792,14 +1797,14 @@
 
     @rhbz1368018
     @ver+=1.8
-    @ifcfg-rh @con_ipv6_ifcfg_remove @kill_dhclient_custom @restart_if_needed
+    @kill_dhclient_custom @restart_if_needed
     @persistent_ipv6_after_device_rename
     Scenario: NM - ipv6 - persistent ipv6 after device rename
     * Prepare simulated test "testX6" device
     * Add "ethernet" connection named "con_ipv6" for device "testX6"
     * Bring "down" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
-    * Execute "echo -e 'NM_CONTROLLED=no' >> /etc/sysconfig/network-scripts/ifcfg-con_ipv6"
+    * Execute "nmcli device set testX6 managed no"
     * Restart NM
     When "0" is visible with command "cat /proc/sys/net/ipv6/conf/testX6/disable_ipv6"
     * Rename device "testX6" to "festY"
