@@ -239,15 +239,22 @@ def wait_faf_complete(context, dump_dir):
                         nmci.embed.embed_data("Exception in after_crash_reset:", str(e))
                 # Wait a bit, sometimes DNS is not ready and FAF reporter reports
                 #  curl: Could not resolve host: faf.lab...
-                time.sleep(1)
+                time.sleep(2)
                 # continue reporting now
-                nmci.util.file_remove("/tmp/pause_faf_reporting")
                 # Make sure abrt event noticed file change, it checks every 5s
                 # without this sleep, the following code is processed quickly and
                 # abrt eent will process and upload report after 120s
                 # (which is not desired for crash test)
-                time.sleep(5)
-
+                journal = nmci.pexpect.pexpect_spawn("journalctl -f -t abrt-server")
+                r = journal.expect(
+                    ["QE_FAF: reporting paused", nmci.pexpect.TIMEOUT], 60
+                )
+                journal.kill(15)
+                if r == 1:
+                    print("QE_FAF did not start in 60s, quitting...")
+                    return False
+                nmci.util.file_remove("/tmp/pause_faf_reporting")
+                time.sleep(6)
         backtrace = backtrace or os.path.isfile(f"{dump_dir}/backtrace")
 
         if not reported_faf_lab and os.path.isfile(f"{dump_dir}/reported_to"):
