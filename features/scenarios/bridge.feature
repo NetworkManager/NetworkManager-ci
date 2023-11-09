@@ -8,23 +8,6 @@ Feature: nmcli - bridge
     # Scenario:
 
 
-    @ver-=1.24
-    @bridge_options
-    Scenario: nmcli - bridge - add custom bridge
-    * Add "bridge" connection named "br88" for device "br88" with options
-          """
-          autoconnect no
-          priority 5
-          forward-delay 3
-          hello-time 3
-          max-age 15
-          ageing-time 500000
-          """
-    * Bring "up" connection "br88" ignoring error
-    Then "br88" is visible with command "ip link show type bridge"
-    Then "DELAY=3.*BRIDGING_OPTS=\"priority=5 hello_time=3 max_age=15 ageing_time=500000\".*NAME=br88.*ONBOOT=no" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
-
-
     @ver+=1.25 @ver-=1.35.0
     @rhelver+=8
     @bridge_options
@@ -140,24 +123,6 @@ Feature: nmcli - bridge
 
 
     @rhbz1358615
-    #obsoleted by bridge_options test
-    @ver+=1.10.2 @ver-=1.24
-    @bridge_add_forward_delay
-    Scenario: nmcli - bridge - add forward delay
-    * Add "bridge" connection named "br88" for device "br88" with options
-          """
-          autoconnect no
-          priority 5
-          group-forward-mask 8
-          ip4 1.2.3.4/24
-          """
-    * Bring "up" connection "br88"
-    Then "br88" is visible with command "ip link show type bridge"
-    And "BRIDGING_OPTS=\"priority=5 group_fwd_mask=8\"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
-    And "0x8" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
-
-
-    @rhbz1358615
     @ver+=1.10.2
     @bridge_modify_forward_delay
     Scenario: nmcli - bridge - modify forward delay
@@ -170,7 +135,7 @@ Feature: nmcli - bridge
           """
     * Execute "nmcli con modify br88 bridge.group-forward-mask 0"
     * Bring "up" connection "br88"
-    And "group_fwd_mask=8" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-br88"
+    And "group-forward-mask=8" is not visible with command "cat /etc/NetworkManager/system-connections/br88.nmconnection"
     And "0x0" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
 
 
@@ -235,7 +200,7 @@ Feature: nmcli - bridge
     * Add "bridge" connection named "br11" for device "br11" with options "bridge.stp off"
     * Bring "up" connection "br11" ignoring error
     * Delete connection "br11"
-    Then ifcfg-"br11" file does not exist
+    Then Path "/etc/NetworkManager/system-connections/br11.nmconnection" does not exist
 
 
     @bridge_delete_connection_while_up
@@ -250,7 +215,7 @@ Feature: nmcli - bridge
     * "inet 192.168.1.19" is visible with command "ip a s br12" in "5" seconds
     * Delete connection "br12"
     Then "inet 192.168.1.19" is not visible with command "ip a s br12"
-    Then ifcfg-"br12" file does not exist
+    Then Path "/etc/NetworkManager/system-connections/br12.nmconnection" does not exist
 
 
     #obsoleted by bridge_options test
@@ -360,45 +325,40 @@ Feature: nmcli - bridge
     Then Noted value "ipv6_2" is visible with command "ip -6 a show dev brX scope global"
 
 
-    @ifcfg-rh
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
-    #* Execute "nmcli dev con eth4"
     * Cleanup connection "bridge-slave-eth4.80"
     * Add "bridge" connection named "br15" for device "br15" with options "autoconnect no bridge.stp off"
-    * Check ifcfg-name file created for connection "br15"
+    Then "/etc/NetworkManager/system-connections/br15.nmconnection" is file in "10" seconds
     * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
-    * Check ifcfg-name file created for connection "eth4.80"
+    Then "/etc/NetworkManager/system-connections/eth4.80.nmconnection" is file in "10" seconds
     * Add "bridge-slave" connection with options "ifname eth4.80 autoconnect no master br15"
-    Then "BRIDGE=br15" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bridge-slave-eth4.80"
+    Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
+      """
+      connection.master=br15
+      """
 
 
-    @ifcfg-rh
     @bridge_remove_slave
     Scenario: nmcli - bridge - remove slave
     #* Execute "nmcli dev con eth4"
     * Add "bridge" connection named "br15" for device "br15" with options "autoconnect no bridge.stp off"
-    * Check ifcfg-name file created for connection "br15"
+    Then "/etc/NetworkManager/system-connections/br15.nmconnection" is file in "10" seconds
     * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
-    * Check ifcfg-name file created for connection "eth4.80"
+    Then "/etc/NetworkManager/system-connections/eth4.80.nmconnection" is file in "10" seconds
     * Add "bridge-slave" connection named "br15-slave" for device "eth4.80" with options "autoconnect no master br15"
-    * Check ifcfg-name file created for connection "br15-slave"
+    Then "/etc/NetworkManager/system-connections/br15-slave.nmconnection" is file in "10" seconds
     * Delete connection "br15-slave"
-    Then ifcfg-"br15-slave" file does not exist
+    Then Path "/etc/NetworkManager/system-connections/br15-slave.nmconnection" does not exist
 
 
-    @ifcfg-rh
     @bridge_up_with_slaves
     Scenario: nmcli - bridge - up with slaves
     * Add "bridge" connection named "br15" for device "br15" with options "bridge.stp on ip4 192.168.1.19/24"
     * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
-    * Check ifcfg-name file created for connection "eth4.80"
     * Add "vlan" connection named "eth4.90" with options "dev eth4 id 90"
-    * Check ifcfg-name file created for connection "eth4.90"
     * Add "bridge-slave" connection named "br15-slave1" for device "eth4.80" with options "master br15"
-    * Check ifcfg-name file created for connection "br15-slave1"
     * Add "bridge-slave" connection named "br15-slave2" for device "eth4.90" with options "master br15"
-    * Check ifcfg-name file created for connection "br15-slave2"
     * Bring "up" connection "br15"
     Then  "br15" is visible with command "ip link show type bridge"
 
@@ -716,7 +676,7 @@ Feature: nmcli - bridge
    #  * Modify connection "bridge4.1" changing options "connection.master '' connection.slave-type ''"
      When "connection.master:\s+bridge0" is not visible with command "nmcli c s bridge4.1 | grep 'master:'"
       And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
-      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-bridge4.1"
+      And "slave-type=bridge" is not visible with command "cat /etc/NetworkManager/system-connections/bridge4.1.nmconnection"
      * Delete connection "bridge0"
      * Bring "up" connection "bridge4.1"
 
@@ -724,7 +684,7 @@ Feature: nmcli - bridge
      * Reload connections
      Then "connection.master:\s+bridge0" is not visible with command "nmcli c s bridge4.1 | grep 'master:'"
       And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
-      And "BRIDGE" is not visible with command "grep BRIDGE /etc/sysconfig/network-scripts/ifcfg-bridge4.1"
+      And "slave-type=bridge" is not visible with command "cat /etc/NetworkManager/system-connections/bridge4.1.nmconnection"
       And Bring "up" connection "bridge4.1"
 
 
