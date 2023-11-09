@@ -100,19 +100,21 @@ Feature: nmcli: ipv4
 
     @rhbz1073824
     @delete_testeth0 @restart_if_needed
-    @ipv4_take_manually_created_ifcfg_with_ip
+    @ipv4_take_manually_created_keyfile_with_ip
     Scenario: nmcli - ipv4 - use manually created ipv4 profile
-    * Append "DEVICE='eth3'" to ifcfg file "con_ipv4"
-    * Append "ONBOOT=yes" to ifcfg file "con_ipv4"
-    * Append "NETBOOT=yes" to ifcfg file "con_ipv4"
-    * Append "UUID='aa17d688-a38d-481d-888d-6d69cca781b8'" to ifcfg file "con_ipv4"
-    * Append "BOOTPROTO=none" to ifcfg file "con_ipv4"
-    #* Append "HWADDR='52:54:00:32:77:59'" to ifcfg file "con_ipv4"
-    * Append "TYPE=Ethernet" to ifcfg file "con_ipv4"
-    * Append "NAME='con_ipv4'" to ifcfg file "con_ipv4"
-    * Append "IPADDR='10.0.0.2'" to ifcfg file "con_ipv4"
-    * Append "PREFIX='24'" to ifcfg file "con_ipv4"
-    * Append "GATEWAY='10.0.0.1'" to ifcfg file "con_ipv4"
+    * Create keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection"
+      """
+      [connection]
+      uuid=aa17d688-a38d-481d-888d-6d69cca781b8
+      autoconnect=yes
+      interface-name=eth3
+      type=ethernet
+      id=con_ipv4
+
+      [ipv4]
+      method=manual
+      address1=10.0.0.2/24,10.0.0.1
+      """
     * Restart NM
     Then "aa17d688-a38d-481d-888d-6d69cca781b8" is visible with command "nmcli -f UUID connection show -a" in "5" seconds
 
@@ -524,83 +526,6 @@ Feature: nmcli: ipv4
 
     @rhbz1373698
     @ver+=1.8.0
-    @ifcfg-rh
-    @ipv4_route_set_route_with_src_old_syntax
-    Scenario: nmcli - ipv4 - routes - set route with src in old syntax
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          autoconnect no
-          ipv4.method manual
-          ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
-          ipv4.route-metric 256
-          """
-    * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Reload connections
-    * Bring "up" connection "con_ipv4"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
-     And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "default" is visible with command "ip r |grep eth0"
-     And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
-
-
-    @rhbz1452648
-    @ver+=1.8.0
-    @ifcfg-rh
-    @ipv4_route_modify_route_with_src_old_syntax_no_metric
-    Scenario: nmcli - ipv4 - routes - modify route with src and no metric in old syntax
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          autoconnect no
-          ipv4.method manual
-          ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
-          ipv4.route-metric 256
-          """
-    * Execute "echo '1.2.3.4 src 2.3.4.5 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Reload connections
-    * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.122.3 src=192.168.3.10'"
-    * Bring "up" connection "con_ipv4"
-    Then "null" is not visible with command "cat /etc/sysconfig/network-scripts/route-con_ipv4"
-     And "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
-     And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "default" is visible with command "ip r |grep eth0"
-     And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
-
-
-    @rhbz1373698
-    @ver+=1.8.0
-    @restart_if_needed @ifcfg-rh
-    @ipv4_route_set_route_with_src_old_syntax_restart_persistence
-    Scenario: nmcli - ipv4 - routes - set route with src old syntaxt restart persistence
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          ipv4.method manual
-          ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
-          ipv4.route-metric 256
-          """
-    * Execute "echo '192.168.122.3 src 192.168.3.10 dev eth3' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Reload connections
-    * Bring "up" connection "con_ipv4"
-    * Stop NM
-    * Execute "ip addr flush dev eth3"
-    * Execute "rm -rf /var/run/NetworkManager"
-    * Start NM
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
-     And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
-     And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "default" is visible with command "ip r |grep eth0"
-     And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
-
-
-    @rhbz1373698
-    @ver+=1.8.0
     @restart_if_needed
     @ipv4_route_set_route_with_src_new_syntax_restart_persistence
     Scenario: nmcli - ipv4 - routes - set route with src new syntaxt restart persistence
@@ -981,7 +906,7 @@ Feature: nmcli: ipv4
     @rhbz1422610
     @ver+=1.8.0
     @not_with_systemd_resolved
-    @restore_hostname @eth3_disconnect @ifcfg-rh @delete_testeth0
+    @restore_hostname @eth3_disconnect @delete_testeth0
     @ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
     Scenario: NM - ipv4 - preserve resolveconf when hostnamectl is called and ignore_auto_dns set
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -1833,7 +1758,6 @@ Feature: nmcli: ipv4
 
     @rhbz1350830
     @ver+=1.10.0
-    @ifcfg-rh
     @dhcp-timeout_infinity
     Scenario: NM - ipv4 - add dhcp-timeout infinity
     * Prepare simulated test "testX4" device
@@ -1847,7 +1771,10 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "10" seconds
      And "default via 192.168.99.1 dev testX4" is visible with command "ip r"
-     And "IPV4_DHCP_TIMEOUT=2147483647" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+     And Check keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" has options
+      """
+      ipv4.dhcp-timeout=2147483647
+      """
 
 
     @rhbz1350830
@@ -1870,73 +1797,12 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "180" seconds
      And "default via 192.168.99.1 dev testX4" is visible with command "ip r"
-     And "IPV4_DHCP_TIMEOUT=2147483647" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-
-
-    @rhbz1246496
-    @ver-1.11
-    @long @restart_if_needed
-    @renewal_gw_after_dhcp_outage_for_assumed_var0
-    Scenario: NM - ipv4 - assumed address renewal after DHCP outage for on-disk assumed
-    * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4"
-    When "default" is visible with command "ip r |grep testX4" in "30" seconds
-    When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Restart NM
-    When "con_ipv4" is visible with command "nmcli con sh -a" in "30" seconds
-    When "default" is not visible with command "ip r |grep testX4" in "130" seconds
-    When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
-    Then "routers = 192.168.99.1" is visible with command "nmcli con show con_ipv4" in "60" seconds
-    Then "default" is visible with command "ip r| grep testX4"
-    When "inet 192.168.99" is visible with command "ip a s testX4"
-
-
-    @rhbz1265239
-    @ver-=1.10.0
-    @long @restart_if_needed
-    @renewal_gw_after_dhcp_outage_for_assumed_var1
-    Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
-    * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4"
-    When "default" is visible with command "ip r |grep testX4" in "30" seconds
-    When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Stop NM
-    * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Start NM
-    When "default" is not visible with command "ip r |grep testX4" in "130" seconds
-    When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
-    Then "routers = 192.168.99.1" is visible with command "nmcli con show testX4" in "400" seconds
-    Then "default" is visible with command "ip r| grep testX4" in "150" seconds
-    When "inet 192.168.99" is visible with command "ip a s testX4" in "10" seconds
-
-
-    @rhbz1518091
-    @ver+=1.10.1 @ver-1.11
-    @long @restart_if_needed
-    @renewal_gw_after_dhcp_outage_for_assumed_var1
-    Scenario: NM - ipv4 - assumed address renewal after DHCP outage for in-memory assumed
-    * Prepare simulated test "testX4" device
-    * Add "ethernet" connection named "con_ipv4" for device "testX4"
-    When "default" is visible with command "ip r |grep testX4" in "30" seconds
-    When "inet 192" is visible with command "ip a s |grep testX4" in "30" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
-    * Stop NM
-    * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Start NM
-    When "default" is not visible with command "ip r |grep testX4" in "130" seconds
-    When "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
-    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
-    Then "default" is not visible with command "ip r| grep testX4" for full "150" seconds
-    Then "inet 192.168.99" is not visible with command "ip a s testX4" in "10" seconds
+     And "dhcp-timeout=2147483647" is not visible with command "cat /etc/NetworkManager/system-connections/con_ipv4"
 
 
     @rhbz1518091 @rhbz1246496 @rhbz1503587
     @ver+=1.11 @skip_in_centos
-    @long @restart_if_needed @ifcfg-rh
+    @long @restart_if_needed
     @dhcp4_outages_in_various_situation
     Scenario: NM - ipv4 - all types of dhcp outages
     ################# PREPARE testX4 AND testY4 ################################
@@ -1959,8 +1825,8 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec testY4_ns kill -SIGSTOP $(cat /tmp/testY4_ns.pid)"
     ## STOP NM
     * Stop NM
-    # REMOVE con_ipv4 ifcfg file
-    * Execute "rm -rf /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    # REMOVE con_ipv4 keyfile file
+    * Remove file "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" if exists
     ## RESTART NM AGAIN
     * Start NM
 
@@ -2167,7 +2033,7 @@ Feature: nmcli: ipv4
 
     @rhbz1404148
     @ver+=1.10
-    @kill_dnsmasq_ip4 @ifcfg-rh
+    @kill_dnsmasq_ip4
     @ipv4_method_shared_with_already_running_dnsmasq
     Scenario: nmcli - ipv4 - method shared when dnsmasq does run
     * Note the output of "pidof NetworkManager" as value "1"
@@ -2516,9 +2382,13 @@ Feature: nmcli: ipv4
           ipv4.addresses 192.168.3.10/24
           ipv4.gateway 192.168.3.254
           """
-    * Execute "echo '10.200.200.2/31 via 172.16.0.254' > /etc/sysconfig/network-scripts/route-con_ipv4"
-    * Reload connections
-    * Execute "nmcli connection modify con_ipv4 ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
+    * Update the keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection"
+          """
+          [ipv4]
+          route1=10.200.200.2/31,172.16.0.254
+          """
+    * Restart NM
+    * Modify connection "con_ipv4" changing options "ipv4.routes '10.200.200.2/31 172.16.0.254 111 onlink=true'"
     * Bring "up" connection "con_ipv4"
     Then "default via 192.168.3.254 dev eth3 proto static metric 1" is visible with command "ip r"
      And "10.200.200.2/31 via 172.16.0.254 dev eth3 proto static metric 111 onlink" is visible with command "ip r"
@@ -2540,19 +2410,26 @@ Feature: nmcli: ipv4
 
     @rhbz1519299
     @ver+=1.12
-    @ifcfg-rh
     @ipv4_dhcp-hostname_shared_persists
     Scenario: nmcli - ipv4 - ipv4 dhcp-hostname persists after method shared set
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dhcp-hostname test"
     When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
-     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    And Check keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" has options
+      """
+      ipv4.dhcp-hostname=test
+      """
      * Modify connection "con_ipv4" changing options "ipv4.method shared"
     When "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
-     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    And Check keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" has options
+      """
+      ipv4.dhcp-hostname=test
+      """
      * Modify connection "con_ipv4" changing options "ipv4.method shared"
     Then "test" is visible with command "nmcli -f ipv4.dhcp-hostname con show con_ipv4"
-     And "DHCP_HOSTNAME=test" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-
+    And Check keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" has options
+      """
+      ipv4.dhcp-hostname=test
+      """
 
     @rhbz1573780
     @ver+=1.12
@@ -3014,15 +2891,17 @@ Feature: nmcli: ipv4
 
     @rhbz1871042
     @ver+=1.26.4
-    @ifcfg-rh
-    @ipv4_dhcp_vendor_class_ifcfg
-    Scenario: NM - ipv4 - ipv4.dhcp-vendor-class-identifier is translated to ifcfg
+    @ipv4_dhcp_vendor_class_keyfile
+    Scenario: NM - ipv4 - ipv4.dhcp-vendor-class-identifier is translated to keyfile
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
           """
           ipv4.dhcp-vendor-class-identifier RedHat
           """
-    Then "RedHat" is visible with command "grep 'DHCP_VENDOR_CLASS_IDENTIFIER=' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
-    * Execute "sed -i 's/DHCP_VENDOR_CLASS_IDENTIFIER=.*/DHCP_VENDOR_CLASS_IDENTIFIER=RH/' /etc/sysconfig/network-scripts/ifcfg-con_ipv4"
+    Then Check keyfile "/etc/NetworkManager/system-connections/con_ipv4.nmconnection" has options
+      """
+      ipv4.dhcp-vendor-class-identifier=RedHat
+      """
+    * Replace "dhcp-vendor-class-identifier=RedHat" with "dhcp-vendor-class-identifier=RH" in file "/etc/NetworkManager/system-connections/con_ipv4.nmconnection"
     * Reload connections
     Then "RH" is visible with command "nmcli -g ipv4.dhcp-vendor-class-identifier con show con_ipv4"
 
