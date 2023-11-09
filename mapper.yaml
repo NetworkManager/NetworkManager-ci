@@ -122,12 +122,6 @@ testmapper:
         feature: bond
     - add_bond_master_via_uuid:
         feature: bond
-    - bond_ifcfg_master_as_device:
-        feature: bond
-    - bond_ifcfg_master_called_ethernet:
-        feature: bond
-    - bond_ifcfg_master_as_device_via_con_name:
-        feature: bond
     - bond_keyfile_master:
         feature: bond
     - nmcli_bond_manual_ipv4:
@@ -241,7 +235,7 @@ testmapper:
         feature: bond
     - bond_dbus_creation:
         feature: bond
-    - bond_mode_by_number_in_ifcfg:
+    - bond_mode_by_number_in_keyfile:
         feature: bond
     - bond_set_active_backup_options:
         feature: bond
@@ -368,8 +362,6 @@ testmapper:
     - bridge_options:
         feature: bridge
         tags: gate
-    - bridge_add_forward_delay:
-        feature: bridge
     - bridge_modify_forward_delay:
         feature: bridge
     - bridge_connection_up:
@@ -648,7 +640,7 @@ testmapper:
     - ipv6_correct_slaac_setting:
         feature: ipv6
         tags: gate
-    - ipv6_take_manually_created_ifcfg:
+    - ipv6_take_manually_created_keyfile:
         feature: ipv6
     - ipv6_method_static_without_IP:
         feature: ipv6
@@ -877,7 +869,7 @@ testmapper:
         feature: general
     - nmcli_general_assign_valid_hostname_to_device:
         feature: general
-    - ipv4_take_manually_created_ifcfg_with_ip:
+    - ipv4_take_manually_created_keyfile_with_ip:
         feature: ipv4
     - ipv4_method_static_no_IP:
         feature: ipv4
@@ -919,12 +911,6 @@ testmapper:
     - ipv4_route_set_ecmp_routes_dummy_and_reactivate_connection:
         feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax:
-        feature: ipv4
-    - ipv4_route_set_route_with_src_old_syntax:
-        feature: ipv4
-    - ipv4_route_modify_route_with_src_old_syntax_no_metric:
-        feature: ipv4
-    - ipv4_route_set_route_with_src_old_syntax_restart_persistence:
         feature: ipv4
     - ipv4_route_set_route_with_src_new_syntax_restart_persistence:
         feature: ipv4
@@ -1069,10 +1055,6 @@ testmapper:
         feature: ipv4
     - dhcp-timeout_default_in_cfg:
         feature: ipv4
-    - renewal_gw_after_dhcp_outage_for_assumed_var0:
-        feature: ipv4
-    - renewal_gw_after_dhcp_outage_for_assumed_var1:
-        feature: ipv4
     - dhcp4_outages_in_various_situation:
         feature: ipv4
         timeout: 20m
@@ -1172,7 +1154,7 @@ testmapper:
         feature: ipv4
     - ipv4_external_addresses_no_double_routes:
         feature: ipv4
-    - ipv4_dhcp_vendor_class_ifcfg:
+    - ipv4_dhcp_vendor_class_keyfile:
         feature: ipv4
     - ipv4_spurious_leftover_route:
         feature: ipv4
@@ -1748,8 +1730,6 @@ testmapper:
         feature: general
     - ctc_device_recognition:
         feature: general
-    #- connect_to_slow_router:
-    #    feature: general
     - nmcli_general_wait_for_carrier_on_new_device_request:
         feature: general
         tags: gate
@@ -1767,7 +1747,7 @@ testmapper:
     - nmcli_general_set_device_back_to_managed:
         feature: general
         tags: gate
-    - nmcli_general_ifcfg_tailing_whitespace:
+    - nmcli_general_keyfile_tailing_whitespace:
         feature: general
     - nmcli_general_keep_slave_device_unmanaged:
         feature: general
@@ -1790,7 +1770,7 @@ testmapper:
         feature: general
     - no_assumed_wired_connections_var2:
         feature: general
-    - ifcfg_respect_externally_set_mtu:
+    - keyfile_respect_externally_set_mtu:
         feature: general
     - wpa_supplicant_not_started:
         feature: general
@@ -1934,11 +1914,7 @@ testmapper:
         feature: general
     - ifup_ifdown_scripts:
         feature: general
-    - ifup_ifdown_scripts_new_conn_from_ifcfg:
-        feature: general
     - ifup_ifdown_keyfile:
-        feature: general
-    - ifup_ifdown_keyfile_new_conn_from_ifcfg:
         feature: general
     - resolv_conf_search_limit:
         feature: general
@@ -2277,9 +2253,9 @@ testmapper:
         feature: connection
     #- connection_autoconnect_warning:
     #    feature: connection
-    - ifcfg_parse_options_with_comment:
+    - keyfile_parse_options_with_comment:
         feature: connection
-    - ifcfg_compliant_with_kickstart:
+    - keyfile_compliant_with_kickstart:
         feature: connection
     - manual_connection_with_both_ips:
         feature: connection
@@ -3426,7 +3402,7 @@ testmapper:
         feature: infiniband
     - inf_mtu:
         feature: infiniband
-    - inf_ifcfg_pkey_via_single_digit:
+    - inf_keyfile_pkey_via_single_digit:
         feature: infiniband
     - inf_reload:
         feature: infiniband

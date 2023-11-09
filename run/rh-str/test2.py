@@ -105,8 +105,6 @@ tests = [
     "dhcp-timeout",
     "dhcp-timeout_infinity",
     "timeout_default_in_cfg",
-    "renewal_gw_after_dhcp_outage_for_assumed_var0",
-    "renewal_gw_after_dhcp_outage_for_assumed_var1",
     "manual_routes_preserved_when_never-default_yes",
     "dhcp4_outages_in_various_situation",
     "manual_routes_removed_when_never-default_no",
