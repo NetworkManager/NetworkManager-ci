@@ -293,22 +293,28 @@ Feature: nmcli: inf
 
     @rhbz2209164
     @ver/rhel/8+=1.40.16.3
-    @inf_ifcfg_pkey_via_single_digit
-    Scenario: nmcli - inf - ifcfg - single digit pkey
+    @inf_keyfile_pkey_via_single_digit
+    Scenario: nmcli - inf - keyfile - single digit pkey
     * Add "infiniband" connection named "inf" for device "inf_ib0"
     * Cleanup connection "inf_ib0.8006"
-    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-inf_ib0.8006"
+    * Create keyfile "/etc/NetworkManager/system-connections/inf_ib0.8006.nmconnection"
       """
-      DEVICE=inf_ib0.8006
-      PHYSDEV=inf_ib0
-      PKEY=yes
-      PKEY_ID=6
-      TYPE=InfiniBand
-      ONBOOT=no
-      BOOTPROTO=dhcp
-      IPV4_FAILURE_FATAL=yes
-      IPV6INIT=yes
-      NAME=inf_ib0.8006
+      [ethernet]
+      interface-name=inf_ib0.8006
+      type=infiniband
+      autoconnect=no
+      id=inf_ib0.8006
+
+      [ipv4]
+      method=dhcp
+      may-fail=no
+
+      [ipv6]
+      method=auto
+
+      [infiniband]
+      parent=inf_ib0
+      p-key=2
       """
     * Reload connections
     * Bring "up" connection "inf"
