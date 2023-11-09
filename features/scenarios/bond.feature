@@ -26,26 +26,6 @@
             """
 
 
-    @rhelver-=8 @fedoraver-=31
-    @plugin_default
-    @bond_config_file
-    Scenario: nmcli - bond - check ifcfg config
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          autoconnect no mode active-backup
-          """
-    * Check ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-bond0" has options
-            """
-            BONDING_OPTS=mode=active-backup
-            TYPE=Bond
-            BONDING_MASTER=yes
-            DEFROUTE=yes
-            NAME=bond0
-            DEVICE=nm-bond
-            ONBOOT=no
-            """
-
-
     @bond_add_default_bond
     Scenario: nmcli - bond - add default bond
      * Cleanup connection "bond0" and device "nm-bond"
@@ -115,7 +95,6 @@
 
     @rhbz1368761
     @ver+=1.4.0
-    @ifcfg-rh
     @nmcli_bond_manual_ipv4
     Scenario: nmcli - bond - remove BOOTPROTO dhcp for enslaved ethernet
     * Add "ethernet" connection named "bond0.0" for device "eth1" with options
@@ -126,12 +105,13 @@
           """
           autoconnect no mode active-backup
           ip4 172.16.1.1/24
+          ipv6.method disable
           """
     * Modify connection "bond0.0" changing options "connection.slave-type bond connection.master nm-bond connection.autoconnect yes"
     * Bring "up" connection "bond0"
     * Bring "up" connection "bond0.0"
-    Then "BOOTPROTO=dhcp" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
-     And "BOOTPROTO=dhcp" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0"
+    Then "method=auto" is not visible with command "cat /etc/NetworkManager/system-connections/bond0.0.nmconnection"
+     And "method=auto" is not visible with command "cat /etc/NetworkManager/system-connections/bond0.nmconnection"
 
 
     @ver+=1.33 @ver-=1.39.6
@@ -490,62 +470,9 @@
     Then Check slave "eth1" in bond "nm-bond" in proc
 
 
-    @rhbz1369008
-    @ver+=1.4.0
-    @ifcfg-rh
-    @bond_ifcfg_master_as_device
-    Scenario: ifcfg - bond - slave has master as device
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          ip4 172.16.1.1/24
-          """
-    * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-    Then Check bond "nm-bond" link state is "up"
-     And Check slave "eth1" in bond "nm-bond" in proc
-     And "MASTER=nm-bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
-
-
-    @rhbz1434555
-    @ver+=1.8.0
-    @restart_if_needed
-    @bond_ifcfg_master_called_ethernet
-    Scenario: ifcfg - bond - master with Ethernet type
-    * Append "DEVICE=nm-bond" to ifcfg file "bond0"
-    * Append "NAME=bond0" to ifcfg file "bond0"
-    * Append "TYPE=Ethernet" to ifcfg file "bond0"
-    * Append "BONDING_OPTS='miimon=100 mode=4 lacp_rate=1'" to ifcfg file "bond0"
-    * Append "BONDING_MASTER=yes" to ifcfg file "bond0"
-    * Append "NM_CONTROLLED=yes" to ifcfg file "bond0"
-    * Append "BOOTPROTO=none" to ifcfg file "bond0"
-    * Append "USERCTL=no" to ifcfg file "bond0"
-    * Execute "nmcli con reload"
-    * Cleanup device "nm-bond"
-    * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-    * Restart NM
-    Then Check bond "nm-bond" link state is "up"
-     And Check slave "eth1" in bond "nm-bond" in proc
-     And "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "50" seconds
-     And "eth1:connected:bond0.0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-
-
-    @rhbz1369008
-    @ver+=1.4.0
-    @ifcfg-rh
-    @bond_ifcfg_master_as_device_via_con_name
-    Scenario: ifcfg - bond - slave has master as device via conname
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          ip4 172.16.1.1/24
-          """
-    * Add slave connection for master "bond0" on device "eth1" named "bond0.0"
-    Then Check bond "nm-bond" link state is "up"
-     And Check slave "eth1" in bond "nm-bond" in proc
-     And "MASTER=nm-bond" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond0.0"
-
-
      @ver+=1.8.0
      @bond_keyfile_master
-     Scenario: ifcfg - bond - master with Ethernet type
+     Scenario: keyfile - bond - master with Ethernet type
      * Create keyfile "/etc/NetworkManager/system-connections/bond0.nmconnection"
        """
        [connection]
@@ -1820,46 +1747,21 @@
 
 
     @rhbz1171009
-    @ifcfg-rh
-    @bond_mode_by_number_in_ifcfg
-    Scenario: NM - bond - ifcfg - mode set by number
+    @bond_mode_by_number_in_keyfile
+    Scenario: NM - bond - keyfile - mode set by number
      * Add "bond" connection named "bond0" for device "nm-bond" with options
            """
            ip4 172.16.1.1/24
            """
      * Add "ethernet" connection named "bond0.0" for device "eth4" with options "master nm-bond"
      * Add slave connection for master "nm-bond" on device "eth5" named "bond0.1"
-     * Replace "BONDING_OPTS=mode=balance-rr" with "BONDING_OPTS=mode=5" in file "/etc/sysconfig/network-scripts/ifcfg-bond0"
+     * Replace "mode=balance-rr" with "mode=5" in file "/etc/NetworkManager/system-connections/bond0.nmconnection"
      * Reload connections
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Bring "up" connection "bond0.1"
      Then "Bonding Mode: transmit load balancing" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
-
-
-    @rhbz1299103 @rhbz1348198
-    @ver-=1.24
-    @bond_set_active_backup_options
-    Scenario: nmcli - bond - set active backup options
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           autoconnect no
-           ip4 172.16.1.1/24
-           -- connection.autoconnect-slaves 1
-           bond.options mode=active-backup,active_slave=eth4,num_grat_arp=3,num_unsol_na=3
-           """
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
-     * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     # sort the BONDING_OPTS to prevent failures in the future
-     * Note the output of "grep BONDING_OPTS= /etc/sysconfig/network-scripts/ifcfg-bond0 | grep -o '".*"' | sed 's/"//g;s/ /\n/g' | sort | tr '\n' ' '" as value "ifcfg_opts"
-     * Note the output of "echo 'active_slave=eth4 mode=active-backup num_grat_arp=3 num_unsol_na=3 '" as value "desired_opts"
-     Then Check noted values "ifcfg_opts" and "desired_opts" are the same
-      #And "Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
-      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_grat_arp"
-      And "3" is visible with command "cat /sys/class/net/nm-bond/bonding/num_unsol_na"
 
 
     @rhbz1299103 @rhbz1348198 @rhbz1858326
@@ -3028,7 +2930,7 @@
       match-device=interface-name:*
       ignore-carrier=no
       [main]
-      plugins=keyfile,ifcfg-rh
+      plugins=keyfile
       """
     * Prepare simulated test "testXa" device without DHCP
     * Prepare simulated test "testXb" device without DHCP
