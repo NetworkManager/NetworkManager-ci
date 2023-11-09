@@ -17,9 +17,9 @@ Feature: nmcli - ethernet
     Then "ipv4.method:\s+auto" is visible with command "nmcli  con show testeth0  |grep method"
 
 
-    @ifcfg-rh
     @ethernet_create_with_editor
     Scenario: nmcli - ethernet - create with editor
+    * Cleanup connection "ethernet0"
     * Open editor for a type "ethernet"
     * Set a property named "ipv4.method" to "auto" in editor
     * Set a property named "connection.interface-name" to "eth1" in editor
@@ -28,14 +28,14 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Note the "connection.id" property from editor print output
     * Quit editor
-     Then Check ifcfg-name file created with noted connection name
+    Then noted value is visible with command "nmcli con show"
 
 
-    @ifcfg-rh
+
     @ethernet_create_default_connection
     Scenario: nmcli - ethernet - create default connection
     * Add "ethernet" connection named "ethernet" for device "eth1"
-    Then Check ifcfg-name file created for connection "ethernet"
+    Then "/etc/NetworkManager/system-connections/ethernet.nmconnection" is file in "5" seconds
 
 
     @ethernet_create_ifname_generic_connection
@@ -200,36 +200,30 @@ Feature: nmcli - ethernet
 
     @rhbz1487477
     @ver+=1.11.4
-    @ifcfg-rh
     @ethernet_duplex_speed_auto_negotiation
     Scenario: nmcli - ethernet - duplex speed and auto-negotiation
     * Add "ethernet" connection named "ethernet" for device "eth1"
     * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
-    When "ETHTOOL_OPTS="autoneg off speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
+      """
+      ethernet.duplex=full
+      ethernet.speed=10
+      """
     * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
-    When "ETHTOOL_OPTS="autoneg on speed 10 duplex full"" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
+      """
+      ethernet.auto-negotiate=true
+      ethernet.duplex=full
+      ethernet.speed=10
+      """
     * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
-    Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-
-
-    @ver-=1.20.0
-    @mtu @ifcfg-rh
-    @ethernet_set_mtu
-    Scenario: nmcli - ethernet - set mtu
-    * Add "ethernet" connection named "ethernet" for device "eth1" with options "autoconnect no"
-    * Open editor for connection "ethernet"
-    * Set a property named "802-3-ethernet.mtu" to "64" in editor
-    * Save in editor
-    * Check value saved message showed in editor
-    * Quit editor
-    * Bring "up" connection "ethernet"
-    Then "MTU=64" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    Then "inet 192." is visible with command "ip addr show eth1"
+    Then "auto-negotiate=true" is not visible with command "cat /etc/NetworkManager/system-connections/ethernet.nmconnection"
+    Then "speed=10" is not visible with command "cat /etc/NetworkManager/system-connections/ethernet.nmconnection"
 
 
     @rhbz1775136
     @ver+=1.20.0
-    @mtu @ifcfg-rh
+    @mtu
     @ethernet_set_mtu
     Scenario: nmcli - ethernet - set mtu
     * Add "ethernet" connection named "ethernet" for device "eth1" with options
@@ -238,11 +232,17 @@ Feature: nmcli - ethernet
           802-3-ethernet.mtu 666
           """
     * Bring "up" connection "ethernet"
-    When "MTU=666" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
+      """
+      ethernet.mtu=666
+      """
     When "666" is visible with command "ip a s eth1"
     * Modify connection "ethernet" changing options "802-3-ethernet.mtu 9000"
     * Bring "up" connection "ethernet"
-    When "MTU=9000" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
+    When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
+      """
+      ethernet.mtu=9000
+      """
     When "9000" is visible with command "ip a s eth1"
 
 
@@ -356,11 +356,14 @@ Feature: nmcli - ethernet
 
 
     @rhbz1141417
-    @ifcfg-rh
     @nmcli_ethernet_wol_from_file
     Scenario: nmcli - ethernet - wake-on-lan from file
     * Add "ethernet" connection named "ethernet" for device "em1"
-    * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
+    * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
+      """
+      [ethernet]
+      wake-on-lan=g
+      """
     * Reload connections
     * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em1"
@@ -369,12 +372,15 @@ Feature: nmcli - ethernet
 
     @rhbz1141417 @rhbz2016348
     @ver+=1.36.0
-    @ifcfg-rh
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
     * Add "ethernet" connection named "ethernet" for device "em1"
     * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
-    * Append "ETHTOOL_OPTS=\"wol g\"" to ifcfg file "ethernet"
+    * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
+      """
+      [ethernet]
+      wake-on-lan=g
+      """
     * Reload connections
     * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool em1"
@@ -958,7 +964,7 @@ Feature: nmcli - ethernet
 
     @rhbz1843360 @rhbz1841398 @rhbz1841397
     @ver+=1.25.2
-    @ifcfg-rh
+    @rhelver-=9 @fedoraver-=38 @ifcfg-rh
     @8021x_ca_path_with_ifcfg_plugin
     Scenario: nmcli - ethernet - check that CA path is saved with ifcfg-rh plugin
     * Add "ethernet" connection named "con_ethernet" with options
@@ -1333,31 +1339,7 @@ Feature: nmcli - ethernet
 
 
     @rhbz2134569
-    @ver+=1.40.4 @rhelver-=8 @fedoraver-=0
-    @prepare_patched_netdevsim
-    @ethtool_multiple_options_in_profile_file
-    Scenario: nmcli - ethernet - check if correct ethtool options are configured in ifcfg file
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
-          """
-          ipv4.method manual
-          ipv4.address 192.0.2.1/24
-          """
-    * Bring "up" connection "con_ethernet"
-    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
-    * Modify connection "con_ethernet" changing options "ethtool.pause-autoneg off"
-    * Bring "up" connection "con_ethernet" 
-    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
-    * Modify connection "con_ethernet" changing options "ethtool.ring-rx 512"
-    * Bring "up" connection "con_ethernet"
-    When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
-    Then Check ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_ethernet" has options
-          """
-          ETHTOOL_OPTS="-G eth11 rx 512 ; -A eth11 pause-autoneg off"
-          """
-
-
-    @rhbz2134569
-    @ver+=1.40.4 @rhelver+=9
+    @ver+=1.40.4 @rhelver+=8
     @prepare_patched_netdevsim
     @ethtool_multiple_options_in_profile_file
     Scenario: nmcli - ethernet - check if correct ethtool options are configured in ifcfg file
