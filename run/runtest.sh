@@ -353,7 +353,10 @@ if [ "$RESULT" = "FAIL" -a ! -s "$NMTEST_REPORT" ]; then
     (
         echo -e "No report generated, dumping NM journal log\n\n"
         echo "<pre>"
-        journalctl -u NetworkManager --no-pager -o cat "$LOG_CURSOR" | \
+        journalctl _SYSTEMD_UNIT=NetworkManager.service + \
+                   SYSLOG_IDENTIFIER=runtest + \
+                   SYSLOG_IDENTIFIER=nmci \
+                   -no-pager -o cat "$LOG_CURSOR" | \
           sed 's/</\&lt;/g;s/>/\&gt;/g'
         echo "</pre>"
     ) > "$NMTEST_REPORT"
