@@ -603,6 +603,13 @@ when formatter is not using pseudo steps.
 * **Parameters:**
   **status** (*str*) – status of the before scenario
 
+### nmci.embed.embed_avcs(msg)
+
+embed AVCs found so far on the system or from the previous instance of running ausearch
+
+* **Parameters:**
+  **msg** (*str*) – custom part of the embed message
+
 ### nmci.embed.embed_data(caption, data, mime_type='text/plain', fail_only=False, combine_tag=None, embed_context=None)
 
 Embed General Data

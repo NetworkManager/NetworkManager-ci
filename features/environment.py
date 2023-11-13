@@ -120,6 +120,11 @@ def _before_scenario(context, scenario):
     if len(failed_services) > 0:
         nmci.process.systemctl("reset-failed")
 
+    if os.path.exists("/tmp/nmci-ausearch-checkpoint-file"):
+        nmci.embed.embed_avcs("after the previous scenario")
+    else:
+        nmci.embed.embed_avcs("on this system so far")
+
     if "dump_status_verbose" in scenario.tags:
         nmci.util.dump_status_verbose = True
 
@@ -348,13 +353,6 @@ def _after_scenario(context, scenario):
 
     nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
-    ausearch_ts = time.strftime("%x %X", time.localtime(context.time_begin_scen))
-    avc_log = nmci.process.run_stdout(
-        f"ausearch -m avc -ts {ausearch_ts} --format interpret",
-        ignore_stderr=True,
-        ignore_returncode=True,
-    )
-
     scenario_fail = (
         scenario.status == "failed" or context.crashed_step or len(excepts) > 0
     )
@@ -396,26 +394,7 @@ def _after_scenario(context, scenario):
             except Exception as e:
                 excepts.append(e)
 
-    if len(avc_log) > 0:
-        nmci.embed.embed_data("SELinux AVCs", avc_log)
-
-        if nmci.util.is_verbose() and shutil.which("sealert"):
-            avc_journal = nmci.misc.journal_show(
-                cursor=context.log_cursor_before_tags,
-                syslog_identifier="setroubleshoot",
-            )
-            sealert_commands = re.findall(r"sealert -l [0-9a-f-]+", avc_journal)
-            sealert_msgs = []
-            for cmd in sealert_commands:
-                sealert_msgs.append(
-                    cmd
-                    + "\n"
-                    + nmci.process.run_stdout(
-                        cmd, embed_combine_tag=nmci.embed.NO_EMBED
-                    )
-                )
-
-            nmci.embed.embed_data("sealerts of AVCs", "\n\n".join(sealert_msgs))
+    nmci.embed.embed_avcs("during this scenario")
 
     # collect failed services' logs and reset them
     failed_services = nmci.misc.systemd_list_units(states=["failed"])

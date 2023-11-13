@@ -1,6 +1,7 @@
 import collections
 import os
 import traceback
+import shutil
 
 import xml.etree.ElementTree as ET
 
@@ -593,6 +594,44 @@ class _Embed:
 
         self.embed_link(caption, [(data, fname)], fail_only=fail_only)
         return True
+
+    def embed_avcs(self, msg):
+        """
+        embed AVCs found so far on the system or from the previous instance of running ausearch
+
+        :param msg: custom part of the embed message
+        :type msg: str
+        """
+        get_avcs = nmci.process.run(
+            "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
+            ignore_stderr=True,
+            ignore_returncode=True,
+        )
+        if get_avcs.returncode == 12:
+            avc_log = nmci.process.run_stdout(
+                "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
+                ignore_stderr=True,
+                ignore_returncode=True,
+            )
+        else:
+            avc_log = get_avcs.stdout
+        if len(avc_log) > 0:
+            nmci.embed.embed_data("SELinux AVCs " + msg, avc_log)
+
+            if nmci.util.is_verbose() and shutil.which("sealert"):
+                avcs_file = f"{nmci.util.tmp_dir()}/audit-avcs.log"
+                nmci.util.file_set_content(avcs_file, avc_log)
+                # FIXME: this approach doesn't capture the same messages that
+                # we can get from the journal. However it *can* work sometimes
+                # and I (David) didn't figured out yet how to limit journal for
+                # between-scenario AVCs
+                sealert_analysis = nmci.process.run_stdout(
+                    f"sealert -a {avcs_file}", embed_combine_tag=nmci.embed.NO_EMBED
+                )
+                nmci.embed.embed_data(
+                    f"sealert analysis of AVCS {msg}", sealert_analysis
+                )
+                nmci.util.file_remove(avcs_file)
 
 
 _module = _Embed()
