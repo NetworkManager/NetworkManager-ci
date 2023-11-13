@@ -356,7 +356,7 @@ if [ "$RESULT" = "FAIL" -a ! -s "$NMTEST_REPORT" ]; then
         journalctl _SYSTEMD_UNIT=NetworkManager.service + \
                    SYSLOG_IDENTIFIER=runtest + \
                    SYSLOG_IDENTIFIER=nmci \
-                   -no-pager -o cat "$LOG_CURSOR" | \
+                   --no-pager -o cat "$LOG_CURSOR" | \
           sed 's/</\&lt;/g;s/>/\&gt;/g'
         echo "</pre>"
     ) > "$NMTEST_REPORT"
