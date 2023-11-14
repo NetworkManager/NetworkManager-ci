@@ -101,18 +101,37 @@ else:
     shutil.copy(
         "/".join((source_dir, "publish_behave_logs.service")), "/etc/systemd/system/"
     )
+os.symlink(
+    "/etc/systemd/system/publish_behave_logs.service",
+    "/etc/systemd/system/multi-user.target.wants/publish_behave_logs.service",
+)
+os.symlink(
+    "/usr/lib/systemd/system/httpd.service",
+    "/etc/systemd/system/multi-user.target.wants/httpd.service",
+)
 print("service files installed")
 
 # load and restart systemd services
-dbus_system_bus = dbus.SystemBus()
-dbus_systemd = dbus_system_bus.get_object(
-    "org.freedesktop.systemd1", "/org/freedesktop/systemd1"
-)
-dbus_systemd_manager = dbus.Interface(dbus_systemd, "org.freedesktop.systemd1.Manager")
+have_dbus = False
+try:
+    dbus_system_bus = dbus.SystemBus()
+    have_dbus = True
+except dbus.exceptions.DBusException:
+    pass
 
-dbus_systemd_manager.EnableUnitFiles(["httpd.service"], False, True)
-dbus_systemd_manager.Reload()
+if have_dbus:
+    dbus_systemd = dbus_system_bus.get_object(
+        "org.freedesktop.systemd1", "/org/freedesktop/systemd1"
+    )
+    dbus_systemd_manager = dbus.Interface(
+        dbus_systemd, "org.freedesktop.systemd1.Manager"
+    )
 
-dbus_systemd_manager.RestartUnit("publish_behave_logs.service", "replace")
-dbus_systemd_manager.RestartUnit("httpd.service", "replace")
+    dbus_systemd_manager.EnableUnitFiles(
+        ["httpd.service", "publish_behave_logs.service"], False, True
+    )
+    dbus_systemd_manager.Reload()
+
+    dbus_systemd_manager.RestartUnit("publish_behave_logs.service", "replace")
+    dbus_systemd_manager.RestartUnit("httpd.service", "replace")
 print("services enabled and started, all should be set now")
