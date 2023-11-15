@@ -64,8 +64,7 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: xdiablo1-vm1-tpb-c-01.tpb.lab.eng.brq.redhat.com
-      NetworkManager-infiniband:
+          NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-dev-01.rdma.lab.eng.rdu2.redhat.com
             # hostname: rdma-qe-06.lab.bos.redhat.com
@@ -3285,6 +3284,8 @@ testmapper:
     - nmcli_wifi_wpa3_tls:
         feature: wifi
     - nmcli_wifi_wpa3_ttls_mschapv2:
+        feature: wifi
+    - nmcli_wifi_6e_wpa3_tls:
         feature: wifi
     - nmcli_wifi_infrastructure_mode_setting:
         feature: wifi

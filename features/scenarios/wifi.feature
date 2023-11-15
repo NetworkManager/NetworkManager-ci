@@ -517,3 +517,24 @@ Feature: nmcli - wifi
     * Wait for "10" seconds
     Then Check "NM_802_11_DEVICE_CAP_FREQ_2GHZ" band cap flag set if device supported
     Then Check "NM_802_11_DEVICE_CAP_FREQ_5GHZ" band cap flag set if device supported
+
+
+    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @nmcli_wifi_6e_wpa3_tls
+    Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile over 6E
+    * Add "wifi" connection named "qe-wpa3-6e-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa3-6e-enterprise
+          802-11-wireless-security.key-mgmt wpa-eap-suite-b-192
+          802-1x.eap tls
+          802-1x.identity "Bill Smith"
+          802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
+          802-1x.client-cert file:///tmp/certs/client.pem
+          802-1x.private-key-password 12345testing
+          802-1x.private-key file:///tmp/certs/client.pem
+          """
+    * Bring "up" connection "qe-wpa3-6e-enterprise"
+    Then "qe-wpa3-6e-enterprise" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa3-6e-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+
