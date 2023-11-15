@@ -152,6 +152,14 @@ configure_networking () {
         fi
 
         if [ $wlan -eq 1 ]; then
+            # set regulatory domain to CZ
+            # feel free to add more modules
+            for m in {mt7921e,mt76_connac_lib,mt76,mac80211,cfg80211}; do modprobe -r $m; done
+            sleep 1
+            iw reg set CZ
+            for m in {mt7921e,mt76_connac_lib,mt76,mac80211,cfg80211}; do modprobe $m; done
+            systemctl restart wpa_supplicant
+
             # obtain valid certificates
             mkdir /tmp/certs
             wget http://tools.lab.eng.brq2.redhat.com:8080/client.pem -O /tmp/certs/client.pem
