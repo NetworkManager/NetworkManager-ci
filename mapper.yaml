@@ -483,6 +483,8 @@ testmapper:
         feature: bridge
     - bridge_keep_unmanaged_device_on_reapply:
         feature: bridge
+    - bridge_port_not_unblock_after_connection_update:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
