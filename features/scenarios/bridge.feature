@@ -1219,3 +1219,19 @@ Feature: nmcli - bridge
     And "yes" is visible with command "nmcli -g bridge.vlan-filtering connection show br0"
     And "1600" is visible with command "nmcli -g 802-3-ethernet.mtu connection show br0"
 
+
+    @RHEL-14144
+    @ver+=1.45.7
+    @bridge_port_not_unblock_after_connection_update
+    Scenario: nmcli - bridge - keep blocked when modifying the bridge connection
+    * Add "bridge" connection named "br0_con" for device "br0"
+    * Add "ethernet" connection named "con_eth4" for device "eth4" with options
+        """
+        master br0
+        """
+    * Bring "down" connection "br0_con"
+    Then "br0_con" is not visible with command "nmcli con show --active" in "3" seconds
+     And "con_eth4" is not visible with command "nmcli con show --active"
+    * Modify connection "br0_con" changing options "ipv4.route-metric 200"
+    Then "br0_con" is not visible with command "nmcli con show --active" in "3" seconds
+     And "con_eth4" is not visible with command "nmcli con show --active"
