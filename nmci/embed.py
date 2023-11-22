@@ -602,6 +602,8 @@ class _Embed:
         :param msg: custom part of the embed message
         :type msg: str
         """
+        if not shutil.which("ausearch"):
+            return False
         get_avcs = nmci.process.run(
             "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
             ignore_stderr=True,
