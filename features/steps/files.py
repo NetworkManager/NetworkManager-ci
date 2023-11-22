@@ -5,6 +5,7 @@ import time
 import re
 import configparser
 from behave import step
+import shutil
 
 import commands
 import nmci
@@ -161,8 +162,9 @@ def check_ifcfg_exists_given_device(context, con_name):
 
 @step('Write dispatcher "{path}" file with params "{params}"')
 @step('Write dispatcher "{path}" file with params')
+@step('Write dispatcher "{path}" file copied from "{source}"')
 @step('Write dispatcher "{path}" file')
-def write_dispatcher_file(context, path, params=None):
+def write_dispatcher_file(context, path, params=None, source=None):
     if not path.startswith("/"):
         path = "/etc/NetworkManager/dispatcher.d/%s" % path
     dir_name = os.path.dirname(path)
@@ -175,16 +177,19 @@ def write_dispatcher_file(context, path, params=None):
         "/tmp/dispatcher.txt",
         priority=nmci.Cleanup.PRIORITY_FILE + 1,
     )
-    nmci.util.file_set_content("/tmp/dispatcher.txt", "")
 
-    nmci.cleanup.add_file(path)
+    if source is None:
+        nmci.util.file_set_content("/tmp/dispatcher.txt", "")
+        with open(path, "w") as f:
+            f.write("#!/bin/bash\n")
+            if params:
+                f.write(params)
+            f.write("\necho $2 >> /tmp/dispatcher.txt\n")
+    else:
+        shutil.copyfile(f"{nmci.util.BASE_DIR}/contrib/dispatcher/{source}", path)
 
-    with open(path, "w") as f:
-        f.write("#!/bin/bash\n")
-        if params:
-            f.write(params)
-        f.write("\necho $2 >> /tmp/dispatcher.txt\n")
     nmci.process.exec.chmod("+x", path)
+    nmci.cleanup.add_file(path)
 
 
 @step("Reset /etc/hosts")

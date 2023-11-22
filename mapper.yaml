@@ -2086,6 +2086,12 @@ testmapper:
         feature: dispatcher
     - dispatcher_track_dns_changes:
         feature: dispatcher
+    - dispatcher_device_handler_dummy:
+        feature: dispatcher
+    - dispatcher_device_handler_dummy_in_bond:
+        feature: dispatcher
+    - dispatcher_device_handler_geneve:
+        feature: dispatcher
     - add_adsl_connection_novice_mode:
         feature: adsl
     - add_adsl_connection:

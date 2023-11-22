@@ -201,6 +201,104 @@ Feature: NM: dispatcher
     Then "nameserver 192.168.99.1" is visible with command "cat /tmp/nmci-no-stub-resolv.conf"
 
 
+    @RHEL-1435 @RHEL-1567
+    @ver+=1.45.7
+    @disp
+    @dispatcher_device_handler_dummy
+    Scenario: generic connection with device-handler to create a dummy interface
+    * Write dispatcher "device/test-dummy" file copied from "dummy"
+    * Add "generic" connection named "generic1" for device "dummy123" with options
+          """
+          generic.device-handler test-dummy
+          ipv4.method manual
+          ipv4.address 172.25.88.1/24
+          """
+    Then "generic1" is visible with command "nmcli -f name connection show --active" in "5" seconds
+    And "100" is visible with command "nmcli -t -f general.state device show dummy123"
+    And "dummy123" is visible with command "ip link show"
+    And "172.25.88.1/24" is visible with command "ip addr show dev dummy123"
+
+    * Bring "down" connection "generic1"
+    Then "generic1" is not visible with command "nmcli -f name connection show --active"
+    And "dummy123" is not visible with command "ip link show"
+
+    * Bring "up" connection "generic1"
+    Then "generic1" is visible with command "nmcli -f name connection show --active"
+    * Bring "up" connection "generic1"
+    Then "generic1" is visible with command "nmcli -f name connection show --active"
+
+    * Restart NM
+    Then "generic1" is visible with command "nmcli -f name connection show --active"
+    And "dummy123" is visible with command "ip link show"
+
+
+    @RHEL-1435 @RHEL-1567
+    @ver+=1.45.7
+    @disp
+    @dispatcher_device_handler_dummy_in_bond
+    Scenario: generic connection with device-handler to create a dummy interface in a bond
+    * Write dispatcher "device/test-dummy" file copied from "dummy"
+    * Add "bond" connection named "bond1" for device "bond1" with options
+          """
+          ipv4.method manual
+          ipv4.address 172.25.88.1/24
+	  """
+    * Add "generic" connection named "generic1" for device "dummy123" with options
+          """
+          generic.device-handler test-dummy
+          connection.master bond1
+          connection.slave-type bond
+          """
+    Then "generic1" is visible with command "nmcli -f name connection show --active" in "5" seconds
+    And "bond1" is visible with command "nmcli -f name connection show --active"
+    And "100" is visible with command "nmcli -t -f general.state device show dummy123"
+    And "100" is visible with command "nmcli -t -f general.state device show bond1"
+    And "dummy123: .* master" is visible with command "ip link show"
+
+    * Bring "down" connection "generic1"
+    Then "generic1" is not visible with command "nmcli -f name connection show --active"
+    And "dummy123" is not visible with command "ip link show"
+
+
+    @RHEL-1435 @RHEL-1567
+    @ver+=1.45.90
+    @disp @keyfile
+    @dispatcher_device_handler_geneve
+    Scenario: generic connection with device-handler to create a geneve interface
+    * Write dispatcher "device/test-geneve" file copied from "geneve"
+    * Add "generic" connection named "generic-geneve1" for device "geneve1" with options
+          """
+          connection.autoconnect no
+          generic.device-handler test-geneve
+          ipv4.method manual
+          ipv4.address 172.25.88.1/24
+          """
+
+    # nmcli doesn't support the user setting yet; modify the connection file directly
+    * Execute "echo '[user]' >> /etc/NetworkManager/system-connections/generic-geneve1.nmconnection"
+    * Execute "echo 'geneve.vni=1234' >> /etc/NetworkManager/system-connections/generic-geneve1.nmconnection"
+    * Execute "echo 'geneve.remote=192.0.2.1' >> /etc/NetworkManager/system-connections/generic-geneve1.nmconnection"
+    * Execute "nmcli connection reload"
+
+    * Bring "up" connection "generic-geneve1"
+    Then "generic-geneve1" is visible with command "nmcli -f name connection show --active" in "5" seconds
+    And "100" is visible with command "nmcli -t -f general.state device show geneve1"
+    And "geneve\s+id\s+1234\s+remote\s+192.0.2.1" is visible with command "ip -d link show dev geneve1"
+    And "172.25.88.1/24" is visible with command "ip addr show dev geneve1"
+    * Bring "up" connection "generic-geneve1"
+    Then "generic-geneve1" is visible with command "nmcli -f name connection show --active" in "5" seconds
+
+    * Restart NM
+    Then "generic-geneve1" is visible with command "nmcli -f name connection show --active"
+    And "100" is visible with command "nmcli -t -f general.state device show geneve1"
+    And "geneve\s+id\s+1234\s+remote\s+192.0.2.1" is visible with command "ip -d link show dev geneve1"
+    And "172.25.88.1/24" is visible with command "ip addr show dev geneve1"
+
+    * Bring "down" connection "generic-geneve1"
+    Then "generic-geneve1" is not visible with command "nmcli -f name connection show --active"
+    And "geneve1" is not visible with command "ip link show"
+
+
     @RHEL-1671 @RHEL-10195
     @ver/rhel/8/6+=1.36.0.17
     @ver/rhel/8/8+=1.40.16.6

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+ifname=$1
+action=$2
+
+if [ "$action" = device-add ]; then
+    if [ -d /sys/class/net/"$ifname" ]; then
+        # already exists, check the type
+        if [ -n "$(ip link show "$ifname" type dummy)" ]; then
+            echo "IFINDEX=$(cat /sys/class/net/"$ifname"/ifindex)"
+            exit 0
+        fi
+        echo "ERROR=The link already exists with wrong type"
+        exit 1
+    fi
+    if ! err=$(ip link add "$ifname" type dummy); then
+        echo "ERROR=Failed to create the interface: $err"
+        exit 1
+    fi
+    echo "IFINDEX=$(cat /sys/class/net/"$ifname"/ifindex)"
+    exit 0
+elif [ "$action" = device-delete ]; then
+    exit 0
+fi
+
+exit 1
