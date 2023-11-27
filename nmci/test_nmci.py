@@ -828,11 +828,12 @@ def test_feature_tags():
         return False
 
     def check_jira(tag):
-        if tag.startswith("RHEL-"):
-            assert re.fullmatch(r"RHEL-\d+", tag)
-            return True
-        else:
-            return False
+        prefixes = ["RHEL", "RHELDOCS"]
+        for prefix in prefixes:
+            if tag.startswith(f"{prefix}-"):
+                assert re.fullmatch(rf"{prefix}-\d+", tag)
+                return True
+        return False
 
     def check_registry(tag):
         return tag in tags.tag_registry

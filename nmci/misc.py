@@ -1029,7 +1029,7 @@ class _Misc:
                 tag.set_link(
                     "https://bugzilla.redhat.com/" + tag_name.replace("rhbz", "")
                 )
-            elif re.fullmatch("RHEL-\d+", tag_name):
+            elif re.fullmatch(r"(RHEL|RHELDOCS)-\d+", tag_name):
                 tag.set_link("https://issues.redhat.com/browse/" + tag_name)
             elif tag_name in tags.tag_registry and git_url:
                 lineno = tags.tag_registry[tag_name].lineno
