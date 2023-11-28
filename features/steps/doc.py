@@ -252,16 +252,13 @@ chapters = {
     # Monitoring and managing system status and performance guide
     "Increasing the transmit queue length of a NIC to reduce the number of transmit errors": "increasing-the-transmit-queue-length-of-a-nic-to-reduce-the-number-of-transmit-errors_tuning-network-adapter-settings",
     "Using different DNS servers for different domains": "using-different-dns-servers-for-different-domains_configuring-and-managing-networking",
+    # Configuring firewalls and packet filters
 }
 
 guides = {
     "Configuring and managing networking": "configuring_and_managing_networking",
     "Monitoring and managing system status and performance": "monitoring_and_managing_system_status_and_performance",
-}
-
-guides = {
-    "Configuring and managing networking": "configuring_and_managing_networking",
-    "Monitoring and managing system status and performance": "monitoring_and_managing_system_status_and_performance",
+    "Configuring firewalls and packet filters": "configuring_firewalls_and_packet_filters",
 }
 
 
