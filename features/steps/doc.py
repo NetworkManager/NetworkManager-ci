@@ -253,6 +253,7 @@ chapters = {
     "Increasing the transmit queue length of a NIC to reduce the number of transmit errors": "increasing-the-transmit-queue-length-of-a-nic-to-reduce-the-number-of-transmit-errors_tuning-network-adapter-settings",
     "Using different DNS servers for different domains": "using-different-dns-servers-for-different-domains_configuring-and-managing-networking",
     # Configuring firewalls and packet filters
+    "Manually assigning a zone to a network connection in a connection profile file": "manually-assigning-a-zone-to-a-network-connection-in-a-connection-profile-file_working-with-firewalld-zones",
 }
 
 guides = {

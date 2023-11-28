@@ -609,3 +609,31 @@ Feature: nmcli - procedures in documentation
         """
     When Bring "up" connection "con_ethernet"
     Then "default qlen 2000" is visible with command "ip -s link show dummy0" in "5" seconds
+
+
+    @RHELDOCS-16954
+    @rhelver+=9.3
+    @keyfile @firewall
+    @doc_firewalld_zones_via_keyfile
+    Scenario: connection - zone of interface defined in keyfile
+    * Doc "Configuring firewalls and packet filters": "Manually assigning a zone to a network connection in a connection profile file"
+    * Add "ethernet" connection named "con_con" for device "eth5"
+    * Note the output of "nmcli -t -f NAME,FILENAME connection | sed -n 's/^con_con:// p'"
+    * In noted keyfile, section "connection", set "zone" key to "internal"
+    * Reload connections
+    When Execute "nmcli connection up con_con"
+    Then "internal" is visible with command "firewall-cmd --get-zone-of-interface eth5"
+
+
+    @RHELDOCS-16954
+    @rhelver+=9.3
+    @rhelver-10
+    @ifcfg-rh @firewall
+    @doc_firewalld_zones_via_ifcfg
+    Scenario: connection - zone of interface defined in ifcfg
+    * Doc "Configuring firewalls and packet filters": "Manually assigning a zone to a network connection in a connection profile file"
+    * Add "ethernet" connection named "con_con" for device "eth5"
+    * Append "ZONE=internal" to ifcfg file "con_con"
+    * Reload connections
+    When Execute "nmcli connection up con_con"
+    Then "internal" is visible with command "firewall-cmd --get-zone-of-interface eth5"
