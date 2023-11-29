@@ -42,7 +42,7 @@ test_setup() {
     sed -i 's/After=dracut-cmdline.service/After=dracut-cmdline.service\nAfter=dbus.service/' $DRACUT_NM_INITRD
   fi
 
-  cp contrib/dracut/conf/smart_sleep.py /usr/local/bin/smart_sleep
+  cp conf/smart_sleep.py /usr/local/bin/smart_sleep
   chmod +x /usr/local/bin/smart_sleep
 
   mkdir $TESTDIR
