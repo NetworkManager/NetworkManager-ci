@@ -36,6 +36,12 @@ test_setup() {
       chmod +x /etc/qemu-ifdown;
   }
 
+  # patch dracut NM module
+  DRACUT_NM_INITRD=/usr/lib/dracut/modules.d/35network-manager/nm-initrd.service
+  if ! grep -F "After=dbus.service" $DRACUT_NM_INITRD; then
+    sed -i 's/After=dracut-cmdline.service/After=dracut-cmdline.service\nAfter=dbus.service/' $DRACUT_NM_INITRD
+  fi
+
   cp contrib/dracut/conf/smart_sleep.py /usr/local/bin/smart_sleep
   chmod +x /usr/local/bin/smart_sleep
 
