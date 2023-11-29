@@ -1784,7 +1784,6 @@ Feature: NM: dracut
     @ver+=1.27
     @ver-1.40
     @ver+=1.41.4
-    @may_fail
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_vlan_over_team_no_boot
@@ -1845,7 +1844,6 @@ Feature: NM: dracut
     @rhbz2092215
     @rhelver+=9.1 @fedoraver-=0
     @ver+=1.41.4
-    @may_fail
     @not_on_ppc64le @skip_in_centos
     @dracut @long
     @dracut_NM_vlan_over_team
