@@ -483,7 +483,13 @@ start_iscsi() {
   iscsi_loop3="$(losetup -j $TESTDIR/iscsidisk3.img)"
   iscsi_loop3=${iscsi_loop3%%:*}
   tgtd -p $TESTDIR/tgtd.pid
-  tgtadm --lld iscsi --mode target --op new --tid 1 --targetname iqn.2009-06.dracut:target0
+
+  # retry the first command
+  for i in {1..5}; do
+    tgtadm --lld iscsi --mode target --op new --tid 1 --targetname iqn.2009-06.dracut:target0 && break
+    sleep 2
+    false
+  done || return 1
   tgtadm --lld iscsi --mode target --op new --tid 2 --targetname iqn.2009-06.dracut:target1
   tgtadm --lld iscsi --mode target --op new --tid 3 --targetname iqn.2009-06.dracut:target2
   tgtadm --lld iscsi --mode logicalunit --op new --tid 1 --lun 1 -b $iscsi_loop1
