@@ -632,12 +632,15 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
     ), "wifi setup failed !!!"
 
     # wait for wifi rescan
-    rescan_cmd = "sudo nmcli -g ssid dev wifi list --rescan yes"
-    for _ in range(20):
-        wifi_list = cmd_output_rc(rescan_cmd, shell=True)[0].split("\n")
+    rescan_cmd = "sudo nmcli -g ssid dev wifi list"
+    for i in range(20):
+        _cmd = rescan_cmd
+        if i % 5 == 0:
+            _cmd += " --rescan yes"
+        wifi_list = cmd_output_rc(_cmd, shell=True)[0].split("\n")
         if "open" in wifi_list:
             return
-        sleep(1)
+        sleep(2)
     assert False, f"'open' network not visible {wifi_list}"
 
 
