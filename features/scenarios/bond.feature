@@ -2998,11 +2998,12 @@
         connection.autoconnect no
         """
     * Add "dummy" connection named "dummy0*" for device "dummy0" with options "master bond0"
-    * Bring "up" connection "dummy0*"
-    * Wait for "3" seconds
-    * Execute "ip -6 addr flush dev nm-bond"
-    * Wait for "3" seconds
-    Then "bond0" is visible with command "nmcli -g name connection show --active"
+    When "fe80" is visible with command "ip a s nm-bond" in "5" seconds
+    When "tentative" is not visible with command "ip a s nm-bond" in "5" seconds
+    * Execute "ip --loop 1 -6 addr flush dev nm-bond ||true"
+    Then "tentative" is not visible with command "ip a s nm-bond" in "5" seconds
+    Then "bond0" is visible with command "nmcli -g name connection show --active" for full "3" seconds
+
 
 
     @ver/rhel/8/4+=1.30.0.18
