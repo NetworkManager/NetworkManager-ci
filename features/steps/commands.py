@@ -1030,7 +1030,8 @@ def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
         nmci.util.wait_for(do, timeout=timeout)
     finally:
         nmci.process.run_stdout(
-            f"ip -d -{nmci.ip.addr_family_num(addr_family)} route show table all"
+            f"ip -d -{nmci.ip.addr_family_num(addr_family)} route show table all",
+            timeout=15,
         )
 
 
