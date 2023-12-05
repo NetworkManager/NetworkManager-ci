@@ -621,27 +621,32 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
             "sudo mv -f /etc/pki/tls/openssl.cnf.bak /etc/pki/tls/openssl.cnf",
             shell=True,
         )
+    for _ in range(2):
+        try:
+            assert (
+                subprocess.call(
+                    f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto many_ap={ap_num}"
+                    "&> /tmp/hostapd_wireless.log",
+                    shell=True,
+                )
+                == 0
+            ), "wifi setup failed !!!"
 
-    assert (
-        subprocess.call(
-            f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh {certs_dir} namespace {crypto}_crypto many_ap={ap_num}"
-            "&> /tmp/hostapd_wireless.log",
-            shell=True,
-        )
-        == 0
-    ), "wifi setup failed !!!"
-
-    # wait for wifi rescan
-    rescan_cmd = "sudo nmcli -g ssid dev wifi list"
-    for i in range(20):
-        _cmd = rescan_cmd
-        if i % 5 == 0:
-            _cmd += " --rescan yes"
-        wifi_list = cmd_output_rc(_cmd, shell=True)[0].split("\n")
-        if "open" in wifi_list:
-            return
-        sleep(2)
-    assert False, f"'open' network not visible {wifi_list}"
+            # wait for wifi rescan
+            rescan_cmd = "sudo nmcli -g ssid dev wifi list"
+            for i in range(20):
+                _cmd = rescan_cmd
+                if i % 5 == 0:
+                    _cmd += " --rescan yes"
+                wifi_list = cmd_output_rc(_cmd, shell=True)[0].split("\n")
+                if "open" in wifi_list:
+                    return
+                sleep(2)
+            assert False, f"'open' network not visible {wifi_list}"
+        except AssertionError:
+            print("Setup failed for the first time, retrying in 10s...")
+            wifi_teardown()
+            sleep(10)
 
 
 @step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
