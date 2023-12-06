@@ -378,6 +378,17 @@ class _NMUtil:
         for ifname in ifnames_to_delete:
             nmci.ip.link_delete(ifname=ifname, accept_nodev=True)
 
+        # Delete everything but ovsbr0 (as that is used as external only)
+        nmci.process.run(
+            "for br in $(ovs-vsctl list-br |grep -v ovsbr0); do \
+             ovs-vsctl del-br $br; \
+             systemctl restart openvswitch; \
+             sleep 3; done",
+            ignore_stderr=True,
+            shell=True,
+            timeout=10,
+        )
+
         for ifname in ifnames_to_down:
             if ifname in link_ifnames:
                 nmci.ip.link_set(ifname=ifname, up=False)
