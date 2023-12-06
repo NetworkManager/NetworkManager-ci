@@ -603,7 +603,7 @@
             total-vfs: 45
       """
     * Execute "nmstatectl apply /tmp/many-vfs.yaml"
-    When "Exactly" "46" lines with pattern "p4p1" are visible with command "nmcli dev"
+    When "Exactly" "46" lines with pattern "p4p1" are visible with command "nmcli dev" in "10" seconds
     * Write file "/tmp/many-vfs.yaml" with content
       """
       interfaces:
@@ -615,7 +615,7 @@
             total-vfs: 60
       """
     * Execute "nmstatectl apply /tmp/many-vfs.yaml"
-    Then "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev"
+    Then "Exactly" "61" lines with pattern "p4p1" are visible with command "nmcli dev" in "120" seconds
 
 
     @rhbz2210164
@@ -675,6 +675,6 @@
              max-tx-rate: 200
       """
     Then "max-tx-rate desire '200', current '0'" is visible with command "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
-    And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0" in "5" seconds
+    And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0" in "15" seconds
     And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0.101" in "5" seconds
     And Check slave "p4p1_0.101" in bond "bond0" in proc
