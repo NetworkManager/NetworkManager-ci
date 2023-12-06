@@ -1322,52 +1322,6 @@ Feature: nmcli - ovs
     Then "public" is visible with command "firewall-cmd  --get-zone-of-interface=iface0" in "3" seconds
 
 
-    @rhbz2001851
-    @ver+=1.36
-    @ver-=1.37
-    @openvswitch @restart_if_needed
-    @add_dpdk_port_with_mtu
-    Scenario: NM - openvswitch - add dpdk device with preset MTU
-    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
-          """
-          ovs-bridge.datapath-type netdev
-          """
-    * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
-          """
-          conn.master ovsbridge0
-          ovs-port.bond-mode balance-slb
-          """
-    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "master ovsbridge0"
-    * Add "ovs-interface" connection named "ovs-port1" for device "port0" with options
-          """
-          slave-type ovs-port
-          master ovs-port0
-          802-3-ethernet.mtu 9000
-          """
-    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
-          """
-          conn.master bond0
-          ovs-dpdk.devargs 000:42:10.0
-          ovs-interface.type dpdk
-          802-3-ethernet.mtu 9000
-          """
-    * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
-          """
-          conn.master bond0
-          ovs-dpdk.devargs 000:42:10.2
-          ovs-interface.type dpdk
-          802-3-ethernet.mtu 9000
-          """
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
-    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
-    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
-    * Reboot
-    Then "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface0" in "5" seconds
-    And "9000" is visible with command "nmcli -g 802-3-ethernet.mtu c show ovs-iface1" in "5" seconds
-    And "mtu 9000" is visible with command "ip a s dev port0" in "5" seconds
-
-
-
     @rhbz2001851 @rhbz2001792
     @ver+=1.38
     @openvswitch @restart_if_needed
