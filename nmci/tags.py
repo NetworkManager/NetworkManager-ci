@@ -1926,6 +1926,14 @@ def dpdk_bs(context, scenario):
     context.process.run_stdout(
         "echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode", shell=True
     )
+
+    # How about using this instead of profile? Cleaner for Reboot
+    # context.process.run_stdout(
+    #     "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
+    #     shell=True,
+    #     timeout=240,
+    # )
+
     context.process.nmcli(
         "connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
     )
