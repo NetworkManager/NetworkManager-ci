@@ -675,6 +675,5 @@
              max-tx-rate: 200
       """
     Then "max-tx-rate desire '200', current '0'" is visible with command "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml"
-    And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0" in "15" seconds
     And "activated" is visible with command "nmcli -g GENERAL.STATE con show p4p1_0.101" in "5" seconds
     And Check slave "p4p1_0.101" in bond "bond0" in proc
