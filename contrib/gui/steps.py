@@ -647,6 +647,7 @@ def prepare_wifi(context, certs_dir="contrib/8021x/certs", crypto="default", ap_
             print("Setup failed for the first time, retrying in 10s...")
             wifi_teardown()
             sleep(10)
+    assert False, "Unable to prepare wi-fi."
 
 
 @step('Prepare 8021x | with certificates from "{certs_dir}" | with crypto "{crypto}"')
