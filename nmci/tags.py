@@ -1927,18 +1927,14 @@ def dpdk_bs(context, scenario):
         "echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode", shell=True
     )
 
-    # How about using this instead of profile? Cleaner for Reboot
-    # context.process.run_stdout(
-    #     "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
-    #     shell=True,
-    #     timeout=240,
-    # )
-
-    context.process.nmcli(
-        "connection add type ethernet ifname p4p1 con-name dpdk-sriov sriov.total-vfs 2"
+    # Create two VFs from p4p1 device
+    context.process.run_stdout(
+        "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
+        shell=True,
+        timeout=5,
     )
-    context.process.nmcli("connection up dpdk-sriov")
     time.sleep(2)
+
     # Moving those two VFs from ixgbevf to vfio-pci driver
     # In newer versions of dpdk-tools there are dpdk binaries with py in the end
     context.process.run_stdout(

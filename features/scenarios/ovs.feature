@@ -959,7 +959,6 @@ Feature: nmcli - ovs
     @permissive @openvswitch @dpdk
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
-    * Cleanup connection "dpdk-sriov"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
           ovs-bridge.datapath-type netdev
@@ -983,7 +982,6 @@ Feature: nmcli - ovs
      @permissive @openvswitch @dpdk
      @add_dpdk_port_n_rxq
      Scenario: NM -  openvswitch - add dpdk device and n_rxq argument
-    * Cleanup connection "dpdk-sriov"
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
            ovs-bridge.datapath-type netdev
@@ -1007,7 +1005,6 @@ Feature: nmcli - ovs
      @permissive @openvswitch @dpdk
      @add_dpdk_port_n_rxq_txq_desc
      Scenario: NM -  openvswitch - add dpdk device and n_rxq_desc,n_txq_desc arguments
-    * Cleanup connection "dpdk-sriov"
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
            """
            ovs-bridge.datapath-type netdev
@@ -1032,7 +1029,6 @@ Feature: nmcli - ovs
     @permissive @openvswitch @dpdk
     @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
-    * Cleanup connection "dpdk-sriov"
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
           """
           ovs-bridge.datapath-type netdev
