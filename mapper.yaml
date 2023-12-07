@@ -2064,8 +2064,6 @@ testmapper:
         feature: ovs
     - ovs_service_disabled_error:
         feature: ovs
-    - add_dpdk_port_with_mtu:
-        feature: ovs
     - ovs_external_unmanaged_device:
         feature: ovs
     - ovs_other_config:
@@ -3482,4 +3480,6 @@ testmapper:
     - add_dpdk_port_n_rxq_txq_desc:
         feature: ovs
     - add_dpdk_bond_sriov:
+        feature: ovs
+    - add_dpdk_port_with_mtu:
         feature: ovs

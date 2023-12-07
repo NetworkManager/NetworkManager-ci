@@ -1320,7 +1320,7 @@ Feature: nmcli - ovs
 
     @rhbz2001851 @rhbz2001792
     @ver+=1.38
-    @openvswitch @restart_if_needed
+    @permissive @openvswitch @dpdk @restart_if_needed
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
