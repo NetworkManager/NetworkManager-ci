@@ -1910,48 +1910,79 @@ _register_tag("sriov", sriov_bs, sriov_as)
 
 
 def dpdk_bs(context, scenario):
-    context.process.run_stdout("sysctl -w vm.nr_hugepages=10")
-    context.process.run_stdout(
-        "if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi",
-        shell=True,
-        timeout=120,
-    )
-    context.process.run_stdout(
-        "sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch"
-    )
-    context.process.run_stdout(
-        "ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true"
-    )
-    context.process.run_stdout("modprobe vfio-pci")
-    context.process.run_stdout(
-        "echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode", shell=True
-    )
+    if not os.path.isfile("/tmp/nm_dpdk_configured"):
+        context.process.run_stdout("sysctl -w vm.nr_hugepages=10")
+        context.process.run_stdout(
+            "if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi",
+            shell=True,
+            timeout=120,
+        )
+        context.process.run_stdout(
+            "sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch"
+        )
+        context.process.run_stdout(
+            "ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true"
+        )
+        context.process.run_stdout("modprobe vfio-pci")
+        context.process.run_stdout(
+            "echo 1 > /sys/module/vfio/parameters/enable_unsafe_noiommu_mode",
+            shell=True,
+        )
 
-    # Create two VFs from p4p1 device
-    context.process.run_stdout(
-        "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
-        shell=True,
-        timeout=5,
-    )
-    time.sleep(2)
+        # Create two VFs from p4p1 device
+        context.process.run_stdout(
+            "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
+            shell=True,
+            timeout=5,
+        )
 
-    # Moving those two VFs from ixgbevf to vfio-pci driver
-    # In newer versions of dpdk-tools there are dpdk binaries with py in the end
-    context.process.run_stdout(
-        "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
-        shell=True,
-        ignore_stderr=True,
-    )
-    context.process.run_stdout(
-        "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
-        shell=True,
-        ignore_stderr=True,
-    )
-    # We need to restart openvswitch as we changed configuration
-    context.process.systemctl("restart openvswitch")
+        # Wait for some time to settle things down
+        time.sleep(2)
+
+        # Moving those two VFs from ixgbevf to vfio-pci driver
+        # In newer versions of dpdk-tools there are dpdk binaries with py in the end
+        context.process.run_stdout(
+            "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
+            shell=True,
+            ignore_stderr=True,
+        )
+        context.process.run_stdout(
+            "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
+            shell=True,
+            ignore_stderr=True,
+        )
+        # We need to restart openvswitch as we changed configuration
+        context.process.systemctl("restart openvswitch")
+        nmci.util.file_set_content("/tmp/nm_dpdk_configured", "")
 
 
 _register_tag("dpdk", dpdk_bs, None)
+
+
+def dpdk_remove_as(context, scenario):
+    if os.path.isfile("/tmp/nm_dpdk_configured"):
+        # Return vfio-pci devices back to ixgbevf
+        context.process.run_stdout(
+            "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b ixgbevf 0000:42:10.0",
+            shell=True,
+            ignore_stderr=True,
+        )
+        context.process.run_stdout(
+            "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b ixgbevf 0000:42:10.2",
+            shell=True,
+            ignore_stderr=True,
+        )
+
+        # Remove two VFs from p4p1 device
+        context.process.run_stdout(
+            "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs",
+            shell=True,
+            timeout=5,
+        )
+        os.remove("/tmp/nm_dpdk_configured")
+
+
+_register_tag("dpdk_remove", None, dpdk_remove_as)
 
 
 def wireless_certs_bs(context, scenario):

@@ -1520,3 +1520,9 @@ Feature: nmcli - ovs
     * Modify connection "ovs-if-phys0" changing options "autoconnect yes"
     Then Bring "up" connection "ovs-if-br-ex"
     And "192.168.99" is visible with command "ip a show dev br-ex"
+
+
+    @dpdk_remove
+    @dpdk_teardown
+    Scenario: teardown dpdk setup
+    * Execute "echo 'this is skipped'"

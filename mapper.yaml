@@ -3483,3 +3483,5 @@ testmapper:
         feature: ovs
     - add_dpdk_port_with_mtu:
         feature: ovs
+    - dpdk_teardown:
+        feature: ovs
