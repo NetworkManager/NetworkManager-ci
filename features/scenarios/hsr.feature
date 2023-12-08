@@ -17,7 +17,14 @@ Feature: nmcli - hsr
 	ipv4.method disabled
 	ipv6.method disabled
 	"""
-    * Execute "nmcli connection add ifname prp0 con-name prp0 type hsr hsr.port1 eth1 hsr.port2 eth2 hsr.prp yes ipv4.method manual ipv4.addresses 192.168.2.10"
+    * Add "hsr" connection named "prp0" for device "prp0" with options
+    """
+    hsr.port1 eth1
+    hsr.port2 eth2
+    hsr.prp yes
+    ipv4.method manual
+    ipv4.addresses 192.168.2.10
+    """
     Then "192.168.2.10" is visible with command "ip a show prp0"
     Then "slave1 eth1 slave2 eth2" is visible with command "ip -d link show prp0"
     Then "proto 1" is visible with command "ip -d link show prp0"
