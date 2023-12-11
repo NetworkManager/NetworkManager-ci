@@ -194,6 +194,10 @@ def openvpn_teardown(context):
 
 
 def wifi_teardown():
+    if "enabled" not in subprocess.run("sudo nmcli radio wifi", shell=True).stdout:
+        print("Enabling wifi, as it was found disabled!")
+        subprocess.call("sudo nmcli radio wifi on", shell=True)
+        sleep(1)
     assert (
         subprocess.call(
             f"sudo bash {NM_CI_RUNNER_CMD} prepare/hostapd_wireless.sh teardown",
