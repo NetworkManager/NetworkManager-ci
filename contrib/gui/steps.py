@@ -197,7 +197,7 @@ def wifi_teardown():
     _p = subprocess.PIPE
     wifi_status = subprocess.run(
         "sudo nmcli radio wifi", check=False, shell=True, stdout=_p, stderr=_p
-    ).stdout
+    ).stdout.decode("utf-8")
     if not wifi_status or "enabled" not in wifi_status:
         print(f"Enabling wifi, as it was found: {wifi_status}!")
         subprocess.call("sudo nmcli radio wifi on", shell=True)
