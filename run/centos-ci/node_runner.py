@@ -197,10 +197,15 @@ class Machine:
     def cmd_is_failed(self):
         return not self._last_cmd_ret
 
-    def _wait_for_machine(self, retry=12):
+    def _wait_for_machine(self, retry=12, timeout=None):
+        end_time = None
+        if timeout is not None:
+            end_time = time.time() + timeout
         for _ in range(retry):
             if self.ssh("true", check=False).returncode == 0:
                 return
+            if end_time and end_time < time.time():
+                break
         self.ssh("true")
 
     def _setup(self):
@@ -258,7 +263,7 @@ class Machine:
         # succeedes when machine is shutting down
         time.sleep(10)
         # give even more time as 60s seems to be nt enough
-        self._wait_for_machine(retry=120)
+        self._wait_for_machine(retry=120, timeout=600)
         logging.debug(f"Machine {self.id} is back online")
 
     def build(self, refspec, mr="custom", repo=""):
