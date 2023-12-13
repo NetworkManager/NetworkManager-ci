@@ -20,7 +20,9 @@ class _Git:
         :return: commit hash
         :rtype: str
         """
-        r = nmci.process.run_stdout(["git", "rev-parse", rev])
+        r = nmci.process.run_stdout(
+            ["git", "rev-parse", rev], embed_combine_tag=nmci.embed.NO_EMBED
+        )
         r = r.strip("\n")
         if not r:
             raise Exception(f"failure to parse {rev}")
@@ -35,7 +37,10 @@ class _Git:
         :return: git origin URL as HTTPS
         :rtype: str
         """
-        r = nmci.process.run_stdout(["git", "config", "--get", "remote.origin.url"])
+        r = nmci.process.run_stdout(
+            ["git", "config", "--get", "remote.origin.url"],
+            embed_combine_tag=nmci.embed.NO_EMBED,
+        )
         r = r.strip("\n")
         if r.endswith(".git"):
             r = r[:-4]
