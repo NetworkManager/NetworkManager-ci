@@ -346,6 +346,17 @@ function restart_services ()
 {
     systemctl daemon-reload
     systemctl restart wpa_supplicant
+    for i in {1..10}; do
+        nmcli -g GENERAL.STATE dev show wlan0 | grep -F "connected" && return;
+        sleep 0.2
+    done
+    # restart NM, if wlan0 is unavailable
+    nmcli -g GENERAL.STATE dev show wlan0 | grep -F "unavailable" && systemctl restart NetworkManager
+    for i in {1..10}; do
+        nmcli -g GENERAL.STATE dev show wlan0 | grep -F "connected" && return;
+        sleep 0.2
+    done
+    print "WARNING: device wlan0 found in incorrect state: $(nmcli -g GENERAL.STATE dev show wlan0)"
 }
 
 function replace_MAC_in_cfg () {
