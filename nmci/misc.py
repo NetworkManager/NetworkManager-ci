@@ -1213,6 +1213,7 @@ class _Misc:
                 ignore_stderr=True,
                 stdout=f_out,
                 timeout=180,
+                embed_combine_tag=nmci.embed.NO_EMBED,
             )
 
             f_out.seek(0)
