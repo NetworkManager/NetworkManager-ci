@@ -620,16 +620,18 @@ class _Embed:
             "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
             ignore_stderr=True,
             ignore_returncode=True,
+            embed_combine_tag=nmci.embed.NO_EMBED,
         )
         if get_avcs.returncode == 12:
             avc_log = nmci.process.run_stdout(
                 "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
                 ignore_stderr=True,
                 ignore_returncode=True,
+                embed_combine_tag=nmci.embed.NO_EMBED,
             )
         else:
             avc_log = get_avcs.stdout
-        if len(avc_log) > 0:
+        if avc_log:
             nmci.embed.embed_data("SELinux AVCs " + msg, avc_log)
 
             if nmci.util.is_verbose() and shutil.which("sealert"):
