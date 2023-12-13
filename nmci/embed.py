@@ -300,6 +300,10 @@ class _Embed:
             data,
             f"({entry._embed_context.count}) {caption}",
         )
+        # overrie fail_only=False if verbose mode
+        if entry._embed_context.embed_data is not None:
+            fail_only = entry.fail_only and not nmci.util.is_verbose()
+            entry._embed_context.embed_data.set_fail_only(fail_only)
 
     def _embed_combines(self, combine_tag, embed_data, lst):
         counts = nmci.misc.list_to_intervals(
@@ -307,7 +311,13 @@ class _Embed:
         )
         main_caption = f"({counts}) {combine_tag}"
         message = ""
+        # Set fail_only=False only when some entry has fail_only=False
+        fail_only = True
         for entry in lst:
+            fail_only = fail_only and entry.fail_only
+            # skip embed of entry
+            if entry.fail_only and not nmci.util.is_verbose():
+                continue
             (mime_type, data, caption) = entry.evalDoEmbedArgs()
             assert mime_type == "text/plain"
             (mime_type, data) = self._embed_mangle_message_for_fail(
@@ -315,6 +325,8 @@ class _Embed:
             )
             message += f"{'-'*50}\n({entry._embed_context.count}) {caption}\n{data}\n"
         message += f"{'-'*50}\n"
+        if embed_data is not None:
+            embed_data.set_fail_only(fail_only and not nmci.util.is_verbose())
         self._embed_args(embed_data, "text/plain", message, main_caption)
 
     def process_embeds(self):
@@ -432,7 +444,7 @@ class _Embed:
         returncode,
         stdout,
         stderr,
-        fail_only=True,
+        fail_only=False,
         embed_context=None,
         combine_tag=TRACE_COMBINE_TAG,
         elapsed_time=None,
@@ -449,7 +461,7 @@ class _Embed:
         :type stdout: str or binary
         :param stderr: STDERR of the process
         :type stderr: str or binary
-        :param fail_only: wheter to embed only if scenario fails, defaults to True
+        :param fail_only: wheter to embed only if scenario fails, defaults to False
         :type fail_only: bool, optional
         :param embed_context: embed context, defaults to None
         :type embed_context: Embed.EmedContext, optional

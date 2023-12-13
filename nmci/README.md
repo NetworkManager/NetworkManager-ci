@@ -657,7 +657,7 @@ Embed links
   * **combine_tag** (*str**,* *optional*) – join multiple embeds under single caption, defaults to None
   * **embed_context** (*EmbedContext object*) – context keeping counter and data, defaults to None
 
-### nmci.embed.embed_run(argv, shell, returncode, stdout, stderr, fail_only=True, embed_context=None, combine_tag=<object object>, elapsed_time=None)
+### nmci.embed.embed_run(argv, shell, returncode, stdout, stderr, fail_only=False, embed_context=None, combine_tag=<object object>, elapsed_time=None)
 
 Embed results of a process
 
@@ -667,7 +667,7 @@ Embed results of a process
   * **returncode** (*int*) – returncode of the process
   * **stdout** (*str* *or* *binary*) – STDOUT of the process
   * **stderr** (*str* *or* *binary*) – STDERR of the process
-  * **fail_only** (*bool**,* *optional*) – wheter to embed only if scenario fails, defaults to True
+  * **fail_only** (*bool**,* *optional*) – wheter to embed only if scenario fails, defaults to False
   * **embed_context** (*Embed.EmedContext**,* *optional*) – embed context, defaults to None
   * **combine_tag** (*str**,* *optional*) – caption of joined embeds, defaults to TRACE_COMBINE_TAG, computes caption from stactrace
   * **elapsed_time** (*float**,* *optional*) – measured time of process run in seconds, defaults to None

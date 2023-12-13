@@ -1500,7 +1500,7 @@ def test_context_set_up_commands():
         embed_data = nmci.embed._to_embed[0]
         nmci.embed._to_embed.clear()
         assert isinstance(embed_data, nmci.embed.EmbedData)
-        assert embed_data.fail_only is True
+        assert embed_data.fail_only is False
         assert embed_data._caption.startswith("Command `")
         assert re.search(pattern, embed_data._data)
 
