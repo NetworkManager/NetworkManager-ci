@@ -143,13 +143,19 @@ def _before_scenario(context, scenario):
             "/tmp/nm_dcb_inf_wol_sriov_configured"
         ):
             if "testeth0:connected" not in context.process.nmcli(
-                "-t -f connection,state device"
+                "-t -f connection,state device", embed_combine_tag="testeth0 check"
             ):
-                context.process.nmcli("connection modify testeth0 ipv4.may-fail no")
-                context.process.nmcli("connection up id testeth0")
+                context.process.nmcli(
+                    "connection modify testeth0 ipv4.may-fail no",
+                    embed_combine_tag="testeth0 check",
+                )
+                context.process.nmcli(
+                    "connection up id testeth0", embed_combine_tag="testeth0 check"
+                )
                 for _ in range(0, 10):
                     if "testeth0:connected" not in context.process.nmcli(
-                        "-t -f connection,state device"
+                        "-t -f connection,state device",
+                        embed_combine_tag="testeth0 check",
                     ):
                         break
                     time.sleep(1)
