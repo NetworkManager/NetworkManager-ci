@@ -1080,6 +1080,7 @@ class _Misc:
                     "^-- cursor: +([^ ].*[^ ]) *\n$",
                     ignore_stderr=True,
                     timeout=5,
+                    embed_combine_tag=nmci.embed.NO_EMBED,
                 )
             except subprocess.TimeoutExpired:
                 continue
