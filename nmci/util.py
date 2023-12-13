@@ -808,7 +808,7 @@ class _Util:
                 "ip netns exec vethsetup nft list ruleset",
             ]
 
-        named_nss = nmci.ip.netns_list()
+        named_nss = nmci.ip.netns_list(verbose=False)
 
         # vethsetup is handled separately
         named_nss = [n for n in named_nss if n != "vethsetup"]

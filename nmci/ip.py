@@ -1014,16 +1014,24 @@ class _IP:
                 ifname, namespace=namespace, ifindex=ifindex, timeout=wait_for_device
             )
 
-    def netns_list(self, with_binary=False):
+    def netns_list(self, with_binary=False, verbose=True):
         """
         List availiable namespaces.
 
         :param with_binary: whether to return as bytes, defaults to False
         :type with_binary: bool, optional
+        :param verbose: whether to embed output, defaults to True
+        :type verbose: bool, optional
         :return: list of interface names
         :rtype: list of str
         """
-        out = nmci.process.run_stdout("ip netns list", as_bytes=True)
+
+        embed_combine_tag = (
+            nmci.embed.TRACE_COMBINE_TAG if verbose else nmci.embed.NO_EMBED
+        )
+        out = nmci.process.run_stdout(
+            "ip netns list", as_bytes=True, embed_combine_tag=embed_combine_tag
+        )
 
         if not out:
             return []

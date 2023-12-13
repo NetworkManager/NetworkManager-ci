@@ -1129,12 +1129,13 @@ Delete namespace
   * **name** (*str*) – name of namespace
   * **check** (*bool**,* *optional*) – whether to raise if namespace already deleted, defaults to True
 
-### nmci.ip.netns_list(with_binary=False)
+### nmci.ip.netns_list(with_binary=False, verbose=True)
 
 List availiable namespaces.
 
 * **Parameters:**
-  **with_binary** (*bool**,* *optional*) – whether to return as bytes, defaults to False
+  * **with_binary** (*bool**,* *optional*) – whether to return as bytes, defaults to False
+  * **verbose** (*bool**,* *optional*) – whether to embed output, defaults to True
 * **Returns:**
   list of interface names
 * **Return type:**
