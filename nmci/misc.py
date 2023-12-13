@@ -25,7 +25,6 @@ def __getattr__(attr):
 
 
 class _Misc:
-
     TEST_NAME_VALID_CHAR_SET = "-a-zA-Z0-9_.+=/"
     NMCI_JOURNAL_MESSAGE_ID = "c93c2505-a0c5-4e26-9053-7c889d59a3de"
 
@@ -475,12 +474,14 @@ class _Misc:
         self._nm_version_detect_cached = v
         return v
 
-    def distro_detect(self, use_cached=True):
+    def distro_detect(self, use_cached=True, release_file_content=None):
         """
         Get distribution name and version.
 
         :param use_cached: whether to use already processed version, defaults to True
         :type use_cached: bool, optional
+        :param release_file_content: content of /etc/redhat-release, if already in memory, defaults to None
+        :type release_file_content: str, optional
         :return: distribution name and numerical version
         :rtype: tuple of string and list of int
         """
@@ -488,18 +489,19 @@ class _Misc:
         if use_cached and hasattr(self, "_distro_detect_cached"):
             return self._distro_detect_cached
 
+        if release_file_content is None:
+            release_file_content = nmci.util.file_get_content_simple(
+                "/etc/redhat-release"
+            )
+        release_file_content = release_file_content.strip("\n")
+
         distro_version = [
             int(x)
-            for x in nmci.process.run_stdout(
-                [
-                    "sed",
-                    "s/.*release *//;s/ .*//;s/Beta//;s/Alpha//",
-                    "/etc/redhat-release",
-                ],
-            ).split(".")
+            # get number right after "release " and split it by "."
+            for x in release_file_content.split("release ")[-1].split(" ")[0].split(".")
         ]
 
-        if subprocess.call(["grep", "-qi", "fedora", "/etc/redhat-release"]) == 0:
+        if "fedora" in release_file_content.lower():
             distro_flavor = "fedora"
         else:
             distro_flavor = "rhel"

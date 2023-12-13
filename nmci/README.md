@@ -1222,12 +1222,13 @@ Bases: `Exception`
 
 Exception to be thrown when test is not found.
 
-### nmci.misc.distro_detect(use_cached=True)
+### nmci.misc.distro_detect(use_cached=True, release_file_content=None)
 
 Get distribution name and version.
 
 * **Parameters:**
-  **use_cached** (*bool**,* *optional*) – whether to use already processed version, defaults to True
+  * **use_cached** (*bool**,* *optional*) – whether to use already processed version, defaults to True
+  * **release_file_content** (*str**,* *optional*) – content of /etc/redhat-release, if already in memory, defaults to None
 * **Returns:**
   distribution name and numerical version
 * **Return type:**
