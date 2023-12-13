@@ -467,7 +467,9 @@ class _Misc:
             with open("/tmp/nm_version_override") as f:
                 current_version_str = f.read()
         else:
-            current_version_str = nmci.process.run_stdout(["NetworkManager", "-V"])
+            current_version_str = nmci.process.run_stdout(
+                ["NetworkManager", "-V"], embed_combine_tag=nmci.embed.NO_EMBED
+            )
 
         v = self.nm_version_parse(current_version_str)
         self._nm_version_detect_cached = v

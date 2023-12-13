@@ -772,7 +772,12 @@ class _Util:
                 "nmcli -f ALL d w l",
                 "cat /etc/resolv.conf",
             ]
-            if nmci.process.systemctl("is-active systemd-resolved").returncode == 0:
+            if (
+                nmci.process.systemctl(
+                    "is-active systemd-resolved", embed_combine_tag=nmci.embed.NO_EMBED
+                ).returncode
+                == 0
+            ):
                 nm_cmds.append("resolvectl --no-pager")
         veth_cmds = []
         if nm_running and os.path.isfile("/tmp/nm_veth_configured"):
