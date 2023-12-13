@@ -1113,6 +1113,7 @@ class _Misc:
             prefix + msg,
             priority=priority,
             SYSLOG_IDENTIFIER=SYSLOG_IDENTIFIER,
+            MESSAGE_ID=MESSAGE_ID,
             **kw,
         )
 
