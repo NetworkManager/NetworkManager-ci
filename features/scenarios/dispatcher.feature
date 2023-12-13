@@ -204,6 +204,7 @@ Feature: NM: dispatcher
     @RHEL-1671 @RHEL-10195
     @ver+=1.45.4
     @ver/rhel/8+=1.40.16.12
+    @not_on_s390x @not_on_ppc64 @not_on_aarch64
     @restore_resolvconf @restart_if_needed
     @dispatcher_track_dns_changes
     Scenario: NM - dispatcher - track dns changes
