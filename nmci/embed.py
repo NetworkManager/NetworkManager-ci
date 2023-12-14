@@ -622,23 +622,23 @@ class _Embed:
                 "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
                 ignore_stderr=True,
                 ignore_returncode=True,
-                embed_combine_tag=nmci.embed.NO_EMBED,
+                embed_combine_tag=self.NO_EMBED,
             )
             if get_avcs.returncode == 12:
                 avc_log = nmci.process.run_stdout(
                     "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
                     ignore_stderr=True,
                     ignore_returncode=True,
-                    embed_combine_tag=nmci.embed.NO_EMBED,
+                    embed_combine_tag=self.NO_EMBED,
                 )
             else:
                 avc_log = get_avcs.stdout
         except TimeoutExpired as e:
-            nmci.embed.embed_data("SELinux ausearch timed out!", str(e))
+            self.embed_data("SELinux ausearch timed out!", str(e))
             print("Warning: ausearch timed out!")
             avc_log = None
         if avc_log:
-            nmci.embed.embed_data("SELinux AVCs " + msg, avc_log)
+            self.embed_data("SELinux AVCs " + msg, avc_log)
 
             if nmci.util.is_verbose() and shutil.which("sealert"):
                 avcs_file = f"{nmci.util.tmp_dir()}/audit-avcs.log"
@@ -648,11 +648,9 @@ class _Embed:
                 # and I (David) didn't figured out yet how to limit journal for
                 # between-scenario AVCs
                 sealert_analysis = nmci.process.run_stdout(
-                    f"sealert -a {avcs_file}", embed_combine_tag=nmci.embed.NO_EMBED
+                    f"sealert -a {avcs_file}", embed_combine_tag=self.NO_EMBED
                 )
-                nmci.embed.embed_data(
-                    f"sealert analysis of AVCS {msg}", sealert_analysis
-                )
+                self.embed_data(f"sealert analysis of AVCS {msg}", sealert_analysis)
                 nmci.util.file_remove(avcs_file)
 
 
