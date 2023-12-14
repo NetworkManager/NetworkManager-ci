@@ -822,7 +822,9 @@ Feature: nmcli - ovs
     @rhbz1786937
     @RHEL-5394
     # Move this back to 1.18.8 once the crash is solved and the fix backported
-    # So far just 9.2	
+    @ver/rhel/8/8+=1.40.16.7
+    @ver/rhel/8/9+=1.40.16.13
+    @ver/rhel/8/10+=1.40.16.14
     @ver+=1.42.2.10
     @openvswitch @mtu @restart_if_needed
     @ovs_mtu
