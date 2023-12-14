@@ -2,6 +2,7 @@ import collections
 import os
 import traceback
 import shutil
+from subprocess import TimeoutExpired
 
 import xml.etree.ElementTree as ET
 
@@ -616,21 +617,26 @@ class _Embed:
         """
         if not shutil.which("ausearch"):
             return False
-        get_avcs = nmci.process.run(
-            "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
-            ignore_stderr=True,
-            ignore_returncode=True,
-            embed_combine_tag=nmci.embed.NO_EMBED,
-        )
-        if get_avcs.returncode == 12:
-            avc_log = nmci.process.run_stdout(
-                "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
+        try:
+            get_avcs = nmci.process.run(
+                "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
                 ignore_stderr=True,
                 ignore_returncode=True,
                 embed_combine_tag=nmci.embed.NO_EMBED,
             )
-        else:
-            avc_log = get_avcs.stdout
+            if get_avcs.returncode == 12:
+                avc_log = nmci.process.run_stdout(
+                    "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
+                    ignore_stderr=True,
+                    ignore_returncode=True,
+                    embed_combine_tag=nmci.embed.NO_EMBED,
+                )
+            else:
+                avc_log = get_avcs.stdout
+        except TimeoutExpired as e:
+            nmci.embed.embed_data("SELinux ausearch timed out!", str(e))
+            print("Warning: ausearch timed out!")
+            avc_log = None
         if avc_log:
             nmci.embed.embed_data("SELinux AVCs " + msg, avc_log)
 
