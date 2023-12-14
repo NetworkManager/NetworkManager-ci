@@ -633,8 +633,8 @@ class _Embed:
                 )
             else:
                 avc_log = get_avcs.stdout
-        except TimeoutExpired as e:
-            self.embed_data("SELinux ausearch timed out!", str(e))
+        except TimeoutExpired:
+            self.embed_exception("SELinux ausearch timed out!")
             print("Warning: ausearch timed out!")
             avc_log = None
         if avc_log:
@@ -652,6 +652,16 @@ class _Embed:
                 )
                 self.embed_data(f"sealert analysis of AVCS {msg}", sealert_analysis)
                 nmci.util.file_remove(avcs_file)
+
+    def embed_exception(self, caption=None):
+        """Embed traceback of last exception. Should be used in `except` branch only.
+
+        :param caption: label of the embeded traceback
+        :type caption: str
+        """
+
+        tb = traceback.format_exc()
+        self.embed_data(caption, tb)
 
 
 _module = _Embed()

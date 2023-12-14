@@ -632,6 +632,13 @@ embed new crash dump
   * **data** (*str**,* *optional*) – backtrace of the coredump, defaults to None
   * **links** (*list* *of* *pairs* *of* *str**,* *optional*) – FAF links to embed, defaults to None
 
+### nmci.embed.embed_exception(caption=None)
+
+Embed traceback of last exception. Should be used in except branch only.
+
+* **Parameters:**
+  **caption** (*str*) – label of the embeded traceback
+
 ### nmci.embed.embed_file_if_exists(caption, fname, as_base64=False, fail_only=False)
 
 Embed file to HTML report
