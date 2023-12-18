@@ -29,6 +29,7 @@ component:
       - dracut
       - wpa_supplicant
       - hostapd
+      - NetworkManager-libreswan
   gated-by:
     - gnome-control-center
     - gnome-shell
@@ -2114,8 +2115,10 @@ testmapper:
         feature: libreswan
     - libreswan_ikev1_main:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_add_profile_wrong_password:
         feature: libreswan
     - libreswan_terminate:
@@ -2124,6 +2127,7 @@ testmapper:
         feature: libreswan
     - libreswan_dns:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_start_as_secondary:
         feature: libreswan
     - libreswan_connection_renewal:
@@ -2146,6 +2150,7 @@ testmapper:
         feature: libreswan
     - libreswan_reimport_ikev2:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_configurable_options_reimport:
         feature: libreswan
     - strongswan_add_profile:
