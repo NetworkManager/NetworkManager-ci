@@ -3,6 +3,7 @@ Feature: nmcli - hsr
 
     @rhelver+=9 @fedoraver+=32
     @ver+=1.45.6
+    @ver/rhel/9/4+=1.45.9.1
     @hsr_with_prp_protocol
     Scenario: NM - hsr - PRP protocol enabled
     * Add "ethernet" connection named "port1" for device "eth1" with options
