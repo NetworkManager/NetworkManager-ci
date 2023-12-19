@@ -397,3 +397,15 @@
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
     Then Check noted values "vpn1" and "vpn2" are the same
+
+
+
+    @rhelver+=9.2
+    @nmstate_libreswan
+    @libreswan_nmstate_iface_dpd_rsa
+    Scenario: nmcli - libreswan - rsa, dpd, and iface
+    * Execute "pytest -vv contrib/ipsec/ipsec_test.py  > /tmp/nmstate.txt"
+    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
+    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"

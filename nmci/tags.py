@@ -2078,6 +2078,58 @@ def nmstate_setup_as(context, scenario):
 _register_tag("nmstate_setup", None, nmstate_setup_as)
 
 
+def nmstate_libreswan_bs(context, scenario):
+    if context.rh_release_num == [9, 2]:
+        context.process.run_stdout(
+            "dnf -4 -y update \
+            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9_2) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 2.el9_2)",
+            timeout=120,
+            shell=True,
+            ignore_stderr=True,
+        )
+    if context.rh_release_num == [9, 3]:
+        context.process.run_stdout(
+            "dnf -4 -y update \
+            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9_3) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 2.el9_3)",
+            timeout=120,
+            shell=True,
+            ignore_stderr=True,
+        )
+    if context.rh_release_num == [9, 4]:
+        context.process.run_stdout(
+            "dnf -4 -y update \
+            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.18 1.el9)",
+            timeout=120,
+            shell=True,
+            ignore_stderr=True,
+        )
+    if context.rh_release_num == [9, 99]:
+        kojihub = "https://kojihub.stream.centos.org/kojifiles/packages/"
+        context.process.run_stdout(
+            f"dnf -4 -y update \
+            {kojihub}nmstate/2.2.21/2.el9/x86_64/nmstate-2.2.21-2.el9.x86_64.rpm \
+            {kojihub}nmstate/2.2.21/2.el9/x86_64/nmstate-libs-2.2.21-2.el9.x86_64.rpm \
+            {kojihub}nmstate/2.2.21/2.el9/x86_64/python3-libnmstate-2.2.21-2.el9.x86_64.rpm \
+            {kojihub}NetworkManager-libreswan/1.2.18/1.el9/x86_64/NetworkManager-libreswan-1.2.18-1.el9.x86_64.rpm",
+            timeout=120,
+            shell=True,
+            ignore_stderr=True,
+        )
+
+    nmci.nmutil.restart_NM_service()
+
+
+def nmstate_libreswan_as(context, scenario):
+    # Embed NMSTATE logs.
+    nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt", fail_only=True)
+
+
+_register_tag("nmstate_libreswan", nmstate_libreswan_bs, nmstate_libreswan_as)
+
+
 def backup_sysconfig_network_bs(context, scenario):
     context.process.run_stdout("cp -f /etc/sysconfig/network /tmp/sysnetwork.backup")
 
