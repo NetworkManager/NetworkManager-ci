@@ -28,9 +28,7 @@ def bond_interface(name, port, extra_iface_state=None, create=True):
     if extra_iface_state:
         desired_state[Interface.KEY][0].update(extra_iface_state)
         if port:
-            desired_state[Interface.KEY][0][Bond.CONFIG_SUBTREE][
-                Bond.PORT
-            ] = port
+            desired_state[Interface.KEY][0][Bond.CONFIG_SUBTREE][Bond.PORT] = port
 
     if create:
         libnmstate.apply(desired_state)

@@ -17,9 +17,7 @@ def disable_service(service):
             break
         time.sleep(1)
         timeout -= 1
-        ret, _, _ = cmdlib.exec_cmd(
-            ("systemctl", "status", service), check=False
-        )
+        ret, _, _ = cmdlib.exec_cmd(("systemctl", "status", service), check=False)
     try:
         yield
     finally:

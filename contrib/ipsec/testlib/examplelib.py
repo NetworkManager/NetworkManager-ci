@@ -42,13 +42,9 @@ def example_state(initial, cleanup=None, substitute=None):
     finally:
         if cleanup:
             try:
-                libnmstate.apply(
-                    load_example(cleanup, substitute), verify_change=True
-                )
+                libnmstate.apply(load_example(cleanup, substitute), verify_change=True)
             except libnmstate.error.NmstateVerificationError:
-                libnmstate.apply(
-                    load_example(cleanup, substitute), verify_change=False
-                )
+                libnmstate.apply(load_example(cleanup, substitute), verify_change=False)
                 raise
 
 

@@ -39,9 +39,7 @@ def vlan_interface(ifname, vlan_id, base_iface, protocol=None):
         ]
     }
     if protocol:
-        desired_state[Interface.KEY][0][VLAN.CONFIG_SUBTREE][
-            VLAN.PROTOCOL
-        ] = protocol
+        desired_state[Interface.KEY][0][VLAN.CONFIG_SUBTREE][VLAN.PROTOCOL] = protocol
     libnmstate.apply(desired_state)
     try:
         yield desired_state

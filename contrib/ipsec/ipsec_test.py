@@ -127,9 +127,7 @@ def setup_hostb_ipsec_conn():
         if not os.path.exists(HOSTB_IPSEC_NSS_DIR):
             os.mkdir(f"{HOSTB_IPSEC_NSS_DIR}")
 
-        shutil.copytree(
-            "/etc/ipsec.d/policies/", f"{HOSTB_IPSEC_CONF_DIR}/policies"
-        )
+        shutil.copytree("/etc/ipsec.d/policies/", f"{HOSTB_IPSEC_CONF_DIR}/policies")
 
         _init_libreswan_nss_db(HOSTB_IPSEC_NSS_DIR)
         RSA_SIGNATURES["hostb"] = _new_rsa_hostkey(HOSTB_IPSEC_NSS_DIR)
@@ -156,8 +154,7 @@ def setup_hostb_ipsec_conn():
             check=True,
         )
         cmdlib.exec_cmd(
-            f"ip netns exec {HOSTB_NS} "
-            f"ip link set {HOSTB_DUMMY_NIC} up".split(),
+            f"ip netns exec {HOSTB_NS} " f"ip link set {HOSTB_DUMMY_NIC} up".split(),
             check=True,
         )
         cmdlib.exec_cmd(
@@ -248,9 +245,7 @@ def ipsec_veth_peer():
 
 
 def _new_rsa_hostkey(nss_path):
-    cmdlib.exec_cmd(
-        f"ipsec newhostkey --nssdir {nss_path}".split(), check=True
-    )
+    cmdlib.exec_cmd(f"ipsec newhostkey --nssdir {nss_path}".split(), check=True)
     output = cmdlib.exec_cmd(
         f"ipsec showhostkey --nssdir {nss_path} --list".split(), check=True
     )[1].strip()
@@ -258,8 +253,7 @@ def _new_rsa_hostkey(nss_path):
     return re.search(
         "leftrsasigkey=(.+)$",
         cmdlib.exec_cmd(
-            f"ipsec showhostkey --nssdir {nss_path} "
-            f"--left --ckaid {ckaid}".split(),
+            f"ipsec showhostkey --nssdir {nss_path} " f"--left --ckaid {ckaid}".split(),
             check=True,
         )[1].strip(),
     ).group(1)
@@ -314,9 +308,7 @@ def setup_hosta_ip():
     for con_dev_pair in all_con_dev_pair.split("\n"):
         if HOSTA_NIC in con_dev_pair:
             con_name = con_dev_pair.split(":")[0]
-            cmdlib.exec_cmd(
-                ["nmcli", "connection", "del", con_name], check=True
-            )
+            cmdlib.exec_cmd(["nmcli", "connection", "del", con_name], check=True)
     libnmstate.apply(
         {
             # NetworkManager need default gateway to start ipsec connection
@@ -386,9 +378,7 @@ def _check_ipsec(left, right):
 def _check_ipsec_ip(ip_net_prefix, nic):
     try:
         iface_state = show_only([nic])[Interface.KEY][0]
-        for ip in iface_state.get(Interface.IPV4, {}).get(
-            InterfaceIP.ADDRESS, []
-        ):
+        for ip in iface_state.get(Interface.IPV4, {}).get(InterfaceIP.ADDRESS, []):
             if ip.get(InterfaceIP.ADDRESS_IP, "").startswith(ip_net_prefix):
                 return True
     except Exception:
@@ -577,9 +567,6 @@ def test_ipsec_ipv4_libreswan_fromcert(
     )
 
 
-@pytest.mark.xfail(
-    reason="NetworkManager-libreswan might be too old",
-)
 def test_ipsec_ipv4_libreswan_psk_auth_with_ipsec_iface(
     ipsec_hosta_conn_cleanup,
 ):
@@ -610,9 +597,6 @@ def test_ipsec_ipv4_libreswan_psk_auth_with_ipsec_iface(
     )
 
 
-@pytest.mark.xfail(
-    reason="NetworkManager-libreswan might be too old",
-)
 def test_ipsec_ipv4_libreswan_psk_auth_with_dpd(
     ipsec_hosta_conn_cleanup,
 ):
@@ -646,9 +630,6 @@ def test_ipsec_ipv4_libreswan_psk_auth_with_dpd(
     )
 
 
-@pytest.mark.xfail(
-    reason="NetworkManager-libreswan might be too old",
-)
 def test_ipsec_ipv4_libreswan_authby(
     ipsec_hosta_conn_cleanup,
 ):

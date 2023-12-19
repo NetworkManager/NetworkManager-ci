@@ -26,9 +26,7 @@ def ip_monitor_assert_stable_link_up(dev, timeout=10):
         def wrapper_ip_monitor(*args, **kwargs):
             with ip_monitor("link", dev, timeout) as result:
                 func(*args, **kwargs)
-            assert len(get_non_up_events(result, dev)) == 0, (
-                "result: " + result.out
-            )
+            assert len(get_non_up_events(result, dev)) == 0, "result: " + result.out
 
         return wrapper_ip_monitor
 

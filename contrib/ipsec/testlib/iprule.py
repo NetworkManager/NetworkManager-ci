@@ -52,9 +52,7 @@ def ip_rule_exist_in_os(rule):
         ):
             found = False
             continue
-        if ip_to and ip_to != iplib.to_ip_address_full(
-            rule["dst"], rule.get("dstlen")
-        ):
+        if ip_to and ip_to != iplib.to_ip_address_full(rule["dst"], rule.get("dstlen")):
             found = False
             continue
         if priority is not None and rule["priority"] != priority:

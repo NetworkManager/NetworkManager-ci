@@ -39,9 +39,7 @@ RETRY_COUNT = 100
 
 def assert_state(desired_state_data):
     """Given a state, assert it against the current state."""
-    desired_state, current_state = _prepare_state_for_verify(
-        desired_state_data
-    )
+    desired_state, current_state = _prepare_state_for_verify(desired_state_data)
 
     assert desired_state.state == current_state.state
 
@@ -64,9 +62,7 @@ def assert_state_match(desired_state_data, no_retry=False):
     value in desired_state as match.
     """
     for i in range(0, RETRY_COUNT):
-        desired_state, current_state = _prepare_state_for_verify(
-            desired_state_data
-        )
+        desired_state, current_state = _prepare_state_for_verify(desired_state_data)
         if desired_state.match(current_state):
             return
         elif i == RETRY_COUNT - 1 or no_retry:
@@ -165,13 +161,8 @@ def _fix_bond_state(current_state):
     """
     for iface_state in current_state.state[Interface.KEY]:
         if iface_state.get(Interface.TYPE) == InterfaceType.BOND:
-            bond_options = iface_state[Bond.CONFIG_SUBTREE][
-                Bond.OPTIONS_SUBTREE
-            ]
-            if (
-                "arp_interval" in bond_options
-                and "arp_ip_target" not in bond_options
-            ):
+            bond_options = iface_state[Bond.CONFIG_SUBTREE][Bond.OPTIONS_SUBTREE]
+            if "arp_interval" in bond_options and "arp_ip_target" not in bond_options:
                 bond_options["arp_ip_target"] = ""
 
 
@@ -194,9 +185,7 @@ def _sanitize_ovsdb(state):
         for port_conf in iface_state.get(OVSBridge.CONFIG_SUBTREE, {}).get(
             OVSBridge.PORT_SUBTREE, []
         ):
-            bond_conf = port_conf.get(
-                OVSBridge.Port.LINK_AGGREGATION_SUBTREE, {}
-            )
+            bond_conf = port_conf.get(OVSBridge.Port.LINK_AGGREGATION_SUBTREE, {})
             ovsdb_conf = bond_conf.get(
                 OVSBridge.Port.LinkAggregation.OVS_DB_SUBTREE, {}
             )
@@ -243,9 +232,7 @@ def _expand_vlan_filter_range(state):
                     )
 
             new_trunk_tags.sort(key=itemgetter(LB.Port.Vlan.TrunkTags.ID))
-            port_config[LB.Port.VLAN_SUBTREE][
-                LB.Port.Vlan.TRUNK_TAGS
-            ] = new_trunk_tags
+            port_config[LB.Port.VLAN_SUBTREE][LB.Port.Vlan.TRUNK_TAGS] = new_trunk_tags
 
 
 def _remove_linux_bridge_read_only_options(state):

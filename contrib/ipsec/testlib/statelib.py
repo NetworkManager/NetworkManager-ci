@@ -62,8 +62,7 @@ class State:
         In case there are no entities for filtering, all are reported.
         """
         base_iface_names = {
-            ifstate[Interface.NAME]
-            for ifstate in based_on_state.get(Interface.KEY, [])
+            ifstate[Interface.NAME] for ifstate in based_on_state.get(Interface.KEY, [])
         }
 
         if not base_iface_names:
@@ -122,9 +121,7 @@ class State:
         for iface_state in self.state[Interface.KEY]:
             iface_ipv6_state = iface_state.get(Interface.IPV6)
             if iface_ipv6_state:
-                iface_ipv6_addresses_state = iface_ipv6_state.get(
-                    InterfaceIP.ADDRESS
-                )
+                iface_ipv6_addresses_state = iface_ipv6_state.get(InterfaceIP.ADDRESS)
                 if iface_ipv6_addresses_state:
                     iface_ipv6_state[InterfaceIP.ADDRESS] = [
                         _canonicalize_ipv6_addr(iface_ipv6_addr)
@@ -151,21 +148,15 @@ class State:
     def _ipv6_skeleton_canonicalization(self):
         for iface_state in self._state.get(Interface.KEY, []):
             iface_state.setdefault(Interface.IPV6, {})
-            iface_state[Interface.IPV6].setdefault(
-                InterfaceIPv6.ENABLED, False
-            )
+            iface_state[Interface.IPV6].setdefault(InterfaceIPv6.ENABLED, False)
             iface_state[Interface.IPV6].setdefault(InterfaceIPv6.ADDRESS, [])
             iface_state[Interface.IPV6].setdefault(InterfaceIPv6.DHCP, False)
-            iface_state[Interface.IPV6].setdefault(
-                InterfaceIPv6.AUTOCONF, False
-            )
+            iface_state[Interface.IPV6].setdefault(InterfaceIPv6.AUTOCONF, False)
 
     def _ipv4_skeleton_canonicalization(self):
         for iface_state in self._state.get(Interface.KEY, []):
             iface_state.setdefault(Interface.IPV4, {})
-            iface_state[Interface.IPV4].setdefault(
-                InterfaceIPv4.ENABLED, False
-            )
+            iface_state[Interface.IPV4].setdefault(InterfaceIPv4.ENABLED, False)
             iface_state[Interface.IPV4].setdefault(InterfaceIPv4.ADDRESS, [])
             iface_state[Interface.IPV4].setdefault(InterfaceIPv4.DHCP, False)
 
@@ -204,10 +195,7 @@ class State:
                 ip = iface_state.get(family, {})
                 if not (
                     ip.get(InterfaceIP.ENABLED)
-                    and (
-                        ip.get(InterfaceIP.DHCP)
-                        or ip.get(InterfaceIPv6.AUTOCONF)
-                    )
+                    and (ip.get(InterfaceIP.DHCP) or ip.get(InterfaceIPv6.AUTOCONF))
                 ):
                     for dhcp_option in (
                         InterfaceIP.AUTO_ROUTES,
@@ -260,20 +248,16 @@ class State:
 
     def _sort_ovs_lag_ports(self):
         for iface_state in self._state[Interface.KEY]:
-            for port_config in iface_state.get(
-                OVSBridge.CONFIG_SUBTREE, {}
-            ).get(OVSBridge.PORT_SUBTREE, []):
-                port_config.get(
-                    OVSBridge.Port.LINK_AGGREGATION_SUBTREE, {}
-                ).get(OVSBridge.Port.LinkAggregation.PORT_SUBTREE, []).sort(
-                    key=itemgetter(OVSBridge.Port.LinkAggregation.Port.NAME)
-                )
+            for port_config in iface_state.get(OVSBridge.CONFIG_SUBTREE, {}).get(
+                OVSBridge.PORT_SUBTREE, []
+            ):
+                port_config.get(OVSBridge.Port.LINK_AGGREGATION_SUBTREE, {}).get(
+                    OVSBridge.Port.LinkAggregation.PORT_SUBTREE, []
+                ).sort(key=itemgetter(OVSBridge.Port.LinkAggregation.Port.NAME))
 
     def _sort_mptcp_flags(self):
         for iface_state in self._state[Interface.KEY]:
-            iface_state.get(Interface.MPTCP, {}).get(
-                Mptcp.ADDRESS_FLAGS, []
-            ).sort()
+            iface_state.get(Interface.MPTCP, {}).get(Mptcp.ADDRESS_FLAGS, []).sort()
             for addr in iface_state.get(Interface.IPV4, {}).get(
                 InterfaceIPv4.ADDRESS, []
             ):

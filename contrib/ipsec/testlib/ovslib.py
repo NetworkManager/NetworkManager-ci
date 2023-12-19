@@ -107,9 +107,7 @@ class Bridge:
 
     def _get_port(self, name):
         ports = self._get_ports()
-        return next(
-            (port for port in ports if port[OVSBridge.Port.NAME] == name), None
-        )
+        return next((port for port in ports if port[OVSBridge.Port.NAME] == name), None)
 
     def _get_ports(self):
         return self._bridge_iface[OVSBridge.CONFIG_SUBTREE].get(
@@ -131,9 +129,7 @@ class Bridge:
             yield desired_state
         finally:
             desired_state = {
-                Interface.KEY: _set_ifaces_state(
-                    self._ifaces, InterfaceState.ABSENT
-                )
+                Interface.KEY: _set_ifaces_state(self._ifaces, InterfaceState.ABSENT)
             }
             libnmstate.apply(desired_state)
 
@@ -142,9 +138,7 @@ class Bridge:
 
     @property
     def state(self):
-        return {
-            Interface.KEY: _set_ifaces_state(self._ifaces, InterfaceState.UP)
-        }
+        return {Interface.KEY: _set_ifaces_state(self._ifaces, InterfaceState.UP)}
 
 
 def _set_ifaces_state(ifaces, state):

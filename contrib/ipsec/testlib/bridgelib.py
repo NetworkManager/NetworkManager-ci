@@ -87,9 +87,7 @@ def add_port_to_bridge(bridge_subtree_state, port_name, port_state=None):
 
 def create_bridge_subtree_state(options_state=None):
     if options_state is None:
-        options_state = {
-            LinuxBridge.STP_SUBTREE: {LinuxBridge.STP.ENABLED: False}
-        }
+        options_state = {LinuxBridge.STP_SUBTREE: {LinuxBridge.STP.ENABLED: False}}
     return {LinuxBridge.OPTIONS_SUBTREE: options_state}
 
 
@@ -110,9 +108,7 @@ def generate_vlan_filtering_config(
 
 
 def generate_vlan_id_config(*vlan_ids):
-    return [
-        {LinuxBridge.Port.Vlan.TrunkTags.ID: vlan_id} for vlan_id in vlan_ids
-    ]
+    return [{LinuxBridge.Port.Vlan.TrunkTags.ID: vlan_id} for vlan_id in vlan_ids]
 
 
 def generate_vlan_id_range_config(min_vlan_id, max_vlan_id):
