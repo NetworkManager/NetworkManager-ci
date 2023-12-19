@@ -134,10 +134,12 @@ def NM_valgrind_start(context, tool="memcheck"):
                 f"vgdb --pid={pid} snapshot {snap_file}", ignore_stderr=True
             )
 
+            mem_heap = 0
             for line in nmci.util.file_get_content_simple(snap_file).split("\n"):
-                if "mem_heap_B=" in line:
-                    return int(int(line.split("=")[1]) / 1024)
-            assert False, "unable to read mem usage"
+                if "mem_heap" in line:
+                    mem_heap += int(int(line.split("=")[1]) / 1024)
+            assert mem_heap > 0, "unable to read mem usage"
+            return mem_heap
 
         context.nm_valgrind_mem_size = _mem_size
 
