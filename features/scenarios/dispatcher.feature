@@ -202,8 +202,13 @@ Feature: NM: dispatcher
 
 
     @RHEL-1671 @RHEL-10195
-    @ver+=1.45.4
+    @ver/rhel/8/6+=1.36.0.17
+    @ver/rhel/8/8+=1.40.16.6
+    @ver/rhel/8/9+=1.40.16.11
+    @ver/rhel/9/2+=1.42.2.11
+    @ver/rhel/9/3+=1.44.0.4
     @ver/rhel/8+=1.40.16.12
+    @ver+=1.45.4
     @not_on_s390x @not_on_ppc64 @not_on_aarch64
     @restore_resolvconf @restart_if_needed
     @dispatcher_track_dns_changes
