@@ -196,7 +196,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.qualifier is not None:
                 args = [self.qualifier, *self.con_names]
             else:
@@ -259,7 +258,11 @@ class _Cleanup:
                     nmci.veth.reset_hwaddr_nmcli(iface)
                     # Why oh why was eth0 filtered out?
                     # if iface != "eth0":
-                    nmci.process.run(["ip", "addr", "flush", iface])
+                    nmci.process.run(
+                        ["ip", "-l", "5", "addr", "flush", iface],
+                        ignore_returncode=nmci.process.IGNORE_RETURNCODE_ALL,
+                        ignore_stderr=True,
+                    )
                     time.sleep(0.1)
             else:
                 assert self.op == "delete", f'Unexpected cleanup op "{self.op}"'
@@ -300,7 +303,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
                     return
@@ -336,7 +338,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             if self.teardown:
                 nmci.veth.teardown_testveth(self.namespace)
 
@@ -424,7 +425,6 @@ class _Cleanup:
             )
 
         def _do_cleanup_impl(self):
-
             cmd = ["nft", "flush", "ruleset"]
             if self.namespace is not None:
                 if not os.path.isdir(f"/var/run/netns/{self.namespace}"):
@@ -445,7 +445,6 @@ class _Cleanup:
             super().__init__(name="udev-update", priority=priority)
 
         def _do_cleanup_impl(self):
-
             nmci.util.update_udevadm()
 
     class CleanupFile(Cleanup):
