@@ -2531,6 +2531,8 @@ testmapper:
     - simwifi_wpa3_personal:
         feature: wifi_hwsim
         tags: wpa_supplicant hostapd gate
+    - simwifi_cloned_mac_address:
+        feature: wifi_hwsim
     - simwifi_wpa3_h2e:
         feature: wifi_hwsim
         tags: wpa_supplicant hostapd

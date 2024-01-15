@@ -525,6 +525,95 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+    @RHEL-16470
+    @ver+=1.45.8
+    @attach_hostapd_log @attach_wpa_supplicant_log @simwifi
+    @simwifi_cloned_mac_address
+    Scenario: nmcli - simwifi - cloned mac address
+    Given "wpa3-psk" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    Then "wpa3-psk:WPA3" is visible with command "nmcli -t -f ssid,security device wifi list"
+    # Check stable which has persistent IPv4, but not in different profiles
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          802-11-wireless.cloned-mac-address stable
+          """
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr1"
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr2"
+    Then Check noted values "addr1" and "addr2" are the same
+    * Delete connection "wifi"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          802-11-wireless.cloned-mac-address stable
+          """
+    When Bring "up" connection "wifi"
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr3"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    Then Check noted values "addr1" and "addr3" are not the same
+    * Delete connection "wifi"
+    # Now check random, address should be always different
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          802-11-wireless.cloned-mac-address random
+          """
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr4"
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr5"
+    Then Check noted values "addr4" and "addr5" are not the same
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr6"
+    Then Check noted values "addr4" and "addr6" are not the same
+    Then Check noted values "addr5" and "addr6" are not the same
+    * Delete connection "wifi"
+    # Now check stable-ssid, address should be always the same, even in different profiles
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          802-11-wireless.cloned-mac-address stable-ssid
+          """
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr7"
+    When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr8"
+    Then Check noted values "addr7" and "addr8" are the same
+    * Delete connection "wifi"
+    * Add "wifi" connection named "wifi" for device "wlan0" with options
+          """
+          autoconnect no
+          ssid wpa3-psk
+          802-11-wireless-security.key-mgmt sae
+          802-11-wireless-security.psk secret123
+          802-11-wireless.cloned-mac-address stable-ssid
+          """
+    When Bring "up" connection "wifi"
+    * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr9"
+    Then Check noted values "addr7" and "addr9" are the same
+
+
     @rhbz1730177
     @ver+=1.22 @rhelver+=8.2 @fedoraver+=31
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
