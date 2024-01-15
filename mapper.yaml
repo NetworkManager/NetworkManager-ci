@@ -868,6 +868,8 @@ testmapper:
         feature: ipv6
     - not_enable_ipv6_on_external:
         feature: ipv6
+    - ipv6_allow_static_routes_without_address:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
@@ -1221,6 +1223,8 @@ testmapper:
     - ipv4_keep_track_l3_despite_too_many_netlink:
         feature: ipv4
     - ipv4_reapply_hostname_from_dhcp:
+        feature: ipv4
+    - ipv4_allow_static_routes_without_address:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan

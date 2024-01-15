@@ -3635,3 +3635,17 @@ Feature: nmcli: ipv4
     * Wait for "1" seconds
     * Run child "ip netns exec testX_ns dnsmasq --pid-file=/tmp/testX_ns.pid --dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,8.8.8.8 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping --log-dhcp --conf-file=/dev/null --dhcp-leasefile=/tmp/testX_ns.lease --dhcp-range=192.0.2.10,192.0.2.15,2m"
     Then "8.8.8.8" is visible with command "cat /etc/resolv.conf" in "120" seconds
+
+
+    @RHEL-5098
+    @ver+=1.45.10
+    @keyfile
+    @ipv4_allow_static_routes_without_address
+    Scenario: NM - ipv4 - configuring static routes to device without IPv4 address
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method manual
+          ipv4.routes 192.168.1.0/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route" in "2" seconds

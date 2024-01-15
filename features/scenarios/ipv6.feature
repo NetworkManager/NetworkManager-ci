@@ -2589,3 +2589,17 @@
     * Restart NM
     Then "lo\s+loopback\s+connected \(externally\)\s+lo" is visible with command "nmcli device"
     Then "0" is not visible with command "cat /proc/sys/net/ipv6/conf/lo/disable_ipv6"
+
+
+    @RHEL-5098
+    @ver+=1.45.10
+    @keyfile
+    @ipv6_allow_static_routes_without_address
+    Scenario: NM - ipv6 - configuring static routes to device without IPv6 address
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv6.method manual
+          ipv6.routes 1010::1/128
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
+    Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
