@@ -350,7 +350,7 @@
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "bond-slave" in editor
-     * Expect "aster"
+     * Expect "Master|Controller"
      * Submit "nm-bond" in editor
      * Expect "Interface name"
      * Submit "eth1" in editor

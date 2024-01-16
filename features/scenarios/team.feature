@@ -112,7 +112,7 @@
      * Open wizard for adding new connection
      * Expect "Connection type"
      * Submit "team-slave" in editor
-     * Expect "Master"
+     * Expect "Master|Controller"
      * Submit "nm-team" in editor
      * Expect "Interface name"
      * Submit "eth5" in editor
