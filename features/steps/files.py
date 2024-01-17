@@ -244,6 +244,21 @@ def set_val_in_keyfile(context, sect, key, val, file=None, note="noted-value"):
     )
 
 
+@step("Update the noted keyfile")
+@step('Update the keyfile in the noted value "{note}"')
+@step('Update the keyfile "{file}"')
+def step_update_keyfile(context, file=None, note="noted-value"):
+    """
+    Note: no backup/restore mechanism is part of this step, use only for files
+    that will be deleted after scenario to avoid affecting environment in the
+    scenarios following the one where this step is used
+    """
+    if file is None:
+        file = context.noted[note]
+    assert context.text, "text has to be non-empty!"
+    nmci.misc.keyfile_update(file, context.text)
+
+
 @step('Check ifcfg-file "{file}" has options')
 def check_ifcfg(context, file):
     assert os.path.isfile(file), "File '%s' does not exist" % file

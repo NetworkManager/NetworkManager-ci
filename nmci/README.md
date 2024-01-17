@@ -1355,6 +1355,14 @@ Get journal messgages satisfying the filters.
 * **Return type:**
   str
 
+### nmci.misc.keyfile_update(file, new_conf)
+
+Update *file* with new configuratios specified as a string.
+
+* **Parameters:**
+  * **file** – path specifying which file is to be modified
+  * **new_conf** – New configuration also in keyfile/ConfigParser format
+
 ### nmci.misc.list_to_intervals(numbers)
 
 Converts list of sorted numbers to string containing intervals.

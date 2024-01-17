@@ -1,3 +1,4 @@
+import configparser
 import glob
 import os
 import re
@@ -1372,6 +1373,27 @@ class _Misc:
             result.append(values[dict_key])
             result.append(rest)
         return "".join(result)
+
+    def keyfile_update(self, file, new_conf):
+        """
+        Update *file* with new configuratios specified as a string.
+
+        :param file: path specifying which file is to be modified
+        :type text: str, file-like object
+        :param new_conf: New configuration also in keyfile/ConfigParser format
+        :type text: str
+        """
+        nmci.embed.embed_file_if_exists(
+            f"Before modification contents of: {file}", file, fail_only=True
+        )
+        cp = configparser.ConfigParser()
+        assert file in cp.read(file), f"File '{file}' is not a valid config file."
+        cp.read_string(new_conf)
+        with open(file, "w") as f:
+            cp.write(f, space_around_delimiters=False)
+        nmci.embed.embed_file_if_exists(
+            f"After modification contents of: {file}", file, fail_only=True
+        )
 
 
 _module = _Misc()
