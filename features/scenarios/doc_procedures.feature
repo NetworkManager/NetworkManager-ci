@@ -619,7 +619,12 @@ Feature: nmcli - procedures in documentation
     * Doc "Configuring firewalls and packet filters": "Manually assigning a zone to a network connection in a connection profile file"
     * Add "ethernet" connection named "con_con" for device "eth5"
     * Note the output of "nmcli -t -f NAME,FILENAME connection | sed -n 's/^con_con:// p'"
-    * In noted keyfile, section "connection", set "zone" key to "internal"
+    #* In noted keyfile, section "connection", set "zone" key to "internal"
+    * Update the noted keyfile
+        """
+        [connection]
+        zone=internal
+        """
     * Reload connections
     When Execute "nmcli connection up con_con"
     Then "internal" is visible with command "firewall-cmd --get-zone-of-interface eth5"

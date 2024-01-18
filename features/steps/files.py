@@ -225,25 +225,6 @@ def check_keyfile(context, file):
         assert cfg_val == value, "'%s' not found in file '%s'" % (line, file)
 
 
-@step('In noted keyfile, section "{sect}", set "{key}" key to "{val}"')
-def set_val_in_keyfile(context, sect, key, val, file=None, note="noted-value"):
-    if file is None:
-        file = context.noted[note]
-    nmci.embed.embed_file_if_exists(
-        f"Before modification contents of: {file}", file, fail_only=True
-    )
-    cp = configparser.ConfigParser()
-    assert file in cp.read(file), f"File '{file}' is not a valid config file."
-    if sect not in cp.sections():
-        cp.add_section(sect)
-    cp[sect][key] = val
-    with open(file, "w") as f:
-        cp.write(f, space_around_delimiters=False)
-    nmci.embed.embed_file_if_exists(
-        f"After modification contents of: {file}", file, fail_only=True
-    )
-
-
 @step("Update the noted keyfile")
 @step('Update the keyfile in the noted value "{note}"')
 @step('Update the keyfile "{file}"')
