@@ -2093,8 +2093,8 @@ def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 2]:
         context.process.run_stdout(
             "dnf -4 -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9_2) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 2.el9_2)",
+            $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9_2) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 3.el9_2)",
             timeout=120,
             shell=True,
             ignore_stderr=True,
@@ -2102,8 +2102,8 @@ def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 3]:
         context.process.run_stdout(
             "dnf -4 -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9_3) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 2.el9_3)",
+            $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9_3) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 3.el9_3)",
             timeout=120,
             shell=True,
             ignore_stderr=True,
@@ -2111,8 +2111,8 @@ def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 4]:
         context.process.run_stdout(
             "dnf -4 -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.21 2.el9) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.18 1.el9)",
+            $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9) \
+            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.18 2.el9)",
             timeout=120,
             shell=True,
             ignore_stderr=True,
@@ -2121,10 +2121,10 @@ def nmstate_libreswan_bs(context, scenario):
         kojihub = "https://kojihub.stream.centos.org/kojifiles/packages/"
         context.process.run_stdout(
             f"dnf -4 -y update \
-            {kojihub}nmstate/2.2.21/2.el9/x86_64/nmstate-2.2.21-2.el9.x86_64.rpm \
-            {kojihub}nmstate/2.2.21/2.el9/x86_64/nmstate-libs-2.2.21-2.el9.x86_64.rpm \
-            {kojihub}nmstate/2.2.21/2.el9/x86_64/python3-libnmstate-2.2.21-2.el9.x86_64.rpm \
-            {kojihub}NetworkManager-libreswan/1.2.18/1.el9/x86_64/NetworkManager-libreswan-1.2.18-1.el9.x86_64.rpm",
+            {kojihub}nmstate/2.2.23/1.el9/x86_64/nmstate-2.2.23-1.el9.x86_64.rpm \
+            {kojihub}nmstate/2.2.23/1.el9/x86_64/nmstate-libs-2.2.23-1.el9.x86_64.rpm \
+            {kojihub}nmstate/2.2.23/1.el9/x86_64/python3-libnmstate-2.2.23-1.el9.x86_64.rpm \
+            {kojihub}NetworkManager-libreswan/1.2.18/2.el9/x86_64/NetworkManager-libreswan-1.2.18-2.el9.x86_64.rpm",
             timeout=120,
             shell=True,
             ignore_stderr=True,

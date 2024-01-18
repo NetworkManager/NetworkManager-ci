@@ -28,6 +28,17 @@ def create_veth_pair(nic, nic_peer, peer_ns):
         f"ip netns exec {peer_ns} ip link set {nic_peer} up".split(),
         check=True,
     )
+
+    # Here we need to wait for device availability in NM on slow machines
+    timeout = 0
+    max_timeout = 0.3
+    while True:
+        if exec_cmd(f"nmcli device show {nic}".split())[0] == 0:
+            break
+        time.sleep(0.1)
+        assert timeout != max_timeout, "Device not available for NM in 0.3s"
+        timeout += 0.1
+
     exec_cmd(f"nmcli device set {nic} managed yes".split(), check=True)
 
 
