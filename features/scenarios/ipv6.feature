@@ -8,6 +8,7 @@
     # Scenario:
 
 
+    @ver-1.45.10
     @ipv6_method_static_without_IP
     Scenario: nmcli - ipv6 - method - static without IP
     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "autoconnect no"

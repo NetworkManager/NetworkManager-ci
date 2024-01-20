@@ -5,6 +5,7 @@ Feature: IPv6 TUI tests
   * Prepare virtual terminal environment
 
 
+    @ver-1.45.10
     @nmtui_ipv6_addresses_static_no_address
     Scenario: nmtui - ipv6 - addresses - static IPv6 without address
     * Prepare new connection of type "Ethernet" named "ethernet"
