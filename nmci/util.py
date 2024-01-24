@@ -857,6 +857,8 @@ class _Util:
             "date '+%Y%m%d-%H%M%S.%N (%s)'",
             nmci.process.WithShell("get_rhel_compose"),
             nmci.process.WithShell("hostnamectl 2>&1"),
+            "free -mt",
+            "df -m",
             "NetworkManager --version",
             ["ls", "-lZ", "/etc/NetworkManager/system-connections/"],
             ["ls", "-lZ", "/etc/sysconfig/network-scripts/"],
