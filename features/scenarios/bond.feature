@@ -979,6 +979,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
+    @ver-1.45.8
     @restart_if_needed
     @bond_slaves_ordering_by_name
     Scenario: NM - bond - alphabet slaves ordering
@@ -1033,6 +1034,7 @@
 
     @rhbz1420708
     @ver+=1.7.9
+    @ver-1.45.8
     @restart_if_needed
     @bond_slaves_ordering_by_name_with_autoconnect_slaves
     Scenario: NM - bond - autoconnect slaves - alphabet slaves ordering
