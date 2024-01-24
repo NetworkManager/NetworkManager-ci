@@ -114,6 +114,9 @@ def check_coredump(context):
                     raise e
 
             nmci.embed.embed_dump("COREDUMP", dump_dir, data=dump)
+            nmci.embed.embed_data(
+                "Package list", nmci.process.run_stdout(["rpm", "-qa"])
+            )
 
 
 def _coredump_reported_file():
