@@ -744,6 +744,13 @@ Whether FAF report was embedded or not.
 This is called in after scenario to process the embeds
 and send data to the HTML formatter (if present).
 
+### nmci.embed.set_number_embeds(value)
+
+Set numbering of the embeds on or off
+
+* **Parameters:**
+  **value** (*bool*) – True to enable embed numbering, False to disable
+
 ### nmci.embed.set_title(\*a, \*\*kw)
 
 Calls set_title() of the formatter, if supported by formatter.
@@ -2634,7 +2641,7 @@ the NetworkManager process itself (if it’s running under valgrind).
 * **Return type:**
   str
 
-### nmci.util.dump_status(when)
+### nmci.util.dump_status(when, prefix='Status')
 
 Dump status of the system to the log. This is useful for debugging
 purposes. It dumps the status of NetworkManager, systemd-resolved,

@@ -105,6 +105,7 @@ class _Embed:
         self._set_title = None
         self._combine_tags = {}
         self._faf_embedded = False
+        self._number_embeds = True
 
         self.Embed = Embed
         self.EmbedData = EmbedData
@@ -127,6 +128,14 @@ class _Embed:
             if hasattr(formatter, "embed"):
                 self._html_formatter = formatter
         self._faf_embedded = False
+
+    def set_number_embeds(self, value):
+        """Set numbering of the embeds on or off
+
+        :param value: True to enable embed numbering, False to disable
+        :type value: bool
+        """
+        self._number_embeds = value
 
     def get_embed_context(self, combine_tag):
         """Returns the EmbedContext object for given combine tag, creates new if needed.
@@ -295,11 +304,12 @@ class _Embed:
         (mime_type, data) = self._embed_mangle_message_for_fail(
             entry.fail_only, mime_type, data
         )
+        numbered_caption = f"({entry._embed_context.count}) {caption}"
         self._embed_args(
             entry._embed_context.embed_data,
             mime_type,
             data,
-            f"({entry._embed_context.count}) {caption}",
+            numbered_caption if self._number_embeds else caption,
         )
         # overrie fail_only=False if verbose mode
         if entry._embed_context.embed_data is not None:
@@ -310,7 +320,9 @@ class _Embed:
         counts = nmci.misc.list_to_intervals(
             [entry._embed_context.count for entry in lst]
         )
-        main_caption = f"({counts}) {combine_tag}"
+        main_caption = (
+            f"({counts}) {combine_tag}" if self._number_embeds else combine_tag
+        )
         message = ""
         # Set fail_only=False only when some entry has fail_only=False
         fail_only = True
