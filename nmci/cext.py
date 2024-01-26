@@ -27,7 +27,7 @@ class _CExt:
         :param context: behave context object
         :type context: behave.Context
         """
-        assert not hasattr(context, "embed")
+
         assert not hasattr(context, "cext")
 
         self.context = context
