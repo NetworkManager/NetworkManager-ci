@@ -479,6 +479,15 @@ def nm_env(context):
         )
     assert ret == 0, "NetworkManager-ci envsetup failed !!!"
     nm_install_pkgs(context)
+    subprocess.call("sudo chown -R test:test ./NMci", shell=True)
+    nmci.cext.setup(context)
+    nmci.embed.set_number_embeds(False)
+    context.nm_pid = nmci.nmutil.nm_pid()
+    nmci.util.dump_status("before scenario", "NM Status")
+    context.sandbox.add_after_scenario_hook(
+        nmci.util.dump_status, "after scenario", "NM Status"
+    )
+    context.sandbox.add_after_scenario_hook(nmci.embed.process_embeds)
 
 
 @step("Install packages")
