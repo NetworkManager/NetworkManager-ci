@@ -715,7 +715,7 @@ class _Util:
         )
         time.sleep(0.8)
 
-    def dump_status(self, when):
+    def dump_status(self, when, prefix="Status"):
         """
         Dump status of the system to the log. This is useful for debugging
         purposes. It dumps the status of NetworkManager, systemd-resolved,
@@ -926,7 +926,9 @@ class _Util:
                 "\nWARNING: timeout expired waiting for processes. Processes were terminated."
             )
 
-        nmci.embed.embed_data("Status " + when, "\n".join(msg), mime_type="text/html")
+        nmci.embed.embed_data(
+            f"{prefix} " + when, "\n".join(msg), mime_type="text/html"
+        )
 
     def dump_memory_stats(self):
         """
