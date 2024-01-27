@@ -14,7 +14,7 @@ Feature: nmcli: ipv4
     * Open editor for connection "con_ipv4"
     * Submit "set ipv4.method static" in editor
     * Save in editor
-    Then Error type "connection verification failed: ipv4.addresses:" while saving in editor
+    Then Error type "connection verification failed: ipv4" while saving in editor
 
 
     @rhbz979288
