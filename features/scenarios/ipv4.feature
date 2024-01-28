@@ -3621,8 +3621,12 @@ Feature: nmcli: ipv4
 
 
     @RHEL-8423 @RHEL-8420
-    @ver+=1.42.2.10
+    @RHEL-20598 @RHEL-20599 @RHEL-20600
+    @ver/rhel/8/6+=1.36.0.18
+    @ver/rhel/8/8+=1.40.16.8
+    @ver/rhel/8/9+=1.40.16.14
     @ver/rhel/8+=1.40.16.11
+    @ver+=1.42.2.10
     @ipv4_reapply_hostname_from_dhcp
     Scenario: Reapply hostname from DHCP
     * Prepare simulated test "testX" device with "192.0.2" ipv4 and daemon options "--no-hosts --dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,1.1.1.1 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping"
