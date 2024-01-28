@@ -2014,6 +2014,8 @@ testmapper:
         feature: general
     - nmcli_version_warning:
         feature: general
+    - nmcli_controller_naming_convention:
+        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
