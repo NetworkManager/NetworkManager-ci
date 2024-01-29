@@ -161,8 +161,8 @@ configure_nm_gsm () {
     local RC=1
     [ -e /tmp/gsm_configured ] && return
 
-    mkdir /mnt/scratch
-    mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
+    # mkdir /mnt/scratch
+    # mount -t nfs nest.test.redhat.com:/mnt/qa/desktop/broadband_lock /mnt/scratch
 
     VER=$(rpm -q --queryformat '%{VERSION}' NetworkManager)
     REL=$(rpm -q --queryformat '%{RELEASE}' NetworkManager)

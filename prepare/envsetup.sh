@@ -32,7 +32,9 @@ configure_environment () {
             configure_nm_inf
             ;;
         *gsm*)
-            configure_nm_gsm
+            if [[ "$1" != *"gsm_sim"* ]]; then
+                configure_nm_gsm
+            fi
             ;;
     esac
 }
