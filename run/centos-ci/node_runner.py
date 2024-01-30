@@ -238,7 +238,8 @@ class Machine:
     def prepare(self):
         logging.debug(f"Prepare machine {self.id}")
         # upgrade
-        self.ssh("dnf -y upgrade --nobest")
+        self.ssh("dnf -y upgrade --nobest", verbose=True)
+        self.ssh("nmcli d", verbose=True)
         self.reboot()
         # enable NM debug/trace logs
         self.scp_to(
