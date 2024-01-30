@@ -37,7 +37,7 @@ install_el8_packages () {
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
         podman mptcpd python3-systemd s390utils-base nmstate bzip2 bind-utils valgrind \
-        --skip-broken
+        ModemManager usb_modeswitch usbutils --skip-broken
 
     # freeradius
     rm -rf /etc/raddb

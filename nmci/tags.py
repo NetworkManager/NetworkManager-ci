@@ -168,6 +168,16 @@ def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping on not intel arch")
 
+    if context.process.systemctl("is-active ModemManager").returncode != 0:
+        context.process.run(
+            "semodule -i contrib/selinux-policy/ModemManager.pp",
+            ignore_stderr=True,
+        )
+
+        context.process.systemctl("restart ModemManager")
+
+        nmci.nmutil.restart_NM_service()
+
     # Load ppp_generic to avoid first test failure
     context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
 

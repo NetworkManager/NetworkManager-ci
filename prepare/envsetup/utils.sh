@@ -42,60 +42,71 @@ check_packages () {
 
 install_plugins_yum () {
     # Installing plugins if missing
+    pkgs=" "
     if ! rpm -q --quiet NetworkManager-wifi; then
-        yum -y install NetworkManager-wifi
+        pkgs+=" NetworkManager-wifi"
     fi
     if ! rpm -q --quiet NetworkManager-team; then
-        yum -y install NetworkManager-team
+        pkgs+=" NetworkManager-team"
+    fi
+    if ! rpm -q --quiet NetworkManager-wwan; then
+        pkgs+=" NetworkManager-wwan"
     fi
     if ! rpm -q --quiet NetworkManager-tui; then
-        yum -y install NetworkManager-tui
+        pkgs+=" NetworkManager-tui"
     fi
     if ! rpm -q --quiet NetworkManager-cloud-setup; then
-        yum -y install NetworkManager-cloud-setup
+        pkgs+=" NetworkManager-cloud-setup"
     fi
     if ! rpm -q --quiet NetworkManager-pptp; then
-        yum -y install NetworkManager-pptp
+        pkgs+=" NetworkManager-pptp"
     fi
     if ! rpm -q --quiet NetworkManager-ovs; then
-        yum -y install NetworkManager-ovs
+        pkgs+=" NetworkManager-ovs"
     fi
     if ! rpm -q --quiet NetworkManager-ppp; then
-        yum -y install NetworkManager-ppp
+        pkgs+=" NetworkManager-ppp"
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
-        yum -y install NetworkManager-openvpn
+        pkgs+=" NetworkManager-openvpn"
     fi
 
+    yum -y install $pkgs
 }
 
 
 install_plugins_dnf () {
     # Installing plugins if missing
+    pkgs=" "
     if ! rpm -q --quiet NetworkManager-wifi; then
-        dnf -y install NetworkManager-wifi
+        pkgs+=" NetworkManager-wifi"
     fi
     if ! rpm -q --quiet NetworkManager-team; then
-        dnf -y install NetworkManager-team
+        pkgs+=" NetworkManager-team"
+    fi
+    if ! rpm -q --quiet NetworkManager-wwan; then
+        pkgs+=" NetworkManager-wwan"
     fi
     if ! rpm -q --quiet NetworkManager-tui; then
-        dnf -y install NetworkManager-tui
+        pkgs+=" NetworkManager-tui"
     fi
     if ! rpm -q --quiet NetworkManager-cloud-setup; then
-        dnf -y install NetworkManager-cloud-setup
+        pkgs+=" NetworkManager-cloud-setup"
     fi
     if ! rpm -q --quiet NetworkManager-pptp; then
-        dnf -y install NetworkManager-pptp
+        pkgs+=" NetworkManager-pptp"
     fi
     if ! rpm -q --quiet NetworkManager-ovs; then
-        dnf -y install NetworkManager-ovs
+        pkgs+=" NetworkManager-ovs"
     fi
     if ! rpm -q --quiet NetworkManager-ppp; then
-        dnf -y install NetworkManager-ppp
+        pkgs+=" NetworkManager-ppp"
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
-        dnf -y install NetworkManager-openvpn
+        pkgs+=" NetworkManager-openvpn"
     fi
+
+    dnf -y install $pkgs
 }
 
 

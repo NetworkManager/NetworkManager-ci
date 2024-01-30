@@ -37,7 +37,8 @@ install_el7_packages () {
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
-        openvpn rp-pppoe s390utils-base valgrind \
+        openvpn rp-pppoe s390utils-base valgrind ModemManager usb_modeswitch \
+        usbutils \
         --skip-broken
 
     # freeradius
