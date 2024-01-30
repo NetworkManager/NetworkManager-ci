@@ -263,7 +263,7 @@ install_usb_hub_driver_el () {
 get_online_state() {
     echo -n > /tmp/nmcli_general
     for i in {1..20}; do
-        nmcli general | tee --append - /tmp/nmcli_general | grep -q "^connected" && return 0
+        nmcli general | tee --append /tmp/nmcli_general | grep -q "^connected" && return 0
         echo "get online state #$i failed"
         (( i % 10 )) || {
             echo "After crash reset:";

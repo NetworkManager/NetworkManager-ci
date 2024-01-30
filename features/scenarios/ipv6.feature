@@ -2417,7 +2417,7 @@
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
     # Now that we know the stable-privacy address generated, set it also in the namespace
     # and reactivate to cause a collision; then check that NM generates a different address
-    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee - /tmp/ipv6addr.txt"
+    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
     * Bring "down" connection "con_ipv6"
     * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
     * Execute "sleep 5"
@@ -2446,7 +2446,7 @@
     * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
     # Now that we know the stable-privacy address generated, set it also in the namespace
     # and reactivate to cause a collision; then check that NM generates a different address
-    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee - /tmp/ipv6addr.txt"
+    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
     * Bring "down" connection "con_ipv6"
     * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
     * Execute "sleep 5"
