@@ -10,7 +10,7 @@ Feature: nmcli: gsm
 
     @ver+=1.21.1
     @ver-=1.39.6
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -28,7 +28,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.39.7
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -46,7 +46,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_create_default_connection
     Scenario: nmcli - gsm_sim - create a connection
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -59,7 +59,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_disconnect
     Scenario: nmcli - gsm_sim - disconnect
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -73,7 +73,7 @@ Feature: nmcli: gsm
 
     @rhbz1388613 @rhbz1460217
     @ver+=1.12.0
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_mtu
     Scenario: nmcli - gsm_sim - mtu
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -96,7 +96,7 @@ Feature: nmcli: gsm
 
     @rhbz1585611
     @ver+=1.12
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_route_metric
     Scenario: nmcli - gsm_sim - route metric
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -118,7 +118,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.12.0
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_load_from_file
     Scenario: nmcli - gsm_sim - load connection from file
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
@@ -142,7 +142,7 @@ Feature: nmcli: gsm
 
 
     @ver+=1.18.0
-    @gsm_sim
+    @permissive @gsm_sim
     @gsm_sim_profile_with_serials
     Scenario: nmcli - gsm_sim - serial
     Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
