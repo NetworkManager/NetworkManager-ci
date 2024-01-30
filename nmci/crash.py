@@ -115,7 +115,10 @@ def check_coredump(context):
 
             nmci.embed.embed_dump("COREDUMP", dump_dir, data=dump)
             nmci.embed.embed_data(
-                "Package list", nmci.process.run_stdout(["rpm", "-qa"])
+                "Package list",
+                nmci.process.run_stdout(
+                    ["rpm", "-qa"], embed_combine_tag=nmci.embed.NO_EMBED
+                ),
             )
 
 
