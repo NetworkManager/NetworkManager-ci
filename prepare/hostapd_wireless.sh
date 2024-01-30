@@ -280,13 +280,13 @@ rsn_pairwise=CCMP
 $(hostapd_conf_header)
 ssid=wpa3-owe-transition
 owe_transition_bssid=MAC_wlan$((num_ap+1))
-owe_transition_ssid=\"wpa3-owe-hidden\"
+#owe_transition_ssid=\"wpa3-owe-hidden\"
 " > $HOSTAPD_CFG.$num_ap
 
   ((++num_ap))
   echo "#wpa3_oweh
 $(hostapd_conf_header)
-ssid=wpa3-owe-hidden
+#ssid=wpa3-owe-hidden
 ieee80211w=2
 wpa=2
 wpa_key_mgmt=OWE
