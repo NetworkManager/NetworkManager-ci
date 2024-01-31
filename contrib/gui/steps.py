@@ -534,6 +534,11 @@ def prepare_gsm(context, modem="modemu"):
         context,
     )
     context.execute_steps("""* Delete all connections of type "gsm" after scenario""")
+    subprocess.call(
+        "sudo semodule --list | grep ModemManager ||"
+        "sudo semodule -i NMci/contrib/selinux-policy/ModemManager.pp",
+        shell=True,
+    )
     subprocess.Popen(
         f"sudo bash {NM_CI_RUNNER_CMD} "
         f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
