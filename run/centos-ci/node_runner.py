@@ -239,6 +239,8 @@ class Machine:
         logging.debug(f"Prepare machine {self.id}")
         # upgrade
         self.ssh("dnf -y upgrade --nobest", verbose=True)
+        self.ssh("systemctl restart NetworkManager", verbose=True)
+        self.ssh("nmcli con up 'System eth0'", verbose=True)
         self.ssh("nmcli d", verbose=True)
         self.reboot()
         # enable NM debug/trace logs
