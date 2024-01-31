@@ -1992,8 +1992,8 @@ Feature: nmcli - general
     Then "dummy0.100*" is not visible with command "nmcli c"
 
 
-    # Skip on broken RHEL8.8
-    @rhelver+=8.4
+    # Skip on unmaintained RHEL8
+    @rhelver+=9
     @x86_64_only
     @nmstate_setup @permissive
     @nmstate_upstream
