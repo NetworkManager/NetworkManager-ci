@@ -37,7 +37,7 @@ install_el8_packages () {
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
         podman mptcpd python3-systemd s390utils-base nmstate bzip2 bind-utils valgrind \
-        ModemManager usb_modeswitch usbutils --skip-broken
+        --skip-broken
 
     # freeradius
     rm -rf /etc/raddb
@@ -161,6 +161,10 @@ install_el8_packages () {
         $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm \
         $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm \
         $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm
+
+    # Install non crashing libreswan as RHEL-13123
+    dnf -y -4 install \
+        https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm
 
     # dracut testing
     dnf -4 -y install \
