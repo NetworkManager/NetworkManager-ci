@@ -171,6 +171,7 @@ def gsm_sim_bs(context, scenario):
     if context.process.systemctl("is-active ModemManager").returncode != 0:
         context.process.run(
             "semodule -i contrib/selinux-policy/ModemManager.pp",
+            timeout=120,
             ignore_stderr=True,
         )
 
