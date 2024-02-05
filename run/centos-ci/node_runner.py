@@ -210,6 +210,7 @@ class Machine:
 
     def _setup(self):
         self._wait_for_machine()
+        self._update()
         self.ssh(f"mkdir -p {self.results_internal}")
         # enable repos
         dnf_install = "dnf -y install https://dl.fedoraproject.org/pub/epel/"
@@ -235,14 +236,16 @@ class Machine:
         )
         return True
 
-    def prepare(self):
-        logging.debug(f"Prepare machine {self.id}")
-        # upgrade
+    def _update(self):
+        logging.debug(f"Update machine {self.id}")
         self.ssh("dnf -y upgrade --nobest", verbose=True)
         self.ssh("systemctl restart NetworkManager", verbose=True)
         self.ssh("nmcli device connect eth0", verbose=True)
         self.ssh("nmcli d", verbose=True)
-        self.reboot()
+        self._reboot()
+
+    def prepare(self):
+        logging.debug(f"Prepare machine {self.id}")
         # enable NM debug/trace logs
         self.scp_to(
             "contrib/conf/95-nmci-test.conf",
@@ -260,14 +263,14 @@ class Machine:
     def prepare_async(self):
         self.cmd_async(self.prepare)
 
-    def reboot(self):
+    def _reboot(self):
         self.ssh("reboot", check=False)
         # give some time to shutdown, _wait_for_machine()
         # succeedes when machine is shutting down
         time.sleep(10)
         # give even more time as 60s seems to be nt enough
         self._wait_for_machine(retry=120, timeout=600)
-        logging.debug(f"Machine {self.id} is back online")
+        logging.debug(f"Machine {self.id} is back online after update")
 
     def build(self, refspec, mr="custom", repo=""):
         run("mkdir -p ../rpms/")
@@ -830,11 +833,8 @@ class Runner:
 
     def wait_for_machines(self, abort_on_fail=True, poll_results=False):
         logging.debug(f"Waiting for {self.phase} to finish...")
-        check_interval = 60 if poll_results else 5
-        build_machine = []
-        if self.build_machine is not None:
-            build_machine.append(self.build_machine)
-        running_machines = list(self.machines)  # + build_machine
+        check_interval = 30 if poll_results else 5
+        running_machines = list(self.machines)
         while len(running_machines):
             for m in running_machines:
                 if m.cmd_is_active():
@@ -853,6 +853,7 @@ class Runner:
                     else:
                         logging.debug(f"Failed {self.phase} on machine {m.id}.")
             time.sleep(check_interval)
+        return [not m.cmd_is_failed() for m in self.machines]
 
     def _get_nodes(self, number):
         nodes = []
@@ -899,7 +900,7 @@ class Runner:
         return_cmd = f"{self.DUFFY} retire-session {self.session_id}"
         run(return_cmd)
 
-    def create_machines(self):
+    def create_machines(self, retry=3):
         self.phase = "create"
         if self.gitlab:
             self.gitlab.set_pipeline("running", self.release.replace("-stream", ""))
@@ -924,6 +925,15 @@ class Runner:
         if not self.copr_repo:
             self.build_machine = self.machines[0]
 
+        if not all(self.wait_for_machines(abort_on_fail=False)):
+            logging.debug(
+                f"Failed to get up-to-date machine(s), {retry} attempts left."
+            )
+            self.done()
+            if retry <= 0:
+                self._abort("Unable to create machines that are up-to-date.")
+            self.create_machines(retry - 1)
+
     def prepare_machines(self):
         self.phase = "prepare"
         for m in self.machines:
@@ -935,11 +945,12 @@ class Runner:
                 m.copr_repo = self.copr_repo
                 m.ssh(f"dnf -y copr enable networkmanager/{self.copr_repo}")
         else:
-            self.build_machine.build(self.refspec, self.mr, self.repo)
+            if not self.build_machine.build(self.refspec, self.mr, self.repo):
+                self._abort(
+                    f"Unable to build NetworkManager from source commit {self.refspec}."
+                )
 
     def install_NM_on_machines(self):
-        if self.exit_code != 0:
-            sys.exit(1)
         self.phase = "install NM"
         for m in self.machines:
             m.install_NM_async()
@@ -989,9 +1000,9 @@ def main():
     runner.create_machines()
     runner.wait_for_machines(abort_on_fail=True)
     runner.build()
-    runner.prepare_machines()
-    runner.wait_for_machines(abort_on_fail=True)
     runner.install_NM_on_machines()
+    runner.wait_for_machines(abort_on_fail=True)
+    runner.prepare_machines()
     runner.wait_for_machines(abort_on_fail=True)
     runner.run_tests_on_machines()
     runner.wait_for_machines(abort_on_fail=False, poll_results=True)
