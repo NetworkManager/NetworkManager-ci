@@ -952,7 +952,7 @@ class Runner:
         else:
             if not self.build_machine.build(self.refspec, self.mr, self.repo):
                 self._abort(
-                    f"Unable to build NetworkManager from source commit {self.refspec}."
+                    f"Unable to build NetworkManager from source commit {self.repo}-/commit/{self.refspec}."
                 )
 
     def install_NM_on_machines(self):
