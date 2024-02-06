@@ -849,9 +849,13 @@ class Runner:
                 running_machines.remove(m)
                 if m.cmd_is_failed():
                     if abort_on_fail:
-                        self._abort(f"Failed {self.phase} on machine {m.id}.")
+                        self._abort(
+                            f"Failed {self.phase} on machine {m.id} ({m.name})."
+                        )
                     else:
-                        logging.debug(f"Failed {self.phase} on machine {m.id}.")
+                        logging.debug(
+                            f"Failed {self.phase} on machine {m.id} ({m.name})."
+                        )
             time.sleep(check_interval)
         return [not m.cmd_is_failed() for m in self.machines]
 
@@ -930,6 +934,7 @@ class Runner:
                 f"Failed to get up-to-date machine(s), {retry} attempts left."
             )
             self.done()
+            self.machines = []
             if retry <= 0:
                 self._abort("Unable to create machines that are up-to-date.")
             self.create_machines(retry - 1)
