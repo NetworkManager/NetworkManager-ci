@@ -1497,9 +1497,7 @@
     * Bring "up" connection "con_ipv6"
     * Execute "nmcli d reapply testX6"
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
-    * Execute "echo 'will sleep for 3 minutes'"
-    * Wait for "180" seconds
-    Then "fd01" is visible with command "ip -6 addr show dev testX6"
+    Then "fd01" is visible with command "ip -6 addr show dev testX6" for full "180" seconds
 
 
     @rhbz2082230
