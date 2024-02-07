@@ -338,6 +338,12 @@ _register_tag("1000", tag1000_bs, tag1000_as)
 
 
 def many_vlans_bs(context, scenario):
+    if "CONFIG_IP_VS_DEBUG=Y" in nmci.util.file_get_content_simple(
+        f"/boot/config-{os.uname().release}"
+    ):
+        context.cext.skip(
+            "Skipping @many_vlans-tagged scenarios on kernel with CONFIG_IP_VS_DEBUG"
+        )
     nmci.veth.manage_veths()
     context.process.run_stdout(
         "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
