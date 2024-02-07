@@ -1994,6 +1994,9 @@ Feature: nmcli - general
 
     # Skip on unmaintained RHEL8
     @rhelver+=9
+    # Latest nmstate dropped support for NM<=1.40
+    # https://issues.redhat.com/browse/RHEL-1595
+    @ver+=1.41
     @x86_64_only
     @nmstate_setup @permissive
     @nmstate_upstream
