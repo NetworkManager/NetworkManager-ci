@@ -121,7 +121,8 @@ class GitlabTrigger(object):
     def commit(self):
         commit = None
         if self.request_type == "note":
-            commit = self.data["merge_request"]["last_commit"]["id"].strip()
+            if "merge_request" in self.data:
+                commit = self.data["merge_request"]["last_commit"]["id"].strip()
         elif self.request_type == "merge_request":
             commit = self.data["object_attributes"]["last_commit"]["id"].strip()
         if commit == self.latest_main_commit:
