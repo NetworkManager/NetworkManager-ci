@@ -382,7 +382,7 @@ def value_printed(context, item, value):
     context.prompt.sendline("print")
     # time.sleep(2)
     if value == "current_time":
-        t_int = int(time.time())
+        t_int = int(time.time() / 10)
         t_str = str(t_int)
         value = t_str[:-3]
         print(value)
