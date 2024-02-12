@@ -610,6 +610,7 @@ Feature: nmcli - wifi
           802-11-wireless.cloned-mac-address stable-ssid
           """
     When Bring "up" connection "wifi"
+    When "10" is visible with command "nmcli -g ip4.address device show wlan0" in "2" seconds
     * Note the output of "nmcli -g ip4.address device show wlan0" as value "addr9"
     Then Check noted values "addr7" and "addr9" are the same
 
