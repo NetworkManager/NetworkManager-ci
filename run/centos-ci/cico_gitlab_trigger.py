@@ -335,7 +335,8 @@ def get_rebuild_detail(gt, message, overrides={}):
             overrides["build"] = line.strip().split(":")[-1]
         elif line:
             msg.append(line)
-    overrides["os_version"] = os_version
+    if os_version:
+        overrides["os_version"] = os_version
     return overrides, "\n".join(msg)
 
 
