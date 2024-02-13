@@ -89,8 +89,9 @@ EOF
     # Setting ulimit to unlimited for test user
     echo "ulimit -c unlimited" >> /home/test/.bashrc
 
-    # Turn off terminal colors
+    # Turn off ip route colors
     echo "alias ip='ip -c=never'" >> /home/test/.bashrc
+    echo "alias ip='ip -c=never'" >> /root/.bashrc
 
     # set bash completion
     cp contrib/bash_completion/nmci.sh /etc/bash_completion.d/nmci
