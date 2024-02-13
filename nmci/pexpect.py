@@ -107,6 +107,7 @@ class _PExpect:
         encoding,
         codec_errors,
         shell,
+        check,
     ):
         if logfile is None:
             import tempfile
@@ -116,10 +117,15 @@ class _PExpect:
             logfile = open("/dev/null", "w")
 
         if shell:
+            redirects = ["-i0", "-o0", "-e0"]
+            pipefail = []
+            if check:
+                pipefail = ["-o", "pipefail"]
             if args:
                 args = [
-                    "-o",
-                    "pipefail",
+                    *redirects,
+                    "bash",
+                    *pipefail,
                     "-c",
                     command,
                     "--",
@@ -129,8 +135,8 @@ class _PExpect:
                     "cat",
                 ]
             else:
-                args = ["-o", "pipefail", "-c", command + " | cat"]
-            command = "/bin/bash"
+                args = [*redirects, "bash", *pipefail, "-c", command + " | cat"]
+            command = "/bin/stdbuf"
 
         proc = pexpect.spawn(
             command=command,
@@ -202,6 +208,7 @@ class _PExpect:
             encoding=encoding,
             codec_errors=codec_errors,
             shell=shell,
+            check=check,
         )
 
         data = PexpectData(
@@ -272,6 +279,7 @@ class _PExpect:
             encoding=encoding,
             codec_errors=codec_errors,
             shell=shell,
+            check=check,
         )
 
         data = PexpectData(
