@@ -437,7 +437,10 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
-    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t"
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t" without shell
+    Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
+    * Kill children with signal "15"
+    Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
     * Add "ethernet" connection named "test1-ttls" for device "test1" with options
             """
             autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
@@ -456,7 +459,10 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
-    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t"
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t" without shell
+    Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
+    * Kill children with signal "15"
+    Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
     * Add "ethernet" connection named "test1-tls" for device "test1" with options
             """
             autoconnect no 802-1x.eap tls 802-1x.identity spam
