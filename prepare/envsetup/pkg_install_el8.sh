@@ -13,7 +13,7 @@ install_el8_packages () {
 
     python -m pip install pyroute2
     python -m pip install pexpect
-    python -m pip install netaddr
+    python -m pip install netaddr==0.10.1
     python -m pip install pyte
     python -m pip install IPy
 
