@@ -307,23 +307,6 @@ def secret_key_reset_as(context, scenario):
 _register_tag("secret_key_reset", secret_key_reset_bs, secret_key_reset_as)
 
 
-def tag1000_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    # TODO: move to envsetup
-    if (
-        context.process.run_code(
-            "python -m pip install pyroute2 mitogen", ignore_stderr=True, timeout=120
-        )
-        != 0
-    ):
-        print("installing pip and pyroute2")
-        context.process.run_stdout(
-            "yum -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/p/python2-pyroute2-0.4.13-1.el7.noarch.rpm",
-            timeout=120,
-            ignore_stderr=True,
-        )
-
-
 def tag1000_as(context, scenario):
     context.process.run("ip link del bridge0", ignore_stderr=True)
     context.process.run(
@@ -334,7 +317,7 @@ def tag1000_as(context, scenario):
     )
 
 
-_register_tag("1000", tag1000_bs, tag1000_as)
+_register_tag("1000", None, tag1000_as)
 
 
 def many_vlans_bs(context, scenario):
