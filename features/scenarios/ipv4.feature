@@ -3654,8 +3654,10 @@ Feature: nmcli: ipv4
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "192.168.1.0/24 dev eth3\s+proto static\s+scope link\s+metric" is visible with command "ip route" in "2" seconds
 
+
     @RHEL-16040
     @ver+=1.46.0
+    @keyfile
     @tshark
     @ipv4_dhcp_dscp
     Scenario: NM - ipv4 - set custom DHCP DSCP value
@@ -3671,14 +3673,13 @@ Feature: nmcli: ipv4
       Checking for the default (CS0) DSCP value in DHCPDISCOVER(1) and DHCPREQUEST(3) packets
       """
     * Execute "rm -f /var/lib/NetworkManager/*-testX.lease"
-    * Run child "tshark -n -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 1" > /tmp/tshark.log"
+    * Run child "tshark -n -l -O ip,bootp -i testX -f 'udp port 67'"
     * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS0," is visible with command "cat /tmp/tshark.log"
+    Then Expect "DSCP: CS0," in children in "2" seconds
+    Then Expect "Protocol \(Discover\)" in children in "1" seconds
+    Then Expect "DSCP: CS0," in children in "2" seconds
+    Then Expect "Protocol \(Request\)" in children in "1" seconds
     * Kill children with signal "9"
-    * Run child "tshark -n -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 3" > /tmp/tshark.log"
-    * Execute "sleep 2"
-    * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS0," is visible with command "cat /tmp/tshark.log"
 
     * Commentary
       """
@@ -3686,16 +3687,14 @@ Feature: nmcli: ipv4
       """
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-dscp CS6"
     * Execute "rm -f /var/lib/NetworkManager/*-testX.lease"
-    * Kill children with signal "9"
-    * Run child "tshark -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 1" > /tmp/tshark.log"
+    * Run child "tshark -l -O ip,bootp -i testX -f 'udp port 67'"
     * Execute "sleep 2"
     * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS6," is visible with command "cat /tmp/tshark.log"
+    Then Expect "DSCP: CS6," in children in "2" seconds
+    Then Expect "Protocol \(Discover\)" in children in "1" seconds
+    Then Expect "DSCP: CS6," in children in "2" seconds
+    Then Expect "Protocol \(Request\)" in children in "1" seconds
     * Kill children with signal "9"
-    * Run child "tshark -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 3" > /tmp/tshark.log"
-    * Execute "sleep 2"
-    * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS6," is visible with command "cat /tmp/tshark.log"
 
     * Commentary
       """
@@ -3703,16 +3702,14 @@ Feature: nmcli: ipv4
       """
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-dscp CS4"
     * Execute "rm -f /var/lib/NetworkManager/*-testX.lease"
-    * Kill children with signal "9"
-    * Run child "tshark -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 1" > /tmp/tshark.log"
+    * Run child "tshark -l -O ip,bootp -i testX -f 'udp port 67'"
     * Execute "sleep 2"
     * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS4," is visible with command "cat /tmp/tshark.log"
+    Then Expect "DSCP: CS4," in children in "2" seconds
+    Then Expect "Protocol \(Discover\)" in children in "1" seconds
+    Then Expect "DSCP: CS4," in children in "2" seconds
+    Then Expect "Protocol \(Request\)" in children in "1" seconds
     * Kill children with signal "9"
-    * Run child "tshark -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 3" > /tmp/tshark.log"
-    * Execute "sleep 2"
-    * Bring "up" connection "con_ipv4"
-    Then "DSCP: CS4," is visible with command "cat /tmp/tshark.log"
 
     * Commentary
       """
@@ -3720,6 +3717,6 @@ Feature: nmcli: ipv4
       a connected (UDP) socket instead of the packet socket.
       """
     * Execute "sleep 30"
-    * Kill children with signal "9"
-    * Run child "tshark -l -O ip,bootp -i testX -f "udp port 67" -Y "dhcp.option.dhcp == 3" > /tmp/tshark.log"
-    Then "DSCP: CS4," is visible with command "cat /tmp/tshark.log" in "40" seconds
+    * Run child "tshark -l -O ip,bootp -i testX -f 'udp port 67'"
+    Then Expect "DSCP: CS4," in children in "40" seconds
+    Then Expect "Protocol \(Request\)" in children in "1" seconds
