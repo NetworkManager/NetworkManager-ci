@@ -679,7 +679,8 @@ def wait_for_children(context):
 def expect_children(context, pattern, seconds, proc_action=None):
     seconds = float(seconds)
     pattern = nmci.misc.str_replace_dict(pattern, context.noted)
-    for child in nmci.pexpect.pexpect_service_find_all("child"):
+    for child in nmci.pexpect.pexpect_service_find_all("child", running_only=True):
+        # print(f"expect in {child.proc.pid} {child.proc.isalive()}")
         proc = child.proc
         r = proc.expect(
             [pattern, nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=seconds
@@ -721,7 +722,9 @@ def expect_children_kill(context, pattern, seconds, signal=15):
 @step('Kill children with signal "{signal}"')
 def kill_children(context, signal=9):
     for child in nmci.pexpect.pexpect_service_find_all("child"):
+        # print(f"before kill {child.proc.pid} {child.proc.isalive()}")
         child.proc.kill(int(signal))
+        # print(f"after kill {child.proc.pid} {child.proc.isalive()}")
 
 
 @step("Start following journal")

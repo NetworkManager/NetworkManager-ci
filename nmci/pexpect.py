@@ -307,17 +307,21 @@ class _PExpect:
             msg = "\n".join(argv_failed)
             raise Exception(f"Some process failed:\n{msg}")
 
-    def pexpect_service_find_all(self, label=None):
+    def pexpect_service_find_all(self, label=None, running_only=False):
         """
         Find all pexpect services with a given label.
 
         :param label: label to search for, defaults to None
         :type label: str, optional
+        :param running_only: return only instances that are alive
+        :type running_only: bool
         :return: list of pexpect services
         :rtype: list
         """
         for proc in self._pexpect_service_lst:
             if label is not None and proc.label != label:
+                continue
+            if running_only and not proc.proc.isalive():
                 continue
             yield proc
 

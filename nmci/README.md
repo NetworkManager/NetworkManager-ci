@@ -2013,12 +2013,13 @@ If the service is still running, it is killed with SIGTERM first, then with SIGK
 * **Return type:**
   pexpect
 
-### nmci.pexpect.pexpect_service_find_all(label=None)
+### nmci.pexpect.pexpect_service_find_all(label=None, running_only=False)
 
 Find all pexpect services with a given label.
 
 * **Parameters:**
-  **label** (*str**,* *optional*) – label to search for, defaults to None
+  * **label** (*str**,* *optional*) – label to search for, defaults to None
+  * **running_only** (*bool*) – return only instances that are alive
 * **Returns:**
   list of pexpect services
 * **Return type:**
