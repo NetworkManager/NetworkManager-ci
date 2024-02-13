@@ -288,6 +288,10 @@ def json_compare(pattern, out):
             return 1
 
 
+def replace_ip_substring(input_string):
+    return input_string.replace("ip ", "ip -c=never ")
+
+
 def check_pattern_command(
     context,
     command,
@@ -310,6 +314,10 @@ def check_pattern_command(
         interval = 1
     else:
         interval = 4
+
+    # We need to get rid of coloring in ip command
+    input_string = command
+    command = replace_ip_substring(input_string)
 
     while xtimeout.loop_sleep(interval):
         proc = context.pexpect_spawn(
