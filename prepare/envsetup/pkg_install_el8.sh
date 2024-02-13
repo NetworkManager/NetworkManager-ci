@@ -11,7 +11,7 @@ install_el8_packages () {
     # Add mptcpd repo
     cp install/mptcpd-el8/mptcpd-el8.repo /etc/yum.repos.d/
 
-    python -m pip install pyroute2==0.7.11
+    python -m pip install pyroute2
     python -m pip install pexpect
     python -m pip install netaddr
     python -m pip install pyte
