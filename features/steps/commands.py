@@ -731,9 +731,9 @@ def expect_children_kill(context, pattern, seconds, signal=15):
 @step("Kill children")
 @step('Kill children with signal "{signal}"')
 def kill_children(context, signal=9):
-    for child in nmci.pexpect.pexpect_service_find_all("child"):
+    for child in nmci.pexpect.pexpect_service_find_all("child", running_only=True):
         # print(f"before kill {child.proc.pid} {child.proc.isalive()}")
-        child.proc.kill(int(signal))
+        os.killpg(child.proc.pid, int(signal))
         # print(f"after kill {child.proc.pid} {child.proc.isalive()}")
 
 

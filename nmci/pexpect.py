@@ -1,3 +1,4 @@
+import os
 import pexpect
 
 import nmci
@@ -38,10 +39,10 @@ class _PExpect:
         failed = False
         if proc.isalive():
             # this will set status to 15
-            proc.kill(15)
+            os.killpg(proc.pid, 15)
             if proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=0.2) == 1:
                 # this will set status to 9
-                proc.kill(9)
+                os.killpg(proc.pid, 9)
         # if proc is not closed, and does not return EOF in 0.2s,
         # (it was killed -9 already, if still running)
         # it is zombie probably, return status -1 and embed `ps aufx`
