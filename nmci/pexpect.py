@@ -117,9 +117,19 @@ class _PExpect:
 
         if shell:
             if args:
-                args = ["-c", command, "--", "/bin/bash", *args]
+                args = [
+                    "-o",
+                    "pipefail",
+                    "-c",
+                    command,
+                    "--",
+                    "/bin/bash",
+                    *args,
+                    "|",
+                    "cat",
+                ]
             else:
-                args = ["-c", command]
+                args = ["-o", "pipefail", "-c", command + " | cat"]
             command = "/bin/bash"
 
         proc = pexpect.spawn(
