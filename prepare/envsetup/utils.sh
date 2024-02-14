@@ -70,6 +70,9 @@ install_plugins_yum () {
     if ! rpm -q --quiet NetworkManager-openvpn; then
         pkgs+=" NetworkManager-openvpn"
     fi
+    if ! rpm -q --quiet NetworkManager-libreswan; then
+        pkgs+=" NetworkManager-libreswan"
+    fi
 
     yum -y install $pkgs
 }
@@ -104,6 +107,9 @@ install_plugins_dnf () {
     fi
     if ! rpm -q --quiet NetworkManager-openvpn; then
         pkgs+=" NetworkManager-openvpn"
+    fi
+    if ! rpm -q --quiet NetworkManager-libreswan; then
+        pkgs+=" NetworkManager-libreswan"
     fi
 
     dnf -y install $pkgs

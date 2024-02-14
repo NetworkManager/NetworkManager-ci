@@ -162,10 +162,6 @@ install_el8_packages () {
         $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm \
         $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm
 
-    # Install non crashing libreswan as RHEL-13123
-    dnf -y -4 install \
-        https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm
-
     # dracut testing
     dnf -4 -y install \
         qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client
@@ -178,4 +174,9 @@ install_el8_packages () {
         $KOJI/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm
 
     install_plugins_dnf
+
+    # Update to non crashing libreswan as RHEL-13123
+    dnf -y -4 update \
+        https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm
+
 }
