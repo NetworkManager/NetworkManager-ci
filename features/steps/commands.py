@@ -10,6 +10,7 @@ import requests
 import shlex
 import time
 from behave import step
+import subprocess
 
 import nmci
 
@@ -312,16 +313,25 @@ def check_pattern_command(
         interval = 4
 
     while xtimeout.loop_sleep(interval):
-        proc = context.pexpect_spawn(
-            command, shell=True, timeout=timeout, maxread=maxread, codec_errors="ignore"
+        stdout = nmci.process.run_stdout(
+            command,
+            shell=True,
+            ignore_returncode=True,
+            ignore_stderr=True,
+            stderr=subprocess.STDOUT,
+            timeout=max(xtimeout.remaining_time(), interval),
         )
         if check_class == "exact":
-            ret = proc.expect_exact([pattern.replace("\n", "\r\n"), pexpect.EOF])
+            ret = 0 if pattern in stdout else 1
         elif check_class == "json":
-            proc.expect([pexpect.EOF])
-            ret = json_compare(json.loads(pattern), json.loads(proc.before))
+            ret = json_compare(json.loads(pattern), json.loads(stdout))
         else:
-            ret = proc.expect([pattern, pexpect.EOF])
+            ret = (
+                0
+                if re.search(pattern, stdout, flags=re.MULTILINE | re.DOTALL)
+                is not None
+                else 1
+            )
         if check_type == "default":
             if ret == 0:
                 return True
@@ -331,19 +341,19 @@ def check_pattern_command(
         elif check_type == "full":
             assert (
                 ret == 0
-            ), f'Pattern "{pattern}" disappeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{proc.before}'
+            ), f'Pattern "{pattern}" disappeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
         elif check_type == "not_full":
             assert (
                 ret != 0
-            ), f'Pattern "{pattern}" appeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{proc.before}{proc.after}'
+            ), f'Pattern "{pattern}" appeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
     if check_type == "default":
         assert (
             False
-        ), f'Did not see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{proc.before}'
+        ), f'Did not see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
     elif check_type == "not":
         assert (
             False
-        ), f'Did still see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{proc.before}{proc.after}'
+        ), f'Did still see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
 
 
 def compare_values(keyword, value1, value2):
