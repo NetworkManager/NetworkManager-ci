@@ -710,7 +710,7 @@
            """
     # VVV commented out because of fe80 is still on by kernel very likely
     # Then "scope link" is not visible with command "ip -6 a s eth10"
-    Then "scope global" is not visible with command "ip a -6 s eth10" in "45" seconds
+    Then "scope global" is not visible with command "ip -6 a s eth10" in "45" seconds
     # reproducer for 1004255
     Then Bring "down" connection "con_ipv6"
     Then "eth10 " is not visible with command "ip -6 route |grep -v fe80"
