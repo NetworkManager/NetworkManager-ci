@@ -266,7 +266,7 @@ Feature: nmcli - vlan
     * Add "vlan" connection named "eth7.80" with options "dev eth7 id 80"
     * "eth7.80" is visible with command "ip addr show" in "10" seconds
     * Run child "ping -I eth7.80 8.8.8.8"
-    Then "ID: 80" is visible with command "tshark -i eth7 -T fields -e vlan" in "150" seconds
+    Then "ID: 80" is visible with command "tshark -c 10 -i eth7 -T fields -e vlan" in "150" seconds
 
 
     @vlan_on_bridge
