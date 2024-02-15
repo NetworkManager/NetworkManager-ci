@@ -1236,3 +1236,35 @@ Feature: nmcli - bridge
     * Modify connection "br0_con" changing options "ipv4.route-metric 200"
     Then "br0_con" is not visible with command "nmcli con show --active" in "3" seconds
      And "con_eth4" is not visible with command "nmcli con show --active"
+
+
+    @RHEL-21567
+    @ver+=1.45.91
+    @bridge_reapply_modifying_just_managed_ports
+    Scenario: nmcli - bridge - do not modify unmanaged ports
+    * Cleanup device "dummy0"
+    * Add "bridge" connection named "br0_con" for device "br0" with options
+          """
+          bridge.vlan-filtering yes
+          ipv6.method disabled
+          ipv6.method disabled
+          """
+    * Add "dummy" connection named "dummy1" for device "dummy1" with options
+          """
+          port-type bridge controller br0
+          bridge-port.vlans '2-4092'
+          """
+    * Execute "bridge -d vlan show"
+    * Execute "ip link add type dummy dummy0"
+    * Execute "nmcli device set dummy0 managed no"
+    * Execute "ip link set dummy0 master br0"
+    * Execute "ip link set dummy0 up"
+    * Execute "bridge vlan add vid 100 pvid egress untagged dev dummy0"
+    * Execute "bridge vlan del vid 1 dev dummy0 egress"
+    * Execute "bridge -d vlan show"
+    When "1 PVID" is visible with command "bridge -d vlan show |grep dummy1"
+    When "100 PVID" is visible with command "bridge -d vlan show |grep dummy0"
+    * Execute "nmcli device reapply br0"
+    * Wait for "5" seconds
+    Then "1 PVID" is visible with command "bridge -d vlan show |grep dummy1"
+    Then "100 PVID" is visible with command "bridge -d vlan show |grep dummy0"

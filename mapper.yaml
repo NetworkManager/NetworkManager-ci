@@ -486,6 +486,9 @@ testmapper:
         feature: bridge
     - bridge_port_not_unblock_after_connection_update:
         feature: bridge
+    - bridge_reapply_modifying_just_managed_ports:
+        feature: bridge
+        tags: gate
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
