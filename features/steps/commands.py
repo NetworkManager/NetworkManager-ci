@@ -66,6 +66,7 @@ def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
 
 @step('Execute "{command}"')
 def execute_command(context, command):
+    command = nmci.misc.str_replace_dict(command, context.noted)
     context.process.run_stdout(
         command,
         shell=True,
