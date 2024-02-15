@@ -1074,6 +1074,8 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
+    * Run child "journalctl -f -u NetworkManager -o cat"
+    When Expect "<" in children in "10" seconds
     * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
           """
           ipv4.method manual
@@ -1083,7 +1085,8 @@ Feature: nmcli - ethernet
           ethtool.ring-rx-mini 100
           ethtool.ring-rx 1
           """
-    Then "ethtool.ring-rx-mini\s+= 100" is visible with command "journalctl -u NetworkManager | grep ring-rx | tail -n 1"
+    Then Expect "ethtool.ring-rx-mini\s+= 100" in children in "10" seconds
+    * Kill children
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
     * Disconnect device "eth11"
