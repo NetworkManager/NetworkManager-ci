@@ -781,6 +781,7 @@ Feature: nmcli - bridge
 
     @rhbz1593939
     @ver+=1.14
+    @ver/rhel/8/9+=1.40.16.13
     @eth4_disconnect @cleanup @restart_if_needed
     @bridge_detect_initrd_device
     Scenario: NM - bridge - nm detects initrd bridge
