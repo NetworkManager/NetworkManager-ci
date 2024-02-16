@@ -1898,6 +1898,27 @@ def sriov_as(context, scenario):
         "modprobe -r ixgbevf",
         timeout=60,
     )
+    bus_addr = context.process.run_stdout(
+        "ethtool -i p4p1 | grep 'bus-info:' | sed 's/bus-info: //'", shell=True
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} inline-mode none",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} encap-mode none",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} mode legacy",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
 
 
 _register_tag("sriov", sriov_bs, sriov_as)

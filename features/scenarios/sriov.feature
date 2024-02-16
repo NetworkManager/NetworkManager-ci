@@ -580,6 +580,72 @@
     Then "spoof checking on" is visible with command "ip link show dev p4p1 |grep 'vf 0'"
 
 
+    @ver+=1.47.0
+    @sriov
+    @sriov_con_add_set_eswitch_mode_without_vfs
+    Scenario: nmcli - sriov - set eswitch mode without vfs
+    * Add "ethernet" connection named "sriov" for device "p4p1" with options
+          """
+          sriov.total-vfs 0
+          sriov.eswitch-mode switchdev
+          """
+    * Note the output of "ethtool -i p4p1 | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+
+
+    @ver+=1.47.0
+    @sriov
+    @sriov_con_add_set_eswitch_mode_with_vfs
+    Scenario: nmcli - sriov - set eswitch mode with 2 vfs
+    * Add "ethernet" connection named "sriov" for device "p4p1" with options
+          """
+          sriov.total-vfs 2
+          """
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    * Modify connection "sriov" changing options
+          """
+          sriov.eswitch-mode switchdev
+          """
+    * Bring "up" connection "sriov"
+    * Note the output of "ethtool -i p4p1 | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    And "vf 0" is visible with command "ip link show dev p4p1 |grep 'vf 0'"
+    And "vf 1" is visible with command "ip link show dev p4p1 |grep 'vf 1'"
+
+
+    @ver+=1.47.0
+    @sriov
+    @sriov_con_add_set_eswitch_mode_with_external_vfs_created
+    Scenario: nmcli - sriov - set eswitch mode with external vfs created
+    * Execute "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs"
+    When "p4p1_0" is visible with command "nmcli device" in "5" seconds
+    * Add "ethernet" connection named "sriov" for device "p4p1" with options
+          """
+          sriov.eswitch-mode switchdev
+          """
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    * Note the output of "ethtool -i p4p1 | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+
+
+    @ver+=1.47.0
+    @sriov
+    @sriov_con_add_set_switchdev_options
+    Scenario: nmcli - sriov - set switchdev options
+    * Add "ethernet" connection named "sriov" for device "p4p1" with options
+          """
+          sriov.eswitch-mode switchdev
+          sriov.eswicth-inline-mode link
+          sriov.eswitch-encap-mode basic
+          """
+    * Note the output of "ethtool -i p4p1 | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "p4p1\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    And "inline-mode link" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    And "encap-mode basic" is visible with command "devlink dev eswitch show pci/<noted:bus>"
 
     ################# Other ######################################
 

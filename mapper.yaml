@@ -3505,6 +3505,14 @@ testmapper:
         feature: sriov
     - sriov_con_add_VF_spoof:
         feature: sriov
+    - sriov_con_add_set_eswitch_mode_without_vfs:
+        feature: sriov
+    - sriov_con_add_set_eswitch_mode_with_vfs:
+        feature: sriov
+    - sriov_con_add_set_eswitch_mode_with_external_vfs_created:
+        feature: sriov
+    - sriov_con_add_set_switchdev_options:
+        feature: sriov
     - sriov_nmstate_many_vfs:
         feature: sriov
     - sriov_dont_disable_on_acitvation_fail:
