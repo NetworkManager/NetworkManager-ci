@@ -319,7 +319,7 @@ def check_pattern_command(
             ignore_returncode=True,
             ignore_stderr=True,
             stderr=subprocess.STDOUT,
-            timeout=max(xtimeout.remaining_time(), interval),
+            timeout=timeout,
         )
         if check_class == "exact":
             ret = 0 if pattern in stdout else 1
