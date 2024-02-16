@@ -137,7 +137,7 @@ configure_nm_dcb () {
 configure_nm_inf () {
     [ -e /tmp/inf_configured ] && return
 
-    DEV_MASTER=$(nmcli -t -f DEVICE device  |grep -o .*ib0$)
+    DEV_MASTER=$(nmcli -t -f DEVICE device  |grep -o .*ib0$ |head -n 1)
     echo $DEV_MASTER
     for VLAN in $(nmcli -t -f DEVICE device  |grep ib0 | awk 'BEGIN {FS = "."} {print $2}'); do
         DEV="$DEV_MASTER.$VLAN"
