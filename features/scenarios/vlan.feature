@@ -883,7 +883,7 @@ Feature: nmcli - vlan
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv4.dns 11.1.0.1 ipv4.ignore-auto-dns yes ipv6.method disable; done"
     # Wait till we have "all" addresses assigned
     * Note the output of "echo $((N_VLANS + 1))"
-    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
+    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "50" seconds
     # Simulate reboot and delete all devices
     * Stop NM
     * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
@@ -892,7 +892,7 @@ Feature: nmcli - vlan
     # Give NM some time to up some connections
     * Wait for "180" seconds
     # Wait till we have "all" addresses assigned again
-    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "500" seconds
+    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "50" seconds
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
