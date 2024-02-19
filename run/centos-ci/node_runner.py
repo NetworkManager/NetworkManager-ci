@@ -293,6 +293,19 @@ class Machine:
             self.scp_from(
                 f"{self.build_dir}/NetworkManager/config.log", "../", check=False
             )
+            # copy unit test log files
+            log_files = self.ssh(
+                f"find {self.build_dir}/NetworkManager/ -iname test-*.log", verbose=True
+            ).stdout
+            for log in log_files.strip("\n").split("\n"):
+                if log:
+                    self.scp_from(
+                        log,
+                        "../"
+                        + log.replace(f"{self.build_dir}/NetworkManager/", "").replace(
+                            "/", "_"
+                        ),
+                    )
             return False
         else:
             logging.debug(
