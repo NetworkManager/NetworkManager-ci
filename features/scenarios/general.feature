@@ -3549,3 +3549,10 @@ Feature: nmcli - general
     And "bond1" is visible with command "nmcli -g connection.controller connection show con_general" in "10" seconds
     And "bond" is visible with command "nmcli -g connection.port-type connection show con_general" in "10" seconds
     And Check bond "bond1" state is "up"
+
+
+    @dbusmock_unittests
+    Scenario: Execute dbusmock unittests
+    * Cleanup execute "rm -rf .tmp/python-dbusmock"
+    * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
+    * Execute "cd .tmp/python-dbusmock; python -m pytest tests/test_networkmanager.py"
