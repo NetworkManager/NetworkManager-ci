@@ -1111,6 +1111,7 @@ def flush_nftables(context, ns=None):
 @step("Cleanup execute")
 @step('Cleanup execute "{command}"')
 @step('Cleanup execute "{command}" with timeout "{timeout}" seconds')
+@step('Cleanup execute "{command}" with priority "{priority}"')
 @step(
     'Cleanup execute "{command}" with timeout "{timeout}" seconds and priority "{priority}"'
 )
@@ -1121,7 +1122,7 @@ def cleanup_execute(context, command=None, timeout=5, priority=None):
         command, ignore_stderr=True, shell=True, timeout=timeout
     )
     if priority is not None:
-        priority = priority
+        priority = int(priority)
     else:
         priority = nmci.Cleanup.PRIORITY_CALLBACK_DEFAULT
     nmci.cleanup.add_callback(
