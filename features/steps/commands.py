@@ -300,6 +300,8 @@ def check_pattern_command(
     timeout=180,
     maxread=100000,
 ):
+
+    command = nmci.misc.str_replace_dict(command, context.noted)
     seconds = float(seconds)
     xtimeout = nmci.util.start_timeout(seconds)
 
