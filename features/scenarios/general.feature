@@ -3451,8 +3451,7 @@ Feature: nmcli - general
     Then "nmcli .+ and NetworkManager .+ versions don't match. Restarting NetworkManager is advised." is visible with command "nmcli 2>&1 >/dev/null"
 
 
-    @RHEL-17619
-    @RHEL-17620
+    @RHEL-17619 @RHEL-17620 @RHEL-17621
     @ver+=1.45.90
     @nmcli_controller_naming_convention
     Scenario: NM - general - ignore-carrier with bond
@@ -3461,25 +3460,27 @@ Feature: nmcli - general
           Tests the new naming convention for libnm-core and libnm.
             - connection.slave-type is now connection.port-type
             - connection.master is now connection.controller
+            - connection.autoconnect-slaves is now connection.autoconnect-ports
           """
     * Add "ethernet" connection named "con_general" for device "eth8" with options
           """
-          autoconnect yes
           controller bond1
           port-type bond
           """
     *  Add "bond" connection named "bond1" for device "bond1" with options
           """
           autoconnect yes
+          connection.autoconnect-ports true
           ipv4.method manual
           ipv4.addresses 172.16.1.2/24
           ipv6.method disabled
           """
-    * Bring "up" connection "con_general"
+    * Bring "up" connection "bond1"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show bond1" in "25" seconds
     And "GENERAL.STATE:.*activated" is visible with command "nmcli connection show con_general" in "25" seconds
     And "bond1" is visible with command "nmcli -g connection.controller connection show con_general" in "10" seconds
     And "bond" is visible with command "nmcli -g connection.port-type connection show con_general" in "10" seconds
+    And "1" is visible with command "nmcli -g connection.autoconnect-ports connection show bond1" in "10" seconds
     And Check bond "bond1" state is "up"
 
 
