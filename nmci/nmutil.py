@@ -341,6 +341,7 @@ class _NMUtil:
             "team7",
             "bridge7",
             "bond-bridge",
+            "dummy0",
             # for nmtui
             "bond0",
             "team0",
@@ -360,6 +361,7 @@ class _NMUtil:
             "em1",
             # for sriov
             "p4p1",
+            "sriov_device"
             # for loopback
             "lo",
         ]
@@ -369,6 +371,7 @@ class _NMUtil:
             "em1",
             # for sriov
             "p4p1",
+            "sriov_device",
             # for pppoe
             "test11",
             # for loopback
@@ -401,6 +404,16 @@ class _NMUtil:
                 nmci.ip.address_flush(ifname=ifname)
 
         nmci.util.directory_remove("/var/run/NetworkManager/", recursive=True)
+
+        # Bring back lo addresses
+        nmci.process.run(
+            ["ip", "addr", "add", "127.0.0.1/8", "dev", "lo"],
+            ignore_stderr=True,
+        )
+        nmci.process.run(
+            ["ip", "addr", "add", "::1/128", "dev", "lo"],
+            ignore_stderr=True,
+        )
 
         self.start_NM_service(timeout=timeout)
 
