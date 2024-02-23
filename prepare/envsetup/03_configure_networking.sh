@@ -48,6 +48,23 @@ configure_networking () {
 
     # We need this if yes
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
+        # We don't need it now for infiniband devices
+        if [[ $1 != *inf_* ]]; then
+            # We need to have standard device name
+            device_names=$(nmcli device | grep -oP '^\S+' | while read -r name; do \
+                        ethtool -i "$name" 2>/dev/null | grep -q "i40e" && echo "$name"; \
+                        done)
+            # In case of now used i40e driver we need second device
+            # as the first is used for machine connection only
+            device=$(echo $device_names | awk '{print $2}')
+            standard_device="sriov_device"
+            # Let's rename it to standard name
+            ip link set $device down
+            ip link set $device name $standard_device
+            ip link set $standard_device up
+
+            nmcli con del $device
+        fi
         touch /tmp/nm_dcb_inf_wol_sriov_configured
     fi
 
