@@ -109,6 +109,9 @@ class _Veth:
         :type ifname: str
         """
         if not os.path.isfile("/tmp/nm_veth_configured"):
+            if os.path.isfile("/tmp/nm_dcb_inf_wol_sriov_configured"):
+                if nmci.process.run(f"ethtool -P {ifname}", ignore_stderr=True) != 0:
+                    return True
             hwaddr = nmci.process.run_stdout(f"ethtool -P {ifname}").split()[2]
             if hwaddr != "not":
                 # "Permanent address: not set" means there's no permanent address
