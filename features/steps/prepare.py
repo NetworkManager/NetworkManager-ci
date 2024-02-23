@@ -146,7 +146,14 @@ def prepare_sriov_config(context, conf, device, vfs):
     context.command_code("echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
     time.sleep(0.2)
     context.command_code("systemctl reload NetworkManager")
-
+    context.execute_steps(
+        f"""
+        * Cleanup execute "echo 0 > /sys/class/net/{device}/device/sriov_numvfs" with timeout "10" seconds and priority "50"
+        * Cleanup execute "rm -rf /etc/NetworkManager/conf.d/{conf}" with priority "60"
+        * Cleanup execute "echo 1 > /sys/class/net/{device}/device/sriov_drivers_autoprobe" with priority "65"
+        * Cleanup execute "systemctl reload NetworkManager" with priority "70"
+        """
+    )
 
 @step("Prepare PBR documentation procedure")
 def pbr_doc_proc(context):
