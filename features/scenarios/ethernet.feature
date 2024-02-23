@@ -319,40 +319,38 @@ Feature: nmcli - ethernet
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
     * Stop NM
-    * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
-    * Note the output of "ethtool em1 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
-    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Restart NM
-    * Add "ethernet" connection named "ethernet" for device "em1"
+    * Add "ethernet" connection named "ethernet" for device "sriov_device"
     # Wake-on-lan 94 equals to (phy, unicast, multicast, broadcast, magic) alias pumbg
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan 92"
     * Bring "up" connection "ethernet"
-    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan default"
-    * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Restart NM
     * Bring "up" connection "ethernet"
-    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     Then Check noted values "wol_now" and "wol_orig" are the same
 
 
     @rhbz1141417
     @nmcli_ethernet_wol_enable_magic
     Scenario: nmcli - ethernet - wake-on-lan magic
-    * Add "ethernet" connection named "ethernet" for device "em1"
+    * Add "ethernet" connection named "ethernet" for device "sriov_device"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan magic"
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool em1"
+    Then "Wake-on: g" is visible with command "ethtool sriov_device"
 
 
     @rhbz1141417
     @nmcli_ethernet_wol_disable
     Scenario: nmcli - ethernet - wake-on-lan disable
-    * Add "ethernet" connection named "ethernet" for device "em1"
+    * Add "ethernet" connection named "ethernet" for device "sriov_device"
     * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan none"
     * Bring "up" connection "ethernet"
-    Then "Wake-on: d" is visible with command "ethtool em1"
+    Then "Wake-on: d" is visible with command "ethtool sriov_device"
 
 
     @rhbz1141417
@@ -366,7 +364,7 @@ Feature: nmcli - ethernet
       """
     * Reload connections
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool em1"
+    Then "Wake-on: g" is visible with command "ethtool sriov_device"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
 
@@ -383,7 +381,7 @@ Feature: nmcli - ethernet
       """
     * Reload connections
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool em1"
+    Then "Wake-on: g" is visible with command "ethtool sriov_device"
     Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
     * Submit "remove 802-3-ethernet.wake-on-lan magic"
@@ -398,10 +396,9 @@ Feature: nmcli - ethernet
     * Save in editor
     * Quit editor
     * Bring "down" connection "ethernet"
-    * Execute "modprobe -r ixgbe && modprobe ixgbe && sleep 5"
     * Bring "up" connection "ethernet"
     #Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
     Then Check noted values "wol_new" and "wol_orig" are the same
 
 
