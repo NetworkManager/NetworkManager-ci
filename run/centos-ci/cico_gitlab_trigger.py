@@ -413,8 +413,6 @@ def process_request(data, content):
             elif comment in ["centos8-stream", "c8s"]:
                 params["os_version"] = ["8-stream"]
                 execute_build(gt, content, **params)
-        elif params:
-            execute_build(gt, content, **params)
         else:
             print("Irrelevant Note...")
     elif data["object_kind"] == "merge_request":
