@@ -3599,3 +3599,24 @@ Feature: nmcli: ipv4
     * Run child "tshark -l -O ip,bootp -i testX -f 'udp port 67'"
     Then Expect "DSCP: CS4," in children in "40" seconds
     Then Expect "Protocol \(Request\)" in children in "1" seconds
+
+
+    @RHEL-24127
+    @ver+=1.46.0.1
+    @ipv4_renew_lease_after_dhcp_restart
+    Scenario: NM - ipv4 - renew lease after DHCP restart
+    * Prepare simulated test "testX" device without DHCP
+    * Execute "ip -n testX_ns addr add dev testXp 172.25.10.1/24"
+    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
+    * Add "ethernet" connection named "con_ipv4" for device "testX" with options
+          """
+          ipv4.method auto
+          ipv6.method disabled
+          connection.autoconnect no
+          """
+    * Bring "up" connection "con_ipv4"
+    Then "172.*" is visible with command "nmcli -g IP4.ADDRESS device show testX" in "20" seconds
+    * Kill children with signal "15"
+    Then "172.*" is not visible with command "nmcli -g IP4.ADDRESS device show testX" in "180" seconds
+    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
+    Then "172.*" is visible with command "nmcli -g IP4.ADDRESS device show testX" in "20" seconds
