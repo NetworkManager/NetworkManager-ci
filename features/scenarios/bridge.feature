@@ -1199,6 +1199,7 @@ Feature: nmcli - bridge
 
 
     @RHEL-21567
+    @ver/rhel/9/2+=1.42.2.13
     @ver+=1.45.91
     @bridge_reapply_modifying_just_managed_ports
     Scenario: nmcli - bridge - do not modify unmanaged ports
