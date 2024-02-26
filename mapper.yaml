@@ -77,7 +77,7 @@ beaker-hardware:
 
       NetworkManager-dcb:
         - x86_64:
-            hostname: dell-per720-03.klab.eng.bos.redhat.com
+            hostname: hpe-flex-02.khw.eng.bos2.dc.redhat.com
             kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
 setup: |
@@ -3442,6 +3442,8 @@ testmapper:
         feature: sriov
     - sriov_autoconnect:
         feature: sriov
+    - sriov_set_mtu:
+        feature: sriov
     - sriov_connect_externally:
         feature: sriov
     - sriov_reboot_persistence:
@@ -3450,7 +3452,7 @@ testmapper:
         feature: sriov
     - sriov_con_drv_add_VF:
         feature: sriov
-    - sriov_con_drv_add_64VFs:
+    - sriov_con_drv_add_maxVFs:
         feature: sriov
     - sriov_con_drv_set_VF_to_0:
         feature: sriov

@@ -155,6 +155,7 @@ def prepare_sriov_config(context, conf, device, vfs):
         """
     )
 
+
 @step("Prepare PBR documentation procedure")
 def pbr_doc_proc(context):
     context.execute_steps(

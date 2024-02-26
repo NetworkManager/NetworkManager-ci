@@ -1871,62 +1871,37 @@ def openvswitch_bs(context, scenario):
 
 
 def openvswitch_as(context, scenario):
-    nmci.embed.embed_file_if_exists(
-        "OVSDB Log",
-        "/var/log/openvswitch/ovsdb-server.log",
-    )
-    nmci.embed.embed_file_if_exists(
-        "OVSDaemon Log",
-        "/var/log/openvswitch/ovs-vswitchd.log",
-    )
+    if not os.path.isfile("/tmp/nm_dcb_inf_wol_sriov_configured"):
+        nmci.embed.embed_file_if_exists(
+            "OVSDB Log",
+            "/var/log/openvswitch/ovsdb-server.log",
+        )
+        nmci.embed.embed_file_if_exists(
+            "OVSDaemon Log",
+            "/var/log/openvswitch/ovs-vswitchd.log",
+        )
 
-    # Restart in case we have openvswitch stopped from the test
-    if context.process.systemctl("is-active openvswitch").returncode != 0:
-        context.process.systemctl("restart openvswitch")
-    nmci.nmutil.stop_NM_service()
+        # Restart in case we have openvswitch stopped from the test
+        if context.process.systemctl("is-active openvswitch").returncode != 0:
+            context.process.systemctl("restart openvswitch")
+        nmci.nmutil.stop_NM_service()
 
-    context.process.run(
-        "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",
-        ignore_stderr=True,
-        shell=True,
-    )
-    context.process.run(
-        "ovs-vsctl list-br",
-        ignore_stderr=True,
-    )
+        context.process.run(
+            "for br in $(ovs-vsctl list-br); do ovs-vsctl del-br $br; done",
+            ignore_stderr=True,
+            shell=True,
+        )
+        context.process.run(
+            "ovs-vsctl list-br",
+            ignore_stderr=True,
+        )
 
-    context.process.systemctl("stop openvswitch")
-    time.sleep(1)
-    nmci.nmutil.restart_NM_service()
+        context.process.systemctl("stop openvswitch")
+        time.sleep(1)
+        nmci.nmutil.restart_NM_service()
 
 
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
-
-
-def sriov_bs(context, scenario):
-    context.process.nmcli_force("con del p4p1")
-
-
-def sriov_as(context, scenario):
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/95-nmci-sriov.conf")
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/98-sriov.conf")
-
-    nmci.nmutil.reload_NM_service()
-    context.process.run_stdout(
-        "echo 1 > /sys/class/net/p4p1/device/sriov_drivers_autoprobe", shell=True
-    )
-    context.process.run_stdout(
-        "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs",
-        shell=True,
-        timeout=240,
-    )
-    context.process.run_stdout(
-        "modprobe -r ixgbevf",
-        timeout=60,
-    )
-
-
-_register_tag("sriov", sriov_bs, sriov_as)
 
 
 def dpdk_bs(context, scenario):
