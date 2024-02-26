@@ -2606,3 +2606,19 @@
           """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
+
+
+    @RHEL-10450
+    @logging_info_only
+    @ipv6_disabled_no_warnings_in_info_log
+    Scenario: NM - ipv6 - no v6 warnings are present with ipv6 disabled in NM
+    * Set sysctl "net.ipv6.conf.all.disable_ipv6" to "1"
+    * Set sysctl "net.ipv6.conf.lo.disable_ipv6" to "0"
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          connection.autoconnect no
+          """
+    * Start following journal
+    * Bring "up" connection "con_ipv6"
+    * Wait for "30" seconds
+    Then "ipv6ll|IPv6LL" is not visible in journal
