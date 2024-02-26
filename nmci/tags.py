@@ -259,13 +259,14 @@ _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 def logging_info_only_bs(context, scenario):
     conf = "/etc/NetworkManager/conf.d/96-nmci-logging.conf"
+    # Cleanups in the same priority are executed in reversed order...
+    nmci.cleanup.add_NM_service(
+        timeout=120,
+        priority=nmci.Cleanup.PRIORITY_TAG,
+    )
     nmci.cleanup.add_NM_config(
         conf,
         schedule_nm_restart=False,
-        priority=nmci.Cleanup.PRIORITY_TAG,
-    )
-    nmci.cleanup.add_NM_service(
-        timeout=120,
         priority=nmci.Cleanup.PRIORITY_TAG,
     )
     nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
