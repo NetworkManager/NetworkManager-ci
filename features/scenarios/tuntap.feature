@@ -30,6 +30,7 @@ Feature: nmcli: tuntap
           tun.mode 1
           ipv4.addresses 1.2.3.4/24
           ipv4.method manual
+          ipv6.addr-gen-mode stable-privacy
           """
     Then "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
      And "1.2.3.4\/24" is visible with command "ip a s tap0"
@@ -45,6 +46,7 @@ Feature: nmcli: tuntap
           tun.mode 1
           ipv4.addresses 1.2.3.4/24
           ipv4.method manual
+          ipv6.addr-gen-mode stable-privacy
           """
     When "tap0:connected:tap0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
     * Delete connection "tap0"
