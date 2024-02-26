@@ -79,6 +79,7 @@ beaker-hardware:
         - x86_64:
             hostname: hpe-flex-02.khw.eng.bos2.dc.redhat.com
             kernel-options: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
+            kernel-options-post: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
 
 setup: |
   ./prepare/envsetup.sh setup first_test_setup

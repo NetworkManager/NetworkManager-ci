@@ -1924,9 +1924,9 @@ def dpdk_bs(context, scenario):
             shell=True,
         )
 
-        # Create two VFs from p4p1 device
+        # Create two VFs from sriov_device device
         context.process.run_stdout(
-            "echo 2 > /sys/class/net/p4p1/device/sriov_numvfs",
+            "echo 2 > /sys/class/net/sriov_device/device/sriov_numvfs",
             shell=True,
             timeout=5,
         )
@@ -1934,20 +1934,29 @@ def dpdk_bs(context, scenario):
         # Wait for some time to settle things down
         time.sleep(2)
 
-        # Moving those two VFs from ixgbevf to vfio-pci driver
+        # Moving those two VFs from device driver to vfio-pci driver
         # In newer versions of dpdk-tools there are dpdk binaries with py in the end
         context.process.run_stdout(
-            "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
+            # Usable for ixgbe driver VFs
+            # "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
+            "dpdk-devbind -b vfio-pci 0000:c3:06.0 || dpdk-devbind.py -b vfio-pci 0000:c3:06.0",
             shell=True,
             ignore_stderr=True,
         )
         context.process.run_stdout(
-            "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
+            # Usable for ixgbe driver VFs
+            # "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
+            "dpdk-devbind -b vfio-pci 0000:c3:06.1 || dpdk-devbind.py -b vfio-pci 0000:c3:06.1",
             shell=True,
             ignore_stderr=True,
         )
         # We need to restart openvswitch as we changed configuration
-        context.process.systemctl("restart openvswitch")
+        if context.process.systemctl("restart openvswitch").returncode != 0:
+            print("DPDK setup failed !!!")
+            print(" Do we have 1G hugepages set?")
+            print(" Check via cat /proc/meminfo | grep Huge")
+            assert False, "DPDK setup failed"
+
         nmci.util.file_set_content("/tmp/nm_dpdk_configured", "")
 
 
@@ -1956,21 +1965,26 @@ _register_tag("dpdk", dpdk_bs, None)
 
 def dpdk_remove_as(context, scenario):
     if os.path.isfile("/tmp/nm_dpdk_configured"):
-        # Return vfio-pci devices back to ixgbevf
+        context.process.systemctl("stop openvswitch")
+        # Return vfio-pci devices back to th drivers VFs
         context.process.run_stdout(
-            "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b ixgbevf 0000:42:10.0",
+            # Usable for ixgbe driver VFs
+            # "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b ixgbevf 0000:42:10.0",
+            "dpdk-devbind -b vfio-pci 0000:c3:06.0 || dpdk-devbind.py -b iavf 0000:c3:06.0",
             shell=True,
             ignore_stderr=True,
         )
         context.process.run_stdout(
-            "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b ixgbevf 0000:42:10.2",
+            # Usable for ixgbe driver VFs
+            # "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b ixgbevf 0000:42:10.2",
+            "dpdk-devbind -b vfio-pci 0000:c3:06.1 || dpdk-devbind.py -b iavf 0000:c3:06.1",
             shell=True,
             ignore_stderr=True,
         )
 
-        # Remove two VFs from p4p1 device
+        # Remove two VFs from sriov_device device
         context.process.run_stdout(
-            "echo 0 > /sys/class/net/p4p1/device/sriov_numvfs",
+            "echo 0 > /sys/class/net/sriov_device/device/sriov_numvfs",
             shell=True,
             timeout=5,
         )
