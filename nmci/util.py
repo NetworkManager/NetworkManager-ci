@@ -856,10 +856,11 @@ class _Util:
         cmds = [
             "date '+%Y%m%d-%H%M%S.%N (%s)'",
             nmci.process.WithShell("get_rhel_compose"),
+            "NetworkManager --version",
             nmci.process.WithShell("hostnamectl 2>&1"),
+            "lshw -class network -businfo -numeric",
             "free -mt",
             "df -m",
-            "NetworkManager --version",
             ["ls", "-lZ", "/etc/NetworkManager/system-connections/"],
             ["ls", "-lZ", "/etc/sysconfig/network-scripts/"],
             ["ls", "-lZ", "/tmp/testeth0"],

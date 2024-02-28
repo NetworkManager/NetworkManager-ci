@@ -28,7 +28,7 @@ install_fedora_packages () {
         tcpdump wireshark-cli iputils iproute-tc gdb gcc wireguard-tools rp-pppoe tuned \
         mptcpd wpa_supplicant NetworkManager-initscripts-ifcfg-rh s390utils-base nmstate \
         python3-libnmstate python3-systemd bind-utils podman valgrind bzip2 ModemManager jq \
-        usb_modeswitch usbutils \
+        usb_modeswitch usbutils lshw \
         --skip-broken
 
     # installing python3-* package causes removal of /usr/bin/python
