@@ -356,7 +356,7 @@ Feature: nmcli - ethernet
     @rhbz1141417
     @nmcli_ethernet_wol_from_file
     Scenario: nmcli - ethernet - wake-on-lan from file
-    * Add "ethernet" connection named "ethernet" for device "em1"
+    * Add "ethernet" connection named "ethernet" for device "sriov_device"
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
@@ -372,8 +372,8 @@ Feature: nmcli - ethernet
     @ver+=1.36.0
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
-    * Add "ethernet" connection named "ethernet" for device "em1"
-    * Note the output of "ethtool em1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Add "ethernet" connection named "ethernet" for device "sriov_device"
+    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
