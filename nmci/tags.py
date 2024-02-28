@@ -1483,7 +1483,7 @@ _register_tag("dump_status_verbose", dump_status_verbose_bs)
 
 def prepare_patched_netdevsim_bs(context, scenario):
     context.process.run_stdout(
-        "sh prepare/netdevsim.sh setup", timeout=600, ignore_stderr=True
+        "sh prepare/netdevsim.sh setup", timeout=550, ignore_stderr=True
     )
     nmci.ip.link_set(ifname="eth11", up=True, wait_for_device=1)
 
