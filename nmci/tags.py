@@ -362,7 +362,7 @@ def gsm_bs(context, scenario):
     scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):
-        context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=600)
+        context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=580)
 
     context.process.nmcli_force("con down testeth0")
 
@@ -1403,7 +1403,7 @@ def dracut_bs(context, scenario):
         "cd contrib/dracut; . ./setup.sh ; set -x; "
         " { time test_setup ; } &> /tmp/dracut_setup.log",
         shell=True,
-        timeout=600,
+        timeout=580,
     )
     nmci.embed.embed_file_if_exists(
         "Dracut setup",
