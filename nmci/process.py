@@ -317,15 +317,23 @@ class _Process:
         if cwd is None:
             cwd = nmci.util.BASE_DIR
 
-        proc = subprocess.run(
-            argv_real,
-            shell=shell,
-            stdout=stdout,
-            stderr=stderr,
-            timeout=timeout.remaining_time(),
-            cwd=cwd,
-            env=env,
-        )
+        proc = None
+        try:
+            proc = subprocess.run(
+                argv_real,
+                shell=shell,
+                stdout=stdout,
+                stderr=stderr,
+                timeout=timeout.remaining_time(),
+                cwd=cwd,
+                env=env,
+            )
+        except subprocess.TimeoutExpired as e:
+            self.raise_results(
+                argv_real,
+                f"timed out in {e.timeout:.3f} seconds",
+                RunResult(-1, e.stdout, e.stderr),
+            )
 
         (returncode, r_stdout, r_stderr) = (proc.returncode, proc.stdout, proc.stderr)
 
