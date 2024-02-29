@@ -842,61 +842,55 @@ def start_pppoe_server(context, name, ip, dev):
 @step('Prepare MACsec PSK environment with CAK "{cak}" and CKN "{ckn}" on VLAN "{vid}"')
 def setup_macsec_psk(context, cak, ckn, vid=None):
     nmci.veth.manage_device("macsec_veth")
-    context.command_code("modprobe macsec")
+    nmci.process.run("modprobe macsec")
     nmci.ip.netns_add(f"macsec_ns")
     context.execute_steps(
         f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"'
     )
-    context.command_code("ip link set macsec_vethp netns macsec_ns")
-    context.command_code("ip link set macsec_veth up")
-    context.command_code("ip netns exec macsec_ns ip link set macsec_vethp up")
+    nmci.ip.link_set("macsec_vethp", netns="macsec_ns")
+    nmci.ip.link_set("macsec_veth", up=True)
+    nmci.ip.link_set("macsec_vethp", namespace="macsec_ns", up=True)
     if vid is not None:
-        context.command_code(
-            "ip -n macsec_ns link add link macsec_vethp vlan type vlan id {vid}".format(
-                vid=vid
-            )
+        # ifname, type, args
+        nmci.ip.link_add(
+            "vlan",
+            link_type="vlan",
+            id=vid,
+            namespace="macsec_ns",
+            parent_link="macsec_vethp",
         )
-        context.command_code("ip -n macsec_ns link set vlan up")
-    context.command_code("echo 'eapol_version=3' > /tmp/wpa_supplicant.conf")
-    context.command_code("echo 'ap_scan=0' >> /tmp/wpa_supplicant.conf")
-    context.command_code("echo 'network={' >> /tmp/wpa_supplicant.conf")
-    context.command_code("echo '  key_mgmt=NONE' >> /tmp/wpa_supplicant.conf")
-    context.command_code("echo '  eapol_flags=0' >> /tmp/wpa_supplicant.conf")
-    context.command_code("echo '  macsec_policy=1' >> /tmp/wpa_supplicant.conf")
-    context.command_code(
-        "echo '  mka_cak={cak}' >> /tmp/wpa_supplicant.conf".format(cak=cak)
-    )
-    context.command_code(
-        "echo '  mka_ckn={ckn}' >> /tmp/wpa_supplicant.conf".format(ckn=ckn)
-    )
-    context.command_code("echo '}' >> /tmp/wpa_supplicant.conf")
+        nmci.ip.link_set("vlan", up=True, namespace="macsec_ns")
+    conf = [
+        "eapol_version=3",
+        "ap_scan=0",
+        "network={",
+        "  key_mgmt=NONE",
+        "  eapol_flags=0",
+        "  macsec_policy=1",
+        f"  mka_cak={cak}",
+        f"  mka_ckn={ckn}",
+        "}",
+    ]
+    nmci.util.file_set_content("/tmp/wpa_supplicant.conf", conf)
 
     base_interface = "vlan" if vid is not None else "macsec_vethp"
-    context.command_code(
-        "ip netns exec macsec_ns wpa_supplicant \
+    nmci.process.run(
+        f"ip netns exec macsec_ns wpa_supplicant \
                                          -c /tmp/wpa_supplicant.conf \
                                          -i {base_interface} \
                                          -B \
                                          -D macsec_linux \
-                                         -P /tmp/wpa_supplicant_ms.pid".format(
-            base_interface=base_interface
-        )
+                                         -P /tmp/wpa_supplicant_ms.pid"
     )
-    time.sleep(6)
-    assert (
-        context.command_code("ip netns exec macsec_ns ip link show macsec0") == 0
-    ), "wpa_supplicant didn't create a MACsec interface"
-    assert (
-        context.command_code("nmcli device set macsec_veth managed yes") == 0
-    ), "wpa_supplicant didn't create a MACsec interface"
-    context.command_code("ip netns exec macsec_ns ip link set macsec0 up")
-    context.command_code(
-        "ip netns exec macsec_ns ip addr add 172.16.10.1/24 dev macsec0"
+    nmci.ip.link_set("macsec0", up=True, namespace="macsec_ns", wait_for_device=6)
+    nmci.process.nmcli("device set macsec_veth managed yes")
+    nmci.ip.address_add(
+        "172.16.10.1/24", "macsec0", addr_family="4", namespace="macsec_ns"
     )
-    context.command_code(
-        "ip netns exec macsec_ns ip -6 addr add 2001:db8:1::fffe/32 dev macsec0"
+    nmci.ip.address_add(
+        "2001:db8:1::fffe/32", "macsec0", addr_family="6", namespace="macsec_ns"
     )
-    context.command_code(
+    nmci.process.run(
         "ip netns exec macsec_ns dnsmasq \
                                          --pid-file=/tmp/dnsmasq_ms.pid \
                                          --dhcp-range=172.16.10.10,172.16.10.254,60m  \
