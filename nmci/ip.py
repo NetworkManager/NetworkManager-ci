@@ -958,6 +958,7 @@ class _IP:
         *args,
         ifindex=None,
         namespace=None,
+        parent_link=None,
         wait_for_device=None,
         **kwargs,
     ):
@@ -975,6 +976,8 @@ class _IP:
         :type ifindex: int or str, optional
         :param namespace: namespace, defaults to None
         :type namespace: str, optional
+        :param parent_link: name of parent link (e.g. for vlan type), defaults to None
+        :type parent_link: str, optional
         :param wait_for_device: timeout until device appears, defaults to None
         :type wait_for_device: float, optional
         """
@@ -994,12 +997,17 @@ class _IP:
         if ifindex is not None:
             index_args = ["index", str(ifindex)]
 
+        parent_link_args = []
+        if parent_link is not None:
+            parent_link_args = ["link", parent_link]
+
         nmci.process.run_stdout(
             [
                 "ip",
                 *ns_args,
                 "link",
                 "add",
+                *parent_link_args,
                 ifname,
                 *index_args,
                 "type",

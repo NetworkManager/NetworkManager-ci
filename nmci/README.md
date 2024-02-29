@@ -998,7 +998,7 @@ Zero address for given address family
 * **Return type:**
   str
 
-### nmci.ip.link_add(ifname, link_type, \*args, ifindex=None, namespace=None, wait_for_device=None, \*\*kwargs)
+### nmci.ip.link_add(ifname, link_type, \*args, ifindex=None, namespace=None, parent_link=None, wait_for_device=None, \*\*kwargs)
 
 Add new link. Additional arguments are appended to
 `ip link add ...` command. Additional keyword arguments are
@@ -1010,6 +1010,7 @@ appended with separated space: `peer='p_name'` is appended as
   * **link_type** (*str*) – interface type
   * **ifindex** (*int* *or* *str**,* *optional*) – interface index, defaults to None
   * **namespace** (*str**,* *optional*) – namespace, defaults to None
+  * **parent_link** (*str**,* *optional*) – name of parent link (e.g. for vlan type), defaults to None
   * **wait_for_device** (*float**,* *optional*) – timeout until device appears, defaults to None
 
 ### nmci.ip.link_delete(ifname=None, \*, ifindex=None, accept_nodev=False, namespace=None)
