@@ -360,12 +360,12 @@ Feature: nmcli - ethernet
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
-      wake-on-lan=g
+      wake-on-lan=64
       """
     * Reload connections
     * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool sriov_device"
-    Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
+    Then "default|g|magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
 
     @rhbz1141417 @rhbz2016348
@@ -377,12 +377,12 @@ Feature: nmcli - ethernet
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
-      wake-on-lan=g
+      wake-on-lan=64
       """
     * Reload connections
     * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool sriov_device"
-    Then "magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
+    Then "magic|g|default" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
     * Submit "remove 802-3-ethernet.wake-on-lan magic"
     * Note the "802-3-ethernet.wake-on-lan" property from editor print output
