@@ -1985,6 +1985,38 @@ def openvswitch_as(context, scenario):
 _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
 
 
+def eswitch_bs(context, scenario):
+    # Delete mlx5_roce profile if present
+    if "mlx5_roce" in context.process.nmcli("-g NAME,TYPE connection show"):
+        print("delete mlx5_roce profile")
+        context.process.nmcli("con del mlx5_roce")
+
+    bus_addr = context.process.run_stdout(
+        "ethtool -i mlx5_roce | grep 'bus-info:' | sed 's/bus-info: //'", shell=True
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} inline-mode none",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} encap-mode none",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
+        f"devlink dev eswitch set pci/{bus_addr} mode legacy",
+        shell=True,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+
+
+_register_tag("eswitch", eswitch_bs, None)
+
+
 def dpdk_bs(context, scenario):
     if not os.path.isfile("/tmp/nm_dpdk_configured"):
         context.process.run_stdout("sysctl -w vm.nr_hugepages=10")
