@@ -11,7 +11,7 @@
     @ver+=1.6.0
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_psk
-    Scenario: NM - general - MACsec PSK
+    Scenario: NM - macsec - MACsec PSK
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
     * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
           """
@@ -35,7 +35,7 @@
     @ver+=1.41.0
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_reboot
-    Scenario: NM - general - MACsec PSK
+    Scenario: NM - macsec - MACsec PSK
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
     * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
           """
@@ -66,7 +66,7 @@
     @ver+=1.41.0
     @macsec @not_on_aarch64_but_pegas
     @macsec_vlan_reboot
-    Scenario: NM - general - MACsec PSK on VLAN
+    Scenario: NM - macsec - MACsec PSK on VLAN
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100" on VLAN "42"
     * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
           """
@@ -108,7 +108,7 @@
     @ver+=1.18 @rhelver+=8
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_set_mtu_from_parent
-    Scenario: NM - general - MACsec MTU from parent
+    Scenario: NM - macsec - MACsec MTU from parent
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
     * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
           """
@@ -137,7 +137,7 @@
     @ver+=1.12
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_send-sci_by_default
-    Scenario: NM - general - MACsec send-sci option should be true by default
+    Scenario: NM - macsec - MACsec send-sci option should be true by default
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
     * Add "ethernet" connection named "test-macsec-base" for device "macsec_veth" with options
           """
@@ -162,7 +162,7 @@
     @ver+=1.41.3
     @macsec @not_on_aarch64_but_pegas @long
     @macsec_managed_macsec_from_unmanaged_parent
-    Scenario: NM - general - MACsec managed from an unmanaged parent
+    Scenario: NM - macsec - MACsec managed from an unmanaged parent
     * Prepare MACsec PSK environment with CAK "00112233445566778899001122334455" and CKN "5544332211009988776655443322110055443322110099887766554433221100"
     * Execute "nmcli device set macsec_veth managed off"
     * Add "macsec" connection named "test-macsec" for device "macsec0" with options
@@ -176,3 +176,33 @@
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show test-macsec" in "45" seconds
     Then Ping "172.16.10.1" "10" times
 
+
+    @RHEL-24337
+    @ver+=1.46
+    @rhelver+=9.4
+    @prepare_patched_netdevsim
+    @macsec_offload
+    Scenario: NM - macsec - check macsec offload flag
+    * Skip if next step fails:
+    * "on" is visible with command "ethtool -k eth12 | grep -i macsec-hw-offload"
+    * Add "macsec" connection named "test-macsec" for device "macsec0" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.addresses 192.168.6.8/24
+          macsec.parent eth12
+          macsec.mode psk
+          macsec.mka-cak 00112233445566778899001122334455
+          macsec.mka-ckn 5544332211009988776655443322110055443322110099887766554433221100
+          macsec.validation disable
+          macsec.offload mac
+          """
+    * Bring "up" connection "test-macsec"
+    Then "offload mac" is visible with command "ip -d l show dev macsec0"
+    * Commentary
+    """
+    macsec.offload=phy isn't supported by netdevsim
+    """
+    * Modify connection "test-macsec" changing options "macsec.offload off"
+    * Bring "up" connection "test-macsec"
+    Then "offload off" is visible with command "ip -d l show dev macsec0"
