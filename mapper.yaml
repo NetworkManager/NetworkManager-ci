@@ -2196,6 +2196,8 @@ testmapper:
         feature: macsec
     - macsec_managed_macsec_from_unmanaged_parent:
         feature: macsec
+    - macsec_offload:
+        feature: macsec
     - openvpn_ipv4:
         feature: openvpn
     - openvpn_ipv4_neverdefault:
