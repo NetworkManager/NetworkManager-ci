@@ -599,6 +599,74 @@
     Then "spoof checking on" is visible with command "ip link show dev sriov_device |grep 'vf 0'"
 
 
+    @ver+=1.46.0
+    @eswitch
+    @sriov_con_add_set_eswitch_mode_without_vfs
+    Scenario: nmcli - sriov - set eswitch mode without vfs
+    * Add "ethernet" connection named "sriov" for device "mlx5_roce" with options
+          """
+          sriov.total-vfs 0
+          sriov.eswitch-mode switchdev
+          """
+    * Note the output of "ethtool -i mlx5_roce | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+
+
+    @ver+=1.46.0
+    @eswitch
+    @sriov_con_add_set_eswitch_mode_with_vfs
+    Scenario: nmcli - sriov - set eswitch mode with 2 vfs
+    * Add "ethernet" connection named "sriov" for device "mlx5_roce" with options
+          """
+          sriov.total-vfs 2
+          """
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    * Modify connection "sriov" changing options
+          """
+          sriov.eswitch-mode switchdev
+          """
+    * Bring "up" connection "sriov"
+    * Note the output of "ethtool -i mlx5_roce | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    And "vf 0" is visible with command "ip link show dev mlx5_roce |grep 'vf 0'"
+    And "vf 1" is visible with command "ip link show dev mlx5_roce |grep 'vf 1'"
+
+
+    @ver+=1.46.0
+    @eswitch
+    @sriov_con_add_set_eswitch_mode_with_external_vfs_created
+    Scenario: nmcli - sriov - set eswitch mode with external vfs created
+    * Execute "echo 2 > /sys/class/net/mlx5_roce/device/sriov_numvfs"
+    When "eth0" is visible with command "nmcli device" in "5" seconds
+    * Add "ethernet" connection named "sriov" for device "mlx5_roce" with options
+          """
+          sriov.eswitch-mode switchdev
+          """
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    * Note the output of "ethtool -i mlx5_roce | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+
+
+    @ver+=1.46.0
+    @eswitch
+    @sriov_con_add_set_switchdev_options
+    Scenario: nmcli - sriov - set switchdev options
+    * Add "ethernet" connection named "sriov" for device "mlx5_roce" with options
+          """
+          sriov.eswitch-mode switchdev
+          sriov.eswitch-encap-mode basic
+          """
+          # sriov.eswitch-inline-mode link doesn't work
+    * Note the output of "ethtool -i mlx5_roce | grep 'bus-info:' | sed 's/bus-info: //'" as value "bus"
+    When "mlx5_roce\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
+    Then "mode switchdev" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    #And "inline-mode link" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+    And "encap-mode basic" is visible with command "devlink dev eswitch show pci/<noted:bus>"
+
+
 
     ################# Other ######################################
 
