@@ -3635,3 +3635,37 @@ Feature: nmcli: ipv4
     Then "172.*" is not visible with command "nmcli -g IP4.ADDRESS device show testX" in "180" seconds
     * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
     Then "172.*" is visible with command "nmcli -g IP4.ADDRESS device show testX" in "20" seconds
+
+
+    @ver+=1.47.1
+    @tcpdump
+    @ipv4_dhcp_send_release
+    Scenario: nmcli - ipv4 - dhcp-send-release - set send release to true
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-send-release yes
+          """
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
+    * Bring "down" connection "con_ipv4"
+    Then "DHCP-Message \(53\), length 1: Release" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+
+
+    @ver+=1.47.1
+    @tcpdump
+    @ipv4_dhcp_send_release_disabled
+    Scenario: nmcli - ipv4 - dhcp-send-release - set send release to false
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-send-release no
+          """
+    * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
+    * Bring "down" connection "con_ipv4"
+    Then "DHCP-Message \(53\), length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
