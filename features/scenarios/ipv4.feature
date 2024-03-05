@@ -2976,6 +2976,8 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     # wait until `connecting` or `activating` is finished
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
+    * Note "ipv4" routes on interface "many_routes4" as value "ip_routes_before"
+    Then Check "ipv4" route list on NM device "many_routes4" matches "ip_routes_before"
     * Note "ipv4" routes on NM device "many_routes4" as value "nm_routes_before"
     When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev many_routes4; done"
     Then Check "ipv4" route list on NM device "many_routes4" matches "nm_routes_before"

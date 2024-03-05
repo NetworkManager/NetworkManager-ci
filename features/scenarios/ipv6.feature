@@ -2189,6 +2189,8 @@
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
     # wait for DHCP routes
     When "2620:" is visible with command "ip -6 r sh dev many_routes6" in "10" seconds
+    * Note "ipv6" routes on interface "many_routes6" as value "ip_routes_before"
+    Then Check "ipv6" route list on NM device "many_routes6" matches "ip_routes_before"
     * Note "ipv6" routes on NM device "many_routes6" as value "nm_routes_before"
     When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip -6 r add 1000:0:0:${i}::/64 proto ${i} dev many_routes6; done"
     Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
