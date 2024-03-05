@@ -1364,7 +1364,21 @@ class _IP:
         for route in routes_lines:
             if not route:
                 continue
-            route, params = route.split(" ", 1)
+            route, params_str = route.split(" ", 1)
+            if route != "default":
+                route = (
+                    route
+                    if "/" in route
+                    else f"{route}/{self.addr_family_plen(addr_family)}"
+                )
+            params = {}
+            key = None
+            for param in params_str.split(" "):
+                if key is None:
+                    key = param
+                else:
+                    params[key] = param
+                    key = None
             result[route] = params
         return result
 
