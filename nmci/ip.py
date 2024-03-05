@@ -68,6 +68,27 @@ class _IP:
             return None
         self.addr_family_check(addr_family)
 
+    def addr_zero(self, addr_family, with_plen=True):
+        """
+        Zero IP address for given family
+
+        :param addr_family: address family
+        :type addr_family: socket.AddressFamily or str
+        :param with_plen: append addres range ("/0"), default True
+        :type with_plen: bool, optional
+        :return: zero address
+        :rtype: int
+        """
+        plen = ""
+        if with_plen:
+            plen = f"/0"
+        addr_family = self.addr_family_norm(addr_family)
+        if addr_family == socket.AF_INET:
+            return f"0.0.0.0{plen}"
+        if addr_family == socket.AF_INET6:
+            return f"::{plen}"
+        self.addr_family_check(addr_family)
+
     def addr_family_plen(self, addr_family):
         """
         IP address length for given family

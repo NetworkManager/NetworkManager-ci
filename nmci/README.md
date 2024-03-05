@@ -870,6 +870,18 @@ IP address length for given family
 * **Return type:**
   int
 
+### nmci.ip.addr_zero(addr_family, with_plen=True)
+
+Zero IP address for given family
+
+* **Parameters:**
+  * **addr_family** (*socket.AddressFamily* *or* *str*) – address family
+  * **with_plen** (*bool**,* *optional*) – append addres range (“/0”), default True
+* **Returns:**
+  zero address
+* **Return type:**
+  int
+
 ### nmci.ip.address_add(address, ifname=None, \*, ifindex=None, wait_for_device=None, addr_family=None, namespace=None)
 
 Add IP address to interface.
