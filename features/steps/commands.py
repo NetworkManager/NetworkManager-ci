@@ -1059,6 +1059,19 @@ def note_routes_on_device(context, addr_family, ifname, index):
     context.noted[index] = routes
 
 
+@step('Note "{addr_family}" routes on interface "{ifname}" as value "{index}"')
+def note_routes_on_device(context, addr_family, ifname, index):
+    addr_family = nmci.ip.addr_family_norm(addr_family)
+    routes = nmci.ip.route_show(ifname=ifname, addr_family=addr_family)
+    routes_list = [f"{r} {routes[r]['metric']}" for r in routes if r != "default"]
+    if "default" in routes:
+        defroute = nmci.ip.addr_zero(addr_family, with_plen=True)
+        via_addr = routes["default"]["via"]
+        metric = routes["default"]["metric"]
+        routes_list.append(f"{defroute} {via_addr} {metric}")
+    context.noted[index] = routes_list
+
+
 @step("Load nftables")
 @step('Load nftables "{ruleset}"')
 @step('Load nftables in "{ns}" namespace')
