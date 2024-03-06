@@ -202,7 +202,8 @@ Feature: NM: dispatcher
 
 
     @RHEL-1435 @RHEL-1567
-    @ver+=1.45.7
+    @ver+=1.47.1
+    @ver+=1.46
     @disp
     @dispatcher_device_handler_dummy
     Scenario: generic connection with device-handler to create a dummy interface
@@ -233,7 +234,8 @@ Feature: NM: dispatcher
 
 
     @RHEL-1435 @RHEL-1567
-    @ver+=1.45.7
+    @ver+=1.47.1
+    @ver+=1.46
     @disp
     @dispatcher_device_handler_dummy_in_bond
     Scenario: generic connection with device-handler to create a dummy interface in a bond
@@ -261,7 +263,8 @@ Feature: NM: dispatcher
 
 
     @RHEL-1435 @RHEL-1567
-    @ver+=1.45.90
+    @ver+=1.47.1
+    @ver+=1.46
     @disp @keyfile
     @dispatcher_device_handler_geneve
     Scenario: generic connection with device-handler to create a geneve interface
