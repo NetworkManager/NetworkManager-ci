@@ -3072,6 +3072,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz2105088
+    @RHEL-26777
     @ver+=1.36.7
     @rhelver+=8
     @ver/rhel/8/6+=1.36.0.8
@@ -3079,21 +3080,26 @@ Feature: nmcli: ipv4
     @dhcp_internal_nak_in_renewing
     Scenario: NM - ipv4 - NAK received while renewing
     * Prepare simulated test "testX4" device without DHCP
-    # Script sends packets like this:
-    # | <- DHCP Discover
-    # | -> DHCP Offer
-    # | <- DHCP Request
-    # | -> DHCP Ack      # after this, state is BOUND
-    # | <- DHCP Request  # renewal after 20 seconds
-    # | -> DHCP Nak
-    # | <- DHCP Discover
-    # | -> DHCP Offer    # Now the internal clients shows error "selecting lease failed: -131"
-    #                    # and can't renew the lease
-    * Execute "ip netns exec testX4_ns python contrib/reproducers/repro_2105088.py testX4p" without waiting for process to finish
+    * Commentary
+        """
+        Script sends packets like this:
+        | <- DHCP Discover
+        | -> DHCP Offer
+        | <- DHCP Request
+        | -> DHCP Ack      # after this, state is BOUND
+        | <- DHCP Request  # renewal after 20 seconds
+        | -> DHCP Nak
+        | <- DHCP Discover
+        | -> DHCP Offer    # Now the internal clients shows error "selecting lease failed: -131"
+                           # and can't renew the lease
+        """
+    * Run child "ip netns exec testX4_ns python contrib/reproducers/repro_2105088.py testX4p"
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     * Bring "up" connection "con_ipv4"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
-    Then "172.25.1.200" is visible with command "ip a s testX4" for full "40" seconds
+    * Expect "DHCP Nak" in children in "30" seconds
+    * Wait for "2" seconds
+    Then "172.25.1.200" is visible with command "ip a s testX4" for full "10" seconds
 
 
     @rhbz1995372
