@@ -44,8 +44,12 @@ node('cico-workspace') {
                     }
                     // do not kill different branches / releases
                     if (build.displayName == currentBuild.displayName) {
-                        println("Kill job #" + build.number)
-                        build.doStop();
+                        def oldBuildParams = build.actions.find{ it instanceof ParametersAction }?.parameters
+                        def oldBuildRefspec = parameters?.find{ it.name == "REFSPEC" }?.value
+                        if (params["REFSPEC"] == oldBuildRefspec) {
+                            println("Kill job #" + build.number)
+                            build.doStop();
+                        }
                     }
                 }
             }
