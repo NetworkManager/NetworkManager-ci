@@ -74,6 +74,10 @@ install_fedora_packages () {
 
     install_plugins_dnf
 
+    if [ "$(arch)" == "aarch64" ]; then
+        dnf -4 -y install iwl*-firmware
+    fi
+
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK"!' /etc/sysconfig/wpa_supplicant
 

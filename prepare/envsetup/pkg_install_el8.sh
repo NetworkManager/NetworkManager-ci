@@ -177,6 +177,10 @@ install_el8_packages () {
 
     install_plugins_dnf
 
+    if [ "$(arch)" == "aarch64" ]; then
+        dnf -4 -y install iwl*-firmware
+    fi
+
     # Update to non crashing libreswan as RHEL-13123
     dnf -y -4 update \
         https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm

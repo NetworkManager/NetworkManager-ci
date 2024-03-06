@@ -183,6 +183,9 @@ configure_networking () {
         fi
 
         if [ $wlan -eq 1 ]; then
+            # We need some small magic to get wifi device available on aarch64
+            configure_aarch_wifi
+
             # obtain valid certificates
             mkdir /tmp/certs
             wget http://tools.lab.eng.brq2.redhat.com:8080/client.pem -O /tmp/certs/client.pem
