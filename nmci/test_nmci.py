@@ -787,6 +787,9 @@ def test_feature_tags():
             if ver_prefix == "ver":
                 stream, op, ver = nmci.misc.test_version_tag_parse_ver(tag)
                 assert type(stream) is list
+                assert all(
+                    [v.isdigit() for v in stream[1:]]
+                ), f"wrong ver tag @{tag}, example of valid z-stream tag is `@ver/rhel/8/7+=1.40`"
             else:
                 stream = None
                 op, ver = nmci.misc.test_version_tag_parse(tag, ver_prefix)
