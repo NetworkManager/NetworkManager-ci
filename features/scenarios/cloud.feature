@@ -111,7 +111,7 @@ Feature: nmcli: cloud
     @rhbz2207812
     @ver+=1.40.16.2000
     # VVV Fix was not backported to RHEL8.8
-    @ver/rhel/8.8-
+    @ver/rhel/8/8-
     @ver/rhel/8+=1.40.16.9
     @ver/rhel/9+=1.43.10
     @prepare_patched_netdevsim
