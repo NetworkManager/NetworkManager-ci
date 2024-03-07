@@ -3,9 +3,8 @@ install_fedora_packages () {
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
     systemctl restart sshd
 
-    # Make python3 default if it's not
-    rm -rf /usr/bin/python
-    ln -s /usr/bin/python3 /usr/bin/python
+    # Make python3 default
+    fix_python3_link
 
     # Pip down some deps
     dnf -y install python3-pip libyaml-devel
@@ -31,6 +30,9 @@ install_fedora_packages () {
         python3-libnmstate python3-systemd bind-utils podman valgrind bzip2 ModemManager jq \
         usb_modeswitch usbutils \
         --skip-broken
+
+    # installing python3-* package causes removal of /usr/bin/python
+    fix_python3_link
 
     # freeradius
     rm -rf /etc/raddb

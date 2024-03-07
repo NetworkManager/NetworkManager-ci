@@ -1,7 +1,6 @@
 install_el8_packages () {
-    # Make python3 default if it's not
-    rm -rf /usr/bin/python
-    ln -s /usr/bin/python3 /usr/bin/python
+    # Make python3 default
+    fix_python3_link
 
     # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
@@ -36,8 +35,11 @@ install_el8_packages () {
         git nmap-ncat python3-netaddr dhcp-relay iw net-tools psmisc firewalld dhcp-server \
         ethtool python3-dbus python3-gobject dnsmasq tcpdump wireshark-cli file iputils \
         iproute-tc openvpn gcc coreutils-debuginfo python3-pyyaml tuned haveged \
-        podman mptcpd python3-systemd s390utils-base nmstate bzip2 bind-utils valgrind jq \
+        podman mptcpd python3-systemd s390utils-base nmstate bzip2 bind-utils valgrind \
         --skip-broken
+
+    # installing python3-* package causes removal of /usr/bin/python
+    fix_python3_link
 
     # freeradius
     rm -rf /etc/raddb

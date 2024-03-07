@@ -1,7 +1,6 @@
 install_el9_packages () {
-    # Make python3 default if it's not
-    rm -rf /usr/bin/python
-    ln -s /usr/bin/python3 /usr/bin/python
+    # Make python3 default
+    fix_python3_link
 
     # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
@@ -22,6 +21,9 @@ install_el9_packages () {
         wireguard-tools python3-pyyaml tuned sos openssl-pkcs11 podman mptcpd nmstate \
         python3-libnmstate python3-systemd systemd-resolved bind-utils valgrind ModemManager jq \
         --skip-broken
+
+    # installing python3-* package causes removal of /usr/bin/python
+    fix_python3_link
 
     # freeradius
     rm -rf /etc/raddb
