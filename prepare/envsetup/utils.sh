@@ -10,9 +10,9 @@ install_behave_pytest () {
   # stable release is old, let's use the lastest available tagged release
   #python -m pip install behave
   if [ -f /tmp/keep_old_behave ]; then
-    python -m pip install behave
+    python -m pip install behave --prefix=/usr/ --force-reinstall
   else
-    python -m pip install "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave"
+    python -m pip install "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave" --prefix=/usr/ --force-reinstall
   fi
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
