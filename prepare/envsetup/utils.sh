@@ -74,7 +74,7 @@ install_plugins_yum () {
         pkgs+=" NetworkManager-libreswan"
     fi
 
-    yum -y install $pkgs
+    test -n "$pkgs" && yum -y install $pkgs
 }
 
 
