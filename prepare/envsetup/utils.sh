@@ -16,7 +16,7 @@ install_behave_pytest () {
   fi
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
-  ln -s /usr/bin/behave-3 /usr/bin/behave
+  which behave || ln -s `which behave-3` /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
   python -m pip install pytest
   # fix click version because of black bug
@@ -35,8 +35,8 @@ check_packages () {
     rpm -q iw ethtool wireshark-cli \
            NetworkManager-{openvpn,ppp,pptp,tui,team,wifi,strongswan} || \
         return 1
-    test -x /usr/local/bin/behave || return 1
-    test -x /usr/bin/python -o -f /tmp/python_command || return 1
+    which behave || return 1
+    which python || return 1
 }
 
 
@@ -296,24 +296,6 @@ get_centos_pkg_release() {
            awk -F '/' '{print $1}')
     echo $VER
 }
-
-export_python_command() {
-    if [ -f /tmp/python_command ]; then
-        PYTHON_COMMAND=$(cat /tmp/python_command)
-        if [ -n "$PYTHON_COMMAND" ]; then
-            python() {
-            if [ -f /tmp/python_command ]; then
-                PYTHON_COMMAND=$(cat /tmp/python_command)
-                if [ -n "$PYTHON_COMMAND" ]; then
-                    $PYTHON_COMMAND $@
-                fi
-            fi
-            }
-            export -f python
-        fi
-    fi
-}
-
 
 deploy_ssh_keys () {
     if ! test -d /root/.ssh; then
