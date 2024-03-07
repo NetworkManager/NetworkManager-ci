@@ -20,8 +20,11 @@ install_behave_pytest () {
   else
     python -m pip install "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave" --prefix=/usr/ --force-reinstall
   fi
+  python -m pip install behave_html_pretty_formatter
+
   python -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
+
   which behave || ln -s `which behave-3` /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
   python -m pip install pytest
@@ -85,40 +88,17 @@ install_plugins_yum () {
 
 
 install_plugins_dnf () {
-    # Installing plugins if missing
-    pkgs=" "
-    if ! rpm -q --quiet NetworkManager-wifi; then
-        pkgs+=" NetworkManager-wifi"
-    fi
-    if ! rpm -q --quiet NetworkManager-team; then
-        pkgs+=" NetworkManager-team"
-    fi
-    if ! rpm -q --quiet NetworkManager-wwan; then
-        pkgs+=" NetworkManager-wwan"
-    fi
-    if ! rpm -q --quiet NetworkManager-tui; then
-        pkgs+=" NetworkManager-tui"
-    fi
-    if ! rpm -q --quiet NetworkManager-cloud-setup; then
-        pkgs+=" NetworkManager-cloud-setup"
-    fi
-    if ! rpm -q --quiet NetworkManager-pptp; then
-        pkgs+=" NetworkManager-pptp"
-    fi
-    if ! rpm -q --quiet NetworkManager-ovs; then
-        pkgs+=" NetworkManager-ovs"
-    fi
-    if ! rpm -q --quiet NetworkManager-ppp; then
-        pkgs+=" NetworkManager-ppp"
-    fi
-    if ! rpm -q --quiet NetworkManager-openvpn; then
-        pkgs+=" NetworkManager-openvpn"
-    fi
-    if ! rpm -q --quiet NetworkManager-libreswan; then
-        pkgs+=" NetworkManager-libreswan"
-    fi
-
-    dnf -y install $pkgs
+    PKGS_INSTALL="$PKGS_INSTALL \
+        NetworkManager-wifi \
+        NetworkManager-team \
+        NetworkManager-wwan \
+        NetworkManager-tui \
+        NetworkManager-cloud-setup \
+        NetworkManager-pptp \
+        NetworkManager-ovs \
+        NetworkManager-ppp \
+        NetworkManager-openvpn \
+        NetworkManager-libreswan"
 }
 
 configure_aarch_wifi () {

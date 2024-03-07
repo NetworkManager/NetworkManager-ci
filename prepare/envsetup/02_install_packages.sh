@@ -27,9 +27,6 @@ install_packages () {
             install_"$release"_packages
         fi
 
-        # install formatter html-pretty
-        python3 -m pip install behave-html-pretty-formatter
-
         touch /tmp/nm_packages_installed
     fi
 }
