@@ -10,8 +10,6 @@ install_el7_packages () {
     yum -y install python3 python3-pip
     yum -y install gcc
 
-    echo python3 > /tmp/python_command
-    export_python_command
 
     python -m pip install --upgrade pip
     python -m pip install setuptools --upgrade
