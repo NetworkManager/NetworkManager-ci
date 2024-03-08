@@ -352,13 +352,14 @@ class Machine:
             # excludes not needed build, as the rpms should not be copied from build_machine
             self.ssh("yum -y install ./rpms/NetworkManager*.rpm")
         self.ssh("systemctl restart NetworkManager")
-        self.ssh(f"rpm -qa > ../packages.m{self.id}.list")
         return True
 
     def install_NM_async(self):
         self.cmd_async(self.install_NM)
 
     def runtests(self, tests):
+        # Log pkg state right before the tests
+        self.ssh(f"rpm -qa > ../packages.m{self.id}.list")
         self.tests = tests
         self.tests_num = len(tests)
         tests = " ".join(tests)
