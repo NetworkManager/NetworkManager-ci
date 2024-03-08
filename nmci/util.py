@@ -1167,16 +1167,20 @@ class _Util:
 
             if not idxes:
                 if expected_required[i]:
+                    strv_f = "\n".join(strv)
+                    expected_f = "\n".join(expected)
                     raise ValueError(
-                        f'Could not find #{i} "{e0}" in list {str(strv)} (expected {str(expected)})'
+                        f'Could not find #{i} "{e0}" in list:\n{strv_f}\n\nexpected:\n{expected_f}'
                     )
             expected_match_idxes.append(idxes)
 
         if not ignore_extra_strv:
             for j, s in enumerate(strv):
                 if not strv_matched[j]:
+                    strv_f = "\n".join(strv)
+                    expected_f = "\n".join(expected)
                     raise ValueError(
-                        f'List {str(strv)} contains non expected element #{j} "{s}" (expected {str(expected)})'
+                        f'List contains unexpected element #{j} "{s}":\n{strv_f}\n\nexpected:\n{expected_f}'
                     )
 
         # We now have a mapping of `expected_match_idxes[i]` where each element at position `i` contains

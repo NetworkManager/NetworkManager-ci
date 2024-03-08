@@ -1037,7 +1037,7 @@ def check_routes_expect(context, ifname, addr_family, expected, timeout=2):
                 ignore_order=True,
             )
         except ValueError as e:
-            raise ValueError(f"List of routes unexpected: {e} (full list: {routes})")
+            raise ValueError(f"List of routes unexpected: {e}")
 
     try:
         nmci.util.wait_for(do, timeout=timeout)
