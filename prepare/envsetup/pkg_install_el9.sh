@@ -6,7 +6,7 @@ install_el9_packages () {
 
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
-        ModemManager dhcp-client file initscripts openssl-pkcs11 perl-IO-Tty python3-libnmstate
+        ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
         python3-pyyaml rpm-build sos systemd-resolved wireguard-tools"
 
     # Install non distro deps
