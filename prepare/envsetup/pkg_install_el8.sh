@@ -99,13 +99,15 @@ install_el8_packages () {
         $FEDP/ModemManager-glib-1.10.6-1.el8.x86_64.rpm \
         $FEDP/ModemManager-glib-debuginfo-1.10.6-1.el8.x86_64.rpm"
 
-    # Install non crashing teamd 1684389
-    PKGS_UPGRADE="$PKGS_UPGRADE\
-        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-1.31-2.el8.$(arch).rpm \
-        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-devel-1.31-2.el8.$(arch).rpm \
-        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm \
-        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm \
-        $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm"
+    # Install non crashing teamd 1684389 (only z-stream RHEL8)
+    if ! grep -q -e 'CentOS .* release 8' /etc/redhat-release; then
+        PKGS_UPGRADE="$PKGS_UPGRADE\
+            $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-1.31-2.el8.$(arch).rpm \
+            $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/libteam-devel-1.31-2.el8.$(arch).rpm \
+            $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-1.31-2.el8.$(arch).rpm \
+            $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/teamd-devel-1.31-2.el8.$(arch).rpm \
+            $BREW/rhel-8/packages/libteam/1.31/2.el8/$(arch)/python3-libteam-1.31-2.el8.$(arch).rpm"
+    fi
 
     # dracut testing
     if [[ $(arch) = "s390x" ]]; then
