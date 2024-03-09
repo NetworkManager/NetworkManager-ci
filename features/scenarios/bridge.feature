@@ -1217,7 +1217,7 @@ Feature: nmcli - bridge
           bridge-port.vlans '2-4092'
           """
     * Execute "bridge -d vlan show"
-    * Execute "ip link add type dummy dummy0"
+    * Execute "ip link add dummy0 type dummy"
     * Execute "nmcli device set dummy0 managed no"
     * Execute "ip link set dummy0 master br0"
     * Execute "ip link set dummy0 up"
