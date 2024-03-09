@@ -3519,13 +3519,13 @@ Feature: nmcli: ipv4
     * Prepare simulated test "testX" device with "192.0.2" ipv4 and daemon options "--no-hosts --dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,1.1.1.1 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping"
     * Add "ethernet" connection named "con" for device "testX" with options "ipv4.method auto ipv6.method ignore"
     * Bring "up" connection "con"
-    Then "1.1.1.1" is visible with command "cat /etc/resolv.conf"
+    Then Nameserver "1.1.1.1" is set
     * Execute reproducer "repro_8423.py" with options "testX 192.0.2.15"
     * Wait for "5" seconds
     * Execute "kill `cat /tmp/testX_ns.pid`"
     * Wait for "1" seconds
     * Run child "ip netns exec testX_ns dnsmasq --pid-file=/tmp/testX_ns.pid --dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,8.8.8.8 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping --log-dhcp --conf-file=/dev/null --dhcp-leasefile=/tmp/testX_ns.lease --dhcp-range=192.0.2.10,192.0.2.15,2m"
-    Then "8.8.8.8" is visible with command "cat /etc/resolv.conf" in "120" seconds
+    Then Nameserver "8.8.8.8" is set in "120" seconds
 
 
     @RHEL-5098
