@@ -56,6 +56,14 @@ for file in $(find /etc/sysconfig/network-scripts/ -type f); do
     cat $file
 done
 
+echo "== ls system-connections =="
+ls -la /etc/NetworkManager/system-connections
+
+for file in $(find /etc/NetworkManager/system-connections -type f); do
+    echo "== $file =="
+    cat $file
+done
+
 nmcli_list
 
 echo "== checks #1 =="

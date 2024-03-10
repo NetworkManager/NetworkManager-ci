@@ -27,6 +27,8 @@ arg() {
 clean_root() {
   echo "== cleaning ifcfg =="
   rm -vrf /etc/sysconfig/network-scripts/ifcfg*
+  echo "== cleaning system-connections =="
+  rm -vrf /etc/NetworkManager/system-connections/*
   echo "== cleaning /var/run/NetworkManager/ =="
   rm -vrf /var/run/NetworkManager/*
   echo "== cleaning check script =="
