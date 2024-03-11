@@ -491,6 +491,7 @@
 
     @rhbz1734470
     @ver+=1.21.1
+    @ver-1.47.2
     @stop_radvd
     @ipv6_accept_ra_handling
     Scenario: NM - ipv6 - accept RA handling
@@ -503,6 +504,23 @@
     Then "300" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/retrans_time_ms"
     Then "12000" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/base_reachable_time_ms"
     Then "36" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/gc_stale_time"
+
+
+    @rhbz1734470
+    @ver+=1.47.2
+    @stop_radvd
+    @ipv6_accept_ra_handling
+    Scenario: NM - ipv6 - accept RA handling
+    * Prepare veth pairs "test10" bridged over "vethbr6"
+    * Execute "ip -6 addr add 2001:db8:1::1/64 dev vethbr6"
+    * Start radvd server with config from "contrib/ipv6/radvd2.conf"
+    * Add "ethernet" connection named "con_ipv6" for device "test10" with options "ipv6.may-fail no"
+    When "2001:db8" is visible with command "ip a s test10" in "45" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv6/conf/test10/accept_ra"
+    Then "300" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/retrans_time_ms"
+    Then "12000" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/base_reachable_time_ms"
+    Then "36" is visible with command "cat /proc/sys/net/ipv6/neigh/test10/gc_stale_time"
+    Then "99" is visible with command "cat /proc/sys/net/ipv6/conf/test10/hop_limit"
 
 
     @ipv6_routes_invalid_IP
