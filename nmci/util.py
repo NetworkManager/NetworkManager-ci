@@ -853,14 +853,18 @@ class _Util:
                     ["sysctl", "-a", "--pattern", r"net\.mptcp\.enabled|\.rp_filter"],
                 ]
             )
-        cmds = [
-            "date '+%Y%m%d-%H%M%S.%N (%s)'",
-            nmci.process.WithShell("get_rhel_compose"),
-            "NetworkManager --version",
-            nmci.process.WithShell("hostnamectl 2>&1"),
-            "lshw -class network -businfo -numeric",
+
+        hw_cmds = [
             "free -mt",
             "df -m",
+            nmci.process.WithCache("lshw -class network -businfo -numeric"),
+        ]
+
+        cmds = [
+            "date '+%Y%m%d-%H%M%S.%N (%s)'",
+            nmci.process.WithCache(nmci.process.WithShell("get_rhel_compose")),
+            "NetworkManager --version",
+            nmci.process.WithShell("hostnamectl 2>&1"),
             ["ls", "-lZ", "/etc/NetworkManager/system-connections/"],
             ["ls", "-lZ", "/etc/sysconfig/network-scripts/"],
             ["ls", "-lZ", "/tmp/testeth0"],
@@ -872,6 +876,7 @@ class _Util:
             *veth_cmds,
             *named_nss_cmds,
             "ps aux",
+            *hw_cmds,
             "nft list ruleset",
         ]
 
