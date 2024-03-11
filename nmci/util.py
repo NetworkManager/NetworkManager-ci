@@ -736,7 +736,7 @@ class _Util:
                 self.escape = escape
 
             # Do not overwrite `self`, we need it for `bytes_to_str()`
-            def __str__(me):  # py__iterlint: disable=no-self-argument,invalid-name
+            def __str__(me):  # pylint: disable=no-self-argument,invalid-name
                 if isinstance(me.args, nmci.process.With):
                     args_s = str(me.args)
                 elif isinstance(me.args, (str, bytes)):
