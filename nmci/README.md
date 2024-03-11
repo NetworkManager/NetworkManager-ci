@@ -2201,7 +2201,7 @@ finish.
 * **Return type:**
   [PopenCollect](#nmci.process.PopenCollect)
 
-### *class* nmci.process.PopenCollect(proc, argv=None, argv_real=None, shell=None)
+### *class* nmci.process.PopenCollect(proc, argv=None, argv_real=None, shell=None, use_cache=False)
 
 Bases: `object`
 
@@ -2267,6 +2267,16 @@ interchangeably with strings.
 
 #### get_shell()
 
+#### is_cached()
+
+### *class* nmci.process.WithCache(cmd)
+
+Bases: [`With`](#nmci.process.With)
+
+Helper class to allow WithCache to be used interchangeably with strings.
+
+#### is_cached()
+
 ### *class* nmci.process.WithNamespace(namespace, cmd)
 
 Bases: [`WithPrefix`](#nmci.process.WithPrefix)
@@ -2288,6 +2298,27 @@ Bases: [`With`](#nmci.process.With)
 Helper class to allow WithShell to be used interchangeably with strings.
 
 #### get_shell()
+
+### nmci.process.cache_load(argv)
+
+Load cahed call
+
+* **Parameters:**
+  **argv** (*list* *of* *str*) – command line arguments
+* **Returns:**
+  tuple of returncode, stdout, stderr, or None if not found
+* **Return type:**
+  tuple
+
+### nmci.process.cache_save(argv, returncode, stdout, stderr)
+
+Save command call into the cache
+
+* **Parameters:**
+  * **argv** (*list* *of* *str*) – command line arguments
+  * **returncode** (*int*) – returncode of the process
+  * **stdout** (*bytes*) – stdout of the process
+  * **stderr** (*bytes*) – stderr of the process
 
 ### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
 

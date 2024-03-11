@@ -1,4 +1,5 @@
 import collections
+import json
 import os
 import re
 import subprocess
@@ -36,6 +37,11 @@ class With:
     def get_shell(self):
         if isinstance(self.cmd, With):
             return self.cmd.get_shell()
+        return False
+
+    def is_cached(self):
+        if isinstance(self.cmd, With):
+            return self.cmd.is_cached()
         return False
 
     def _prepend_argv(self, prefix):
@@ -81,6 +87,18 @@ class WithPrefix(With):
         return self._prepend_argv(self.prefix)
 
 
+class WithCache(With):
+    """
+    Helper class to allow WithCache to be used interchangeably with strings.
+    """
+
+    def __init__(self, cmd):
+        self.cmd = cmd
+
+    def is_cached(self):
+        return True
+
+
 class WithNamespace(WithPrefix):
     """
     Helper class to allow WithNamespace to be used interchangeably with strings.
@@ -95,11 +113,12 @@ class PopenCollect:
     Wrapper around :code:`subprocess.Popen` that collects stdout and stderr.
     """
 
-    def __init__(self, proc, argv=None, argv_real=None, shell=None):
+    def __init__(self, proc, argv=None, argv_real=None, shell=None, use_cache=False):
         self.proc = proc
         self.argv = argv
         self.argv_real = argv_real
         self.shell = shell
+        self.use_cache = use_cache
         self.returncode = None
         self.stdout = b""
         self.stderr = b""
@@ -111,6 +130,13 @@ class PopenCollect:
         :returns: returncode or None if process is still running
         :rtype: int or None
         """
+
+        cached_res = None
+        if self.use_cache:
+            cached_res = nmci.process.cache_load(self.argv_real)
+            if cached_res is not None:
+                self.returncode, self.stdout, self.stderr = cached_res
+
         if self.returncode is None:
             c = self.proc.poll()
             if self.proc.stdout is not None:
@@ -121,6 +147,10 @@ class PopenCollect:
                 return None
             self.returncode = c
 
+        if self.use_cache and cached_res is None:
+            nmci.process.cache_save(
+                self.argv_real, self.returncode, self.stdout, self.stderr
+            )
         return self.returncode
 
     def read_and_wait(self, timeout=None):
@@ -170,12 +200,20 @@ class _Process:
         self.WithShell = WithShell
         self.WithNamespace = WithNamespace
         self.WithPrefix = WithPrefix
+        self.WithCache = WithCache
         self.PopenCollect = PopenCollect
         self.RunResult = RunResult
         self.IGNORE_RETURNCODE_ALL = IGNORE_RETURNCODE_ALL
         self.DEFAULT_PATTERN_FLAGS = DEFAULT_PATTERN_FLAGS
 
         self.exec = _Exec(self)
+        self._cache_file = nmci.util.tmp_dir("nmci_process_cache")
+        if os.path.isfile(self._cache_file):
+            self._cache = json.loads(
+                nmci.util.file_get_content_simple(self._cache_file)
+            )
+        else:
+            self._cache = {}
 
     def _run_prepare_args(self, argv, shell, env, env_extra, namespace):
         if namespace:
@@ -183,8 +221,12 @@ class _Process:
 
         argv_real = argv
 
+        use_cache = False
+
         if isinstance(argv_real, With):
             shell = shell or argv_real.get_shell()
+            if argv_real.is_cached():
+                use_cache = True
             argv_real = argv_real.get_argv()
 
         if isinstance(argv_real, str):
@@ -201,7 +243,7 @@ class _Process:
                 env = dict(env)
             env.update(env_extra)
 
-        return argv, argv_real, shell, env
+        return argv, argv_real, shell, env, use_cache
 
     def Popen(
         self,
@@ -239,23 +281,27 @@ class _Process:
         :returns: PopenCollect object
         :rtype: PopenCollect
         """
-        argv, argv_real, shell, env = self._run_prepare_args(
+        argv, argv_real, shell, env, use_cache = self._run_prepare_args(
             argv, shell, env, env_extra, namespace
         )
 
         if cwd is None:
             cwd = nmci.util.BASE_DIR
 
-        proc = subprocess.Popen(
-            argv_real,
-            shell=shell,
-            stdout=stdout,
-            stderr=stderr,
-            cwd=cwd,
-            env=env,
-        )
+        proc = None
+        if not use_cache or self.cache_load(argv_real) is None:
+            proc = subprocess.Popen(
+                argv_real,
+                shell=shell,
+                stdout=stdout,
+                stderr=stderr,
+                cwd=cwd,
+                env=env,
+            )
 
-        return PopenCollect(proc, argv=argv, argv_real=argv_real, shell=shell)
+        return PopenCollect(
+            proc, argv=argv, argv_real=argv_real, shell=shell, use_cache=use_cache
+        )
 
     def raise_results(self, argv, header, result):
         """
@@ -290,6 +336,38 @@ class _Process:
         msg += f"{r_stdout}{r_stderr}"
         raise Exception(msg)
 
+    def cache_load(self, argv):
+        """
+        Load cahed call
+
+        :param argv: command line arguments
+        :type argv: list of str
+        :return: tuple of returncode, stdout, stderr, or None if not found
+        :rtype: tuple
+        """
+        argv = " # ".join(argv)
+        res = self._cache.get(argv, None)
+        if res is None:
+            return None
+        return (res[0], res[1].encode("utf-8"), res[2].encode("utf-8"))
+
+    def cache_save(self, argv, returncode, stdout, stderr):
+        """
+        Save command call into the cache
+
+        :param argv: command line arguments
+        :type argv: list of str
+        :param returncode: returncode of the process
+        :type returncode: int
+        :param stdout: stdout of the process
+        :type stdout: bytes
+        :param stderr: stderr of the process
+        :type stderr: bytes
+        """
+        argv = " # ".join(argv)
+        self._cache[argv] = [returncode, stdout.decode("utf-8"), stderr.decode("utf-8")]
+        nmci.util.file_set_content(self._cache_file, json.dumps(self._cache))
+
     def _run(
         self,
         argv,
@@ -310,7 +388,7 @@ class _Process:
         timeout = nmci.util.start_timeout(timeout)
         time_measure = nmci.util.start_timeout()
 
-        argv, argv_real, shell, env = self._run_prepare_args(
+        argv, argv_real, shell, env, _ = self._run_prepare_args(
             argv, shell, env, env_extra, namespace
         )
 
