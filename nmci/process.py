@@ -303,7 +303,7 @@ class _Process:
             proc, argv=argv, argv_real=argv_real, shell=shell, use_cache=use_cache
         )
 
-    def raise_results(self, argv, header, result):
+    def raise_results(self, argv, header, result, exc_type=Exception):
         """
         Helper function to raise an exception containing output of the command.
 
@@ -313,6 +313,8 @@ class _Process:
         :type header: str
         :param result: result of the command
         :type result: RunResult
+        :param exc_type: Exception class to raise, default :code:`Exception`
+        :type exc_type: class
         :raises Exception: exception containing output of the command
         """
         argv_real = self._run_prepare_args(argv, False, None, None, None)[1]
@@ -334,7 +336,7 @@ class _Process:
         )
 
         msg += f"{r_stdout}{r_stderr}"
-        raise Exception(msg)
+        raise exc_type(msg)
 
     def cache_load(self, argv):
         """
@@ -411,6 +413,7 @@ class _Process:
                 argv_real,
                 f"timed out in {e.timeout:.3f} seconds",
                 RunResult(-1, e.stdout, e.stderr),
+                exc_type=TimeoutError,
             )
 
         (returncode, r_stdout, r_stderr) = (proc.returncode, proc.stdout, proc.stderr)

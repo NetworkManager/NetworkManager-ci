@@ -1083,7 +1083,8 @@ class _Misc:
                     timeout=5,
                     embed_combine_tag=nmci.embed.NO_EMBED,
                 )
-            except subprocess.TimeoutExpired:
+            except TimeoutError as te:
+                nmci.embed.embed_exception("Timeout during journal_get_cursor")
                 continue
             if m is not None:
                 return m.group(1)
