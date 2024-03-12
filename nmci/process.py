@@ -207,7 +207,9 @@ class _Process:
         self.DEFAULT_PATTERN_FLAGS = DEFAULT_PATTERN_FLAGS
 
         self.exec = _Exec(self)
-        self._cache_file = nmci.util.tmp_dir("nmci_process_cache")
+        self._cache_file = nmci.util.tmp_dir(
+            "nmci_process_cache", create_base_dir=False
+        )
         if os.path.isfile(self._cache_file):
             self._cache = json.loads(
                 nmci.util.file_get_content_simple(self._cache_file)
