@@ -82,15 +82,15 @@ install_el9_packages () {
         $BREW/rhel-9/packages/NetworkManager/$VER/$REL/$(arch)/NetworkManager-ppp-$VER-$REL.$(arch).rpm"
 
     # install wpa_supp and hostapd with 2.10 capabilities
-    PKGS_INSTALL="$PKGS_INSTALL \
+    PKGS_UPGRADE="$PKGS_UPGRADE \
         $KHUB/wpa_supplicant/2.10/5.el9/$(arch)/wpa_supplicant-2.10-5.el9.$(arch).rpm \
         $KHUB/wpa_supplicant/2.10/5.el9/$(arch)/wpa_supplicant-debuginfo-2.10-5.el9.x86_64.rpm \
         $KHUB/wpa_supplicant/2.10/5.el9/$(arch)/wpa_supplicant-debugsource-2.10-5.el9.x86_64.rpm"
 
-    PKGS_INSTALL="$PKGS_INSTALL \
-        $KHUB/hostapd/2.10/5.el9/$(arch)/hostapd-2.10-5.el9.$(arch).rpm \
-        $KHUB/hostapd/2.10/5.el9/$(arch)/hostapd-debuginfo-2.10-5.el9.$(arch).rpm \
-        $KHUB/hostapd/2.10/5.el9/$(arch)/hostapd-debugsource-2.10-5.el9.$(arch).rpm"
+    PKGS_UPGRADE="$PKGS_UPGRADE \
+        $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-2.10-1.el9.$(arch).rpm \
+        $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-debuginfo-2.10-1.el9.$(arch).rpm \
+        $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-debugsource-2.10-1.el9.$(arch).rpm"
 
     # dracut testing
     PKGS_INSTALL="$PKGS_INSTALL  \

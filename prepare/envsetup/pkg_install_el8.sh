@@ -79,12 +79,12 @@ install_el8_packages () {
         $KOJI/strongswan/5.7.2/1.fc29/$(arch)/strongswan-charon-nm-5.7.2-1.fc29.$(arch).rpm"
 
     # install wpa_supp and hostapd with 2.10 capabilities
-    PKGS_INSTALL="$PKGS_INSTALL \
+    PKGS_UPGRADE="$PKGS_UPGRADE \
         $FEDP/wpa_supplicant-2.10/wpa_supplicant-2.10-1.el8.$(arch).rpm \
         $FEDP/wpa_supplicant-2.10/wpa_supplicant-debuginfo-2.10-1.el8.$(arch).rpm \
         $FEDP/wpa_supplicant-2.10/wpa_supplicant-debugsource-2.10-1.el8.$(arch).rpm"
 
-    PKGS_INSTALL="$PKGS_INSTALL \
+    PKGS_UPGRADE="$PKGS_UPGRADE \
         $FEDP/hostapd-2.10/hostapd-2.10-1.el8.$(arch).rpm \
         $FEDP/hostapd-2.10/hostapd-debuginfo-2.10-1.el8.$(arch).rpm \
         $FEDP/hostapd-2.10/hostapd-debugsource-2.10-1.el8.$(arch).rpm"
