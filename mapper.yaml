@@ -2578,15 +2578,6 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_set_existing_bssid:
         feature: wifi_hwsim
-    - nmcli_simwifi_teardown:
-        feature: wifi_hwsim
-        tags: gate wpa_supplicant hostapd
-    # We don't need AP anymore for the rest of tests
-    - simwifi_ap_wpa_psk_method_shared:
-        feature: wifi_hwsim
-    - simwifi_ap_in_bridge_wpa_psk_method_manual:
-        feature: wifi_hwsim
-        tags: gate
     - simwifi_nmcli_radio:
         feature: wifi_hwsim
     - simwifi_wifisec_validity:
@@ -2611,6 +2602,17 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_dbus_invalid_cert_input:
         feature: wifi_hwsim
+    # Add @simwifi tests before this line ^^
+    - nmcli_simwifi_teardown:
+        feature: wifi_hwsim
+        tags: gate wpa_supplicant hostapd
+    # We dont't need hostapd running for @simwifi_ap tests
+    - simwifi_ap_wpa_psk_method_shared:
+        feature: wifi_hwsim
+    - simwifi_ap_in_bridge_wpa_psk_method_manual:
+        feature: wifi_hwsim
+        tags: gate
+    # Do not add @simwifi tests below nmcli_simwifi_teardown ^^
     - policy_based_routing_doc_procedure:
         feature: doc_procedures
         tags: gate
