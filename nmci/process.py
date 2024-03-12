@@ -370,7 +370,12 @@ class _Process:
         """
         argv = " # ".join(argv)
         self._cache[argv] = [returncode, stdout.decode("utf-8"), stderr.decode("utf-8")]
-        nmci.util.file_set_content(self._cache_file, json.dumps(self._cache))
+        try:
+            nmci.util.file_set_content(self._cache_file, json.dumps(self._cache))
+        except FileNotFoundError:
+            nmci.embed.embed_exception("Unable to save process cache")
+        except PermissionError:
+            nmci.embed.embed_exception("Unable to save process cache")
 
     def _run(
         self,
