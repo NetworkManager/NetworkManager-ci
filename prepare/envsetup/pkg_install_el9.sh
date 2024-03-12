@@ -40,7 +40,7 @@ install_el9_packages () {
         $KOJI/ipsec-tools/0.8.2/10.fc28/$(arch)/ipsec-tools-0.8.2-10.fc28.$(arch).rpm"
 
     # libreswan please remove when in compose 12012021
-    PKGS_INSTALL="$PKGS_INSTALL \
+    PKGS_UPGRADE="$PKGS_UPGRADE \
         $BREW/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm"
 
     PKGS_INSTALL="$PKGS_INSTALL \
