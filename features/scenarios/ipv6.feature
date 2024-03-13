@@ -2183,6 +2183,13 @@
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
     * Prepare simulated test "many_routes6" device with ifindex "65006"
+    * Commentary
+        """
+        Clean up the device early with ip so that in case of some problems, the restarted
+        NM doesn't have to cope with 100000s of routes
+        """
+    * Cleanup execute "ip link delete many_routes6" with timeout "10" seconds and priority "-45"
+    * Cleanup execute "sleep 2" with timeout "3" seconds and priority "-44"
     * Add "ethernet" connection named "con_ipv6" for device "many_routes6"
     * Bring "up" connection "con_ipv6"
     # wait until `connecting` or `activating` is finished

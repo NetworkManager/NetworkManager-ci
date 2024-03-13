@@ -2973,6 +2973,13 @@ Feature: nmcli: ipv4
     * "6.1" is not visible with command "ip -V" in "0" seconds
     * Prepare simulated test "many_routes4" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
     * Add "ethernet" connection named "con_ipv4" for device "many_routes4"
+    * Commentary
+        """
+        Clean up the device early with ip so that in case of some problems, the restarted
+        NM doesn't have to cope with 100000s of routes
+        """
+    * Cleanup execute "ip link delete many_routes4" with timeout "10" seconds and priority "-45"
+    * Cleanup execute "sleep 2" with timeout "3" seconds and priority "-44"
     * Bring "up" connection "con_ipv4"
     # wait until `connecting` or `activating` is finished
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
