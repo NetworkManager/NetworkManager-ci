@@ -33,8 +33,14 @@ install_fedora_packages () {
 
     # Update to patched libreswan as for preF40
     PKGS_UPGRADE="$PKGS_UPGRADE \
-        https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
+        $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
 
+    # Update to the newest nmstate just for F40
+    PKGS_UPGRADE="$PKGS_UPGRADE \
+        $FEDP/nmstate-2.27/F40/nmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+        $FEDP/nmstate-2.27/F40/nmstate-libs-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+        $FEDP/nmstate-2.27/F40/python3-libnmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+    "
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
