@@ -2962,7 +2962,7 @@ Feature: nmcli: ipv4
     #   * NM < 1.43.6: https://bugzilla.redhat.com/show_bug.cgi?id=2179890
     #   * iproute 6.1: https://bugzilla.redhat.com/show_bug.cgi?id=2183967
     @ver+=1.35.7
-    @logging_info_only
+    @logging_info_only @cleanup_many_routes
     @ipv4_ignore_nonstatic_routes
     Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP
     * Commentary
@@ -2971,24 +2971,24 @@ Feature: nmcli: ipv4
     """
     * Skip if next step fails:
     * "6.1" is not visible with command "ip -V" in "0" seconds
-    * Prepare simulated test "many_routes4" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
-    * Add "ethernet" connection named "con_ipv4" for device "many_routes4"
+    * Prepare simulated test "many_routes" device using dhcpd and server identifier "192.168.1.1" and ifindex "65004"
+    * Add "ethernet" connection named "con_ipv4" for device "many_routes"
     * Bring "up" connection "con_ipv4"
     # wait until `connecting` or `activating` is finished
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
-    * Note "ipv4" routes on interface "many_routes4" as value "ip_routes_before"
-    Then Check "ipv4" route list on NM device "many_routes4" matches "ip_routes_before"
-    * Note "ipv4" routes on NM device "many_routes4" as value "nm_routes_before"
-    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev many_routes4; done"
-    Then Check "ipv4" route list on NM device "many_routes4" matches "nm_routes_before"
+    * Note "ipv4" routes on interface "many_routes" as value "ip_routes_before"
+    Then Check "ipv4" route list on NM device "many_routes" matches "ip_routes_before"
+    * Note "ipv4" routes on NM device "many_routes" as value "nm_routes_before"
+    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip r add 192.168.${i}.0/24 proto ${i} dev many_routes; done"
+    Then Check "ipv4" route list on NM device "many_routes" matches "nm_routes_before"
     # If more routes are needed, just adjust argument to the generating script and When check
-    * Execute "prepare/bird_routes.py many_routes4 4 2000000 > /tmp/nmci-bird-routes-v4"
+    * Execute "prepare/bird_routes.py many_routes 4 2000000 > /tmp/nmci-bird-routes-v4"
     * Execute "ip -b /tmp/nmci-bird-routes-v4"
-    When There are "at least" "2000000" IP version "4" routes for device "many_routes4" in "5" seconds
-    Then Check "ipv4" route list on NM device "many_routes4" matches "nm_routes_before"
+    When There are "at least" "2000000" IP version "4" routes for device "many_routes" in "5" seconds
+    Then Check "ipv4" route list on NM device "many_routes" matches "nm_routes_before"
      And "--" is visible with command "nmcli -f ipv4.routes c show id con_ipv4" in "5" seconds
     * Delete connection "con_ipv4"
-    Then There are "at most" "5" IP version "4" routes for device "many_routes4" in "5" seconds
+    Then There are "at most" "5" IP version "4" routes for device "many_routes" in "5" seconds
 
 
     @rhbz2040683

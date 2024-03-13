@@ -3034,6 +3034,13 @@ def cleanup_as(context, scenario):
 _register_tag("cleanup", None, cleanup_as)
 
 
+def cleanup_many_routes_bs(context, scenario):
+    nmci.cleanup.add_iface("many_routes", op="ip-delete", priority=250)
+
+
+_register_tag("cleanup_many_routes", cleanup_many_routes_bs)
+
+
 def copy_ifcfg_bs(context, scenario):
     dirpath = "contrib/profiles"
     for file in os.listdir(dirpath):

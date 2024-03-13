@@ -2179,28 +2179,28 @@
     #   * https://bugzilla.redhat.com/show_bug.cgi?id=2179890 and
     #   * not-yet-reported memory issue somewhere causing OOMs
     @ver+=1.35.7
-    @logging_info_only
+    @logging_info_only @cleanup_many_routes
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
-    * Prepare simulated test "many_routes6" device with ifindex "65006"
-    * Add "ethernet" connection named "con_ipv6" for device "many_routes6"
+    * Prepare simulated test "many_routes" device with ifindex "65006"
+    * Add "ethernet" connection named "con_ipv6" for device "many_routes"
     * Bring "up" connection "con_ipv6"
     # wait until `connecting` or `activating` is finished
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
     # wait for DHCP routes
-    When "2620:" is visible with command "ip -6 r sh dev many_routes6" in "10" seconds
-    * Note "ipv6" routes on interface "many_routes6" as value "ip_routes_before"
-    Then Check "ipv6" route list on NM device "many_routes6" matches "ip_routes_before"
-    * Note "ipv6" routes on NM device "many_routes6" as value "nm_routes_before"
-    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip -6 r add 1000:0:0:${i}::/64 proto ${i} dev many_routes6; done"
-    Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
+    When "2620:" is visible with command "ip -6 r sh dev many_routes" in "10" seconds
+    * Note "ipv6" routes on interface "many_routes" as value "ip_routes_before"
+    Then Check "ipv6" route list on NM device "many_routes" matches "ip_routes_before"
+    * Note "ipv6" routes on NM device "many_routes" as value "nm_routes_before"
+    When Execute "for i in {5..8} {10..15} 17 18 42 99 {186..192} ; do ip -6 r add 1000:0:0:${i}::/64 proto ${i} dev many_routes; done"
+    Then Check "ipv6" route list on NM device "many_routes" matches "nm_routes_before"
     # If more routes are needed, just adjust argument to the generating script and When check
-    * Execute "prepare/bird_routes.py many_routes6 6 500000 > /tmp/nmci-bird-routes-v6"
+    * Execute "prepare/bird_routes.py many_routes 6 500000 > /tmp/nmci-bird-routes-v6"
     * Execute "ip -b /tmp/nmci-bird-routes-v6"
-    When There are "at least" "500000" IP version "6" routes for device "many_routes6" in "5" seconds
-    Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
+    When There are "at least" "500000" IP version "6" routes for device "many_routes" in "5" seconds
+    Then Check "ipv6" route list on NM device "many_routes" matches "nm_routes_before"
     * Delete connection "con_ipv6"
-    Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "5" seconds
+    Then There are "at most" "5" IP version "6" routes for device "many_routes" in "5" seconds
 
 
     @rhbz2047788
