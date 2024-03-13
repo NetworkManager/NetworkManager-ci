@@ -31,6 +31,10 @@ install_fedora_packages () {
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm"
 
+    # Update to patched libreswan as for preF40
+    PKGS_UPGRADE="$PKGS_UPGRADE \
+        https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
+
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
