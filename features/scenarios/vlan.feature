@@ -890,9 +890,9 @@ Feature: nmcli - vlan
     # TODO: this needs investigation, why 10s is not enough
     * Reboot within "100" seconds
     # Give NM some time to up some connections
-    * Wait for "180" seconds
+    * Wait for "10" seconds
     # Wait till we have "all" addresses assigned again
-    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "50" seconds
+    Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "180" seconds
     # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
