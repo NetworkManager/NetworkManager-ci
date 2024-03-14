@@ -35,6 +35,10 @@ install_fedora_packages () {
     PKGS_UPGRADE="$PKGS_UPGRADE \
         $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
 
+    # 40 and rawhide (41) wpa_supplicant
+    PKGS_UPGRADE="$PKGS_UPGRADE \
+        $KOJI/wpa_supplicant/2.10/10.fc40/$(arch)/wpa_supplicant-2.10-10.fc40.$(arch).rpm"
+
     # Update to the newest nmstate just for F40
     PKGS_UPGRADE="$PKGS_UPGRADE \
         $FEDP/nmstate-2.27/F40/nmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
