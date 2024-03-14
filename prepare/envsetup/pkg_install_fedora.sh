@@ -31,6 +31,17 @@ install_fedora_packages () {
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm"
 
+
+
+    ##############################################################################
+    #####            _   _       _    __ _
+    #####           | | | | ___ | |_ / _(_)_  _____  ___
+    #####           | |_| |/ _ \| __| |_| \ \/ / _ \/ __|
+    #####           |  _  | (_) | |_|  _| |>  <  __/\__ \
+    #####           |_| |_|\___/ \__|_| |_/_/\_\___||___/
+    #####
+    #####
+
     # Update to patched libreswan as for preF40
     PKGS_UPGRADE="$PKGS_UPGRADE \
         $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
@@ -45,6 +56,18 @@ install_fedora_packages () {
         $FEDP/nmstate-2.27/F40/nmstate-libs-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
         $FEDP/nmstate-2.27/F40/python3-libnmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
     "
+
+
+    #####
+    #####            _   _       _    __ _
+    #####           | | | | ___ | |_ / _(_)_  _____  ___
+    #####           | |_| |/ _ \| __| |_| \ \/ / _ \/ __|
+    #####           |  _  | (_) | |_|  _| |>  <  __/\__ \
+    #####           |_| |_|\___/ \__|_| |_/_/\_\___||___/
+    #####
+    ##############################################################################
+
+
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
