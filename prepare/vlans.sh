@@ -15,14 +15,16 @@ function setup {
     nmcli dev set eth11 managed yes
     ip netns exec eth11_ns sysctl -w net.ipv6.conf.all.disable_ipv6=1
     ip netns exec eth11_ns sysctl -w net.ipv6.conf.default.disable_ipv6=1
-    for i in `seq $ID_START $ID_END`; do
+    for i in $(seq $ID_START $ID_END); do
             ip -n eth11_ns link add link eth11p name eth11p.$i type vlan id $i
             ip -n eth11_ns link set eth11p.$i up
             ip -n eth11_ns add add 11.1.$((i / 100)).$((i % 100))/8 dev eth11p.$i
     done
+
     ip netns exec eth11_ns dnsmasq \
             --dhcp-range=11.2.0.1,11.2.10.250,20m \
             --no-ping \
+            $(seq -f "--interface=eth11p.%g" $ID_START $ID_END) \
             --dhcp-leasefile=/var/lib/dnsmasq/vlans.leases \
             --pid-file=/tmp/dnsmasq_vlan.pid
     echo $NUM > /tmp/vlan_count.txt
