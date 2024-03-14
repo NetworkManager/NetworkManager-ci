@@ -5,7 +5,6 @@ ID_START=10
 function setup {
     set -e
     ID_END=$(($NUM+10))
-    echo "dhcp-lease-max=2000" > /etc/dnsmasq.d/vlan.conf
 
     ip netns add eth11_ns
     ip link add eth11 type veth peer name eth11p
@@ -22,6 +21,8 @@ function setup {
     done
 
     ip netns exec eth11_ns dnsmasq \
+            --conf-file=/dev/null \
+            --dhcp-lease-max=2000 \
             --dhcp-range=11.2.0.1,11.2.10.250,20m \
             --no-ping \
             $(seq -f "--interface=eth11p.%g" $ID_START $ID_END) \
