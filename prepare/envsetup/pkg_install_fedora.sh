@@ -42,21 +42,24 @@ install_fedora_packages () {
     #####
     #####
 
-    # Update to patched libreswan as for preF40
-    PKGS_UPGRADE="$PKGS_UPGRADE \
-        $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
-
-    # 40 and rawhide (41) wpa_supplicant
-    PKGS_UPGRADE="$PKGS_UPGRADE \
-        $KOJI/wpa_supplicant/2.10/10.fc40/$(arch)/wpa_supplicant-2.10-10.fc40.$(arch).rpm"
-
-    # Update to the newest nmstate just for F40
-    PKGS_UPGRADE="$PKGS_UPGRADE \
-        $FEDP/nmstate-2.27/F40/nmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
-        $FEDP/nmstate-2.27/F40/nmstate-libs-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
-        $FEDP/nmstate-2.27/F40/python3-libnmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
-    "
-
+    # F40 and Rawhide (41) libreswan
+    if grep -iqe "release 40" -e "rawhide" /etc/redhat-release; then
+        PKGS_UPGRADE="$PKGS_UPGRADE \
+            $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
+    fi
+    # Rawhide (41) wpa_supplicant
+    if grep -iqe "rawhide" /etc/redhat-release; then
+        PKGS_UPGRADE="$PKGS_UPGRADE \
+            $KOJI/wpa_supplicant/2.10/10.fc40/$(arch)/wpa_supplicant-2.10-10.fc40.$(arch).rpm"
+    fi
+    # F40 and Rawhide (41) nmstate
+    if grep -iqe "release 40" -e "rawhide" /etc/redhat-release; then
+        PKGS_UPGRADE="$PKGS_UPGRADE \
+            $FEDP/nmstate-2.27/F40/nmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+            $FEDP/nmstate-2.27/F40/nmstate-libs-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+            $FEDP/nmstate-2.27/F40/python3-libnmstate-2.2.27-0.alpha.20240313.c2ce615b.fc40.x86_64.rpm \
+        "
+    fi
 
     #####
     #####            _   _       _    __ _
