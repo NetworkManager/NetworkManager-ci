@@ -47,10 +47,10 @@ install_fedora_packages () {
         PKGS_UPGRADE="$PKGS_UPGRADE \
             $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc40.x86_64.rpm"
     fi
-    if grep -iqe "rawhide" /etc/redhat-release; then
-        PKGS_UPGRADE="$PKGS_UPGRADE \
-            $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc41.x86_64.rpm"
-    fi
+    # if grep -iqe "rawhide" /etc/redhat-release; then
+    #     PKGS_UPGRADE="$PKGS_UPGRADE \
+    #         $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc41.x86_64.rpm"
+    # fi
 
     # Rawhide (41) wpa_supplicant
     if grep -iqe "rawhide" /etc/redhat-release; then
