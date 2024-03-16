@@ -607,8 +607,20 @@ Feature: WIFI TUI tests
     * Select connection "wpa2-psk" in the list
     * Choose to "<Activate>" a connection
     * Set current field to "secret123"
+    * Commentary
+      """
+      Wait some time before connect
+      """
+    * Wait for "2" seconds
     * Press "ENTER" key
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+    * Commentary
+      """
+      Check nmtui shows connection as connected
+      """
+    * Get back to the connection list
+    * Select connection "wpa2-psk" in the list
+    * ".*\* wpa2-psk.*" is visible on screen
 
 
     @simwifi_teardown
