@@ -2195,7 +2195,7 @@
     # wait until `connecting` or `activating` is finished
     When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
     # wait for DHCP routes
-    When "2620:" is visible with command "ip -6 r sh dev many_routes6" in "10" seconds
+    When "2620:dead:beaf::[^/]" is visible with command "ip -6 r sh dev many_routes6" in "10" seconds
     * Note "ipv6" routes on interface "many_routes6" as value "ip_routes_before"
     Then Check "ipv6" route list on NM device "many_routes6" matches "ip_routes_before"
     * Note "ipv6" routes on NM device "many_routes6" as value "nm_routes_before"
