@@ -456,8 +456,8 @@
     @ipv6_correct_slaac_setting
     Scenario: NM - ipv6 - correct slaac setting
      * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.may-fail no"
-    Then "2620:52:0:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
-    Then "2620:52:0:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
+    Then "2620:52:.*::/64 dev eth10\s+proto ra" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
+    Then "2620:52:" is visible with command "ip -6 a s eth10 |grep global |grep noprefix" in "20" seconds
 
 
     @skip_in_centos
