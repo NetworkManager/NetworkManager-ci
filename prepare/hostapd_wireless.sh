@@ -53,6 +53,7 @@ ctrl_interface_group=0
 hw_mode=g
 channel=1
 country_code=EN
+beacon_int=26
 logger_syslog=0
 # keep loglevel 3 (WARNING), when launched with -dd it subtratcs to 1 (DEBUG)
 logger_syslog_level=3
