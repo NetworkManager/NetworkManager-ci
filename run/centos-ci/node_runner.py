@@ -1001,9 +1001,9 @@ class Runner:
 
     def build(self):
         if self.copr_repo:
-            for m in self.machines:
-                m.copr_repo = self.copr_repo
-                if self.copr_repo != "stock":
+            if self.copr_repo != "stock":
+                for m in self.machines:
+                    m.copr_repo = self.copr_repo
                     m.ssh(f"dnf -y copr enable networkmanager/{self.copr_repo}")
         else:
             if not self.build_machine.build(self.refspec, self.mr, self.repo):
