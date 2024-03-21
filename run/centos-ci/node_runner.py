@@ -342,8 +342,11 @@ class Machine:
 
         excludes = " ".join([f'--exclude \\"{e}\\"' for e in self.rpm_exclude_list])
         if self.copr_repo:
+            repo = ""
+            if self.copr_repo != "stock":
+                repo = f"--repo \\'*{self.copr_repo}\\'"
             self.ssh(
-                f"yum -y install --repo \\'*{self.copr_repo}\\' \\'NetworkManager*\\' {excludes}",
+                f"yum -y install {repo} \\'NetworkManager*\\' {excludes}",
                 verbose=True,
             )
         else:
@@ -834,6 +837,8 @@ class Runner:
         ):
             p = re.compile("nm-1-[0-9][0-9]")
             # Let's check if we have stable branch"
+            if self.refspec == "stock":
+                self.copr_repo = "stock"
             if self.refspec == "main":
                 self.copr_repo = "NetworkManager-main-debug"
             elif self.refspec == "nm-1-28":
@@ -964,7 +969,8 @@ class Runner:
         if self.copr_repo:
             for m in self.machines:
                 m.copr_repo = self.copr_repo
-                m.ssh(f"dnf -y copr enable networkmanager/{self.copr_repo}")
+                if self.copr_repo != "stock":
+                    m.ssh(f"dnf -y copr enable networkmanager/{self.copr_repo}")
         else:
             if not self.build_machine.build(self.refspec, self.mr, self.repo):
                 self._abort(
