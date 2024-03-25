@@ -11,10 +11,12 @@ install_packages () {
         # and if we need abrt
         if grep -q 'Fedora' /etc/redhat-release; then
             release="fedora"
-        elif grep -q -e 'release 8' /etc/redhat-release; then
-            release="el8"
+        elif grep -q -e 'release 10' /etc/redhat-release; then
+            release="el10"
         elif grep -q -e 'release 9' /etc/redhat-release; then
             release="el9"
+        elif grep -q -e 'release 8' /etc/redhat-release; then
+            release="el8"
         elif grep -q -e 'release 7' /etc/redhat-release; then
             release="el7"
         fi
