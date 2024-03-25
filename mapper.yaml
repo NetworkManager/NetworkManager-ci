@@ -3340,6 +3340,8 @@ testmapper:
         feature: wifi
     - nmcli_wifi_wpa3_psk:
         feature: wifi
+    - nmcli_wifi_6e_wpa3_tls:
+        feature: wifi
     # - nmcli_wifi_wpa1_psk:
     #     feature: wifi
     - nmcli_wifi_pairwise_ccmp:
