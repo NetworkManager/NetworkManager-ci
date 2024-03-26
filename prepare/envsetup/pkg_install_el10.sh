@@ -4,6 +4,38 @@ install_el10_packages () {
     #    [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     #fi
 
+    # Enable fedora 40 repo with lower priority
+    # TODO remove when epel-10 is live
+    cat << EOF > /etc/yum.repos.d/fedora-40.repo
+[fedora]
+name=Fedora 40 - \$basearch
+#baseurl=http://download.example/pub/fedora/linux/releases/40/Everything/\$basearch/os/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-40&arch=\$basearch
+enabled=1
+countme=1
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
+priority=100
+
+[updates]
+name=Fedora 40 - \$basearch - Updates
+#baseurl=http://download.example/pub/fedora/linux/updates/40/Everything/\$basearch/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f40&arch=\$basearch
+enabled=1
+countme=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+metadata_expire=6h
+skip_if_unavailable=False
+priority=100
+
+EOF
+    dnf makecache
+
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
@@ -16,9 +48,7 @@ install_el10_packages () {
         $KOJI/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
         $BREW/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
         $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
-        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm \
-        $KHUB/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm"
-
+        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm"
 
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
