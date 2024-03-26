@@ -4,6 +4,85 @@ install_el10_packages () {
     #    [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     #fi
 
+    # Enable fedora 40 repo with lower priority, until epel-10 is availiable
+    cat << EOF
+[fedora]
+name=Fedora 40 - $basearch
+#baseurl=http://download.example/pub/fedora/linux/releases/40/Everything/$basearch/os/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-40&arch=$basearch
+enabled=1
+countme=1
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
+priority=100
+
+[fedora-debuginfo]
+name=Fedora 40 - $basearch - Debug
+#baseurl=http://download.example/pub/fedora/linux/releases/40/Everything/$basearch/debug/tree/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-debug-40&arch=$basearch
+enabled=0
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
+priority=100
+
+[fedora-source]
+name=Fedora 40 - Source
+#baseurl=http://download.example/pub/fedora/linux/releases/40/Everything/source/tree/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-source-40&arch=$basearch
+enabled=0
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=0
+skip_if_unavailable=False
+priority=100
+
+[updates]
+name=Fedora 40 - $basearch - Updates
+#baseurl=http://download.example/pub/fedora/linux/updates/40/Everything/$basearch/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f40&arch=$basearch
+enabled=1
+countme=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+metadata_expire=6h
+skip_if_unavailable=False
+priority=100
+
+[updates-debuginfo]
+name=Fedora 40 - $basearch - Updates - Debug
+#baseurl=http://download.example/pub/fedora/linux/updates/40/Everything/$basearch/debug/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-debug-f40&arch=$basearch
+enabled=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+metadata_expire=6h
+skip_if_unavailable=False
+priority=100
+
+[updates-source]
+name=Fedora 40 - Updates Source
+#baseurl=http://download.example/pub/fedora/linux/updates/40/Everything/SRPMS/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-source-f40&arch=$basearch
+enabled=0
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+metadata_expire=6h
+skip_if_unavailable=False
+priority=100
+
+EOF
+    dnf makecache
+
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
