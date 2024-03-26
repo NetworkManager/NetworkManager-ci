@@ -598,6 +598,30 @@ Feature: nmcli: connection
      And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testXc"
 
 
+    @ver+=1.47.2
+    @tcpreplay @openvswitch
+    @lldp_with_ovs
+    Scenario: nmcli - connection - lldp with ovs
+     * Prepare simulated test "testXc" device
+     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.controller ovsbridge0"
+     * Add "ethernet" connection named "con_con" for device "testXc" with options
+           """
+           connection.controller port1
+           connection.port-type ovs-port
+           connection.lldp enable
+           """
+     When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+     * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/lldp.detailed.pcap"
+     Then "NEIGHBOR\[0\].DEVICE:\s+testXc" is visible with command "nmcli device lldp" in "5" seconds
+      And "NEIGHBOR\[0\].CHASSIS-ID:\s+00:01:30:F9:AD:A0" is visible with command "nmcli device lldp"
+      And "NEIGHBOR\[0\].PORT-ID:\s+1\/1" is visible with command "nmcli device lldp"
+      And "NEIGHBOR\[0\].PORT-DESCRIPTION:\s+Summit300-48-Port 1001" is visible with command "nmcli device lldp"
+      And "NEIGHBOR\[0\].SYSTEM-NAME:\s+Summit300-48" is visible with command "nmcli device lldp"
+      And "NEIGHBOR\[0\].SYSTEM-DESCRIPTION:\s+Summit300-48 - Version 7.4e.1 \(Build 5\) by Release_Master 05\/27\/05 04:53:11" is visible with command "nmcli device lldp"
+      And "NEIGHBOR\[0\].SYSTEM-CAPABILITIES:\s+20 \(mac-bridge,router\)" is visible with command "nmcli device lldp"
+
+
     @rhbz1832273
     @ver+=1.32
     @tcpreplay
