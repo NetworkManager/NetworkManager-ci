@@ -16,9 +16,7 @@ install_el9_packages () {
         $KOJI/iw/5.4/3.fc34/$(arch)/iw-5.4-3.fc34.$(arch).rpm \
         $BREW/rhel-9/packages/libsmi/0.4.8/27.el9.1/$(arch)/libsmi-0.4.8-27.el9.1.$(arch).rpm \
         $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
-        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm \
-        $KHUB/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm"
-
+        $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm"
 
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
