@@ -117,7 +117,7 @@
        ipv4.address 1.2.3.4/24
        802-3-ethernet.mtu 9000
        """
-    Then "9000" is visible with command "ip a s enp5s16f1" in "2" seconds
+    Then "9000" is visible with command "ip a s eth0" in "2" seconds
 
 
     @rhbz1398934
