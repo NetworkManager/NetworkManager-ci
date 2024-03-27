@@ -177,6 +177,8 @@ Feature: nmcli - ovs
 
     @rhbz1540218
     @ver+=1.10
+    @ver/rhel/9/3-=1.46.0.1
+    @ver-=1.47.2
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
     Scenario: nmcli - openvswitch - add vlan setup
@@ -211,6 +213,54 @@ Feature: nmcli - ovs
      And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s iface0"
      And "fe80::" is visible with command "ip a s iface0"
      And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
+
+
+    @rhbz1540218 @RHEL-26753 @RHEL-28545
+    @ver/rhel/9/4+=1.46.0.2
+    @ver+=1.47.3
+    @openvswitch
+    @nmcli_add_openvswitch_vlan_configuration
+    Scenario: nmcli - openvswitch - add vlan setup
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "ovsbridge0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.tag 120
+          """
+    * Add "ovs-port" connection named "ovs-bond0" for device "bond0" with options
+          """
+          conn.master ovsbridge0
+          ovs-port.tag 120
+          """
+    * Add "ethernet" connection named "ovs-eth2" for device "eth2" with options
+          """
+          conn.master bond0
+          slave-type ovs-port
+          """
+    * Add "ethernet" connection named "ovs-eth3" for device "eth3" with options
+          """
+          conn.master bond0
+          slave-type ovs-port
+          """
+    * Add "ovs-interface" connection named "ovs-interface0" for device "ovsbridge0" with options "conn.master ovsbridge0"
+    * Add "vlan" connection named "vlan0" for device "vlan0" with options 
+          """
+          vlan.parent ovsbridge0
+          vlan.id 101
+          ipv4.method manual
+          ipv4.addresses 192.168.168.16/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-interface0" in "40" seconds
+    * Bring "up" connection "vlan0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show vlan0" in "40" seconds
+    Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface [\"]?eth[2-3][\"]?\s+type: system\s+Interface [\"]?eth[2-3][\"]?\s+type: system" is visible with command "ovs-vsctl show"
+     And "Port [\"]?ovsbridge0[\"]?\s+tag: 120\s+Interface [\"]?ovsbridge0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "master ovs-system" is visible with command "ip a s eth2"
+     And "master ovs-system" is visible with command "ip a s eth3"
+     And "192.168.10[0-3].*\/2[2-4]" is visible with command "ip a s ovsbridge0"
+     And "fe80::" is visible with command "ip a s ovsbridge0"
+     And "default via 192.168.100.1 dev ovsbridge0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
     @rhbz1540218
