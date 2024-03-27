@@ -1110,6 +1110,7 @@ def flush_nftables(context, ns=None):
 
 @step("Cleanup execute")
 @step('Cleanup execute "{command}"')
+@step('Cleanup execute with timeout "{timeout}" seconds')
 @step('Cleanup execute "{command}" with timeout "{timeout}" seconds')
 @step('Cleanup execute "{command}" with priority "{priority}"')
 @step(
