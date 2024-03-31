@@ -310,11 +310,15 @@ Feature: NM: dispatcher
     @ver/rhel/9/3+=1.44.0.4
     @ver/rhel/8+=1.40.16.12
     @ver+=1.45.4
+    @ver/rhel/9/4-=1.46.0.1
+    @ver/rhel/9/2-=1.42.2.13
+    @ver/rhel/9/3-=1.44.0.5
+    @ver-=1.47.2
     @not_on_s390x @not_on_ppc64 @not_on_aarch64
     @restore_resolvconf @restart_if_needed
     @dispatcher_track_dns_changes
     Scenario: NM - dispatcher - track dns changes
-    * Cleanup execute
+    * Cleanup execute with timeout "15" seconds
       """
       echo 'dns-resolver:
         config:
@@ -341,6 +345,63 @@ Feature: NM: dispatcher
       """
      * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
      Then "NM_DISPATCHER_ACTION=dns-change" is visible in journal in "10" seconds
+     * Start following journal
+     * Commentary
+      """
+      The dispatcher event 'dns-change' should not be triggered again, since there was no change in the dns configuration.
+      """
+     * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
+     Then "NM_DISPATCHER_ACTION=dns-change" is not visible in journal in "10" seconds
+
+
+    @RHEL-1671 @RHEL-10195 @RHEL-23446 @RHEL-29725 @RHEL-29723 @RHEL-29724
+    @ver/rhel/9/4+=1.46.0.2
+    @ver/rhel/9/3+=1.44.0.6
+    @ver/rhel/9/2+=1.42.2.14
+    @ver+=1.47.3
+    @not_on_s390x @not_on_ppc64 @not_on_aarch64
+    @restore_resolvconf @restart_if_needed
+    @dispatcher_track_dns_changes
+    Scenario: NM - dispatcher - track dns changes
+    * Cleanup execute with timeout "15" seconds
+      """
+      echo 'dns-resolver:
+        config:
+          search: []
+          server: [] ' | nmstatectl apply -
+      """
+    * Write file "/tmp/change_global_dns.yaml" with content
+      """
+      dns-resolver:
+        config:
+          search:
+            - example.com
+            - example.org
+          server:
+            - 2001:4860:4860::8888
+            - 8.8.8.8
+            - 2606:4700:4700::1111
+            - 8.8.4.4
+      """
+     * Start following journal
+     * Commentary
+      """
+      We modified the global dns configuration and we expect that the dispatcher event 'dns-change' will be triggered.
+      """
+     * Execute "nmstatectl apply /tmp/change_global_dns.yaml --no-commit"
+     Then "NM_DISPATCHER_ACTION=dns-change" is visible in journal in "10" seconds
+     * Execute "nmstatectl rollback"
+     * Commentary
+      """
+      /etc/reslov.conf should be restored to the original state.
+      """
+     Then "2001:4860:4860::8888" is not visible with command "cat /etc/resolv.conf" in "15" seconds
+     * Commentary
+      """
+      Since the the changes were rolled back, we need to apply the config again.
+      """
+     * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
+     * Wait for "10" seconds
      * Start following journal
      * Commentary
       """
