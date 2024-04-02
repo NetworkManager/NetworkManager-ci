@@ -682,20 +682,17 @@ def dns_systemd_resolved_bs(context, scenario):
         context.process.systemctl("start systemd-resolved")
         if context.process.systemctl("is-active systemd-resolved").returncode != 0:
             context.cext.skip("Cannot start systemd-resolved")
-    conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
 
-    # We need to enable mdns for tests
-    context.process.run_stdout(
-        "echo 'MulticastDNS=yes' >> /etc/systemd/resolved.conf",
-        shell=True,
+    # mDNS can be enabled per-interface only when it's also enabled
+    # globally. Do that, and also disable DNSSEC
+    context.process.run_stdout("mkdir -p /etc/systemd/resolved.conf.d/")
+    nmci.util.file_set_content(
+        "/etc/systemd/resolved.conf.d/nmci.conf",
+        "[Resolve]\nMulticastDNS=yes\nDNSSEC=no\n",
     )
-    # And disable DNSSEC
-    context.process.run_stdout(
-        "echo 'DNSSEC=no' >> /etc/systemd/resolved.conf",
-        shell=True,
-    )
-
     context.process.systemctl("restart systemd-resolved")
+
+    conf = ["# configured by beaker-test", "[main]", "dns=systemd-resolved"]
 
     # On Fedora and RHEL9+, rc-manager is "auto" by default, which doesn't touch
     # resolv.conf when dns=systemd-resolved; we also want to test NM writing
@@ -714,7 +711,7 @@ def dns_systemd_resolved_bs(context, scenario):
 
 def dns_systemd_resolved_as(context, scenario):
     # Remove the last line enabling mdns
-    context.process.run_stdout("sed -i '$d' /etc/systemd/resolved.conf")
+    nmci.util.file_remove("/etc/systemd/resolved.conf.d/nmci.conf")
     if not context.systemd_resolved:
         print("stop systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
