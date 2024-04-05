@@ -1488,6 +1488,11 @@ def dracut_remote_NFS_clean_as(context, scenario):
         "rm -vrf $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-*; ",
         shell=True,
     )
+    # Should be a workaround for rhel31513
+    context.process.run_stdout(
+        "echo 0 > /proc/sys/kernel/leases-enable",
+        shell=True,
+    )
     context.process.systemctl("start nfs-server.service")
 
 

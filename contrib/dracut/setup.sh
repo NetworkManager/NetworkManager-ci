@@ -462,6 +462,8 @@ start_nfs() {
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/ip/192.168.50.101
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/tftpboot/nfs4-5
   cp conf/exports /etc/exports
+  # Should be a workaround for rhel31513
+  echo 0 > /proc/sys/kernel/leases-enable
   systemctl start nfs-server
 }
 
