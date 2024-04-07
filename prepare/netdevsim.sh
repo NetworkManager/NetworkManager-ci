@@ -27,7 +27,7 @@ function setup () {
         elif grep -E "CentOS Stream" /etc/redhat-release; then
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
         fi
-    elif grep "release 9" /etc/redhat-release; then
+    elif grep -e "release 9" /etc/redhat-release; then
         PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
         if grep -F --regexp="release 9.0 " /etc/redhat-release; then
@@ -36,6 +36,13 @@ function setup () {
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
         fi
         LINUX=linux-$MAJOR-${MINOR%.el9}
+    elif grep "release 10" /etc/redhat-release; then
+        PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
+        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-10/packages/kernel"
+        if grep "CentOS" /etc/redhat-release; then
+            URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
+        fi
+        LINUX=linux-$MAJOR-${MINOR%.el10}
     fi
 
     # If we have all necessary things done
