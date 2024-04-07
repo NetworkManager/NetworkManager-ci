@@ -387,16 +387,20 @@ def check_lines_command(
     xtimeout = nmci.util.start_timeout(seconds)
 
     while xtimeout.loop_sleep(interval):
-        proc = context.pexpect_spawn(
-            command, shell=True, timeout=timeout, maxread=maxread, codec_errors="ignore"
+        stdout = nmci.process.run_stdout(
+            command,
+            shell=True,
+            ignore_returncode=True,
+            ignore_stderr=True,
+            stderr=subprocess.STDOUT,
+            timeout=timeout,
         )
-        proc.expect([pexpect.EOF])
 
         if pattern is not None:
-            out = [line for line in proc.before.split("\n") if re.search(pattern, line)]
+            out = [line for line in stdout.split("\n") if re.search(pattern, line)]
             pattern_text = f'containing pattern "{pattern}"'
         else:
-            out = [line for line in proc.before.split("\n") if line]
+            out = [line for line in stdout.split("\n") if line]
             pattern_text = ""
 
         ret = compare_values(condition1["op"], len(out), int(condition1["n_lines"]))
