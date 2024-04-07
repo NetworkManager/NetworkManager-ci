@@ -240,8 +240,9 @@ fi
 
 hostapd_ver=$(rpm -q hostapd)
 hostapd_ver=${hostapd_ver#hostapd-}
+rhel_ver=$(grep -o 'release [0-9]*' /etc/redhat-release | grep -o "[0-9]*" )
 # There is no wpa_supplicant support in Fedoras
-if ver_gte $hostapd_ver 2.9-6 && grep -q -e 'release \(8\|9\)' /etc/redhat-release; then
+if ver_gte $hostapd_ver 2.9-6 && (( $rhel_ver >= 8 )); then
   ((++num_ap))
   echo "#wpa3eap
 $(hostapd_conf_header)
