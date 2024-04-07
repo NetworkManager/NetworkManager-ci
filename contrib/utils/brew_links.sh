@@ -44,6 +44,8 @@ if [[ $0 == *"brew"* ]]; then
         url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages"
     elif grep -q 'release 9' /etc/redhat-release; then
         url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages"
+    elif grep -q 'release 10' /etc/redhat-release; then
+        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-10/packages"
     else
         echo "Unsupported distro: $(cat /etc/redhat-release)"
         exit 1
