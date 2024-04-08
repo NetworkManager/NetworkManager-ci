@@ -44,9 +44,12 @@ install_common_packages () {
     echo "remove dnf packages..."
     test -n "$PKGS_REMOVE" && dnf -4 -y remove $PKGS_REMOVE
     echo "install dnf packages..."
-    test -n "$PKGS_INSTALL" && dnf -4 -y install $PKGS_INSTALL --skip-broken --nobest
+    test -n "$PKGS_INSTALL" && dnf -4 -y install $PKGS_INSTALL --skip-broken \
+                                                               --nobest \
+                                                               --disablerepo=buildroot-brewtrigger-repo
     echo "update dnf packages..."
-    test -n "$PKGS_UPGRADE" && dnf -4 -y upgrade $PKGS_UPGRADE --skip-broken --allowerasing
+    test -n "$PKGS_UPGRADE" && dnf -4 -y upgrade $PKGS_UPGRADE --skip-broken \
+                                                               --allowerasing
 
     # backup freeradius conf
     rm -rf /tmp/nmci-raddb
