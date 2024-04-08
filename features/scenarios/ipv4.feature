@@ -3651,7 +3651,7 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
-    Then "DHCP-Message \(53\), length 1: Release" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then "DHCP-Message .*53.*, length 1: Release" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
     @ver+=1.47.1
@@ -3668,4 +3668,4 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
-    Then "DHCP-Message \(53\), length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then "DHCP-Message .*53.*, length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
