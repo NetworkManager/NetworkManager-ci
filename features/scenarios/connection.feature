@@ -598,6 +598,8 @@ Feature: nmcli: connection
      And Check ":ieee-802-3-mac-phy-conf:pmd-autoneg-cap=32768,:ieee-802-3-mac-phy-conf:autoneg=0,:ieee-802-3-mac-phy-conf:operational-mau-type=0" in LldpNeighbors via DBus for device "testXc"
 
 
+    @RHEL-1418 @RHEL-31766 @RHEL-31764
+    @ver/rhel/9/4+=1.46.0.5
     @ver+=1.47.2
     @tcpreplay @openvswitch
     @lldp_with_ovs
