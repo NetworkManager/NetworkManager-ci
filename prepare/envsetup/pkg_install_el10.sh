@@ -36,11 +36,21 @@ priority=100
 EOF
     dnf makecache
 
+
+    # TODO remove when the issue with resolv.conf symlink is fixed
+    dnf -4 -y install systemd-resolved
+    systemctl disable systemd-resolved
+    systemctl stop systemd-resolved
+    rm /etc/resolv.conf
+    sleep 1
+    systemctl restart NetworkManager
+    sleep 1
+    [ -f /etc/resolv.conf ] || systemctl restart NetworkManager
+
     # Dnf more deps
-    # TODO removed systemd-resolved for now, as it is broken now and makes machine inaccessible
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
-        python3-pyyaml rpm-build sos wireguard-tools"
+        python3-pyyaml rpm-build sos wireguard-tools systemd-resolved"
 
     # Install non distro deps
     # TODO install from epel once epel-10 is live
