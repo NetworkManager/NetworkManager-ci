@@ -144,6 +144,7 @@ Feature: General TUI tests
 
 
     @rhbz1131574
+    @rhelver-=9
     @nmtui_general_show_orphaned_slaves
     Scenario: nmtui - general - show orphaned slaves
     * Prepare new connection of type "Team" named "team0"

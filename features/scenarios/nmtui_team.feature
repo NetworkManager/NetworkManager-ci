@@ -4,6 +4,7 @@ Feature: Team TUI tests
   Background:
   * Prepare virtual terminal environment
 
+    @rhelver-=9
     @ifcfg-rh
     @nmtui_team_add_default_team
     Scenario: nmtui - team - add default team
@@ -17,6 +18,7 @@ Feature: Team TUI tests
     Then "team0\s+team" is visible with command "nmcli device"
 
 
+    @rhelver-=9
     @nmtui_team_add_connection_wo_autoconnect
     Scenario: nmtui - team - add connnection without autoconnect
     * Prepare new connection of type "Team" named "team0"
@@ -28,6 +30,7 @@ Feature: Team TUI tests
     Then Team "team0" is down
 
 
+    @rhelver-=9
     @nmtui_team_activate_wo_autoconnect
     Scenario: nmtui - team - activate without autoconnect
     * Prepare new connection of type "Team" named "team0"
@@ -45,6 +48,7 @@ Feature: Team TUI tests
     Then Team "team0" is up
 
 
+    @rhelver-=9
     @nmtui_team_activate_with_autoconnect
     Scenario: nmtui - team - activate with autoconnect
     * Prepare new connection of type "Team" named "team0"
@@ -62,6 +66,7 @@ Feature: Team TUI tests
     Then Team "team0" is up
 
 
+    @rhelver-=9
     @nmtui_team_deactivate_connection
     Scenario: nmtui - team - deactivate connection
     * Prepare new connection of type "Team" named "team0"
@@ -78,6 +83,7 @@ Feature: Team TUI tests
     Then "team0" is not visible with command "nmcli device"
 
 
+    @rhelver-=9
     @nmtui_team_delete_connection_up
     Scenario: nmtui - team - deactivate connection while up
     * Prepare new connection of type "Team" named "team0"
@@ -95,6 +101,7 @@ Feature: Team TUI tests
     Then Team "team0" is down
 
 
+    @rhelver-=9
     @nmtui_team_delete_connection_down
     Scenario: nmtui - team - deactivate connection while down
     * Prepare new connection of type "Team" named "team0"
@@ -114,6 +121,7 @@ Feature: Team TUI tests
     Then Team "team0" is down
 
 
+    @rhelver-=9
     @nmtui_team_add_many_slaves
     Scenario: nmtui - team - add many slaves
     * Prepare new connection of type "Team" named "team0"
@@ -176,6 +184,7 @@ Feature: Team TUI tests
     Then Check slave "eth9" in team "team0" is "up"
 
 
+    @rhelver-=9
     @nmtui_team_over_ethernet_devices
     Scenario: nmtui - team - over ethernet devices
     * Prepare new connection of type "Team" named "team0"
@@ -204,6 +213,7 @@ Feature: Team TUI tests
 
 
     @rhbz1131574
+    @rhelver-=9
     @nmtui_team_delete_slaves_after_deleting_profile
     Scenario: nmtui - team - delete slaves after deleting master
     * Prepare new connection of type "Team" named "team0"
@@ -230,6 +240,7 @@ Feature: Team TUI tests
     Then "team-slave-eth2" is not visible with command "nmcli connection"
 
 
+    @rhelver-=9
     @ifcfg-rh
     @nmtui_team_infiniband_slaves
     Scenario: nmtui - team - infiniband slaves
@@ -251,6 +262,7 @@ Feature: Team TUI tests
     Then Team "team0" is up
 
 
+    @rhelver-=9
     @restart_if_needed
     @nmtui_team_slaves_non_auto
     Scenario: nmtui - team - slaves non auto
@@ -277,6 +289,7 @@ Feature: Team TUI tests
     Then Check slave "eth2" in team "team0" is "down"
 
 
+    @rhelver-=9
     @restart_if_needed
     @nmtui_team_boot_with_team_and_one_slave_auto
     Scenario: nmtui - team - start with only one slave auto
@@ -304,6 +317,7 @@ Feature: Team TUI tests
     Then Check slave "eth2" in team "team0" is "up"
 
 
+    @rhelver-=9
     @nmtui_team_json_set_loadbalance_mode
     Scenario: nmtui - team - json - set loadbalance mode
     * Prepare new connection of type "Team" named "team0"
@@ -328,6 +342,7 @@ Feature: Team TUI tests
     Then Check slave "eth2" in team "team0" is "up"
 
 
+    @rhelver-=9
     @nmtui_team_json_set_broadcast_mode
     Scenario: nmtui - team - json - set broadcast mode
     * Prepare new connection of type "Team" named "team0"
@@ -352,6 +367,7 @@ Feature: Team TUI tests
     Then Check slave "eth2" in team "team0" is "up"
 
 
+    @rhelver-=9
     @nmtui_team_json_set_invalid_mode
     Scenario: nmtui - team - json - set invalid mode
     * Prepare new connection of type "Team" named "team0"

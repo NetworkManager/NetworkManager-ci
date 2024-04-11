@@ -277,6 +277,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1586191
+    @rhelver-=9
     @ver+=1.12.0
     @vlan_over_bridge_over_team_over_nic
     Scenario: nmcli - vlan - over brdge on team
@@ -581,6 +582,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1437066
+    @rhelver-=9
     @ver+=1.4.0
     @default_route_for_vlan_over_team
     Scenario: NM - vlan - default route for vlan over team
