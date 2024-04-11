@@ -26,6 +26,7 @@ Feature: nmcli - vlan
 
 
     @rhbz1273879
+    @ifcfg-rh
     @restart_if_needed
     @nmcli_vlan_restart_persistence
     Scenario: nmcli - vlan - restart persistence
