@@ -62,24 +62,11 @@ EOF
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/rp-pppoe/4.0/4.fc40/$(arch)/rp-pppoe-4.0-4.fc40.$(arch).rpm"
 
-    # Install centos deps
-    if grep -q -e 'CentOS' /etc/redhat-release; then
-        # OVS deps and GSM perl deps
-        POLICY_VER=$(get_centos_pkg_release "$CBSC/openvswitch-selinux-extra-policy/1.0/")
-        OVS_VER=$(get_centos_pkg_release "$CBSC/openvswitch2.17/2.17.0/")
-        PERL_VER=$(get_centos_pkg_release "$KHUB/perl-IO-Tty/1.16/")
-        PKGS_INSTALL="$PKGS_INSTALL \
-            $CBSC/openvswitch2.17/2.17.0/$OVS_VER/$(arch)/openvswitch2.17-2.17.0-$OVS_VER.$(arch).rpm \
-            $CBSC/openvswitch-selinux-extra-policy/1.0/$POLICY_VER/noarch/openvswitch-selinux-extra-policy-1.0-$POLICY_VER.noarch.rpm \
-            $KHUB/perl-IO-Tty/1.16/$PERL_VER/$(arch)/perl-IO-Tty-1.16-$PERL_VER.$(arch).rpm"
-    else
-        # TODO install OVS 10 repo
-        cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
-        PKGS_INSTALL="$PKGS_INSTALL openvswitch2.17*"
-    fi
+    # Install util-linux deps to avoid RHEL-32647
+    PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40 13.fc40)"
+    PKGS_INSTALL="$PKGS_INSTALL openvswitch"
 
     # Install vpn dependencies
-
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/openvpn/2.6.9/1.fc40/$(arch)/openvpn-2.6.9-1.fc40.$(arch).rpm \
         $KOJI/pkcs11-helper/1.30.0/1.fc40/$(arch)/pkcs11-helper-1.30.0-1.fc40.$(arch).rpm \
