@@ -905,10 +905,8 @@ Feature: NM: dracut
     @dracut_NM_NFS_remote_rootfs_connection
     Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=eth*:dhcp
     * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
-    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth0.nmconnection $TESTDIR/nfs/client/etc/NetworkManager/system-connections/eth0.nmconnection"
-    * Execute ". contrib/dracut/setup.sh; chmod 600 $TESTDIR/nfs/client/etc/NetworkManager/system-connections/eth0.nmconnection"
-    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth1.ifcfg $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-eth1_p"
-    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth2.ifcfg $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-eth2_p"
+    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth*.nmconnection $TESTDIR/nfs/client/etc/NetworkManager/system-connections/"
+    * Execute ". contrib/dracut/setup.sh; chmod 600 $TESTDIR/nfs/client/etc/NetworkManager/system-connections/rhbz*.nmconnection"
     * Run dracut test
       | Param  | Value                                                    |
       | kernel | root=nfs:192.168.50.1:/client ro                         |
@@ -974,11 +972,9 @@ Feature: NM: dracut
       @dracut @dracut_remote_NFS_clean @long
       @dracut_NM_NFS_remote_rootfs_connection_var2
       Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=dhcp
-      * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
-      * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth0.nmconnection $TESTDIR/nfs/client/etc/NetworkManager/system-connections/eth0.nmconnection"
-      * Execute ". contrib/dracut/setup.sh; chmod 600 $TESTDIR/nfs/client/etc/NetworkManager/system-connections/eth0.nmconnection"
-      * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth1.ifcfg $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-eth1_p"
-      * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth2.ifcfg $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-eth2_p"
+    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
+    * Execute ". contrib/dracut/setup.sh; cp contrib/dracut/conf/rhbz1934122_eth*.nmconnection $TESTDIR/nfs/client/etc/NetworkManager/system-connections/"
+    * Execute ". contrib/dracut/setup.sh; chmod 600 $TESTDIR/nfs/client/etc/NetworkManager/system-connections/rhbz*.nmconnection"
       * Run dracut test
         | Param  | Value                                                                  |
         | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
