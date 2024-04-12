@@ -1468,6 +1468,8 @@ Feature: nmcli - ovs
 
     @RHEL-5886
     @ver+=1.45.6.1
+    # Remove permissive tag when the following resolved: https://issues.redhat.com/browse/FDP-564
+    @permissive
     @openvswitch
     @ovs_datapath_type_netdev_with_cloned_mac
     Scenario: NM - openvswitch - DHCP works with data-type netdev and cloned MAC set
