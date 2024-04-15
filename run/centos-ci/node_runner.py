@@ -875,7 +875,9 @@ class Runner:
 
     def _get_nodes(self, number):
         nodes = []
-        if self.release == "9-stream":
+        if self.release == "10-stream":
+            self.pool = "virt-ec2-t2-centos-10s-x86_64"
+        elif self.release == "9-stream":
             self.pool = "virt-ec2-t2-centos-9s-x86_64"
         elif self.release == "8-stream":
             self.pool = "virt-ec2-t2-centos-8s-x86_64"
