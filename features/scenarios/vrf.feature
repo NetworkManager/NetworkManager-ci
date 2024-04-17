@@ -95,20 +95,20 @@ Feature: nmcli: vrf
     When "local 192.0.2.1 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     When "local 192.0.2.2 dev eth1 proto kernel scope host src 192.0.2.1" is visible with command "ip r show table 1001"
     When "broadcast 192.0.2.255 dev eth1 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1001"
-    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
-    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all" in "5" seconds
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all" in "5" seconds
 
     * Execute "nmcli device modify eth1 ipv4.address 192.0.2.2/24"
     When "192.0.2.1" is not visible with command "ip route show table all"
     When "local 192.0.2.2 dev eth1 table 1001 proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
-    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
-    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::1 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all" in "5" seconds
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all" in "5" seconds
 
     * Execute "nmcli device modify eth1 ipv6.address 1:2:3:4:5::2/64"
     When "192.0.2.1" is not visible with command "ip route show table all"
     When "local 192.0.2.2 dev eth1 table 1001 proto kernel scope host src 192.0.2.2" is visible with command "ip route show table all"
     When "1:2:3:4:5::1" is not visible with command "ip -6 route show table all"
-    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all"
+    When "local 1:2:3:4:5::2 dev eth1 table 1001 proto kernel metric 0 pref medium" is visible with command "ip -6 route show table all" in "5" seconds
 
 
     @rhbz1773908
