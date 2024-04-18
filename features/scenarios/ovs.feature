@@ -177,7 +177,7 @@ Feature: nmcli - ovs
 
     @rhbz1540218
     @ver+=1.10
-    @ver/rhel/9/3-=1.46.0.1
+    @ver/rhel/9-=1.46.0.1
     @ver-=1.47.2
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
@@ -216,7 +216,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218 @RHEL-26753 @RHEL-28545
-    @ver/rhel/9/4+=1.46.0.2
+    @ver/rhel/9+=1.46.0.2
     @ver+=1.47.3
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
