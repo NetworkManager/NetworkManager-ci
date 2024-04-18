@@ -363,6 +363,7 @@ Feature: NM: dispatcher
     @restore_resolvconf @restart_if_needed
     @dispatcher_track_dns_changes
     Scenario: NM - dispatcher - track dns changes
+    * Ensure that version of "nmstate" package is at least "2.2.27"
     * Cleanup execute with timeout "15" seconds
       """
       echo 'dns-resolver:
