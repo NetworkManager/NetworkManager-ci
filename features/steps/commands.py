@@ -1310,3 +1310,46 @@ def skip_if(context):
     # Do the check in the second after_step() call,
     # the first call is after_step() of this step.
     context.skip_check_count = 2
+
+
+@step('Ensure that version of "{package}" package is at least "{version}"')
+def check_package_version(context, package, version):
+    # if version was passed as '1.27.4-1.el9', replace '-' with ' '
+    if "-" in version:
+        version = version.replace("-", " ")
+    # do the same for the current version extracted via rpm
+    current_version = nmci.process.run_stdout(
+        f"rpm -q {package} --qf '%{{VERSION}} %{{RELEASE}}'"
+    ).strip()
+    # if version > current_version, upgrade the package
+    if (
+        int(
+            nmci.process.run_stdout(
+                f'''rpm --eval "%{{lua:print(rpm.vercmp('{version}', '{current_version}'))}}"'''
+            )
+        )
+        > 0
+    ):
+        packages = nmci.process.run_stdout(
+            f"contrib/utils/brew_links.sh {package} {version}"
+        ).replace("\n", " ")
+        if not packages:
+            nmci.cext.skip(
+                f'Version "{version}" of package "{package}" is not present among available packages'
+            )
+        nmci.process.run_code(
+            f"dnf upgrade --nobest {packages} -y",
+            ignore_stderr=True,
+            shell=True,
+            timeout=120,
+        )
+        nmci.cleanup.add_callback(
+            name="cleanup-execute",
+            callback=lambda: nmci.process.run_code(
+                f"dnf downgrade $(contrib/utils/brew_links.sh {package} {current_version}) -y",
+                ignore_stderr=True,
+                shell=True,
+                timeout=120,
+            ),
+            priority=nmci.Cleanup.PRIORITY_CALLBACK_DEFAULT,
+        )
