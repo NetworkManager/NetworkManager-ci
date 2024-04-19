@@ -2964,7 +2964,13 @@ Feature: nmcli - general
     @ver+=1.25 @rhelver+=8
     @nmcli_shows_correct_routes
     Scenario: NM - general - nmclic shows correct routes
-    * Bring "up" connection "testeth10"
+    * Add "ethernet" connection named "con_gen" for device "eth10" with options
+          """
+          ipv6.may-fail no
+          ipv6.may-fail no
+          autoconnect no
+          """
+    * Bring "up" connection "con_gen"
     When "default" is visible with command "ip r" in "20" seconds
     When "default" is visible with command "ip -6 r" in "20" seconds
     * Note the number of lines of "ip -6 route show dev eth10" as value "ip6_route"
