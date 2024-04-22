@@ -1526,7 +1526,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
           """
           ipv4.may-fail no
-          ipv4.dhcp-client-id BC
+          ipv4.dhcp-client-id BCBCBCBC
           """
     * Execute "rm -rf /var/lib/NetworkManager/*lease"
     * Bring "down" connection "con_ipv4"
@@ -1534,7 +1534,7 @@ Feature: nmcli: ipv4
     * Run child "tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
-    Then "BC" is not visible with command "cat /tmp/tshark.log" in "10" seconds
+    Then "BCBCBCBC" is not visible with command "cat /tmp/tshark.log" in "10" seconds
 
 
     @rhbz1531173
