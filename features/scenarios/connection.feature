@@ -607,11 +607,11 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - lldp with ovs
      * Prepare simulated test "testXc" device
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
-     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.controller ovsbridge0"
+     * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
      * Add "ethernet" connection named "con_con" for device "testXc" with options
            """
-           connection.controller port1
-           connection.port-type ovs-port
+           connection.master port1
+           connection.slave-type ovs-port
            connection.lldp enable
            """
      When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
