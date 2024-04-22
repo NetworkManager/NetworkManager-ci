@@ -407,3 +407,23 @@
     Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
     Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
     Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
+
+
+    @RHEL-28898
+    @rhelver+=9
+    @libreswan @ikev2
+    @libreswan_ikev2_right_cert
+    Scenario: nmcli - libreswan - connect in ike2
+    # Import the server cert into local db
+    * Execute "pk12util -W "" -i contrib/libreswan/server/libreswan_server.p12 -d sql:/var/lib/ipsec/nss/"
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, rightcert=LibreswanServer, right=11.12.13.14'"
+    * Bring "up" connection "libreswan"
+    Then "11.12.13.0/24 .*dev libreswan1" is visible with command "ip route"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    #Then "VPN.BANNER:.*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
+

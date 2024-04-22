@@ -2155,6 +2155,9 @@ testmapper:
         tags: gate NetworkManager-libreswan
     - libreswan_configurable_options_reimport:
         feature: libreswan
+    - libreswan_ikev2_right_cert:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:
