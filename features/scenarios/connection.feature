@@ -600,6 +600,7 @@ Feature: nmcli: connection
 
     @RHEL-1418 @RHEL-31766 @RHEL-31764
     @ver/rhel/9/4+=1.46.0.5
+    @ver/rhel/9/2+=1.42.2.16
     @ver+=1.47.2
     @tcpreplay @openvswitch
     @lldp_with_ovs

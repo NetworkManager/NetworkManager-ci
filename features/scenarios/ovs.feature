@@ -177,7 +177,8 @@ Feature: nmcli - ovs
 
     @rhbz1540218
     @ver+=1.10
-    @ver/rhel/9-=1.46.0.1
+    @ver/rhel/9/2-=1.42.2.15
+    @ver/rhel/9/4-=1.46.0.1
     @ver-=1.47.2
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
@@ -215,8 +216,9 @@ Feature: nmcli - ovs
      And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
-    @rhbz1540218 @RHEL-26753 @RHEL-28545
-    @ver/rhel/9+=1.46.0.2
+    @rhbz1540218 @RHEL-26753 @RHEL-28545 @RHEL-32064
+    @ver/rhel/9/2+=1.42.2.16
+    @ver/rhel/9/4+=1.46.0.2
     @ver+=1.47.3
     @openvswitch
     @nmcli_add_openvswitch_vlan_configuration
