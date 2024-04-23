@@ -4,6 +4,7 @@ if [ "$1" == "-h"  -o "$1" == "--help" ]; then
     cat << EOF
 
 USAGE: $0 [PACKAGE [VERSION [BUILD [ARCH]]]     print links of RPM packages
+       $0 -i / --interactive                    enter interactive mode
        $0 -h / --help                           print this help
 
 Examples:
@@ -29,7 +30,7 @@ BEGIN { p=0; }
 "
 
 get_all() {
-    curl -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/'
+    curl -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
 }
 
 get_latest() {
@@ -54,15 +55,69 @@ else
     url_base="https://kojipkgs.fedoraproject.org/packages"
 fi
 
+interactive=false
+if [ "$1" == "-i"  -o "$1" == "--interactive" ]; then
+    interactive=true
+    echo Interactive mode
+    echo
+    shift 1
+fi
 
 package=$1
 [ -z "$package" ] && package=NetworkManager
+$interactive && echo "Selected package: $package" && echo
 ver=$2
-[ -z "$ver" ] && ver=$(get_latest $url_base/$package/)
+if [ -z "$ver" ]; then
+    if $interactive; then
+        choices=$(get_all $url_base/$package/ | sort -V -r)
+        echo "$choices" | nl -s": "
+        echo
+        lines=$(echo "$choices" | wc -l)
+        if [ $lines == 1 ]; then
+            echo "Selected version: $choices"
+            ver="$choices"
+            echo
+        else
+            read -p "Enter number [1..$lines]: " v
+            ver=$(echo "$choices" | head -n $v | tail -n 1)
+        fi
+    else
+        ver=$(get_latest $url_base/$package/)
+    fi
+fi
 build=$3
-[ -z "$build" ] && build=$(get_latest $url_base/$package/$ver/)
+if [ -z "$build" ]; then
+    if $interactive; then
+        choices=$(get_all $url_base/$package/$ver/ | sort -V -r)
+        echo "$choices" | nl -s": "
+        echo
+        lines=$(echo "$choices" | wc -l)
+        if [ $lines == 1 ]; then
+            echo "Selected build: $choices"
+            build="$choices"
+            echo
+        else
+            read -p "Enter number [1..$lines]: " v
+            build=$(echo "$choices" | head -n $v | tail -n 1)
+        fi
+    else
+        build=$(get_latest $url_base/$package/$ver/)
+    fi
+fi
 arch=$4
-[ -z "$arch" ] && arch=$(arch)
+if [ -z "$arch" ]; then
+    if $interactive; then
+        choices=$(get_all $url_base/$package/$ver/$build/)
+        choices=$(echo -e "auto\n$choices")
+        echo "$choices" | nl -s": "
+        echo
+        read -p "Enter number [1..$(echo "$choices" | wc -l)]: " v
+        arch=$(echo "$choices" | head -n $v | tail -n 1)
+        [ "$arch" == "auto" ] && arch=$(arch)
+    else
+        arch=$(arch)
+    fi
+fi
 
 rpms=$(get_all $url_base/$package/$ver/$build/$arch/)
 
