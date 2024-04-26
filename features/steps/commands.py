@@ -1331,6 +1331,7 @@ def check_package_version(context, package, version):
         > 0
     ):
         repo = "brew"
+        # sswitch to koji(hub) on Fedora or CentOS stream
         if len(context.rh_release_num) == 1 or context.rh_release_num[1] == 99:
             repo = "koji"
         packages = nmci.process.run_stdout(
