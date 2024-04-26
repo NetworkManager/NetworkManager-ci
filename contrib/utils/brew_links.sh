@@ -37,22 +37,22 @@ get_latest() {
     get_all $1 | sort -V | tail -n 1
 }
 
+release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
+
 if [[ $0 == *"brew"* ]]; then
 
-    if grep -q 'release 7' /etc/redhat-release; then
-        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-7/packages"
-    elif grep -q 'release 8' /etc/redhat-release; then
-        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages"
-    elif grep -q 'release 9' /etc/redhat-release; then
-        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages"
-    elif grep -q 'release 10' /etc/redhat-release; then
-        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-10/packages"
+    if (($release >= 7 && $release <= 10)); then
+        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-$release/packages"
     else
         echo "Unsupported distro: $(cat /etc/redhat-release)"
         exit 1
     fi
 else
-    url_base="https://kojipkgs.fedoraproject.org/packages"
+    if (($release >= 7 && $release <= 15)); then
+        url_base="https://kojihub.stream.centos.org/kojifiles/packages"
+    else
+        url_base="https://kojipkgs.fedoraproject.org/packages"
+    fi
 fi
 
 interactive=false
