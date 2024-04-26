@@ -1330,8 +1330,11 @@ def check_package_version(context, package, version):
         )
         > 0
     ):
+        repo = "brew"
+        if len(context.rh_release_num) == 1 or context.rh_release_num[1] == 99:
+            repo = "koji"
         packages = nmci.process.run_stdout(
-            f"contrib/utils/brew_links.sh {package} {version}"
+            f"contrib/utils/{repo}_links.sh {package} {version}"
         ).replace("\n", " ")
         if not packages:
             nmci.cext.skip(
@@ -1346,7 +1349,7 @@ def check_package_version(context, package, version):
         nmci.cleanup.add_callback(
             name="cleanup-execute",
             callback=lambda: nmci.process.run_code(
-                f"dnf downgrade $(contrib/utils/brew_links.sh {package} {current_version}) -y",
+                f"dnf downgrade $(contrib/utils/{repo}_links.sh {package} {current_version}) -y",
                 ignore_stderr=True,
                 shell=True,
                 timeout=120,
