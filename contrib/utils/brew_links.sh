@@ -30,7 +30,7 @@ BEGIN { p=0; }
 "
 
 get_all() {
-    curl -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
+    curl -L --max-redirs 5 -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
 }
 
 get_latest() {
@@ -42,7 +42,7 @@ release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
 if [[ $0 == *"brew"* ]]; then
 
     if (($release >= 7 && $release <= 10)); then
-        url_base="http://download.eng.bos.redhat.com/brewroot/vol/rhel-$release/packages"
+        url_base="http://download.devel.redhat.com/brewroot/vol/rhel-$release/packages"
     else
         echo "Unsupported distro: $(cat /etc/redhat-release)"
         exit 1
