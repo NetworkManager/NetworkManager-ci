@@ -101,7 +101,11 @@ if [ -z "$build" ]; then
             build=$(echo "$choices" | head -n $v | tail -n 1)
         fi
     else
-        build=$(get_latest $url_base/$package/$ver/)
+        if (($release >= 7 && $release <= 15)); then
+            build=$(get_all $url_base/$package/$ver/ | grep -F ".el$release" | sort -V | tail -n 1)
+        else
+            build=$(get_latest $url_base/$package/$ver/)
+        fi
     fi
 fi
 arch=$4
