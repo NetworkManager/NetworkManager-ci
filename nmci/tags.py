@@ -1295,6 +1295,17 @@ def tcpreplay_bs(context, scenario):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
+def libreswan_update_1_2_20_bs(context, scenario):
+    context.execute_steps(
+        f"""
+        * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20"
+        """
+    )
+
+
+_register_tag("libreswan_update_1_2_20", libreswan_update_1_2_20_bs, None)
+
+
 def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
