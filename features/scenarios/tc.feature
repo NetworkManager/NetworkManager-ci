@@ -145,7 +145,7 @@
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
     * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
@@ -170,7 +170,7 @@
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
     * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_tc"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"

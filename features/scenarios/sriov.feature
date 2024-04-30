@@ -311,7 +311,7 @@
           autoconnect no
           """
     * Run child "tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Bring "up" connection "sriov_port2"
     Then "802.1Q.*vlan 100, p 2" is visible with command "grep 100 /tmp/tcpdump.log" in "20" seconds
     * Execute "pkill tcpdump"
@@ -335,7 +335,7 @@
     #    ipv4.address 1.2.3.4/24
     #    """
     # * Run child "tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
-    # When "empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
+    # When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     # * Bring "up" connection "sriov_port2"
     # Then "802.1AD.*vlan 100, p 2" is visible with command "cat /tmp/tcpdump.log" in "20" seconds
     # * Execute "pkill tcpdump"
@@ -547,7 +547,7 @@
     Scenario: nmcli - sriov - add 1 VF with vlan Q
     * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
     * Run child "tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options
           """
           sriov.vfs '0 vlans=100.2.q'

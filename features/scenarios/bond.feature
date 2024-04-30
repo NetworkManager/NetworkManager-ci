@@ -2356,7 +2356,7 @@
      * Note MAC address output for device "nm-bond" via ip command
      * Run child "tshark -l -O arp -i nm-bond -x -c 10 > /tmp/tshark.log"
      * Bring "up" connection "bond0.0"
-     When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+     When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
      * Bring "up" connection "bond0"
      * Bring "up" connection "bond0.0"
      * Execute "echo $COLUMNS"

@@ -466,7 +466,7 @@
     Scenario: NM - ipv6 - limited router solicitation
      * Add "ethernet" connection named "con_ipv6" for device "eth2"
      * Execute "tshark -i eth2 -Y frame.len==62 -V -x -a duration:120 > /tmp/solicitation.txt"
-     When "empty" is not visible with command "file /tmp/solicitation.txt" in "150" seconds
+     When "cannot|empty" is not visible with command "file /tmp/solicitation.txt" in "150" seconds
      Then Check solicitation for "eth2" in "/tmp/solicitation.txt"
 
 
@@ -784,7 +784,7 @@
           """
     * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Bring "up" connection "con_ipv6"
-    When "empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/ipv6-hostname.log" in "150" seconds
     Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "245" seconds
 
 
@@ -804,7 +804,7 @@
     * Bring "down" connection "con_ipv6"
     * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
     * Bring "up" connection "con_ipv6"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Wait for "5" seconds
     * Execute "pkill tshark"
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
@@ -818,7 +818,7 @@
     * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
     * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
-    When "empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
     Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
      And "0.. = N bit" is visible with command "cat /tmp/ipv6-hostname.log"
      And "1 = S bit" is visible with command "cat /tmp/ipv6-hostname.log"

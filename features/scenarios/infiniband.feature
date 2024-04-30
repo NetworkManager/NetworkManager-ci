@@ -264,7 +264,7 @@ Feature: nmcli: inf
           """
     * Run child "tcpdump -l -i any -v -n > /tmp/tcpdump.log"
     * Run child "nmcli con up inf.8006"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Note MAC address output for device "inf_ib0.8006" via ip command
     Then Noted value is visible with command "grep 'Client-ID.*61' /tmp/tcpdump.log" in "30" seconds
 

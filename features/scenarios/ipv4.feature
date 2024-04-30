@@ -1144,7 +1144,7 @@ Feature: nmcli: ipv4
           """
     * Bring "down" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "RC" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 2\s+Host Name: RC" is visible with command "cat /tmp/tshark.log"
@@ -1162,7 +1162,7 @@ Feature: nmcli: ipv4
           """
     * Bring "down" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
      And "Option: \(12\) Host Name\s+Length: 11\s+Host Name: example.com" is visible with command "cat /tmp/tshark.log"
@@ -1179,7 +1179,7 @@ Feature: nmcli: ipv4
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-hostname ''"
     * Bring "down" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
    Then "RHB" is not visible with command "cat /tmp/tshark.log" in "10" seconds
 
@@ -1194,7 +1194,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-fqdn foo.bar.com
           """
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     #Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log" in "10" seconds
@@ -1217,7 +1217,7 @@ Feature: nmcli: ipv4
     * Execute "echo 'send fqdn.server-update off;' >> /etc/dhcp/dhclient-eth2.conf"
     * Bring "up" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "grep fqdn /var/lib/NetworkManager/dhclient-eth2.conf" in "10" seconds
      And "foo.bar.com" is visible with command "cat /tmp/tshark.log"
@@ -1238,7 +1238,7 @@ Feature: nmcli: ipv4
           """
     * Bring "up" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
     Then "Boot Request \(1\).*Flags: 0x00\s+" is visible with command "cat /tmp/tshark.log"
@@ -1257,7 +1257,7 @@ Feature: nmcli: ipv4
           """
     * Bring "up" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "foo.bar.com" is visible with command "cat /tmp/tshark.log"
     Then "Boot Request \(1\).*Flags: 0x05" is visible with command "cat /tmp/tshark.log"
@@ -1275,7 +1275,7 @@ Feature: nmcli: ipv4
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-fqdn ''"
     * Bring "up" connection "con_ipv4"
     * Run child "tshark -l -O bootp -i testX4 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
      Then "foo.bar.com" is not visible with command "grep fqdn /var/lib/NetworkManager/dhclient-testX4.conf" in "10" seconds
       And "foo.bar.com" is not visible with command "cat /tmp/tshark.log" for full "5" seconds
@@ -1291,7 +1291,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-send-hostname no
           """
     * Run child "tshark -l -O bootp -i eth2 > /tmp/hostname.log"
-    When "empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/hostname.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "RHC" is not visible with command "cat /tmp/hostname.log" in "10" seconds
 
@@ -1302,7 +1302,7 @@ Feature: nmcli: ipv4
     * Execute "hostnamectl set-hostname foobar.test"
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no"
     * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Hostname is visible in log "/tmp/tshark.log" in "10" seconds
 
@@ -1316,7 +1316,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-send-hostname no
           """
     * Run child "tshark -l -O bootp -i eth2 > /tmp/real.log"
-    When "empty" is not visible with command "file /tmp/real.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/real.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Hostname is not visible in log "/tmp/real.log" for full "10" seconds
 
@@ -1382,7 +1382,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-client-id AB
           """
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID (Option )?\(?61\)?, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
@@ -1402,7 +1402,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-client-id AB
           """
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
@@ -1421,7 +1421,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-client-id AB
           """
     * Run child "tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "AB" is visible with command "cat /tmp/tshark.log" in "10" seconds
     #Then "walderon" is visible with command "cat /var/lib/NetworkManager/dhclient-eth2.conf"
@@ -1440,7 +1440,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-client-id abcd
           """
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID (Option )?\(?61\)?, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
@@ -1448,7 +1448,7 @@ Feature: nmcli: ipv4
     * Execute "pkill tcpdump"
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID (Option )?\(?61\)?, length 4: hardware-type 192, ff:ee:11" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
 
@@ -1532,7 +1532,7 @@ Feature: nmcli: ipv4
     * Bring "down" connection "con_ipv4"
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id ''"
     * Run child "tshark -l -O bootp -i eth2 -x > /tmp/tshark.log"
-    When "empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "BCBCBCBC" is not visible with command "cat /tmp/tshark.log" in "10" seconds
 
@@ -1555,7 +1555,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
     * Run child "tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Noted value is visible with command "grep -E 'Client-ID (Option )?\(?61\)?' /tmp/tcpdump.log" in "10" seconds
 
@@ -1568,7 +1568,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
     * Run child "tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then Noted value is visible with command "grep -E 'Client-ID (Option )?\(?61\)?' /tmp/tcpdump.log" in "10" seconds
 
@@ -1580,7 +1580,7 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
     * Run child "tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
 
@@ -3648,7 +3648,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-send-release yes
           """
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
@@ -3665,7 +3665,7 @@ Feature: nmcli: ipv4
           ipv4.dhcp-send-release no
           """
     * Run child "tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
