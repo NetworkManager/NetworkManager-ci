@@ -43,6 +43,7 @@ if [[ $0 == *"brew"* ]]; then
 
     if (($release >= 7 && $release <= 10)); then
         url_base="http://download.devel.redhat.com/brewroot/vol/rhel-$release/packages"
+	provider=brew
     else
         echo "Unsupported distro: $(cat /etc/redhat-release)"
         exit 1
@@ -50,8 +51,10 @@ if [[ $0 == *"brew"* ]]; then
 else
     if (($release >= 7 && $release <= 15)); then
         url_base="https://kojihub.stream.centos.org/kojifiles/packages"
+	provider=kojihub
     else
         url_base="https://kojipkgs.fedoraproject.org/packages"
+	provider=koji
     fi
 fi
 
@@ -70,6 +73,12 @@ ver=$2
 if [ -z "$ver" ]; then
     if $interactive; then
         choices=$(get_all $url_base/$package/ | sort -V -r)
+        if [ -z "$choices" -a "$provider" == kojihub ]; then
+            echo "Package not found in kojihub, trying koji."
+            url_base="https://kojipkgs.fedoraproject.org/packages"
+	        provider=koji
+            choices=$(get_all $url_base/$package/ | sort -V -r)
+	    fi
         echo "$choices" | nl -s": "
         echo
         lines=$(echo "$choices" | wc -l)
@@ -101,7 +110,7 @@ if [ -z "$build" ]; then
             build=$(echo "$choices" | head -n $v | tail -n 1)
         fi
     else
-        if (($release >= 7 && $release <= 15)); then
+        if [ "$provider" == kojihub ]; then
             build=$(get_all $url_base/$package/$ver/ | grep -F ".el$release" | sort -V | tail -n 1)
         else
             build=$(get_latest $url_base/$package/$ver/)
