@@ -299,7 +299,7 @@ Feature: nmcli: inf
     * Cleanup connection "inf_ib0.8006"
     * Create keyfile "/etc/NetworkManager/system-connections/inf_ib0.8006.nmconnection"
       """
-      [ethernet]
+      [connection]
       interface-name=inf_ib0.8006
       type=infiniband
       autoconnect=no
@@ -307,15 +307,18 @@ Feature: nmcli: inf
 
       [ipv4]
       method=dhcp
-      may-fail=no
+      may-fail=false
 
       [ipv6]
       method=auto
 
       [infiniband]
+      p-key=32774
       parent=inf_ib0
-      p-key=2
+      transport-mode=datagram
+
       """
+    * Execute "chmod 600 /etc/NetworkManager/system-connections/inf_ib0.8006.nmconnection" 
     * Reload connections
     * Bring "up" connection "inf"
     * Bring "up" connection "inf_ib0.8006"
