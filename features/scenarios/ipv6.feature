@@ -815,13 +815,13 @@
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
-    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6_hostname.log"
     * Modify connection "con_ipv6" changing options "ipv6.method dhcp"
     * Bring "up" connection "con_ipv6"
     When "cannot|empty" is not visible with command "file /tmp/ipv6_hostname.log" in "150" seconds
-    Then "dacan.local" is visible with command "cat /tmp/ipv6-hostname.log" in "145" seconds
-     And "0.. = N bit" is visible with command "cat /tmp/ipv6-hostname.log"
-     And "1 = S bit" is visible with command "cat /tmp/ipv6-hostname.log"
+    Then "dacan.local" is visible with command "cat /tmp/ipv6_hostname.log" in "145" seconds
+     And "0.. = N bit" is visible with command "cat /tmp/ipv6_hostname.log"
+     And "1 = S bit" is visible with command "cat /tmp/ipv6_hostname.log"
 
 
     @ipv6_secondary_address
