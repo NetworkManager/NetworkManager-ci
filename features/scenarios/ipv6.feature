@@ -2279,6 +2279,48 @@
     Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "5" seconds
 
 
+    @RHEL-26195
+    @ver+=1.47.5
+    @ver/rhel/9+=1.48
+    @logging_info_only
+    @ipv6_ignore_routes_changes
+    Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
+    * Prepare simulated test "many_routes6" device with ifindex "65006"
+    * Commentary
+        """
+        Clean up the device early with ip so that in case of some problems, the restarted
+        NM doesn't have to cope with 100000s of routes
+        """
+    * Cleanup execute "ip link delete many_routes6; sleep 2" with timeout "10" seconds and priority "-45"
+    * Add "ethernet" connection named "con_ipv6" for device "many_routes6" with options
+      """
+      ipv4.method manual
+      ipv4.addresses 192.168.0.1/24
+      ipv6.method manual
+      ipv6.addresses 2001::fee/48
+      """
+    * Bring "up" connection "con_ipv6"
+    # wait until `connecting` or `activating` is finished
+    When "ing" is not visible with command "nmcli -f general.state c show con_ipv6" in "10" seconds
+    * Start following journal
+    * Start monitoring "NetworkManager" CPU usage with threshold "25"
+    # To speed up a bit, it is possible to stop NM while appending routes, but this can be reproducer
+    # * Stop NM
+    * Append "2000000" routes of version "6" to "many_routes6" by "20000" in batch
+    # * Start NM in "20" seconds
+    When "NetworkManager.*usage within threshold" is visible in journal
+    * Commentary
+      """
+      Reset usage counter, measure only replace commands
+      """
+    Then NM was not using more than "110%" of CPU
+    * Replace "300" routes of version "6" on "many_routes6" by "50" in batch
+    # TODO - usage might exceed 25% in spike even on healthy NM
+    # Then "ERROR: NetworkManager.*usage too high" is not visible in journal
+    Then NM was not using more than "10%" of CPU
+    * Flush routes of version "6" on "many_routes6"
+
+
     @rhbz2047788
     @ver+=1.32.7
     @ipv6_required_timeout_set

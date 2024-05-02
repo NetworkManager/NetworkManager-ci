@@ -783,6 +783,24 @@ def find_not_in_tailing_journal(context, content, timeout=2):
         raise Exception('"%s" was found in the journal output.' % content)
 
 
+@step('Start monitoring "{proc}" CPU usage with threshold "{thr}"')
+def start_cpu_proc_monitor(context, proc, thr):
+    context.proc_mon = getattr(context, "proc_mon", {})
+    context.proc_mon[proc] = nmci.pexpect.pexpect_service(
+        f"nmci/helpers/proc_cpu_usage_monitor.py {proc} {thr}"
+    )
+
+
+@step('NM was not using more than "{perc}%" of CPU')
+def nm_cpu_usage(context, perc):
+    perc = float(perc)
+    context.proc_mon["NetworkManager"].kill(10)
+    context.journal.expect("Average NetworkManager usage: [0-9.]*")
+    msg = context.journal.after
+    used_perc = float(msg.split(" ")[-1])
+    assert used_perc <= perc, f"NM was using {used_perc}% of CPU, threshold {perc}%"
+
+
 @step('Wait for "{secs}" seconds')
 def wait_for_x_seconds(context, secs):
     time.sleep(float(secs))

@@ -65,4 +65,5 @@ install_common_packages () {
     python -m pip install pexpect
     python -m pip install pyte
     python -m pip install IPy
+    python -m pip install psutil
 }

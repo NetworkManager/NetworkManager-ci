@@ -14,8 +14,11 @@ def reboot(context, timeout=None):
 
 
 @step("Start NM")
-def start_nm(context):
-    nmci.nmutil.start_NM_service()
+@step('Start NM in "{seconds}" seconds')
+def start_nm(context, seconds=None):
+    if seconds:
+        seconds = float(seconds)
+    nmci.nmutil.start_NM_service(timeout=seconds)
 
 
 @step("Start NM without PID wait")
@@ -37,7 +40,7 @@ def restart_nm_background(context):
 
 
 @step("Reload NM")
-def restart_nm(context):
+def resload_nm(context):
     nmci.nmutil.reload_NM_service(synchronous=True)
 
 

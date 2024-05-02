@@ -937,3 +937,79 @@ def rename_device(context, orig_name, new_name):
     nmci.ip.link_set(ifname=orig_name, up=False)
     nmci.ip.link_set(ifname=orig_name, name=new_name)
     nmci.ip.link_set(ifname=new_name, up=True)
+
+
+def do_routes(dev, proto, count, batch, command, ip6_prefix="2001", args="proto bird"):
+    num = 0
+    while num + 1 < count:
+        lines = []
+        t = nmci.util.start_timeout(1.0)
+        for i in range(num, num + batch):
+            a0 = i
+            a1 = int(a0 / 256)
+            a2 = int(a1 / 256)
+            a3 = int(a2 / 256)
+            if proto == 6:
+                lines.append(
+                    f"route {command} {ip6_prefix}:{a3 % 256:x}{a2 % 256:02x}:{a1 % 256:x}{a0 % 256:02x}::/120 dev {dev} {args}"
+                )
+            elif proto == 4:
+                lines.append(
+                    f"route {command} {a3 % 256}.{a2 % 256}.{a1 % 256}.{a0 % 256}/32 dev {dev} {args}"
+                )
+            else:
+                raise Exception("protocol must be either 4 or 6")
+        batch_file = nmci.util.tmp_dir("routes")
+        nmci.util.file_set_content(batch_file, lines)
+        nmci.process.run(f"ip -b {batch_file}", timeout=500)
+        print(
+            f"{batch} routes [{num+1}..{num+batch}] {command:.6s}ed in {t.elapsed_time():.3f}s"
+        )
+        num += batch
+
+        # sleep at least 0.1s but at most 1.0s
+        if t.remaining_time() <= 0:
+            if nmci.cext.context.nm_pid:
+                # TODO assert - should not happen
+                # Wait for NM to ctach up
+                print("Letting NM to process routes...")
+                nm_time = nmci.util.start_timeout()
+                # Flush buffers
+                nmci.cext.context.journal.expect([r".+"])
+                nmci.cext.context.journal.expect(
+                    ["NetworkManager.* usage within threshold"], timeout=500
+                )
+                print(f"NM usage in range in {nm_time.elapsed_time():.3f}s")
+                time.sleep(1)
+        else:
+            time.sleep(max(0.1, t.remaining_time()))
+
+
+@step('Add "{count}" routes of version "{proto}" to "{dev}" by "{batch}" in batch')
+def add_device_routes(context, count, proto, dev, batch):
+    count = int(count)
+    proto = int(proto)
+    batch = int(batch)
+    do_routes(dev, proto, count, batch, "add")
+
+
+@step('Append "{count}" routes of version "{proto}" to "{dev}" by "{batch}" in batch')
+def append_device_routes(context, count, proto, dev, batch):
+    count = int(count)
+    proto = int(proto)
+    batch = int(batch)
+    do_routes(dev, proto, count, batch, "append")
+
+
+@step('Replace "{count}" routes of version "{proto}" on "{dev}" by "{batch}" in batch')
+def replace_device_routes(context, count, proto, dev, batch):
+    count = int(count)
+    proto = int(proto)
+    batch = int(batch)
+    do_routes(dev, proto, count, batch, "replace")
+
+
+@step('Flush routes of version "{proto}" on "{dev}"')
+def flush_device_routes(context, proto, dev):
+    proto = int(proto)
+    nmci.process.run(f"ip -{proto} route flush dev {dev}", timeout=500)

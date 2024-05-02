@@ -841,6 +841,8 @@ testmapper:
         feature: ipv6
     - ipv6_ignore_nonstatic_routes:
         feature: ipv6
+    - ipv6_ignore_routes_changes:
+        feature: ipv6
     - ipv6_required_timeout_set:
         feature: ipv6
     - ipv6_check_addr_order:
