@@ -306,7 +306,7 @@ Feature: nmcli: inf
       id=inf_ib0.8006
 
       [ipv4]
-      method=dhcp
+      method=auto
       may-fail=false
 
       [ipv6]
@@ -318,7 +318,7 @@ Feature: nmcli: inf
       transport-mode=datagram
 
       """
-    * Execute "chmod 600 /etc/NetworkManager/system-connections/inf_ib0.8006.nmconnection" 
+    * Execute "chmod 600 /etc/NetworkManager/system-connections/inf_ib0.8006.nmconnection"
     * Reload connections
     * Bring "up" connection "inf"
     * Bring "up" connection "inf_ib0.8006"
