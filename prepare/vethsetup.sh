@@ -48,6 +48,14 @@ function setup_veth_env ()
         yum -y install NetworkManager-config-server
     fi
 
+    # in OS env there seems to be dhcpcd running on eth0
+    # bringing it all the time up so the following section
+    # is not working as expected as the IPv4 gets assumed
+    # immediatelly and expected profile is not up.
+    if grep -q 'release 10' /etc/redhat-release; then
+        pkill dhcpcd
+    fi
+
     # If different than default connection is up after compilation bring it down and restart service
     for i in $( \
         LANG=C nmcli -g CON-UUID,STATE,DEVICE device \
