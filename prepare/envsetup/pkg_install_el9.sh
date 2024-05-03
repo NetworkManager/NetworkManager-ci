@@ -90,6 +90,10 @@ install_el9_packages () {
         $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-debuginfo-2.10-1.el9.$(arch).rpm \
         $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-debugsource-2.10-1.el9.$(arch).rpm"
 
+    # upgrade freeradius from kojihub to match openssl version
+    PKGS_UPGRADE="$PKGS_UPGRADE \
+        $KHUB/freeradius/3.0.21/41.el9/$(arch)/freeradius-3.0.21-41.el9.$(arch).rpm"
+
     # dracut testing
     PKGS_INSTALL="$PKGS_INSTALL  \
         $KOJI/scsi-target-utils/1.0.79/3.fc34/$(arch)/scsi-target-utils-1.0.79-3.fc34.$(arch).rpm \
