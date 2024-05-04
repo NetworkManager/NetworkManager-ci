@@ -91,8 +91,10 @@ install_el9_packages () {
         $KHUB/hostapd/2.10/1.el9/$(arch)/hostapd-debugsource-2.10-1.el9.$(arch).rpm"
 
     # upgrade freeradius from kojihub to match openssl version
-    PKGS_UPGRADE="$PKGS_UPGRADE \
-        $KHUB/freeradius/3.0.21/41.el9/$(arch)/freeradius-3.0.21-41.el9.$(arch).rpm"
+    if rpm -q openssl | grep -q openssl-3.2; then
+        PKGS_UPGRADE="$PKGS_UPGRADE \
+            $KHUB/freeradius/3.0.21/41.el9/$(arch)/freeradius-3.0.21-41.el9.$(arch).rpm"
+    fi
 
     # dracut testing
     PKGS_INSTALL="$PKGS_INSTALL  \
