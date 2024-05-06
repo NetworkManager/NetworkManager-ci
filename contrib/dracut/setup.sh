@@ -448,6 +448,7 @@ reset_images() {
         [[ $file == *'log'* ]] && mkfs.ext4 -q -U $UUID_LOG $TESTDIR/client_log.img
         losetup -f $file
     done
+    losetup -l
 }
 
 after_test() {
