@@ -874,14 +874,35 @@
     Then Global temporary ip is not based on mac of device "eth10"
 
 
+    @ver+=1.47.3
+    @ipv6_ip6-privacy_with_lifetime
+    Scenario: nmcli - ipv6 - ip6_privacy - lifetime
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
+          """
+          ipv4.method disabled
+          ipv6.ip6-privacy 2
+          ipv6.temp-valid-lifetime 20000
+          ipv6.temp-preferred-lifetime 2000
+          """
+    When "2620" is visible with command "ip a s eth10" in "45" seconds
+     And "tentative dynamic" is not visible with command "ip a s eth10" in "45" seconds
+    Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr" in "45" seconds
+    Then "20000" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/temp_valid_lft"
+    Then "2000" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/temp_prefered_lft"
+    Then Global temporary ip is not based on mac of device "eth10"
+
+
     @rhbz1187525
+    @ver-1.47.3
     @restart_if_needed
     @ipv6_ip6-default_privacy
     Scenario: nmcli - ipv6 - ip6_privacy - default value
-    * Execute "echo 1 > /proc/sys/net/ipv6/conf/default/use_tempaddr"
-    * Add "ethernet" connection named "con_ipv6" for device "eth10"
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "0"
+    * Create "dummy" device named "dummy0"
+    * Add "dummy" connection named "con_ipv6" for device "dummy0"
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "1"
     * Bring "up" connection "con_ipv6"
-    When "1" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
+    When "1" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/use_tempaddr"
     * Create NM config file "96-nmci-custom.conf" with content
       """
       [connection.ip6-privacy]
@@ -890,7 +911,37 @@
     * Restart NM
     * Bring "down" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
-    When "2" is visible with command "cat /proc/sys/net/ipv6/conf/eth10/use_tempaddr"
+    When "2" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/use_tempaddr"
+
+    @restart_if_needed
+    @ver+=1.47.3
+    @ipv6_ip6-default_privacy
+    Scenario: nmcli - ipv6 - ip6_privacy - default value
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "0"
+    * Set sysctl "net.ipv6.conf.default.temp_valid_lft" to "604800"
+    * Set sysctl "net.ipv6.conf.default.temp_prefered_lft" to "86400"
+    * Create "dummy" device named "dummy0"
+    * Add "dummy" connection named "con_ipv6" for device "dummy0"
+    * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "1"
+    * Set sysctl "net.ipv6.conf.default.temp_valid_lft" to "10000"
+    * Set sysctl "net.ipv6.conf.default.temp_prefered_lft" to "1000"
+    * Bring "up" connection "con_ipv6"
+    Then "1" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/use_tempaddr"
+    Then "10000" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/temp_valid_lft"
+    Then "1000" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/temp_prefered_lft"
+    * Create NM config file "96-nmci-custom.conf" with content
+      """
+      [connection.ip6-privacy]
+      ipv6.ip6-privacy=2
+      ipv6.temp-valid-lifetime=20000
+      ipv6.temp-preferred-lifetime=2000
+      """
+    * Restart NM
+    * Bring "down" connection "con_ipv6"
+    * Bring "up" connection "con_ipv6"
+    Then "2" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/use_tempaddr"
+    Then "20000" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/temp_valid_lft"
+    Then "2000" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/temp_prefered_lft"
 
 
     @ver-=1.11.2

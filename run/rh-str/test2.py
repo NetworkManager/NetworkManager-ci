@@ -169,6 +169,7 @@ tests = [
     "ipv6_ip6-privacy_0",
     "ipv6_ip6-privacy_1",
     "ipv6_ip6-privacy_2",
+    "ipv6_ip6-privacy_with_lifetime",
     "ipv6_ip6-default_privacy",
     "ipv6_ip6-privacy_incorrect_value",
     "ipv6_lifetime_set_from_network",

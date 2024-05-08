@@ -732,6 +732,8 @@ testmapper:
         feature: ipv6
     - ipv6_ip6-privacy_2:
         feature: ipv6
+    - ipv6_ip6-privacy_with_lifetime:
+        feature: ipv6
     - ipv6_ip6-default_privacy:
         feature: ipv6
     - ipv6_ip6-privacy_incorrect_value:
