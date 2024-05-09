@@ -117,7 +117,10 @@ def check_coredump(context):
             nmci.embed.embed_data(
                 "Package list",
                 nmci.process.run_stdout(
-                    ["rpm", "-qa"], embed_combine_tag=nmci.embed.NO_EMBED
+                    ["rpm", "-qa"],
+                    embed_combine_tag=nmci.embed.NO_EMBED,
+                    ignore_stderr=True,
+                    ignore_returncode=True,
                 ),
             )
 
