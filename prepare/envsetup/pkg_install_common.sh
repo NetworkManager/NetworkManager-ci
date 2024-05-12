@@ -48,9 +48,15 @@ install_common_packages () {
     echo "remove dnf packages..."
     test -n "$PKGS_REMOVE" && dnf -y remove $PKGS_REMOVE
     echo "install dnf packages..."
+
+    disable_repo=""
+    if dnf repolist | grep buildroot-brewtrigger-repo; then
+        disable_repo="--disablerepo=buildroot-brewtrigger-repo"
+    fi
+
     test -n "$PKGS_INSTALL" && dnf -y install $PKGS_INSTALL --skip-broken \
                                                                --nobest \
-                                                               --disablerepo=buildroot-brewtrigger-repo
+                                                               $disable_repo
     echo "update dnf packages..."
     test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE --skip-broken \
                                                                --allowerasing
