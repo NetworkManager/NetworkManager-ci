@@ -54,11 +54,14 @@ install_common_packages () {
         disable_repo="--disablerepo=buildroot-brewtrigger-repo"
     fi
 
-    test -n "$PKGS_INSTALL" && dnf -y install $PKGS_INSTALL --skip-broken \
+    skip="--skip-broken"
+    rpm -q dnf5 && skip="--skip-unavailable"
+
+    test -n "$PKGS_INSTALL" && dnf -y install $PKGS_INSTALL $skip \
                                                                --nobest \
                                                                $disable_repo
     echo "update dnf packages..."
-    test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE --skip-broken \
+    test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE $skip \
                                                                --allowerasing
 
     # backup freeradius conf
