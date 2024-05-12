@@ -119,7 +119,7 @@ install_el8_packages () {
         $KOJI/scsi-target-utils/1.0.79/1.fc32/$(arch)/scsi-target-utils-1.0.79-1.fc32.$(arch).rpm"
 
     if [ "$(arch)" == "aarch64" ]; then
-        dnf -4 -y install iwl*-firmware
+        dnf -y install iwl*-firmware
     fi
 
     # Update to non crashing libreswan as RHEL-13123

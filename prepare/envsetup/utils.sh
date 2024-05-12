@@ -103,7 +103,7 @@ install_plugins_dnf () {
 
 configure_aarch_wifi () {
     if [ "$(arch)" == "aarch64" ]; then
-        dnf -4 -y install iwl*-firmware
+        dnf -y install iwl*-firmware
         modprobe -r iwlwifi
         modprobe iwlwifi
         systemctl restart wpa_supplicant

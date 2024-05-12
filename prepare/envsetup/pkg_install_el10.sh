@@ -38,7 +38,7 @@ EOF
 
 
     # TODO remove when the issue with resolv.conf symlink is fixed
-    dnf -4 -y install systemd-resolved
+    dnf -y install systemd-resolved
     systemctl disable systemd-resolved
     systemctl stop systemd-resolved
     rm /etc/resolv.conf

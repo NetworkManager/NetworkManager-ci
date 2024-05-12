@@ -1137,7 +1137,7 @@ def simwifi_p2p_bs(context, scenario):
         # and "Stream" not in context.rh_release
     ):
         context.process.run_stdout(
-            "dnf -4 -y install "
+            "dnf -y install "
             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ",
             timeout=120,
@@ -1208,14 +1208,14 @@ def simwifi_p2p_as(context, scenario):
         if arch == "x86_64":
             print("Install patched wpa_supplicant for x86_64")
             context.process.run_stdout(
-                "dnf -4 -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm",
+                "dnf -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm",
                 shell=True,
                 timeout=120,
             )
         else:
             print("Install patched wpa_supplicant")
             context.process.run_stdout(
-                "dnf -4 -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm",
+                "dnf -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm",
                 shell=True,
                 timeout=120,
             )
@@ -2118,7 +2118,7 @@ _register_tag("nmstate_setup", None, nmstate_setup_as)
 def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 2]:
         context.process.run_stdout(
-            "dnf -4 -y update \
+            "dnf -y update \
             $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9_2) \
             $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 3.el9_2)",
             timeout=120,
@@ -2127,7 +2127,7 @@ def nmstate_libreswan_bs(context, scenario):
         )
     if context.rh_release_num == [9, 3]:
         context.process.run_stdout(
-            "dnf -4 -y update \
+            "dnf -y update \
             $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9_3) \
             $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 3.el9_3)",
             timeout=120,
@@ -2136,7 +2136,7 @@ def nmstate_libreswan_bs(context, scenario):
         )
     if context.rh_release_num == [9, 4]:
         context.process.run_stdout(
-            "dnf -4 -y update \
+            "dnf -y update \
             $(contrib/utils/brew_links.sh nmstate 2.2.23 1.el9) \
             $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.18 2.el9)",
             timeout=120,
@@ -2146,7 +2146,7 @@ def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 99]:
         kojihub = "https://kojihub.stream.centos.org/kojifiles/packages/"
         context.process.run_stdout(
-            f"dnf -4 -y update \
+            f"dnf -y update \
             {kojihub}nmstate/2.2.23/1.el9/x86_64/nmstate-2.2.23-1.el9.x86_64.rpm \
             {kojihub}nmstate/2.2.23/1.el9/x86_64/nmstate-libs-2.2.23-1.el9.x86_64.rpm \
             {kojihub}nmstate/2.2.23/1.el9/x86_64/python3-libnmstate-2.2.23-1.el9.x86_64.rpm \

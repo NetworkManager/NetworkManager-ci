@@ -1,4 +1,8 @@
 install_common_packages () {
+    # Set dnf to use ipv4 DNS only
+    sed -i '/ip_resolve=/d' /etc/dnf/dnf.conf
+    echo 'ip_resolve=4' >> /etc/dnf/dnf.conf
+
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
@@ -42,13 +46,13 @@ install_common_packages () {
 
     # Execute
     echo "remove dnf packages..."
-    test -n "$PKGS_REMOVE" && dnf -4 -y remove $PKGS_REMOVE
+    test -n "$PKGS_REMOVE" && dnf -y remove $PKGS_REMOVE
     echo "install dnf packages..."
-    test -n "$PKGS_INSTALL" && dnf -4 -y install $PKGS_INSTALL --skip-broken \
+    test -n "$PKGS_INSTALL" && dnf -y install $PKGS_INSTALL --skip-broken \
                                                                --nobest \
                                                                --disablerepo=buildroot-brewtrigger-repo
     echo "update dnf packages..."
-    test -n "$PKGS_UPGRADE" && dnf -4 -y upgrade $PKGS_UPGRADE --skip-broken \
+    test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE --skip-broken \
                                                                --allowerasing
 
     # backup freeradius conf
