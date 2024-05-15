@@ -2281,7 +2281,9 @@
 
     @RHEL-26195
     @ver+=1.47.5
+    @ver+=1.46.1
     @ver/rhel/9+=1.48
+    @ver/rhel/9/4+=1.46.0.7
     @logging_info_only
     @ipv6_ignore_routes_changes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
