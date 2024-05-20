@@ -1295,6 +1295,17 @@ def tcpreplay_bs(context, scenario):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
+def libreswan_update_1_2_14_bs(context, scenario):
+    context.execute_steps(
+        f"""
+        * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
+        """
+    )
+
+
+_register_tag("libreswan_update_1_2_14", libreswan_update_1_2_14_bs, None)
+
+
 def libreswan_update_1_2_20_bs(context, scenario):
     context.execute_steps(
         f"""
