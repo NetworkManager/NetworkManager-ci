@@ -413,7 +413,7 @@
     @RHEL-33370
     @rhelver+=9.2
     @rhelver-9.4
-    @libreswan_update_1_4_14
+    @libreswan_update_1_2_14
     @libreswan @ikev2
     @libreswan_ikev2_right_cert
     Scenario: nmcli - libreswan - connect in ike2
