@@ -50,7 +50,6 @@ dependencies:
       - dnsmasq
       - tcpdump
       - chrony
-      - teamd
       - bash-completion
       - radvd
 
