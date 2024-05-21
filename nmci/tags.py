@@ -669,6 +669,10 @@ def dns_dnsmasq_as(context, scenario):
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
         context.process.systemctl("restart systemd-resolved")
+        context.process.run_stdout("rm -rf /etc/resolv.conf")
+        context.process.run_stdout(
+            "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
+        )
 
 
 _register_tag("dns_dnsmasq", dns_dnsmasq_bs, dns_dnsmasq_as)
