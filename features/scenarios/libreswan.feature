@@ -168,6 +168,7 @@
     @rhbz1348901
     @rhelver+=8 @ver+=1.4.0
     @libreswan @ikev2
+    @dns_systemd_resolved
     @libreswan_dns
     Scenario: nmcli - libreswan - dns
     Given Nameserver "11.12.13.14" is set in "20" seconds
@@ -176,7 +177,7 @@
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
      And Nameserver "8.8.8.8" is set
-     And Nameserver "11.12.13.14" is set
+     And Nameserver "11.12.13.14" is not set
     * Delete connection "libreswan"
     When "VPN.VPN-STATE:.*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
     Then Nameserver "8.8.8.8" is not set
