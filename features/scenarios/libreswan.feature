@@ -62,6 +62,7 @@
     @libreswan
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
+
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan" ignoring error
@@ -397,19 +398,6 @@
     Then Check noted values "vpn1" and "vpn2" are the same
 
 
-
-    @rhelver+=9.2
-    @nmstate_libreswan
-    @libreswan_nmstate_iface_dpd_rsa
-    Scenario: nmcli - libreswan - rsa, dpd, and iface
-    * Execute "pytest -vv contrib/ipsec/ipsec_test.py  > /tmp/nmstate.txt"
-    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
-    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
-    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
-    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
-
-
-
     @RHEL-33370
     @rhelver+=9.2
     @rhelver-9.4
@@ -451,3 +439,170 @@
     Then "IP4.ADDRESS.*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_leftcert
+    Scenario: libreswan - ikev2 - ipv4 - certs
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = hostb.example.org, salifetime = 24h'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113.2/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_psk
+    Scenario: libreswan - ikev2 - ipv4 - psk
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'authby = secret, ikev2 = insist, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
+      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113..*/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.153" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_rsa
+    Scenario: libreswan - ikev2 - ipv4 - rsa
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Note the output of "grep rightrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}' | tr -d '\n'" as value "hosta_rsa"
+    * Note the output of "grep leftrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}'| tr -d '\n'" as value "hostb_rsa"
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = 192.0.2.249, leftid = hosta-rsa.example.org, leftrsasigkey = <noted:hosta_rsa>, right = 192.0.2.154, rightid = hostb-rsa.example.org, rightrsasigkey = <noted:hostb_rsa>'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113..*/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.249 dst 192.0.2.154" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_leftcert_var2
+    Scenario: libreswan - ikev2 - ipv4 - certs
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = %fromcert'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113.2/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_interface
+    Scenario: libreswan - ikev2 - ipv4 - interface
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'authby = secret, ikev2 = insist, ipsec-interface = 9, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
+      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113..*/32" is visible with command "ip a s ipsec9"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli d show ipsec9"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_dpd_interface
+    Scenario: libreswan - ikev2 - dpd
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'authby = secret, dpdaction = restart, dpddelay = 1, dpdtimeout = 60, ikev2 = insist, ipsec-interface = 10, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
+      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      """
+    * Wait for "1" seconds
+    * Bring "up" connection "libreswan"
+    Then "203.0.113..*/32" is visible with command "ip a s ipsec10"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*203.0.113..*/32" is visible with command "nmcli d show ipsec10"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_p2p_cert
+    Scenario: libreswan - ikev2 - p2p
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = 192.0.2.248, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, right = 192.0.2.155, rightid = hostb.example.org, rightsubnet = 192.0.2.155/32'
+      """
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds
+
+
+    @nmstate_libreswan @libreswan_ng
+    @libreswan_ikev2_ipv4_leftsubnet
+    Scenario: libreswan - ikev2 - leftsubnet
+    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = 192.0.2.246, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, leftsubnet = 192.0.4.0/24, right = 192.0.2.157, rightid = hostb.example.org, rightsubnet = 192.0.3.0/24'
+      """
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
+    When "hosta_nic" is not visible with command "ip a s" in "5" seconds

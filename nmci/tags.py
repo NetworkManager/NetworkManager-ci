@@ -1317,6 +1317,33 @@ def libreswan_update_1_2_20_bs(context, scenario):
 _register_tag("libreswan_update_1_2_20", libreswan_update_1_2_20_bs, None)
 
 
+def libreswan_ng_bs(context, scenario):
+    if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
+        nmci.veth.wait_for_testeth0()
+        context.process.run_code(
+            "wget https://raw.githubusercontent.com/nmstate/nmstate/base/tests/integration/ipsec_test.py \
+            -O contrib/ipsec/ipsec_test.py",
+            shell=True,
+            ignore_stderr=True,
+        )
+        context.process.run_code(
+            "echo -e '\ndef test_setup():\n    time.sleep(2)' >> contrib/ipsec/ipsec_test.py",
+            shell=True,
+        )
+        nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
+
+    import subprocess
+
+    # We need to run this for some time
+    subprocess.Popen(
+        "pytest -q --disable-warnings contrib/ipsec/ipsec_test.py::test_setup",
+        shell=True,
+    )
+
+
+_register_tag("libreswan_ng", libreswan_ng_bs, None)
+
+
 def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
@@ -2127,44 +2154,61 @@ _register_tag("nmstate_setup", None, nmstate_setup_as)
 
 
 def nmstate_libreswan_bs(context, scenario):
+    nmci.veth.wait_for_testeth0()
     if context.rh_release_num == [9, 2]:
-        context.process.run_stdout(
-            "dnf -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.31 1.el9) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 4.el9_2)",
-            timeout=120,
-            shell=True,
-            ignore_stderr=True,
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
+            """
         )
+
     if context.rh_release_num == [9, 3]:
-        context.process.run_stdout(
-            "dnf -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.31 1.el9_3) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.14 3.el9_3)",
-            timeout=120,
-            shell=True,
-            ignore_stderr=True,
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-3.el9_3"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
+            """
         )
+
     if context.rh_release_num == [9, 4]:
-        context.process.run_stdout(
-            "dnf -y update \
-            $(contrib/utils/brew_links.sh nmstate 2.2.31 1.el9) \
-            $(contrib/utils/brew_links.sh NetworkManager-libreswan 1.2.20 1.el9)",
-            timeout=120,
-            shell=True,
-            ignore_stderr=True,
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
+            """
         )
+
+    if context.rh_release_num == [9, 5]:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
+            """
+        )
+
+    if context.rh_release_num == [10, 0]:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
+            """
+        )
+
     if context.rh_release_num == [9, 99]:
-        kojihub = "https://kojihub.stream.centos.org/kojifiles/packages/"
-        context.process.run_stdout(
-            f"dnf -y update \
-            {kojihub}nmstate/2.2.31/1.el9/x86_64/nmstate-2.2.31-1.el9.x86_64.rpm \
-            {kojihub}nmstate/2.2.31/1.el9/x86_64/nmstate-libs-2.2.31-1.el9.x86_64.rpm \
-            {kojihub}nmstate/2.2.31/1.el9/x86_64/python3-libnmstate-2.2.31-1.el9.x86_64.rpm \
-            {kojihub}NetworkManager-libreswan/1.2.20/1.el9/x86_64/NetworkManager-libreswan-1.2.20-1.el9.x86_64.rpm",
-            timeout=120,
-            shell=True,
-            ignore_stderr=True,
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
+            """
+        )
+
+    if context.rh_release_num == [10, 99]:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
+            * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
+            """
         )
 
     nmci.nmutil.restart_NM_service()

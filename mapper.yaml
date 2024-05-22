@@ -2153,12 +2153,32 @@ testmapper:
     - libreswan_reimport_ikev2:
         feature: libreswan
         tags: NetworkManager-libreswan
-    - libreswan_nmstate_iface_dpd_rsa:
-        feature: libreswan
-        tags: gate NetworkManager-libreswan
     - libreswan_configurable_options_reimport:
         feature: libreswan
     - libreswan_ikev2_right_cert:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    #NEW tests based on nmstate infra
+    - libreswan_ikev2_ipv4_leftcert:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_psk:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_rsa:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_leftcert_var2:
+        feature: libreswan
+    - libreswan_ikev2_interface:
+        feature: libreswan
+    - libreswan_ikev2_dpd_interface:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_p2p_cert:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_leftsubnet:
         feature: libreswan
         tags: gate NetworkManager-libreswan
     - strongswan_add_profile:

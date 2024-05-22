@@ -32,7 +32,9 @@ HOSTA_IPV4_CRT = "192.0.2.251"
 HOSTA_IPV4_PSK = "192.0.2.250"
 HOSTA_IPV4_RSA = "192.0.2.249"
 HOSTA_IPV4_CRT_P2P = "192.0.2.248"
+HOSTA_IPV4_CRT_SUBNET = "192.0.4.0/24"
 HOSTA_IPV4_TRANSPORT = "192.0.2.247"
+HOSTA_IPV4_IF_SUBNET = "192.0.2.246"
 HOSTA_IPSEC_CONN_NAME = "hosta_conn"
 HOSTA_IPV6_P2P = "2001:db8:f::a"
 HOSTB_IPV6_P2P = "2001:db8:f::b"
@@ -44,6 +46,8 @@ HOSTB_IPV4_CRT = "192.0.2.152"
 HOSTB_IPV4_PSK = "192.0.2.153"
 HOSTB_IPV4_RSA = "192.0.2.154"
 HOSTB_IPV4_CRT_P2P = "192.0.2.155"
+HOSTB_IPV4_IF_SUBNET = "192.0.2.157"
+HOSTB_IPV4_CRT_SUBNET = "192.0.3.0/24"
 HOSTB_IPV4_TRANSPORT = "192.0.2.156"
 HOSTB_VPN_SUBNET_PREFIX = "203.0.113"
 HOSTB_VPN_SUBNET = f"{HOSTB_VPN_SUBNET_PREFIX}.0/24"
@@ -59,6 +63,7 @@ HOSTB_IPSEC_PSK_CONN_NAME = "hostb_conn_psk"
 HOSTB_IPSEC_RSA_CONN_NAME = "hostb_conn_rsa"
 HOSTB_IPSEC_CRT_P2P_CONN_NAME = "hostb_conn_crt_p2p"
 HOSTB_IPSEC_TRANSPORET_CONN_NAME = "hostb_conn_transport"
+HOSTB_IPSEC_LEFTSUBNET_CONN_NAME = "hostb_conn_leftsubnet"
 HOSTB_IPSEC_IPV6_P2P_CONN_NAME = "hostb_conn_ipv6_p2p"
 HOSTB_IPSEC_IPV6_CS_CONN_NAME = "hostb_conn_ipv6_cs"
 HOSTB_IPSEC_CONN_CONTENT = """
@@ -135,6 +140,20 @@ conn hostb_conn_transport
     rightmodecfgclient=no
     ikev2=insist
 
+conn hostb_conn_leftsubnet
+    hostaddrfamily=ipv4
+    left=192.0.2.157
+    leftsubnet=192.0.3.0/24
+    leftid=@hostb.example.org
+    leftcert=hostb.example.org
+    leftmodecfgserver=no
+    right=192.0.2.246
+    rightsubnet=192.0.4.0/24
+    rightid=@hosta.example.org
+    rightcert=hosta.example.org
+    rightmodecfgclient=no
+    ikev2=insist
+
 conn hostb_conn_ipv6_p2p
     hostaddrfamily=ipv6
     clientaddrfamily=ipv6
@@ -195,15 +214,6 @@ TEST_P12_PASSWORD = "nmstate_test!"
 CERT_DIR = f"{os.path.dirname(os.path.realpath(__file__))}/test_ipsec_certs"
 
 RETRY_COUNT = 10
-
-
-from datetime import datetime
-
-
-def mylog(what):
-    with open("/tmp/my.log", "a") as myfile:
-        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f")
-        myfile.write(f"{now} - {what}\n")
 
 
 @pytest.fixture(scope="module")
@@ -271,6 +281,7 @@ def setup_hostb_ipsec_conn():
             HOSTB_IPV4_PSK,
             HOSTB_IPV4_RSA,
             HOSTB_IPV4_CRT_P2P,
+            HOSTB_IPV4_IF_SUBNET,
             HOSTB_IPV4_TRANSPORT,
         ]:
             cmdlib.exec_cmd(
@@ -305,6 +316,7 @@ def setup_hostb_ipsec_conn():
             HOSTB_IPSEC_PSK_CONN_NAME,
             HOSTB_IPSEC_CRT_P2P_CONN_NAME,
             HOSTB_IPSEC_TRANSPORET_CONN_NAME,
+            HOSTB_IPSEC_LEFTSUBNET_CONN_NAME,
             HOSTB_IPSEC_IPV6_P2P_CONN_NAME,
             HOSTB_IPSEC_IPV6_CS_CONN_NAME,
         ]:
@@ -467,6 +479,10 @@ def setup_hosta_ip():
                                 InterfaceIPv4.ADDRESS_PREFIX_LENGTH: 24,
                             },
                             {
+                                InterfaceIPv4.ADDRESS_IP: HOSTA_IPV4_IF_SUBNET,
+                                InterfaceIPv4.ADDRESS_PREFIX_LENGTH: 24,
+                            },
+                            {
                                 InterfaceIPv4.ADDRESS_IP: HOSTA_IPV4_TRANSPORT,
                                 InterfaceIPv4.ADDRESS_PREFIX_LENGTH: 24,
                             },
@@ -517,13 +533,11 @@ def ipsec_env(
 
 def _check_ipsec(left, right):
     output = cmdlib.exec_cmd("ip xfrm state".split(), check=True)[1]
-    mylog(f"expected: 'src {left} dst {right}', got:\n{output}")
     return f"src {left} dst {right}" in output
 
 
 def _check_ipsec_policy(left, right):
     output = cmdlib.exec_cmd("ip xfrm policy".split(), check=True)[1]
-    mylog(f"expected: 'src {left} dst {right}', got:\n{output}")
     return f"src {left} dst {right}" in output and f"src {right} dst {left}" in output
 
 
@@ -553,31 +567,11 @@ def ipsec_hosta_conn_cleanup():
         Loader=yaml.SafeLoader,
     )
     libnmstate.apply(desired_state)
-    # Here we need to wait for slow machines connection removal
-    time.sleep(2)
-    # For some reason this doesn't work
-    # timer = 0
-    # max_timeout = 2.5
-    # while True:
-    #     if cmdlib.exec_cmd(f"ipsec auto --status| grep Total |grep 1".split())[0] != 0:
-    #         mylog("waiting done")
-    #         break
-    #     time.sleep(0.5)
-    #     mylog("waiting")
-    #     assert timer != max_timeout, "Connection hosta_conn still available for NM in 2.5s"
-    #     timer += 0.5
-
-
-def test_ipsec_wait():
-    mylog("TEST test_ipsec_wait")
-    delay_duration = 3
-    time.sleep(delay_duration)
 
 
 def test_ipsec_ipv4_libreswan_cert_auth_add_and_remove(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_cert_auth_add_and_remove")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -606,10 +600,48 @@ def test_ipsec_ipv4_libreswan_cert_auth_add_and_remove(
     )
 
 
+@pytest.mark.xfail(
+    reason="NetworkManager-libreswan might be too old",
+)
+def test_ipsec_ipv4_libreswan_rightcert(
+    ipsec_hosta_conn_cleanup,
+):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: true
+          libreswan:
+            left: {HOSTA_IPV4_CRT}
+            leftid: '%fromcert'
+            leftcert: hosta.example.org
+            right: {HOSTB_IPV4_CRT}
+            rightid: '%fromcert'
+            rightcert: hostb.example.org
+            ikev2: insist
+            ikelifetime: 24h
+            salifetime: 24h""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_CRT, HOSTB_IPV4_CRT
+    )
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX, HOSTA_NIC
+    )
+    vpn_data = cmdlib.exec_cmd(
+        f"nmcli -g vpn.data con show {HOSTA_IPSEC_CONN_NAME}".split()
+    )[1]
+    assert "rightcert =" in vpn_data
+
+
 def test_ipsec_ipv4_libreswan_psk_auth_add_and_remove(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_psk_auth_add_and_remove")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -637,7 +669,6 @@ def test_ipsec_ipv4_libreswan_psk_auth_add_and_remove(
 
 
 def test_ipsec_apply_with_hiden_psk(ipsec_hosta_conn_cleanup):
-    mylog("TEST test_ipsec_apply_with_hiden_psk")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -685,7 +716,6 @@ def test_ipsec_apply_with_hiden_psk(ipsec_hosta_conn_cleanup):
 
 
 def test_ipsec_rsa_authenticate(ipsec_hosta_conn_cleanup):
-    mylog("TEST ipsec_hosta_conn_cleanup")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -716,7 +746,6 @@ def test_ipsec_rsa_authenticate(ipsec_hosta_conn_cleanup):
 def test_ipsec_ipv4_libreswan_fromcert(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_fromcert")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -746,10 +775,8 @@ def test_ipsec_ipv4_libreswan_fromcert(
     )
 
 
-def test_ipsec_ipv4_libreswan_psk_auth_with_ipsec_iface(
-    ipsec_hosta_conn_cleanup,
-):
-    mylog("TEST test_ipsec_ipv4_libreswan_psk_auth_with_ipsec_iface")
+@pytest.fixture
+def ipsec_psk_with_ipsec_iface(ipsec_hosta_conn_cleanup):
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -775,12 +802,12 @@ def test_ipsec_ipv4_libreswan_psk_auth_with_ipsec_iface(
     assert retry_till_true_or_timeout(
         RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX, "ipsec9"
     )
+    yield
 
 
 def test_ipsec_ipv4_libreswan_psk_auth_with_dpd(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_psk_auth_with_dpd")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -814,7 +841,6 @@ def test_ipsec_ipv4_libreswan_psk_auth_with_dpd(
 def test_ipsec_ipv4_libreswan_authby(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_authby")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -843,10 +869,12 @@ def test_ipsec_ipv4_libreswan_authby(
     )
 
 
+@pytest.mark.xfail(
+    reason="NetworkManager-libreswan might be too old",
+)
 def test_ipsec_ipv4_libreswan_p2p_cert_auth_add_and_remove(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_p2p_cert_auth_add_and_remove")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -875,10 +903,53 @@ def test_ipsec_ipv4_libreswan_p2p_cert_auth_add_and_remove(
     )
 
 
+@pytest.mark.xfail(
+    reason="NetworkManager-libreswan might be older than 1.2.20",
+)
+def test_ipsec_ipv4_libreswan_leftsubnet(
+    ipsec_hosta_conn_cleanup,
+):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: true
+          libreswan:
+            left: {HOSTA_IPV4_IF_SUBNET}
+            leftid: 'hosta.example.org'
+            leftcert: hosta.example.org
+            leftsubnet: {HOSTA_IPV4_CRT_SUBNET}
+            leftmodecfgclient: no
+            right: {HOSTB_IPV4_IF_SUBNET}
+            rightid: 'hostb.example.org'
+            rightsubnet: {HOSTB_IPV4_CRT_SUBNET}
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT,
+        _check_ipsec,
+        HOSTA_IPV4_IF_SUBNET,
+        HOSTB_IPV4_IF_SUBNET,
+    )
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT,
+        _check_ipsec_policy,
+        f"{HOSTA_IPV4_CRT_SUBNET}",
+        f"{HOSTB_IPV4_CRT_SUBNET}",
+    )
+
+
+@pytest.mark.xfail(
+    reason="NetworkManager-libreswan might be too old",
+)
 def test_ipsec_ipv4_libreswan_transport_mode(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv4_libreswan_transport_mode")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -908,13 +979,12 @@ def test_ipsec_ipv4_libreswan_transport_mode(
     )
 
 
-@pytest.mark.skip(
-    reason="IPv6 still not supported by the latest NM-libreswan",
+@pytest.mark.xfail(
+    reason="This is not supported by latest NM-libreswan yet",
 )
 def test_ipsec_ipv6_libreswan_p2p(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv6_libreswan_p2p")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -945,13 +1015,12 @@ def test_ipsec_ipv6_libreswan_p2p(
     )
 
 
-@pytest.mark.skip(
-    reason="IPv6 still not supported by the latest NM-libreswan",
+@pytest.mark.xfail(
+    reason="This is not supported by latest NM-libreswan yet",
 )
 def test_ipsec_ipv6_libreswan_client_server(
     ipsec_hosta_conn_cleanup,
 ):
-    mylog("TEST test_ipsec_ipv6_libreswan_client_server")
     desired_state = yaml.load(
         f"""---
         interfaces:
@@ -979,3 +1048,157 @@ def test_ipsec_ipv6_libreswan_client_server(
     assert retry_till_true_or_timeout(
         RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX6, HOSTA_NIC
     )
+
+
+def test_ipsec_modify_exist_connection(
+    ipsec_hosta_conn_cleanup,
+):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          description: TESTING
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: true
+          libreswan:
+            psk: {PSK}
+            left: {HOSTA_IPV4_PSK}
+            leftid: 'hosta-psk.example.org'
+            right: {HOSTB_IPV4_PSK}
+            rightid: 'hostb-psk.example.org'
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_PSK, HOSTB_IPV4_PSK
+    )
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX, HOSTA_NIC
+    )
+
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          libreswan:
+            type: tunnel
+            psk: {PSK}
+            left: {HOSTA_IPV4_PSK}
+            leftid: 'hosta-psk.example.org'
+            right: {HOSTB_IPV4_PSK}
+            rightid: 'hostb-psk.example.org'
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_PSK, HOSTB_IPV4_PSK
+    )
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX, HOSTA_NIC
+    )
+
+    iface_state = show_only(["hosta_conn"])[Interface.KEY][0]
+
+    assert iface_state[Interface.DESCRIPTION] == "TESTING"
+    assert iface_state[Interface.IPV4][InterfaceIPv4.ENABLED]
+
+
+def test_ipsec_ipv4_libreswan_change_ipsec_iface(ipsec_psk_with_ipsec_iface):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: true
+          libreswan:
+            psk: {PSK}
+            left: {HOSTA_IPV4_PSK}
+            leftid: 'hosta-psk.example.org'
+            right: {HOSTB_IPV4_PSK}
+            rightid: 'hostb-psk.example.org'
+            ipsec-interface: 99
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_PSK, HOSTB_IPV4_PSK
+    )
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec_ip, HOSTB_VPN_SUBNET_PREFIX, "ipsec99"
+    )
+
+
+# DHCPv4 off with empty IP address means IP disabled for IPSec interface
+def test_ipsec_dhcpv4_off_and_empty_ip_addr(
+    ipsec_hosta_conn_cleanup,
+):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: false
+          libreswan:
+            leftrsasigkey: {RSA_SIGNATURES["hosta"]}
+            left: {HOSTA_IPV4_RSA}
+            leftid: 'hosta-rsa.example.org'
+            right: {HOSTB_IPV4_RSA}
+            rightrsasigkey: {RSA_SIGNATURES["hostb"]}
+            rightid: 'hostb-rsa.example.org'
+            ipsec-interface: 97
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_RSA, HOSTB_IPV4_RSA
+    )
+
+    iface_state = show_only(["ipsec97"])[Interface.KEY][0]
+    assert not iface_state[Interface.IPV4][InterfaceIPv4.ENABLED]
+
+
+@pytest.mark.xfail(
+    reason="This is not supported by latest NM-libreswan yet",
+)
+def test_ipsec_dhcpv6_off(
+    ipsec_hosta_conn_cleanup,
+):
+    desired_state = yaml.load(
+        f"""---
+        interfaces:
+        - name: hosta_conn
+          type: ipsec
+          ipv4:
+            enabled: true
+            dhcp: true
+          libreswan:
+            hostaddrfamily: ipv6
+            clientaddrfamily: ipv6
+            left: {HOSTA_IPV6_CS}
+            leftid: '@hosta.example.org'
+            leftcert: hosta.example.org
+            leftmodecfgclient: no
+            right: {HOSTB_IPV6_CS}
+            rightid: '@hostb.example.org'
+            ikev2: insist""",
+        Loader=yaml.SafeLoader,
+    )
+    libnmstate.apply(desired_state)
+    assert retry_till_true_or_timeout(
+        RETRY_COUNT, _check_ipsec, HOSTA_IPV4_RSA, HOSTB_IPV4_RSA
+    )
+
+    iface_state = show_only(["ipsec97"])[Interface.KEY][0]
+    assert not iface_state[Interface.IPV6].get(InterfaceIPv6.DHCP)
+    assert not iface_state[Interface.IPV6].get(InterfaceIPv6.AUTOCONF)
