@@ -2302,6 +2302,12 @@ testmapper:
         feature: connection
     - connection_timestamp:
         feature: connection
+    - connection_timestamp_conn_down:
+        feature: connection
+    - connection_timestamp_nm_stop:
+        feature: connection
+    - connection_timestamp_on_restart_activation:
+        feature: connection
     - connection_readonly_timestamp:
         feature: connection
     - connection_readonly_yes:
