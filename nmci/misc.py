@@ -405,8 +405,10 @@ class _Misc:
             stream.append(m.group(1))
             v = v[(1 + len(m.group(1))) :]
 
-        version = self.test_version_tag_parse(version_tag, "/".join(("ver", *stream)))
-        return (stream, *version)
+        op, version = self.test_version_tag_parse(
+            version_tag, "/".join(("ver", *stream))
+        )
+        return (stream, op, version)
 
     def test_version_tag_filter_for_stream(self, tags_ver, nm_stream):
         """
@@ -655,6 +657,9 @@ class _Misc:
         """
 
         (nm_stream, nm_version) = nm_version_info
+        # handle upstream logic
+        if nm_stream == "upstream" and len(nm_version) >= 3:
+            nm_version[2] += 1
         (distro_flavor, distro_version) = distro_version_info
 
         result = None
