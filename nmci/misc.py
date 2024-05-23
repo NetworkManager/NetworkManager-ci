@@ -657,7 +657,10 @@ class _Misc:
         """
 
         (nm_stream, nm_version) = nm_version_info
-        # handle upstream logic
+        # Bump upstream micro version (NM-major.minor.micro):
+        # e.g. @ver+=1.47.5 should match upstream 1.47.4-dev (1.47.4 + some commits)
+        # So, @ver tags should match the next tagged NM release when the feature was added/fixed.
+        # We want this in upstream only, versioning in y/z-stream is exact.
         if nm_stream == "upstream" and len(nm_version) >= 3:
             nm_version[2] += 1
         (distro_flavor, distro_version) = distro_version_info
