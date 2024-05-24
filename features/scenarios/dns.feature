@@ -1383,8 +1383,7 @@ Feature: nmcli - dns
     @ver+=1.43.0
     @ver+=1.42.0
     @ver+=1.41.91
-    @restore_resolvconf @restart_if_needed
-    @not_with_systemd_resolved
+    @dns_default @restart_if_needed
     @dns_global
     Scenario: NM - dns global options
     * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/95-nmci-resolv.conf"

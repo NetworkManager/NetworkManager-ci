@@ -3067,7 +3067,7 @@ Feature: nmcli - general
 
     @rhbz2033643
     @ver+=1.39.6
-    @eth0 @restore_hostname @dhcpd
+    @eth0 @restore_hostname @dhcpd @dns_default
     @nmcli_dhcp_overlong_hostname
     Scenario: nmcli - general - support DHCP overlong hostnames
     * Execute "systemctl stop dhcpd"
