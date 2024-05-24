@@ -678,6 +678,36 @@ def dns_dnsmasq_as(context, scenario):
 _register_tag("dns_dnsmasq", dns_dnsmasq_bs, dns_dnsmasq_as)
 
 
+def dns_default_bs(context, scenario):
+    if context.process.systemctl("is-active systemd-resolved").returncode == 0:
+        print("stopping systemd-resolved")
+        context.systemd_resolved = True
+        context.process.systemctl("stop systemd-resolved")
+        context.process.run_stdout("rm -rf /etc/resolv.conf")
+    else:
+        context.systemd_resolved = False
+    conf = ["# configured by beaker-test", "[main]", "dns=default", "rc-manager=file"]
+    nmci.util.file_set_content("/etc/NetworkManager/conf.d/96-nmci-test-dns.conf", conf)
+    nmci.nmutil.restart_NM_service()
+
+
+def dns_default_as(context, scenario):
+    context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/96-nmci-test-dns.conf")
+    nmci.nmutil.reload_NM_service()
+    context.dns_plugin = ""
+    if context.systemd_resolved is True:
+        print("starting systemd-resolved")
+        context.process.systemctl("restart systemd-resolved")
+        context.process.run_stdout("rm -rf /etc/resolv.conf")
+        context.process.run_stdout(
+            "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
+        )
+
+
+# Use plain resolv.conf, without systemd-resolved
+_register_tag("dns_default", dns_default_bs, dns_default_as)
+
+
 def dns_systemd_resolved_bs(context, scenario):
     context.systemd_resolved = True
     if context.process.systemctl("is-active systemd-resolved").returncode != 0:
