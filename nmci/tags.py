@@ -1369,7 +1369,7 @@ def libreswan_ng_bs(context, scenario):
     import subprocess
 
     # We need to run this for some time
-    subprocess.Popen(
+    nmci.pexpect.pexpect_service(
         "pytest -q --disable-warnings contrib/ipsec/ipsec_test.py::test_setup",
         shell=True,
     )
