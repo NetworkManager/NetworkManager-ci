@@ -2189,6 +2189,10 @@ _register_tag("nmstate_setup", None, nmstate_setup_as)
 
 def nmstate_libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
+
+    if context.rh_release_num <= [9, 1]:
+        nmci.cext.skip("These libreswan tests require RHEL9.2+")
+
     if context.rh_release_num == [9, 2]:
         context.execute_steps(
             f"""
