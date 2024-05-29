@@ -981,39 +981,45 @@ _register_tag("eth3_disconnect", eth3_disconnect_bs, eth3_disconnect_as)
 
 
 def need_dispatcher_scripts_bs(context, scenario):
-    if os.path.isfile("/tmp/nm-builddir"):
-        print("install dispatcher scripts")
-        context.process.run_stdout(
-            "yum install -y $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
-    else:
-        nmci.veth.wait_for_testeth0()
-        print("install NetworkManager-config-routing-rules")
-        context.process.run_stdout(
-            "yum -y install NetworkManager-config-routing-rules",
-            timeout=120,
-            ignore_stderr=True,
-        )
-    nmci.nmutil.reload_NM_service()
+    # do this only on RHEL-=9
+    if context.rh_release_num < [10, 0]:
+        if os.path.isfile("/tmp/nm-builddir"):
+            print("install dispatcher scripts")
+            context.process.run_stdout(
+                "yum install -y $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*",
+                shell=True,
+                timeout=120,
+                ignore_stderr=True,
+            )
+        else:
+            nmci.veth.wait_for_testeth0()
+            print("install NetworkManager-config-routing-rules")
+            context.process.run_stdout(
+                "yum -y install NetworkManager-config-routing-rules",
+                timeout=120,
+                ignore_stderr=True,
+            )
+        nmci.nmutil.reload_NM_service()
 
 
 def need_dispatcher_scripts_as(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    context.process.run_stdout(
-        "yum -y remove NetworkManager-config-routing-rules",
-        timeout=120,
-        ignore_stderr=True,
-    )
-    context.process.run_stdout("rm -rf /etc/sysconfig/network-scripts/rule-con_general")
-    context.process.run_stdout(
-        "rm -rf /etc/sysconfig/network-scripts/route-con_general"
-    )
-    context.process.run("ip rule del table 1", ignore_stderr=True)
-    context.process.run("ip rule del table 1", ignore_stderr=True)
-    nmci.nmutil.reload_NM_service()
+    # do this only on RHEL-=9
+    if context.rh_release_num < [10, 0]:
+        nmci.veth.wait_for_testeth0()
+        context.process.run_stdout(
+            "yum -y remove NetworkManager-config-routing-rules",
+            timeout=120,
+            ignore_stderr=True,
+        )
+        context.process.run_stdout(
+            "rm -rf /etc/sysconfig/network-scripts/rule-con_general"
+        )
+        context.process.run_stdout(
+            "rm -rf /etc/sysconfig/network-scripts/route-con_general"
+        )
+        context.process.run("ip rule del table 1", ignore_stderr=True)
+        context.process.run("ip rule del table 1", ignore_stderr=True)
+        nmci.nmutil.reload_NM_service()
 
 
 _register_tag(
