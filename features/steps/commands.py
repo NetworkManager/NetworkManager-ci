@@ -1373,5 +1373,5 @@ def check_package_version(context, package, version):
                 shell=True,
                 timeout=120,
             ),
-            priority=nmci.Cleanup.PRIORITY_CALLBACK_DEFAULT,
+            priority=nmci.Cleanup.PRIORITY_FILE,
         )
