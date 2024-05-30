@@ -1360,25 +1360,28 @@ _register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
 
 
 def libreswan_ng_bs(context, scenario):
+    base = "contrib/ipsec/nmstate"
+    base_tests = f"{base}/tests/integration"
     if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
         nmci.veth.wait_for_testeth0()
-        context.process.run_code(
-            "wget https://raw.githubusercontent.com/nmstate/nmstate/base/tests/integration/ipsec_test.py \
-            -O contrib/ipsec/ipsec_test.py",
-            shell=True,
+        nmci.process.run(f"rm -rf {base}")
+        nmci.process.run(
+            "git clone https://github.com/nmstate/nmstate.git",
+            cwd="contrib/ipsec",
             ignore_stderr=True,
         )
         context.process.run_code(
-            "echo -e '\ndef test_setup():\n    time.sleep(2)' >> contrib/ipsec/ipsec_test.py",
+            f"echo -e '\ndef test_setup():\n    time.sleep(2)' >> {base_tests}/ipsec_test.py",
             shell=True,
         )
+        # Prevent creation of eth1 veth pair
+        nmci.process.run(f"rm -rf {base_tests}/conftest.py")
+        # Mark setup complete
         nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
-
-    import subprocess
 
     # We need to run this for some time
     nmci.pexpect.pexpect_service(
-        "pytest -q --disable-warnings contrib/ipsec/ipsec_test.py::test_setup",
+        f"pytest -q --disable-warnings {base_tests}/ipsec_test.py::test_setup",
         shell=True,
     )
 
@@ -2258,6 +2261,7 @@ def nmstate_libreswan_bs(context, scenario):
         )
 
     nmci.nmutil.restart_NM_service()
+    nmci.process.run("nmcli general logging level trace domains all,vpn_plugin:trace")
 
 
 def nmstate_libreswan_as(context, scenario):
