@@ -69,7 +69,8 @@ def _before_scenario(context, scenario):
     assert not nmci.cleanup._cleanup_lst
     assert not context.cext.scenario_skipped
     nmci.util.set_verbose(False)
-    context.step_level = 0
+    # Treat before_scenario() as step
+    context.step_level = 1
     nmci.nmutil.context_set_nm_restarted(context, reset=True)
     # Pause FAF reporting - to prevent incomplete/missing reports
     #  With this file present, FAF wait up to 120s until it starts uploading
@@ -188,6 +189,9 @@ def _before_scenario(context, scenario):
             pass
         except Exception:
             excepts.append(traceback.format_exc())
+
+    # Lower step_level back to 0
+    context.step_level = 0
 
     context.nm_pid = nmci.nmutil.nm_pid()
 
