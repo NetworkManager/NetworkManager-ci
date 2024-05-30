@@ -1371,7 +1371,7 @@ def libreswan_ng_bs(context, scenario):
             ignore_stderr=True,
         )
         context.process.run_code(
-            f"echo -e '\ndef test_setup():\n    time.sleep(2)' >> {base_tests}/ipsec_test.py",
+            f"cat contrib/ipsec/ipsec_setup.py >> {base_tests}/ipsec_test.py",
             shell=True,
         )
         # Prevent creation of eth1 veth pair
