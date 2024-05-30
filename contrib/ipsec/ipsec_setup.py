@@ -2,4 +2,6 @@
 
 
 def test_setup():
+    import time
+
     time.sleep(2)
