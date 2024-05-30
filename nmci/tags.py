@@ -2223,7 +2223,7 @@ def nmstate_libreswan_bs(context, scenario):
     if context.rh_release_num == [9, 4]:
         context.execute_steps(
             f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-3.el9_4"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
             """
         )
