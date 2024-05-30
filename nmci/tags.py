@@ -1335,26 +1335,28 @@ def tcpreplay_bs(context, scenario):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
-def libreswan_update_1_2_14_bs(context, scenario):
-    context.execute_steps(
-        f"""
-        * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
-        """
-    )
+def libreswan_update_rightcert_bs(context, scenario):
+    if context.rh_release_num == [9, 2]:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
+            """
+        )
+    elif context.rh_release_num == [9, 4]:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-3.el9_4"
+            """
+        )
+    else:
+        context.execute_steps(
+            f"""
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20"
+            """
+        )
 
 
-_register_tag("libreswan_update_1_2_14", libreswan_update_1_2_14_bs, None)
-
-
-def libreswan_update_1_2_20_bs(context, scenario):
-    context.execute_steps(
-        f"""
-        * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20"
-        """
-    )
-
-
-_register_tag("libreswan_update_1_2_20", libreswan_update_1_2_20_bs, None)
+_register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
 
 
 def libreswan_ng_bs(context, scenario):
