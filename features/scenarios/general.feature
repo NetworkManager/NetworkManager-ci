@@ -1990,6 +1990,31 @@ Feature: nmcli - general
     Then "dummy0.100*" is not visible with command "nmcli c"
 
 
+    @RHEL-32493
+    @RHEL-31980
+    @ver+=1.46.2
+    @ver+=1.47.5
+    @ver/rhel/9/4+=1.46.0.8
+    @ver/rhel/9+=1.47.90
+    @checkpoint_remove
+    @snapshot_rollback_in_memory
+    Scenario: NM - general - snapshot and rollback in-memory connection
+    * Cleanup connection "dummy1"
+    * Cleanup device "dummy"
+    * Write file "/tmp/dummy1.yaml" with content
+      """
+      ---
+      interfaces:
+      - name: dummy1
+        type: dummy
+      """
+    * Execute "nmstatectl set /tmp/dummy1.yaml --memory-only "
+    When "/run/NetworkManager/system-connections/dummy1.nmconnection:dummy1" is visible with command "nmcli -t -f 'filename,name,uuid' c show"
+    * Execute "nmstatectl set /tmp/dummy1.yaml --no-commit"
+    * Execute "nmstatectl rollback"
+    Then "/run/NetworkManager/system-connections/dummy1.nmconnection:dummy1" is visible with command "nmcli -t -f 'filename,name,uuid' c show"
+
+
     # Skip on unmaintained RHEL8
     @rhelver+=9
     # Latest nmstate dropped support for NM<=1.40

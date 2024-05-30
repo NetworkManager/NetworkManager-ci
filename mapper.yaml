@@ -1861,6 +1861,8 @@ testmapper:
         feature: general
     - snapshot_rollback_delete_devices_and_profiles:
         feature: general
+    - snapshot_rollback_in_memory:
+        feature: general
     - dummy_non_utf_device:
         feature: general
     - stable_mem_consumption:
