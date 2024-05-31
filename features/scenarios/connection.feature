@@ -333,11 +333,11 @@ Feature: nmcli: connection
      * Quit editor
 
 
-    @ver+=1.42
     @connection_timestamp_conn_down
     Scenario: nmcli - connection - timestamp saved on connection down
      * Add "ethernet" connection named "con_con" for device "eth6"
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_pre"
+     * Wait for "1" seconds
      * Bring "up" connection "con_con"
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_up"
      Then Check noted values "timestamp_pre" and "timestamp_up" are not the same
