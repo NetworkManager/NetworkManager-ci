@@ -333,6 +333,7 @@ Feature: nmcli: connection
      * Quit editor
 
 
+    @ver+=1.42
     @connection_timestamp_conn_down
     Scenario: nmcli - connection - timestamp saved on connection down
      * Add "ethernet" connection named "con_con" for device "eth6"
