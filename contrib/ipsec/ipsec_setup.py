@@ -1,7 +1,10 @@
-# This is appended to ipsec_test.py
+from nmstate.tests.integration.testlib.ipsec import IpsecTestEnv
+import time
 
+print("env setup")
+with IpsecTestEnv() as env:
+    print("env ready")
+    time.sleep(3)
+    print("env cleanup")
 
-def test_setup():
-    import time
-
-    time.sleep(2)
+print("env exit")

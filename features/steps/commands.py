@@ -1375,3 +1375,9 @@ def check_package_version(context, package, version):
             ),
             priority=nmci.Cleanup.PRIORITY_FILE,
         )
+
+
+@step("Wait for libreswan setup cleanup")
+def wait_libreswan_ng_finish(context):
+    context.ipsec_proc.expect("env exit")
+    check_pattern_command(context, "ip a s", "hosta_nic", 2, check_type="not")

@@ -1361,7 +1361,6 @@ _register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
 
 def libreswan_ng_bs(context, scenario):
     base = "contrib/ipsec/nmstate"
-    base_tests = f"{base}/tests/integration"
     if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
         nmci.veth.wait_for_testeth0()
         nmci.process.run(f"rm -rf {base}")
@@ -1369,21 +1368,22 @@ def libreswan_ng_bs(context, scenario):
             "git clone https://github.com/nmstate/nmstate.git",
             cwd="contrib/ipsec",
             ignore_stderr=True,
+            timeout=40,
         )
-        context.process.run_code(
-            f"cat contrib/ipsec/ipsec_setup.py >> {base_tests}/ipsec_test.py",
-            shell=True,
-        )
-        # Prevent creation of eth1 veth pair
-        nmci.process.run(f"rm -rf {base_tests}/conftest.py")
         # Mark setup complete
         nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
 
     # We need to run this for some time
-    nmci.pexpect.pexpect_service(
-        f"pytest -q --disable-warnings {base_tests}/ipsec_test.py::test_setup",
+    context.ipsec_proc = nmci.pexpect.pexpect_service(
+        f"python3 contrib/ipsec/ipsec_setup.py",
         shell=True,
     )
+    context.ipsec_proc.expect("env ready")
+
+    def _cl():
+        context.ipsec_proc.expect(nmci.pexpect.EOF)
+
+    nmci.cleanup.add_callback(_cl, "cleanup-libreswan")
 
 
 _register_tag("libreswan_ng", libreswan_ng_bs, None)
