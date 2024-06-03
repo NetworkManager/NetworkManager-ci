@@ -4,7 +4,7 @@ import time
 print("env setup")
 with IpsecTestEnv() as env:
     print("env ready")
-    time.sleep(3)
+    input()
     print("env cleanup")
 
 print("env exit")

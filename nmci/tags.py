@@ -1381,6 +1381,10 @@ def libreswan_ng_bs(context, scenario):
     context.ipsec_proc.expect("env ready")
 
     def _cl():
+        try:
+            context.ipsec_proc.send("\n")
+        except:
+            pass
         context.ipsec_proc.expect(nmci.pexpect.EOF)
 
     nmci.cleanup.add_callback(_cl, "cleanup-libreswan")
