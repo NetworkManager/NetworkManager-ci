@@ -1348,6 +1348,7 @@ def check_package_version(context, package, version):
         )
         > 0
     ):
+        context.pkg_updated = True
         repo = "brew"
         # sswitch to koji(hub) on Fedora or CentOS stream
         if len(context.rh_release_num) == 1 or context.rh_release_num[1] == 99:

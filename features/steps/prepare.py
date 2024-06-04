@@ -1156,8 +1156,14 @@ def libreswan_ng_setup(context):
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
             """
         )
-    nmci.nmutil.restart_NM_service()
-    nmci.process.run("nmcli general logging level trace domains all,vpn_plugin:trace")
+    # Restart NM only if pkg installed (do we need to?)
+    if getattr(context, "pkg_updated", False):
+        nmci.nmutil.restart_NM_service()
+
+    # This might take some time on secondaries if NM is restarted ^^
+    nmci.process.run(
+        "nmcli general logging level trace domains all,vpn_plugin:trace", timeout=10
+    )
 
     # Clone nmstate project, if not already done
     base = "contrib/ipsec/nmstate"
