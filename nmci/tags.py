@@ -1359,40 +1359,6 @@ def libreswan_update_rightcert_bs(context, scenario):
 _register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
 
 
-def libreswan_ng_bs(context, scenario):
-    base = "contrib/ipsec/nmstate"
-    if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
-        nmci.veth.wait_for_testeth0()
-        nmci.process.run(f"rm -rf {base}")
-        nmci.process.run(
-            "git clone https://github.com/nmstate/nmstate.git",
-            cwd="contrib/ipsec",
-            ignore_stderr=True,
-            timeout=40,
-        )
-        # Mark setup complete
-        nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
-
-    # We need to run this for some time
-    context.ipsec_proc = nmci.pexpect.pexpect_service(
-        f"python3 contrib/ipsec/ipsec_setup.py",
-        shell=True,
-    )
-    context.ipsec_proc.expect("env ready")
-
-    def _cl():
-        try:
-            context.ipsec_proc.send("\n")
-        except:
-            pass
-        context.ipsec_proc.expect(nmci.pexpect.EOF)
-
-    nmci.cleanup.add_callback(_cl, "cleanup-libreswan")
-
-
-_register_tag("libreswan_ng", libreswan_ng_bs, None)
-
-
 def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
@@ -2200,80 +2166,6 @@ def nmstate_setup_as(context, scenario):
 
 
 _register_tag("nmstate_setup", None, nmstate_setup_as)
-
-
-def nmstate_libreswan_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-
-    if context.rh_release_num <= [9, 1]:
-        nmci.cext.skip("These libreswan tests require RHEL9.2+")
-
-    if context.rh_release_num == [9, 2]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
-
-    if context.rh_release_num == [9, 3]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-3.el9_3"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
-
-    if context.rh_release_num == [9, 4]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-3.el9_4"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
-
-    if context.rh_release_num == [9, 5]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
-
-    if context.rh_release_num == [10, 0]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
-            """
-        )
-
-    if context.rh_release_num == [9, 99]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
-
-    if context.rh_release_num == [10, 99]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
-            * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
-            """
-        )
-
-    nmci.nmutil.restart_NM_service()
-    nmci.process.run("nmcli general logging level trace domains all,vpn_plugin:trace")
-
-
-def nmstate_libreswan_as(context, scenario):
-    # Embed NMSTATE logs.
-    nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt", fail_only=True)
-
-
-_register_tag("nmstate_libreswan", nmstate_libreswan_bs, nmstate_libreswan_as)
 
 
 def backup_sysconfig_network_bs(context, scenario):

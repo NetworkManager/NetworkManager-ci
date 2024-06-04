@@ -1,5 +1,4 @@
 from nmstate.tests.integration.testlib.ipsec import IpsecTestEnv
-import time
 
 print("env setup")
 with IpsecTestEnv() as env:

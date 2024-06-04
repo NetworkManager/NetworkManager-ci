@@ -421,9 +421,9 @@
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_leftcert
     Scenario: libreswan - ikev2 - ipv4 - certs
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -438,12 +438,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_psk
     Scenario: libreswan - ikev2 - ipv4 - psk
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -459,12 +458,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.153" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_rsa
     Scenario: libreswan - ikev2 - ipv4 - rsa
+    * Prepare nmstate libreswan environment
     * Note the output of "grep rightrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}' | tr -d '\n'" as value "hosta_rsa"
     * Note the output of "grep leftrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}'| tr -d '\n'" as value "hostb_rsa"
     * Add "vpn" connection named "libreswan" for device "\*" with options
@@ -481,12 +479,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.249 dst 192.0.2.154" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_leftcert_var2
     Scenario: libreswan - ikev2 - ipv4 - certs
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -501,12 +498,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_interface
     Scenario: libreswan - ikev2 - ipv4 - interface
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -522,12 +518,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_dpd_interface
     Scenario: libreswan - ikev2 - dpd
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -544,12 +539,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_p2p_cert
     Scenario: libreswan - ikev2 - p2p
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -561,12 +555,11 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
 
 
-    @nmstate_libreswan @libreswan_ng
     @libreswan_ikev2_ipv4_leftsubnet
     Scenario: libreswan - ikev2 - leftsubnet
+    * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
@@ -578,4 +571,3 @@
     Then "IP4.ADDRESS.*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
     Then "IP4.GATEWAY:.*192.0.2.152" is visible with command "nmcli d show hosta_nic"
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
-    When Wait for libreswan setup cleanup
