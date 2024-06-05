@@ -1354,7 +1354,7 @@ def check_package_version(context, package, version):
         if len(context.rh_release_num) == 1 or context.rh_release_num[1] == 99:
             repo = "koji"
         packages = nmci.process.run_stdout(
-            f"contrib/utils/{repo}_links.sh {package} {version}"
+            f"contrib/utils/{repo}_links.sh {package} {version}", timeout=60
         ).replace("\n", " ")
         if not packages:
             nmci.cext.skip(

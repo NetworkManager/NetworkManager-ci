@@ -1183,7 +1183,7 @@ def libreswan_ng_setup(context):
         f"python3 contrib/ipsec/ipsec_setup.py",
         shell=True,
     )
-    context.ipsec_proc.expect("env ready")
+    context.ipsec_proc.expect("env ready", timeout=60)
 
     def _libreswan_ng_teardown():
         try:
