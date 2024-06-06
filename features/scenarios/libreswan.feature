@@ -20,7 +20,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhbz1292912
@@ -38,7 +38,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhelver+=8
@@ -54,7 +54,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     # https://gitlab.gnome.org/GNOME/NetworkManager-libreswan/-/issues/11
@@ -83,7 +83,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhbz1141947
@@ -101,7 +101,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhbz1349740
@@ -119,7 +119,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhbz1141947
@@ -137,7 +137,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhelver+=8
@@ -207,7 +207,7 @@
     # Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     # Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     # Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    # Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    # Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
     # Then Ping "10.16.40.254"
 
 
@@ -229,7 +229,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @rhbz1060460
@@ -418,7 +418,7 @@
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
     Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
     @libreswan_ikev2_ipv4_leftcert
@@ -436,7 +436,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
 
 
@@ -457,7 +457,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show hosta_nic"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
@@ -478,7 +478,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show hosta_nic"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.154" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.249 dst 192.0.2.154" is visible with command "ip xfrm state"
 
 
@@ -497,7 +497,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
 
 
@@ -518,7 +518,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show ipsec9"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
@@ -539,7 +539,7 @@
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show ipsec10"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
@@ -555,7 +555,7 @@
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.155" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
 
 
@@ -571,5 +571,5 @@
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.157" is visible with command "nmcli c show libreswan"
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
