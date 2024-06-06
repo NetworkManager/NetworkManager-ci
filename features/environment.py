@@ -96,6 +96,19 @@ def _before_scenario(context, scenario):
     _, context.rh_release_num = nmci.misc.distro_detect(
         release_file_content=context.rh_release
     )
+
+    # skip on invalid version - this shuld not happen but is handy when executing multiple tests in single report
+    if (
+        nmci.misc.test_tags_match_version(
+            scenario.tags, nmci.misc.nm_version_detect(), nmci.misc.distro_detect()
+        )
+        is None
+    ):
+        try:
+            nmci.cext.skip("Skipping on this NM/RHEL/Fedora version")
+        except nmci.misc.SkipTestException:
+            pass
+
     context.hypervisor = nmci.process.run_stdout(
         "systemd-detect-virt",
         ignore_returncode=True,
@@ -455,6 +468,8 @@ def _after_scenario(context, scenario):
     )
     nmci.embed.embed_data("STDOUT", stdout)
     nmci.embed.process_embeds()
+    # reset skipeed flag
+    context.cext.scenario_skipped = False
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:
