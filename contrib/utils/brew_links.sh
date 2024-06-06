@@ -37,6 +37,7 @@ get_latest() {
     get_all $1 | sort -V | tail -n 1
 }
 if [ -z "$RH_RELEASE" ]; then
+    RH_RELEASE="$(grep -o 'release [0-9.]*' /etc/redhat-release | sed 's/release //g')"
     release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
 else
     release=$(echo "$RH_RELEASE" | grep -o "^[0-9]*")
@@ -115,8 +116,18 @@ if [ -z "$build" ]; then
     else
         if [ "$provider" == kojihub ]; then
             build=$(get_all $url_base/$package/$ver/ | grep -F ".el$release" | sort -V | tail -n 1)
-        else
-            build=$(get_latest $url_base/$package/$ver/)
+        elif [ "$provider" == brew ]; then
+            # match z-streams
+            all_builds=$(get_all $url_base/$package/$ver/ | grep -F ".el$release")
+            # convert RH_RELEASE=X.Y to .elX_Y
+            rel=$(echo $RH_RELEASE | sed 's/[.]/_/')
+            build=$(echo "$all_builds" | grep -F ".el$rel" | sort -V | tail -n 1)
+            # if we have no matchin z-stream, match only non-z-stream builds
+            if [ -z "$build" ]; then
+                build=$(echo "$all_builds" | grep "el$release$" | sort -V | tail -n 1)
+            fi
+	else
+            build=$(get_all $url_base/$package/$ver/ | grep -F ".fc$release" | sort -V | tail -n 1)
         fi
     fi
 fi
