@@ -36,8 +36,11 @@ get_all() {
 get_latest() {
     get_all $1 | sort -V | tail -n 1
 }
-
-release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
+if [ -z "$RH_RELEASE" ]; then
+    release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
+else
+    release=$(echo "$RH_RELEASE" | grep -o "^[0-9]*")
+fi
 
 if [[ $0 == *"brew"* ]]; then
 
