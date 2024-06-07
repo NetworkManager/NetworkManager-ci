@@ -575,6 +575,7 @@
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
 
 
+    @ver+=1.48
     @libreswan_ikev2_ipv6_p2p_cert
     Scenario: libreswan - ikev2 - ipv6 - p2p
     * Prepare nmstate libreswan environment
@@ -589,4 +590,22 @@
     Then "IP6.ADDRESS[^\n]*2001:db8:f::a/64" is visible with command "nmcli d show hosta_nic"
     Then "VPN.GATEWAY:[^\n]*2001:db8:f::b" is visible with command "nmcli c show libreswan"
     Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
+
+
+    @ver+=1.48
+    @libreswan_ikev2_ipv6_p2p_client_server
+    Scenario: libreswan - ikev2 - ipv6 - client - server
+    * Prepare nmstate libreswan environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = 2001:db8:f::a, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, right = 2001:db8:f::b, rightid = hostb.example.org, rightsubnet = 2001:db8:f::b/128'
+      """
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP6.ADDRESS[^\n]*2001:db8:f::a/64" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*2001:db8:f::b" is visible with command "nmcli c show libreswan"
+    Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
+
 
