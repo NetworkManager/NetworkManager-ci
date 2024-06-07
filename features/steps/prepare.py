@@ -1131,28 +1131,28 @@ def libreswan_ng_setup(context):
     if context.rh_release_num == [9, 5]:
         context.execute_steps(
             f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el9"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
             """
         )
     if context.rh_release_num == [10, 0]:
         context.execute_steps(
             f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el10"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
             """
         )
     if context.rh_release_num == [9, 99]:
         context.execute_steps(
             f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el9"
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el9"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
             """
         )
     if context.rh_release_num == [10, 99]:
         context.execute_steps(
             f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20-1.el10"
+            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el10"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
             """
         )
