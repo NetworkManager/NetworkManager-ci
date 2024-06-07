@@ -2183,6 +2183,9 @@ testmapper:
     - libreswan_ikev2_ipv4_leftsubnet:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv6_p2p_cert:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:
