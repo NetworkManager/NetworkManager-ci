@@ -1994,6 +1994,7 @@ Feature: nmcli - general
     @RHEL-31980
     @ver+=1.46.2
     @ver+=1.47.5
+    @ver/rhel/9/2+=1.42.2.17
     @ver/rhel/9/4+=1.46.0.8
     @ver/rhel/9+=1.47.90
     @checkpoint_remove
