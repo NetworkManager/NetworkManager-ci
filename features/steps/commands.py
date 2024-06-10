@@ -1193,6 +1193,7 @@ def run_nmstate(context, log_file):
     # Create the first part of cmd to execute
     cmd = f"nmstate/automation/run-tests-in-nmci.sh --{release}"
 
+    # Check for stock packages
     rpm_dir = ""
     for path in [
         "/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/",
@@ -1200,17 +1201,55 @@ def run_nmstate(context, log_file):
         "/root/rpms/",
     ]:
         if os.path.exists(path):
+            # Download the latest released NM-libreswan
+            koji = "koji"
+            if "Enterprise" in context.rh_release:
+                koji = "brew"
+            if "CentOS" in context.rh_release:
+                # TODO: what to do here?
+                pass
+            nmci.process.run_stdout(
+                f"wget $(./contrib/utils/{koji}_links.sh NetworkManager-libreswan) -P {path}",
+                ignore_stderr=True,
+                shell=True,
+                timeout=30,
+            )
             rpm_dir = f" --rpm-dir {path}"
             break
+    # Do we have a path?
     if rpm_dir:
         cmd += rpm_dir
+
+    # If not check for copr repos
     elif os.path.exists("/etc/yum.repos.d/nm-copr.repo"):
+        copr_to_add = ""
         with open("/etc/yum.repos.d/nm-copr.repo", "r") as repo:
             for line in repo.readlines():
                 if line.startswith("baseurl"):
                     copr = line.split("/")[-4] + "/" + line.split("/")[-3]
-                    cmd += f" --copr {copr}"
+                    copr_to_add = copr
                     break
+
+        # Download the latest released NM-libreswan
+        dir_name = "/tmp/nm_libre/"
+        nmci.util.directory_remove(dir_name, recursive=True)
+        os.mkdir(dir_name)
+        koji = "koji"
+        if "Enterprise" in context.rh_release:
+            koji = "brew"
+        if "CentOS" in context.rh_release:
+            # TODO: what to do here?
+            pass
+        nmci.process.run_stdout(
+            f"wget $(./contrib/utils/{koji}_links.sh NetworkManager-libreswan|grep -v gnome) -P {dir_name}",
+            ignore_stderr=True,
+            shell=True,
+            timeout=30,
+        )
+        cmd += " --rpm-dir /tmp/nm_libre/"
+        cmd += f" --copr {copr_to_add}"
+
+    # Or check if copr was installed properly
     elif (
         nmci.process.run_code(
             "dnf copr list | grep networkmanager/NetworkManager", shell=True
@@ -1222,8 +1261,27 @@ def run_nmstate(context, log_file):
             "dnf copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
             shell=True,
         ).strip()
+
+        # Download the latest released NM-libreswan
+        dir_name = "/tmp/nm_libre/"
+        nmci.util.directory_remove(dir_name, recursive=True)
+        os.mkdir(dir_name)
+        koji = "koji"
+        if "Enterprise" in context.rh_release:
+            koji = "brew"
+        if "CentOS" in context.rh_release:
+            # TODO: what to do here?
+            pass
+        nmci.process.run_stdout(
+            f"wget $(./contrib/utils/{koji}_links.sh NetworkManager-libreswan|grep -v gnome) -P {dir_name}",
+            ignore_stderr=True,
+            shell=True,
+            timeout=30,
+        )
+        cmd += " --rpm-dir /tmp/nm_libre/"
         cmd += f" --copr {copr}"
-    # Here we have stock packages, let's download them
+
+    # If all above failed, we have stock packages, let's download them
     else:
         dir_name = "/tmp/nm_stock_pkgs/"
         nmci.util.directory_remove(dir_name, recursive=True)
@@ -1234,13 +1292,23 @@ def run_nmstate(context, log_file):
         if "CentOS" in context.rh_release:
             # TODO: what to do here?
             pass
+        # Download stock rpms
         nmci.process.run_stdout(
             f"wget $(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
             ignore_stderr=True,
             shell=True,
             timeout=30,
         )
+        # Download the latest released NM-libreswan
+        nmci.process.run_stdout(
+            f"wget $(./contrib/utils/{koji}_links.sh NetworkManager-libreswan|grep -v gnome) -P {dir_name}",
+            ignore_stderr=True,
+            shell=True,
+            timeout=30,
+        )
+
         cmd += " --rpm-dir /tmp/nm_stock_pkgs/"
+
     # Add all logging to the logfile
     cmd += f" &> {log_file} </dev/null"
 
