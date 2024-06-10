@@ -63,7 +63,7 @@ EOF
         $KOJI/rp-pppoe/4.0/4.fc40/$(arch)/rp-pppoe-4.0-4.fc40.$(arch).rpm"
 
     # Install util-linux deps to avoid RHEL-32647
-    PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40 13.fc40)"
+    PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
     PKGS_INSTALL="$PKGS_INSTALL openvswitch"
 
     # Install vpn dependencies
