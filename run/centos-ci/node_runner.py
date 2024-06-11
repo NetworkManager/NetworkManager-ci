@@ -677,6 +677,21 @@ class Runner:
                     if t:
                         self.skipped_tests.append(t)
 
+    def _fetch_last_main_failures(self):
+        jenkins_url = "https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main-c9s/lastCompletedBuild/artifact/junit.xml"
+        junit_xml = run(f"curl -s {jenkins_url}")
+        import xml.etree.ElementTree as ET
+
+        try:
+            tests = ET.fromstring(junit_xml.stdout)
+        except:
+            return False
+        f = []
+        for t in tests.iter("testcase"):
+            if t.findall(".//failure"):
+                f.append(t.attrib["name"])
+        return f
+
     def _generate_gitlab_message(self):
         machine_lines = [m._gitlab_message for m in self.machines]
         if len(self.machines) > 1:
@@ -697,12 +712,24 @@ class Runner:
             f"Executed on: CentOS {self.release}",
         ]
 
+        main_failures = self._fetch_last_main_failures()
+
         if self.failed_tests:
             message.append(self._collapse("Failed tests:", " ".join(self.failed_tests)))
         if self.skipped_tests:
             message.append(
                 self._collapse("Skipped tests:", " ".join(self.skipped_tests))
             )
+
+        if main_failures == False:
+            last_main_status = "Failed to fetch/parse last junit.xml"
+        elif main_failures == []:
+            last_main_status = "SUCCESS"
+        else:
+            last_main_status = "FAILED: " + " ".join(main_failures)
+        message.append(
+            self._collapse("Last main branch build status:", last_main_status)
+        )
 
         self._gitlab_message = "\n\n".join(message)
         logging.debug("Gitlab Message:\n\n" + self._gitlab_message)
