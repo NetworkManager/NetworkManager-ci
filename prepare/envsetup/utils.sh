@@ -89,7 +89,6 @@ install_plugins_yum () {
 install_plugins_dnf () {
     PKGS_INSTALL="$PKGS_INSTALL \
         NetworkManager-wifi \
-        NetworkManager-team \
         NetworkManager-wwan \
         NetworkManager-tui \
         NetworkManager-cloud-setup \
@@ -99,6 +98,11 @@ install_plugins_dnf () {
         NetworkManager-openvpn \
         NetworkManager-strongswan \
         NetworkManager-libreswan"
+
+    if ! grep -e -q 'release 10' /etc/redhat-release; then
+        PKGS_INSTALL="$PKGS_INSTALL \
+            NetworkManager-team"
+    fi
 }
 
 configure_aarch_wifi () {
