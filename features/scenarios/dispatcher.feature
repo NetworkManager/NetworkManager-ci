@@ -325,6 +325,7 @@ Feature: NM: dispatcher
           search: []
           server: [] ' | nmstatectl apply -
       """
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
       """
       dns-resolver:
@@ -371,6 +372,7 @@ Feature: NM: dispatcher
           search: []
           server: [] ' | nmstatectl apply -
       """
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
       """
       dns-resolver:
