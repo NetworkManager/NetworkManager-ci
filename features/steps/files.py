@@ -36,6 +36,11 @@ def create_config_file(
         nmci.nmutil.do_NM_service(operation)
 
 
+@step('Cleanup NM config file "{cfg}"')
+def cleanup_NM_cfg(context, cfg):
+    nmci.cleanup.add_NM_config(cfg)
+
+
 @step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
 def append_to_file(context, name, line=None):
