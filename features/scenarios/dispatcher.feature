@@ -323,7 +323,7 @@ Feature: NM: dispatcher
       echo 'dns-resolver:
         config:
           search: []
-          server: [] ' | nmstatectl apply -
+          server: [] ' | nmstatectl apply - || true
       """
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
@@ -370,7 +370,7 @@ Feature: NM: dispatcher
       echo 'dns-resolver:
         config:
           search: []
-          server: [] ' | nmstatectl apply -
+          server: [] ' | nmstatectl apply - || true
       """
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
