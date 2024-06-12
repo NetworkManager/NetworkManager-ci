@@ -67,7 +67,8 @@ def _before_scenario(context, scenario):
 
     # set important context attributes
     assert not nmci.cleanup._cleanup_lst
-    assert not context.cext.scenario_skipped
+    # reset scenario skip flag
+    context.cext.scenario_skipped = False
     nmci.util.set_verbose(False)
     # Treat before_scenario() as step
     context.step_level = 1
@@ -294,7 +295,11 @@ def after_step(context, step):
         # handle skip_check_count as last part, only for feature file steps
         if context.skip_check_count == 1:
             if step.status != Status.passed:
-                nmci.cext.skip(f"Skipping because step is {step.status.name}")
+                try:
+                    nmci.cext.skip(f"Skipping because step is {step.status.name}")
+                except nmci.misc.SkipTestException:
+                    pass
+                step.status = Status.skipped
         context.skip_check_count -= 1
     nmci.misc.journal_send(f"Leaving after_step()")
 
@@ -468,8 +473,6 @@ def _after_scenario(context, scenario):
     )
     nmci.embed.embed_data("STDOUT", stdout)
     nmci.embed.process_embeds()
-    # reset skipeed flag
-    context.cext.scenario_skipped = False
 
     # we need to keep state "passed" here, as '@crash' test is expected to fail
     if "crash" in scenario.effective_tags and not nmci.embed.coredump_reported:

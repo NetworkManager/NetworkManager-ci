@@ -12,6 +12,18 @@ Feature: nmcli - general
     * Execute "nmcli --version"
 
 
+    @skip_step_skip
+    Scenario: Skip if next step fail check - SKIP
+    * Skip if next step fails:
+    * Execute "false"
+
+
+    @skip_step_pass
+    Scenario: Skip if next step fail check - PASS
+    * Skip if next step fails:
+    * Execute "true"
+
+
     @last_copr_build_check
     Scenario: Check that latest copr build is not failed
     Given NetworkManager is installed from a copr repo
