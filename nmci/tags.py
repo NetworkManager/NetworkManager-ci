@@ -1376,7 +1376,7 @@ def libreswan_bs(context, scenario):
     swan_ver = context.process.run_stdout("rpm -q --qf '%{version}' libreswan")
     if (
         context.process.run_code(
-            f"""rpm --eval '%%{{lua:
+            f"""rpm --eval '%{{lua:
             if rpm.vercmp(\"{swan_ver}\", \"3.17\") < 0 then
                 error(\"Libreswan too old\");
             end }}'"""
