@@ -605,7 +605,11 @@
         res += "<strong>"
       }
       if (("json://" + build_id) in failure.artifact_urls) {
-        res += '<a target="_blank" href="' + failure.artifact_urls["json://" + build_id] + '">' + build_id + '</a> ';
+        res += '<a target="_blank" href="' + failure.artifact_urls["json://" + build_id] + '" ';
+        if(failure.crash_builds && failure.crash_builds.indexOf(build_id) != -1) {
+          res += "class=\"text-danger\" ";
+        }
+        res += '>' + build_id + '</a> ';
       }
       else {
         res += '<span title="No report">' + build_id + "</span> ";

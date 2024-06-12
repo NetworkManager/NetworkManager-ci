@@ -785,6 +785,7 @@ class Failure:
         # builds tracking will need some changes to support multiple jobs
         self.builds = []
         self.artifact_urls = {}
+        self.crash_builds = []
 
     def add_build(self, build):
         if build not in self.builds:
@@ -792,6 +793,15 @@ class Failure:
 
     def add_artifact(self, build_id, artifact_url):
         self.artifact_urls[build_id] = artifact_url
+        self.check_crash(build_id, artifact_url)
+
+    def check_crash(self, build_id, artifact_url):
+        req = requests.get(artifact_url, verify=False)
+        if req.status_code != 200:
+            return
+        log = req.text
+        if "CRASHED" in log:
+            self.crash_builds.append(build_id)
 
     def post_process(self, build_list):
         if not self.builds:
