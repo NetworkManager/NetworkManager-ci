@@ -99,7 +99,7 @@ install_plugins_dnf () {
         NetworkManager-strongswan \
         NetworkManager-libreswan"
 
-    if ! grep -e -q 'release 10' /etc/redhat-release; then
+    if ! grep -q -e 'release 10' /etc/redhat-release; then
         PKGS_INSTALL="$PKGS_INSTALL \
             NetworkManager-team"
     fi
