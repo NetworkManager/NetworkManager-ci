@@ -321,9 +321,7 @@ Feature: NM: dispatcher
     * Cleanup execute with timeout "15" seconds
       """
       echo 'dns-resolver:
-        config:
-          search: []
-          server: [] ' | nmstatectl apply - || true
+        config: {}' | nmstatectl apply -
       """
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
@@ -368,9 +366,7 @@ Feature: NM: dispatcher
     * Cleanup execute with timeout "15" seconds
       """
       echo 'dns-resolver:
-        config:
-          search: []
-          server: [] ' | nmstatectl apply - || true
+        config: {}' | nmstatectl apply -
       """
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Write file "/tmp/change_global_dns.yaml" with content
