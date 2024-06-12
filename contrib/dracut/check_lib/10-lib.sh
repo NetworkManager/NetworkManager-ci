@@ -46,6 +46,7 @@ clean_root() {
 vm_state() {
   echo "== $1 =="
   ls -l /var/log/
+  lsof /var/log
   [ -f /var/log/vm_state ] || remount_var_log
   echo $1 > /var/log/vm_state
   sync

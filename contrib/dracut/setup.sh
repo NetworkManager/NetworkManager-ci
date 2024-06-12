@@ -66,7 +66,7 @@ test_setup() {
                     dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
                     echo sync rm sed uname lsblk df du free strace head tail \
                     reset loadkeys setfont login sushell sulogin gzip sleep \
-                    modprobe tr
+                    modprobe tr lsof
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break

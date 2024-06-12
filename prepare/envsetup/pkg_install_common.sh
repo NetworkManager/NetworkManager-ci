@@ -8,7 +8,7 @@ install_common_packages () {
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
         iproute-tc iputils iw jq mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 podman psmisc \
         python3-dbus python3-gobject python3-netaddr python3-systemd s390utils-base tcpdump tuned \
-        valgrind wireshark-cli wpa_supplicant"
+        valgrind wireshark-cli wpa_supplicant lsof"
 
     # freeradius cleanup config
     rm -rf /etc/raddb
