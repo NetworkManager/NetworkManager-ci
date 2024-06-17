@@ -575,7 +575,8 @@
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
 
 
-    @ver+=1.48
+    @ver+=1.46
+    @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_cert
     Scenario: libreswan - ikev2 - ipv6 - p2p
     * Prepare nmstate libreswan environment
@@ -592,7 +593,8 @@
     Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
 
 
-    @ver+=1.48
+    @ver+=1.46
+    @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_client_server
     Scenario: libreswan - ikev2 - ipv6 - client - server
     * Prepare nmstate libreswan environment
