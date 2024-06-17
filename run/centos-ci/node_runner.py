@@ -75,6 +75,7 @@ class Machine:
         self.rpms_build_dir = (
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
         )
+        self.commit_needs_rebase = False
 
         self.ssh_options = " ".join(
             [
@@ -317,6 +318,10 @@ class Machine:
                 [f"{self.rpms_build_dir}/{e}.rpm" for e in self.rpm_exclude_list]
             )
             self.ssh(f"rm -rf {excludes}")
+            git_merge_base_command = f"cd  {self.build_dir}/NetworkManager\\; git merge-base --is-ancestor main HEAD"
+            self.commit_needs_rebase = (
+                self.ssh(git_merge_base_command, check=False).returncode != 0
+            )
             self.scp_from(f"{self.rpms_build_dir}/*.rpm", self.rpms_dir)
         return True
 
@@ -712,8 +717,6 @@ class Runner:
             f"Executed on: CentOS {self.release}",
         ]
 
-        main_failures = self._fetch_last_main_failures()
-
         if self.failed_tests:
             message.append(self._collapse("Failed tests:", " ".join(self.failed_tests)))
         if self.skipped_tests:
@@ -721,6 +724,7 @@ class Runner:
                 self._collapse("Skipped tests:", " ".join(self.skipped_tests))
             )
 
+        main_failures = self._fetch_last_main_failures()
         if main_failures == False:
             last_main_status = "Failed to fetch/parse last junit.xml"
         elif main_failures == []:
@@ -730,6 +734,9 @@ class Runner:
         message.append(
             self._collapse("Last main branch build status:", last_main_status)
         )
+
+        if self.build_machine and self.build_machine.commit_needs_rebase:
+            message.append("**Warning:** MR is not rebased!")
 
         self._gitlab_message = "\n\n".join(message)
         logging.debug("Gitlab Message:\n\n" + self._gitlab_message)
