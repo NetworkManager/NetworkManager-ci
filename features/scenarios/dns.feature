@@ -1386,7 +1386,11 @@ Feature: nmcli - dns
     @dns_default @restart_if_needed
     @dns_global
     Scenario: NM - dns global options
-    * Execute "printf '[global-dns]\noptions=timeout:666\n' > /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
+    * Create NM config file "95-nmci-resolv.conf" with content
+      """
+      [global-dns]
+      options=timeout:666
+      """
     * Restart NM
     Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
 

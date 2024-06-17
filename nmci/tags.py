@@ -2738,7 +2738,6 @@ def restore_resolvconf_as(context, scenario):
         )
     context.process.run_stdout("rm -rf /tmp/resolv_orig.conf")
     context.process.run_stdout("rm -rf /tmp/resolv.conf")
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/95-nmci-resolv.conf")
     nmci.nmutil.reload_NM_service()
     nmci.veth.wait_for_testeth0()
 

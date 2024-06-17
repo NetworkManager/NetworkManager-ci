@@ -961,7 +961,11 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           """
     * Bring "up" connection "con_ipv4"
-    * Execute "echo -e '[main]\nrc-manager=symlink' > /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
+    * Create NM config file "95-nmci-resolv.conf" with content
+      """
+      [main]
+      rc-manager=symlink
+      """
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
@@ -990,7 +994,11 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           """
     * Bring "up" connection "con_ipv4"
-    * Execute "echo -e '[main]\nrc-manager=file' > /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
+    * Create NM config file "95-nmci-resolv.conf" with content
+      """
+      [main]
+      rc-manager=file
+      """
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
