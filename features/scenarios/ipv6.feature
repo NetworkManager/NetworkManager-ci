@@ -1539,7 +1539,7 @@
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "ip link set dev testX6 up"
-    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
+    * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd1.conf" without shell
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
@@ -1561,7 +1561,7 @@
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
     * Execute "ip -n testX6_ns link set dev testX6p up"
     * Execute "ip link set dev testX6 up"
-    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --dhcp-range=::,constructor:testX6p,ra-only,64,60 --enable-ra --ra-param=testX6p,60 --no-hosts --pid-file=/tmp/testX6_ns.pid" without shell
+    * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd1.conf" without shell
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
@@ -1571,7 +1571,8 @@
     * Bring "up" connection "con_ipv6"
     * Execute "nmcli d reapply testX6"
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
-    Then "fd01" is visible with command "ip -6 addr show dev testX6" for full "180" seconds
+    Then "fd01" is visible with command "ip -6 addr show dev testX6" for full "50" seconds
+    Then "ff00" is visible with command "ip -6 route show table local dev testX6"
 
 
     @rhbz2082230
