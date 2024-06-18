@@ -162,7 +162,7 @@ def dracut_run(context):
         "rd.debug",
     ]
     kernel_arch_args = {
-        "x86_64": ["console=ttyS0,115200n81"],
+        "x86_64": ["console=ttyS0,115200n81,", "intel_iommu=on"],
     }
     arch = context.arch
     if arch in kernel_arch_args.keys():
