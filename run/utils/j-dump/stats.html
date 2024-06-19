@@ -662,8 +662,8 @@
         if(i) {
           margin = "ms-" + (i+1);
         }
-        running += '<span class="position-absolute top-0 start-100 translate-middle p-2 ' + margin +
-           ' mt-2 bg-warning-semi border border-'+color+' rounded-circle"><span class="visually-hidden">Running</span></span>';
+        running += '<span title="Running ' + num +'x" class="position-absolute top-0 start-100 translate-middle p-2 ' + margin +
+           ' mt-2 bg-warning-semi border border-'+color+' rounded-circle"><span class="visually-hidden">Running ' + num + 'x</span></span>';
       }
     }
     $(btn).attr("href", "#project:"+project.project);
