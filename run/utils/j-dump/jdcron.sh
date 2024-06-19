@@ -106,12 +106,34 @@ index_html_add_entry() {
 	echo '</a></li>' >> $HTML_INDEX_FILE
 }
 
+job_name_2_description() {
+	# Stock vs. build vs. copr
+	if echo "$1" | grep -q -F '.el'; then
+		printf "Stock RPM of "
+	elif echo "$1" | grep -q -F 'main-rhel9'; then
+		printf "Upstream build of "
+	else
+		printf "Upstream copr build of "
+	fi
+	# NM version
+	printf "NetworkManager-"
+	echo -n "$1" | sed 's/\.el.*//;s/-.*//'
+	# Distribution
+	printf " executed on "
+	if echo "$1" | grep -q "c[0-9]*s"; then
+		echo "$1" -n | sed 's/.*-//;s/c/CentOS /;s/s/ stream/'
+	else
+		echo "$1" -n | sed 's/.*-//;s/\([0-9]\)/ \1/;s/rhel/RHEL/;s/fedora/Fedora/;s/rawhide/Fedora Rawhide/'
+	fi
+}
+
 js_add_entry() {
   cat << EOF >> $JS_CONFIG_FILE
   {
     project:"$1",
     name:"$2",
     os:"$3",
+	description:"$(job_name_2_description $2)",
     id:"$id",
   },
 EOF

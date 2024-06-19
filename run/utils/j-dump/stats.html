@@ -667,6 +667,7 @@
       }
     }
     $(btn).attr("href", "#project:"+project.project);
+    $(btn).attr("title", project.description);
     $(btn).append('<strong class="me-auto">' + project.name + "</strong>" + last_stats + running);
     var class_attr = "ms-1 w-100 d-flex align-items-center position-relative py-0 px-1 btn btn-sm project-btn";
     class_attr += " btn-outline-" + color;
