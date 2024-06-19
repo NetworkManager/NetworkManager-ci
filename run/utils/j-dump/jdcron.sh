@@ -174,7 +174,7 @@ process_job() {
 		running="$(grep -o 'RUNNING' ${JOB_FULL_NAME}_builds.html | wc -l)"
 		health="$(grep -v 'RUNNING' ${JOB_FULL_NAME}_builds.html | grep -m 5 '<tr><td>' |grep SUCCESS |wc -l) "
 		index_html_add_entry "$JOB_FULL_NAME" "${job%-upstream}" "$color" "$running" "$health"
-		js_add_entry "$JOB_FULL_NAME" "$(sed 's/fedora-/f/;s/-upstream//' <<< "$job")" "$CI_NICK_LABEL"
+		js_add_entry "$JOB_FULL_NAME" "$(sed 's/fedora-/f/;s/-upstream//;s/-veth//' <<< "$job")" "$CI_NICK_LABEL"
 	done
 	index_html_ci_end
 }
