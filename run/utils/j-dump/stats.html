@@ -153,65 +153,65 @@
     if("tests" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Test</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="time_avg">Time [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg">BS [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_bs_avg">BS Tags [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg">AS [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_as_avg">AS Tags [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the test">Test</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of passed, failed and skipped runs">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="time_avg" title="Total running time in seconds">Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg" title="Total running time of before_scenario in seconds">BS [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_bs_avg" title="Running time of before_scenario tags in seconds">BS Tags [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg" title="Total running time of after_scenario in seconds">AS [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_as_avg" title="Running time of after_scenario tags in seconds">AS Tags [s]</th> \
       </tr> \
       </thead>'));
     }
     else if("tags" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Tag</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_num">BS Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_num">AS Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg">BS Time [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg">AS Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the scenario tag">Tag</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_num" title="Number of before_scenario executions">BS Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_num" title="Number of after_scenario executions">AS Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg" title="Time statistics of before_scenario executions in seconds">BS Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg" title="Time statistics of after_scenario executions in seconds">AS Time [s]</th> \
       </tr> \
       </thead>'));
     }
     else if("steps" in state && "build" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Step decorator</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg">Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Step template as defined in steps file">Step decorator</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of executions">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg" title="Time statistics of executions in seconds">Time [s]</th> \
       </tr> \
       </thead>'));
     }
     else if("steps" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Step decorator</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num_avg">Avg Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg">Time [s]</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Step template as defined in steps file">Step decorator</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of executions">Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num_avg" title="Average number of executions per build">Avg Num</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg" title="Time statistics of executions in seconds">Time [s]</th> \
       </tr> \
       </thead>'));
     }
     else if("build" in state) {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name">Failure</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="last">Last</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="num">Num</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Builds</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the failing test">Failure</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="last" title="Number of passing builds until latest failure">Last</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="num" title="Number of builds with this failure">Num</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" title="List of builds with this failure">Builds</th> \
       </tr> \
       </thead>'));
     }
     else {
       $(table).append($('<thead> \
       <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="id">Build</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="date">Date</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="duration">Duration</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="status">Status</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center">Tests</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left">Links</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="id" title="Jenkins build ID">Build</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="date" title="Start date and time of the build">Date</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="duration" title="Total duration of the build">Duration</th> \
+        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="status" title="Status of the build">Status</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" title="Number of passed, failed and skipped tests">Tests</th> \
+        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" title="Links related with the current build">Links</th> \
       </tr> \
       </thead>'));
     }
