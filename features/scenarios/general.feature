@@ -362,6 +362,54 @@ Feature: nmcli - general
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
+    @RHEL-33435
+    @ver+=1.49.0
+    @delete_testeth0 @restart_if_needed @restore_hostname @reset_etc_hosts @dns_default
+    @pull_hostname_from_hosts_default
+    Scenario: nmcli - general - pull hostname from /etc/hosts - dns=default
+    * Prepare simulated test "testG" device
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Append "172.23.1.2 foobar" to file "/etc/hosts"
+    * Add "ethernet" connection named "con_general" for device "testG" with options
+          """
+          autoconnect no
+          ipv6.method disabled
+          ipv4.method manual
+          ipv4.address 172.23.1.2/28
+          """
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "10" seconds
+    * Bring "up" connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "foobar" is visible with command "hostnamectl --transient" in "10" seconds
+    * Bring "down" connection "con_general"
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" in "10" seconds
+
+
+    @RHEL-33435
+    @ver+=1.49.0
+    @delete_testeth0 @restart_if_needed @restore_hostname @reset_etc_hosts @dns_systemd_resolved
+    @pull_hostname_from_hosts_resolved
+    Scenario: nmcli - general - pull hostname from /etc/hosts - dns=system-resolved
+    * Prepare simulated test "testG" device
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Append "172.23.1.2 foobar" to file "/etc/hosts"
+    * Add "ethernet" connection named "con_general" for device "testG" with options
+          """
+          autoconnect no
+          ipv6.method disabled
+          ipv4.method manual
+          ipv4.address 172.23.1.2/28
+          """
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "10" seconds
+    * Bring "up" connection "con_general"
+    When "ransient" is visible with command "hostnamectl" in "60" seconds
+    Then "foobar" is visible with command "hostnamectl --transient" in "10" seconds
+    * Bring "down" connection "con_general"
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" in "10" seconds
+
+
     @rhbz1405275
     @ver+=1.8.0
     @delete_testeth0 @restore_hostname @restart_if_needed
