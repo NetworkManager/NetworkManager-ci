@@ -691,6 +691,7 @@ def dns_default_bs(context, scenario):
     if context.process.systemctl("is-active systemd-resolved").returncode == 0:
         print("stopping systemd-resolved")
         context.systemd_resolved = True
+        context.process.systemctl("mask systemd-resolved")
         context.process.systemctl("stop systemd-resolved")
         context.process.run_stdout("rm -rf /etc/resolv.conf")
     else:
@@ -706,6 +707,7 @@ def dns_default_as(context, scenario):
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
+        context.process.systemctl("unmask systemd-resolved")
         context.process.systemctl("restart systemd-resolved")
         context.process.run_stdout("rm -rf /etc/resolv.conf")
         context.process.run_stdout(
