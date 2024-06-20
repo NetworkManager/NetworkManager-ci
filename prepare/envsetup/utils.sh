@@ -105,19 +105,6 @@ install_plugins_dnf () {
     fi
 }
 
-configure_aarch_wifi () {
-    if [ "$(arch)" == "aarch64" ]; then
-        dnf -y install iwl*-firmware
-        modprobe -r iwlwifi
-        modprobe iwlwifi
-        systemctl restart wpa_supplicant
-        sleep 1
-        systemctl restart NetworkManager
-        sleep 1
-        nmcli radio wifi on
-    fi
-}
-
 configure_nm_dcb () {
     [ -e /tmp/dcb_configured ] && return
 

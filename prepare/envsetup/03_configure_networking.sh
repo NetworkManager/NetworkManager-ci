@@ -183,17 +183,21 @@ configure_networking () {
         fi
 
         if [ $wlan -eq 1 ]; then
-            # set regulatory domain to CZ
-            # feel free to add more modules
-            for m in {mt7921e,mt7921_common,mt792x_lib,mt76_connac_lib,mt76,mac80211,cfg80211}; do modprobe -r $m; done
-            sleep 1
+            # Set regulatory domain to CZ
+            # Remove modules first
+            for m in {iwlwifi,iwldvm,iwlmvm,mt7921e,mt7921_common,mt792x_lib,mt76_connac_lib,mt76,mac80211,cfg80211};
+                do modprobe -r $m;
+            done
+            # We need some blobs to be installed
+            dnf -y install iwl*-firmware
+
+            # Reload modules
             modprobe cfg80211 ieee80211_regdom=CZ
-            for m in {mt7921e,}; do modprobe $m; done
+            for m in {mt7921e,iwlwifi,iwldvm,iwlmvm};
+                do modprobe $m;
+            done
             systemctl restart wpa_supplicant
             nmcli radio wifi on
-
-            # We need some small magic to get wifi device available on aarch64
-            configure_aarch_wifi
 
             # obtain valid certificates
             mkdir /tmp/certs
