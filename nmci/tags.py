@@ -458,6 +458,13 @@ def connectivity_as(context, scenario):
 _register_tag("connectivity", connectivity_bs, connectivity_as)
 
 
+def reset_etc_hosts_as(context, scenario):
+    context.execute_steps("* Reset /etc/hosts")
+
+
+_register_tag("reset_etc_hosts", None, reset_etc_hosts_as)
+
+
 def unload_kernel_modules_bs(context, scenario):
     if (
         context.process.run_code(
