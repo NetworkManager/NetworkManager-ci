@@ -1643,6 +1643,10 @@ testmapper:
         tags: gate
     - pull_hostname_from_dns:
         feature: general
+    - pull_hostname_from_hosts_default:
+        feature: general
+    - pull_hostname_from_hosts_resolved:
+        feature: general
     - pull_hostname_from_dns_static_ipv6:
         feature: general
     - pull_hostname_from_dns_dynamic_ipv6:
