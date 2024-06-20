@@ -2540,17 +2540,24 @@
           """
     * Bring "up" connection "con_ipv6"
     Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
-    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
-    # Now that we know the stable-privacy address generated, set it also in the namespace
-    # and reactivate to cause a collision; then check that NM generates a different address
-    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
+    * Note the output of "ip -6 a s dev testX6 dynamic mngtmpaddr | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
     * Bring "down" connection "con_ipv6"
+    * Commentary
+          """
+          Now that we know the generated stable-privacy address for testX6 and
+          the `con_ipv6` is down again, we can set it at the namespace end and
+          reactivate `con_ipv6` again to cause a collision; then we can check:
+            * testX6 gets a different privacy address
+            * the now-duplicate address can only show up as either:
+              * `tentative` (undergoing DAD)
+              * `dadfailed`
+              * `deprecated` (being removed)
+          """
     * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
     * Execute "sleep 5"
     * Bring "up" connection "con_ipv6"
-    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
-    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
-    Then Check noted values "ipv6_1" and "ipv6_2" are not the same
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6 -tentative -dadfailed -deprecated" in "5" seconds
+    Then Noted value is not visible with command "ip a show dev testX6 -tentative -dadfailed -deprecated"
 
 
     @rhbz2082685
@@ -2560,7 +2567,6 @@
     Scenario: nmcli - ipv6 - check that DAD is performed for stable-privacy SLAAC addresses
     * Prepare simulated test "testX6" device
     * Set sysctl "net.ipv6.conf.default.use_tempaddr" to "1"
-    * Execute "ip -n testX6_ns link set testX6p addr 00:99:88:77:66:55"
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
           ipv4.method disabled
@@ -2569,19 +2575,27 @@
           """
     * Bring "up" connection "con_ipv6"
     Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
-    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_1"
-    # Now that we know the stable-privacy address generated, set it also in the namespace
-    # and reactivate to cause a collision; then check that NM generates a different address
-    * Execute "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
+    * Note the output of "ip -6 a s dev testX6 dynamic mngtmpaddr | grep -o '[a-f0-9:]*/64' | tee /tmp/ipv6addr.txt"
     * Bring "down" connection "con_ipv6"
+    * Commentary
+          """
+          Now that we know the generated stable-privacy address for testX6 and
+          the `con_ipv6` is down again, we can set it at the namespace end and
+          reactivate `con_ipv6` again to cause a collision; then we can check:
+            * NM reports address conflict in the log
+            * testX6 gets a different privacy address
+            * the now-duplicate address can only show up as either:
+              * `tentative` (undergoing DAD)
+              * `dadfailed`
+              * `deprecated` (being removed)
+          """
     * Execute "ip -n testX6_ns address add dev testX6p $(cat /tmp/ipv6addr.txt)"
     * Execute "sleep 5"
     * Start following journal
     * Bring "up" connection "con_ipv6"
-    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6"
-    * Note the output of "ip -6 a s testX6 | grep 'dynamic mngtmpaddr' | grep '/64' | grep -o '[a-f0-9:]*/64'" as value "ipv6_2"
-    Then Check noted values "ipv6_1" and "ipv6_2" are not the same
-    Then "<info>.*Conflict detected for IPv6 address: 2620:dead:beaf.*" is visible in journal in "1" seconds
+    Then "<info>.*Conflict detected for IPv6 address: 2620:dead:beaf.*" is visible in journal in "3" seconds
+    Then "2620:dead:beaf:.*/64" is visible with command "ip a show dev testX6 -tentative -dadfailed -deprecated" in "3" seconds
+    Then Noted value is not visible with command "ip a show dev testX6 -tentative -dadfailed -deprecated"
 
 
     @rhbz2029636
