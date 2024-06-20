@@ -116,4 +116,14 @@ EOF
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
     sleep 0.5
     systemctl restart systemd-udevd
+
+
+    # HOTFIX
+    # Update to the latest wpa_supplicant on RHEL10
+    if [[ "$(arch)" == "x86_64" ]]; then
+        wget \
+            http://kojihub.stream.rdu2.redhat.com/kojifiles/work/tasks/9690/4249690/wpa_supplicant-2.10-10.el10.x86_64.rpm \
+            -O /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm --no-check-certificate
+        dnf -y update /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm
+    fi
 }
