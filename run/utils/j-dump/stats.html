@@ -262,7 +262,7 @@
         async: true,
         beforeSend: function(xhr) { xhr.overrideMimeType("text/plain; charset=utf-8");},
         error: function(a,b) {
-          queue[project.project]=false; console.log("ajax-fail:", a, b);
+          queue[project.project]=false; console.log("ajax-fail:", url, a, b);
           if(stats.hasOwnProperty(project.project)) {
             delete stats[project.project];
           }
