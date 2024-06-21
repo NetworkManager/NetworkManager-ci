@@ -126,4 +126,8 @@ EOF
             -O /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm --no-check-certificate
         dnf -y update /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm
     fi
+
+    # We need hostapd of the same version as well
+    dnf -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.10/10.fc40/$(arch)/hostapd-2.10-10.fc40.$(arch).rpm
+
 }
