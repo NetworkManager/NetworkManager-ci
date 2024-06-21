@@ -369,6 +369,8 @@
     if (!failures) {
       failures="pass";
     }
+    var distro = "";
+    var branch = "stock";
     // unfortunatelly, jenkins API blocks JS access, we need simple proxy
     $.ajax({
         url: 'jenkins_proxy.cgi?url=' + url + "/api/json",
@@ -381,8 +383,17 @@
             if(params[i].name == "RUN_TESTS") {
               params[i].value = failures;
             }
+            if(params[i].name == "OS") {
+              distro = params[i].value;
+            }
+            if(params[i].name == "UPSTREAM_REFSPEC_ID" && params[i].value) {
+              branch = params[i].value;
+            }
             if(params[i].name == "FEATURES" && url.indexOf("centos") != -1) {
               params[i].value = "tests:" + failures;
+            }
+            if(params[i].name == "VERSION") {
+              params[i].value = "stats - " + distro + " - " + branch;
             }
             if(params[i].name == "RESERVE") {
               params[i].value = "6h";
@@ -450,7 +461,7 @@
         if(build.url.indexOf("centos") == -1) {artifacts += "artifacts/";}
         links.push('<a target="_blank" href="' + build.url + artifacts + '">Artifacts</a>');
         var title = '\"Rebuild failing tests, you may need to adjust RUN_TESTS, FEATURES and RESERVE fields. You may need to allow pop-up windows for this site.\"';
-        links.push("<a href=\"javascript:void(null);\" title=" + title + " onclick=\"rebuild('" + build.url + "','"+ Object.keys(build.failures).join(",") +"')\">Rebuild</a>")
+        links.push("<a href=\"javascript:void(null);\" title=" + title + " onclick=\"rebuild('" + build.url + "','"+ Object.keys(build.failures).join(",") + "')\">Rebuild</a>")
         links.push('<a href="#project:' + project.project + ';build:' + build.id + ';steps">Step Stats</a>');
       }
       if(build.description != "--") {
