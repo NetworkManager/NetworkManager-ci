@@ -600,14 +600,12 @@
     var thead = $('#thead-' + project.id);
     var head_line = $('<th colspan="4" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var build_id = state.build;
-    console.log(build_id)
     if (build_id == "-1") {
       build_id = steps[project.project].last_build_id;
     }
     if(build_id) {
       $(head_line).append($(' <i> #' + build_id + '</i>'));
     }
-    console.log(build_id)
     var btns = get_nav_buttons(project);
     btns = $(btns).wrap('<span style="float:right"></span>').parent();
     $(head_line).append($(btns));
