@@ -353,6 +353,50 @@
     });
   }
 
+  function custom_project_url(baseURL, qs) {
+    var url = "";
+    if (baseURL.indexOf("centos") != -1) {
+      url = baseURL.replace(/\/job\/.*/, "/job/custom/");
+    }
+    else {
+      url = baseURL.replace(/\/job\/.*/, "/job/beaker-NetworkManager-custom-upstream/");
+    }
+    url+="parambuild?" + qs;
+    return url;
+  }
+
+  function rebuild(url, failures) {
+    if (!failures) {
+      failures="pass";
+    }
+    // unfortunatelly, jenkins API blocks JS access, we need simple proxy
+    $.ajax({
+        url: 'jenkins_proxy.cgi?url=' + url + "/api/json",
+        dataType:"json",
+        async: true,
+        success:function (data) {
+          var params = data["actions"][1]["parameters"];
+          var qs= [];
+          for(var i = 0; i<params.length; i++) {
+            if(params[i].name == "RUN_TESTS") {
+              params[i].value = failures;
+            }
+            if(params[i].name == "FEATURES" && url.indexOf("centos") != -1) {
+              params[i].value = "tests:" + failures;
+            }
+            if(params[i].name == "RESERVE") {
+              params[i].value = "6h";
+            }
+            qs.push(params[i].name + "=" + params[i].value);
+          }
+          qs = qs.join("&");
+          newURL = custom_project_url(url, qs);
+          var w = window.open(newURL, "_blank");
+          w.focus();
+        },
+      });
+  }
+
   function show_builds(project) {
     var tbody = $('#tbody-' + project.id);
     var thead = $('#thead-' + project.id);
@@ -405,10 +449,12 @@
         var artifacts = "/artifact/";
         if(build.url.indexOf("centos") == -1) {artifacts += "artifacts/";}
         links.push('<a target="_blank" href="' + build.url + artifacts + '">Artifacts</a>');
+        var title = '\"Rebuild failing tests, you may need to adjust RUN_TESTS, FEATURES and RESERVE fields. You may need to allow pop-up windows for this site.\"';
+        links.push("<a href=\"javascript:void(null);\" title=" + title + " onclick=\"rebuild('" + build.url + "','"+ Object.keys(build.failures).join(",") +"')\">Rebuild</a>")
         links.push('<a href="#project:' + project.project + ';build:' + build.id + ';steps">Step Stats</a>');
       }
       if(build.description != "--") {
-        links.push(build.description);
+          links.push(build.description);
       }
       $(tr).append($('<td>' + links.join(", ") + "</td>"));
       $(tbody).append(tr);
