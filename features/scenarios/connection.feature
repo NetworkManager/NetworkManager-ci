@@ -348,8 +348,8 @@ Feature: nmcli: connection
 
 
     @RHEL-35539
-    @ver+=1.48
-    @ver/rhel/9+=1.48.0.2
+    # Not present in the first RHEL10 NM-1.48.0-1
+    @ver+=1.48.0.2
     @connection_timestamp_nm_stop
     Scenario: nmcli - connection - timestamp saved on NM stop
      * Add "ethernet" connection named "con_con" for device "eth6" with options
