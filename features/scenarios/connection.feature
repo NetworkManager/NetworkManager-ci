@@ -352,10 +352,13 @@ Feature: nmcli: connection
     @ver/rhel/9+=1.48.0.2
     @connection_timestamp_nm_stop
     Scenario: nmcli - connection - timestamp saved on NM stop
-     * Add "ethernet" connection named "con_con" for device "eth6"
-     * Bring "up" connection "con_con"
+     * Add "ethernet" connection named "con_con" for device "eth6" with options
+        """
+        ipv6.method disabled
+        """
+     When "eth6\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_up"
-     * Wait for "5" seconds
+     * Wait for "4" seconds
      * Stop NM
      * Wait for "5" seconds
      # Set interface as unmanaged so the connection is not brought up on restart
@@ -365,10 +368,11 @@ Feature: nmcli: connection
        match-device=interface-name:eth6
        managed=0
        """
+     * Wait for "5" seconds
      * Start NM
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_post"
      Then Check noted value "timestamp_post" difference from "timestamp_up" is "more than" "3"
-     Then Check noted value "timestamp_post" difference from "timestamp_up" is "less than" "7"
+     Then Check noted value "timestamp_post" difference from "timestamp_up" is "less than" "10"
 
 
     @RHEL-35539
