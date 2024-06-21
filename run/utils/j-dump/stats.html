@@ -454,7 +454,17 @@
         links.push('<a href="#project:' + project.project + ';build:' + build.id + ';steps">Step Stats</a>');
       }
       if(build.description != "--") {
+        if(build.status != "RUNNING") {
+          var descr = $.parseHTML(build.description);
+          $(descr).filter("a").each(function (i) {
+            if ($(this).text() === "Instance") {return false;}
+            if ($(this).text() === "VM Console") {return false;}
+            links.push($(this).prop("outerHTML"));
+          });
+        }
+        else {
           links.push(build.description);
+        }
       }
       $(tr).append($('<td>' + links.join(", ") + "</td>"));
       $(tbody).append(tr);
