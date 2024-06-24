@@ -52,8 +52,8 @@ install_fedora_packages () {
             $FEDP/NetworkManager-libreswan-1.2.18-3.5.fc41.x86_64.rpm"
     fi
 
-    # Rawhide (41) wpa_supplicant
-    if grep -iqe "rawhide" /etc/redhat-release; then
+    # F40 and Rawhide (41) wpa_supplicant
+    if grep -iqe "releae 40" -e "rawhide" /etc/redhat-release; then
         PKGS_UPGRADE="$PKGS_UPGRADE \
             $KOJI/wpa_supplicant/2.10/10.fc40/$(arch)/wpa_supplicant-2.10-10.fc40.$(arch).rpm"
     fi
