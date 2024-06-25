@@ -94,6 +94,7 @@ Feature: NM: dispatcher
 
     @rhbz2179537
     @ver+=1.43.5 @ver+=1.42.5 @ver+=1.40.19
+    @ver/rhel/9/2+=1.42.2.19
     @permissive
     @dispatcher_dhcp4_change_on_renewal
     Scenario: NM - dispatcher - check that dhcp4-change is emitted on lease renewal
