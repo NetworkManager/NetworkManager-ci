@@ -1578,6 +1578,63 @@ Feature: nmcli - ovs
     And "192.168.99" is visible with command "ip a show dev br-ex"
 
 
+    @RHEL-31972
+    @openvswitch
+    @ver+=1.48.0.1
+    @ver/rhel/9/2+=1.42.2.18
+    @ver/rhel/9/4+=1.46.0.9
+    @ovs_bridge_is_reactivated_after_rollback
+    Scenario: NM - openvswitch - OVS bridge is reactivated after rollback
+    * Cleanup device "br0"
+    * Prepare simulated test "testX" device
+    * Write file "/tmp/nmstate-initial.yaml" with content
+        """
+        ---
+        interfaces:
+        - name: br0
+          type: ovs-bridge
+          state: up
+          bridge:
+            port:
+            - name: ovs0
+            - name: testX
+              vlan:
+                mode: access
+                tag: 100
+        """
+    * Write file "/tmp/nmstate-modified.yaml" with content
+        """
+        ---
+        interfaces:
+        - name: testX
+          type: ethernet
+          ovs-db:
+            external_ids:
+              gris: testX-if
+        - name: br0
+          type: ovs-bridge
+          state: up
+          ovs-db:
+            external_ids:
+              gris: br0-br
+          bridge:
+            port:
+            - name: ovs0
+            - name: testX
+              vlan:
+                mode: access
+                tag: 101
+        - name: vlan9
+          type: vlan
+        """
+    * Execute "nmstatectl set /tmp/nmstate-initial.yaml"
+    * Wait for "1" seconds
+    * Execute "ovs-vsctl show; nmcli c show; ip -4 a"
+    * Execute "nmstatectl set /tmp/nmstate-modified.yaml --no-commit || true"
+    * Wait for "5" seconds
+    Then Check if "testX" is active connection
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup
