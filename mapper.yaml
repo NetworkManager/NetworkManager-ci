@@ -2128,6 +2128,8 @@ testmapper:
         feature: ovs
     - ovs_vxlan_networking_off_on:
         feature: ovs
+    - ovs_bridge_is_reactivated_after_rollback:
+        feature: ovs
     - ovs_datapath_type_netdev_with_cloned_mac:
         feature: ovs
     - ovs_cloned_mac_set_on_iface_with_udev_file:

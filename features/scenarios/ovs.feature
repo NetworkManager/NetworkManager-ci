@@ -1783,6 +1783,70 @@ Feature: nmcli - ovs
     Then "ovs1" is not visible with command "nmcli d" in "10" seconds
 
 
+    @RHEL-31972
+    @openvswitch
+    @ver+=1.48.0.1
+    @ver/rhel/9/2+=1.42.2.18
+    @ver/rhel/9/4+=1.46.0.9
+    @ovs_bridge_is_reactivated_after_rollback
+    Scenario: NM - openvswitch - OVS bridge is reactivated after rollback
+    * Cleanup device "br0"
+    * Cleanup connection "br0-br"
+    * Cleanup connection "ovs0-if"
+    * Cleanup connection "ovs0-port"
+    * Cleanup connection "ovs-bridge"
+    * Cleanup connection "testX"
+    * Cleanup connection "testX-port"
+    * Cleanup connection "ovs-port"
+    * Cleanup connection "obs-bridge"
+    * Prepare simulated test "testX" device
+    * Write file "/tmp/nmstate-initial.yaml" with content
+        """
+        ---
+        interfaces:
+        - name: br0
+          type: ovs-bridge
+          state: up
+          bridge:
+            port:
+            - name: ovs0
+            - name: testX
+              vlan:
+                mode: access
+                tag: 100
+        """
+    * Write file "/tmp/nmstate-modified.yaml" with content
+        """
+        ---
+        interfaces:
+        - name: testX
+          type: ethernet
+          ovs-db:
+            external_ids:
+              gris: testX-if
+        - name: br0
+          type: ovs-bridge
+          state: up
+          ovs-db:
+            external_ids:
+              gris: br0-br
+          bridge:
+            port:
+            - name: ovs0
+            - name: testX
+              vlan:
+                mode: access
+                tag: 101
+        - name: vlan9
+          type: vlan
+        """
+    * Execute "nmstatectl set /tmp/nmstate-initial.yaml"
+    * Wait for "1" seconds
+    * Execute "ovs-vsctl show; nmcli c show; ip -4 a"
+    * Execute "nmstatectl set /tmp/nmstate-modified.yaml --no-commit || true"
+    Then Check if "testX" is active connection in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup
