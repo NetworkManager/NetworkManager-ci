@@ -599,14 +599,14 @@ def prepare_gsm(context, modem="modemu"):
     )
     subprocess.Popen(
         f"sudo bash {NM_CI_RUNNER_CMD} "
-        f"prepare/gsm_sim.sh {modem} &> /tmp/gsm_sim.log",
+        f"prepare/gsm_sim.sh {modem} | cat &> /tmp/gsm_sim.log",
         shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     modem_found = False
     for i in range(20):
-        out = subprocess.check_output(["mmcli", "-L"], stderr=subprocess.STDOUT).decode(
-            "utf-8"
-        )
+        out = cmd_output_rc("mmcli -L", shell=True)[0]
         if "No modems were found" not in out:
             modem_found = True
             break
@@ -614,11 +614,7 @@ def prepare_gsm(context, modem="modemu"):
     assert modem_found, "No modems were found using `mmcli -L' in 20 seconds"
     modem_found = False
     for i in range(20):
-        out = (
-            subprocess.check_output(["nmcli", "-g", "device", "device"])
-            .decode("utf-8")
-            .split("\n")
-        )
+        out = cmd_output_rc("nmcli -g device device", shell=True)[0].split("\n")
         if f"{modem}_p1" in out:
             modem_found = True
             break
