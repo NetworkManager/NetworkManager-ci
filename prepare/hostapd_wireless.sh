@@ -395,6 +395,7 @@ function stop_nm_hostapd () {
         fi
         systemctl stop nm-hostapd-$i
     done
+    rm -rf /var/run/hostapd*
 }
 
 function check_nm_hostapd () {
