@@ -597,6 +597,7 @@ def prepare_gsm(context, modem="modemu"):
         "sudo semodule -i NMci/contrib/selinux-policy/ModemManager.pp",
         shell=True,
     )
+    # Without redirect to `cat`, bahave output gets broken in GUI components
     subprocess.Popen(
         f"sudo bash {NM_CI_RUNNER_CMD} "
         f"prepare/gsm_sim.sh {modem} | cat &> /tmp/gsm_sim.log",
@@ -660,8 +661,9 @@ def prepare_openvpn(context, version="ip46", path="/tmp/openvpn-"):
     if cmd_output_rc("sudo pkill -HUP openvpn", shell=True)[1] == 0:
         return
 
+    # Without redirect to `cat`, bahave output gets broken in GUI components
     server = subprocess.Popen(
-        "sudo openvpn /tmp/openvpn-running.conf &> /tmp/openvpn.log", shell=True
+        "sudo openvpn /tmp/openvpn-running.conf | cat &> /tmp/openvpn.log", shell=True
     )
     running = False
     try:
