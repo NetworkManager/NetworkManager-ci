@@ -1383,6 +1383,7 @@ Feature: nmcli - dns
     @ver+=1.43.0
     @ver+=1.42.0
     @ver+=1.41.91
+    @ver/rhel/9/2+=1.42.2.20
     @dns_default @restart_if_needed
     @dns_global
     Scenario: NM - dns global options
