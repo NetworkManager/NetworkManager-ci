@@ -4,6 +4,7 @@ if [ "$1" == "-h"  -o "$1" == "--help" ]; then
     cat << EOF
 
 USAGE: $0 [PACKAGE [VERSION [BUILD [ARCH]]]     print links of RPM packages
+       $0 {base url}                            print links of RPM packages from given url
        $0 -i / --interactive                    enter interactive mode
        $0 -h / --help                           print this help
 
@@ -30,7 +31,7 @@ BEGIN { p=0; }
 "
 
 get_all() {
-    curl -L --max-redirs 5 -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
+    curl -L --insecure --max-redirs 5 -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
 }
 
 get_latest() {
@@ -68,6 +69,14 @@ if [ "$1" == "-i"  -o "$1" == "--interactive" ]; then
     echo Interactive mode
     echo
     shift 1
+fi
+
+if [[ "$1" == "https://"* || "$1" == "http://"* ]]; then
+    rpms=$(get_all $1 | grep -F .rpm | grep -v -F 'src.rpm')
+    for rpm in $rpms; do
+        echo $1/$rpm
+    done
+    exit 0
 fi
 
 package=$1
