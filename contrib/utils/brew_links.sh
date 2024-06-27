@@ -96,6 +96,12 @@ if [ -z "$ver" ]; then
         fi
     else
         ver=$(get_latest $url_base/$package/)
+        # try koji, when no version for package found
+        if [ -z "$ver" ]; then
+            url_base="https://kojipkgs.fedoraproject.org/packages"
+            provider=koji
+        fi
+        ver=$(get_latest $url_base/$package/)
     fi
 fi
 build=$3
@@ -126,8 +132,16 @@ if [ -z "$build" ]; then
             if [ -z "$build" ]; then
                 build=$(echo "$all_builds" | grep "el$release$" | sort -V | tail -n 1)
             fi
-	else
-            build=$(get_all $url_base/$package/$ver/ | grep -F ".fc$release" | sort -V | tail -n 1)
+	    fi
+        # If build is empty so far, try koji with matching release
+        if [ -z "$build" ]; then
+            url_base="https://kojipkgs.fedoraproject.org/packages"
+            provider=koji
+            build=$(get_all $url_base/$package/$ver/ | grep -F -e ".fc$release" -e ".el$release" | sort -V | tail -n 1)
+        fi
+        # If no build matched release, provide latest
+        if [ -z "$build" ]; then
+            build=$(get_all $url_base/$package/$ver/ | sort -V | tail -n 1)
         fi
     fi
 fi
