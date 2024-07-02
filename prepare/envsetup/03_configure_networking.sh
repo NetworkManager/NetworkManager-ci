@@ -205,6 +205,18 @@ configure_networking () {
             wget http://tools.lab.eng.brq2.redhat.com:8080/ca.pem -O /tmp/certs/eaptest_ca_cert.pem
             touch /tmp/nm_wifi_configured
         fi
+
+        for i in $(seq 0 10); do
+            dev=eth$i
+            [ ! -d /sys/class/net/$dev ] && continue
+            if ! ethtool --driver $dev 2> /dev/null | grep -q 'driver: virtio_net$'; then
+                continue;
+            fi
+
+            # explicitly set speed/duplex for virtio interfaces so
+            # that 802.3ad bonding works
+            ethtool -s $dev speed 1000 duplex full
+        done
     fi
 
     systemctl stop firewalld
