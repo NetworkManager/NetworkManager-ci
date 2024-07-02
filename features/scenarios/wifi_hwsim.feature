@@ -178,7 +178,7 @@ Feature: nmcli - wifi
     And ifcfg-"migration_wifi" file does not exist
 
 
-    @ver+=1.33 @rhelver+=8
+    @ver+=1.33 @rhelver+=8 @rhelver-10
     @simwifi @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_pkcs11_saved_pw
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11 - saved PIN
@@ -189,7 +189,7 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
-    @ver+=1.33 @rhelver+=8
+    @ver+=1.33 @rhelver+=8 @rhelver-10
     @simwifi @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_pkcs11_pwfile
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11
@@ -201,7 +201,7 @@ Feature: nmcli - wifi
     Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @ver+=1.33 @rhelver+=8
+    @ver+=1.33 @rhelver+=8 @rhelver-10
     @simwifi @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_pkcs11_nmcli_ask
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11
@@ -218,7 +218,7 @@ Feature: nmcli - wifi
     Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @ver+=1.33 @rhelver+=8
+    @ver+=1.33 @rhelver+=8 @rhelver-10
     @simwifi @pkcs11 @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_pkcs11_pw_in_uri_flag_nr
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11
