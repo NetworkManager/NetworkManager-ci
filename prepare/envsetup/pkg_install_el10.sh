@@ -105,6 +105,15 @@ EOF
         $KOJI/scsi-target-utils/1.0.79/9.fc40/$(arch)/scsi-target-utils-1.0.79-9.fc40.$(arch).rpm \
         $KOJI/perl-Config-General/2.65/8.fc40/noarch/perl-Config-General-2.65-8.fc40.noarch.rpm"
 
+    # Wireless (wpa_supplicant and hostapd)
+    # force install older version (if not in repo)
+    PKGS_INSTALL="$PKGS_INSTALL \
+        $BREW/rhel-10/packages/wpa_supplicant/2.10/11.el10/x86_64/wpa_supplicant-2.10-11.el10.x86_64.rpm \
+        $BREW/rhel-10/packages/hostapd/2.10/11.el10/$(arch)/hostapd-2.10-11.el10.$(arch).rpm"
+
+    # upgrade (if newer pkg in repo)
+    PKGS_UPGRADE="$PKGS_UPGRADE hostapd wpa_supplicant"
+
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
@@ -116,18 +125,4 @@ EOF
     echo -e "[Match]\nOriginalName=*\n[Link]\nMACAddressPolicy=none" > /etc/systemd/network/00-NM.link
     sleep 0.5
     systemctl restart systemd-udevd
-
-
-    # HOTFIX
-    # Update to the latest wpa_supplicant on RHEL10
-    if [[ "$(arch)" == "x86_64" ]]; then
-        wget \
-            http://kojihub.stream.rdu2.redhat.com/kojifiles/work/tasks/9690/4249690/wpa_supplicant-2.10-10.el10.x86_64.rpm \
-            -O /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm --no-check-certificate
-        dnf -y update /tmp/wpa_supplicant-2.10-10.el10.x86_64.rpm
-    fi
-
-    # We need hostapd of the same version as well
-    dnf -y install https://kojipkgs.fedoraproject.org//packages/hostapd/2.10/10.fc40/$(arch)/hostapd-2.10-10.fc40.$(arch).rpm
-
 }
