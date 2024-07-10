@@ -27,7 +27,7 @@ Feature: nmcli - wifi
     Given "wep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Cleanup connection "wep"
     * Spawn "nmcli -a device wifi connect wep" command
-    * Expect "Password:"
+    * Expect "Password"
     * Submit "abcde"
     Then "\*\s+wep" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "45" seconds
     Then "wep" is visible with command "iw dev wlan0 link"
@@ -151,7 +151,7 @@ Feature: nmcli - wifi
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Cleanup connection "wpa2-eap"
     * Spawn "nmcli -a device wifi connect wpa2-eap" command
-    * Expect "Password:"
+    * Expect "Password"
     * Submit "secret123"
     Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "45" seconds
     Then "wpa2-eap" is visible with command "iw dev wlan0 link"
