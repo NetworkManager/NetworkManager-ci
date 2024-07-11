@@ -433,9 +433,14 @@ def add_bridges_vlans_range(context, begin, end, ifname):
 
 
 @step('Cleanup connection "{connection}"')
+@step('Cleanup connection "{connection}" with priority "{priority}"')
 @step('Cleanup connection "{connection}" and device "{device}"')
-def cleanup_connection(context, connection, device=None):
-    nmci.cleanup.add_connection(connection)
+def cleanup_connection(context, connection, device=None, priority=None):
+    if priority is None:
+        priority = nmci.cleanup.Cleanup.PRIORITY_CONNECTION
+    else:
+        priority = int(priority)
+    nmci.cleanup.add_connection(connection, priority=priority)
     if device is not None:
         context.execute_steps(f'* Cleanup device "{device}"')
 

@@ -1605,6 +1605,50 @@ Feature: nmcli - general
      And "2620" is not visible with command "ip a s testG" in "20" seconds
 
 
+    @RHEL-43583 @RHEL-43720
+    @ifcfg-rh
+    @rhelver-=9
+    @ver-
+    @ver/rhel/9+=1.48.2.2
+    @ver/rhel/9/4+=1.46.0.4
+    @need_dispatcher_scripts
+    @policy_based_routing_with_dispatcher_scripts
+    Scenario: NM - general - check that ifcfg route and rule files are applied when ipcalc is installed
+    When "ipcalc" is visible with command "rpm -qR NetworkManager-dispatcher-routing-rules"
+    * Prepare simulated test "testG" device
+    * Commentary
+    """
+      Remove connection testG before PRIORITY_TAG, which removes NM-dispatcher-scripts.
+      This is to prevent ip rule leftovers (not cleaned with dispatcher scripts missing).
+    """
+    * Cleanup connection "testG" with priority "0"
+    * Cleanup execute "ip rule flush table 994"
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-testG"
+    """
+      DEVICE=testG
+      NAME=testG
+      ONBOOT=yes
+      BOOTPROTO=static
+      IPADDR=192.168.102.5
+      NETMASK=255.255.255.0
+      GATEWAY=192.168.102.1
+    """
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/route-testG"
+    """
+      ADDRESS0=11.12.0.0
+      NETMASK0=255.255.0.0
+      GATEWAY0=192.168.102.4
+    """
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/rule-testG"
+    """
+      from 192.168.102.0/24 table 994
+    """
+    * Reload connections
+    Then "192.168.102.5" is visible with command "ip a s dev testG"
+    Then "11.12.0.0/16 via 192.168.102.4" is visible with command "ip route s dev testG"
+    Then "from 192.168.102.0/24 lookup 994" is visible with command "ip rule"
+
+
     @rhbz1262972
     @ifcfg-rh @backup_sysconfig_network
     @nmcli_general_dhcp_profiles_general_gateway

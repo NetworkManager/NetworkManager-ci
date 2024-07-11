@@ -992,7 +992,6 @@ def need_dispatcher_scripts_bs(context, scenario):
                 ignore_stderr=True,
             )
         else:
-            nmci.veth.wait_for_testeth0()
             print("install NetworkManager-config-routing-rules")
             context.process.run_stdout(
                 "yum -y install NetworkManager-config-routing-rules",
