@@ -2162,7 +2162,7 @@ def nmstate_setup_as(context, scenario):
     context.process.nmcli_force("con del cni-podman0")
     context.process.nmcli_force("dev del cni-podman0")
     # Embed NMSTATE logs.
-    nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt", fail_only=True)
+    nmci.embed.embed_file_if_exists("NMSTATE", "/tmp/nmstate.txt")
 
 
 _register_tag("nmstate_setup", None, nmstate_setup_as)

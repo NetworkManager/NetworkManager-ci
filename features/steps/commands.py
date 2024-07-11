@@ -1251,7 +1251,7 @@ def run_nmstate(context, log_file):
         cmd,
         ignore_stderr=True,
         shell=True,
-        timeout=1800,
+        timeout=2000,
     )
 
 
