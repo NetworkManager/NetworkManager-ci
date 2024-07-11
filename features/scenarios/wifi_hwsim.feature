@@ -159,7 +159,7 @@ Feature: nmcli - wifi
 
     @rhbz2059608
     @ver+=1.38.0
-    @simwifi
+    @ifcfg-rh @simwifi
     @simwifi_migrate_to_keyfile
     Scenario: nmcli - connection - migrate connection from ifcfg-file to keyfile
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "90" seconds
