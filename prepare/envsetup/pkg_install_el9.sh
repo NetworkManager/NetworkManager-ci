@@ -42,9 +42,9 @@ install_el9_packages () {
         $BREW/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm"
 
     PKGS_INSTALL="$PKGS_INSTALL \
-        $KOJI/openvpn/2.5.6/1.el9/$(arch)/openvpn-2.5.6-1.el9.$(arch).rpm \
+        $KOJI/openvpn/2.5.9/2.el9/$(arch)/openvpn-2.5.9-2.el9.$(arch).rpm \
         $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
-        $KOJI/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-1.10.2-1.el9.$(arch).rpm"
+        $KOJI/NetworkManager-openvpn/1.12.0/1.el9/$(arch)/NetworkManager-openvpn-1.12.0-1.el9.$(arch).rpm"
 
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm \

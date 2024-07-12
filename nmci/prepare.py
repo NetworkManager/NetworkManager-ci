@@ -64,11 +64,9 @@ def setup_openvpn(context, tags):
     :return: OpenVPN server process
     :rtype: pexpect.spawn
     """
-    nmci.process.run_stdout(
-        "chcon -R system_u:object_r:usr_t:s0 contrib/openvpn/sample-keys/"
-    )
     path = "%s/contrib/openvpn" % os.getcwd()
     samples = glob.glob(os.path.abspath(path))[0]
+    nmci.process.run_stdout(f"chcon -R system_u:object_r:usr_t:s0 {samples}")
     conf = [
         "# OpenVPN configuration for client testing",
         "mode server",
@@ -99,6 +97,18 @@ def setup_openvpn(context, tags):
             # 'ifconfig-ipv6-pool 2001:db8:666:dead::/64',
             'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"',
         ]
+    if "oath" in tags:
+        context.ovpn_key = nmci.process.run_stdout(
+            "head -10 /dev/urandom | sha256sum | cut -b 1-30", shell=True
+        ).strip("\n")
+        conf += [
+            "management 127.0.0.1 7505",
+            "management-client-auth",
+            "verb 5",
+            "script-security 2",
+            f"auth-user-pass-verify {samples}/oath.sh via-file",
+            "verify-client-cert none",
+        ]
     nmci.util.file_set_content("/etc/openvpn/trest-server.conf", conf)
     time.sleep(1)
     ovpn_proc = context.pexpect_service(
@@ -109,6 +119,12 @@ def setup_openvpn(context, tags):
         timeout=20,
     )
     assert res == 0, "OpenVPN Server did not come up in 20 seconds"
+
+    if "oath" in tags:
+        context.ovpn_mgmt = context.pexpect_service("telnet 127.0.0.1 7505")
+        # enable logging of commands in management console
+        context.ovpn_mgmt.send("log on all\n")
+
     return ovpn_proc
 
 

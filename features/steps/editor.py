@@ -31,6 +31,28 @@ def send_com_via_editor(context, commands, connection):
     context.command_output(final)
 
 
+@step("Deny client by challenge-response")
+def deny_client_challenge(context):
+    # Client must be first accepted by contrib/openvpn/oath.sh by correct user:password
+    context.ovpn_mgmt.expect("CLIENT:CONNECT,.,.")
+    cid, kid = context.ovpn_mgmt.after.split(",")[-2:]
+    # send deny challenge-response with "Enter PIN" prompt
+    context.ovpn_mgmt.send(
+        f'client-deny {cid} {kid} "enter pin" "CRV1:R,E:Om01u7Fh4LrGBS7uh0SWmzwabUiGiW6l:dHJlc3RAcmVkaGF0:Enter PIN"\n'
+    )
+    context.ovpn_mgmt.expect("SUCCESS: client-deny command succeeded")
+
+
+@step("Auth client")
+def deny_client_challenge(context):
+    # Client must be first accepted by contrib/openvpn/oath.sh by correct user:challenge-response
+    context.ovpn_mgmt.expect("CLIENT:CONNECT,.,.")
+    cid, kid = context.ovpn_mgmt.after.split(",")[-2:]
+    # send deny challenge-response with "Enter PIN" prompt
+    context.ovpn_mgmt.send(f"client-auth {cid} {kid}\nEND\n")
+    context.ovpn_mgmt.expect("SUCCESS: client-auth command succeeded")
+
+
 @step('Send "{what}" in editor')
 def send_sth_in_editor(context, what):
     context.prompt.send(what)

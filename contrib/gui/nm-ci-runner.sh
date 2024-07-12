@@ -11,12 +11,12 @@ shift 1
 nm_openvpn_gnome() {
   if grep -q 'release 10' in /etc/redhat-release; then
     dnf -y install \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/6.fc40/$(arch)/NetworkManager-openvpn-1.10.2-6.fc40.$(arch).rpm \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/6.fc40/$(arch)/NetworkManager-openvpn-gnome-1.10.2-6.fc40.$(arch).rpm
+      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-1.12.0-1.fc40.$(arch).rpm \
+      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-gnome-1.12.0-1.fc40.$(arch).rpm
   elif grep -q 'release 9' in /etc/redhat-release; then
     dnf -y install \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-1.10.2-1.el9.$(arch).rpm \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-gnome-1.10.2-1.el9.$(arch).rpm
+      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.el9/$(arch)/NetworkManager-openvpn-1.12.0-1.el9.$(arch).rpm \
+      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.el9/$(arch)/NetworkManager-openvpn-gnome-1.12.0-1.el9.$(arch).rpm
   elif grep -q 'release 8' in /etc/redhat-release; then
     dnf -y install \
       https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/$(arch)/NetworkManager-openvpn-1.8.10-1.fc30.$(arch).rpm \
