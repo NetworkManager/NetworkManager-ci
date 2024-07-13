@@ -37,6 +37,9 @@ def deny_client_challenge(context):
     context.ovpn_mgmt.expect("CLIENT:CONNECT,.,.")
     cid, kid = context.ovpn_mgmt.after.split(",")[-2:]
     # send deny challenge-response with "Enter PIN" prompt
+    # as described in https://github.com/OpenVPN/openvpn/blob/master/doc/management-notes.txt
+    # first base64 hash is secret to be returned in the response
+    # dHJlc3RAcmVkaGF0 is base64 encoding of username "trest@redhat"
     context.ovpn_mgmt.send(
         f'client-deny {cid} {kid} "enter pin" "CRV1:R,E:Om01u7Fh4LrGBS7uh0SWmzwabUiGiW6l:dHJlc3RAcmVkaGF0:Enter PIN"\n'
     )

@@ -2266,6 +2266,8 @@ testmapper:
         feature: openvpn
     - openvpn_2fa:
         feature: openvpn
+    - openvpn_2fa_save_password:
+        feature: openvpn
     - vpnc_add_profile:
         feature: vpnc
         tags: gate
