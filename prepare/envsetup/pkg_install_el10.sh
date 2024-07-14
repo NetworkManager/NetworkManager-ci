@@ -66,11 +66,12 @@ EOF
     PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
     PKGS_INSTALL="$PKGS_INSTALL openvswitch"
 
-    # Install vpn dependencies
+    # Install vpn dependencies - we need NM-openvpn-gnome for 2FA tests
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/openvpn/2.6.9/1.fc40/$(arch)/openvpn-2.6.9-1.fc40.$(arch).rpm \
         $KOJI/pkcs11-helper/1.30.0/1.fc40/$(arch)/pkcs11-helper-1.30.0-1.fc40.$(arch).rpm \
-        $KOJI/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-1.12.0-1.fc40.$(arch).rpm"
+        $KOJI/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-1.12.0-1.fc40.$(arch).rpm \
+        $KOJI/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-gnome-1.12.0-1.fc40.$(arch).rpm"
 
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/trousers/0.3.15/10.fc40/$(arch)/trousers-lib-0.3.15-10.fc40.$(arch).rpm \

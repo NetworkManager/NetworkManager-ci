@@ -41,10 +41,22 @@ install_el9_packages () {
     PKGS_UPGRADE="$PKGS_UPGRADE \
         $BREW/rhel-9/packages/NetworkManager-libreswan/1.2.14/1.el9/$(arch)/NetworkManager-libreswan-1.2.14-1.el9.$(arch).rpm"
 
+    # OpenVPN dependencies - we install NM-openvpn-gnome for 2FA tests
+    # Also, NM plugin 1.12.0 requires NM>=1.46.0, so we need to stick to 1.10 for now on RHEL<9.4
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/openvpn/2.5.9/2.el9/$(arch)/openvpn-2.5.9-2.el9.$(arch).rpm \
-        $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm \
-        $KOJI/NetworkManager-openvpn/1.12.0/1.el9/$(arch)/NetworkManager-openvpn-1.12.0-1.el9.$(arch).rpm"
+        $KOJI/pkcs11-helper/1.27.0/2.fc34/$(arch)/pkcs11-helper-1.27.0-2.fc34.$(arch).rpm"
+    if rpm --eval "%{lua:print(rpm.vercmp('$(NetworkManager --version)', '1.46.0-11'))}" | grep -q '^1$'; then
+        PKGS_INSTALL="$PKGS_INSTALL \
+            $KOJI/NetworkManager-openvpn/1.12.0/2.el9/$(arch)/NetworkManager-openvpn-1.12.0-2.el9.$(arch).rpm \
+            $KOJI/NetworkManager-openvpn/1.12.0/2.el9/$(arch)/NetworkManager-openvpn-gnome-1.12.0-2.el9.$(arch).rpm"
+    else
+        # We need older plugin for older NM
+        PKGS_INSTALL="$PKGS_INSTALL \
+            $KOJI/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-1.10.2-1.el9.$(arch).rpm \
+            $KOJI/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-gnome-1.10.2-1.el9.$(arch).rpm"
+
+    fi
 
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/trousers/0.3.15/2.fc34/$(arch)/trousers-lib-0.3.15-2.fc34.$(arch).rpm \
