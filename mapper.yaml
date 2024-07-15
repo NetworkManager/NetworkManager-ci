@@ -64,7 +64,9 @@ beaker-hardware:
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
-            hostname: wifi2-ml5-vm1.tpb.lab.eng.brq.redhat.com
+            # Some issues with Mediatek device on RHEL10
+            #hostname: wifi2-ml5-vm1.tpb.lab.eng.brq.redhat.com
+            hostname: wifi1-ml5-vm2.tpb.lab.eng.brq.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-qe-40.rdma.lab.eng.rdu2.redhat.com
