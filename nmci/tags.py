@@ -668,6 +668,8 @@ def dns_dnsmasq_as(context, scenario):
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
+        # sometimes systemd-resolved gets to masked state, try to help it...
+        context.process.systemctl("unmask systemd-resolved")
         context.process.systemctl("restart systemd-resolved")
         context.process.run_stdout("rm -rf /etc/resolv.conf")
         context.process.run_stdout(
