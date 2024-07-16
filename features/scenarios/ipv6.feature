@@ -2743,3 +2743,24 @@
           """
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
+
+
+    @rhbz2284122
+    @RHEL-39518
+    @scapy
+    @ipv6_ndp_ipv6_route_information_buffer_overflow
+    Scenario: NM - ipv6 - verify correct processing of v6 route information in NDP
+    * Cleanup device "veth0"
+    * Execute "ip link add veth0 type veth peer name veth1"
+    * Execute "ip link set dev veth1 up"
+    * Add "ethernet" connection named "con_veth0" for device "veth0"
+    * Execute "ip link set dev veth0 up"
+    * Run child "nmcli c up con_veth0"
+    * Execute reproducer "repro_2284122.py"
+    * Wait for "1" seconds
+    * Execute reproducer "repro_2284122.py"
+    Then "dead" is visible with command "ip a s veth0" in "5" seconds
+    * Commentary
+        """
+        On a system with unfixed libndp, NM should be crashed by now
+        """

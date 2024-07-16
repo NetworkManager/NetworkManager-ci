@@ -874,6 +874,9 @@ testmapper:
     - ipv6_allow_static_routes_without_address:
         feature: ipv6
         tags: gate libndp
+    - ipv6_ndp_ipv6_route_information_buffer_overflow:
+        feature: ipv6
+        tags: gate libndp
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
