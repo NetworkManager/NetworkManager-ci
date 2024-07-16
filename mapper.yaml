@@ -18,6 +18,7 @@ component:
           - x86_64
   test-run: run/runtest.sh $testname
   covers:
+      - libndp
       - jimtcl
       - libmbim
       - libqmi
@@ -630,22 +631,22 @@ testmapper:
         feature: ipv6
     - ipv6_accept_ra_handling:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_limited_router_solicitation:
         feature: ipv6
     - solicitation_period_prolonging:
         feature: ipv6
     - ipv6_routes_with_src:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_route_set_route_with_tables:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_route_set_route_with_tables_reapply:
         feature: ipv6
     - ipv6_correct_slaac_setting:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_take_manually_created_keyfile:
         feature: ipv6
     - ipv6_method_static_without_IP:
@@ -666,21 +667,21 @@ testmapper:
         feature: ipv6
     - ipv6_addresses_set_several_IPv6s_with_masks_and_gws:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_addresses_delete_IP_moving_method_back_to_auto:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_routes_set_basic_route:
         feature: ipv6
     - ipv6_route_set_route_with_options:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_routes_remove_basic_route:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_routes_device_route:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_routes_invalid_IP:
         feature: ipv6
     - ipv6_routes_without_gw:
@@ -693,7 +694,7 @@ testmapper:
         feature: ipv6
     - ipv6_dns_ignore-auto-dns_with_manually_set_dns:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_dns_add_more_when_already_have_some:
         feature: ipv6
     - ipv6_dns_remove_manually_set:
@@ -706,25 +707,25 @@ testmapper:
         feature: ipv6
     - ipv6_method_link-local:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_method_ignored:
         feature: ipv6
     - ipv6_method_disabled:
         feature: ipv6
     - ipv6_may_fail_set_true:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_never-default_set_true:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_never-default_remove:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_dhcp-hostname_set:
         feature: ipv6
     - ipv6_dhcp-hostname_remove:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_send_fqdn.fqdn_to_dhcpv6:
         feature: ipv6
     - ipv6_DHCPv6:
@@ -761,15 +762,15 @@ testmapper:
         feature: ipv6
     - ipv6_set_ra_announced_mtu:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - nm-online_wait_for_ipv6_to_finish:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_shared_connection_error:
         feature: ipv6
     - ipv6_shared_connection:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_tunnel_module_removal:
         feature: ipv6
     - ipv6_no_activation_schedule_error_in_logs:
@@ -778,18 +779,18 @@ testmapper:
         feature: ipv6
     - persistent_default_ipv6_gw:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - persistent_ipv6_routes:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_honor_ip_order:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_keep_static_address_after_reapply:
         feature: ipv6
     - ipv6_keep_route_upon_reapply:
         feature: ipv6
-        tags: gate
+        tags: gate libndp
     - ipv6_keep_route_upon_reapply_full:
         feature: ipv6
     - ipv6_no_extra_temp_addresses:
@@ -858,6 +859,7 @@ testmapper:
         feature: ipv6
     - ipv6_set_addr-gen_mode_global_config:
         feature: ipv6
+        tags: gate libndp
     - ipv6_stable_privacy_dad:
         feature: ipv6
     - ipv6_mptcp_no_flags:
@@ -872,6 +874,7 @@ testmapper:
         feature: ipv6
     - ipv6_allow_static_routes_without_address:
         feature: ipv6
+        tags: gate libndp
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
