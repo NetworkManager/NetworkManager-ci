@@ -29,7 +29,8 @@ dry=0
 shift
 
 echo "The following tests are going to be executed:"
-python3 -m nmci mapper_feature "$feature" "$testmapper" name | \
+tests="$(python3 -m nmci mapper_feature "$feature" "$testmapper" name)"
+echo "$tests" | \
   nl --number-width=4 --starting-line-number=0 --number-format=rz --number-separator=" "
 
 if [ "$dry" == 1 ]; then
@@ -37,14 +38,6 @@ if [ "$dry" == 1 ]; then
   exit 0
 fi
 
-CMDS="$(python3 -m nmci mapper_feature "$feature" "$testmapper" bash)"
-R=$?
-
-if [ -z "$CMDS" -o "$R" != 0 ]; then
-  echo "No tests matched."
-  exit 1
-fi
-
 prepare/envsetup.sh setup first_test_setup
 set -x
-eval "$CMDS"
+run/runtests.sh $tests
