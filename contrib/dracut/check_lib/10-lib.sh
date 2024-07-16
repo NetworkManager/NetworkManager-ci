@@ -53,9 +53,11 @@ vm_state() {
 }
 
 remount_var_log() {
+  systemctl stop systemd-journald
   echo "Warning: remounting log, something bad happened!"
   umount /var/log || true
   mount $DEV_LOG /var/log
+  systemctl start systemd-journald
 }
 
 core_pattern_setup() {
