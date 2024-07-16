@@ -104,7 +104,7 @@ test_setup() {
       cp -a /etc/ld.so.conf* $initdir/etc
       ldconfig -r "$initdir"
       echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
-      echo "$DEV_LOG /var/log/ ext4 defaults 1 1" >> $initdir/etc/fstab
+      echo "$DEV_LOG /var/log/ ext4 x-systemd.before=systemd-journald.service,defaults 1 1" >> $initdir/etc/fstab
 
 
       rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
