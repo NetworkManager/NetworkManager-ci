@@ -364,6 +364,7 @@ Feature: nmcli - general
 
     @RHEL-33435
     @ver+=1.49.0
+    @ver/rhel/9+=1.48.4.1
     @delete_testeth0 @restart_if_needed @restore_hostname @reset_etc_hosts @dns_default
     @pull_hostname_from_hosts_default
     Scenario: nmcli - general - pull hostname from /etc/hosts - dns=default
@@ -388,6 +389,7 @@ Feature: nmcli - general
 
     @RHEL-33435
     @ver+=1.49.0
+    @ver/rhel/9+=1.48.4.1
     @delete_testeth0 @restart_if_needed @restore_hostname @reset_etc_hosts @dns_systemd_resolved
     @pull_hostname_from_hosts_resolved
     Scenario: nmcli - general - pull hostname from /etc/hosts - dns=system-resolved
