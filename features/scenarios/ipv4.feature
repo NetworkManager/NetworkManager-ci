@@ -1379,6 +1379,42 @@ Feature: nmcli: ipv4
           """
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
+    @ver+=1.51.1
+    @ipv4_link-local_fallback_static
+    Scenario: nmcli - ipv4 - link-local=fallback
+    * Add "dummy" connection named "con_ipv4" for device "dummy0" with options
+          """
+          ipv4.link-local fallback
+          ipv4.dhcp-timeout infinity
+          """
+    Then "169.254" is visible with command "ip a s dummy0" in "10" seconds
+    * Delete connection "con_ipv4"
+    * Add "dummy" connection named "con_ipv4" for device "dummy0" with options
+          """
+          ipv4.link-local fallback
+          ipv4.addresses 10.1.1.1/32
+          ipv6.method ignore
+          """
+    When "10.1.1.1" is visible with command "ip a s dummy0" in "10" seconds
+    Then "169.254" is not visible with command "ip a s dummy0" in "10" seconds
+
+    @ver+=1.51.1
+    @ipv4_link-local_fallback_dhcp
+    Scenario: nmcli - ipv4 - link-local=fallback + dhcp
+    * Prepare simulated test "testX4" device
+    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.link-local fallback
+          ipv4.dhcp-timeout infinity
+          """
+    Then "169.254" is visible with command "ip a s testX4" in "10" seconds
+    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    Then "169.254" is not visible with command "ip a s testX4" in "10" seconds
+    * Execute "ip netns exec testX4_ns kill -SIGSTOP $(cat /tmp/testX4_ns.pid)"
+    Then "169.254" is visible with command "ip a s testX4" in "130" seconds
+    * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    Then "169.254" is not visible with command "ip a s testX4" in "10" seconds
 
     @ver+=1.11.3 @rhelver+=8
     @tcpdump

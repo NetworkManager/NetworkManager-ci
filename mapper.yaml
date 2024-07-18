@@ -1018,6 +1018,10 @@ testmapper:
         feature: ipv4
     - ipv4_method_link-local:
         feature: ipv4
+    - ipv4_link-local_fallback_static:
+        feature: ipv4
+    - ipv4_link-local_fallback_dhcp:
+        feature: ipv4
     - ipv4_dhcp_client_id_set:
         feature: ipv4
         tags: gate
