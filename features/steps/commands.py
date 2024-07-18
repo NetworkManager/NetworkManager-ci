@@ -1333,7 +1333,54 @@ def skip_if(context):
 
 
 @step('Ensure that version of "{package}" package is at least "{version}"')
-def check_package_version(context, package, version):
+@step(
+    'Ensure that version of "{package}" package is at least "{version}" on "{distro}"'
+)
+def check_package_version(context, package, version, distro=None):
+    if distro is not None:
+        distro = distro.lower().replace("-", "")
+        if distro.startswith("rhel"):
+            if "Enterprise Linux" not in context.rh_release:
+                nmci.embed.embed_data(
+                    "Not upgrading",
+                    f"Distro mismatch, not on {distro}:\n{context.rh_release}",
+                )
+                return
+            d_ver = [int(x) for x in distro.replace("rhel", "").split(".")]
+        elif distro.startswith("c"):
+            if "Enterprise Linux" not in context.rh_release:
+                nmci.embed.embed_data(
+                    "Not upgrading",
+                    f"Distro mismatch, not on {distro}:\n{context.rh_release}",
+                )
+                return
+            d_ver = [
+                int(
+                    distro.replace("centos", "")
+                    .replace("c", "")
+                    .replace("stream", "")
+                    .replace("s", "")
+                ),
+                99,
+            ]
+        elif distro in ["fedora", "rawhide"]:
+            if "Fedora" not in context.rh_release:
+                nmci.embed.embed_data(
+                    "Not upgrading",
+                    f"Distro mismatch, not on {distro}:\n{context.rh_release}",
+                )
+                return
+            d_ver = []
+        else:
+            assert False, f"Unsupported distribution: {distro}."
+        for v1, v2 in zip(d_ver, context.rh_release_num):
+            if v1 != v2:
+                nmci.embed.embed_data(
+                    "Not upgrading",
+                    f"Distro version mismatch, not on {distro}:\n{context.rh_release}",
+                )
+                return
+
     # if version was passed as '1.27.4-1.el9', replace '-' with ' '
     if "-" in version:
         version = version.replace("-", " ")
