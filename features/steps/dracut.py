@@ -39,8 +39,19 @@ def handle_timeout(proc, timeout, boot_log_proc=None):
         )
         # debug shell, wait until machine gets down, ignore timeout
         if message == 2:
-            print("debug shell detected, waiting for machine to finish, no timeout")
-            boot_log_proc.expect(["Power down", pexpect.EOF], timeout=None)
+            nmci.process.run("rm -rf /tmp/dracut_input")
+            nmci.process.run("mkfifo /tmp/dracut_input")
+            print("debug shell detected, reading /tmp/dracut_input")
+            running = True
+            while running:
+                with open("/tmp/dracut_input", "r") as dracut_in:
+                    line = True
+                    while line:
+                        line = dracut_in.readline()
+                        proc.send(line)
+                        if line and "poweroff" in line:
+                            running = False
+                            break
 
         now_booted = message == 0
         if first_half and now_booted:

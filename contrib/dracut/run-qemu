@@ -102,7 +102,7 @@ echo -kernel $VMLINUZ
 i=0
 while (( i++ < REP)); do
   date1=$(date '+%s')
-  $BIN "${ARGS[@]}" -kernel $VMLINUZ < /dev/null > /tmp/dracut_boot.log; rc=$?
+  $BIN "${ARGS[@]}" -kernel $VMLINUZ > /tmp/dracut_boot.log; rc=$?
   date2=$(date '+%s')
 
   # if qemu-kvm lasted at least 5s, finish

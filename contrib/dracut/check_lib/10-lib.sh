@@ -47,7 +47,7 @@ vm_state() {
   echo "== $1 =="
   ls -l /var/log/
   lsof /var/log
-  [ -f /var/log/vm_state ] || die "Unable to read vm_state"
+  [ -f /var/log/vm_state ] || ( echo "[FAIL] unable to read vm_state"; poweroff -f )
   echo $1 > /var/log/vm_state
   sync
 }
@@ -195,11 +195,9 @@ nm_debug() {
 
 debug_shell() {
   echo "== DEBUG SHELL =="
-  while true; do
-    [ -f /shell_cmd ] && ( bash -x < /shell_cmd; rm -f /shell_cmd )
-    [ -f /shell_exit ] && break
-    sleep 0.5
+  echo 'Connect by `./contrib/dracut/debug_shell.sh`'
+  echo 'Exit shell by `pkill sleep` or `poweroff`'
+  while sleep 100; do
+    true
   done
-  rm -f /shell_cmd
-  rm -f /shell_exit
 }

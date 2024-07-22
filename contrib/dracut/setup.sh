@@ -66,7 +66,7 @@ test_setup() {
                     dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
                     echo sync rm sed uname lsblk df du free strace head tail \
                     reset loadkeys setfont login sushell sulogin gzip sleep \
-                    modprobe tr lsof
+                    modprobe tr lsof kill pkill
 
       for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
           [ -f ${_terminfodir}/l/linux ] && break
@@ -274,7 +274,7 @@ EOF
       # enable trace logs
       inst /etc/NetworkManager/conf.d/95-nmci-test.conf
 
-      for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd -e ^dbus | grep -v -F '.build-id' |sort); do
+      for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd -e ^dbus -e ^pam | grep -v -F '.build-id' |sort); do
         rpm -ql $_rpm | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
       done
 
