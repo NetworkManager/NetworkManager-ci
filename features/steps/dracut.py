@@ -155,6 +155,7 @@ def prepare_dracut(context, checks):
         "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
         "echo NOBOOT > $TESTDIR/client_log/var/log/vm_state; "
         "mkdir $TESTDIR/client_log/var/log/journal/; "
+        "sync; "
     )
     with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n")
