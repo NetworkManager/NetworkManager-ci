@@ -2764,6 +2764,7 @@
     * Add "ethernet" connection named "con_veth0" for device "veth0"
     * Execute "ip link set dev veth0 up"
     * Run child "nmcli c up con_veth0"
+    * Wait for "1" seconds
     * Execute reproducer "repro_2284122.py"
     * Wait for "1" seconds
     * Execute reproducer "repro_2284122.py"
