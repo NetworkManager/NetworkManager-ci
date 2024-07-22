@@ -104,11 +104,13 @@ test_setup() {
       cp -a /etc/ld.so.conf* $initdir/etc
       ldconfig -r "$initdir"
       echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
-      echo "$DEV_LOG /var/log/ ext4 x-systemd.before=systemd-journald.service,defaults 1 1" >> $initdir/etc/fstab
+      echo "$DEV_LOG /var/log/ ext4 x-initrd.mount,defaults 1 1" >> $initdir/etc/fstab
 
 
       rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
       rpm -ql teamd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
+
+      $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l /usr/bin/date
 
       inst_simple ./conf/check_core_dumps.sh /check_core_dumps
       inst_simple ./conf/core_pattern_setup.sh /core_pattern_setup
@@ -169,14 +171,6 @@ test_setup() {
 
       # setup the testsuite target
       mkdir -p $initdir/etc/systemd/system
-      cat >$initdir/etc/systemd/system/testsuite.target <<EOF
-[Unit]
-Description=Testsuite target
-Requires=network-online.target
-After=network-online.target
-Conflicts=rescue.target
-AllowIsolate=yes
-EOF
 
       inst ./conf/client-init.sh /sbin/test-init
 
@@ -185,22 +179,21 @@ EOF
 [Unit]
 Description=Testsuite service
 After=network-online.target
+Wants=import-state.service
+Wants=NetworkManager.service
+Wants=systemd-hostnamed.service
 
 [Service]
 ExecStart=/sbin/test-init
 Type=oneshot
 StandardOutput=journal+console
 StandardError=journal+console
-EOF
-      mkdir -p $initdir/etc/systemd/system/testsuite.target.wants
-      ln -fs ../testsuite.service $initdir/etc/systemd/system/testsuite.target.wants/testsuite.service
-      # start NetworkManager before testsuite
-      ln -fs /usr/lib/systemd/system/NetworkManager.service $initdir/etc/systemd/system/testsuite.target.wants/NetworkManager.service
-      # import-state before testsuite
-      ln -fs /usr/lib/systemd/system/import-state.service $initdir/etc/systemd/system/testsuite.target.wants/import-state.service
 
-      # make the testsuite the default target
-      ln -fs testsuite.target $initdir/etc/systemd/system/default.target
+[Install]
+RequiredBy=multi-user.target
+EOF
+
+      systemctl --root "$initdir" enable testsuite.service
 
       # install libnss_files for login
       inst_libdir_file "libnss_files*"

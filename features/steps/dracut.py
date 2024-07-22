@@ -33,12 +33,16 @@ def handle_timeout(proc, timeout, boot_log_proc=None):
             return True
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
-        now_booted = (
-            boot_log_proc.expect(
-                ["== BOOT ==", "Power down", pexpect.TIMEOUT], timeout=20
-            )
-            == 0
+        message = boot_log_proc.expect(
+            ["== BOOT ==", "Power down", "== DEBUG SHELL ==", pexpect.TIMEOUT],
+            timeout=20,
         )
+        # debug shell, wait until machine gets down, ignore timeout
+        if message == 2:
+            print("debug shell detected, waiting for machine to finish, no timeout")
+            boot_log_proc.expect(["Power down", pexpect.EOF], timeout=None)
+
+        now_booted = message == 0
         if first_half and now_booted:
             print(f"VM boot detected in {t.elapsed_time():.3f}s")
             break
@@ -210,7 +214,7 @@ def dracut_run(context):
             "$TESTDIR/" + initrd,
         ],
         cwd="./contrib/dracut/",
-        timeout=p_timeout,
+        timeout=None,
     )
     if not handle_timeout(proc, p_timeout):
         proc.kill(15)

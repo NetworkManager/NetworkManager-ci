@@ -47,7 +47,7 @@ vm_state() {
   echo "== $1 =="
   ls -l /var/log/
   lsof /var/log
-  [ -f /var/log/vm_state ] || remount_var_log
+  [ -f /var/log/vm_state ] || die "Unable to read vm_state"
   echo $1 > /var/log/vm_state
   sync
 }
@@ -190,4 +190,16 @@ nm_debug() {
     NetworkManager --print-config | grep -q "Debug log enabled" || \
         die "Debug loglevel not set: $(echo; NetworkManager --print-config)"
     echo "[OK] Debug logs enabled in NetworkManager"
+}
+
+
+debug_shell() {
+  echo "== DEBUG SHELL =="
+  while true; do
+    [ -f /shell_cmd ] && ( bash -x < /shell_cmd; rm -f /shell_cmd )
+    [ -f /shell_exit ] && break
+    sleep 0.5
+  done
+  rm -f /shell_cmd
+  rm -f /shell_exit
 }
