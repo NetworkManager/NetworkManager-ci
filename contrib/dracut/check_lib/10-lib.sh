@@ -46,19 +46,11 @@ clean_root() {
 vm_state() {
   echo "== $1 =="
   ls -l /var/log/
-  lsof /var/log
   [ -f /var/log/vm_state ] || ( echo "[FAIL] unable to read vm_state"; poweroff -f )
   echo $1 > /var/log/vm_state
   sync
 }
 
-remount_var_log() {
-  systemctl stop systemd-journald
-  echo "Warning: remounting log, something bad happened!"
-  umount /var/log || true
-  mount $DEV_LOG /var/log
-  systemctl start systemd-journald
-}
 
 core_pattern_setup() {
   # mount to /var/log which is local FS (mounted disk) to prevent deadlock
