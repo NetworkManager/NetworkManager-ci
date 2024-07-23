@@ -2750,6 +2750,8 @@
     @scapy
     @ipv6_ndp_ipv6_route_information_buffer_overflow
     Scenario: NM - ipv6 - verify correct processing of v6 route information in NDP
+    * Ensure that version of "libndp" package is at least "1.9-1.el10" on "rhel10.0"	    
+    * Ensure that version of "libndp" package is at least "1.9-1.el9" on "rhel9.5"
     * Ensure that version of "libndp" package is at least "1.8-6.el9_4" on "rhel9.4"
     * Ensure that version of "libndp" package is at least "1.8-5.el9_2" on "rhel9.2"
     * Ensure that version of "libndp" package is at least "1.8-5.el9_0" on "rhel9.0"
