@@ -8,7 +8,7 @@ die() {
 die_cmd() {
   echo "[FAIL] $@"
   vm_state FAIL
-  /check_core_dumps
+  check_core_dumps
   echo "== dump state after fail =="
   ip_list
   nmcli_list
@@ -45,10 +45,6 @@ clean_root() {
 
 vm_state() {
   echo "== $1 =="
-  ls -l /var/log/
-  [ -f /var/log/vm_state ] || ( echo "[FAIL] unable to read vm_state"; poweroff -f )
-  echo $1 > /var/log/vm_state
-  sync
 }
 
 

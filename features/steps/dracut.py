@@ -14,7 +14,7 @@ REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
-def handle_timeout(proc, timeout, boot_log_proc=None):
+def handle_timeout(context, proc, timeout, boot_log_proc=None):
     t = nmci.util.start_timeout(timeout=timeout / 2)
     now_booted = False
     last_before = None
@@ -34,26 +34,26 @@ def handle_timeout(proc, timeout, boot_log_proc=None):
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
         message = boot_log_proc.expect(
-            ["== BOOT ==", "Power down", "== DEBUG SHELL ==", pexpect.TIMEOUT],
+            [
+                "== BOOT ==",
+                "== PASS ==",
+                "== FAIL ==",
+                "== DEBUG SHELL ==",
+                "Power down",
+                pexpect.TIMEOUT,
+            ],
             timeout=20,
         )
-        # debug shell, wait until machine gets down, ignore timeout
-        if message == 2:
-            nmci.process.run("rm -rf /tmp/dracut_input")
-            nmci.process.run("mkfifo /tmp/dracut_input")
-            print("debug shell detected, reading /tmp/dracut_input")
-            running = True
-            while running:
-                with open("/tmp/dracut_input", "r") as dracut_in:
-                    line = True
-                    while line:
-                        line = dracut_in.readline()
-                        proc.send(line)
-                        if line and "poweroff" in line:
-                            running = False
-                            break
-
-        now_booted = message == 0
+        if message == 0:
+            now_booted = True
+            context.dracut_vm_state = "BOOT"
+        elif message == 1:
+            context.dracut_vm_state = "PASS"
+        elif message == 2:
+            context.dracut_vm_state = "FAIL"
+        elif message == 3:
+            # debug shell, create pipefile for stdin, redirect by lines
+            debug_shell(proc)
         if first_half and now_booted:
             print(f"VM boot detected in {t.elapsed_time():.3f}s")
             break
@@ -68,9 +68,25 @@ def handle_timeout(proc, timeout, boot_log_proc=None):
                 f"VM did not start the testsuite in half of the timeout ({timeout/2}s)"
             )
             return False
-        return handle_timeout(proc, timeout, boot_log_proc)
+        return handle_timeout(context, proc, timeout, boot_log_proc)
     else:
         return False
+
+
+def debug_shell(proc):
+    nmci.process.run("rm -rf /tmp/dracut_input")
+    nmci.process.run("mkfifo /tmp/dracut_input")
+    print("debug shell detected, reading /tmp/dracut_input")
+    running = True
+    while running:
+        with open("/tmp/dracut_input", "r") as dracut_in:
+            line = True
+            while line:
+                line = dracut_in.readline()
+                proc.send(line)
+                if line and "poweroff" in line:
+                    running = False
+                    break
 
 
 def embed_dracut_logs(context):
@@ -78,11 +94,6 @@ def embed_dracut_logs(context):
         "cd contrib/dracut/; . ./setup.sh; "
         "mount $DEV_DUMPS $TESTDIR/client_dumps; "
         "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
-    )
-
-    context.dracut_vm_state = nmci.process.run_stdout(
-        "cd contrib/dracut; . ./setup.sh; cat $TESTDIR/client_log/var/log/vm_state",
-        shell=True,
     )
 
     nmci.embed.embed_file_if_exists(
@@ -152,16 +163,12 @@ def prepare_dracut(context, checks):
         "mount $DEV_CHECK $TESTDIR/client_check/; "
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; "
-        "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
-        "echo NOBOOT > $TESTDIR/client_log/var/log/vm_state; "
-        "mkdir $TESTDIR/client_log/var/log/journal/; "
-        "sync; "
     )
     with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n")
         f.write("\n".join(checks))
         f.write("}\n")
-    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK; umount $DEV_LOG;")
+    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK;")
 
 
 @step("Run dracut test")
@@ -216,6 +223,8 @@ def dracut_run(context):
     else:
         p_timeout = int(timeout)
 
+    context.dracut_vm_state = "NOBOOT"
+
     proc = context.pexpect_spawn(
         os.getcwd() + "/contrib/dracut/run-qemu",
         [
@@ -228,7 +237,7 @@ def dracut_run(context):
         cwd="./contrib/dracut/",
         timeout=None,
     )
-    if not handle_timeout(proc, p_timeout):
+    if not handle_timeout(context, proc, p_timeout):
         proc.kill(15)
     res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=5)
     rc = proc.exitstatus

@@ -405,7 +405,9 @@ EOF
 test_clean() {
   stop_qemu
   kill_server
-  umount $TESTDIR/client_check
+  umount $DEV_LOG 2>&1
+  umount $DEV_DUMPS 2>&1
+  umount $DEV_CHECK 2>&1
   for file in \
     $TESTDIR/client_log.img \
     $TESTDIR/client_check.img \
@@ -585,26 +587,30 @@ network_setup() {
   nmcli con add autoconnect "no" type "vlan"   con-name "vlan33_1.33" ifname "vlan33_1.33" ipv4.addresses "192.168.55.34/29" ipv4.method "manual" ipv6.method "disabled" id "33" dev "vlan33_1"
 
   # up all connections
-  nmcli con up id slow6
-  nmcli con up id nfs
-  nmcli con up id nfs_ip6
-  nmcli con up id iscsi0
-  nmcli con up id iscsi1
-  nmcli con up id bond0
-  nmcli con up id bond0.13
-  nmcli con up id bond1
-  nmcli con up id bond1.17
-  nmcli con up id bond0_0
-  nmcli con up id bond0_1
-  nmcli con up id bond1_0
-  nmcli con up id bond1_1
-  nmcli con up id vlan
-  nmcli con up id vlan.5
-  nmcli con up id vlan.9
-  nmcli con up id vlan33_0
-  nmcli con up id vlan33_1
-  nmcli con up id vlan33_0.33
-  nmcli con up id vlan33_1.33
+  for conn in \
+      slow6 \
+      nfs \
+      nfs_ip6 \
+      iscsi0 \
+      iscsi1 \
+      bond0 \
+      bond0.13 \
+      bond1 \
+      bond1.17 \
+      bond0_0 \
+      bond0_1 \
+      bond1_0 \
+      bond1_1 \
+      vlan \
+      vlan.5 \
+      vlan.9 \
+      vlan33_0 \
+      vlan33_1 \
+      vlan33_0.33 \
+      vlan33_1.33
+    do
+      nmcli con up $conn
+  done
 
   # there is packet loss (and NFS not working) if bond is not in promisc mode
   ip link set bond0 promisc on
@@ -636,24 +642,28 @@ network_clean() {
      vlan33_1
 
   # delete bridges left by NM
-  ip link del slow6
-  ip link del nfs
-  ip link del nfs_ip6
-  ip link del iscsi0
-  ip link del iscsi1
-  ip link del bond0
-  ip link del bond0.13
-  ip link del bond1
-  ip link del bond1.17
-  ip link del bond0_0
-  ip link del bond0_1
-  ip link del bond1_0
-  ip link del bond1_1
-  ip link del vlan
-  ip link del vlan.5
-  ip link del vlan.9
-  ip link del vlan33_0
-  ip link del vlan33_1
-  ip link del vlan33_0.33
-  ip link del vlan33_1.33
+  for bridge in \
+      slow6 \
+      nfs \
+      nfs_ip6 \
+      iscsi0 \
+      iscsi1 \
+      bond0 \
+      bond0.13 \
+      bond1 \
+      bond1.17 \
+      bond0_0 \
+      bond0_1 \
+      bond1_0 \
+      bond1_1 \
+      vlan \
+      vlan.5 \
+      vlan.9 \
+      vlan33_0 \
+      vlan33_1 \
+      vlan33_0.33 \
+      vlan33_1.33
+    do
+      ip link del $bridge
+  done
 }
