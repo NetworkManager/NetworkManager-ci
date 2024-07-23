@@ -1348,7 +1348,7 @@ def check_package_version(context, package, version, distro=None):
                 return
             d_ver = [int(x) for x in distro.replace("rhel", "").split(".")]
         elif distro.startswith("c"):
-            if "Enterprise Linux" not in context.rh_release:
+            if "CentOS Stream" not in context.rh_release:
                 nmci.embed.embed_data(
                     "Not upgrading",
                     f"Distro mismatch, not on {distro}:\n{context.rh_release}",
