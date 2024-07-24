@@ -572,13 +572,13 @@ _register_tag("scapy", scapy_bs, scapy_as)
 
 def mock_bs(context, scenario):
     # TODO move to envsetup
+    print("installing dbus-x11, pip, and python-dbusmock==0.32.1 dataclasses")
     if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
-        print("installing dbus-x11, pip, and python-dbusmock==0.26.1 dataclasses")
         context.process.run_stdout(
             "yum -y install dbus-x11", timeout=120, ignore_stderr=True
         )
     context.process.run_stdout(
-        "python3 -m pip install python-dbusmock==0.26.1 dataclasses",
+        "python3 -m pip install python-dbusmock==0.32.1 dataclasses",
         ignore_stderr=True,
         timeout=120,
     )
