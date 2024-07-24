@@ -27,16 +27,21 @@ AWK_SCR="
 BEGIN { p=0; }
 /a href/ { if (p) print \$0; }
 /Parent Directory/ { p=1; }
+/\.\./ { p=1; }
 /Locations hidden/ { p=0; }
 "
 
+# properly escaped string: '"
+QUOT="'"'"'
+
 get_all() {
-    curl -L --insecure --max-redirs 5 -s "$1" | awk "$AWK_SCR" | sed 's/.*a href="\([^"]*\)".*/\1/;s@/*$@@'
+    curl -L --insecure --max-redirs 5 -s "$1" |sed 's/<tr>/\n/g' | awk "$AWK_SCR" | sed "s/.*a href=[$QUOT]\([^$QUOT]*\)[$QUOT].*/\1/;s@/*\$@@"
 }
 
 get_latest() {
     get_all $1 | sort -V | tail -n 1
 }
+
 if [ -z "$RH_RELEASE" ]; then
     RH_RELEASE="$(grep -o 'release [0-9.]*' /etc/redhat-release | sed 's/release //g')"
     release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
