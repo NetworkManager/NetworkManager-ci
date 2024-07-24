@@ -49,8 +49,9 @@ EOF
 
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
-        ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
-        python3-pyyaml rpm-build sos wireguard-tools systemd-resolved dbus-tools"
+        ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate \
+        python3-pyyaml rpm-build sos wireguard-tools systemd-resolved dbus-tools \
+        dbus-daemon"
 
     # Install non distro deps
     # TODO install from epel once epel-10 is live
