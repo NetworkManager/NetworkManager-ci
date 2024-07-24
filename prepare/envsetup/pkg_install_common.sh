@@ -8,7 +8,7 @@ install_common_packages () {
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
         iproute-tc iputils iw jq mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 podman psmisc \
         python3-dbus python3-gobject python3-netaddr python3-systemd s390utils-base tcpdump tuned \
-        valgrind wireshark-cli wpa_supplicant lsof telnet"
+        valgrind wireshark-cli wpa_supplicant lsof telnet dbus-x11"
 
     # freeradius cleanup config
     rm -rf /etc/raddb
@@ -78,5 +78,6 @@ install_common_packages () {
     python -m pip install pexpect
     python -m pip install pyte
     python -m pip install IPy
+    python -m pip install python-dbusmock
     python -m pip install psutil
 }

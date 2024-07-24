@@ -983,7 +983,6 @@ Feature: nmcli - general
 
 
     @ver+=1.5
-    @mock
     @nmcli_device_wifi_with_two_devices
     Scenario: nmcli - device - wifi show two devices
     * Execute "cd contrib/dbus; python3 -m unittest dbusmock-unittest.TestNetworkManager.test_two_wifi_with_accesspoints"
@@ -1169,7 +1168,6 @@ Feature: nmcli - general
 
 
     @rhbz1170199
-    @IPy
     @nmcli_general_dbus_set_gateway
     Scenario: nmcli - general - dbus api gateway setting
     * Cleanup connection "con_general"
@@ -3553,7 +3551,6 @@ Feature: nmcli - general
     @rhbz2186212
     @ver-1.43.3
     @ver+=1.43.8
-    @mock
     @eth0
     @suspend_wakeup
     Scenario: Suspend and wakeup test
@@ -3578,7 +3575,6 @@ Feature: nmcli - general
 
     @rhbz2173196
     @ver+=1.44
-    @mock
     @nmcli_version_warning
     Scenario: nmcli - warn at nmcli/running daemon version mismatches
     Then "nmcli .+ and NetworkManager .+ versions don't match. Restarting NetworkManager is advised." is not visible with command "nmcli 2>&1 >/dev/null"
