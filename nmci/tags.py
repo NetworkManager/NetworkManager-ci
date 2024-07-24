@@ -582,10 +582,6 @@ def mock_bs(context, scenario):
         ignore_stderr=True,
         timeout=120,
     )
-    # TODO: check why patch does not apply
-    context.process.run(
-        "./contrib/dbusmock/patch-python-dbusmock.sh", ignore_stderr=True
-    )
 
 
 _register_tag("mock", mock_bs)
