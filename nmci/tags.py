@@ -570,43 +570,6 @@ def scapy_as(context, scenario):
 _register_tag("scapy", scapy_bs, scapy_as)
 
 
-def mock_bs(context, scenario):
-    # TODO move to envsetup
-    print("installing dbus-x11, pip, and python-dbusmock==0.32.1 dataclasses")
-    if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
-        context.process.run_stdout(
-            "yum -y install dbus-x11", timeout=120, ignore_stderr=True
-        )
-    context.process.run_stdout(
-        "python3 -m pip install python-dbusmock==0.32.1 dataclasses",
-        ignore_stderr=True,
-        timeout=120,
-    )
-
-
-_register_tag("mock", mock_bs)
-
-
-def IPy_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    # TODO move to envsetup
-    if context.process.run_code("rpm -q --quiet dbus-x11") != 0:
-        print("installing dbus-x11")
-        context.process.run_stdout(
-            "yum -y install dbus-x11", timeout=120, ignore_stderr=True
-        )
-    if not context.process.run_search_stdout(
-        "python -m pip list", "IPy", timeout=10, ignore_stderr=True
-    ):
-        print("installing IPy")
-        context.process.run_stdout(
-            "python -m pip install IPy", ignore_stderr=True, timeout=120
-        )
-
-
-_register_tag("IPy", IPy_bs)
-
-
 def netaddr_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     # TODO move to envsetup
