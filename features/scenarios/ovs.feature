@@ -871,6 +871,105 @@ Feature: nmcli - ovs
     When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
 
 
+
+    @rhelver+=8
+    @permissive @openvswitch
+    @ovs_cloned_mac_set_on_iface_with_udev_file
+    Scenario: nmcli - openvswitch - mac address set iface when udev
+    * Commentary
+        """
+             !! DO NOT IGNORE RANDOM FAILURES WITH THIS TEST !!
+        We need to see this test always passing. It's failing very rarely.
+        To fully reproduce the issue this test needs something from 2 to
+        99 executions. We consider 100 repetitions as stable.
+        to run the test:
+        test=ovs_cloned_mac_set_on_iface_with_udev_file
+        a=0; while ./test_run.sh $test; do :;((a++)); echo -e "\n\nATTEMPT $a\n\n"; if [ $a -eq 100 ]; then break; fi ; done; echo -e "\n\nATTEMPT $a"
+        """
+    * Write file "/etc/systemd/network/99-default.link" with content
+      """
+      [Match]
+      OriginalName=*
+      [Link]
+      NamePolicy=mac
+      MACAddressPolicy=persistent
+
+      """
+    * Execute "systemctl daemon-reload"
+    * Restart NM
+    * Prepare simulated test "testX" device with "192.168.97" ipv4 and daemon options "--dhcp-host=00:11:22:33:45:67,foo,192.168.97.13"
+    * Execute "ip link set dev testX down"
+    * Execute "ip link set dev testX address 00:11:22:33:45:67"
+    * Execute "ip link set dev testX up"
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
+    * Add "ethernet" connection named "ovs-testX" for device "testX" with options
+          """
+          conn.master port1
+          slave-type ovs-port
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ipv4.may-fail no
+          802-3-ethernet.cloned-mac-address 00:11:22:33:45:67
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+    When "00:11:22:33:45:67" is visible with command "ip a s iface0"
+    When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
+    When  "mac\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
+    When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+    * Bring "down" connection "ovs-iface0"
+    * Execute "ip netns exec testX_ns kill -SIGSTOP $(cat /tmp/testX_ns.pid)"
+    * Execute "ip netns exec testX_ns rm -f /tmp/testX_ns.lease"
+    * Execute "ip netns exec testX_ns kill -SIGCONT $(cat /tmp/testX_ns.pid)"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "192.168.97.13/24" is visible with command "ip a s iface0"
+
+
     @rhbz1786937
     @RHEL-5394
     # Move this back to 1.18.8 once the crash is solved and the fix backported
