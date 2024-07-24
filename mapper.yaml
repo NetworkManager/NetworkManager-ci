@@ -2088,6 +2088,8 @@ testmapper:
         feature: ovs
     - ovs_datapath_type_netdev_with_cloned_mac:
         feature: ovs
+    - ovs_cloned_mac_set_on_iface_with_udev_file:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
