@@ -1660,7 +1660,7 @@ Feature: nmcli - general
     @rhelver-=9
     @ver-
     @ver/rhel/9+=1.48.2.2
-    @ver/rhel/9/4+=1.46.0.4
+    @ver/rhel/9/4+=1.46.0.12
     @need_dispatcher_scripts
     @policy_based_routing_with_dispatcher_scripts
     Scenario: NM - general - check that ifcfg route and rule files are applied when ipcalc is installed
