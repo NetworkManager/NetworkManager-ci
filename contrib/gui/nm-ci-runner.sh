@@ -8,40 +8,13 @@ shift 1
 cmd=$1
 shift 1
 
-nm_openvpn_gnome() {
-  if grep -q 'release 10' in /etc/redhat-release; then
-    dnf -y install \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-1.12.0-1.fc40.$(arch).rpm \
-      https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/1.fc40/$(arch)/NetworkManager-openvpn-gnome-1.12.0-1.fc40.$(arch).rpm
-  elif grep -q 'release 9' in /etc/redhat-release; then
-    if grep -q 'release 9.[0-3]' in /etc/redhat-release; then
-      # RHEL9.0 - RHEL9.3
-      dnf -y install \
-        https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-1.10.2-1.el9.$(arch).rpm \
-        https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.10.2/1.el9/$(arch)/NetworkManager-openvpn-gnome-1.10.2-1.el9.$(arch).rpm
-    else
-      # RHEL9.4+
-      dnf -y install \
-        https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/2.el9/$(arch)/NetworkManager-openvpn-1.12.0-2.el9.$(arch).rpm \
-        https://kojipkgs.fedoraproject.org/packages/NetworkManager-openvpn/1.12.0/2.el9/$(arch)/NetworkManager-openvpn-gnome-1.12.0-2.el9.$(arch).rpm
-    fi
-  elif grep -q 'release 8' in /etc/redhat-release; then
-    dnf -y install \
-      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/$(arch)/NetworkManager-openvpn-1.8.10-1.fc30.$(arch).rpm \
-      https://kojipkgs.fedoraproject.org//packages/NetworkManager-openvpn/1.8.10/1.fc30/$(arch)/NetworkManager-openvpn-gnome-1.8.10-1.fc30.$(arch).rpm
-  fi
-}
 
 if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
         if [ "$(arch)" != "s390x" ]; then
-          if ! grep "release 10" /etc/redhat-release; then
-            dnf -y install epel-release
-            dnf -y install --enablerepo=epel NetworkManager-openvpn-gnome NetworkManager-openvpn
-          fi
-          nm_openvpn_gnome
-          dnf -y install NetworkManager-libreswan-gnome NetworkManager-libreswan
+          bash contrib/utils/koji_links.sh NetworkManager-openvpn $(rpm -q NetworkManager-openvpn --qf '%{VERSION} %{RELEASE}') | xargs dnf -y install
+          dnf -y install NetworkManager-libreswan-gnome
         fi
         python3 -m pip install proxy.py
         systemctl restart NetworkManager
