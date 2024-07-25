@@ -94,9 +94,9 @@ if [ -z "$ver" ]; then
         if [ -z "$choices" -a "$provider" == kojihub ]; then
             echo "Package not found in kojihub, trying koji."
             url_base="https://kojipkgs.fedoraproject.org/packages"
-	        provider=koji
+	    provider=koji
             choices=$(get_all $url_base/$package/ | sort -V -r)
-	    fi
+        fi
         echo "$choices" | nl -s": "
         echo
         lines=$(echo "$choices" | wc -l)
@@ -146,7 +146,7 @@ if [ -z "$build" ]; then
             if [ -z "$build" ]; then
                 build=$(echo "$all_builds" | grep "el$release$" | sort -V | tail -n 1)
             fi
-	    fi
+	fi
         # If build is empty so far, try koji with matching release
         if [ -z "$build" ]; then
             url_base="https://kojipkgs.fedoraproject.org/packages"
@@ -175,6 +175,13 @@ if [ -z "$arch" ]; then
 fi
 
 rpms=$(get_all $url_base/$package/$ver/$build/$arch/)
+
+# fallback from kojihub to koji in non-intractive mode
+if [ -z "$rpms" -a "$provider" == kojihub ]; then
+    url_base="https://kojipkgs.fedoraproject.org/packages"
+	provider=koji
+	rpms=$(get_all $url_base/$package/$ver/$build/$arch/)
+fi
 
 for rpm in $rpms; do
     echo $url_base/$package/$ver/$build/$arch/$rpm
