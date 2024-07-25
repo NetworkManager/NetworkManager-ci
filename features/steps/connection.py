@@ -1,6 +1,7 @@
 # pylint: disable=unused-argument,line-too-long,function-redefined,no-name-in-module
 # type: ignore[no-redef]
 from behave import step
+import time
 
 import nmci
 
@@ -135,9 +136,18 @@ def bring_up_connection_ignore_error(context, name, action):
 
 
 @step('Check if "{name}" is active connection')
-def is_active_connection(context, name):
-    active_list = nmci.process.nmcli("-t -f NAME connection show --active").split("\n")
-    assert name in active_list, f"Connection {name} is not active"
+@step('Check if "{name}" is active connection in "{timeout}" seconds')
+def is_active_connection(context, name, timeout=0):
+    cnt = int(timeout) + 1
+    for _ in range(cnt):
+        if name in nmci.process.nmcli("-t -f NAME connection show --active").split(
+            "\n"
+        ):
+            return True
+        time.sleep(1)
+    raise Exception(
+        f"Connection {name} is not active{' in {timeout} seconds' if timeout else ''}"
+    )
 
 
 @step('Check if "{name}" is not active connection')
