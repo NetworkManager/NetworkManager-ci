@@ -743,6 +743,13 @@ _register_tag("internal_DHCP", internal_DHCP_bs)
 
 
 def dhclient_DHCP_bs(context, scenario):
+    distro, version = nmci.misc.distro_detect()
+
+    if distro == "fedora" and version[0] >= 39:
+        context.cext.skip("skipping on fedora 39+")
+    elif distro == "rhel" and version[0] > 9:
+        context.cext.skip("skipping on rhel 10+")
+
     conf = ["# configured by beaker-test", "[main]", "dhcp=dhclient"]
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/96-nmci-dhcp-dhclient.conf", conf
@@ -808,7 +815,6 @@ _register_tag("ifupdown", ifupdown_bs, None)
 
 
 def ifcfg_rh_bs(context, scenario):
-
     distro, version = nmci.misc.distro_detect()
 
     if distro == "fedora" and version[0] >= 39:
