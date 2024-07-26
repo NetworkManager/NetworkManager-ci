@@ -872,7 +872,7 @@ Feature: nmcli - ovs
 
 
 
-    @rhelver+=9.5
+    @rhelver+=9
     @ver/rhel/9/2+=1.42.2.23
     @ver/rhel/9/4+=1.46.0.15
     @permissive @openvswitch
