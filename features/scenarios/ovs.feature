@@ -872,7 +872,9 @@ Feature: nmcli - ovs
 
 
 
-    @rhelver+=8
+    @rhelver+=9.5
+    @ver/rhel/9/2+=1.42.2.23
+    @ver/rhel/9/4+=1.46.0.15
     @permissive @openvswitch
     @ovs_cloned_mac_set_on_iface_with_udev_file
     Scenario: nmcli - openvswitch - mac address set iface when udev
