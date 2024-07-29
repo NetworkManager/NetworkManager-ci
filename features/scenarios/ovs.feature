@@ -143,6 +143,38 @@ Feature: nmcli - ovs
      And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
+    @RHEL-34617
+    @ver+=1.48.4
+    @openvswitch
+    @nmcli_add_openvswitch_port_by_mac
+    Scenario: nmcli - openvswitch - add port by MAC address
+    * Add "ovs-bridge" connection named "br0" for device "br0" with options
+          """
+          connection.autoconnect-ports true
+          connection.autoconnect false
+          """
+    * Add "ovs-port" connection named "ovs-port-eth1" for device "ovs-port-eth1" with options
+          """
+          connection.controller br0
+          connection.port-type ovs-bridge
+          connection.autoconnect-ports true
+          connection.autoconnect false
+          """
+    * Add "ethernet" connection named "eth1" with options
+          """
+          802-3-ethernet.mac-address 00:11:22:33:44:55
+          connection.controller ovs-port-eth1
+          connection.port-type ovs-port
+          connection.autoconnect false
+          """
+    * Note MAC address output for device "eth1" via ip command
+    * Modify connection "eth1" property "802-3-ethernet.mac-address" to noted value
+    * Bring "up" connection "br0"
+    * Bring "up" connection "ovs-port-eth1"
+    * Bring "up" connection "eth1"
+    Then "Bridge br0\s*Port ovs-port-eth1\s*Interface eth1" is visible with command "ovs-vsctl show"
+
+
     @rhbz2049103
     @ver+=1.41.1
     @openvswitch
