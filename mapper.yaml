@@ -2035,6 +2035,8 @@ testmapper:
         feature: ovs
     - openvswitch_ignore_ovs_bond_network_setup:
         feature: ovs
+    - nmcli_activate_parent_connection_keep_children_alive:
+        feature: ovs
     - nmcli_add_basic_openvswitch_configuration:
         feature: ovs
     - nmcli_add_openvswitch_ofport_request:

@@ -86,6 +86,38 @@ Feature: nmcli - ovs
     Then "bond0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
 
 
+    @RHEL-46904
+    @ver+=1.49.3
+    @openvswitch
+    @nmcli_activate_parent_connection_keep_children_alive
+    Scenario: nmcli - openvswitch - acticate the parent connection will still keep children alive
+    * Add "dummy" connection named "dummy0" for device "dummy0"
+    * Add "ovs-interface" connection named "ovs-iface-ovs0" for device "ovs0" with options
+          """
+          conn.controller ovs0
+          ipv4.method disabled
+          ipv6.method disabled
+          """
+    * Add "ovs-bridge" connection named "ovs-bridge-br0" for device "br0"
+    * Add "ovs-port" connection named "ovs-port-dummy1" for device "dummy1" with options
+          """
+          conn.controller br0
+          """
+    * Add "ovs-port" connection named "ovs-port-ovs0" for device "ovs0" with options
+          """
+          conn.controller br0
+          """
+    * Add "vlan" connection named "ovs0.100" with options
+          """
+          dev ovs0
+          id 100
+          ipv4.method disabled
+          ipv6.method disabled
+          """
+    * Execute "nmcli con up ovs-iface-ovs0"
+    Then "connected:ovs0.100" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
+
+
     @rhbz1540218 @rhbz1519176
     @ver+=1.16.2
     @openvswitch
