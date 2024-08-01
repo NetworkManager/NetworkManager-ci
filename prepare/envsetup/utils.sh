@@ -310,4 +310,7 @@ deploy_ssh_keys () {
     echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJYBZKypoJLLdh1+jn/pLSbnIuqctx5whR8aiao2zMKT ffmancera@riseup.net" >> /root/.ssh/authorized_keys
 
     echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOCoHDuTAa/gNH4votMsLZb3etOhY8yffFlddON6YRxm ihuguet@redhat.com" >> /root/.ssh/authorized_keys
+
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCvOC7JibKnGzTk5SanZTq9NoWwfURWVunh5bDkrQKuRQdlOXzUQ7KLeRr/CpPcyI9c6LYDufmDD1QdBy7vbxCfmAD81IqDewKhKYf3H5YcpylfdytAjLY/0cfMoNisufdiC9y8vF6nkEh/R26/STESmaIT3cjzcO8QqQP3zqS85ungh1gSxpTJwrYBMs3QbgE36lCfWALWHkzKHuEiObIpDC4fEZ4cEqOBN2NIpnWqioWjq0W1NApk+28hVmxrmZSqedTIcZgS/7Hghgmi95pc+lr/SrcVOadqw0JcAe8kP0+Il4r8Y/jkwvJBTkjILTeJQzudaM64D2ke7O26/TFn fge@Gris-Redhat" >> /root/.ssh/authorized_keys
+
 }
