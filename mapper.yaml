@@ -1643,6 +1643,8 @@ testmapper:
         tags: gate
     - pull_hostname_from_dns:
         feature: general
+    - pull_hostname_from_dns_retry:
+        feature: general
     - pull_hostname_from_hosts_default:
         feature: general
     - pull_hostname_from_hosts_resolved:

@@ -250,6 +250,48 @@ Feature: nmcli - general
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
 
 
+    @RHEL-17972
+    @ver+=1.49.2
+    @rhelver+=8
+    @internal_DHCP @dhcpd
+    @restore_hostname @eth0
+    @pull_hostname_from_dns_retry
+    Scenario: nmcli - general - pull hostname from DNS and retry
+    * Commentary
+    """
+    Check that NM retries to obtain a hostname (in this case, from DNS)
+    if the first attempt fails.
+    """
+    * Write file "/tmp/addn-hosts.txt" with content
+    """
+    """
+    * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.15 --addn-hosts /tmp/addn-hosts.txt --log-queries --no-resolv"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    When "localhost|fedora" is visible with command "hostnamectl --transient" in "10" seconds
+    * Wait for "1" seconds
+    * Add "ethernet" connection named "con_general" for device "testG" with options
+    """
+    autoconnect no
+    ipv4.method auto
+    ipv6.method disabled
+    ethernet.cloned-mac-address 00:11:22:33:44:55
+    """
+    * Bring "up" connection "con_general"
+    When "inet 172.25.15.15" is visible with command "ip addr show dev testG" in "10" seconds
+    When "localhost|fedora" is visible with command "hostname"
+    * Commentary
+    """
+    Add the DNS entry for the host and check that NM picks it up
+    """
+    * Write file "/tmp/addn-hosts.txt" with content
+    """
+    172.25.15.15 foo-baz
+    """
+    * Execute "ip netns exec testG_ns kill -SIGHUP $(cat /tmp/testG_ns.pid)"
+    Then "foo-baz" is visible with command "hostnamectl --transient" in "30" seconds
+
+
     @ver+=1.29.0
     @restore_hostname @delete_testeth0 @restart_if_needed
     @hostname_priority
