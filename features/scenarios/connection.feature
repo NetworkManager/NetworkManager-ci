@@ -732,6 +732,7 @@ Feature: nmcli: connection
     Then "192.168.1.2/24" is visible with command "nmcli con sh eth5 |grep IP4" in "2" seconds
 
 
+    @ver-1.49.3
     @connection_describe
     Scenario: nmcli - connection - describe
      * Add "ethernet" connection named "con_con" for device "eth6"
@@ -761,6 +762,37 @@ Feature: nmcli: connection
 
      Then Check "=== \[gateway-ping-timeout\] ===\s+\[NM property description]\s+If greater than zero, delay success of IP addressing until either the timeout is reached, or an IP gateway replies to a ping." are present in describe output for object "gateway-ping-timeout"
 
+
+    @RHEL-33368
+    @ver+=1.49.3
+    @connection_describe
+    Scenario: nmcli - connection - describe
+     * Add "ethernet" connection named "con_con" for device "eth6"
+     * Open editor for connection "con_con"
+     Then Check "\[id\]|\[uuid\]|\[interface-name\]|\[type\]" are present in describe output for object "connection"
+     * Submit "goto connection" in editor
+
+     Then Check "=== \[id\] ===\s+\[NM property description\]\s+A human readable unique identifier for the connection, like \"Work Wi-Fi\" or \"T-Mobile 3G\"." are present in describe output for object "id"
+
+     Then Check regex "=== \[uuid\] ===\s+\[NM property description\]\s+((A universally unique identifier for the connection, for example generated with libuuid.  It should be assigned when the connection is created, and never changed as long as the connection still applies to the same network.  For example, it should not be changed when the \"id\" property or NMSettingIP4Config changes, but might need to be re-created when the Wi-Fi SSID, mobile broadband network provider, or \"type\" property changes. The UUID must be in the format \"2815492f-7e56-435e-b2e9-246bd7cdc664\" \(ie, contains only hexadecimal characters and \"-\"\).)|(The connection.uuid is the real identifier of a profile..*))" in describe output for object "uuid"
+
+     Then Check "=== \[interface-name\] ===\s+\[NM property description\]\s+The name of the network interface this connection is bound to. If not set, then the connection can be attached to any interface of the appropriate type \(subject to restrictions imposed by other settings\). For software devices this specifies the name of the created device. For connection types where interface names cannot easily be made persistent \(e.g. mobile broadband or USB Ethernet\), this property should not be used. Setting this property restricts the interfaces a connection can be used with, and if interface names change or are reordered the connection may be applied to the wrong interface." are present in describe output for object "interface-name"
+
+     Then Check "=== \[type\] ===\s+\[NM property description\]\s+Base type of the connection. For hardware-dependent connections, should contain the setting name of the hardware-type specific setting \(ie, \"802\-3\-ethernet\" or \"802\-11\-wireless\" or \"bluetooth\", etc\), and for non-hardware dependent connections like VPN or otherwise, should contain the setting name of that setting type \(ie, \"vpn\" or \"bridge\", etc\)." are present in describe output for object "type"
+
+     Then Check "=== \[autoconnect\] ===\s+\[NM property description\]\s+Whether or not the connection should be automatically connected by NetworkManager when the resources for the connection are available. TRUE to automatically activate the connection, FALSE to require manual intervention to activate the connection." are present in describe output for object "autoconnect"
+
+     Then Check "=== \[timestamp\] ===\s+\[NM property description\]\s+The time, in seconds since the Unix Epoch, that the connection was last _successfully_ fully activated. NetworkManager updates the connection timestamp periodically when the connection is active to ensure that an active connection has the latest timestamp. The property is only meant for reading \(changes to this property will not be preserved\)." are present in describe output for object "timestamp"
+
+     Then Check "=== \[zone\] ===\s+\[NM property description\]\s+The trust level of a the connection.  Free form case-insensitive string \(for example \"Home\", \"Work\", \"Public\"\).  NULL or unspecified zone means the connection will be placed in the default zone as defined by the firewall." are present in describe output for object "zone"
+
+     Then Check "=== \[master\] ===\s+\[NM property description\]\s+Interface name of the controller device or UUID of the controller connection. Deprecated 1.46. Use \"controller\" instead, this is just an alias." are present in describe output for object "master"
+
+     Then Check "=== \[slave-type\] ===\s+\[NM property description\]\s+Setting name of the device type of this port's controller connection \(eg, \"bond\"\), or NULL if this connection is not a port. Deprecated 1.46. Use \"port-type\" instead, this is just an alias." are present in describe output for object "slave-type"
+
+     Then Check "=== \[secondaries\] ===\s+\[NM property description\]\s+List of connection UUIDs that should be activated when the base connection itself is activated. Currently.* only VPN connections are supported." are present in describe output for object "secondaries"
+
+     Then Check "=== \[gateway-ping-timeout\] ===\s+\[NM property description]\s+If greater than zero, delay success of IP addressing until either the timeout is reached, or an IP gateway replies to a ping." are present in describe output for object "gateway-ping-timeout"
 
     @ver+=1.14
     @connection_multiconnect_default_single
