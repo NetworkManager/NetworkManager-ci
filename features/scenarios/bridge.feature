@@ -325,6 +325,7 @@ Feature: nmcli - bridge
     Then Noted value "ipv6_2" is visible with command "ip -6 a show dev brX scope global"
 
 
+    @ver-1.49.3
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
     * Cleanup connection "bridge-slave-eth4.80"
@@ -336,6 +337,22 @@ Feature: nmcli - bridge
     Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
       """
       connection.master=br15
+      """
+
+
+    @RHEL-52597
+    @ver+=1.49.3
+    @bridge_add_slave
+    Scenario: nmcli - bridge - add slave
+    * Cleanup connection "bridge-slave-eth4.80"
+    * Add "bridge" connection named "br15" for device "br15" with options "autoconnect no bridge.stp off"
+    Then "/etc/NetworkManager/system-connections/br15.nmconnection" is file in "10" seconds
+    * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
+    Then "/etc/NetworkManager/system-connections/eth4.80.nmconnection" is file in "10" seconds
+    * Add "bridge-slave" connection with options "ifname eth4.80 autoconnect no master br15"
+    Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
+      """
+      connection.controller=br15
       """
 
 
