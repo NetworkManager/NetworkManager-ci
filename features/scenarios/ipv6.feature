@@ -2281,6 +2281,11 @@
     When There are "at least" "500000" IP version "6" routes for device "many_routes6" in "5" seconds
     Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
     * Delete connection "con_ipv6"
+    * Commentary
+    """
+    Wait before starting the check, as the check might block/slow down the route deletion.
+    """
+    * Wait for "5" seconds
     Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "5" seconds
 
 
