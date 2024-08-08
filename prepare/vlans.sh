@@ -37,11 +37,13 @@ function setup {
 }
 
 function delete_connection_files {
+    echo "Deleting connection files, NM is unresponsive..."
     for link in $@; do
         rm -f /etc/NetworkManager/system-connections/$link.nmconnection
         ip link del $link || true
     done
-    nmcli con reload
+    echo "starting NM..."
+    systemctl start NetworkManager
 }
 
 function clean {
