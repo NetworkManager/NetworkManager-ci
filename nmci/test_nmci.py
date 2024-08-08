@@ -1589,14 +1589,14 @@ def test_process_popen():
 
 
 def test_ip_link_add_nonutf8():
-
-    if os.environ.get("NMCI_ROOT_TEST") != "1":
-        pytest.skip("skip root test. Run with NMCI_ROOT_TEST=1")
-
     ifname = b"\xCB[2Jnonutf\xCCf\\c"
 
     if not nmci.ip.link_show_maybe(ifname=ifname):
-        nmci.process.run_stdout(["ip", "link", "add", "name", ifname, "type", "dummy"])
+        rc = nmci.process.run_code(
+            ["ip", "link", "add", "name", ifname, "type", "dummy"], ignore_stderr=True
+        )
+        if rc != 0:
+            pytest.skip("Not enough privilegies to run the test.")
 
         # udev might rename the interface, try to workaround the race.
         time.sleep(0.1)
