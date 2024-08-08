@@ -36,6 +36,14 @@ function setup {
 
 }
 
+function delete_connection_files {
+    for link in $@; do
+        rm -f /etc/NetworkManager/system-connections/$link.nmconnection
+        ip link del $link || true
+    done
+    nmcli con reload
+}
+
 function clean {
     NUM=$(cat /tmp/vlan_count.txt)
     rm -rf /tmp/vlan_count.txt
@@ -52,7 +60,7 @@ function clean {
     for i in $(seq $ID_START $ID_END); do
         ids="$ids eth11.$i"
     done
-    nmcli con del $ids || true
+    nmcli con del $ids || delete_connection_files $ids
 
     ip netns del eth11_ns || true
     ip link del eth11 || true
