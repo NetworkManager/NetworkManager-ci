@@ -881,24 +881,42 @@ Feature: nmcli - vlan
       Execute cleanup even before possibly crashed NM attempts to be started (priority -30)
       """
     * Cleanup execute "sh prepare/vlans.sh clean" with timeout "60" seconds and priority "-50"
+    * Commentary
+      """
+      Prepare veth pair with the other end in namespace
+      Create 500 (from 10 to 510) vlans on top of eth11p
+      Run dnsmasq inside the namespace to serve incoming connections
+      """
     * Execute "sh prepare/vlans.sh setup $N_VLANS"
-    # Stop OVS just to save some CPU cycles
+    * Commentary
+      """
+      Stop OVS just to save some CPU cycles
+      """
     * Execute "systemctl stop openvswitch || true"
-    # Create 501 profiles which should be autoconnected after a while
-    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv4.dns 11.1.0.1 ipv4.ignore-auto-dns yes ipv6.method disable; done"
-    # Wait till we have "all" addresses assigned
-    * Note the output of "echo $((N_VLANS + 1))"
+    * Execute "for ((i=10; i<N_VLANS+10; i++)); do nmcli con add type vlan con-name eth11.$i id $i dev eth11 ipv4.may-fail no ipv4.dns 11.1.0.1 ipv4.ignore-auto-dns yes ipv6.method disable; done"
+    * Commentary
+      """
+      Wait till we have "all" addresses assigned
+      """
+    * Note the output of "echo $N_VLANS"
     Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "50" seconds
-    # Simulate reboot and delete all devices
     * Stop NM
-    * Execute "for i in $(seq 10 $((N_VLANS + 10))); do ip link del eth11.$i; done"
-    # TODO: this needs investigation, why 10s is not enough
+    * Execute "for ((i=10; i<N_VLANS+10; i++)); do ip link del eth11.$i; done"
+    * Commentary
+      """
+      TODO: this needs investigation, why 10s is not enough
+      """
     * Reboot within "100" seconds
-    # Give NM some time to up some connections
+    * Commentary
+      """
+      Give NM some time to up some connections
+      """
     * Wait for "10" seconds
-    # Wait till we have "all" addresses assigned again
+    * Commentary
+      """
+      Wait till we have "all" addresses assigned again
+      """
     Then Noted number of lines with pattern "eth11.* connected" is visible with command "nmcli device" in "180" seconds
-    # Then Execute "nmcli  device |grep eth11 > /tmp/eth11s"
 
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=2243218 https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1403
