@@ -876,9 +876,11 @@ Feature: nmcli - vlan
     @logging_info_only @many_vlans
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 500 (x86_64) or 200 (aarch64, s390x...) vlans
-    # Prepare veth pair with the other end in namespace
-    # Create 500 (from 10 to 510) vlans on top of eth11p
-    # Run dnsmasq inside the namespace to server incoming connections
+    * Commentary
+      """
+      Execute cleanup even before possibly crashed NM attempts to be started (priority -30)
+      """
+    * Cleanup execute "sh prepare/vlans.sh clean" with timeout "60" seconds and priority "-50"
     * Execute "sh prepare/vlans.sh setup $N_VLANS"
     # Stop OVS just to save some CPU cycles
     * Execute "systemctl stop openvswitch || true"

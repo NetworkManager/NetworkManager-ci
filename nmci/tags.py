@@ -332,9 +332,6 @@ def many_vlans_bs(context, scenario):
 
 
 def many_vlans_as(context, scenario):
-    context.process.run_stdout(
-        "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=150
-    )
     nmci.veth.unmanage_veths()
 
 
