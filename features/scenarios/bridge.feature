@@ -326,6 +326,7 @@ Feature: nmcli - bridge
 
 
     @ver-1.49.3
+    @ver-1.48.8
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
     * Cleanup connection "bridge-slave-eth4.80"
@@ -342,6 +343,7 @@ Feature: nmcli - bridge
 
     @RHEL-52597
     @ver+=1.49.3
+    @ver+=1.48.8
     @bridge_add_slave
     Scenario: nmcli - bridge - add slave
     * Cleanup connection "bridge-slave-eth4.80"

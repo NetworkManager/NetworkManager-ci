@@ -2284,6 +2284,7 @@
     @rhbz1454883
     @ver+=1.10
     @ver-1.49.3
+    @ver-1.48.8
     @nmclient_bond_get_state_flags
     Scenario: nmclient - bond - get state flags
     * Add "bond" connection named "bond0" for device "nm-bond"
@@ -2310,8 +2311,10 @@
     Then "IP4" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
     Then "IP6" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
 
+
     @rhbz1454883 @RHEL-33368
     @ver+=1.49.3
+    @ver+=1.48.8
     @nmclient_bond_get_state_flags
     Scenario: nmclient - bond - get state flags
     * Add "bond" connection named "bond0" for device "nm-bond"
@@ -2337,6 +2340,7 @@
     Then "CONTROLLER_HAS_PORTS" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
     Then "IP4" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
     Then "IP6" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+
 
     @rhbz1591734
     @ver+=1.11.4

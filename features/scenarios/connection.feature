@@ -733,6 +733,7 @@ Feature: nmcli: connection
 
 
     @ver-1.49.3
+    @ver-1.48.8
     @connection_describe
     Scenario: nmcli - connection - describe
      * Add "ethernet" connection named "con_con" for device "eth6"
@@ -765,6 +766,7 @@ Feature: nmcli: connection
 
     @RHEL-33368
     @ver+=1.49.3
+    @ver+=1.48.8
     @connection_describe
     Scenario: nmcli - connection - describe
      * Add "ethernet" connection named "con_con" for device "eth6"
@@ -793,6 +795,7 @@ Feature: nmcli: connection
      Then Check "=== \[secondaries\] ===\s+\[NM property description\]\s+List of connection UUIDs that should be activated when the base connection itself is activated. Currently.* only VPN connections are supported." are present in describe output for object "secondaries"
 
      Then Check "=== \[gateway-ping-timeout\] ===\s+\[NM property description]\s+If greater than zero, delay success of IP addressing until either the timeout is reached, or an IP gateway replies to a ping." are present in describe output for object "gateway-ping-timeout"
+
 
     @ver+=1.14
     @connection_multiconnect_default_single
