@@ -4,14 +4,11 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 
 ### Nightly status (CentOS CI)
 
-| Code Branch | Build Status                                                                                                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| main        | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main/) |
-| 1.42.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-42/) |
-| 1.40.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-40/) |
-| 1.38.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-38/) |
-| 1.36.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-36/) |
-| 1.34.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1-34/) |
+| Code Branch | Build Status                                                                                                                                                                                                     |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main        | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main-c9s/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-main-c9s/) |
+| 1.48.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1.46-c9s/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1.46-c9s/) |
+| 1.46.x      | [![Build Status](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1.46-c9s/badge/icon)](https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org/job/NetworkManager-1.46-c9s/) |
 
 
 ### Howto execute basic test suite manually on localhost
