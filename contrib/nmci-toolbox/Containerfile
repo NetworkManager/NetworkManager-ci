@@ -1,0 +1,20 @@
+FROM registry.fedoraproject.org/fedora-toolbox:41
+
+LABEL summary="Toolbox container for NetworManager-ci"
+
+# missing certificates sharing workaround
+COPY build/ca-trust-source/anchors/. /etc/pki/ca-trust/source/anchors/
+COPY build/ca-trust-source/blocklist/. /etc/pki/ca-trust/source/blocklist/
+RUN update-ca-trust
+
+COPY devel-rpms devel-pips /
+RUN dnf -y --quiet install python3 python3-pip python3-devel python3-gobject python3-requests python3-systemd iproute gcc curl NetworkManager-libnm git $(< /devel-rpms)
+RUN python3 -m pip -q install pytest PyYAML pexpect pyroute2 click==8.0.4 "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave" $(< /devel-pips)
+RUN rm -f /devel-rpms /devel-pips
+RUN python3 -m pip -q install --prefix /usr/ black==22.3.0 sphinx==7.2.6 sphinx-markdown-builder==0.6.5
+
+# vim stuff
+ADD --chmod=644 https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim /usr/share/vim/vimfiles/autoload/
+RUN mkdir -p /usr/share/vim/vimfiles/pack/psf/start
+RUN git clone --branch stable --depth 1 https://github.com/psf/black.git /usr/share/vim/vimfiles/pack/psf/start/black
+COPY vimrc.local /etc/

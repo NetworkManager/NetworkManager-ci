@@ -1,0 +1,9 @@
+glab
+gh
+python3-pyflakes
+python3-mypy
+python3-podman
+python3-pylint
+vim-ale
+vim-enhanced
+yamllint

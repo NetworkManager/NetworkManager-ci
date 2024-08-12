@@ -1,0 +1,48 @@
+#!/bin/bash
+
+DIRNAME="$(dirname $0)"
+NAME="nmci-fedora"
+
+if [ -f "/run/.containerenv" ]; then
+  in_container="$(sed -n 's/^name="\(.*\)"$/\1/ p' /run/.containerenv)"
+  if [ "$NAME" == "$in_container" ]; then
+    echo "The command \"$0\" was called from within the same container \"$in_container\". Call it from the host system, please." >&2
+    exit 1
+  fi
+fi
+
+echo "Remove existing build image and containers and temporary files" >&2
+toolbox rmi --force "$TMPNAME"
+rm -rf "${DIRNAME}/build"
+
+# certificates sharing workaround
+DIR_ANCHORS="${DIRNAME}/build/ca-trust-source/anchors"
+DIR_BLOCKLIST="${DIRNAME}/build/ca-trust-source/blocklist"
+mkdir -p "${DIR_ANCHORS}"
+mkdir -p "${DIR_BLOCKLIST}"
+cp /usr/share/pki/ca-trust/source/anchors/* "${DIR_ANCHORS}"
+cp /usr/share/pki/ca-trust/source/bl*cklist/ "${DIR_BLOCKLIST}"
+cp /etc/pki/ca-trust/source/anchors/* "${DIR_ANCHORS}"
+cp /etc/pki/ca-trust/source/bl*cklist/* "${DIR_BLOCKLIST}"
+
+echo "Building image"
+podman build --squash -t "${NAME}:build" -f "${DIRNAME}/Containerfile" || {
+  echo "Failed to build the image!" >&2
+  exit 1
+}
+
+  echo -n "try create a new toolbx out of it ..."
+toolbox create -i "${NAME}:build" "${NAME}-build" >/dev/null 2>&1
+
+if [ "$?" = "0" ]; then
+  echo " OK" >&2
+  toolbox rm "${NAME}-build"
+  toolbox rmi --force "$NAME"
+  podman tag "${NAME}:build" "${NAME}:latest"
+  podman untag "${NAME}:latest" "${NAME}:build"
+  toolbox create -i "${NAME}:latest" "${NAME}"
+else
+  echo " Failed!" >&2
+  echo "Failed to create a toolbox container out of the image!" >&2
+  exit 1
+fi

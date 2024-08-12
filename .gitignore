@@ -8,5 +8,6 @@ nmci/doc/.doctrees/*
 nmci/doc/doctrees/*
 contrib/ipsec/nmstate
 contrib/ipsec/nmstate/*
+contrib/nmci-toolbox/build/*
 run/utils/j-dump/conf.js
 run/utils/j-dump/cache/*
