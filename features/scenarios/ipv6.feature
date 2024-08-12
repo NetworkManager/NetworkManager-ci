@@ -2277,6 +2277,13 @@
     Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
     # If more routes are needed, just adjust argument to the generating script and When check
     * Execute "prepare/bird_routes.py many_routes6 6 500000 > /tmp/nmci-bird-routes-v6"
+    * Commentary:
+        """
+        In the NM journal, it's now possible to search for the new log message
+        indicating backoff from following netlink:
+        "netlink[%s]: backoff for %d seconds before the resync."
+        """
+    * Start following journal
     * Execute "ip -b /tmp/nmci-bird-routes-v6"
     When There are "at least" "500000" IP version "6" routes for device "many_routes6" in "5" seconds
     Then Check "ipv6" route list on NM device "many_routes6" matches "nm_routes_before"
