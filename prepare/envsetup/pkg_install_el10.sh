@@ -95,6 +95,10 @@ EOF
             $KHUB/kernel/$VER/$REL/$(arch)/kernel-devel-$VER-$REL.$(arch).rpm"
     fi
 
+    # Let's remove blacklist and load sch_netem for later usage
+    rm -rf /etc/modprobe.d/sch_netem-blacklist.conf
+    modprobe sch_netem
+
     # We still need pptp and pptpd in epel to be packaged
     # https://bugzilla.redhat.com/show_bug.cgi?id=1810542
     PKGS_INSTALL="$PKGS_INSTALL \
