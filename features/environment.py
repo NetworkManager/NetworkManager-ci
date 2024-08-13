@@ -387,24 +387,29 @@ def _after_scenario(context, scenario):
         scenario.status == "failed" or context.crashed_step or len(excepts) > 0
     )
 
+    filter_args = " + ".join(
+        [
+            "_SYSTEMD_UNIT=NetworkManager.service",
+            "SYSLOG_IDENTIFIER=runtest",
+            "SYSLOG_IDENTIFIER=nmci",
+        ]
+    )
+    log = nmci.misc.journal_show(
+        cursor=context.log_cursor_before_tags,
+        prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+        journal_args=f"{filter_args} -o cat",
+    )
+    backoff_r = re.compile("backoff for [0-9]+ seconds before the resync.")
+    if backoff_r.search(log):
+        excepts.append("`backoff` message found in NM journal")
+        scenario_fail = True
+
     if scenario_fail:
         nmci.util.set_verbose(True)
 
     if nmci.util.is_verbose():
         # Attach journalctl logs
         print("Attaching NM log")
-        filter_args = " + ".join(
-            [
-                "_SYSTEMD_UNIT=NetworkManager.service",
-                "SYSLOG_IDENTIFIER=runtest",
-                "SYSLOG_IDENTIFIER=nmci",
-            ]
-        )
-        log = nmci.misc.journal_show(
-            cursor=context.log_cursor_before_tags,
-            prefix="~~~~~~~~~~~~~~~~~~~~~~~~~~ NM LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-            journal_args=f"{filter_args} -o cat",
-        )
         nmci.embed.embed_data("NM", log)
 
     if context.crashed_step:
