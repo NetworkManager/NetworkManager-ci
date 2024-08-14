@@ -957,6 +957,10 @@ def logging_as(context, scenario):
 _register_tag("logging", logging_bs, logging_as)
 
 
+# This one is needed in after scenario check
+_register_tag("ignore_backoff_message")
+
+
 def netservice_bs(context, scenario):
     context.process.run_stdout("pkill -9 /sbin/dhclient")
     # Make orig- devices unmanaged as they may be unfunctional

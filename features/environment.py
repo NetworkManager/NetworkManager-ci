@@ -400,7 +400,7 @@ def _after_scenario(context, scenario):
         journal_args=f"{filter_args} -o cat",
     )
     backoff_r = re.compile("backoff for [0-9]+ seconds before the resync.")
-    if backoff_r.search(log):
+    if "ignore_backoff_message" not in scenario.tags and backoff_r.search(log):
         excepts.append("`backoff` message found in NM journal")
         scenario_fail = True
 
