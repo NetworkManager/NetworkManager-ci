@@ -555,7 +555,7 @@ class _Cleanup:
         def __init__(self, operation="restart", timeout=None, priority=None, name=None):
             """NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 
-            :param operation: operation on systemd service, one of 'start', 'restart' or 'reload'.
+            :param operation: operation on systemd service, one of 'start', 'restart' or 'reload', defaults to 'restart'.
             :type operation: str
             :param priority: cleanup priortiy, defaults to None
             :type priority: int, optional

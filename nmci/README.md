@@ -208,7 +208,7 @@ Bases: [`Cleanup`](#nmci.cleanup.Cleanup)
 NetworkManager systemd service cleanup. Accepts start, restart, and reload.
 
 * **Parameters:**
-  * **operation** (*str*) – operation on systemd service, one of ‘start’, ‘restart’ or ‘reload’.
+  * **operation** (*str*) – operation on systemd service, one of ‘start’, ‘restart’ or ‘reload’, defaults to ‘restart’.
   * **priority** (*int**,* *optional*) – cleanup priortiy, defaults to None
 
 ### *class* nmci.cleanup.CleanupNamespace(namespace, teardown=True, priority=30)
