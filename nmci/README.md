@@ -188,7 +188,7 @@ MPTCP limits cleanup
 * **Parameters:**
   **namespace** (*str**,* *optional*) – name of namespace, defaults to None
 
-### *class* nmci.cleanup.CleanupNMConfig(config_file, config_directory=None, priority=70, schedule_nm_restart=True)
+### *class* nmci.cleanup.CleanupNMConfig(config_file, config_directory=None, priority=70, schedule_nm_restart=True, schedule_nm_reload=False)
 
 Bases: [`CleanupFile`](#nmci.cleanup.CleanupFile)
 
@@ -198,6 +198,8 @@ Cleanup NetworkManager config file and restart.
   * **config_file** (*str*) – NetworkManager config file name, either full path, or relative path accepted.
   * **config_directory** (*str**,* *optional*) – NetworkManager config directory, one of ‘etc’, ‘usr’, ‘run’, defaults to ‘etc’
   * **priority** (*int**,* *optional*) – cleanup priority, defaults to PRIORITY_FILE
+  * **schedule_nm_restart** (*bool*) – should NM be restarted during cleanups, defaults to True
+  * **schedule_nm_reload** (*bool*) – should NM be reloaded during cleanups, defaults to False
 
 ### *class* nmci.cleanup.CleanupNMService(operation='restart', timeout=None, priority=None, name=None)
 

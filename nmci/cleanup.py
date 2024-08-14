@@ -588,6 +588,7 @@ class _Cleanup:
             config_directory=None,
             priority=PRIORITY_FILE,
             schedule_nm_restart=True,
+            schedule_nm_reload=False,
         ):
             """Cleanup NetworkManager config file and restart.
 
@@ -597,6 +598,10 @@ class _Cleanup:
             :type config_directory: str, optional
             :param priority: cleanup priority, defaults to PRIORITY_FILE
             :type priority: int, optional
+            :param schedule_nm_restart: should NM be restarted during cleanups, defaults to True
+            :type schedule_nm_restart: bool
+            :param schedule_nm_reload: should NM be reloaded during cleanups, defaults to False
+            :type schedule_nm_reload: bool
             """
             if config_directory is not None:
                 assert config_directory in _Cleanup.NM_CONF_DIRS
@@ -607,6 +612,13 @@ class _Cleanup:
             schedule_nm_restart = bool(schedule_nm_restart)
             self._schedule_nm_restart = schedule_nm_restart
 
+            schedule_nm_reload = bool(schedule_nm_reload)
+            self._schedule_nm_reload = schedule_nm_reload
+
+            assert not (
+                self._schedule_nm_restart and self._schedule_nm_reload
+            ), "Can not schedule both NM restart and NM reload cleanups."
+
             super().__init__(
                 config_file,
                 name=f"NM-config-{config_file}",
@@ -615,9 +627,11 @@ class _Cleanup:
             )
 
         def _also_needs_impl(self):
-            if not self._schedule_nm_restart:
-                return ()
-            return (_Cleanup.CleanupNMService("restart"),)
+            if self._schedule_nm_restart:
+                return (_Cleanup.CleanupNMService("restart"),)
+            if self._schedule_nm_reload:
+                return (_Cleanup.CleanupNMService("reload"),)
+            return ()
 
     NM_CONF_DIRS = {
         "etc": "/etc/NetworkManager/conf.d/",
