@@ -258,18 +258,19 @@ _register_tag("regenerate_veth", None, regenerate_veth_as)
 
 
 def logging_info_only_bs(context, scenario):
-    conf = "/etc/NetworkManager/conf.d/96-nmci-logging.conf"
+    conf_f = "/etc/NetworkManager/conf.d/96-nmci-logging.conf"
     # Cleanups in the same priority are executed in reversed order...
     nmci.cleanup.add_NM_service(
         timeout=120,
         priority=nmci.Cleanup.PRIORITY_TAG,
+        operation="restart",
     )
     nmci.cleanup.add_NM_config(
-        conf,
+        conf_f,
         schedule_nm_restart=False,
         priority=nmci.Cleanup.PRIORITY_TAG,
     )
-    nmci.util.file_set_content(conf, ["[logging]", "level=INFO", "domains=ALL"])
+    nmci.util.file_set_content(conf_f, ["[logging]", "level=INFO", "domains=ALL"])
     nmci.nmutil.restart_NM_service()
 
 
@@ -433,23 +434,23 @@ def connectivity_bs(context, scenario):
         "response=OK",
         "interval=10",
     ]
-    nmci.util.file_set_content(
-        "/etc/NetworkManager/conf.d/95-nmci-connectivity.conf", conf
+    conf_f = "/etc/NetworkManager/conf.d/95-nmci-connectivity.conf"
+    # cleanup config before tags cleanup
+    nmci.cleanup.add_NM_config(
+        conf_f,
+        priority=nmci.cleanup.Cleanup.PRIORITY_TAG - 1,
+        schedule_nm_restart=False,
+        schedule_nm_reload=True,
     )
+    nmci.util.file_set_content(conf_f, conf)
     nmci.nmutil.reload_NM_service()
 
 
 def connectivity_as(context, scenario):
     context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/conf.d/95-nmci-connectivity.conf"
-    )
-    context.process.run_stdout(
         "rm -rf /var/lib/NetworkManager/NetworkManager-intern.conf"
     )
     context.execute_steps("* Reset /etc/hosts")
-
-    nmci.nmutil.reload_NM_service()
-    print(context.process.run_stdout("NetworkManager --print-config"))
 
 
 _register_tag("connectivity", connectivity_bs, connectivity_as)
@@ -620,14 +621,16 @@ def dns_dnsmasq_bs(context, scenario):
     else:
         context.systemd_resolved = False
     conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
-    nmci.util.file_set_content("/etc/NetworkManager/conf.d/96-nmci-test-dns.conf", conf)
+    conf_f = "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
+    nmci.cleanup.add_NM_config(
+        conf_f, schedule_nm_restart=False, schedule_nm_reload=True
+    )
+    nmci.util.file_set_content(conf_f, conf)
     nmci.nmutil.restart_NM_service()
     context.dns_plugin = "dnsmasq"
 
 
 def dns_dnsmasq_as(context, scenario):
-    context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/96-nmci-test-dns.conf")
-    nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
@@ -653,13 +656,15 @@ def dns_default_bs(context, scenario):
     else:
         context.systemd_resolved = False
     conf = ["# configured by beaker-test", "[main]", "dns=default", "rc-manager=file"]
-    nmci.util.file_set_content("/etc/NetworkManager/conf.d/96-nmci-test-dns.conf", conf)
+    conf_f = "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
+    nmci.cleanup.add_NM_config(
+        conf_f, schedule_nm_restart=False, schedule_nm_reload=True
+    )
+    nmci.util.file_set_content(conf_f, conf)
     nmci.nmutil.restart_NM_service()
 
 
 def dns_default_as(context, scenario):
-    context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/96-nmci-test-dns.conf")
-    nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
@@ -705,8 +710,12 @@ def dns_systemd_resolved_bs(context, scenario):
     if target is None or "/run/systemd/resolve/" not in target:
         conf.append("rc-manager=symlink")
 
-    nmci.util.file_set_content("/etc/NetworkManager/conf.d/96-nmci-test-dns.conf", conf)
-    nmci.nmutil.restart_NM_service()
+    conf_f = "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
+    nmci.cleanup.add_NM_config(
+        conf_f, schedule_nm_restart=False, schedule_nm_reload=True
+    )
+    nmci.util.file_set_content(conf_f, conf)
+    nmci.nmutil.reload_NM_service()
     context.dns_plugin = "systemd-resolved"
 
 
@@ -719,8 +728,6 @@ def dns_systemd_resolved_as(context, scenario):
     else:
         print("restarting systemd-resolved")
         context.process.systemctl("restart systemd-resolved")
-    context.process.run_stdout("rm -f /etc/NetworkManager/conf.d/96-nmci-test-dns.conf")
-    nmci.nmutil.reload_NM_service()
     context.dns_plugin = ""
 
 
@@ -747,6 +754,7 @@ def dhclient_DHCP_bs(context, scenario):
     elif distro == "rhel" and version[0] > 9:
         context.cext.skip("skipping on rhel 10+")
 
+    nmci.cleanup.add_NM_config("96-nmci-dhcp-dhclient.conf")
     conf = ["# configured by beaker-test", "[main]", "dhcp=dhclient"]
     nmci.util.file_set_content(
         "/etc/NetworkManager/conf.d/96-nmci-dhcp-dhclient.conf", conf
@@ -754,14 +762,7 @@ def dhclient_DHCP_bs(context, scenario):
     nmci.nmutil.restart_NM_service()
 
 
-def dhclient_DHCP_as(context, scenario):
-    context.process.run_stdout(
-        "rm -f /etc/NetworkManager/conf.d/96-nmci-dhcp-dhclient.conf"
-    )
-    nmci.nmutil.restart_NM_service()
-
-
-_register_tag("dhclient_DHCP", dhclient_DHCP_bs, dhclient_DHCP_as)
+_register_tag("dhclient_DHCP", dhclient_DHCP_bs)
 
 
 def delete_testeth0_bs(context, scenario):
@@ -837,34 +838,30 @@ def ifcfg_rh_bs(context, scenario):
         # VV Do not lower this as some devices can be still going down
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=ifcfg-rh"]
-        nmci.util.file_set_content(
-            "/etc/NetworkManager/conf.d/96-nmci-custom.conf", conf
+        conf_f = "/etc/NetworkManager/conf.d/96-nmci-custom.conf"
+        nmci.cleanup.add_NM_config(conf_f)
+        nmci.util.file_set_content(conf_f, conf)
+
+        def _delay():
+            if context.IS_NMTUI:
+                # comment out wifi_rescan, as simwifi prepare not done yet
+                # if "simwifi" in scenario.tags:
+                #     nmci.ctx.wifi_rescan()
+                # VV Do not lower this as nmtui can be behaving weirdly
+                time.sleep(4)
+            time.sleep(0.5)
+
+        nmci.cleanup.add_callback(
+            _delay,
+            "delay-after-restart",
+            priority=nmci.Cleanup.PRIORITY_NM_SERVICE_RESTART + 1,
         )
+
         nmci.nmutil.restart_NM_service()
-        if context.IS_NMTUI:
-            # comment out wifi_rescan, as simwifi prepare not done yet
-            # if "simwifi" in scenario.tags:
-            #     nmci.ctx.wifi_rescan()
-            # VV Do not lower this as nmtui can be behaving weirdly
-            time.sleep(4)
-        time.sleep(0.5)
+        _delay()
 
 
-def ifcfg_rh_as(context, scenario):
-    if os.path.isfile("/etc/NetworkManager/conf.d/96-nmci-custom.conf"):
-        print("resetting ifcfg plugin")
-        context.process.run_stdout(
-            "rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
-        )
-        nmci.nmutil.restart_NM_service()
-        if context.IS_NMTUI:
-            # if 'simwifi' in scenario.tags:
-            #     nmci.ctx.wifi_rescan()
-            time.sleep(4)
-        time.sleep(0.5)
-
-
-_register_tag("ifcfg-rh", ifcfg_rh_bs, ifcfg_rh_as)
+_register_tag("ifcfg-rh", ifcfg_rh_bs)
 
 
 def keyfile_bs(context, scenario):
@@ -884,34 +881,30 @@ def keyfile_bs(context, scenario):
         # VV Do not lower this as some devices can be still going down
         time.sleep(0.5)
         conf = ["# configured by beaker-test", "[main]", "plugins=keyfile"]
-        nmci.util.file_set_content(
-            "/etc/NetworkManager/conf.d/96-nmci-custom.conf", conf
+        conf_f = "/etc/NetworkManager/conf.d/96-nmci-custom.conf"
+        nmci.cleanup.add_NM_config(conf_f)
+        nmci.util.file_set_content(conf_f, conf)
+
+        def _delay():
+            if context.IS_NMTUI:
+                # comment out wifi_rescan, as simwifi prepare not done yet
+                # if "simwifi" in scenario.tags:
+                #     nmci.ctx.wifi_rescan()
+                # VV Do not lower this as nmtui can be behaving weirdly
+                time.sleep(4)
+            time.sleep(0.5)
+
+        nmci.cleanup.add_callback(
+            _delay,
+            "delay-after-restart",
+            priority=nmci.Cleanup.PRIORITY_NM_SERVICE_RESTART + 1,
         )
+
         nmci.nmutil.restart_NM_service()
-        if context.IS_NMTUI:
-            # comment out wifi_rescan, as simwifi prepare not done yet
-            # if "simwifi" in scenario.tags:
-            #     nmci.ctx.wifi_rescan()
-            # VV Do not lower this as nmtui can be behaving weirdly
-            time.sleep(4)
-        time.sleep(0.5)
+        _delay()
 
 
-def keyfile_as(context, scenario):
-    if os.path.isfile("/etc/NetworkManager/conf.d/96-nmci-custom.conf"):
-        print("resetting ifcfg plugin")
-        context.process.run_stdout(
-            "rm -f /etc/NetworkManager/conf.d/96-nmci-custom.conf"
-        )
-        nmci.nmutil.restart_NM_service()
-        if context.IS_NMTUI:
-            # if 'simwifi' in scenario.tags:
-            #     nmci.ctx.wifi_rescan()
-            time.sleep(4)
-        time.sleep(0.5)
-
-
-_register_tag("keyfile", keyfile_bs, keyfile_as)
+_register_tag("keyfile", keyfile_bs)
 
 
 def plugin_default_bs(context, scenario):
@@ -1188,8 +1181,10 @@ def simwifi_p2p_bs(context, scenario):
     # this need to be done before NM restart, otherwise there is a race between NM and wpa_supp
     context.process.systemctl("restart wpa_supplicant")
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
+    conf_f = "/etc/NetworkManager/conf.d/95-nmci-wifi.conf"
+    nmci.cleanup.add_NM_config(conf_f)
     nmci.util.file_set_content(
-        "/etc/NetworkManager/conf.d/95-nmci-wifi.conf",
+        conf_f,
         ["[device]", "match-device=interface-name:wlan1", "managed=0"],
     )
 
@@ -1235,9 +1230,6 @@ def simwifi_p2p_as(context, scenario):
         context.process.systemctl("restart wpa_supplicant")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.run_stdout("pkill -9 -f wpa_supplicant.*wlan1", shell=True)
-    context.process.run_stdout("rm -rf /etc/NetworkManager/conf.d/95-nmci-wifi.conf")
-
-    nmci.nmutil.restart_NM_service()
 
 
 _register_tag("simwifi_p2p", simwifi_p2p_bs, simwifi_p2p_as)
@@ -1808,6 +1800,9 @@ _register_tag("firewall", firewall_bs, firewall_as)
 
 def restore_hostname_bs(context, scenario):
     context.original_hostname = context.process.run_stdout("hostname").strip()
+    nmci.cleanup.add_NM_config(
+        "90-nmci-hostname.conf", schedule_nm_restart=False, schedule_nm_reload=True
+    )
 
 
 def restore_hostname_as(context, scenario):
@@ -1822,11 +1817,6 @@ def restore_hostname_as(context, scenario):
         context.process.run_stdout(
             f"hostnamectl set-hostname --static {context.original_hostname}"
         )
-    context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/conf.d/90-nmci-hostname.conf"
-    )
-    context.process.run_stdout("rm -rf /etc/dnsmasq.d/dnsmasq_custom.conf")
-    nmci.nmutil.reload_NM_service()
     nmci.veth.wait_for_testeth0()
 
 
@@ -2415,43 +2405,46 @@ def adsl_as(context, scenario):
 _register_tag("adsl", None, adsl_as)
 
 
-def allow_veth_connections_bs(context, scenario):
-    rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="veth*", ENV{NM_UNMANAGED}="0"'
-    nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
-    nmci.util.update_udevadm()
-    context.process.run_stdout("rm -rf /var/lib/NetworkManager/no-auto-default.state")
-    nmci.util.file_set_content(
-        "/etc/NetworkManager/conf.d/95-nmci-unmanaged.conf",
-        ["[main]", "no-auto-default=eth*"],
-    )
-    nmci.nmutil.reload_NM_service()
-
-
 def no_auto_default_bs(context, scenario):
+    conf_f = "/etc/NetworkManager/conf.d/95-nmci-no-auto-default.conf"
+    nmci.cleanup.add_NM_config(
+        conf_f, schedule_nm_restart=False, schedule_nm_reload=True
+    )
     nmci.util.file_set_content(
-        "/etc/NetworkManager/conf.d/95-nmci-no-auto-default.conf",
+        conf_f,
         ["[main]", "no-auto-default=*"],
     )
     nmci.nmutil.reload_NM_service()
 
 
-def no_auto_default_as(context, scenario):
-    c_file = "/etc/NetworkManager/conf.d/95-nmci-no-auto-default.conf"
-    if os.path.isfile(c_file):
-        os.remove(c_file)
-        nmci.nmutil.reload_NM_service()
+_register_tag("no_auto_default", no_auto_default_bs)
 
 
-_register_tag("no_auto_default", no_auto_default_bs, no_auto_default_as)
+def allow_veth_connections_bs(context, scenario):
+    rule = 'ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="veth*", ENV{NM_UNMANAGED}="0"'
+    nmci.util.file_set_content("/etc/udev/rules.d/99-veths.rules", [rule])
+    nmci.util.update_udevadm()
+    context.process.run_stdout("rm -rf /var/lib/NetworkManager/no-auto-default.state")
+    conf_f = "/etc/NetworkManager/conf.d/95-nmci-unmanaged.conf"
+    nmci.cleanup.add_NM_config(
+        "/etc/NetworkManager/conf.d/95-nmci-unmanaged.conf",
+        schedule_nm_restart=False,
+        schedule_nm_reload=False,
+        priority=nmci.Cleanup.PRIORITY_TAG - 2,
+    )
+    nmci.cleanup.add_NM_service(
+        operation="reload", priority=nmci.Cleanup.PRIORITY_TAG - 1
+    )
+    nmci.util.file_set_content(
+        conf_f,
+        ["[main]", "no-auto-default=eth*"],
+    )
+    nmci.nmutil.reload_NM_service()
 
 
 def allow_veth_connections_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/udev/rules.d/99-veths.rules")
-    context.process.run_stdout(
-        "rm -rf /etc/NetworkManager/conf.d/95-nmci-unmanaged.conf"
-    )
     nmci.util.update_udevadm()
-    nmci.nmutil.reload_NM_service()
     devs = nmci.process.nmcli(
         "-t -f DEVICE c s -a", embed_combine_tag=nmci.embed.NO_EMBED
     )
