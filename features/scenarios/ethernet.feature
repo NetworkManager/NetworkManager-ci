@@ -1362,6 +1362,7 @@ Feature: nmcli - ethernet
 
     @rhbz2154350
     @ver+=1.40.12
+    @ignore_backoff_message
     @ethernet_keep_mtu_on_reboot
     Scenario: nmcli - connection - keep the same MTU for many devices on reboot
     * Create "302" "veth" devices named "veth_dev"

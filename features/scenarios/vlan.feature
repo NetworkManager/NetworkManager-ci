@@ -873,7 +873,9 @@ Feature: nmcli - vlan
 
     @rhbz1933041 @rhbz1926599 @rhbz1231526
     @ver+=1.30 @rhelver+=8
-    @logging_info_only @many_vlans
+    @ignore_backoff_message
+    @logging_info_only
+    @many_vlans
     @vlan_create_many_vlans
     Scenario: NM - vlan - create 500 (x86_64) or 200 (aarch64, s390x...) vlans
     * Commentary

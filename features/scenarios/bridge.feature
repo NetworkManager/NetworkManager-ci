@@ -593,6 +593,7 @@ Feature: nmcli - bridge
 
 
     @not_on_aarch64 @skip_str
+    @ignore_backoff_message
     @1000 @unload_kernel_modules
     @bridge_manipulation_with_1000_slaves
     Scenario: NM - bridge - manipulation with 1000 slaves bridge

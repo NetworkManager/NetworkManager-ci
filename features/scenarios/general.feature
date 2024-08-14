@@ -2283,6 +2283,7 @@ Feature: nmcli - general
 
     @rhbz1512316 @rhbz2210271
     @ver+=1.10.1
+    @ignore_backoff_message
     @do_not_touch_external_dummy
     Scenario: NM - general - do not touch external dummy device
     * Cleanup device "dummy0"
@@ -3024,6 +3025,7 @@ Feature: nmcli - general
 
     @rhbz1810153
     @ver+=1.22.0
+    @ignore_backoff_message
     @clean_device_state_files
     Scenario: NM - general - clean device state files
     * Cleanup device "dummy0"

@@ -2371,6 +2371,7 @@ Feature: nmcli: ipv4
 
     @rhbz1449873
     @ver+=1.8.0
+    @ignore_backoff_message
     @ipv4_keep_external_addresses
     Scenario: NM - ipv4 - keep external addresses
     * Create "dummy" device named "dummy0"
@@ -2971,6 +2972,7 @@ Feature: nmcli: ipv4
     #   * NM < 1.43.6: https://bugzilla.redhat.com/show_bug.cgi?id=2179890
     #   * iproute 6.1: https://bugzilla.redhat.com/show_bug.cgi?id=2183967
     @ver+=1.35.7
+    @ignore_backoff_message
     @logging_info_only
     @ipv4_ignore_nonstatic_routes
     Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP

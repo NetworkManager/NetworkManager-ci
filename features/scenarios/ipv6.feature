@@ -1681,6 +1681,7 @@
 
     @rhbz1449873
     @ver+=1.8.0
+    @ignore_backoff_message
     @ipv6_keep_external_addresses
     Scenario: NM - ipv6 - keep external addresses
     * Create "dummy" device named "dummy0"
@@ -2253,6 +2254,7 @@
     #   * https://bugzilla.redhat.com/show_bug.cgi?id=2179890 and
     #   * not-yet-reported memory issue somewhere causing OOMs
     @ver+=1.35.7
+    @ignore_backoff_message
     @logging_info_only
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
@@ -2294,6 +2296,7 @@
     @ver+=1.46.1
     @ver/rhel/9+=1.48
     @ver/rhel/9/4+=1.46.0.7
+    @ignore_backoff_message
     @logging_info_only
     @ipv6_ignore_routes_changes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
