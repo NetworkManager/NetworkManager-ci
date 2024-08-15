@@ -1186,7 +1186,7 @@ def run_nmstate(context, log_file):
     if context.rh_release_num[0] == 8:
         release = "el8"
     if context.rh_release_num[0] == 10:
-        release = "fed"
+        release = "el10"
     if "fedora" in context.rh_release.lower():
         release = "fed"
     if "rawhide" in context.rh_release.lower():
