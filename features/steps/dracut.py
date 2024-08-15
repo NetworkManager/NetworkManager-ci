@@ -26,6 +26,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
             "tail -f /tmp/dracut_boot.log",
             timeout=timeout,
             logfile=nmci.pexpect.DEV_NULL,
+            codec_errors="ignore",
         )
     while t.loop_sleep():
         res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=0.1)
