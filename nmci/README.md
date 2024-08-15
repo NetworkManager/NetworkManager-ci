@@ -1727,6 +1727,16 @@ String represenation of parsed NetworkManager and distro version
 
 # nmutil
 
+### nmci.nmutil.add_NM_config(conf_value, conf_file, cleanup_priority=70, op='restart')
+
+Create NM configuration file, and properly clean it after scenario.
+
+* **Parameters:**
+  * **conf_value** (*str* *or* *list**(**str**)*) – content of the config file
+  * **conf_file** (*str*) – path to the config file
+  * **cleanup_priority** (*int*) – priority of the cleanup, defaults to PRIORITY_FILE
+  * **op** (*str* *or* *callable*) – operation over NM service, can be ‘restart’, ‘reload’ or callable, defaults to ‘restart’
+
 ### nmci.nmutil.connection_show(\*, only_active=False, without_active_externally=False, name=None, uuid=None, setting_type=None)
 
 Call `nmcli connection show` to get a list of profiles. It augments

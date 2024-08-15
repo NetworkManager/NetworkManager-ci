@@ -227,6 +227,58 @@ class _NMUtil:
             ret = False
         return ret
 
+    def add_NM_config(
+        self,
+        conf_value,
+        conf_file,
+        cleanup_priority=nmci.Cleanup.PRIORITY_FILE,
+        op="restart",
+    ):
+        """
+        Create NM configuration file, and properly clean it after scenario.
+
+        :param conf_value: content of the config file
+        :type conf_value: str or list(str)
+        :param conf_file: path to the config file
+        :type conf_file: str
+        :param cleanup_priority: priority of the cleanup, defaults to PRIORITY_FILE
+        :type cleanup_priority: int
+        :param op: operation over NM service, can be 'restart', 'reload' or callable, defaults to 'restart'
+        :type op: str or callable
+        """
+        if op == "restart":
+            do_op = self.restart_NM_service
+            nmci.cleanup.add_NM_config(
+                conf_file,
+                priority=cleanup_priority,
+                schedule_nm_restart=True,
+                schedule_nm_reload=False,
+            )
+        elif op == "reload":
+            do_op = self.reload_NM_service
+            nmci.cleanup.add_NM_config(
+                conf_file,
+                priority=cleanup_priority,
+                schedule_nm_restart=False,
+                schedule_nm_reload=True,
+            )
+        elif type(op) is type(lambda: True):
+            do_op = op
+            nmci.cleanup.add_callback(
+                do_op, name="NM-config-additional-cleanup", priority=cleanup_priority
+            )
+            nmci.cleanup.add_NM_config(
+                conf_file,
+                priority=cleanup_priority,
+                schedule_nm_restart=False,
+                schedule_nm_reload=False,
+            )
+        else:
+            assert False, "Operation must be `restart`, `reload` or callable function"
+
+        nmci.util.file_set_content(conf_file, conf_value)
+        do_op()
+
     def reload_NM_connections(self):
         """
         Wrapper around :code:`nmcli con reload`.
