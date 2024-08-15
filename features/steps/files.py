@@ -61,6 +61,7 @@ def replace_substring(context, substring, replacement, path):
 def append_to_ifcfg(context, line, name):
     cmd = 'echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
     context.command_code(cmd)
+    nmci.cleanup.add_iface(name)
     nmci.cleanup.add_connection(name)
 
 
