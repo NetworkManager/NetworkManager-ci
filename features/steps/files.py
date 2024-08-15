@@ -28,12 +28,14 @@ def create_config_file(
     prio = getattr(nmci.cleanup.Cleanup, priority, None)
     if prio is None:
         prio = int(priority)
-    if prio != nmci.cleanup.Cleanup.PRIORITY_FILE:
+
+    do_op = operation
+    if operation is None:
+        do_op = lambda: True
+        # if operation is None, restart is done in Scenario, so register NM restart cleanup
         nmci.cleanup.add_NM_service(priority=prio)
-    nmci.cleanup.add_NM_config(path, priority=prio)
-    nmci.util.file_set_content(path, context.text)
-    if operation is not None:
-        nmci.nmutil.do_NM_service(operation)
+
+    nmci.nmutil.add_NM_config(context.text, path, cleanup_priority=prio, op=do_op)
 
 
 @step('Cleanup NM config file "{cfg}"')
