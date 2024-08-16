@@ -6,6 +6,7 @@ import re
 import shutil
 from subprocess import run, PIPE, STDOUT
 import sys
+import xml.etree.ElementTree as ET
 
 inst = [
     "/usr/bin/dnf",
@@ -23,6 +24,7 @@ inst_el7 = [
     "libselinux-python",
     "python-inotify",
 ]
+name_short = "pbl"
 server_root = "/etc/httpd"
 document_root = "/var/www/html"
 httpd_conf = "/conf/".join((server_root, "httpd.conf"))
@@ -31,6 +33,7 @@ httpd_welcome_conf = "# disable welcome page"
 httpd_listen = "Listen 8080"
 httpd_custom_file = "99-publish_behave_logs.conf"
 httpd_custom_file_full = "/conf.d/".join((server_root, httpd_custom_file))
+firewalld_etc = "/etc/firewalld"
 source_dir = os.path.dirname(__file__)
 
 
@@ -88,7 +91,7 @@ except:
     raise SystemExit(
         f"apachectl configtest failed! configtest output was:\n\n{configtest.stdout}"
     )
-print("httpd configured")
+sys.stderr.write("httpd configured\n")
 
 
 shutil.copy("/".join((source_dir, "publish_behave_logs")), "/usr/local/bin/")
@@ -109,7 +112,18 @@ os.symlink(
     "/usr/lib/systemd/system/httpd.service",
     "/etc/systemd/system/multi-user.target.wants/httpd.service",
 )
-print("service files installed")
+sys.stderr.write("service files installed\n")
+
+
+shutil.copy(
+    "/".join([source_dir, "service.xml"]),
+    "/".join([firewalld_etc, "services", name_short + ".xml"]),
+)
+shutil.copy(
+    "/".join([source_dir, "policy.xml"]),
+    "/".join([firewalld_etc, "policies", name_short + ".xml"]),
+)
+
 
 # load and restart systemd services
 have_dbus = False
@@ -118,6 +132,7 @@ try:
     have_dbus = True
 except dbus.exceptions.DBusException:
     pass
+
 
 if have_dbus:
     dbus_systemd = dbus_system_bus.get_object(
@@ -134,4 +149,14 @@ if have_dbus:
 
     dbus_systemd_manager.RestartUnit("publish_behave_logs.service", "replace")
     dbus_systemd_manager.RestartUnit("httpd.service", "replace")
-print("services enabled and started, all should be set now")
+    dbus_systemd_manager.ReloadOrTryRestartUnit("firewalld.service", "replace")
+    sys.stderr.write("services enabled and started, all should be set now\n")
+else:
+    msg = [
+        "systemd not found on dbus. Please do the following:",
+        "- reload units: systemctl daemon-reload",
+        "- enable pbl: systemctl enable --now publish_behave_logs.service"
+        "- if firewalld is active, restart it: systemctl restart firewalld",
+        "",
+    ]
+    sys.stderr.write("\n".join(msg))
