@@ -2258,7 +2258,7 @@
     @logging_info_only
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
-    * Prepare simulated test "many_routes6" device with ifindex "65006"
+    * Prepare simulated test "many_routes6" device with "30m" leasetime
     * Commentary
         """
         Clean up the device early with ip so that in case of some problems, the restarted
