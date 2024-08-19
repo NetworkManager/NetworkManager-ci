@@ -543,6 +543,8 @@
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
+    @ver+=1.46
+    @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_p2p_cert
     Scenario: libreswan - ikev2 - p2p
     * Prepare nmstate libreswan environment
@@ -559,6 +561,8 @@
     Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
 
 
+    @ver+=1.46
+    @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_leftsubnet
     Scenario: libreswan - ikev2 - leftsubnet
     * Prepare nmstate libreswan environment
