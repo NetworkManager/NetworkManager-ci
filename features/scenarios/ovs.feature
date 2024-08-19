@@ -86,8 +86,9 @@ Feature: nmcli - ovs
     Then "bond0\s+ovs-port\s+unmanaged" is visible with command "nmcli device"
 
 
-    @RHEL-46904
+    @RHEL-46904 @RHEL-53344
     @ver+=1.49.3
+    @ver/rhel/9/4+=1.46.0.17
     @openvswitch
     @nmcli_activate_parent_connection_keep_children_alive
     Scenario: nmcli - openvswitch - acticate the parent connection will still keep children alive
