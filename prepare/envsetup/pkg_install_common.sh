@@ -64,6 +64,9 @@ install_common_packages () {
     test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE $skip \
                                                                --allowerasing
 
+
+    dnf debuginfo-install -y dnsmasq
+
     # backup freeradius conf
     rm -rf /tmp/nmci-raddb
     cp -ar /etc/raddb/ /tmp/nmci-raddb/
