@@ -2390,6 +2390,8 @@ testmapper:
         tags: gate
     - lldp_vlan_name_overflow:
         feature: connection
+    - lldp_malformed_chasis_crash:
+        feature: connection
     - lldp_vlan_tlv:
         feature: connection
     - lldp_with_ovs:

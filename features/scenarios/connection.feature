@@ -635,6 +635,29 @@ Feature: nmcli: connection
     Then "NEIGHBOR\[0\].IEEE-802-1-VLAN-NAME:\s+default\s" is visible with command "nmcli --fields all device lldp" in "5" seconds
 
 
+    @rhbz2295734 @RHEL-46200
+    @ver+=1.49.4
+    @ver+=1.48.9
+    @ver+=1.46.3
+    @ver+=1.44.5
+    @ver+=1.42.9
+    @ver+=1.40.19
+    @ver/rhel/9/4+=1.46.0.18
+    @tcpreplay
+    @lldp_malformed_chasis_crash
+    Scenario: nmcli - connection - lldp vlan name overflow
+    * Prepare simulated test "testXc" device
+    * Add "ethernet" connection named "con_con" for device "testXc" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 1.2.3.4/24
+          connection.lldp enable
+          """
+    When "testXc\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+    * Execute "ip netns exec testXc_ns tcpreplay --intf1=testXcp contrib/pcap/malformed_chasis_lldp.pcpng"
+    Then "testXc\s+ethernet\s+connected" is visible with command "nmcli device" for full "5" seconds
+
+
     @rhbz1652211
     @ver+=1.18.0
     @tcpreplay
