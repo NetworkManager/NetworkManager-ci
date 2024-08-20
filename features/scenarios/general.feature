@@ -363,8 +363,14 @@ Feature: nmcli - general
 
 
     @RHEL-33435
-    @ver+=1.49.0
-    @ver/rhel/9+=1.48.4.1
+    @ver+=1.49.4
+    @ver+=1.48.9
+    @ver+=1.46.3
+    @ver+=1.44.5
+    @ver+=1.42.9
+    @ver+=1.40.19
+    @ver/rhel/9/4+=1.46.0.18
+    @ver/rhel/9/5+=1.48.4.1
     @delete_testeth0 @restart_if_needed @restore_hostname @reset_etc_hosts @dns_default
     @pull_hostname_from_hosts_default
     Scenario: nmcli - general - pull hostname from /etc/hosts - dns=default
