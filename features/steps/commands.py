@@ -1214,16 +1214,20 @@ def run_nmstate(context, log_file):
                     cmd += f" --copr {copr}"
                     break
     elif (
-        nmci.process.run_code(
-            "dnf copr list | grep networkmanager/NetworkManager", shell=True
-        )
+        nmci.process.dnf(
+            "copr list | grep networkmanager/NetworkManager",
+            shell=True,
+            ignore_returncode=True,
+            attempts=1,
+        ).returncode
         == 0
     ):
-        copr = ""
-        copr = nmci.process.run_stdout(
-            "dnf copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
+        copr = nmci.process.dnf(
+            "copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
             shell=True,
-        ).strip()
+            ignore_returncode=True,
+            attempts=1,
+        ).stdout.strip()
         cmd += f" --copr {copr}"
     # Here we have stock packages, let's download them
     else:
@@ -1409,19 +1413,14 @@ def check_package_version(context, package, version, distro=None):
             nmci.cext.skip(
                 f'Version "{version}" of package "{package}" is not present among available packages'
             )
-        nmci.process.run_code(
-            f"dnf upgrade --nobest {packages} -y",
-            ignore_stderr=True,
-            shell=True,
-            timeout=120,
+        nmci.process.dnf(
+            f"upgrade --nobest {packages} -y",
         )
         nmci.cleanup.add_callback(
             name="cleanup-execute",
-            callback=lambda: nmci.process.run_code(
-                f"dnf downgrade $(contrib/utils/{repo}_links.sh {package} {current_version}) -y",
-                ignore_stderr=True,
+            callback=lambda: nmci.process.dnf(
+                f"downgrade $(contrib/utils/{repo}_links.sh {package} {current_version}) -y",
                 shell=True,
-                timeout=120,
             ),
             priority=nmci.Cleanup.PRIORITY_FILE,
         )

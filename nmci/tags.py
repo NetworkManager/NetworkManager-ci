@@ -776,10 +776,8 @@ def ifupdown_bs(context, scenario):
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
-        context.process.run_stdout(
-            "dnf install -y NetworkManager-initscripts-updown",
-            ignore_stderr=True,
-            timeout=120,
+        context.process.dnf(
+            "install -y NetworkManager-initscripts-updown",
         )
 
 
@@ -800,10 +798,8 @@ def ifcfg_rh_bs(context, scenario):
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
-        context.process.run_stdout(
-            "dnf install -y NetworkManager-initscripts-updown",
-            ignore_stderr=True,
-            timeout=120,
+        context.process.dnf(
+            "install -y NetworkManager-initscripts-updown",
         )
     if not context.process.run_search_stdout(
         "NetworkManager --print-config", "^plugins=ifcfg-rh", pattern_flags=re.MULTILINE
@@ -837,9 +833,7 @@ def keyfile_bs(context, scenario):
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
-        context.process.run_stdout(
-            "dnf install -y NetworkManager-initscripts-updown", timeout=120
-        )
+        context.process.dnf("install -y NetworkManager-initscripts-updown")
     if not context.process.run_search_stdout(
         "NetworkManager --print-config", "^plugins=keyfile", pattern_flags=re.MULTILINE
     ):
@@ -1099,11 +1093,10 @@ def simwifi_p2p_bs(context, scenario):
         # "Stream" is [8,99]
         # and "Stream" not in context.rh_release
     ):
-        context.process.run_stdout(
-            "dnf -y install "
+        context.process.dnf(
+            "-y install "
             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-2.7-2.2.bz1693684.el8.x86_64.rpm "
             "https://vbenes.fedorapeople.org/NM/wpa_supplicant-debuginfo-2.7-2.2.bz1693684.el8.x86_64.rpm ",
-            timeout=120,
         )
         context.process.systemctl("restart wpa_supplicant")
 
@@ -1121,15 +1114,9 @@ def simwifi_p2p_bs(context, scenario):
 
     # downgrade wireless regdb
     if context.rh_release_num[0] == 9:
-        nmci.process.run(
-            [
-                "dnf",
-                "-y",
-                "downgrade",
-                "https://kojihub.stream.centos.org/kojifiles/packages/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm",
-            ],
-            ignore_stderr=True,
-            ignore_returncode=True,
+        nmci.process.dnf(
+            "-y downgrade "
+            "https://kojihub.stream.centos.org/kojifiles/packages/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm"
         )
 
     # This should be good as dynamic addresses are now used
@@ -1152,11 +1139,7 @@ def simwifi_p2p_as(context, scenario):
         context.cext.skip("Skipping as not on x86_64")
 
     if context.rh_release_num[0] == 9:
-        nmci.process.run(
-            ["dnf", "-y", "upgrade", "wireless-regdb"],
-            ignore_stderr=True,
-            ignore_returncode=True,
-        )
+        nmci.process.dnf("-y upgrade wireless-regdb")
 
     print("---------------------------")
     if (
@@ -1167,19 +1150,17 @@ def simwifi_p2p_as(context, scenario):
     ):
         if arch == "x86_64":
             print("Install patched wpa_supplicant for x86_64")
-            context.process.run_stdout(
-                "dnf -y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm",
+            context.process.dnf(
+                "-y install https://vbenes.fedorapeople.org/NM/WPA3/wpa_supplicant{,-debuginfo,-debugsource}-2.9-8.el8.$(arch).rpm",
                 shell=True,
-                timeout=120,
             )
         else:
             print("Install patched wpa_supplicant")
-            context.process.run_stdout(
-                "dnf -y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm",
+            context.process.dnf(
+                "-y install https://vbenes.fedorapeople.org/NM/rhbz1888051/wpa_supplicant{,-debuginfo,-debugsource}-2.9-3.el8.$(arch).rpm",
                 shell=True,
-                timeout=120,
             )
-        context.process.run_stdout("dnf -y update wpa_supplicant", timeout=120)
+        context.process.dnf("-y update wpa_supplicant")
         context.process.systemctl("restart wpa_supplicant")
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     context.process.run_stdout("pkill -9 -f wpa_supplicant.*wlan1", shell=True)
