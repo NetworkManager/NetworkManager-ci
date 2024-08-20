@@ -928,6 +928,75 @@ class _Process:
             embed_combine_tag=embed_combine_tag,
         )
 
+    def dnf(
+        self,
+        argv,
+        *,
+        as_bytes=False,
+        shell=False,
+        timeout=120,
+        cwd=None,
+        env=None,
+        env_extra=None,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        embed_combine_tag=TRACE_COMBINE_TAG,
+        attempts=3,
+    ):
+        """
+        Run :code:`dnf` command and check its output. If the command fails, or prints
+        anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+
+        :param argv: systemctl arguments added to the command's execution
+        :type argv: str or list
+        :param as_bytes: return stdout and stderr as bytes, defaults to False
+        :type as_bytes: bool, optional
+        :param shell: run command in shell, defaults to False
+        :type shell: bool, optional
+        :param timeout: timeout for the single command execution, can take 'retry_count' executions, defaults to 120
+        :type timeout: int, optional
+        :param cwd: cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
+        :type cwd: str, optional
+        :param env: env for the command, defaults to None
+        :type env: dict, optional
+        :param env_extra: env_extra for the command, defaults to None
+        :type env_extra: dict, optional
+        :param ignore_returncode: ignore returncode of the command, defaults to True
+        :type ignore_returncode: bool, optional
+        :param ignore_stderr: ignore stderr of the command, defaults to True
+        :type ignore_stderr: bool, optional
+        :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+        :type embed_combine_tag: str, optional
+        :param attempts: number of retries in case of non-zero returncode, defaults to 3
+        :type attempts: str, optional
+        :returns: RunResult object
+        :rtype: RunResult
+        """
+        s_argv = WithPrefix(["dnf"], argv)
+
+        for _ in range(attempts):
+            result = self._run(
+                s_argv,
+                shell=shell,
+                as_bytes=as_bytes,
+                timeout=timeout,
+                cwd=cwd,
+                env=env,
+                env_extra=env_extra,
+                ignore_stderr=True,
+                ignore_returncode=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                embed_combine_tag=embed_combine_tag,
+            )
+            if result.returncode == 0:
+                break
+        if not ignore_returncode and result.returncode != 0:
+            self.raise_results(s_argv, "exited with non-zero status", result)
+        if not ignore_stderr and result.stderr:
+            self.raise_results(s_argv, "printed something to stderr", result)
+        return result
+
 
 class _Exec:
     def __init__(self, process):

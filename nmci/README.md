@@ -2332,6 +2332,28 @@ Save command call into the cache
   * **stdout** (*bytes*) – stdout of the process
   * **stderr** (*bytes*) – stderr of the process
 
+### nmci.process.dnf(argv, \*, as_bytes=False, shell=False, timeout=120, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=True, embed_combine_tag=<object object>, attempts=3)
+
+Run `dnf` command and check its output. If the command fails, or prints
+anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
+
+* **Parameters:**
+  * **argv** (*str* *or* *list*) – systemctl arguments added to the command’s execution
+  * **as_bytes** (*bool**,* *optional*) – return stdout and stderr as bytes, defaults to False
+  * **shell** (*bool**,* *optional*) – run command in shell, defaults to False
+  * **timeout** (*int**,* *optional*) – timeout for the single command execution, can take ‘retry_count’ executions, defaults to 120
+  * **cwd** (*str**,* *optional*) – cwd for the command, None replaced by nmci.util.BASE_DIR, defaults to None
+  * **env** (*dict**,* *optional*) – env for the command, defaults to None
+  * **env_extra** (*dict**,* *optional*) – env_extra for the command, defaults to None
+  * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
+  * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to True
+  * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **attempts** (*str**,* *optional*) – number of retries in case of non-zero returncode, defaults to 3
+* **Returns:**
+  RunResult object
+* **Return type:**
+  [RunResult](#nmci.process.RunResult)
+
 ### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
 
 Run `nmcli` command and check its output. If the command fails, or prints
