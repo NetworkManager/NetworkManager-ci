@@ -2913,9 +2913,6 @@ _register_tag(
 
 def slow_dnsmasq_bs(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
-    if not os.path.isfile(f"{dnsmasq_bin}.orig"):
-        # use copy2 to preserve selinux context
-        shutil.copy2(dnsmasq_bin, f"{dnsmasq_bin}.orig")
     nmci.util.file_set_content(
         f"{dnsmasq_bin}.slow",
         [
@@ -2929,7 +2926,8 @@ def slow_dnsmasq_bs(context, scenario):
 
 def slow_dnsmasq_as(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
-    os.rename(f"{dnsmasq_bin}.orig", dnsmasq_bin)
+    if os.path.isfile(f"{dnsmasq_bin}.orig"):
+        nmci.process.run(f"mv {dnsmasq_bin}.orig {dnsmasq_bin}")
     if os.path.isfile(f"{dnsmasq_bin}.slow"):
         os.remove(f"{dnsmasq_bin}.slow")
     # this is to ensure `sleep 3` dnsmasq.slow finished in case of fail

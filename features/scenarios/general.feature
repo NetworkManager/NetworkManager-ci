@@ -1661,8 +1661,9 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
     Then "dnsmasq.orig" is not visible with command "ps aux" in "0" seconds
-    # enable slow dnsmasq
-    * Execute "cp -f `which dnsmasq.slow` `which dnsmasq`"
+    # enable slow dnsmasq - use mv and after Prepare step
+    * Execute "mv `which dnsmasq` `which dnsmasq`.orig"
+    * Execute "mv `which dnsmasq.slow` `which dnsmasq.slow | sed 's/.slow//'`"
     * Restart NM in background
     # wait until dnsmasq is started by NM
     When "sleep 3" is visible with command "ps aux | grep -A1 dnsmasq" in "10" seconds
