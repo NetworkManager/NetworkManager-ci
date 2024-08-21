@@ -2872,42 +2872,51 @@ def radius_bs(context, scenario):
     )
 
 
-def radius_as(context, scenario):
-    if nmci.util.is_verbose():
-        nmci.embed.embed_service_log("RADIUS", syslog_identifier="radiusd")
-    context.process.systemctl("stop nm-radiusd.service")
-
-
-_register_tag("radius", radius_bs, radius_as)
+_register_tag("radius", radius_bs)
 
 
 def tag8021x_doc_procedure_bs(context, scenario):
-    # must run after radius tag whose _bs() part creates source files
-    shutil.copy("/etc/raddb/certs/client.key", "/etc/pki/tls/private/8021x.key")
-    shutil.copy("/etc/raddb/certs/client.pem", "/etc/pki/tls/certs/8021x.pem")
-    shutil.copy("/etc/raddb/certs/ca.pem", "/etc/pki/tls/certs/8021x-ca.pem")
-    context.process.run_stdout(
-        "yum -y install hostapd wpa_supplicant", ignore_stderr=True, timeout=120
-    )
-    with open("/etc/sysconfig/hostapd", "r+") as f:
-        content = f.read()
-        f.seek(0)
-        f.write(re.sub("(?m)^OTHER_ARGS=.*$", 'OTHER_ARGS="-d"', content))
+    distro, version = nmci.misc.distro_detect()
+    if distro == "rhel" and (version[0] < 9 or version[0] == 9 and version[1] < 5):
+        # must run after radius tag whose _bs() part creates source files
+        shutil.copy("/etc/raddb/certs/client.key", "/etc/pki/tls/private/8021x.key")
+        shutil.copy("/etc/raddb/certs/client.pem", "/etc/pki/tls/certs/8021x.pem")
+        shutil.copy("/etc/raddb/certs/ca.pem", "/etc/pki/tls/certs/8021x-ca.pem")
+        context.process.run_stdout(
+            "yum -y install hostapd wpa_supplicant", ignore_stderr=True, timeout=120
+        )
+        with open("/etc/sysconfig/hostapd", "r+") as f:
+            content = f.read()
+            f.seek(0)
+            f.write(re.sub("(?m)^OTHER_ARGS=.*$", 'OTHER_ARGS="-d"', content))
 
 
 def tag8021x_doc_procedure_as(context, scenario):
-    context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
-    if nmci.util.is_verbose():
-        nmci.embed.embed_service_log("HOSTAPD", syslog_identifier="hostapd")
-        nmci.embed.embed_service_log(
-            "802.1X access control", syslog_identifier="802-1x-tr-mgmt"
-        )
+    context.process.systemctl("stop 802-1x-tr-mgmt hostapd nm-radiusd")
+    nmci.process.run(
+        "ipa-getcert stop-tracking -k /etc/pki/tls/private/radius.key -f /etc/pki/tls/certs/radius.pem"
+    )
+    for f in [
+        "mods-available/eap",
+        "sites-available/default",
+        "sites-available/inner-tunnel",
+        "mods-available/ldap",
+        "clients.conf",
+    ]:
+        file = os.path.join("/etc/raddb", f)
         nmci.embed.embed_file_if_exists(
-            "WPA_SUP from access control test",
-            "/tmp/nmci-wpa_supplicant-standalone",
+            f"RADIUS config {f}", file, fail_only=True, ignore_comments="#"
         )
-    if os.path.isfile("/etc/hostapd/hostapd.conf"):
-        os.remove("/etc/hostapd/hostapd.conf")
+    nmci.embed.embed_service_log("RADIUS", syslog_identifier="radiusd", fail_only=True)
+    nmci.embed.embed_service_log("HOSTAPD", syslog_identifier="hostapd", fail_only=True)
+    nmci.embed.embed_service_log(
+        "802.1X access control", syslog_identifier="802-1x-tr-mgmt", fail_only=True
+    )
+    nmci.embed.embed_file_if_exists(
+        "WPA_SUP from access control test",
+        "/tmp/nmci-wpa_supplicant-standalone",
+        fail_only=True,
+    )
     context.process.systemctl("daemon-reload")
     nmci.veth.reset_hwaddr_nmcli("eth4")
 

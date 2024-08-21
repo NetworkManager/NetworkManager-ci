@@ -431,6 +431,7 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "br0"
     ### .2: unused, .3 and .4: handled by @radius tag
     ### .5 Configuring hostapd as an authenticator in a wired network
+    * Cleanup file "/etc/hostapd/hostapd.conf"
     * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
     Then Execute "systemctl start hostapd"
     * Execute "systemctl status hostapd"
