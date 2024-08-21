@@ -403,6 +403,9 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=8.6
+    @rhelver-8.10
+    @rhelver+=9.2
+    @rhelver-9.4
     @radius @8021x_doc_procedure @attach_wpa_supplicant_log
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
@@ -482,6 +485,131 @@ Feature: nmcli - procedures in documentation
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
     * Bring "up" connection "test1-plain"
     * Execute "systemctl enable --now 802-1x-tr-mgmt@br0.service"
+    * Note MAC address output for device "test1" via ip command
+    Then Unable to ping "192.168.100.1" from "test1" device
+    Then Noted value is not visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
+    * Bring "down" connection "test1-plain"
+    * Bring "up" connection "test1-ttls"
+    * Wait for "1" seconds
+    Then Noted value is visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
+    * Commentary
+        """
+        Sometimes, the gateway is unreachable. Let's skip, if the MAC is
+        visible in the previous step, we're good anyway
+        """
+    * Skip if next step fails:
+    Then Ping "192.168.100.1" from "test1" device
+
+
+    @rhelver+=9.5
+    @rhelver+=8.10
+    @dns_systemd_resolved @8021x_doc_procedure @attach_wpa_supplicant_log @freeipa
+    @8021x_hostapd_freeradius_doc_procedure
+    Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
+    * Add "bridge" connection named "br0" for device "br0" with options
+        """
+        group-forward-mask 8 connection.autoconnect-ports 1
+        """
+    * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "controller br0 connection.zone drop"
+    * Execute "ip l add test1 type veth peer name test1b"
+    * Execute "ip l set dev test1 up"
+    * Add "ethernet" connection named "br0-client-port" for device "test1b" with options "controller br0"
+    * Bring "up" connection "br0-client-port"
+    * Commentary
+        """
+        34.3. Configuring FreeRADIUS to authenticate network clients securely by using EAP
+        """
+    * Execute "dnf -y remove freeradius freeradius-ldap || true"
+    * Execute "rm -rf /etc/raddb /etc/pki/{certs/radius.pem,private/radius.key}"
+    * Execute "dnf -y install freeradius freeradius-ldap hostapd"
+    # we can't clean up arbitrary commands yet, done it tag8021x_doc_procedure_as() instead
+    #   ipa-getcert stop-tracking -k /etc/pki/tls/private/radius.key -f /etc/pki/tls/certs/radius.pem
+    * Commentary
+        """
+        Request a server certificate stored in files from IPA
+        """
+    * Execute "ipa-getcert request -w -k /etc/pki/tls/private/radius.key -f /etc/pki/tls/certs/radius.pem -o "root:radiusd" -m 640 -O "root:radiusd" -M 640 -T caIPAserviceCert -C 'systemctl restart radiusd.service' -N $(hostname) -D $(hostname) -K radius/$(hostname) || true"
+    * "MONITORING" is visible with command "ipa-getcert list -f /etc/pki/tls/certs/radius.pem" in "5" seconds
+    * Cleanup file "/etc/raddb/certs/dh"
+    * Execute "openssl dhparam -out /etc/raddb/certs/dh 2048"
+    * Execute "sed -i 's/^\([[:space:]]*\)#\?\(private_key_password\)/\1#\2/; s!\(private_key_file =\).*$!\1 /etc/pki/tls/private/radius.key!; s!\(certificate_file =\).*!\1 /etc/pki/tls/certs/radius.pem!; s!\(ca_file =\).*!\1 /etc/ipa/ca.crt!' /etc/raddb/mods-available/eap"
+    * Execute "sed -i 's/^\(\tdefault_eap_type =\).*$/\1 ttls/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/md5 {$/,+1 s/^\t/\t#/' /etc/raddb/mods-available/eap"
+    * Execute "sed -i '/^\tAuth-Type \(PAP\|CHAP\|MS-CHAP\) {/,+2 s/^/#/; s/^\t\(mschap\|digest\)/#\t\1/' /etc/raddb/sites-available/default"
+    * Execute "sed -i 's/\([[:space:]]*\)-ldap/\1#-ldap\n\1ldap\n\1if ((ok || updated) \&\& User-Password) {\n\1\1update {\n\1\1\1control:Auth-Type := ldap\n\1\1}\n\1}/' /etc/raddb/sites-available/inner-tunnel"
+    * Execute "sed -i '/#[[:space:]]*Auth-Type LDAP {$/,/^#[[:space:]]*}$/ s/^#//' /etc/raddb/sites-available/inner-tunnel"
+    * Execute "ln -s /etc/raddb/mods-available/ldap /etc/raddb/mods-enabled/ldap"
+    * Execute "sed -i 's!^\tserver = .*!\tserver = '$'\'''ldaps://freeipa.nmci.test/'$'\'''! ' /etc/raddb/mods-available/ldap"
+    * Execute "sed -i 's!^\tbase_dn = .*!\tbase_dn = '$'\'''cn=users,cn=accounts,dc=nmci,dc=test'$'\'''! ' /etc/raddb/mods-available/ldap"
+    * Execute "sed -i 's/#\?\([[:space:]]*\)#\?\(require_cert\).*$/\1\2 = '$'\'''demand'$'\'''/' /etc/raddb/mods-available/ldap"
+    # FEEDBACK: why is ipa server among radius clients? Let's try without it...
+    # also: we're going to connect over localhost, no need for remote hostapd section either
+    # also: we're using 'client_password' because then we don't need any changes to the current file in contrib/
+    * Execute "sed -i 's/^\([[:space:]]*secret[[:space:]]*=[[:space:]]*\).*$/\1client_password/' /etc/raddb/clients.conf"
+    Then Execute "radiusd -XC"
+    * Execute "firewall-cmd --add-service=radius || true"
+    # TODO: cleanup systemd changes
+    * Execute "systemd-run --service-type forking --unit nm-radiusd.service /usr/sbin/radiusd -l stdout -x"
+    * Commentary
+        """
+        34.4. Configuring hostapd as an authenticator in a wired network
+        """
+    * Cleanup file "/etc/hostapd/hostapd.conf"
+    * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
+    * Execute "systemctl enable --now hostapd"
+    * Cleanup file "/etc/wpa_supplicant/wpa_supplicant-TTLS.conf"
+    * Execute "cp contrib/8021x/doc_procedures/wpa_supplicant-TTLS-ipa.conf /etc/wpa_supplicant/wpa_supplicant-TTLS.conf"
+    # FEEDBACK: chap 34.5, step 3: the bullets are't readable. They need some of the following:
+    #   * to start with a lowercase letter
+    #   * repeat what's before the colon
+    # FEEDBACK: it would be also useful to specify that the commands are run at the supplicant
+    # FEEDBACK: an overview of the logical topology ([IDM <-->] radius <--> hostapd <--> supplicant) would be useful
+    Then "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" is visible with command "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -a 127.0.0.1 -s client_password"
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t" without shell
+    Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
+    * Kill children with signal "15"
+    * Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
+#    ### Taken from the old scenario
+#    * Add "ethernet" connection named "test1-ttls" for device "test1" with options
+#            """
+#            autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
+#            802-1x.identity idm_user 802-1x.password idm_user_password
+#            802-1x.ca-cert /etc/pki/ca-trust/source/anchors/nmci-ipa.crt
+#            802-1x.auth-timeout 75 connection.auth-retries 5
+#            """
+#    ## Just in case a bit of time to settle
+#    #* Wait for "1" seconds
+#    When Bring "up" connection "test1-ttls"
+#    Then Check if "test1-ttls" is active connection
+#    * Disconnect device "test1"
+#    ### .7 Testing EAP-TLS authentication against a FreeRADIUS server or authenticator
+#    * Add "ethernet" connection named "test1-tls" for device "test1" with options
+#            """
+#            autoconnect no 802-1x.eap tls 802-1x.identity spam
+#            802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
+#            802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
+#            802-1x.auth-timeout 75 connection.auth-retries 5
+#            """
+#    * Wait for "1" seconds
+#    When Bring "up" connection "test1-tls"
+#    Then Check if "test1-tls" is active connection
+#    * Disconnect device "test1"
+    * Commentary
+        """
+        34.6 Blocking and allowing traffic based on hostapd authentication events
+        """
+    * Execute "systemctl daemon-reload"
+    * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
+    * Add "ethernet" connection named "test1-ttls" for device "test1" with options
+        """
+        autoconnect no 802-1x.eap ttls 802-1x.anonymous-identity anonymous
+        802-1x.phase2-auth pap 802-1x.identity idm_user 802-1x.password idm_user_password
+        """
+    * Bring "up" connection "test1-plain"
+    * Execute "mkdir -p /usr/local/bin"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt@.service /etc/systemd/system/802-1x-tr-mgmt@.service"
+    * Execute "systemctl enable --now 802-1x-tr-mgmt.service"
     * Note MAC address output for device "test1" via ip command
     Then Unable to ping "192.168.100.1" from "test1" device
     Then Noted value is not visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
