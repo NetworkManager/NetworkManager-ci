@@ -2917,6 +2917,37 @@ _register_tag(
 )
 
 
+def freeipa_bs(context, scenario):
+    # We currently depend on resolved for IPA to be reachable by name
+    assert nmci.process.systemctl("-q is-active systemd-resolved")
+    nmci.freeipa.start()
+
+
+def freeipa_as(context, scenario):
+    since = ""
+    if nmci.freeipa._time_cont_started:
+        since = f" --since @{nmci.freeipa._time_cont_started:.3f}"
+    ipa_cont_journal = nmci.process.run_stdout(
+        f"journalctl --no-hostname -D /var/lib/ipa-data/var/log/journal{since}",
+        embed_combine_tag=nmci.embed.NO_EMBED,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    )
+    if ipa_cont_journal:
+        nmci.embed.embed_data("IPA container journal", ipa_cont_journal, fail_only=True)
+    # would belong to podman if podman gets separated
+    nmci.embed.embed_service_log(
+        "aardvark-dns",
+        syslog_identifier="aardvark-dns",
+        cursor=context.log_cursor_before_tags,
+        fail_only=True,
+    )
+    nmci.freeipa.stop()
+
+
+_register_tag("freeipa", freeipa_bs, freeipa_as)
+
+
 def slow_dnsmasq_bs(context, scenario):
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
     nmci.util.file_set_content(

@@ -90,6 +90,12 @@ import nmci.veth
 veth = nmci.veth._module
 sys.modules[f"{__name__}.veth"] = veth
 
+# FREEIPA
+import nmci.freeipa
+
+freeipa = nmci.freeipa._module
+sys.modules[f"{__name__}.freeipa"] = freeipa
+
 import nmci.gsm as gsm
 import nmci.prepare as prepare
 import nmci.crash as crash
