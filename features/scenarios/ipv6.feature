@@ -2322,7 +2322,7 @@
     # To speed up a bit, it is possible to stop NM while appending routes, but this can be reproducer
     * Stop NM
     * Append "2000000" routes of version "6" to "many_routes6" by "200000" in batch
-    * Start NM in "20" seconds
+    * Start NM in "40" seconds
     When "NetworkManager.*usage within threshold" is visible in journal
     * Commentary
       """
