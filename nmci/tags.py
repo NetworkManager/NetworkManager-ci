@@ -1116,17 +1116,6 @@ def simwifi_p2p_bs(context, scenario):
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     time.sleep(1)
 
-    # downgrade wireless regdb
-    if context.rh_release_num[0] == 9:
-        nmci.process.dnf(
-            "-y downgrade "
-            "https://kojihub.stream.centos.org/kojifiles/packages/wireless-regdb/2020.11.20/6.el9/noarch/wireless-regdb-2020.11.20-6.el9.noarch.rpm"
-        )
-
-    # This should be good as dynamic addresses are now used
-    # context.process.run_stdout("echo -e '[device-wifi]\nwifi.scan-rand-mac-address=no' > /etc/NetworkManager/conf.d/95-nmci-wifi.conf")
-    # context.process.run_stdout("echo -e '[connection-wifi]\nwifi.cloned-mac-address=preserve' >> /etc/NetworkManager/conf.d/95-nmci-wifi.conf")
-
     # this need to be done before NM restart, otherwise there is a race between NM and wpa_supp
     context.process.systemctl("restart wpa_supplicant")
     # This is workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1752780
@@ -1141,9 +1130,6 @@ def simwifi_p2p_bs(context, scenario):
 def simwifi_p2p_as(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
-
-    if context.rh_release_num[0] == 9:
-        nmci.process.dnf("-y upgrade wireless-regdb")
 
     print("---------------------------")
     if (
