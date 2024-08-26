@@ -721,16 +721,20 @@ Feature: nmcli - wifi
     # * Execute "nmcli device set wlan1 managed off && sleep 1"
     # Start wpa_supplicant instance for NM unamanged wlan1 interface
     * Run child "wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl"
-    # Tell wlan1's wpa_supplicant instance to listen and wait a bit
-    * Execute "sleep 2 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 5"
+    # Tell wlan1's wpa_supplicant instance to listen
+    * Execute "sleep 2; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen"
     # Create a connection with dynamic mac address
+    When "p2p_device_address=..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status" in "15" seconds
     * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p'" as value "wifi_peer"
     * Add "wifi-p2p" connection named "wifi-p2p" for device "p2p-dev-wlan0" with options
         """
         wifi-p2p.peer <noted:wifi_peer>
         """
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
-    * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=0"
+    # `wpa_cli` returns 255 code when called too soon, which fails immediatelly, hence `|| true`
+    When "..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers || true" in "15" seconds
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers" as value "wifi_peer"
+    * Execute "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect <noted:wifi_peer> pbc auth go_intent=0"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
 
 
@@ -743,9 +747,10 @@ Feature: nmcli - wifi
     # * Execute "nmcli device set wlan1 managed off && sleep 1"
     # Start wpa_supplicant instance for NM unamanged wlan1 interface
     * Run child "wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl"
-    # Tell wlan1's wpa_supplicant instance to listen and wait a bit
-    * Execute "sleep 2 && wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen && sleep 5"
+    # Tell wlan1's wpa_supplicant instance to listen
+    * Execute "sleep 2; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen"
     # Create a connection with dynamic mac address
+    When "p2p_device_address=..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status" in "15" seconds
     * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p'" as value "wifi_peer"
     * Add "wifi-p2p" connection named "wifi-p2p" for device "p2p-dev-wlan0" with options
         """
@@ -753,7 +758,10 @@ Feature: nmcli - wifi
         ipv4.never-default yes
         """
     # Wait a bit and pass a authentication command to wlan1's wpa_supplicant instance
-    * Run child "sleep 5; echo Peer address: $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ); wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect $( wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers ) pbc auth go_intent=14"
+    # `wpa_cli` returns 255 code when called too soon, which fails immediatelly, hence `|| true`
+     When "..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers || true" in "15" seconds
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers" as value "wifi_peer"
+    * Execute "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect <noted:wifi_peer> pbc auth go_intent=14"
     When "p2p-wlan1-0" is visible with command "ls /sys/class/net/" in "10" seconds
     * Execute "ip addr add 192.168.10.1/24 dev p2p-wlan1-0"
     * Run child "dnsmasq -k -i p2p-wlan1-0 --dhcp-range=192.168.10.100,192.168.10.200"
