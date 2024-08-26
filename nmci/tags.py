@@ -1125,6 +1125,7 @@ def simwifi_p2p_bs(context, scenario):
 
     context.process.run_stdout("modprobe mac80211_hwsim")
     time.sleep(3)
+    nmci.process.run("iw reg set CZ")
 
 
 def simwifi_p2p_as(context, scenario):
