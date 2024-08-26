@@ -66,6 +66,7 @@ def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
 
 @step('Execute "{command}"')
 def execute_command(context, command):
+    command = nmci.misc.str_replace_dict(command, context.noted)
     context.process.run_stdout(
         command,
         shell=True,
@@ -675,6 +676,7 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
 @step('Run child "{command}"')
 def run_child_process(context, command):
+    command = nmci.misc.str_replace_dict(command, context.noted)
     nmci.pexpect.pexpect_service(command, shell=True, label="child")
 
 
