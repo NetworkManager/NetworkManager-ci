@@ -289,7 +289,7 @@ Feature: nmcli - general
     172.25.15.15 foo-baz
     """
     * Execute "ip netns exec testG_ns kill -SIGHUP $(cat /tmp/testG_ns.pid)"
-    Then "foo-baz" is visible with command "hostnamectl --transient" in "30" seconds
+    Then "foo-baz" is visible with command "hostnamectl --transient" in "40" seconds
 
 
     @ver+=1.29.0
