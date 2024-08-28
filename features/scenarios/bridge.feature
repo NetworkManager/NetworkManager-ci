@@ -916,6 +916,32 @@ Feature: nmcli - bridge
      And Noted value "eth4_after" does not contain "\s+80 PVID untagged"
 
 
+    @rhbz1652910
+    @RHEL-26750
+    @ver+=1.48.10
+    @bridge_vlan_filtering_default_pvid_reapply
+    Scenario: NM - bridge - bridge vlan filtering reapply removes old default pid
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options
+          """
+          bridge.stp no
+          bridge.vlan-default-pvid 123
+          bridge.vlan-filtering yes
+          """
+    * Add "ethernet" connection named "bridge-port-eth4" for device "eth4" with options
+          """
+          controller bridge0
+          bridge-port.vlans '101, 102, 300 pvid untagged'
+          """
+    * Note the output of "bridge vlan show dev eth4" as value "eth4_before"
+    * Modify connection "bridge0" changing options "bridge.vlan-default-pvid 321"
+    * Execute "nmcli d reapply bridge0"
+    * Execute "nmcli d reapply eth4"
+    * Note the output of "bridge vlan show dev bridge0" as value "bridge0_after"
+    * Note the output of "bridge vlan show dev eth4" as value "eth4_after"
+    Then Noted value "eth4_after" does not contain "123"
+      And Noted value "eth4_after" contains "321"
+
+
     @rhbz1679230
     @ver+=1.19
     @restart_if_needed
