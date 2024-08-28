@@ -823,6 +823,7 @@ Feature: nmcli - bridge
 
     @rhbz1652910
     @ver+=1.17.3
+    @ver-1.48.10
     @bridge_vlan_filtering_default_pvid
     Scenario: NM - bridge - bridge vlan filtering default pvid
     * Add "bridge" connection named "bridge0" for device "bridge0" with options
@@ -841,7 +842,34 @@ Feature: nmcli - bridge
 
 
     @rhbz1652910
+    @RHEL-26750
+    @ver+=1.48.10
+    @bridge_vlan_filtering_default_pvid
+    Scenario: NM - bridge - bridge vlan filtering default pvid
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options
+          """
+          bridge.vlan-filtering yes
+          bridge.vlans '10-14 untagged'
+          """
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options
+          """
+          master bridge0
+          slave-type bridge
+          bridge-port.vlans '4 untagged, 5'
+          """
+    Then "bridge0\s+1 PVID untagged\s+10 untagged\s+11 untagged\s+12 untagged\s+13 untagged\s+14 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
+     And "eth4\s+1 PVID untagged\s+4 untagged\s+5\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
+    * Modify connection "bridge0" changing options "bridge.vlan-default-pvid 321"
+    * Execute "nmcli d reapply bridge0"
+    * Execute "nmcli d reapply eth4"
+    * Note the output of "bridge vlan show dev bridge0" as value "bridge0_after"
+    * Note the output of "bridge vlan show dev eth4" as value "eth4_after"
+    Then Noted value "eth4_after" does not contain "\s+1 PVID Egress Untagged"
+
+
+    @rhbz1652910
     @ver+=1.17.3
+    @ver-1.48.10
     @bridge_vlan_filtering_non_default_pvid
     Scenario: NM - bridge - bridge vlan filtering non-default pvid
     * Add "bridge" connection named "bridge0" for device "bridge0" with options
@@ -858,6 +886,34 @@ Feature: nmcli - bridge
           """
     Then "bridge0\s+1\s+2\s+3\s+4\s+5\s+6\s+7\s+8\s+9\s+10\s+80 untagged\s+100 PVID\s+200 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
      And "eth4\s+80 PVID untagged\s+4000\s+4001\s+4002\s+4003\s+4004\s+4005\s+4006\s+4007\s+4008\s+4009\s+4010\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
+
+
+    @rhbz1652910
+    @RHEL-26750
+    @ver+=1.48.10
+    @bridge_vlan_filtering_non_default_pvid
+    Scenario: NM - bridge - bridge vlan filtering non-default pvid
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options
+          """
+          bridge.vlan-filtering yes
+          bridge.vlan-default-pvid 80
+          bridge.vlans '1-10, 100 pvid, 200 untagged'
+          """
+    * Add "ethernet" connection named "bridge-slave-eth4" for device "eth4" with options
+          """
+          master bridge0
+          slave-type bridge
+          bridge-port.vlans '4000-4010'
+          """
+    Then "bridge0\s+1\s+2\s+3\s+4\s+5\s+6\s+7\s+8\s+9\s+10\s+80 untagged\s+100 PVID\s+200 untagged\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'" in "10" seconds
+     And "eth4\s+80 PVID untagged\s+4000\s+4001\s+4002\s+4003\s+4004\s+4005\s+4006\s+4007\s+4008\s+4009\s+4010\s" is visible with command "bridge vlan | sed 's/Egress Untagged/untagged/g'"
+    * Modify connection "bridge0" changing options "bridge.vlan-default-pvid 45"
+    * Execute "nmcli device reapply bridge0"
+    * Execute "nmcli device reapply eth4"
+    * Note the output of "bridge vlan show dev bridge0 | sed 's/Egress Untagged/untagged/g'" as value "bridge0_after"
+    * Note the output of "bridge vlan show dev eth4 | sed 's/Egress Untagged/untagged/g'" as value "eth4_after"
+    Then Noted value "eth4_after" contains "\s+45\s+PVID\s+untagged"
+     And Noted value "eth4_after" does not contain "\s+80 PVID untagged"
 
 
     @rhbz1679230
