@@ -8,7 +8,7 @@ install_common_packages () {
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
         iproute-tc iputils iw jq mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 podman psmisc \
         python3-dbus python3-gobject python3-netaddr python3-systemd s390utils-base tcpdump tuned \
-        valgrind wireshark-cli wpa_supplicant lsof telnet dbus-x11"
+        valgrind wireshark-cli wpa_supplicant lsof telnet dbus-x11 rsync"
 
     # freeradius cleanup config
     rm -rf /etc/raddb
@@ -29,7 +29,7 @@ install_common_packages () {
 
     # dracut testing
     PKGS_INSTALL="$PKGS_INSTALL \
-        qemu-kvm lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client"
+        qemu-kvm qemu-img lvm2 mdadm cryptsetup iscsi-initiator-utils nfs-utils radvd gdb dhcp-client"
 
     # iwl firmware for aarch
     if [ "$(arch)" == "aarch64" ]; then

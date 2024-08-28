@@ -1367,6 +1367,9 @@ _register_tag("wireguard", wireguard_bs, None)
 
 
 def dracut_bs(context, scenario):
+    if "Fedora" in context.rh_release and context.arch != "x86_64":
+        context.cext.skip("Skipping on non-x86_64 on fedora.")
+
     # log dracut version to "Commands"
     context.process.run_stdout("rpm -qa dracut*", timeout=15, ignore_stderr=True)
 

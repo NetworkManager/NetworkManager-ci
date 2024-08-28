@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTDIR=/var/dracut_test
+export TESTDIR=/var/dracut_test
 
 UUID_LOG=a32d3ed2-225f-11eb-bf6a-525400c7ed04
 UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
@@ -36,16 +36,16 @@ test_setup() {
       chmod +x /etc/qemu-ifdown;
   }
 
+
   # patch dracut NM module
   DRACUT_NM_INITRD=/usr/lib/dracut/modules.d/35network-manager/nm-initrd.service
   if ! grep -F "After=dbus.service" $DRACUT_NM_INITRD; then
     sed -i 's/After=dracut-cmdline.service/After=dracut-cmdline.service\nAfter=dbus.service/' $DRACUT_NM_INITRD
   fi
 
-  cp conf/smart_sleep.py /usr/local/bin/smart_sleep
+  cp -fa conf/smart_sleep.py /usr/local/bin/smart_sleep
   chmod +x /usr/local/bin/smart_sleep
 
-  mkdir $TESTDIR
 
   basedir=/usr/lib/dracut/
 
@@ -54,128 +54,57 @@ test_setup() {
       return 1
   fi
 
-  mkdir -p $TESTDIR/nfs/client
+  export initdir=$TESTDIR/nfs/client
+  mkdir $TESTDIR
+  mkdir -p $initdir
 
-  # Make client root
-  (
-      set +x
-      export initdir=$TESTDIR/nfs/client
-      . $basedir/dracut-init.sh
+  ./prepare_nfsroot_from_image.sh || exit 1
 
-      inst_multiple sh bash shutdown poweroff stty cat ps ln ip dd mount umount \
-                    dmesg mkdir cp mv ping grep wc awk setsid ls find less tee \
-                    echo sync rm sed uname lsblk df du free strace head tail \
-                    reset loadkeys setfont login sushell sulogin gzip sleep \
-                    modprobe tr lsof kill pkill
+  # install the same repos
+  . /etc/os-release
+  rsync -a /etc/yum.repos.d/ $initdir/etc/yum.repos.d
 
-      for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-          [ -f ${_terminfodir}/l/linux ] && break
-      done
-      inst_multiple -o ${_terminfodir}/l/linux
-      inst /etc/os-release
-      inst /etc/machine-id
-      (
-          cd "$initdir"
-          mkdir -p dev sys proc etc run
-          mkdir -p var/lib/nfs/rpc_pipefs
-          mkdir -p root usr/bin usr/lib usr/lib64 usr/sbin
-          for i in bin sbin lib lib64; do
-              ln -sfnr usr/$i $i
-          done
-      )
+  # update centos to latests rpms
+  if [ "$ID" == "centos" ]; then
+      dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} update
+  fi
 
-      instmods nfsd ext4 sunrpc ipv6 lockd af_packet bonding ipvlan macvlan 8021q
+  cp -fa /etc/machine-id $initdir/etc/machine-id
 
-      inst /etc/nsswitch.conf
-      inst /etc/passwd
-      inst /etc/group
+  echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
+  echo "$DEV_LOG /var/log/ ext4 x-initrd.mount,defaults 1 1" >> $initdir/etc/fstab
 
-      inst_libdir_file 'libnfsidmap_nsswitch.so*'
-      inst_libdir_file 'libnfsidmap/*.so*'
-      inst_libdir_file 'libnfsidmap*.so*'
+  cp -fa ./conf/check_core_dumps.sh $initdir/check_core_dumps
+  cp -fa ./conf/core_pattern_setup.sh $initdir/core_pattern_setup
 
-      _nsslibs=$(sed -e '/^#/d' -e 's/^.*://' -e 's/\[NOTFOUND=return\]//' /etc/nsswitch.conf \
-                     |  tr -s '[:space:]' '\n' | sort -u | tr -s '[:space:]' '|')
-      _nsslibs=${_nsslibs#|}
-      _nsslibs=${_nsslibs%|}
-
-      inst_libdir_file -n "$_nsslibs" 'libnss_*.so*'
-
-      cp -a /etc/ld.so.conf* $initdir/etc
-      ldconfig -r "$initdir"
-      echo "/dev/nfs / nfs defaults 1 1" > $initdir/etc/fstab
-      echo "$DEV_LOG /var/log/ ext4 x-initrd.mount,defaults 1 1" >> $initdir/etc/fstab
+  for file in passwd shadow group; do
+    cp -fa /etc/$file $initdir/etc/$file
+  done
 
 
-      rpm -ql libteam | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
-      rpm -ql teamd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
+  rsync -a /etc/ssh/ $initdir/etc/ssh
+  rsync -a /root/.ssh/ $initdir/root/.ssh
 
-      $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l /usr/bin/date
+  # enable persistent journal
+  cp -af /etc/systemd/journald.conf $initdir/etc/systemd/journald.conf
+  # make persisten journal directory
+  mkdir -p $initdir/var/log/journal
 
-      inst_simple ./conf/check_core_dumps.sh /check_core_dumps
-      inst_simple ./conf/core_pattern_setup.sh /core_pattern_setup
-  )
+  # copy systemd limits to catch coredumps, add config to overwrite default
+  cp -af /etc/systemd/system.conf $initdir/etc/systemd/system.conf
+  cp -af /etc/security/limits.conf $initdir/etc/security/limits.conf
+  mkdir -p $initdir/etc/security/limits.d
+  echo "* - core unlimited" >  $initdir/etc/security/90-dracut_nmci.conf
 
-  # install systemd in client
-  (
-      set +x
-      export initdir=$TESTDIR/nfs/client
-      . $basedir/dracut-init.sh
+  > $initdir/etc/environment
+  # empty hostname
+  > $initdir/etc/hostname
 
-      for d in usr/bin usr/sbin bin etc lib "$libdir" sbin tmp usr var var/log var/tmp dev proc sys sysroot root run; do
-          if [ -L "/$d" ]; then
-              inst_symlink "/$d"
-          else
-              inst_dir "/$d"
-          fi
-      done
+  # copy testsuite script
+  cp -fa ./conf/client-init.sh $initdir/sbin/test-init
 
-      ln -sfn /run "$initdir/var/run"
-      ln -sfn /run/lock "$initdir/var/lock"
-
-      for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-          [ -f ${_terminfodir}/l/linux ] && break
-      done
-      inst_multiple -o ${_terminfodir}/l/linux
-      inst_simple ./fstab /etc/fstab
-      rpm -ql systemd | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
-      inst /lib/systemd/system/systemd-remount-fs.service
-      inst /lib/systemd/systemd-remount-fs
-      inst /lib/systemd/system/systemd-journal-flush.service
-      inst /lib/systemd/system/slices.target
-      inst /usr/lib/systemd/system/import-state.service
-      inst_multiple -o /lib/systemd/system/dracut*
-
-      # make a journal directory
-      mkdir -p $initdir/var/log/journal
-
-      # install some basic config files
-      inst_multiple -o  \
-                    /etc/machine-id \
-                    /etc/adjtime \
-                    /etc/passwd \
-                    /etc/shadow \
-                    /etc/group \
-                    /etc/shells \
-                    /etc/nsswitch.conf \
-                    /etc/pam.conf \
-                    /etc/securetty \
-                    /etc/os-release \
-                    /etc/localtime
-
-      # we want an empty environment
-      > $initdir/etc/environment
-
-      # empty hostname
-      > $initdir/etc/hostname
-
-      # setup the testsuite target
-      mkdir -p $initdir/etc/systemd/system
-
-      inst ./conf/client-init.sh /sbin/test-init
-
-      # setup the testsuite service
-      cat >$initdir/etc/systemd/system/testsuite.service <<EOF
+  # setup the testsuite service
+  cat >$initdir/etc/systemd/system/testsuite.service <<EOF
 [Unit]
 Description=Testsuite service
 After=network-online.target
@@ -193,100 +122,51 @@ StandardError=journal+console
 RequiredBy=multi-user.target
 EOF
 
-      systemctl --root "$initdir" enable testsuite.service
+  systemctl --root "$initdir" enable testsuite.service
 
-      # install libnss_files for login
-      inst_libdir_file "libnss_files*"
+  du -sch $initdir
 
-      # install dbus and pam
-      find \
-          /etc/dbus-1 \
-          /etc/pam.d \
-          /etc/security \
-          /lib64/security \
-          /lib/security -xtype f \
-          | while read file || [ -n "$file" ]; do
-          inst_multiple -o $file
-      done
+  # install NetworkManager-* to the nfsroot
+  nm_build_path=""
+  for path in "/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" "/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" "/root/rpms/"; do
+    [ -d $path ] && nm_build_path="$path"
+  done
 
-      (
-          echo "FONT=eurlatgr"
-          echo "KEYMAP=us"
-      ) >$initrd/etc/vconsole.conf
+  rpm_list=""
+  for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
+    rpm_list="$rpm_list $nm_build_path$rpm"
+  done
 
-      # install basic keyboard maps and fonts
-      for i in \
-          /usr/lib/kbd/consolefonts/eurlatgr* \
-              /usr/lib/kbd/keymaps/{legacy/,/}include/* \
-              /usr/lib/kbd/keymaps/{legacy/,/}i386/include/* \
-              /usr/lib/kbd/keymaps/{legacy/,/}i386/qwerty/us.*; do
-          [[ -f $i ]] || continue
-          inst $i
-      done
+  # Override --releasever, as epel repofile does not work with --inistallroot
+  dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} install $rpm_list --skip-broken
+  du -sch $initdir
 
-      # some basic terminfo files
-      for _terminfodir in /lib/terminfo /etc/terminfo /usr/share/terminfo; do
-          [ -f ${_terminfodir}/l/linux ] && break
-      done
-      inst_multiple -o ${_terminfodir}/l/linux
+  dnf --installroot=$initdir clean all
+  du -sch $initdir
 
-      # softlink mtab
-      ln -fs /proc/self/mounts $initdir/etc/mtab
+  # Check installed NM is the same
+  nm_local="$(rpm -q NetworkManager)"
+  nm_nfs="$(rpm --root=$initdir -q NetworkManager)"
 
-      # install any Execs from the service files
-      grep -Eho '^Exec[^ ]*=[^ ]+' $initdir/lib/systemd/system/*.service \
-          | while read i || [ -n "$i" ]; do
-          i=${i##Exec*=}; i=${i##-}
-          inst_multiple -o $i
-      done
+  if ! [ "$nm_local" == "$nm_nfs" ]; then
+    echo "Unable to install NetworkManager to nfsroot: got $nm_nfs, expected $nm_local"
+    exit 1
+  fi
 
-      # some helper tools for debugging
-      [[ $DEBUGTOOLS ]] && inst_multiple $DEBUGTOOLS
+  # Enable NM debug
+  cp -fa /etc/NetworkManager/conf.d/95-nmci-test.conf $initdir/etc/NetworkManager/conf.d/95-nmci-test.conf
 
-      # install ld.so.conf* and run ldconfig
-      cp -a /etc/ld.so.conf* $initdir/etc
-      ldconfig -r "$initdir"
-      ddebug "Strip binaries"
-      find "$initdir" -perm /0111 -type f | xargs -r strip --strip-unneeded | ddebug
+  # clean any NM connection that might be in the image
+  rm -rf $initdir/etc/NetworkManager/system-connections/*
+  rm -rf $initdir/etc/sysconfig/network-scripts/ifcfg-*
 
-      # copy depmod files
-      inst /lib/modules/$kernel/modules.order
-      inst /lib/modules/$kernel/modules.builtin
-      # generate module dependencies
-      if [[ -d $initdir/lib/modules/$kernel ]] && \
-             ! depmod -a -b "$initdir" $kernel; then
-          dfatal "\"depmod -a $kernel\" failed."
-          exit 1
-      fi
-      # disable some services
-      systemctl --root "$initdir" mask systemd-update-utmp
-      systemctl --root "$initdir" mask systemd-tmpfiles-setup
-      # we we do not want core_pattern to be rewritten
-      systemctl --root "$initdir" mask systemd-coredump.socket
-  )
+  systemctl --root "$initdir" enable import-state.service
+  systemctl --root "$initdir" enable dbus.service
+  systemctl --root "$initdir" enable NetworkManager.service
+  systemctl --root "$initdir" enable systemd-hostnamed.service
 
-  # install NetworkManager to client
-  (
-      set +x
-      export initdir=$TESTDIR/nfs/client
-      . $basedir/dracut-init.sh
 
-      # enable trace logs
-      inst /etc/NetworkManager/conf.d/95-nmci-test.conf
-
-      for _rpm in $(rpm -qa | grep -e ^NetworkManager -e ^systemd -e ^dbus -e ^pam | grep -v -F '.build-id' |sort); do
-        rpm -ql $_rpm | xargs -r $DRACUT_INSTALL ${initdir:+-D "$initdir"} -o -a -l
-      done
-
-      # without this simlink D-Bus service fails to start on RHEL9/Fedora
-      ln -s /usr/lib/systemd/system/dbus-broker.service $initdir/etc/systemd/system/dbus.service
-
-      systemctl --root "$initdir" enable import-state.service
-      systemctl --root "$initdir" enable dbus.service
-      systemctl --root "$initdir" enable NetworkManager.service
-      systemctl --root "$initdir" enable systemd-hostnamed.service
-  )
-
+  # creare iscsi images
   mkdir -p $TESTDIR/nfs/nfs3-5
   mkdir -p $TESTDIR/nfs/ip/192.168.50.101
   mkdir -p $TESTDIR/nfs/tftpboot/nfs4-5
@@ -303,9 +183,9 @@ EOF
   mkdir $TESTDIR/client_dumps
 
   # Create the blank file to use as a root iSCSI filesystem
-  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=600
-  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=300
-  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=300
+  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=2600
+  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=1300
+  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=1300
 
   # copy client files to root filesystem
   mkfs.ext4 -j -L singleroot -F $TESTDIR/root.ext4
@@ -314,7 +194,7 @@ EOF
   iscsi_loop1=${iscsi_loop1%%:*}
   mkdir $TESTDIR/mnt_root
   mount $iscsi_loop1 $TESTDIR/mnt_root
-  cp -a -t $TESTDIR/mnt_root $TESTDIR/nfs/client/*
+  rsync -a $TESTDIR/nfs/client/ $TESTDIR/mnt_root  || echo "WARNING! rsync to iSCSI failed!"
   umount $TESTDIR/mnt_root
 
   (
@@ -332,8 +212,7 @@ EOF
     lvm vgchange -ay
     mkfs.ext4 -j -L sysroot /dev/dracutNMtest/root
     mount /dev/dracutNMtest/root $TESTDIR/mnt_root
-    cp -a -t $TESTDIR/mnt_root/ $TESTDIR/nfs/client/*
-
+    rsync -a $TESTDIR/nfs/client/ $TESTDIR/mnt_root || echo "WARNING! rsync to iSCSI raid failed!"
   )
 
   umount $TESTDIR/mnt_root
