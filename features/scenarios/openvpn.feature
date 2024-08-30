@@ -82,6 +82,7 @@
 
     # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1383
     @fedoraver-
+    @rhelver-=9
     @rhbz1267004
     @openvpn
     @openvpn_set_mtu
