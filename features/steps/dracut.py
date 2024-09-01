@@ -91,10 +91,11 @@ def debug_shell(proc):
 
 
 def embed_dracut_logs(context):
-    context.run(
+    nmci.process.run(
         "cd contrib/dracut/; . ./setup.sh; "
         "mount $DEV_DUMPS $TESTDIR/client_dumps; "
-        "mount $DEV_LOG $TESTDIR/client_log/var/log/; "
+        "mount $DEV_LOG $TESTDIR/client_log/var/log/; ",
+        shell=True,
     )
 
     nmci.embed.embed_file_if_exists(
@@ -116,11 +117,12 @@ def embed_dracut_logs(context):
     check_core_dumps(context)
 
 
-def get_backtrace(context, filename):
-    out, _, _ = context.run(
-        f"gdb -quiet -batch -c {filename} -x contrib/dracut/conf/backtrace"
+def get_backtrace(filename):
+    return nmci.process.run_stdout(
+        f"gdb -quiet -batch -c {filename} -x contrib/dracut/conf/backtrace",
+        ignore_stderr=True,
+        ignore_returncode=True,
     )
-    return out
 
 
 def check_core_dumps(context):
@@ -138,10 +140,7 @@ def check_core_dumps(context):
             else:
                 other_crash = True
             backtraces += (
-                filename
-                + ":\n"
-                + get_backtrace(context, REMOTE_CRASH_DIR + filename)
-                + "\n\n"
+                filename + ":\n" + get_backtrace(REMOTE_CRASH_DIR + filename) + "\n\n"
             )
             nmci.embed.embed_file_if_exists(
                 "Dracut Crash Dump",
@@ -159,17 +158,18 @@ def check_core_dumps(context):
 
 
 def prepare_dracut(context, checks):
-    context.run(
+    nmci.process.run(
         "cd contrib/dracut/; . ./setup.sh; "
         "mount $DEV_CHECK $TESTDIR/client_check/; "
         "rm -rf $TESTDIR/client_check/*; "
-        "cp ./check_lib/*.sh $TESTDIR/client_check/; "
+        "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
+        shell=True,
     )
     with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n")
         f.write("\n".join(checks))
         f.write("}\n")
-    context.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK;")
+    nmci.process.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
 
 
 @step("Run dracut test")
