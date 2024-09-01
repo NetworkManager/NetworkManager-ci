@@ -297,9 +297,7 @@ EOF
   mkfs.ext4 -U $UUID_LOG $TESTDIR/client_log.img
   mkfs.ext4 -U $UUID_CHECK $TESTDIR/client_check.img
   mkfs.ext4 -U $UUID_DUMPS $TESTDIR/client_dumps.img
-  losetup -f $TESTDIR/client_log.img
-  losetup -f $TESTDIR/client_check.img
-  losetup -f $TESTDIR/client_dumps.img
+  sync; sync; sync
   mkdir -p $TESTDIR/client_log/var/log/
   mkdir $TESTDIR/client_check
   mkdir $TESTDIR/client_dumps
@@ -405,9 +403,9 @@ EOF
 test_clean() {
   stop_qemu
   kill_server
-  umount $DEV_LOG 2>&1
-  umount $DEV_DUMPS 2>&1
-  umount $DEV_CHECK 2>&1
+  umount $TESTDIR/client_log.img 2>&1
+  umount $TESTDIR/client_check.img 2>&1
+  umount $TESTDIR/client_dumps.img 2>&1
   for file in \
     $TESTDIR/client_log.img \
     $TESTDIR/client_check.img \
@@ -429,27 +427,19 @@ test_clean() {
 }
 
 reset_images() {
-    umount $DEV_LOG 2>&1
-    umount $DEV_DUMPS 2>&1
-    umount $DEV_CHECK 2>&1
-    # reset journal FS
-    losetup -D
-    losetup -l
-    for file in \
-      $TESTDIR/client_log.img \
-      $TESTDIR/client_check.img \
-      $TESTDIR/client_dumps.img
-      do
-        [[ $file == *'log'* ]] && mkfs.ext4 -q -U $UUID_LOG $TESTDIR/client_log.img
-        losetup -f $file
-    done
-    losetup -l
+    umount $TESTDIR/client_log.img
+    umount $TESTDIR/client_check.img
+    umount $TESTDIR/client_dumps.img
+    mkfs.ext4 -U $UUID_LOG $TESTDIR/client_log.img
+    mkfs.ext4 -U $UUID_CHECK $TESTDIR/client_check.img
+    mkfs.ext4 -U $UUID_DUMPS $TESTDIR/client_dumps.img
+    sync; sync; sync
 }
 
 after_test() {
     stop_dhcpd
     start_dhcpd
-    reset_images
+    reset_images 2&>1
 }
 
 

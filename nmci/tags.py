@@ -1395,15 +1395,6 @@ def dracut_bs(context, scenario):
 
 
 def dracut_as(context, scenario):
-    # clean an umount client_dumps
-    context.process.run(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "rm -rf $TESTDIR/client_dumps/*; "
-        "umount $DEV_DUMPS; "
-        "umount $DEV_LOG; ",
-        shell=True,
-        ignore_stderr=True,
-    )
     # do not embed DHCP directly, cache output for "no free leases" check
     # nmci.embed.embed_service_log("DHCP", syslog_identifier="dhcpd")
     dhcpd_log = nmci.misc.journal_show(

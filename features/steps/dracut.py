@@ -93,8 +93,8 @@ def debug_shell(proc):
 def embed_dracut_logs(context):
     nmci.process.run(
         "cd contrib/dracut/; . ./setup.sh; "
-        "mount $DEV_DUMPS $TESTDIR/client_dumps; "
-        "mount $DEV_LOG $TESTDIR/client_log/var/log/; ",
+        "mount $TESTDIR/client_dumps.img -o loop,ro,noatime,norecovery $TESTDIR/client_dumps; "
+        "mount $TESTDIR/client_log.img -o loop,ro,noatime,norecovery $TESTDIR/client_log/var/log/; ",
         shell=True,
     )
 
@@ -160,7 +160,7 @@ def check_core_dumps(context):
 def prepare_dracut(context, checks):
     nmci.process.run(
         "cd contrib/dracut/; . ./setup.sh; "
-        "mount $DEV_CHECK $TESTDIR/client_check/; "
+        "mount $TESTDIR/client_check.img -o loop $TESTDIR/client_check/; "
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
         shell=True,
@@ -169,7 +169,13 @@ def prepare_dracut(context, checks):
         f.write("client_check() {\n")
         f.write("\n".join(checks))
         f.write("}\n")
-    nmci.process.run("cd contrib/dracut/; . ./setup.sh; umount $DEV_CHECK", shell=True)
+    nmci.process.run(
+        "cd contrib/dracut/; . ./setup.sh; "
+        "sync; sync; sync; "
+        "umount $TESTDIR/client_check.img; "
+        "sync; sync; sync;",
+        shell=True,
+    )
 
 
 @step("Run dracut test")

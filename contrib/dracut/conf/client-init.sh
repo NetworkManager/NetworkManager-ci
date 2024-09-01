@@ -13,7 +13,7 @@ DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
 
 # load check library
 mkdir -p /check_lib
-mount ${DEV_CHECK} /check_lib
+mount -o ro,norecovery,noatime ${DEV_CHECK} /check_lib
 for script in /check_lib/*.sh; do
   source "$script" || ( echo "$script failed to load"; poweroff -f )
 done
