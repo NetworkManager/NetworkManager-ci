@@ -157,7 +157,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS ''                           |
       | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
-      | check  | dns_search ''                                                          |
+      | check  | dns_search '' '.'                                                      |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                            |
@@ -635,7 +635,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                        |
       | check  | nmcli_con_prop eth0 ipv6.method disabled                 |
       | check  | ip4_forever 192.168.50.201/24 eth0                       |
-      | check  | dns_search ''                                            |
+      | check  | dns_search '' '.'                                        |
       | check  | nmcli_con_num 1                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"              |
@@ -666,7 +666,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop 52:54:00:12:34:00 IP4.DOMAIN ''                              |
       | check  | nmcli_con_prop 52:54:00:12:34:00 ipv6.method disabled                       |
       | check  | ip4_forever 192.168.50.201/24 eth0                                          |
-      | check  | dns_search ''                                                               |
+      | check  | dns_search '' '.'                                                           |
       | check  | nmcli_con_num 1                                                             |
       | check  | no_ifcfg                                                                    |
       | check  | ip4_route_unique "default via 192.168.50.1 dev eth0"                        |
@@ -700,7 +700,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 ipv6.method disabled                 |
       | check  | ifname_mtu eth0 1491                                     |
       | check  | ip4_forever 192.168.50.201/24 eth0                       |
-      | check  | dns_search ''                                            |
+      | check  | dns_search '' '.'                                        |
       | check  | nmcli_con_num 1                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"              |
@@ -733,7 +733,7 @@ Feature: NM: dracut
       | check  | ifname_mtu eth0 1511                                                    |
       | check  | ifname_mac eth0 52:54:00:12:34:11                                       |
       | check  | ip4_forever 192.168.50.201/24 eth0                                      |
-      | check  | dns_search ''                                                           |
+      | check  | dns_search '' '.'                                                       |
       | check  | nmcli_con_num 1                                                         |
       | check  | no_ifcfg                                                                |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                             |
@@ -763,7 +763,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                         |
       | check  | nmcli_con_prop eth0 ipv6.method disabled                  |
       | check  | ip4_forever 192.168.50.201/24 eth0                        |
-      | check  | dns_search ''                                             |
+      | check  | dns_search '' '.'                                         |
       | check  | nmcli_con_num 1                                           |
       | check  | no_ifcfg                                                  |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"               |
@@ -793,7 +793,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                      |
       | check  | nmcli_con_prop eth0 ipv6.method disabled                               |
       | check  | ip4_forever 192.168.50.201/24 eth0                                     |
-      | check  | dns_search ''                                                          |
+      | check  | dns_search '' '.'                                                      |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
@@ -823,7 +823,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                                          |
       | check  | nmcli_con_prop eth0 ipv6.method disabled                                                   |
       | check  | ip4_forever 192.168.50.201/24 eth0                                                         |
-      | check  | dns_search ''                                                                              |
+      | check  | dns_search '' '.'                                                                          |
       | check  | nmcli_con_num 1                                                                            |
       | check  | no_ifcfg                                                                                   |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                                                |
@@ -854,7 +854,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop nfs IP4.DOMAIN ''                        |
       | check  | nmcli_con_prop nfs ipv6.method disabled                 |
       | check  | ip4_forever 192.168.50.201/24 nfs                       |
-      | check  | dns_search ''                                           |
+      | check  | dns_search '' '.'                                       |
       | check  | nmcli_con_num 1                                         |
       | check  | no_ifcfg                                                |
       | check  | ip4_route_unique "192.168.50.0/24 dev nfs"              |
@@ -890,7 +890,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                        |
       | check  | nmcli_con_prop eth0 ipv6.method disabled                 |
       | check  | ip4_forever 192.168.50.201/24 eth0                       |
-      | check  | dns_search ''                                            |
+      | check  | dns_search '' '.'                                        |
       | check  | nmcli_con_num 2                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "192.168.50.0/24 dev eth0"              |
@@ -1102,7 +1102,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop 52:54:00:12:34:00 IP6.ROUTE *deaf:beef::/64*                        |
       | check  | nmcli_con_prop 52:54:00:12:34:00 IP6.DNS ''                                        |
       | check  | ip6_forever deaf:beef::ac:1/64 eth0                                                |
-      | check  | dns_search ''                                                                      |
+      | check  | dns_search '' '.'                                                                  |
       | check  | nmcli_con_num 1                                                                    |
       | check  | no_ifcfg                                                                           |
       | check  | ip6_route_unique "default via deaf:beef::1 dev eth0"                               |
@@ -1293,7 +1293,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth1 ipv6.method disabled                 |
       | check  | ip4_forever 192.168.51.101/24 eth0                       |
       | check  | ip4_forever 192.168.52.101/24 eth1                       |
-      | check  | dns_search ''                                            |
+      | check  | dns_search '' '.'                                        |
       | check  | nmcli_con_num 2                                          |
       | check  | no_ifcfg                                                 |
       | check  | ip4_route_unique "default via 192.168.51.1"              |
@@ -1384,7 +1384,7 @@ Feature: NM: dracut
       | check  | nmcli_con_prop eth1 ipv4.method ''                                           |
       | check  | nmcli_con_prop eth1 ipv6.method ''                                           |
       | check  | ip4_forever 192.168.50.201/24 foobr0                                         |
-      | check  | dns_search ''                                                                |
+      | check  | dns_search '' '.'                                                            |
       | check  | nmcli_con_num 3                                                              |
       | check  | no_ifcfg                                                                     |
       | check  | ip4_route_unique "192.168.50.0/24 dev foobr0"                                |

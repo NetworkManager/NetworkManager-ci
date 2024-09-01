@@ -125,8 +125,15 @@ hostname_check() {
 dns_search() {
     local search
     search=$(grep "^search" /etc/resolv.conf | sed 's/^search\s\+//g')
-    [[ "$search" == $1 ]] || die "DNS search is '$search', expected '$1'"
-    echo "[OK] DNS search '$search' is '$1'"
+    exp=""
+    for arg in "$@"; do
+      if [[ "$search" == $arg ]]; then
+        echo "[OK] DNS search '$search' is '$arg'"
+        return
+      fi
+      exp="$exp'$arg', "
+    done
+    die "DNS search is '$search', expected [$exp]"
 }
 
 
