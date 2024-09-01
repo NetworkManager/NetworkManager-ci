@@ -25,6 +25,7 @@ nmcli_con_active() {
       echo "[OK] connection '$1' is active on '$2' ($((i-1))s)" && \
       return 0
     sleep 1
+    echo "checking again..."
   done
   die "connection '$con' is not active on '$2' in $rep seconds:$(echo; nmcli -g NAME,DEVICE,STATE con show)"
 }
@@ -63,9 +64,12 @@ nmcli_con_prop() {
     res="$(nmcli -g "$prop" con show "$con")"
     # unescape "\:" in case of single property (no ',')
     [[ "$prop" != *,* ]] && res="$(echo "$res" | sed 's/\\:/:/g')"
-    [[ "$res" == $val ]] || { sleep 1; continue; }
-    echo "[OK] '$prop' of '$con' is '$val' ($((i-1))s)"
-    return 0
+    if [[ "$res" == $val ]]; then
+      echo "[OK] '$prop' of '$con' is '$val' ($((i-1))s)"
+      return 0
+    fi
+    sleep 1
+    echo "checking again..."
   done
   die "'$prop' of '$con' is not '$val', but '$res'"
 }
