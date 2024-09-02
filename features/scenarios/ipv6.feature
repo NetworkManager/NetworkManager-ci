@@ -2004,7 +2004,7 @@
      * Execute "ip netns exec testX6_ns ip route add $(grep -m 1 iaprefix /tmp/ip6leases.conf | sed -r 's/\s+iaprefix ([a-f0-9:/]+) \{.*/\1/') via $(grep -m 1 iaaddr /tmp/ip6leases.conf | sed -r 's/\s+iaaddr ([a-f0-9:]+) \{.*/\1/')"
      # no need to call, because of IPv6 autoconfiguration
      #Then Finish "ip netns exec testY6_ns rdisc -d -v"
-     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+     Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "20" seconds
      And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
      And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
