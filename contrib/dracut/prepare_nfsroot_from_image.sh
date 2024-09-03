@@ -69,7 +69,7 @@ modprobe nbd max_part=8
 qemu-nbd --read-only --connect=/dev/nbd0 $TESTDIR/root.qcow2
 sleep 0.1
 fdisk /dev/nbd0 -l || (sleep 1; fdisk /dev/nbd0 -l; )
-part=$(fdisk /dev/nbd0 -l | grep "Linux \(filesystem\|root\)" | sed 's/ .*//')
+part=$(fdisk /dev/nbd0 -l | grep "Linux \(filesystem\|root\)" | tail -n 1 | sed 's/ .*//')
 [ -z "$part" ] && part=$(fdisk /dev/nbd0 -l | grep "Linux" | tail -n 1 | sed 's/ .*//')
 
 mkdir -p $TESTDIR/qcow
