@@ -127,14 +127,18 @@ EOF
   du -sch $initdir
 
   # install NetworkManager-* to the nfsroot
-  nm_build_path=""
-  for path in "/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" "/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/" "/root/rpms/"; do
-    [ -d $path ] && nm_build_path="$path"
-  done
 
   rpm_list=""
   for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
-    rpm_list="$rpm_list $nm_build_path$rpm"
+    found=0
+    for nm_build_path in "/"{root,tmp}"/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/"{noarch,$(arch)}"/" "/root/rpms/"; do
+      if [ -f "$nm_build_path$rpm.rpm" ]; then
+        rpm_list="$rpm_list $nm_build_path$rpm.rpm"
+        found=1
+        break
+      fi
+    done
+    [ "$found" == 1 ] || rpm_list="$rpm_list $rpm"
   done
 
   # Override --releasever, as epel repofile does not work with --inistallroot
