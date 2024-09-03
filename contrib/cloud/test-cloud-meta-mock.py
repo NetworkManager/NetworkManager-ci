@@ -49,7 +49,7 @@ def _s_to_bool(s):
     raise ValueError(f'Not a boolean value ("{s0}")')
 
 
-DEBUG = _s_to_bool(os.environ.get("NM_TEST_CLOUD_SETUP_MOCK_DEBUG", "0"))
+DEBUG = True
 
 
 def dbg(msg):
@@ -275,7 +275,10 @@ if fileno is not None:
         raise Exception("Bad LISTEN_FDS")
     s = socket.socket(fileno=3)
 else:
-    addr = ("localhost", 0)
+    port = 0
+    if len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    addr = ("localhost", port)
     s = socket.socket()
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
