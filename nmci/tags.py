@@ -1434,6 +1434,8 @@ def dracut_remote_NFS_clean_as(context, scenario):
         shell=True,
     )
     context.process.systemctl("start nfs-server.service")
+    # This is to prevent boot stuck if the next test boots too quicky
+    time.sleep(10)
 
 
 _register_tag("dracut_remote_NFS_clean", None, dracut_remote_NFS_clean_as)

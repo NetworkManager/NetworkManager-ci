@@ -279,7 +279,6 @@ EOF
   fi
 
   touch /tmp/dracut_setup_done
-
 }
 
 
@@ -332,6 +331,8 @@ start_nfs() {
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/tftpboot/nfs4-5
   cp conf/exports /etc/exports
   systemctl start nfs-server
+  # This is to prevent the first boot stuck right after setup
+  sleep 10
 }
 
 
