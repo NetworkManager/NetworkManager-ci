@@ -332,7 +332,7 @@ start_nfs() {
   cp conf/exports /etc/exports
   systemctl start nfs-server
   # This is to prevent the first boot stuck right after setup
-  sleep 10
+  sleep 30
 }
 
 
