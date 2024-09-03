@@ -1409,6 +1409,8 @@ testmapper:
     - cloud_azure_basic:
         feature: cloud
         tags: gate
+    - cloud_azure_primary_address_race:
+        feature: cloud
     - cloud_ec2_basic:
         feature: cloud
         tags: gate

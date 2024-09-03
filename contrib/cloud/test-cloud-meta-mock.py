@@ -18,8 +18,9 @@
 import os
 import socket
 import sys
+import time
 
-from http.server import HTTPServer
+from http.server import ThreadingHTTPServer
 from http.server import BaseHTTPRequestHandler
 from socketserver import BaseServer
 
@@ -88,6 +89,10 @@ class MockCloudMDRequestHandler(BaseHTTPRequestHandler):
         r = None
         if path in self.server._resources:
             r = self.server._resources[path]
+            if isinstance(r, tuple):
+                r, args = r
+                if "delay" in args:
+                    time.sleep(args["delay"])
         elif self.server.config_get_allow_default():
             for p in self.server.config_get_providers():
                 if path in DEFAULT_RESOURCES[p]:
@@ -120,7 +125,12 @@ class MockCloudMDRequestHandler(BaseHTTPRequestHandler):
                     write="AQAAALH-k7i18JMkK-ORLZQfAa7nkNjQbKwpQPExNHqzk1oL_7eh-A==",
                 )
         else:
-            self.server._resources[path] = self._read()
+            v = self._read()
+            args = {}
+            if v.endswith(b"\nnmtest_delay"):
+                v = v.replace(b"\nnmtest_delay", b"")
+                args["delay"] = 0.5
+            self.server._resources[path] = (v, args)
             self._response_and_end(201)
 
     def do_DELETE(self):
@@ -133,7 +143,7 @@ class MockCloudMDRequestHandler(BaseHTTPRequestHandler):
             self._response_and_end(404)
 
 
-class SocketHTTPServer(HTTPServer):
+class SocketHTTPServer(ThreadingHTTPServer):
     """
     A HTTP server that accepts a socket (that has already been
     listen()-ed on). This is useful when the socket is passed
@@ -270,6 +280,7 @@ else:
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     s.bind(addr)
+
 
 httpd = SocketHTTPServer(
     None,

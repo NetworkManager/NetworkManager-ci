@@ -38,6 +38,28 @@ Feature: nmcli: cloud
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
 
 
+    @RHEL-56387
+    @ver+=1.50
+    @ver+=1.48.11
+    @ver+=1.46.3
+    @ver/rhel/9/4+=1.46.0.19
+    @cloud_azure_primary_address_race
+    Scenario: cloud - azure - Basic Azure with primary address delayed
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    * Mock Azure metadata for device "0" with MAC address "CC:00:00:00:00:01"
+    * Mock Azure IP addresses "172.31.176.249" and "172.31.17.249" with for device "0" with primary delayed
+    * Mock Azure subnet "172.31.16.0" with prefix "20" for device "0"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
+    * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
+    * Mock Azure IP addresses "172.31.186.249" and "172.31.18.249" with for device "0" with primary delayed
+    * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
+
+
     @ver+=1.43.8.2
     @cloud_ec2_basic
     Scenario: cloud - ec2 - Basic EC2 nm-cloud-setup checks

@@ -247,6 +247,24 @@ def mock_azure_ip(context, ip_addr1, ip_addr2, dev):
     )
 
 
+@step(
+    'Mock Azure IP addresses "{ip_addr1}" and "{ip_addr2}" with for device "{dev}" with primary delayed'
+)
+def mock_azure_ip(context, ip_addr1, ip_addr2, dev):
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/?format=text&api-version=2017-04-02",
+        "0\n1\n",
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/0/privateIpAddress?format=text&api-version=2017-04-02",
+        ip_addr1 + "\nnmtest_delay",
+    )
+    http_put_azure(
+        f"metadata/instance/network/interface/{dev}/ipv4/ipAddress/1/privateIpAddress?format=text&api-version=2017-04-02",
+        ip_addr2,
+    )
+
+
 @step('Mock Azure subnet "{subnet}" with prefix "{prefix}" for device "{dev}"')
 def mock_azure_cidr(context, subnet, prefix, dev):
     http_put_azure(
