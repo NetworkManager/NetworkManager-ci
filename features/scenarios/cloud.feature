@@ -189,3 +189,21 @@ Feature: nmcli: cloud
     * Note the output of "ip rule | grep -F 172.31.176.251 | grep -o ^[0-9]*" as value "eth13_table"
     Then Check noted values "eth11_table" and "eth12_table" are not the same
     And Check noted values "eth11_table" and "eth13_table" are not the same
+
+
+    @RHEL-56740
+    @ver+=1.50
+    @ver+=1.48.10
+    @ver+=1.46.3
+    @ver/rhel/9/4+=1.46.0.19
+    @nm_cloud_setup_burst_limit
+    Scenario: cloud - setup - allow 100 restarts in 1 second
+    * Commentary
+      """
+      Every pre-up and dhcp4-change triggers a nm-c-s restart
+      so in case of many devices (100/s is OK up to 50) we need
+      to have larger systemd restart limit to avoid entering
+      failed state. Check that we don't lose this along the way.
+      """
+    Then "100$" is visible with command "grep StartLimitBurst /usr/lib/systemd/system/nm-cloud-setup.service"
+    Then "1$" is visible with command "grep StartLimitIntervalSec /usr/lib/systemd/system/nm-cloud-setup.service"

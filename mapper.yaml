@@ -1427,6 +1427,8 @@ testmapper:
         feature: cloud
     - cloud_ec2_race_with_3_interfaces:
         feature: cloud
+    - nm_cloud_setup_burst_limit:
+        feature: cloud
     - 8021x_tls_pkcs11_saved_pw:
         feature: ethernet
     - 8021x_tls_pkcs11_pwfile:
