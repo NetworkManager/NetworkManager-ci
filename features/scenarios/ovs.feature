@@ -88,6 +88,7 @@ Feature: nmcli - ovs
 
     @RHEL-46904 @RHEL-53344
     @ver+=1.49.3
+    @ver+=1.48.10
     @ver/rhel/9/4+=1.46.0.17
     @openvswitch
     @nmcli_activate_parent_connection_keep_children_alive
