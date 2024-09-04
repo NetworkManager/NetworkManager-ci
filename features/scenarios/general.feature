@@ -252,6 +252,7 @@ Feature: nmcli - general
 
     @RHEL-17972
     @ver+=1.49.2
+    @ver/rhel/9+=1.46.0.19
     @rhelver+=8
     @internal_DHCP @dhcpd
     @restore_hostname @eth0
