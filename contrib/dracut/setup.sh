@@ -330,9 +330,20 @@ start_nfs() {
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/ip/192.168.50.101
   mount --bind $TESTDIR/nfs/client $TESTDIR/nfs/tftpboot/nfs4-5
   cp conf/exports /etc/exports
+  # set nlm grace period for NFS
+  sed -i '/nlm_grace_period/ d' /etc/modprobe.d/lockd.conf
+  echo "options lockd nlm_grace_period=10" >> /etc/modprobe.d/lockd.conf
+  modprobe -r lockd
+  # nfs-server must be stopped when setting grace/lease time
+  # but had to be started before, otherwise proc dir is empty
   systemctl start nfs-server
-  # This is to prevent the first boot stuck right after setup
-  sleep 30
+  systemctl stop nfs-server
+  proc_dir=/proc/fs/nfsd
+  echo 10 > $proc_dir/nfsv4leasetime
+  echo 10 > $proc_dir/nfsv4gracetime
+  systemctl start nfs-server
+  # Next boot can stuck if booted too quickly, wait the garve period
+  sleep 10
 }
 
 
