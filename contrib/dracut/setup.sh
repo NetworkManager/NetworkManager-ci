@@ -342,7 +342,7 @@ start_nfs() {
   echo 10 > $proc_dir/nfsv4leasetime
   echo 10 > $proc_dir/nfsv4gracetime
   systemctl start nfs-server
-  # Next boot can stuck if booted too quickly, wait the garve period
+  # Next boot can stuck if booted too quickly, wait the grace period
   sleep 10
 }
 
