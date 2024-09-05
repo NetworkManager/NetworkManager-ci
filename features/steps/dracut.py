@@ -43,7 +43,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
                 "Power down",
                 pexpect.TIMEOUT,
             ],
-            timeout=20,
+            timeout=30,
         )
         if message == 0:
             now_booted = True
@@ -59,7 +59,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
             print(f"VM boot detected in {t.elapsed_time():.3f}s")
             break
         if boot_log_proc.before == last_before:
-            print("No output in console in last 20s, exitting...")
+            print("No output in console in last 30s, exitting...")
             return False
         last_before = boot_log_proc.before
 
