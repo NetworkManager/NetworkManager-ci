@@ -499,13 +499,13 @@ testmapper:
         feature: team
     - add_two_slaves_to_team:
         feature: team
-    - default_config_watch:
+    - team_default_config_watch:
         feature: team
-    - remove_all_slaves:
+    - team_remove_all_slaves:
         feature: team
     #- team_restart_persistence:
     #    feature: team
-    - remove_one_slave:
+    - team_remove_one_slave:
         feature: team
     #- change_slave_type_and_master:
     #    feature: team
@@ -536,14 +536,14 @@ testmapper:
     - team_start_on_boot_with_team_and_one_slave_auto:
         feature: team
         tags: gate libnl3
-    - config_loadbalance:
+    - team_config_loadbalance:
         feature: team
-    - config_broadcast:
+    - team_config_broadcast:
         feature: team
-    - config_lacp:
+    - team_config_lacp:
         feature: team
         tags: gate
-    - remove_config:
+    - team_remove_config:
         feature: team
     - team_set_mtu:
         feature: team
@@ -555,14 +555,14 @@ testmapper:
         feature: team
     - team_enslave_to_bridge:
         feature: team
-    - describe:
+    - team_describe:
         feature: team
     - team_in_bridge_mtu:
         feature: team
         tags: gate
     - team_config_null:
         feature: team
-    - ifcfg_with_missing_devicetype:
+    - team_ifcfg_with_missing_devicetype:
         feature: team
     - team_in_vlan:
         feature: team
@@ -577,7 +577,7 @@ testmapper:
         feature: team
     - team_add_into_firewall_zone:
         feature: team
-    - reconnect_back_to_ethernet_after_master_delete:
+    - team_reconnect_back_to_ethernet_after_master_delete:
         feature: team
     - team_abs_set_runners:
         feature: team
@@ -613,7 +613,7 @@ testmapper:
         feature: team
     - team_abs_overwrite_watchers:
         feature: team
-    - restart_L2_only_lacp:
+    - team_restart_L2_only_lacp:
         feature: team
     - teamd_logging:
         feature: team

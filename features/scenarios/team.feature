@@ -144,7 +144,7 @@
     @rhbz1310435
     @rhelver-=9
     @ver+=1.4.0
-    @default_config_watch
+    @team_default_config_watch
     Scenario: nmcli - team - default config watcher
      * Add "team" connection named "team0" for device "nm-team"
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
@@ -157,7 +157,7 @@
 
 
     @rhelver-=9
-    @remove_all_slaves
+    @team_remove_all_slaves
     Scenario: nmcli - team - remove last slave
      * Add "team" connection named "team0" for device "nm-team"
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
@@ -166,7 +166,7 @@
 
 
     @rhelver-=9
-    @remove_one_slave
+    @team_remove_one_slave
     Scenario: nmcli - team - remove a slave
      * Add "team" connection named "team0" for device "nm-team"
      * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
@@ -354,7 +354,7 @@
 
 
     @rhelver-=9
-    @config_loadbalance
+    @team_config_loadbalance
     Scenario: nmcli - team - config - set loadbalance mode
      * Add "team" connection named "team0" for device "nm-team" with options
         """
@@ -371,7 +371,7 @@
 
 
     @rhelver-=9
-    @config_broadcast
+    @team_config_broadcast
     Scenario: nmcli - team - config - set broadcast mode
      * Add "team" connection named "team0" for device "nm-team" with options
         """
@@ -388,7 +388,7 @@
     @rhbz149733
     @ver+=1.10
     @not_on_veth @restart_if_needed
-    @config_lacp
+    @team_config_lacp
     Scenario: nmcli - team - config - set lacp mode
      * Add "team" connection named "team0" for device "nm-team" with options
            """
@@ -439,7 +439,7 @@
 
 
     @rhelver-=9
-    @remove_config
+    @team_remove_config
     Scenario: nmcli - team - config - remove
      * Add "team" connection named "team0" for device "nm-team" with options
         """
@@ -522,7 +522,7 @@
 
 
     @rhelver-=9
-    @describe
+    @team_describe
     Scenario: nmcli - team - describe team
      * Open editor for a type "team"
      Then Check "<<< team >>>|=== \[config\] ===|\[NM property description\]" are present in describe output for object "team"
@@ -585,7 +585,7 @@
     @rhbz1367180
     @rhelver-=9
     @ver+=1.4.0
-    @ifcfg_with_missing_devicetype
+    @team_ifcfg_with_missing_devicetype
     Scenario: ifcfg - team - missing device type
      * Append "DEVICE=eth5" to ifcfg file "team0.0"
      * Append "NAME=team0.0" to ifcfg file "team0.0"
@@ -782,7 +782,7 @@
     @rhelver-=9
     @ver+=1.10
     @ethernet
-    @reconnect_back_to_ethernet_after_master_delete
+    @team_reconnect_back_to_ethernet_after_master_delete
     Scenario: nmcli - team - reconnect ethernet when master deleted
      * Add "ethernet" connection named "ethernet" for device "eth5"
      * Add "team" connection named "team0" for device "nm-team"
@@ -1490,7 +1490,7 @@
     @rhelver-=9
     @ver+=1.10
     @restart_if_needed
-    @restart_L2_only_lacp
+    @team_restart_L2_only_lacp
     Scenario: nmcli - team - reboot L2 lacp
     Given Prepare simulated test "testXT1" device
     * Add "team" connection named "team0" for device "nm-team" with options
