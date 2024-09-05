@@ -2730,7 +2730,7 @@ Feature: nmcli - general
 
     @rhbz1578436
     @ver+=1.14
-    @rhelver+=8 @fedoraver+=31
+    @rhelver+=8 @fedoraver-=41
     @ifupdown
     @ifup_ifdown_scripts
     Scenario: NM - general - test ifup (ifdown) script uses NM
@@ -2754,8 +2754,8 @@ Feature: nmcli - general
 
     @rhbz1954607
     @ver+=1.32.2
-    @rhelver+=9 @keyfile
-    @ifupdown
+    @rhelver-=9 @fedoraver-=41
+    @ifupdown @keyfile
     @ifup_ifdown_keyfile
     Scenario: NM - general - test ifup (ifdown) script uses NM with keyfile-defined connection
     * Add "ethernet" connection named "con_general" for device "eth8" with options
