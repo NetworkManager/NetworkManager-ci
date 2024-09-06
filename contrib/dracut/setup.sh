@@ -141,8 +141,13 @@ EOF
     [ "$found" == 1 ] || rpm_list="$rpm_list $rpm"
   done
 
+  # Install running kernel to the image (missing modules)
+  rpm_list="$rpm_list $(rpm -qa | grep ^kernel | grep -F "$(uname -r)" )"
+
+  # dnf5 only args
+  which dnf5 && skip_unavail="--skip-unavailable"
   # Override --releasever, as epel repofile does not work with --inistallroot
-  dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} install $rpm_list --skip-broken
+  dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} install $rpm_list --skip-broken $skip_unavail
   du -sch $initdir
 
   dnf --installroot=$initdir clean all
