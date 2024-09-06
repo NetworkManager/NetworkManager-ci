@@ -6,10 +6,10 @@ from behave import step
 import nmci
 from nmci import pexpect
 
-REMOTE_ROOT_DIR = "/var/dracut_test/nfs/client/"
-REMOTE_JOURNAL_DIR = "/var/dracut_test/client_log/"
-REMOTE_JOURNAL = "--root=" + REMOTE_JOURNAL_DIR
-REMOTE_CRASH_DIR = "/var/dracut_test/client_dumps/"
+REMOTE_ROOT_DIR = lambda: os.environ["TESTDIR"] + "/nfs/client/"
+REMOTE_JOURNAL_DIR = lambda: os.environ["TESTDIR"] + "/client_log/"
+REMOTE_JOURNAL = lambda: "--root=" + REMOTE_JOURNAL_DIR()
+REMOTE_CRASH_DIR = lambda: os.environ["TESTDIR"] + "/client_dumps/"
 
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
@@ -92,7 +92,6 @@ def debug_shell(proc):
 
 def embed_dracut_logs(context):
     nmci.process.run(
-        "cd contrib/dracut/; . ./setup.sh; "
         "mount $TESTDIR/client_dumps.img -o loop,ro,noatime,norecovery $TESTDIR/client_dumps; "
         "mount $TESTDIR/client_log.img -o loop,ro,noatime,norecovery $TESTDIR/client_log/var/log/; ",
         shell=True,
@@ -106,12 +105,12 @@ def embed_dracut_logs(context):
         nmci.embed.embed_service_log(
             "Dracut Test",
             syslog_identifier="test-init",
-            journal_args=REMOTE_JOURNAL,
+            journal_args=REMOTE_JOURNAL(),
             fail_only=False,
         )
 
     nmci.embed.embed_service_log(
-        "Dracut Journal", journal_args=REMOTE_JOURNAL, fail_only=False
+        "Dracut Journal", journal_args=REMOTE_JOURNAL(), fail_only=False
     )
 
     check_core_dumps(context)
@@ -133,18 +132,18 @@ def check_core_dumps(context):
     backtraces = ""
     sleep_crash = False
     other_crash = False
-    for filename in os.listdir(REMOTE_CRASH_DIR):
+    for filename in os.listdir(REMOTE_CRASH_DIR()):
         if filename.startswith("dump_"):
             if "sleep" in filename:
                 sleep_crash = True
             else:
                 other_crash = True
             backtraces += (
-                filename + ":\n" + get_backtrace(REMOTE_CRASH_DIR + filename) + "\n\n"
+                filename + ":\n" + get_backtrace(REMOTE_CRASH_DIR() + filename) + "\n\n"
             )
             nmci.embed.embed_file_if_exists(
                 "Dracut Crash Dump",
-                REMOTE_CRASH_DIR + filename,
+                REMOTE_CRASH_DIR() + filename,
                 as_base64=True,
             )
 
@@ -159,21 +158,18 @@ def check_core_dumps(context):
 
 def prepare_dracut(context, checks):
     nmci.process.run(
-        "cd contrib/dracut/; . ./setup.sh; "
         "mount $TESTDIR/client_check.img -o loop $TESTDIR/client_check/; "
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
         shell=True,
+        cwd="contrib/dracut",
     )
-    with open("/var/dracut_test/client_check/client_check.sh", "w") as f:
+    with open(os.environ["TESTDIR"] + "/client_check/client_check.sh", "w") as f:
         f.write("client_check() {\n")
         f.write("\n".join(checks))
         f.write("}\n")
     nmci.process.run(
-        "cd contrib/dracut/; . ./setup.sh; "
-        "sync; sync; sync; "
-        "umount $TESTDIR/client_check.img; "
-        "sync; sync; sync;",
+        "sync; sync; sync; umount $TESTDIR/client_check.img; sync; sync; sync;",
         shell=True,
     )
 
@@ -240,7 +236,7 @@ def dracut_run(context):
             "-append",
             " ".join(kernel_args),
             "-initrd",
-            "$TESTDIR/" + initrd,
+            os.environ["TESTDIR"] + "/" + initrd,
         ],
         cwd="./contrib/dracut/",
         timeout=None,
@@ -265,7 +261,7 @@ def dracut_run(context):
 @step('Remove "{file_name}" from dracut NFS root')
 def remove_file_ns_root(context, file_name):
     assert os.path.isfile(file_name), f"Local file {file_name} not found"
-    remote_file_name = f"{REMOTE_ROOT_DIR}{file_name}"
+    remote_file_name = f"{REMOTE_ROOT_DIR()}{file_name}"
     assert os.path.isfile(remote_file_name), f"Remote file {file_name} not found"
     context.dracut_files_to_restore = getattr(context, "dracut_files_to_restore", [])
     context.dracut_files_to_restore.append(file_name)

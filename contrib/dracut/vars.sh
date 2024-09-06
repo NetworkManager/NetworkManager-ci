@@ -1,0 +1,8 @@
+TESTDIR=/var/dracut_test
+
+UUID_LOG=a32d3ed2-225f-11eb-bf6a-525400c7ed04
+UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
+UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
+DEV_LOG=/dev/disk/by-uuid/$UUID_LOG
+DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
+DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS

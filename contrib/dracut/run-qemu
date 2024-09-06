@@ -4,7 +4,7 @@
 #export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 # import important vars
-. ./setup.sh
+. ./vars.sh
 
 # unset core limit to catch qemu-kvm crashes
 ulimit -c unlimited

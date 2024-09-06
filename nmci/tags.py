@@ -2,6 +2,7 @@
 import os
 import nmci
 import glob
+import json
 import time
 import re
 import shutil
@@ -1367,6 +1368,17 @@ _register_tag("wireguard", wireguard_bs, None)
 
 
 def dracut_bs(context, scenario):
+    # import dracut env
+    json_env_s = nmci.process.run_stdout(
+        "set -a; . contrib/dracut/setup.sh; "
+        "python3 <<< 'import json, os; print(json.dumps(dict(os.environ)))'",
+        shell=True,
+        ignore_stderr=True,
+    )
+    json_env = json.loads(json_env_s)
+    for k, v in json_env.items():
+        os.environ[k] = v
+
     if "Fedora" in context.rh_release and context.arch != "x86_64":
         context.cext.skip("Skipping on non-x86_64 on fedora.")
 
@@ -1374,9 +1386,9 @@ def dracut_bs(context, scenario):
     context.process.run_stdout("rpm -qa dracut*", timeout=15, ignore_stderr=True)
 
     rc = context.process.run_code(
-        "cd contrib/dracut; . ./setup.sh ; set -x; "
-        " { time test_setup ; } &> /tmp/dracut_setup.log",
+        " set -x; { time test_setup ; } &> /tmp/dracut_setup.log",
         shell=True,
+        cwd="contrib/dracut",
         timeout=580,
     )
     nmci.embed.embed_file_if_exists(
@@ -1386,9 +1398,9 @@ def dracut_bs(context, scenario):
     if rc != 0:
         print("dracut setup failed, doing clean !!!")
         context.process.run_stdout(
-            "cd contrib/dracut; . ./setup.sh ;"
             "{ time test_clean; } &> /tmp/dracut_teardown.log",
             shell=True,
+            cwd="contrib/dracut",
         )
         nmci.embed.embed_file_if_exists(
             "Dracut teardown",
@@ -1407,11 +1419,11 @@ def dracut_as(context, scenario):
     nmci.embed.embed_service_log("RA", syslog_identifier="radvd")
     nmci.embed.embed_service_log("NFS", syslog_identifier="rpc.mountd")
     context.process.run_stdout(
-        "cd contrib/dracut; . ./setup.sh; after_test", shell=True, timeout=15
+        "after_test", shell=True, timeout=15, cwd="contrib/dracut"
     )
 
     for file_name in getattr(context, "dracut_files_to_restore", []):
-        remote_file_name = f"/var/dracut_test/nfs/client/{file_name}"
+        remote_file_name = os.environ["TESTDIR"] + f"/nfs/client/{file_name}"
         try:
             shutil.copy2(file_name, remote_file_name)
         except Exception:
@@ -1427,7 +1439,6 @@ def dracut_remote_NFS_clean_as(context, scenario):
     # keep nfs service stopped as it hangs rm commands for 90s
     context.process.systemctl("stop nfs-server.service")
     context.process.run_stdout(
-        ". contrib/dracut/setup.sh; "
         "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/system-connections/*; "
         "rm -vrf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-*; "
         "rm -vrf $TESTDIR/nfs/client/etc/sysconfig/network-scripts/ifcfg-*; ",

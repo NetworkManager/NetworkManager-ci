@@ -1,13 +1,7 @@
 #!/bin/bash
 
-export TESTDIR=/var/dracut_test
-
-UUID_LOG=a32d3ed2-225f-11eb-bf6a-525400c7ed04
-UUID_CHECK=a467c808-225f-11eb-96df-525400c7ed04
-UUID_DUMPS=a6673314-225f-11eb-a9a2-525400c7ed04
-DEV_LOG=/dev/disk/by-uuid/$UUID_LOG
-DEV_CHECK=/dev/disk/by-uuid/$UUID_CHECK
-DEV_DUMPS=/dev/disk/by-uuid/$UUID_DUMPS
+# load variables, might be called from NetworkManager-ci, or contrib/dracut
+. ./contrib/dracut/vars.sh || . ./vars.sh
 
 test_setup() {
   # Exit if setup is already done
@@ -99,6 +93,9 @@ test_setup() {
   > $initdir/etc/environment
   # empty hostname
   > $initdir/etc/hostname
+
+  # copy dracut variables
+  cp -fa ./vars.sh $initdir/vars.sh
 
   # copy testsuite script
   cp -fa ./conf/client-init.sh $initdir/sbin/test-init
@@ -326,7 +323,7 @@ reset_images() {
 after_test() {
     stop_dhcpd
     start_dhcpd
-    reset_images 2&>1
+    reset_images 2>&1
 }
 
 
