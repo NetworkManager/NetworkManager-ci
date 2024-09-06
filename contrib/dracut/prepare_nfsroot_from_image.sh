@@ -19,17 +19,16 @@ get_all() {
 
 link=
 
-dnf -v repolist --enabled
-if grep -q "Red Hat" /etc/redhat-release; then
+. /etc/os-release
+
+if [ "$ID" == rhel ]; then
     link=$(dnf -v repolist --enabled | grep Repo-baseurl | grep BaseOS | grep /os | sed 's/.*: //g;s!/os!/images/!' )
     link="$link$(get_all "$link" | grep 'qcow2$')"
-elif grep -q "CentOS" /etc/redhat-release; then
-    rel=$(grep -o 'release [0-9]*' /etc/redhat-release | grep -o '[0-9]*')
-    link=https://cloud.centos.org/centos/$rel-stream/$(arch)/images/
+elif [ "$ID" == centos ]; then
+    link=https://cloud.centos.org/centos/$VERSION_ID-stream/$(arch)/images/
     # grep out GenericCloud-x86_64-9-latest.x86_64.qcow2
-    link="$link$(get_all "$link" | grep latest | grep "GenericCloud-$rel" | grep 'qcow2$' )"
-elif grep -q "Fedora" /etc/redhat-release; then
-    . /etc/os-release
+    link="$link$(get_all "$link" | grep latest | grep "GenericCloud-$VERSION_ID" | grep 'qcow2$' )"
+elif [ "$ID" == fedora ]; then
     VERSION_ID2="$VERSION_ID"
     [[ "$VERSION" == *"Rawhide"* ]] && VERSION_ID=rawhide && VERSION_ID2=Rawhide
     # get compose from repo
