@@ -40,7 +40,7 @@ Feature: nmcli: cloud
 
     @RHEL-56387
     @ver+=1.50
-    @ver+=1.48.10
+    @ver+=1.48.10.2
     @ver+=1.46.3
     @ver/rhel/9/4+=1.46.0.19
     @cloud_azure_primary_address_race
@@ -193,7 +193,7 @@ Feature: nmcli: cloud
 
     @RHEL-56740
     @ver+=1.50
-    @ver+=1.48.10
+    @ver+=1.48.10.2
     @ver+=1.46.3
     @ver/rhel/9/4+=1.46.0.19
     @nm_cloud_setup_burst_limit
