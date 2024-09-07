@@ -864,6 +864,8 @@ testmapper:
     - ipv6_set_addr-gen_mode_global_config:
         feature: ipv6
         tags: gate libndp
+    - ipv6_set_dhcp_send_hostname_global_config:
+        feature: ipv6
     - ipv6_stable_privacy_dad:
         feature: ipv6
     - ipv6_mptcp_no_flags:
@@ -1239,6 +1241,8 @@ testmapper:
     - ipv4_dhcp_send_release:
         feature: ipv4
     - ipv4_dhcp_send_release_disabled:
+        feature: ipv4
+    - ipv4_set_dhcp_send_hostname_global_config:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
