@@ -2537,6 +2537,34 @@
     And "fe80::ecaa:bbff:fecc:ddee/64" is visible with command "ip a show dev testX6" in "10" seconds
 
 
+    @RHEL-56565
+    @ver+=1.51.2
+    @restart_if_needed
+    @ipv6_set_dhcp_send_hostname_global_config
+    Scenario: nmcli - ipv6 - set ipv6.dhcp-send-hostname in global config
+    * Create NM config file with content
+      """
+      [connection]
+      match-device=type:ethernet
+      ipv6.dhcp-send-hostname=0
+      """
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options
+          """
+          ipv6.dhcp-hostname r.cx
+          ipv6.may-fail true
+          ipv6.method dhcp
+          """
+    * Bring "down" connection "con_ipv6"
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6-hostname.log"
+    * Bring "up" connection "con_ipv6"
+    When "cannot|empty" is not visible with command "file /tmp/ipv6-hostname.log" in "50" seconds
+    Then "r.cx" is not visible with command "cat /tmp/ipv6-hostname.log" for full "45" seconds
+    * Modify connection "con_ipv6" changing options "ipv6.dhcp-send-hostname true"
+    * Bring "up" connection "con_ipv6"
+    Then "r.cx" is visible with command "grep r.cx /tmp/ipv6-hostname.log" in "45" seconds
+
+
     @rhbz2082685
     @ver+=1.41.2
     @ver-1.45.8

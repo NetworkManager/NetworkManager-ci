@@ -3716,3 +3716,32 @@ Feature: nmcli: ipv4
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
     Then "DHCP-Message .*53.*, length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
+
+
+    @RHEL-56565
+    @ver+=1.51.2
+    @tshark
+    @restart_if_needed
+    @ipv4_set_dhcp_send_hostname_global_config
+    Scenario: nmcli - ipv4 - set ipv4.dhcp-send-hostname in global config
+    * Create NM config file with content
+      """
+      [connection]
+      match-device=type:ethernet
+      ipv4.dhcp-send-hostname=0
+      """
+    * Restart NM
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.dhcp-hostname example.com
+          ipv4.may-fail no
+          """
+    * Bring "down" connection "con_ipv4"
+    * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+
+    * Bring "up" connection "con_ipv4"
+    Then "example.com" is not visible with command "cat /tmp/tshark.log" for full "45" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.dhcp-send-hostname true"
+    * Bring "up" connection "con_ipv4"
+    Then "example.com" is visible with command "cat /tmp/tshark.log" in "245" seconds
