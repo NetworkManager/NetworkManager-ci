@@ -189,9 +189,9 @@ EOF
   mkdir $TESTDIR/client_dumps
 
   # Create the blank file to use as a root iSCSI filesystem
-  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=2600
-  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=1300
-  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=1300
+  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=2800
+  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=1400
+  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=1400
 
   # copy client files to root filesystem
   mkfs.ext4 -j -L singleroot -F $TESTDIR/root.ext4

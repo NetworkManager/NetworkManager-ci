@@ -100,6 +100,6 @@ umount $TESTDIR/qcow
 umount $TESTDIR/qcow
 qemu-nbd --disconnect /dev/nbd0
 
-# remove qcow, if not enough space, needs at least 5.2G for iSCSI images, +300M safatey margin
+# remove qcow, if not enough space, needs at least 5.6G for iSCSI images, +400M safatey margin
 df=$(df -m --output=avail $TESTDIR | tail -n 1)
-(( df > 5500 )) || rm $TESTDIR/root.qcow2
+(( df > 6000 )) || rm $TESTDIR/root.qcow2
