@@ -57,6 +57,57 @@
     Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
+    @RHEL-58040
+    @fedoraver+=43
+    @rhelver+=9
+    @libreswan @ikev2
+    @libreswan_ikev2_require_id_on_cert_subject
+    Scenario: nmcli - libreswan - test require ID on certs in subject
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
+    * Modify connection "libreswan" changing options
+      """
+      vpn.data "ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14, rightid=CN=libreswan_server, require-id-on-certificate=yes"
+      """
+    * Bring "up" connection "libreswan"
+    Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    #Then "VPN.BANNER:[^\n]*BUG_REPORT_URL" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
+    Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
+    Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
+    * Bring "down" connection "libreswan"
+    * Commentary
+    """
+    Setting rightid to CN=something will force libreswan to match subject directly
+    and require-id-on-certificate has no effect
+    """
+    * Modify connection "libreswan" changing options "+vpn.data 'rightid=CN=invalid_cert'"
+    Then Fail up connection "libreswan" in "10" seconds
+    # Con might be down or up, if down already, down fails
+    * Execute "nmcli con down id libreswan 2>&1 || true"
+    * Modify connection "libreswan" changing options "+vpn.data 'require-id-on-certificate=no'"
+    Then Fail up connection "libreswan" in "10" seconds
+    # Con might be down or up, if down already, down fails
+    * Execute "nmcli con down id libreswan 2>&1 || true"
+    * Commentary
+    """
+    Setting rightid to string without 'CN=' will force libreswan to match subject directly
+    and require-id-on-certificate should work properly now.
+    """
+    * Modify connection "libreswan" changing options "+vpn.data 'rightid=invalid_id, require-id-on-certificate=yes'"
+    Then Fail up connection "libreswan" in "10" seconds
+    # Con might be down or up, if down already, down fails
+    * Execute "nmcli con down id libreswan 2>&1 || true"
+    * Modify connection "libreswan" changing options "+vpn.data 'require-id-on-certificate=no'"
+    * Bring "up" connection "libreswan"
+    Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+
+
     # https://gitlab.gnome.org/GNOME/NetworkManager-libreswan/-/issues/11
     # https://issues.redhat.com/browse/RHEL-14288
     @libreswan
@@ -621,4 +672,38 @@
     Then "VPN.GATEWAY:[^\n]*2001:db8:f::b" is visible with command "nmcli c show libreswan"
     Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
 
+
+    @RHEL-58040
+    @fedoraver+=43
+    @rhelver+=9
+    @libreswan_ikev2_require_id_on_cert
+    Scenario: libreswan - ikev2 - ipv4 - test require ID on certs
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
+    * Prepare nmstate libreswan environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = hostb.example.org, salifetime = 24h, require-id-on-certificate = yes'
+      """
+    * Bring "up" connection "libreswan"
+    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
+    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
+    # Re-up doesn't work with VPN
+    * Bring "down" connection "libreswan"
+    * Modify connection "libreswan" changing options "+vpn.data 'rightid = hostc.example.com'"
+    Then Fail up connection "libreswan" in "10" seconds
+    # Con might be down or up, if down already, down fails
+    * Execute "nmcli con down id libreswan 2>&1 || true"
+    * Modify connection "libreswan" changing options "+vpn.data 'require-id-on-certificate = no'"
+    * Bring "up" connection "libreswan"
+    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
 

@@ -2159,6 +2159,8 @@ testmapper:
     - libreswan_ikev2:
         feature: libreswan
         tags: NetworkManager-libreswan
+    - libreswan_ikev2_require_id_on_cert_subject:
+        feature: libreswan
     - libreswan_add_profile_wrong_password:
         feature: libreswan
     - libreswan_terminate:
@@ -2223,6 +2225,9 @@ testmapper:
         feature: libreswan
         tags: gate NetworkManager-libreswan
     - libreswan_ikev2_ipv6_p2p_client_server:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_require_id_on_cert:
         feature: libreswan
         tags: gate NetworkManager-libreswan
     - strongswan_add_profile:
