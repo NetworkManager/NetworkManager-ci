@@ -162,11 +162,14 @@ EOF
     brew_urls="$($brew_links $(rpm -q NetworkManager --qf "%{name} %{version} %{release}"))"
     # fail if not found
     [ -z "$brew_urls" ] && echo "Unable to find $nm_local in brew." && exit 1
+    # add noarch packages urls
+    brew_urls="$brew_urls
+    $($brew_links $(rpm -q NetworkManager --qf "%{name} %{version} %{release}") noarch)"
 
     # filter out only installed packages
     rpm_urls=""
     for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
-      rpm_urls="$rpm_urls $(echo $brew_urls | grep $rpm)"
+      rpm_urls="$rpm_urls $(echo "$brew_urls" | grep -F "$rpm" )"
     done
 
     # install and clean
