@@ -154,6 +154,30 @@ EOF
   nm_local="$(rpm -q NetworkManager)"
   nm_nfs="$(rpm --root=$initdir -q NetworkManager)"
 
+  # if NM not in repo, it is gating, try brew links
+  if ! [ "$nm_local" == "$nm_nfs" ]; then
+    # get links from brew
+    brew_links="../utils/brew_links.sh"
+    [ -f "$brew_links" ] || brew_links="./contrib/utils/brew_links.sh"
+    brew_urls="$($brew_links $(rpm -q NetworkManager --qf "%{name} %{version} %{release}"))"
+    # fail if not found
+    [ -z "$brew_urls" ] && echo "Unable to find $nm_local in brew." && exit 1
+
+    # filter out only installed packages
+    rpm_urls=""
+    for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
+      rpm_urls="$rpm_urls $(echo $brew_urls | grep $rpm)"
+    done
+
+    # install and clean
+    dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} install $rpm_urls --skip-broken $skip_unavail
+    du -sch $initdir
+    dnf --installroot=$initdir clean all
+    du -sch $initdir
+    nm_nfs="$(rpm --root=$initdir -q NetworkManager)"
+  fi
+
+  # check again, if gating install failed
   if ! [ "$nm_local" == "$nm_nfs" ]; then
     echo "Unable to install NetworkManager to nfsroot: got $nm_nfs, expected $nm_local"
     exit 1
