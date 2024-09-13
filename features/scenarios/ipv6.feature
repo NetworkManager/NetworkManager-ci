@@ -2775,8 +2775,6 @@
     * Ensure that version of "libndp" package is at least "1.7-7.el8_6" on "rhel8.6"
     * Ensure that version of "libndp" package is at least "1.7-6.el8_4" on "rhel8.4"
     * Ensure that version of "libndp" package is at least "1.7-4.el8_2" on "rhel8.2"
-    # We need this just in case libndp was updated
-    * Restart NM
     * Execute "ip link add veth0 type veth peer name veth1"
     * Execute "ip link set dev veth1 up"
     * Add "ethernet" connection named "con_veth0" for device "veth0"

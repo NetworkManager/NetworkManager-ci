@@ -1343,6 +1343,9 @@ def skip_if(context):
     'Ensure that version of "{package}" package is at least "{version}" on "{distro}"'
 )
 def check_package_version(context, package, version, distro=None):
+    # when these packages are updated/downgraded, NM is restarted
+    PKGS_REQUIRE_NM_RESTART = ["NetworkManager-libreswan", "libndp"]
+
     if distro is not None:
         distro = distro.lower().replace("-", "")
         if distro.startswith("rhel"):
@@ -1403,7 +1406,6 @@ def check_package_version(context, package, version, distro=None):
         )
         > 0
     ):
-        context.pkg_updated = True
         repo = "brew"
         # sswitch to koji(hub) on Fedora or CentOS stream
         if len(context.rh_release_num) == 1 or context.rh_release_num[1] == 99:
@@ -1426,3 +1428,8 @@ def check_package_version(context, package, version, distro=None):
             ),
             priority=nmci.Cleanup.PRIORITY_FILE,
         )
+
+        # restart NM and cleanup restart NM if package requires it
+        if package in PKGS_REQUIRE_NM_RESTART:
+            nmci.nmutil.restart_NM_service()
+            nmci.cleanup.add_NM_service(operation="restart")

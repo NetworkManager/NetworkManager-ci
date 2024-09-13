@@ -1169,9 +1169,6 @@ def libreswan_ng_setup(context):
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
             """
         )
-    # Restart NM only if pkg installed (do we need to?)
-    if getattr(context, "pkg_updated", False):
-        nmci.nmutil.restart_NM_service()
 
     # This might take some time on secondaries if NM is restarted ^^
     nmci.process.run(
