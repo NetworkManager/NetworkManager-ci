@@ -36,7 +36,7 @@ install_el7_packages () {
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
         openvpn rp-pppoe s390utils-base valgrind ModemManager usb_modeswitch \
-        usbutils jq \
+        usbutils jq httpd libselinux-python python-inotify \
         --skip-broken
 
     # freeradius

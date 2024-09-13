@@ -8,22 +8,6 @@ from subprocess import run, PIPE, STDOUT
 import sys
 import xml.etree.ElementTree as ET
 
-inst = [
-    "/usr/bin/dnf",
-    "-y",
-    "install",
-    "httpd",
-    "python3-libselinux",
-    "python3-inotify",
-]
-inst_el7 = [
-    "/usr/bin/yum",
-    "-y",
-    "install",
-    "httpd",
-    "libselinux-python",
-    "python-inotify",
-]
 name_short = "pbl"
 server_root = "/etc/httpd"
 document_root = "/var/www/html"
@@ -36,18 +20,6 @@ httpd_custom_file_full = "/conf.d/".join((server_root, httpd_custom_file))
 firewalld_etc = "/etc/firewalld"
 source_dir = os.path.dirname(__file__)
 
-
-# install packages
-with open("/etc/redhat-release", "r") as f:
-    rh_release = f.read()
-
-if "Maipo" in rh_release:
-    inst = inst_el7
-
-installed = run(inst, encoding="UTF-8")
-
-if installed.returncode != 0:
-    raise SystemExit("\n\nPackage installation failed!")
 
 os.makedirs(document_root, exist_ok=True)
 
@@ -95,7 +67,7 @@ sys.stderr.write("httpd configured\n")
 
 
 shutil.copy("/".join((source_dir, "publish_behave_logs")), "/usr/local/bin/")
-if "Maipo" in rh_release:
+if not os.path.isfile("/etc/os-release"):
     shutil.copy(
         "/".join((source_dir, "publish_behave_logs.service.el7")),
         "/etc/systemd/system/publish_behave_logs.service",
@@ -149,7 +121,10 @@ if have_dbus:
 
     dbus_systemd_manager.RestartUnit("publish_behave_logs.service", "replace")
     dbus_systemd_manager.RestartUnit("httpd.service", "replace")
-    dbus_systemd_manager.ReloadOrTryRestartUnit("firewalld.service", "replace")
+    try:
+        dbus_systemd_manager.ReloadOrTryRestartUnit("firewalld.service", "replace")
+    except dbus.exceptions.DBusException:
+        pass
     sys.stderr.write("services enabled and started, all should be set now\n")
 else:
     msg = [
