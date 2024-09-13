@@ -45,21 +45,12 @@ def copy_file(src):
     stdout.flush()
 
 
-def delay_copy(newfile):
-    """Copy the file if still exists after 2 s delay so run/runtest.sh has
-    a chance to delete empty reports of skipped tests. Intended to run in
-    a separate new process to prevent blocking."""
-    sleep(2)
-    if exists(newfile):
-        copy_file(newfile)
-
-
 def process_close_write(event):
     """Called when file in /tmp is close()-d. If it matches the pattern, new
     process that will copy it after 2 s delay will be created"""
     newfile = event.pathname
     if newfile.startswith("/tmp/report_") and newfile.endswith(".html"):
-        Process(target=delay_copy, args=(newfile,)).start()
+        Process(target=copy_file, args=(newfile,)).start()
 
 
 def main():
