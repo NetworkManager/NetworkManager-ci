@@ -641,7 +641,7 @@ Embed traceback of last exception. Should be used in except branch only.
 * **Parameters:**
   **caption** (*str*) – label of the embeded traceback
 
-### nmci.embed.embed_file_if_exists(caption, fname, as_base64=False, fail_only=False)
+### nmci.embed.embed_file_if_exists(caption, fname, as_base64=False, fail_only=False, ignore_comments=None)
 
 Embed file to HTML report
 
@@ -650,6 +650,7 @@ Embed file to HTML report
   * **fname** (*str*) – name of the file to embed
   * **as_base64** (*bool**,* *optional*) – whether to convert file to base64, defaults to False
   * **fail_only** (*bool**,* *optional*) – wheter to embed only if scenario fails, defaults to True
+  * **ignore_comments** (*None* *or* *str*) – whether to skip empty lines and comments delimited by the param value
 * **Returns:**
   True if file exists and embedded, False otherwise
 * **Return type:**

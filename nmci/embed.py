@@ -581,6 +581,7 @@ class _Embed:
         fname,
         as_base64=False,
         fail_only=False,
+        ignore_comments=None,
     ):
         """Embed file to HTML report
 
@@ -592,6 +593,8 @@ class _Embed:
         :type as_base64: bool, optional
         :param fail_only: wheter to embed only if scenario fails, defaults to True
         :type fail_only: bool, optional
+        :param ignore_comments: whether to skip empty lines and comments delimited by the param value
+        :type ignore_comments: None or str
         :return: True if file exists and embedded, False otherwise
         :rtype: bool
         """
@@ -607,6 +610,14 @@ class _Embed:
 
         if not as_base64:
             data = nmci.util.file_get_content_simple(fname)
+            if ignore_comments is not None:
+                data = "\n".join(
+                    [
+                        l
+                        for l in data.split("\n")
+                        if len(l) > 0 and not l.strip().startswith(ignore_comments)
+                    ]
+                )
             self.embed_data(caption, data, fail_only=fail_only)
             return True
 
