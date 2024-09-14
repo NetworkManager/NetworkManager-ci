@@ -1,3 +1,14 @@
+# get distro and version
+DISTRO_ID="$(. /etc/os-release; echo "$ID")"
+DISTRO_ID_LIKE="$(. /etc/os-release; echo "$ID_LIKE")"
+DISTRO_VERSION_ID="$(. /etc/os-release; echo "$VERSION_ID")"
+DISTRO_PRETTY_NAME="$(. /etc/os-release; echo "$PRETTY_NAME")"
+IFS_BACKUP="$IFS"
+IFS="."
+DISTRO_V=($DISTRO_VERSION_ID)
+IFS="$IFS_BACKUP"
+
+
 # Some URL shorteners
 KOJI="https://kojipkgs.fedoraproject.org/packages"
 BREW="http://download.eng.bos.redhat.com/brewroot/vol"
