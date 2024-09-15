@@ -4,7 +4,7 @@ ID_START=10
 
 function setup {
     set -e
-    ID_END=$(($NUM+10))
+    ID_END=$(($NUM+9))
 
     ip netns add eth11_ns
     ip link add eth11 type veth peer name eth11p
@@ -57,7 +57,7 @@ function clean {
         NUM=1000
     fi
     echo "Cleaning $NUM vlans"
-    ID_END=$(($NUM+10))
+    ID_END=$(($NUM+9))
 
     for i in $(seq $ID_START $ID_END); do
         ids="$ids eth11.$i"

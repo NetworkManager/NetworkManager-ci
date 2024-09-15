@@ -886,7 +886,7 @@ Feature: nmcli - vlan
     * Commentary
       """
       Prepare veth pair with the other end in namespace
-      Create 500 (from 10 to 510) vlans on top of eth11p
+      Create 500 (from 10 to 509) vlans on top of eth11p
       Run dnsmasq inside the namespace to serve incoming connections
       """
     * Execute "sh prepare/vlans.sh setup $N_VLANS"
