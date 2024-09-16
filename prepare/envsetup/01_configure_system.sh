@@ -93,6 +93,12 @@ EOF
     echo "alias ip='ip -c=never'" >> /home/test/.bashrc
     echo "alias ip='ip -c=never'" >> /root/.bashrc
 
+    # set podman to nftables where applicable
+    if distro_version like "rhel = 9" "rhel >= 9.5" || distro_version like "rhel = 8" "rhel >= 8.10"; then
+        mkdir -p /etc/containers/containers.conf.d/
+        printf '[network]\nfirewall_driver="nftables"\n' > /etc/containers/containers.conf.d/90-nftables.conf
+    fi
+
     # set bash completion
     cp contrib/bash_completion/nmci.sh /etc/bash_completion.d/nmci
 
