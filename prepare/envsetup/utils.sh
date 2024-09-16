@@ -9,6 +9,73 @@ DISTRO_V=($DISTRO_VERSION_ID)
 IFS="$IFS_BACKUP"
 
 
+ver_cmp () {
+    local IFS="."
+    local V1=($1)
+    local OP="$2"
+    local V2=($3)
+    IFS="$IFS_BACKUP"
+    local LEN1="${#V1[@]}"
+    local LEN2="${#V2[@]}"
+    local LEN="$((LEN1 < LEN2 ? LEN1 : LEN2))"
+    if [[ "${OP:0:1}" = "=" || "${OP:1:1}" = "=" ]]; then
+        [[ "${V1[@]::$LEN}" = "${V2[@]::$LEN}" ]] && return 0
+    fi
+    echo "${V1[@]}"
+    echo "${V2[@]}"
+    case "${OP}" in
+        "==" | "=")
+            return 4
+            ;;
+        "<" | "-" | "<=" | "-=")
+            local CHOICE="head"
+            ;;
+        ">" | "+" | ">=" | "+=")
+            local CHOICE="tail"
+            ;;
+        *)
+            echo "OP must be '[=<+>-]=?', was: ${OP}" >&2
+            return 8
+    esac
+    for ((i=0; i < LEN; i++)); do
+        if [[ "${V1[i]}" = "${V2[i]}" ]]; then
+            ((i < LEN-1)) && continue || return 5
+        fi
+        if [[ "${V1[i]}" = "$(printf "%s\n%s" "${V1[i]}" "${V2[i]}" | sort -n | "${CHOICE}" -n1)" ]]; then
+            return 0
+        else
+            return 6
+        fi
+    done
+}
+
+
+distro_version () {
+    # usage: distro_version (exact|like) CMP1 [CMP2, ...]:
+    #   - use "exact" for fedora, use "like" to match both rhel+centos
+    #   - gt, lt: "rhel < 9.5", "rhel - 9.5", "rhel > 9.5", "rhel + 9.5"
+    #   - ge, le: "rhel <= 9.5", "rhel -= 9.5", "rhel >= 9.5", "rhel += 9.5"
+    #   - eq "rhel = 9.5", "rhel == 9.5" (the same thing)
+    cmp="$1"
+    shift
+    for i in "${@}"; do
+        local ARG=($i)
+        OS="${ARG[0]}"
+        OP="${ARG[1]}"
+        V="${ARG[2]}"
+        case "$cmp" in
+            exact) [[ "$OS" = "$DISTRO_ID" ]] || return 2
+                ;;
+            like) echo "$DISTRO_ID $DISTRO_ID_LIKE" | grep -q "$OS" || return 3
+                ;;
+        esac
+        ver_cmp "$DISTRO_VERSION_ID" "$OP" "$V"
+        res="$?"
+        [[ "$res" -eq "0" ]] || return "$res"
+    done
+}
+
+
 # Some URL shorteners
 KOJI="https://kojipkgs.fedoraproject.org/packages"
 BREW="http://download.eng.bos.redhat.com/brewroot/vol"

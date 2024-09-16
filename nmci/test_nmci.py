@@ -2016,6 +2016,50 @@ def test_wait_for():
         nmci.util.wait_for(do, timeout=0)
 
 
+def test_envsetup_distro_version():
+    test_data = [
+        # [ID, ID_LIKE | "", VERSION_ID, variant, [list of cmps], returncode]
+        # RHEL: use distro_version_like to match centos, too
+        ["rhel", "fedora", "9.5", "like", ["rhel == 9.5"], 0],
+        ["rhel", "fedora", "9.5", "like", ["rhel == 9.6"], 4],
+        ["rhel", "fedora", "9.5", "like", ["rhel <= 9.5"], 0],
+        ["rhel", "fedora", "9.5", "like", ["rhel < 9.5"], 5],
+        ["rhel", "fedora", "9.5", "like", ["rhel < 8.5"], 6],
+        ["rhel", "fedora", "9.5", "like", ["rhel < 10.0"], 0],
+        ["rhel", "fedora", "9.5", "like", ["rhel >= 9.5"], 0],
+        ["rhel", "fedora", "9.5", "like", ["rhel > 9.5"], 5],
+        ["rhel", "fedora", "9.5", "like", ["rhel > 10.0"], 6],
+        ["rhel", "fedora", "9.5", "like", ["rhel > 8.10"], 0],
+        ["rhel", "fedora", "9.5", "like", ["rhel = 9", "rhel >= 9.5"], 0],
+        ["rhel", "fedora", "10.0", "like", ["rhel = 9", "rhel >= 9.5"], 4],
+        # CentOS
+        ["centos", "rhel fedora", "9", "like", ["rhel <= 9.5"], 0],
+        ["centos", "rhel fedora", "9", "like", ["rhel = 9.5"], 0],
+        ["centos", "rhel fedora", "9", "like", ["rhel >= 9.5"], 0],
+        # Fedora
+        ["fedora", "", "41", "exact", ["fedora >= 41"], 0],
+        ["fedora", "", "39", "exact", ["fedora >= 40", "fedora <= 41"], 6],
+        ["fedora", "", "40", "exact", ["fedora >= 40", "fedora <= 41"], 0],
+        ["fedora", "", "41", "exact", ["fedora >= 40", "fedora <= 41"], 0],
+        ["fedora", "", "42", "exact", ["fedora >= 40", "fedora <= 41"], 6],
+        # imaginary distro with alphanum versions
+        ["foo-spam", "", "42.a", "exact", ["foo-spam = 42.a"], 0],
+        ["foo-spam", "", "42.b", "exact", ["foo-spam >= 42.a"], 0],
+    ]
+    for i in test_data:
+        cmps = " ".join([f'"{j}"' for j in i[4]])
+        cmd = "; ".join(
+            [
+                ". prepare/envsetup/utils.sh",
+                f'DISTRO_ID="{i[0]}"',
+                f'DISTRO_ID_LIKE="{i[1]}"',
+                f'DISTRO_VERSION_ID="{i[2]}"',
+                f"distro_version {i[3]} {cmps}",
+            ]
+        )
+        assert nmci.process.run_code(cmd, shell=True) == i[5]
+
+
 def print_undefs(outs):
     l = outs.out.splitlines()
     undef_header = re.compile(r"UNDEFINED STEPS\[[0-9]+\]:")
