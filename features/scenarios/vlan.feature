@@ -263,7 +263,6 @@ Feature: nmcli - vlan
 
     @vlan_device_tagging
     Scenario: nmcli - vlan - device tagging
-    * Execute "yum -y install wireshark"
     * Add "vlan" connection named "eth7.80" with options "dev eth7 id 80"
     * "eth7.80" is visible with command "ip addr show" in "10" seconds
     * Run child "ping -I eth7.80 8.8.8.8"
