@@ -65,8 +65,11 @@ beaker-hardware:
       NetworkManager-wifi:
         - x86_64:
             # Some issues with Mediatek device on RHEL10
-            #hostname: wifi2-ml5-vm1.tpb.lab.eng.brq.redhat.com
-            hostname: wifi1-ml5-vm2.tpb.lab.eng.brq.redhat.com
+            # hostname: wifi2-ml5-vm1.tpb.lab.eng.brq.redhat.com
+            # BE200 6E support not enabled on 9.2
+            # hostname: wifi1-ml5-vm2.tpb.lab.eng.brq.redhat.com
+            # AX211 seems to be correctly working on 9.2+
+            hostname: wifi6-ml5-vm5.tpb.lab.eng.brq.redhat.com
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-qe-40.rdma.lab.eng.rdu2.redhat.com
