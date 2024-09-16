@@ -417,6 +417,19 @@ def prepare_simdev(
     context.command_code(
         "ip netns exec {device}_ns ip link set lo up".format(device=device)
     )
+
+    # This speeds up RA packets heavily
+    context.command_code(
+        "ip netns exec {device}_ns sysctl -w net.ipv6.conf.{device}p.router_solicitation_interval=1000 ".format(
+            device=device
+        )
+    )
+    context.command_code(
+        "ip netns exec {device}_ns sysctl -w net.ipv6.conf.{device}p.router_solicitations=1 ".format(
+            device=device
+        )
+    )
+
     context.command_code(
         "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
     )
