@@ -3961,3 +3961,104 @@ Feature: nmcli: ipv4
           """
     * Wait for "35" seconds
     Then "IPv4" is not visible with command "journalctl -u NetworkManager --since='30 seconds ago' | grep $(cat /sys/class/net/dummy0/ifindex) | grep -E 'start announcing|committing IPv4 configuration'"
+    Then "DHCP-Message .*53.*, length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
+
+
+    @RHEL-45878
+    @ver+=1.51.2
+    @eth0
+    @ipv4_add_dns_routes
+    Scenario: NM - ipv4 - add DNS routes
+    * Add "ethernet" connection named "con2" for device "eth2" with options
+          """
+          connection.autoconnect no
+          ipv4.method manual
+          ipv4.addresses 172.16.1.1/24
+          ipv4.gateway 172.16.1.254
+          ipv4.dns 192.1.1.1
+          ipv6.method disabled
+          """
+    * Add "ethernet" connection named "con3" for device "eth3" with options
+          """
+          connection.autoconnect no
+          ipv4.method manual
+          ipv4.addresses 172.16.2.1/24
+          ipv4.gateway 172.16.2.254
+          ipv4.dns 192.2.2.2
+          ipv6.method disabled
+          """
+
+    * Commentary
+    """
+    Without 'routed-dns' the name server on eth3 is reached via eth2
+    """
+    * Bring "up" connection "con2"
+    * Bring "up" connection "con3"
+    Then "via 172.16.1.254 dev eth2" is visible with command "ip route get 192.1.1.1"
+    Then "via 172.16.1.254 dev eth2" is visible with command "ip route get 192.2.2.2"
+
+    * Commentary
+    """
+    With 'routed-dns' each name server is reachable via the corresponding interface
+    """
+    * Modify connection "con2" changing options "ipv4.routed-dns yes"
+    * Modify connection "con3" changing options "ipv4.routed-dns yes"
+    * Bring "up" connection "con2"
+    * Bring "up" connection "con3"
+    Then "via 172.16.1.254 dev eth2" is visible with command "ip route get 192.1.1.1"
+    Then "via 172.16.2.254 dev eth3" is visible with command "ip route get 192.2.2.2"
+    Then "fwmark 0x4e55 lookup 20053" is visible with command "ip rule show prio 20053"
+    Then "2" is visible with command "ip route show table 20053 | wc -l"
+
+    * Commentary
+    """
+    Check that live reapply works
+    """
+    * Execute "nmcli device modify eth3 ipv4.routed-dns no"
+    Then "via 172.16.1.254 dev eth2" is visible with command "ip route get 192.2.2.2"
+    * Execute "nmcli device modify eth3 ipv4.routed-dns yes"
+    Then "via 172.16.2.254 dev eth3" is visible with command "ip route get 192.2.2.2"
+
+    * Commentary
+    """
+    Routes are deleted after bringing the connections down
+    """
+    * Bring "down" connection "con2"
+    * Bring "down" connection "con3"
+    Then "0" is visible with command "ip route show table 20053 | wc -l"
+
+
+    @RHEL-45878
+    @ver+=1.51.2
+    @eth0 @restart_if_needed
+    @ipv4_add_dns_routes_global
+    Scenario: NM - ipv4 - add DNS routes with global default value
+    * Create NM config file "10-routed-dns.conf" with content
+    """
+    [connection-routed-dns]
+    ipv4.routed-dns=1
+    """
+    * Restart NM
+    * Prepare simulated test "testX" device with "172.16.1" ipv4 and daemon options "--dhcp-option=6,192.1.1.1"
+    * Prepare simulated test "testY" device with "172.16.2" ipv4 and daemon options "--dhcp-option=6,192.2.2.2"
+    * Add "ethernet" connection named "con2" for device "testX" with options "autoconnect no"
+    * Add "ethernet" connection named "con3" for device "testY" with options "autoconnect no"
+
+    * Commentary
+    """
+    Each name server is reachable via the corresponding interface, due to the global default
+    """
+    * Bring "up" connection "con2"
+    * Bring "up" connection "con3"
+    Then "via 172.16.1.1 dev testX" is visible with command "ip route get 192.1.1.1"
+    Then "via 172.16.2.1 dev testY" is visible with command "ip route get 192.2.2.2"
+    Then "fwmark 0x4e55 lookup 20053" is visible with command "ip rule show prio 20053"
+    Then "2" is visible with command "ip route show table 20053 | wc -l"
+
+    * Commentary
+    """
+    Routes are deleted after bringing the connections down
+    """
+    * Bring "down" connection "con2"
+    * Bring "down" connection "con3"
+    Then "0" is visible with command "ip route show table 20053 | wc -l"

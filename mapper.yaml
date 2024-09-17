@@ -903,6 +903,8 @@ testmapper:
     - ipv6_ndp_ipv6_route_information_buffer_overflow:
         feature: ipv6
         tags: gate libndp
+    - ipv6_add_dns_routes:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
@@ -1280,6 +1282,10 @@ testmapper:
     - ipv4_dhcp_ipv6_only_preferred_global:
         feature: ipv4
     - ipv4_add_frr_routes_just_once:
+        feature: ipv4
+    - ipv4_add_dns_routes:
+        feature: ipv4
+    - ipv4_add_dns_routes_global:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
