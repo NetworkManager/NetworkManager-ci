@@ -2790,3 +2790,67 @@
         """
         On a system with unfixed libndp, NM should be crashed by now
         """
+
+    @RHEL-45878
+    @ver+=1.49.0
+    @eth0
+    @ipv6_add_dns_routes
+    Scenario: NM - ipv6 - add DNS routes
+    * Add "ethernet" connection named "con2" for device "eth2" with options
+          """
+          connection.autoconnect no
+          ipv6.method manual
+          ipv6.addresses fd01::1/64
+          ipv6.gateway fe80::100
+          ipv6.dns cafe::1
+          ipv4.method disabled
+          """
+    * Add "ethernet" connection named "con3" for device "eth3" with options
+          """
+          connection.autoconnect no
+          ipv6.method manual
+          ipv6.addresses fd02::2/64
+          ipv6.gateway fe80::200
+          ipv6.dns cafe::2
+          ipv4.method disabled
+          """
+
+    * Commentary
+    """
+    Without 'add-dns-routes' the name server on eth3 is reached via eth2
+    """
+    * Bring "up" connection "con2"
+    * Bring "up" connection "con3"
+    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
+    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
+
+    * Commentary
+    """
+    With 'add-dns-routes' each name server is reachable via the corresponding interface
+    """
+    * Modify connection "con2" changing options "ipv6.add-dns-routes yes"
+    * Modify connection "con3" changing options "ipv6.add-dns-routes yes"
+    * Bring "up" connection "con2"
+    * Bring "up" connection "con3"
+    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
+    Then "via fe80::200 dev eth3" is visible with command "ip route get cafe::2"
+
+    Then "fwmark 0x4e4d3030 lookup 1313681456" is visible with command "ip -6 rule show prio 22000"
+    Then "2" is visible with command "ip -6 route show table 1313681456 | wc -l"
+
+    * Commentary
+    """
+    Check that live reapply works
+    """
+    * Execute "nmcli device modify eth3 ipv6.add-dns-routes no"
+    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
+    * Execute "nmcli device modify eth3 ipv6.add-dns-routes yes"
+    Then "via fe80::200 dev eth3" is visible with command "ip route get cafe::2"
+
+    * Commentary
+    """
+    Routes are deleted after bringing the connections down
+    """
+    * Bring "down" connection "con2"
+    * Bring "down" connection "con3"
+    Then "0" is visible with command "ip -6 route show table 1313681456 | wc -l"
