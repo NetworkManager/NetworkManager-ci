@@ -17,6 +17,8 @@ install_fedora_packages () {
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
         openvpn ipsec-tools strongswan strongswan-charon-nm"
+    # Workaround for https://issues.redhat.com/browse/RHEL-48124
+    PKGS_INSTALL="$PKGS_INSTALL NetworkManager-openvpn-gnome"
 
     # dracut testing
     PKGS_INSTALL="$PKGS_INSTALL dracut-network scsi-target-utils"
