@@ -20,7 +20,11 @@ import socket
 import sys
 import time
 
-from http.server import ThreadingHTTPServer
+try:
+    from http.server import ThreadingHTTPServer
+except ImportError:
+    print("No threading supported, azure race tests will never fail.")
+    from http.server import HTTPServer as ThreadingHTTPServer
 from http.server import BaseHTTPRequestHandler
 from socketserver import BaseServer
 
