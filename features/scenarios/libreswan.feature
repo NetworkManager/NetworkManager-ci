@@ -440,6 +440,7 @@
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=40
     @libreswan_ikev2_ipv4_psk
     Scenario: libreswan - ikev2 - ipv4 - psk
     * Prepare nmstate libreswan environment
@@ -501,6 +502,7 @@
     Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=40
     @libreswan_ikev2_interface
     Scenario: libreswan - ikev2 - ipv4 - interface
     * Prepare nmstate libreswan environment
@@ -522,6 +524,7 @@
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=40
     @libreswan_ikev2_dpd_interface
     Scenario: libreswan - ikev2 - dpd
     * Prepare nmstate libreswan environment
@@ -543,6 +546,7 @@
     Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=41
     @ver+=1.46
     @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_p2p_cert
@@ -561,6 +565,7 @@
     Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=41
     @ver+=1.46
     @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_leftsubnet
@@ -579,6 +584,7 @@
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=41
     @ver+=1.46
     @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_cert
@@ -597,6 +603,7 @@
     Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
 
 
+    @fedoraver+=41
     @ver+=1.46
     @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_client_server
