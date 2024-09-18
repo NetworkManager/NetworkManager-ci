@@ -186,6 +186,7 @@ EOF
     exit 1
   fi
 
+
   # Enable NM debug
   cp -fa /etc/NetworkManager/conf.d/95-nmci-test.conf $initdir/etc/NetworkManager/conf.d/95-nmci-test.conf
 
@@ -216,9 +217,14 @@ EOF
   mkdir $TESTDIR/client_dumps
 
   # Create the blank file to use as a root iSCSI filesystem
-  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count=2800
-  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count=1400
-  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count=1400
+  # Make the disks sized by nfsroot usage and add +200M margin
+  du=$(du -s -m $initdir | tail -n 1 | grep -o '^[0-9]*')
+  du="$((du + 200))"
+  dd if=/dev/zero of=$TESTDIR/root.ext4 bs=1M count="$du"
+  # for 2 disks in raid, add +5M margin
+  du_half="$((du/2 + 5))"
+  dd if=/dev/zero of=$TESTDIR/iscsidisk2.img bs=1M count="$du_half"
+  dd if=/dev/zero of=$TESTDIR/iscsidisk3.img bs=1M count="$du_half"
 
   # copy client files to root filesystem
   mkfs.ext4 -j -L singleroot -F $TESTDIR/root.ext4
