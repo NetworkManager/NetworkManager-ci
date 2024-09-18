@@ -2759,6 +2759,7 @@
 
     @rhbz2284122
     @RHEL-39518
+    @fedoraver+=41
     @scapy
     @ipv6_ndp_ipv6_route_information_buffer_overflow
     Scenario: NM - ipv6 - verify correct processing of v6 route information in NDP
