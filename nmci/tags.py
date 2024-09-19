@@ -775,6 +775,8 @@ def ifupdown_bs(context, scenario):
     distro, d_ver = nmci.misc.distro_detect()
     if distro == "fedora" and d_ver[0] >= 41:
         context.cext.skip("skipping on fedora 41+")
+    if distro in "rhel|centos" and d_ver[0] >= 10:
+        context.cext.skip("skipping on rhel 10+")
 
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
@@ -838,8 +840,9 @@ def keyfile_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
-        # Package is removed since Fedora 41
+        # Package is removed since Fedora 41 and rhel10+
         and not (distro == "fedora" and d_ver[0] >= 41)
+        and not (distro in "rhel|centos" and d_ver[0] >= 10)
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
