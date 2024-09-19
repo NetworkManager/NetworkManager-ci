@@ -585,6 +585,7 @@
     @rhbz1367180
     @rhelver-=9
     @ver+=1.4.0
+    @ifcfg-rh
     @team_ifcfg_with_missing_devicetype
     Scenario: ifcfg - team - missing device type
      * Append "DEVICE=eth5" to ifcfg file "team0.0"
