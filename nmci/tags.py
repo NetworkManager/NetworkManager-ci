@@ -772,6 +772,10 @@ _register_tag("ethernet", ethernet_bs, None)
 
 
 def ifupdown_bs(context, scenario):
+    distro, d_ver = nmci.misc.distro_detect()
+    if distro == "fedora" and d_ver[0] >= 41:
+        context.cext.skip("skipping on fedora 41+")
+
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
@@ -797,6 +801,7 @@ def ifcfg_rh_bs(context, scenario):
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
+        # Fedora 41+ is skipped above
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
@@ -829,11 +834,12 @@ _register_tag("ifcfg-rh", ifcfg_rh_bs)
 
 
 def keyfile_bs(context, scenario):
+    distro, d_ver = nmci.misc.distro_detect()
     _, nm_ver = nmci.misc.nm_version_detect()
     if (
         nm_ver >= [1, 36]
         # Package is removed since Fedora 41
-        and not ("Fedora" in context.rh_release and context.rh_release_num >= [41])
+        and not (distro == "fedora" and d_ver[0] >= 41)
         and context.process.run_code("rpm -q NetworkManager-initscripts-updown") != 0
     ):
         print("install NetworkManager-initscripts-updown")
