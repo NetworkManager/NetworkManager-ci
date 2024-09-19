@@ -33,10 +33,6 @@ install_fedora_packages () {
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm"
 
-    # Let's remove blacklist and load sch_netem for later usage
-    rm -rf /etc/modprobe.d/sch_netem-blacklist.conf
-    modprobe sch_netem
-
 
     ##############################################################################
     #####            _   _       _    __ _
@@ -86,6 +82,10 @@ install_fedora_packages () {
 
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
+
+    # Let's remove blacklist and load sch_netem for later usage
+    rm -rf /etc/modprobe.d/sch_netem-blacklist.conf
+    modprobe sch_netem
 
     # Additional PIP packages
     python -m pip install netaddr
