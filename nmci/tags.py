@@ -2043,8 +2043,8 @@ _register_tag("del_test1112_veths", del_test1112_veths_bs)
 
 
 def nmstate_bs(context, scenario):
-    context.process.run("yum -y remove nmstate nispor", ignore_stderr=True, timeout=120)
-    context.process.run_stdout("yum -y install nmstate", timeout=120)
+    context.process.dnf("-y remove nmstate nispor", timeout=120)
+    context.process.dnf("-y install nmstate", timeout=120)
 
 
 def nmstate_as(context, scenario):
