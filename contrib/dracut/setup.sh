@@ -125,6 +125,7 @@ EOF
 
   # install NetworkManager-* to the nfsroot
 
+  set +x
   rpm_list=""
   for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
     found=0
@@ -140,6 +141,7 @@ EOF
 
   # Install running kernel to the image (missing modules)
   rpm_list="$rpm_list $(rpm -qa | grep ^kernel | grep -F "$(uname -r)" )"
+  set -x
 
   # dnf5 only args
   which dnf5 && skip_unavail="--skip-unavailable"
@@ -167,10 +169,12 @@ EOF
     $($brew_links $(rpm -q NetworkManager --qf "%{name} %{version} %{release}") noarch)"
 
     # filter out only installed packages
+    set +x
     rpm_urls=""
     for rpm in $(rpm -qa | grep NetworkManager | grep -v gnome); do
       rpm_urls="$rpm_urls $(echo "$brew_urls" | grep -F "$rpm" )"
     done
+    set -x
 
     # install and clean
     dnf -y --installroot=$initdir --releasever=${VERSION_ID%.*} install $rpm_urls --skip-broken $skip_unavail
