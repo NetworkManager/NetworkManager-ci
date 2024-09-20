@@ -125,7 +125,7 @@ def _before_scenario(context, scenario):
         statuses = nmci.process.systemctl(
             f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
         )
-        nmci.embed.embed_data("failed services' statuses", statuses)
+        nmci.embed.embed_data("failed services' statuses", statuses.stdout)
     for s in failed_services:
         nmci.embed.embed_service_log(
             f"service in failed state: {s}",
@@ -437,7 +437,7 @@ def _after_scenario(context, scenario):
         statuses = nmci.process.systemctl(
             f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
         )
-        nmci.embed.embed_data("failed services' statuses", statuses)
+        nmci.embed.embed_data("failed services' statuses", statuses.stdout)
     for s in failed_services:
         nmci.embed.embed_service_log(
             f"service failed during scenario run: {s}",
