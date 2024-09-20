@@ -476,12 +476,12 @@ Feature: nmcli - procedures in documentation
     * Disconnect device "test1"
     ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
     * Execute "mkdir -p /usr/local/bin"
-    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
-    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt@.service"
     * Execute "systemctl daemon-reload"
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
     * Bring "up" connection "test1-plain"
-    * Execute "systemctl start 802-1x-tr-mgmt.service"
+    * Execute "systemctl enable --now 802-1x-tr-mgmt@br0.service"
     * Note MAC address output for device "test1" via ip command
     Then Unable to ping "192.168.100.1" from "test1" device
     Then Noted value is not visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"

@@ -1,11 +1,8 @@
 #!/bin/sh
 
-if [ "x$1" == "xblock_all" ]
-then
-
-    nft delete table bridge tr-mgmt-br0 2>/dev/null || true
-    nft -f - << EOF
-table bridge tr-mgmt-br0 {
+TABLE="tr-mgmt-${1}"
+read -r -d '' TABLE_DEF << EOF
+table bridge ${TABLE} {
         set allowed_macs {
                 type ether_addr
         }
@@ -22,17 +19,13 @@ table bridge tr-mgmt-br0 {
         }
 }
 EOF
-    echo "802-1x-tr-mgmt" "Blocking all traffic through br0. Traffic for given host will be allowed after 802.1x authentication"
-
-elif [ "x$1" == "xallow_all" ]
-then
-
-    nft delete table bridge tr-mgmt-br0
-    echo "802-1x-tr-mgmt" "Allowed all forwarding again"
-
-fi
 
 case ${2:-NOTANEVENT} in
+    block_all)
+        nft destroy table bridge "$TABLE"
+        printf "$TABLE_DEF" | nft -f - 
+        echo "$1: All the bridge traffic blocked. Traffic for a client with a given MAC will be allowed after 802.1x authentication"
+        ;;
 
     AP-STA-CONNECTED | CTRL-EVENT-EAP-SUCCESS | CTRL-EVENT-EAP-SUCCESS2)
         nft add element bridge tr-mgmt-br0 allowed_macs { $3 }
@@ -41,7 +34,15 @@ case ${2:-NOTANEVENT} in
 
     AP-STA-DISCONNECTED | CTRL-EVENT-EAP-FAILURE)
         nft delete element bridge tr-mgmt-br0 allowed_macs { $3 }
-        echo "802-1x-tr-mgmt" "$1: Denied traffic from $3"
+        echo "$1: Denied traffic from $3"
         ;;
 
+    allow_all)
+        nft destroy table bridge "$TABLE"
+        echo "$1: Allowed all bridge traffice again"
+        ;;
+
+    NOTANEVENT)
+        echo "$0 was called incorrectly, usage: $0 interface event [mac_address]"
+        ;;
 esac
