@@ -1198,6 +1198,10 @@ def libreswan_ng_setup(context):
     )
     context.ipsec_proc.expect("env ready", timeout=60)
 
+    # Secondaries might be slower in writing the config file where we read
+    # the certificate info from, let's wait 2s (1s is not enough)
+    time.sleep(2)
+
     def _libreswan_ng_teardown():
         try:
             context.ipsec_proc.send("\n")
