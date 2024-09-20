@@ -135,6 +135,7 @@ install_el8_packages () {
 
     # Additional PIP packages
     python -m pip install netaddr==0.10.1
+    python -m pip install podman
 
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
