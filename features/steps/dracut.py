@@ -14,20 +14,10 @@ REMOTE_CRASH_DIR = lambda: os.environ["TESTDIR"] + "/client_dumps/"
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
-def handle_timeout(context, proc, timeout, boot_log_proc=None):
+def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
     t = nmci.util.start_timeout(timeout=timeout / 2)
     now_booted = False
     last_before = None
-    first_half = False
-    if boot_log_proc is None:
-        first_half = True
-        nmci.process.run_stdout("touch /tmp/dracut_boot.log")
-        boot_log_proc = nmci.pexpect.pexpect_spawn(
-            "tail -f /tmp/dracut_boot.log",
-            timeout=timeout,
-            logfile=nmci.pexpect.DEV_NULL,
-            codec_errors="ignore",
-        )
     message_check_timeout = 30
     messages = [
         "== BOOT ==",
@@ -75,7 +65,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
                 f"VM did not start the testsuite in half of the timeout ({timeout/2}s)"
             )
             return False
-        return handle_timeout(context, proc, timeout, boot_log_proc)
+        return handle_timeout(context, proc, timeout, boot_log_proc, first_half=False)
     else:
         return False
 
@@ -234,8 +224,15 @@ def dracut_run(context):
     else:
         p_timeout = int(timeout)
 
-    context.dracut_vm_state = "NOBOOT"
+    nmci.process.run_stdout("touch /tmp/dracut_boot.log")
+    boot_log_proc = nmci.pexpect.pexpect_spawn(
+        "tail -f -n 0 /tmp/dracut_boot.log",
+        timeout=timeout,
+        logfile=nmci.pexpect.DEV_NULL,
+        codec_errors="ignore",
+    )
 
+    context.dracut_vm_state = "NOBOOT"
     proc = context.pexpect_spawn(
         os.getcwd() + "/contrib/dracut/run-qemu",
         [
@@ -248,7 +245,8 @@ def dracut_run(context):
         cwd="./contrib/dracut/",
         timeout=None,
     )
-    if not handle_timeout(context, proc, p_timeout):
+
+    if not handle_timeout(context, proc, p_timeout, boot_log_proc):
         proc.kill(15)
     res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=5)
     rc = proc.exitstatus
