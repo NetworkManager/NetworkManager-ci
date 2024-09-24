@@ -14,7 +14,7 @@ die_cmd() {
   nmcli_list
   resolv_conf_dump
   clean_root
-  poweroff -f
+  poweroff
 }
 
 

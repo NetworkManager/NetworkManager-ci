@@ -8,7 +8,7 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 mkdir -p /check_lib
 mount -o ro,norecovery,noatime ${DEV_CHECK} /check_lib
 for script in /check_lib/*.sh; do
-  source "$script" || ( echo "$script failed to load"; poweroff -f )
+  source "$script" || ( echo "$script failed to load"; poweroff)
 done
 # boot succeeded, log it
 vm_state BOOT
@@ -73,4 +73,4 @@ vm_state PASS
 # cleanup after succes
 clean_root
 
-poweroff -f
+poweroff
