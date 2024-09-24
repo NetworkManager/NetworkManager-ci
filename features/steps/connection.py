@@ -151,14 +151,18 @@ def delete_connection(context, name):
     nmci.process.nmcli(f"connection delete {name}", timeout=95)
 
 
-@step('Fail up connection "{name}" for "{device}"')
-def fail_up_connection_for_device(context, name, device):
+@step('Fail up connection "{name}"')
+@step('Fail up connection "{name}" in "{timeout}" seconds')
+def fail_up_connection_for_device(context, name, timeout=None):
+    t_arg = ""
+    if timeout:
+        t_arg = f"-w {timeout}"
     try:
-        nmci.process.nmcli(f"connection up id {name}", timeout=180)
+        nmci.process.nmcli(f"{t_arg} connection up id {name}", timeout=180)
     except Exception:  # pylint: disable=broad-except
         return
     raise Exception(
-        f"nmcli connection up {name} for device {device} was succesfull. this should not happen"
+        f"nmcli connection up {name} was succesfull. this should not happen"
     )
 
 
