@@ -187,6 +187,7 @@ def dracut_run(context):
         "loglevel=7",
         "rd.debug",
         "enforcing=0",
+        "cloud-init=disabled",
     ]
     kernel_arch_args = {
         "x86_64": ["console=ttyS0,115200n81,", "intel_iommu=on"],
