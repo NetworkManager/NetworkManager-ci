@@ -1188,17 +1188,15 @@ def libreswan_ng_setup(context):
         # Mark setup complete
         nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
 
+    pluto_journal = nmci.pexpect.pexpect_spawn("journalctl -f -n 0 -t pluto")
+
     # We need to run this and expect "env ready" message
     context.ipsec_proc = nmci.pexpect.pexpect_service(
         f"python3 contrib/ipsec/ipsec_setup.py",
         shell=True,
     )
-    context.ipsec_proc.expect("env ready", timeout=60)
 
-    # Secondaries might be slower in writing the config file where we read
-    # the certificate info from, let's wait 2s (1s is not enough)
-    time.sleep(2)
-
+    # register cleanup
     def _libreswan_ng_teardown():
         try:
             context.ipsec_proc.send("\n")
@@ -1208,3 +1206,24 @@ def libreswan_ng_setup(context):
         context.execute_steps('* "hosta_nic" is not visible with command "ip a s"')
 
     nmci.cleanup.add_callback(_libreswan_ng_teardown, "teardown-libreswan")
+
+    # Wait until env is ready
+    context.ipsec_proc.expect("env ready", timeout=60)
+
+    # Secondaries might be slower in writing the config file where we read
+    # the certificate info from - wait until pluto starts
+    with nmci.util.start_timeout() as t:
+        pluto_journal.expect("listening for IKE messages")
+        print(f"pluto started in {t.elapsed_time():.3f}s")
+
+    hostb_conn = "/tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf"
+
+    with open(hostb_conn) as hbc:
+        for line in hbc.readlines():
+            if "rightrsasigkey=" in line:
+                hosta_key = line.strip().split("=", 1)[1]
+            if "leftrsasigkey=" in line:
+                hostb_key = line.strip().split("=", 1)[1]
+
+    os.environ["HOSTA_RSA_KEY"] = hosta_key
+    os.environ["HOSTB_RSA_KEY"] = hostb_key

@@ -516,8 +516,8 @@
     @libreswan_ikev2_ipv4_rsa
     Scenario: libreswan - ikev2 - ipv4 - rsa
     * Prepare nmstate libreswan environment
-    * Note the output of "grep rightrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}' | tr -d '\n'" as value "hosta_rsa"
-    * Note the output of "grep leftrsasigkey /tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf |awk -F 'asigkey=' '{print $2}'| tr -d '\n'" as value "hostb_rsa"
+    * Note the output of "echo $HOSTA_RSA_KEY" as value "hosta_rsa"
+    * Note the output of "echo $HOSTB_RSA_KEY" as value "hostb_rsa"
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
