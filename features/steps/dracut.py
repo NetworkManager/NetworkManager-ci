@@ -28,6 +28,14 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
             logfile=nmci.pexpect.DEV_NULL,
             codec_errors="ignore",
         )
+    message_check_timeout = 30
+    messages = [
+        "== BOOT ==",
+        "== PASS ==",
+        "== FAIL ==",
+        "== DEBUG SHELL ==",
+        pexpect.TIMEOUT,
+    ]
     while t.loop_sleep():
         res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=0.1)
         if res == 0:
@@ -35,23 +43,21 @@ def handle_timeout(context, proc, timeout, boot_log_proc=None):
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
         message = boot_log_proc.expect(
-            [
-                "== BOOT ==",
-                "== PASS ==",
-                "== FAIL ==",
-                "== DEBUG SHELL ==",
-                "Power down",
-                pexpect.TIMEOUT,
-            ],
-            timeout=30,
+            messages,
+            timeout=message_check_timeout,
         )
+        print(f"Found machine message: {messages[message]} in {t.elapsed_time():.3f}s")
         if message == 0:
             now_booted = True
             context.dracut_vm_state = "BOOT"
         elif message == 1:
             context.dracut_vm_state = "PASS"
+            # check every second if boot finished
+            message_check_timeout = 1
         elif message == 2:
             context.dracut_vm_state = "FAIL"
+            # check every second if boot finished
+            message_check_timeout = 1
         elif message == 3:
             # debug shell, create pipefile for stdin, redirect by lines
             debug_shell(proc)
