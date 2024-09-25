@@ -1177,10 +1177,17 @@ def run_nmstate(context, log_file):
     # Install podman and git clone nmstate
     nmci.veth.wait_for_testeth0()
     nmci.util.directory_remove("nmstate", recursive=True)
+    # Use temporary repo to try some changes in dnf
     nmci.process.run_stdout(
-        "git clone https://github.com/nmstate/nmstate.git",
+        "git clone https://github.com/vbenes/nmstate.git",
         ignore_stderr=True,
         timeout=20,
+    )
+
+    nmci.process.run_stdout(
+        "cd nmstate && git checkout vb/clean_dnf_cache",
+        ignore_stderr=True,
+        shell=True,
     )
 
     # Get environement variables
