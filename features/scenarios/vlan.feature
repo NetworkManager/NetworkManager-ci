@@ -881,7 +881,7 @@ Feature: nmcli - vlan
       """
       Execute cleanup even before possibly crashed NM attempts to be started (priority -30)
       """
-    * Cleanup execute "sh prepare/vlans.sh clean" with timeout "60" seconds and priority "-50"
+    * Cleanup execute "sh prepare/vlans.sh clean" with timeout "120" seconds and priority "-50"
     * Commentary
       """
       Prepare veth pair with the other end in namespace

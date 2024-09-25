@@ -64,6 +64,15 @@ function clean {
     done
     nmcli con del $ids || delete_connection_files $ids
 
+    for _ in {1..5}; do
+        # exit when eth11.X is not in `ip link` and `nmcli d`
+        cat <(ip link) <(nmcli d) | grep -F eth11. || break
+        echo Found some vlan devices, waiting...
+        sleep 1
+    done
+
+    cat <(ip link) <(nmcli d) | grep -F eth11. && delete_connection_files $ids
+
     ip netns del eth11_ns || true
     ip link del eth11 || true
     pkill -F /tmp/dnsmasq_vlan.pid || true
