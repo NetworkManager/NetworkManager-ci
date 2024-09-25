@@ -72,6 +72,7 @@ Feature: nmcli - ppp
 
     @rhbz1110465
     @ver+=1.4.0
+    @fedoraver-=0
     @not_on_s390x @pppoe @del_test1112_veths @firewall
     @update_firewall_zone_upon_reconnect
     Scenario: NM - ppp - firewall zone update upon reconnect
