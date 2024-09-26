@@ -102,10 +102,12 @@ def embed_dracut_logs(context):
             "Dracut Test",
             syslog_identifier="test-init",
             journal_args=REMOTE_JOURNAL(),
+            cursor=False,
             fail_only=False,
         )
 
     nmci.embed.embed_service_log(
+        "Dracut Journal", journal_args=REMOTE_JOURNAL(), cursor=False, fail_only=False
     )
 
     nmci.embed.embed_file_if_exists(
