@@ -53,9 +53,7 @@ class _PExpect:
             returncode = -1
             nmci.embed.embed_data(
                 "DEBUG: ps aufx",
-                nmci.process.run_stdout(
-                    "ps aufx", embed_combine_tag=nmci.embed.NO_EMBED
-                ),
+                nmci.process.run_stdout("ps aufx", embed_stdout=False),
             )
         else:
             proc.close()

@@ -86,7 +86,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            embed_combine_tag=nmci.embed.NO_EMBED,
+                            embed_stdout=False,
                         )
                     except Exception as ex:
                         e = ex
@@ -105,7 +105,7 @@ def check_coredump(context):
                             stderr=subprocess.STDOUT,
                             ignore_stderr=True,
                             timeout=120,
-                            embed_combine_tag=nmci.embed.NO_EMBED,
+                            embed_stdout=False,
                         )
                     except Exception as ex:
                         e = ex
@@ -119,7 +119,7 @@ def check_coredump(context):
                 "Package list",
                 nmci.process.run_stdout(
                     ["rpm", "-qa"],
-                    embed_combine_tag=nmci.embed.NO_EMBED,
+                    embed_stdout=False,
                     ignore_stderr=True,
                     ignore_returncode=True,
                 ),

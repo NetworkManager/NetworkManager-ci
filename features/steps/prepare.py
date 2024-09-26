@@ -510,12 +510,7 @@ def prepare_simdev(
             device=device, pid=os.getpid()
         )
     )
-    if (
-        nmci.process.systemctl(
-            "status NetworkManager", embed_combine_tag=nmci.embed.NO_EMBED
-        ).returncode
-        == 0
-    ):
+    if nmci.process.systemctl("status NetworkManager").returncode == 0:
         timeout = nmci.util.start_timeout(10)
         while timeout.loop_sleep(0.1):
             if nmci.nmutil.device_status(name=device):

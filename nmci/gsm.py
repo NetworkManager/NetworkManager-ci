@@ -39,43 +39,28 @@ def reinitialize_devices():
     """
     Reinitialize GSM devices
     """
-    if (
-        nmci.process.systemctl(
-            "is-active ModemManager", embed_combine_tag=nmci.embed.NO_EMBED
-        ).returncode
-        != 0
-    ):
-        nmci.process.systemctl(
-            "restart ModemManager", embed_combine_tag=nmci.embed.NO_EMBED
-        )
+    if nmci.process.systemctl("is-active ModemManager").returncode != 0:
+        nmci.process.systemctl("restart ModemManager")
         timer = 40
-        while "gsm" not in nmci.process.nmcli(
-            "device", embed_combine_tag=nmci.embed.NO_EMBED
-        ):
+        while "gsm" not in nmci.process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:
                 break
-    if "gsm" not in nmci.process.nmcli("device", embed_combine_tag=nmci.embed.NO_EMBED):
+    if "gsm" not in nmci.process.nmcli("device"):
         print("reinitialize devices")
         reset_usb_devices()
         nmci.process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 0 > $i; done",
             shell=True,
-            embed_combine_tag=nmci.embed.NO_EMBED,
         )
         nmci.process.run_stdout(
             "for i in $(ls /sys/bus/usb/devices/usb*/authorized); do echo 1 > $i; done",
             shell=True,
-            embed_combine_tag=nmci.embed.NO_EMBED,
         )
-        nmci.process.systemctl(
-            "restart ModemManager", embed_combine_tag=nmci.embed.NO_EMBED
-        )
+        nmci.process.systemctl("restart ModemManager")
         timer = 80
-        while "gsm" not in nmci.process.nmcli(
-            "device", embed_combine_tag=nmci.embed.NO_EMBED
-        ):
+        while "gsm" not in nmci.process.nmcli("device"):
             time.sleep(1)
             timer -= 1
             if timer == 0:

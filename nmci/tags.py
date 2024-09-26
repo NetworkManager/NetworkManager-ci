@@ -1055,13 +1055,7 @@ def simwifi_as(context, scenario):
 
     if context.IS_NMTUI:
         print("deleting all wifi connections")
-        conns = (
-            nmci.process.nmcli(
-                "-t -f UUID,TYPE con show", embed_combine_tag=nmci.embed.NO_EMBED
-            )
-            .strip()
-            .split("\n")
-        )
+        conns = nmci.process.nmcli("-t -f UUID,TYPE con show").strip().split("\n")
         WIRELESS = ":802-11-wireless"
         del_conns = [c.replace(WIRELESS, "") for c in conns if c.endswith(WIRELESS)]
         if del_conns:
@@ -2161,11 +2155,7 @@ def no_config_server_as(context, scenario):
                 print(f"* enabling file: {config_file}")
                 context.process.run_stdout(f"mv -f {config_file}.off {config_file}")
         nmci.cleanup.add_NM_service("restart")
-    conns = (
-        nmci.process.nmcli("-t -f UUID,NAME c", embed_combine_tag=nmci.embed.NO_EMBED)
-        .strip()
-        .split("\n")
-    )
+    conns = nmci.process.nmcli("-t -f UUID,NAME c").strip().split("\n")
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
     if uuids:
@@ -2375,16 +2365,12 @@ def allow_veth_connections_bs(context, scenario):
 def allow_veth_connections_as(context, scenario):
     context.process.run_stdout("rm -rf /etc/udev/rules.d/99-veths.rules")
     nmci.util.update_udevadm()
-    devs = nmci.process.nmcli(
-        "-t -f DEVICE c s -a", embed_combine_tag=nmci.embed.NO_EMBED
-    )
+    devs = nmci.process.nmcli("-t -f DEVICE c s -a")
     for dev in devs.strip().split("\n"):
         if dev and dev != "eth0":
             context.process.nmcli(f"device disconnect {dev}")
 
-    connections = nmci.process.nmcli(
-        "-t -f NAME c s", embed_combine_tag=nmci.embed.NO_EMBED
-    )
+    connections = nmci.process.nmcli("-t -f NAME c s")
     for connection in connections.strip().split("\n"):
         if connection and "Wired" in connection:
             context.process.nmcli(f"connection delete '{connection}'")

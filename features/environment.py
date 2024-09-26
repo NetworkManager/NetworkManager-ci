@@ -116,7 +116,7 @@ def _before_scenario(context, scenario):
     failed_services = nmci.misc.systemd_list_units(states=["failed"])
     if len(failed_services) > 0:
         statuses = nmci.process.systemctl(
-            f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
+            f"status {' '.join(failed_services)}", embed_stdout=False
         )
         nmci.embed.embed_data("failed services' statuses", statuses.stdout)
     for s in failed_services:
@@ -428,7 +428,7 @@ def _after_scenario(context, scenario):
     failed_services = nmci.misc.systemd_list_units(states=["failed"])
     if len(failed_services) > 0:
         statuses = nmci.process.systemctl(
-            f"status {' '.join(failed_services)}", embed_combine_tag=nmci.embed.NO_EMBED
+            f"status {' '.join(failed_services)}", embed_stdout=False
         )
         nmci.embed.embed_data("failed services' statuses", statuses.stdout)
     for s in failed_services:

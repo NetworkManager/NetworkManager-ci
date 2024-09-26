@@ -671,7 +671,7 @@ class _Embed:
                 # and I (David) didn't figured out yet how to limit journal for
                 # between-scenario AVCs
                 sealert_analysis = nmci.process.run_stdout(
-                    f"sealert -a {avcs_file}", embed_combine_tag=self.NO_EMBED
+                    f"sealert -a {avcs_file}", embed_stdout=False
                 )
                 self.embed_data(f"sealert analysis of AVCS {msg}", sealert_analysis)
                 nmci.util.file_remove(avcs_file)

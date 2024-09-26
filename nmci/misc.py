@@ -1089,7 +1089,7 @@ class _Misc:
                     "^-- cursor: +([^ ].*[^ ]) *\n$",
                     ignore_stderr=True,
                     timeout=5,
-                    embed_combine_tag=nmci.embed.NO_EMBED,
+                    embed_stdout=False,
                 )
             except TimeoutError as te:
                 nmci.embed.embed_exception("Timeout during journal_get_cursor")
@@ -1223,7 +1223,7 @@ class _Misc:
                 ignore_stderr=True,
                 stdout=f_out,
                 timeout=180,
-                embed_combine_tag=nmci.embed.NO_EMBED,
+                embed_stdout=False,
             )
 
             f_out.seek(0)
