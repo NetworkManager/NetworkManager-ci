@@ -106,7 +106,11 @@ def embed_dracut_logs(context):
         )
 
     nmci.embed.embed_service_log(
-        "Dracut Journal", journal_args=REMOTE_JOURNAL(), fail_only=False
+    )
+
+    nmci.embed.embed_file_if_exists(
+        "Dracut Audit",
+        REMOTE_JOURNAL_DIR() + "/var/log/audit/audit.log",
     )
 
     check_core_dumps(context)
@@ -155,6 +159,9 @@ def check_core_dumps(context):
 def prepare_dracut(context, checks):
     nmci.process.run(
         "mount $TESTDIR/client_check.img -o loop $TESTDIR/client_check/; "
+        "mount $TESTDIR/client_log.img -o loop $TESTDIR/client_log/var/log/; "
+        "mkdir -p $TESTDIR/client_log/var/log/audit; "
+        "mkdir -p $TESTDIR/client_log/var/log/journal; "
         "rm -rf $TESTDIR/client_check/*; "
         "cp ./check_lib/*.sh $TESTDIR/client_check/; ",
         shell=True,
@@ -165,7 +172,8 @@ def prepare_dracut(context, checks):
         f.write("\n".join(checks))
         f.write("}\n")
     nmci.process.run(
-        "sync; sync; sync; umount $TESTDIR/client_check.img; sync; sync; sync;",
+        "sync; sync; sync; umount $TESTDIR/client_check.img; "
+        "umount $TESTDIR/client_log.img; sync; sync; sync; ",
         shell=True,
     )
 

@@ -84,6 +84,9 @@ test_setup() {
   # make persisten journal directory
   mkdir -p $initdir/var/log/journal
 
+  #enable audit
+  mkdir -p $initdir/var/log/audit
+
   # copy systemd limits to catch coredumps, add config to overwrite default
   cp -af /etc/systemd/system.conf $initdir/etc/systemd/system.conf
   cp -af /etc/security/limits.conf $initdir/etc/security/limits.conf
