@@ -110,13 +110,6 @@ def _before_scenario(context, scenario):
         except nmci.misc.SkipTestException:
             pass
 
-    context.hypervisor = nmci.process.run_stdout(
-        "systemd-detect-virt",
-        ignore_returncode=True,
-        ignore_stderr=True,
-        embed_combine_tag=nmci.embed.NO_EMBED,
-    ).strip()
-
     os.environ["TERM"] = "dumb"
 
     # collect failed services' logs and reset them

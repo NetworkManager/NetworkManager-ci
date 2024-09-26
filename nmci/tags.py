@@ -130,7 +130,12 @@ _register_tag("skip_in_centos", skip_in_centos_bs)
 
 
 def skip_in_kvm_bs(context, scenario):
-    if "kvm" or "powervm" in context.hypervisor:
+    hypervisor = nmci.process.run_stdout(
+        "systemd-detect-virt",
+        ignore_returncode=True,
+        ignore_stderr=True,
+    ).strip()
+    if "kvm" or "powervm" in hypervisor:
         if context.arch != "x86_64":
             context.cext.skip(
                 "skipping on non x86_64 machine with kvm or powervm hypvervisors"
