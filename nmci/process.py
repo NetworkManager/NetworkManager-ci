@@ -392,6 +392,8 @@ class _Process:
         stdout,
         stderr,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         namespace=None,
     ):
         timeout = nmci.util.start_timeout(timeout)
@@ -430,12 +432,18 @@ class _Process:
         if r_stderr is None:
             r_stderr = b""
 
+        e_stdout, e_stderr = r_stdout, r_stderr
+        if not embed_stdout:
+            e_stdout = b"[NO_EMBED]"
+        if not embed_stderr:
+            e_stderr = b"[NO_EMBED]"
+
         nmci.embed.embed_run(
             argv_real,
             shell,
             returncode,
-            r_stdout,
-            r_stderr,
+            e_stdout,
+            e_stderr,
             combine_tag=embed_combine_tag,
             elapsed_time=time_measure.elapsed_time(),
         )
@@ -488,6 +496,8 @@ class _Process:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         namespace=None,
     ):
         """
@@ -519,6 +529,10 @@ class _Process:
         :type stderr: file, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :param namespace: namespace for the command, defaults to None
         :type namespace: str, optional
         :returns: RunResult object
@@ -537,6 +551,8 @@ class _Process:
             stdout=stdout,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
             namespace=namespace,
         )
 
@@ -554,6 +570,8 @@ class _Process:
         ignore_stderr=False,
         stderr=subprocess.PIPE,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         namespace=None,
     ):
         """
@@ -582,6 +600,10 @@ class _Process:
         :type stderr: file, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :param namespace: namespace for the command, defaults to None
         :type namespace: str, optional
         :returns: stdout of the command
@@ -600,6 +622,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
             namespace=namespace,
         ).stdout
 
@@ -616,6 +640,8 @@ class _Process:
         ignore_returncode=True,
         ignore_stderr=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         namespace=None,
     ):
         """
@@ -642,6 +668,10 @@ class _Process:
         :type ignore_stderr: bool, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :param namespace: namespace for the command, defaults to None
         :type namespace: str, optional
         :returns: returncode of the command
@@ -660,6 +690,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
             namespace=namespace,
         ).returncode
 
@@ -678,6 +710,8 @@ class _Process:
         stderr=subprocess.PIPE,
         pattern_flags=DEFAULT_PATTERN_FLAGS,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         namespace=None,
     ):
         """
@@ -709,6 +743,10 @@ class _Process:
         :type pattern_flags: int, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :param namespace: namespace for the command, defaults to None
         :type namespace: str, optional
         :returns: re.Match object
@@ -736,6 +774,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=stderr,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
             namespace=namespace,
         )
         return re.search(pattern, result.stdout, flags=pattern_flags)
@@ -753,6 +793,8 @@ class _Process:
         ignore_stderr=False,
         ignore_stdout_error=False,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
     ):
         """
         Run :code:`nmcli` command and check its output. If the command fails, or prints
@@ -779,6 +821,10 @@ class _Process:
         :type ignore_stdout_error: bool, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :returns: RunResult object
         :rtype: RunResult
         """
@@ -797,6 +843,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
         )
 
         if not ignore_stdout_error:
@@ -828,6 +876,8 @@ class _Process:
         ignore_returncode=True,
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
     ):
         """
         Run :code:`nmcli` command and check its output. If the command fails, or prints
@@ -853,6 +903,10 @@ class _Process:
         :type ignore_stderr: bool, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :returns: RunResult object
         :rtype: RunResult
         """
@@ -871,6 +925,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
         )
 
     def systemctl(
@@ -885,6 +941,8 @@ class _Process:
         ignore_returncode=True,
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
     ):
         """
         Run :code:`systemctl` command and check its output. If the command fails, or prints
@@ -908,6 +966,10 @@ class _Process:
         :type ignore_stderr: bool, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :returns: RunResult object
         :rtype: RunResult
         """
@@ -926,6 +988,8 @@ class _Process:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             embed_combine_tag=embed_combine_tag,
+            embed_stdout=embed_stdout,
+            embed_stderr=embed_stderr,
         )
 
     def dnf(
@@ -941,6 +1005,8 @@ class _Process:
         ignore_returncode=False,
         ignore_stderr=True,
         embed_combine_tag=TRACE_COMBINE_TAG,
+        embed_stdout=True,
+        embed_stderr=True,
         attempts=3,
     ):
         """
@@ -967,6 +1033,10 @@ class _Process:
         :type ignore_stderr: bool, optional
         :param embed_combine_tag: embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
         :type embed_combine_tag: str, optional
+        :param embed_stdout: if True, stdout will be embedded, defaults to True
+        :type embed_stdout: bool, optional
+        :param embed_stderr: if True, stderr will be embedded, defaults to True
+        :type embed_stderr: bool, optional
         :param attempts: number of retries in case of non-zero returncode, defaults to 3
         :type attempts: str, optional
         :returns: RunResult object
@@ -988,6 +1058,8 @@ class _Process:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 embed_combine_tag=embed_combine_tag,
+                embed_stdout=embed_stdout,
+                embed_stderr=embed_stderr,
             )
             if result.returncode == 0:
                 break

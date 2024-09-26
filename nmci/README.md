@@ -2333,7 +2333,7 @@ Save command call into the cache
   * **stdout** (*bytes*) – stdout of the process
   * **stderr** (*bytes*) – stderr of the process
 
-### nmci.process.dnf(argv, \*, as_bytes=False, shell=False, timeout=120, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=True, embed_combine_tag=<object object>, attempts=3)
+### nmci.process.dnf(argv, \*, as_bytes=False, shell=False, timeout=120, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=True, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True, attempts=3)
 
 Run `dnf` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
@@ -2349,13 +2349,15 @@ anything to stderr, an exception is raised. Otherwise, a RunResult object is ret
   * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to True
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
   * **attempts** (*str**,* *optional*) – number of retries in case of non-zero returncode, defaults to 3
 * **Returns:**
   RunResult object
 * **Return type:**
   [RunResult](#nmci.process.RunResult)
 
-### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>)
+### nmci.process.nmcli(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, ignore_stdout_error=False, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True)
 
 Run `nmcli` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult
@@ -2372,12 +2374,14 @@ object is returned.
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to False
   * **ignore_stdout_error** (*bool**,* *optional*) – ignore stdout error of the command, defaults to False
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
 * **Returns:**
   RunResult object
 * **Return type:**
   [RunResult](#nmci.process.RunResult)
 
-### nmci.process.nmcli_force(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+### nmci.process.nmcli_force(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True)
 
 Run `nmcli` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
@@ -2394,6 +2398,8 @@ the output anyway.
   * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to True
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
 * **Returns:**
   RunResult object
 * **Return type:**
@@ -2411,7 +2417,7 @@ Helper function to raise an exception containing output of the command.
 * **Raises:**
   **Exception** – exception containing output of the command
 
-### nmci.process.run(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, stdout=-1, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, stdout=-1, stderr=-1, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True, namespace=None)
 
 Run a command and check its output. If the command fails, or
 prints anything to stderr, an exception is raised. Otherwise, a RunResult
@@ -2430,13 +2436,15 @@ object is returned.
   * **stdout** (*file**,* *optional*) – stdout for the command, defaults to subprocess.PIPE
   * **stderr** (*file**,* *optional*) – stderr for the command, defaults to subprocess.PIPE
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
   * **namespace** (*str**,* *optional*) – namespace for the command, defaults to None
 * **Returns:**
   RunResult object
 * **Return type:**
   [RunResult](#nmci.process.RunResult)
 
-### nmci.process.run_code(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_code(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=False, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True, namespace=None)
 
 Run a command and return its returncode. If the command fails, or prints
 anything to stderr, an exception is raised.
@@ -2452,13 +2460,15 @@ anything to stderr, an exception is raised.
   * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to False
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
   * **namespace** (*str**,* *optional*) – namespace for the command, defaults to None
 * **Returns:**
   returncode of the command
 * **Return type:**
   int
 
-### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=<object object>, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_search_stdout(argv, pattern, \*, shell=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, pattern_flags=<object object>, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True, namespace=None)
 
 Run a command and search its stdout for a pattern. If the command fails, or
 prints anything to stderr, an exception is raised. Otherwise, a re.Match
@@ -2477,13 +2487,15 @@ object is returned.
   * **stderr** (*file**,* *optional*) – stderr for the command, defaults to subprocess.PIPE
   * **pattern_flags** (*int**,* *optional*) – pattern_flags for the command, defaults to re.DOTALL | re.MULTILINE
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
   * **namespace** (*str**,* *optional*) – namespace for the command, defaults to None
 * **Returns:**
   re.Match object
 * **Return type:**
   re.Match
 
-### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, namespace=None)
+### nmci.process.run_stdout(argv, \*, shell=False, as_bytes=False, timeout=5, cwd=None, env=None, env_extra=None, ignore_returncode=False, ignore_stderr=False, stderr=-1, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True, namespace=None)
 
 Run a command and return its stdout. If the command fails, or prints
 anything to stderr, an exception is raised.
@@ -2500,13 +2512,15 @@ anything to stderr, an exception is raised.
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to False
   * **stderr** (*file**,* *optional*) – stderr for the command, defaults to subprocess.PIPE
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
   * **namespace** (*str**,* *optional*) – namespace for the command, defaults to None
 * **Returns:**
   stdout of the command
 * **Return type:**
   str or bytes
 
-### nmci.process.systemctl(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>)
+### nmci.process.systemctl(argv, \*, as_bytes=False, timeout=60, cwd=None, env=None, env_extra=None, ignore_returncode=True, ignore_stderr=True, embed_combine_tag=<object object>, embed_stdout=True, embed_stderr=True)
 
 Run `systemctl` command and check its output. If the command fails, or prints
 anything to stderr, an exception is raised. Otherwise, a RunResult object is returned.
@@ -2521,6 +2535,8 @@ anything to stderr, an exception is raised. Otherwise, a RunResult object is ret
   * **ignore_returncode** (*bool**,* *optional*) – ignore returncode of the command, defaults to True
   * **ignore_stderr** (*bool**,* *optional*) – ignore stderr of the command, defaults to True
   * **embed_combine_tag** (*str**,* *optional*) – embed_combine_tag for the command, defaults to TRACE_COMBINE_TAG
+  * **embed_stdout** (*bool**,* *optional*) – if True, stdout will be embedded, defaults to True
+  * **embed_stderr** (*bool**,* *optional*) – if True, stderr will be embedded, defaults to True
 * **Returns:**
   RunResult object
 * **Return type:**
