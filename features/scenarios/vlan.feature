@@ -881,14 +881,14 @@ Feature: nmcli - vlan
       """
       Execute cleanup even before possibly crashed NM attempts to be started (priority -30)
       """
-    * Cleanup execute "sh prepare/vlans.sh clean" with timeout "120" seconds and priority "-50"
+    * Cleanup execute "bash prepare/vlans.sh clean" with timeout "120" seconds and priority "-50"
     * Commentary
       """
       Prepare veth pair with the other end in namespace
       Create 500 (from 10 to 509) vlans on top of eth11p
       Run dnsmasq inside the namespace to serve incoming connections
       """
-    * Execute "sh prepare/vlans.sh setup $N_VLANS"
+    * Execute "bash prepare/vlans.sh setup $N_VLANS"
     * Commentary
       """
       Stop OVS just to save some CPU cycles

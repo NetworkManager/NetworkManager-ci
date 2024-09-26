@@ -320,7 +320,7 @@ _register_tag("1000", None, tag1000_as)
 def many_vlans_bs(context, scenario):
     nmci.veth.manage_veths()
     context.process.run_stdout(
-        "sh prepare/vlans.sh clean", ignore_stderr=True, timeout=30
+        "bash prepare/vlans.sh clean", ignore_stderr=True, timeout=30
     )
     os.environ["N_VLANS"] = "500" if context.arch == "x86_64" else "200"
     # We need NM to sanitize itself a bit
