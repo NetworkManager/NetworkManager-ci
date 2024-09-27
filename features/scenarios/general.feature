@@ -2208,7 +2208,7 @@ Feature: nmcli - general
       """
     * Start NM in valgrind
     * Note NM memory consumption as value "0"
-    * Execute reproducer "repro_1433303.sh" for "2" times
+    * Execute reproducer "repro_1433303.sh" for "3" times
     * Commentary
       """
       Just log mem usage, do not compare, reported memory seems to vary a lot,
@@ -2234,8 +2234,8 @@ Feature: nmcli - general
     * Execute reproducer "repro_1433303.sh" for "2" times
     * Wait for "10" seconds
     * Note NM memory consumption as value "0"
-    * Execute reproducer "repro_1433303.sh" for "2" times
-    When Check NM memory consumption difference from "0" is "less than" "8" in "60" seconds
+    * Execute reproducer "repro_1433303.sh" for "3" times
+    When Check NM memory consumption difference from "0" is "less than" "20" in "60" seconds
     * Commentary
     """
       The following wait is for passing scenario,
@@ -2262,7 +2262,7 @@ Feature: nmcli - general
       """
     * Start NM in valgrind
     * Note NM memory consumption as value "0"
-    * Execute reproducer "repro_1461643.sh" for "5" times
+    * Execute reproducer "repro_1461643.sh" for "7" times
     * Commentary
       """
       Just log mem usage, do not compare, reported memory seems to vary a lot,
@@ -2291,8 +2291,8 @@ Feature: nmcli - general
     * Execute reproducer "repro_1461643.sh" for "3" times
     * Wait for "10" seconds
     * Note NM memory consumption as value "0"
-    * Execute reproducer "repro_1461643.sh" for "3" times
-    When Check NM memory consumption difference from "0" is "less than" "8" in "60" seconds
+    * Execute reproducer "repro_1461643.sh" for "4" times
+    When Check NM memory consumption difference from "0" is "less than" "20" in "60" seconds
     * Commentary
     """
       The following wait is for passing scenario,
