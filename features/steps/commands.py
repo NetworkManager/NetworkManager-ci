@@ -107,6 +107,9 @@ def execute_reproducer(context, rname, options="", number=1):
             assert (
                 curr_nm_pid == orig_nm_pid
             ), f"NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}"
+        # log mem after each repro exec in stable_mem tests
+        if hasattr(context, "nm_valgrind_proc"):
+            nmci.nmutil.nm_size_kb()
 
 
 @step('Execute "{command}" without waiting for process to finish')
@@ -965,10 +968,8 @@ def note_NM_mem_consumption(context, index):
     try:
         mem = str(nmci.nmutil.nm_size_kb())
         context.noted[index] = mem
-        nmci.embed.embed_data("mem usage in kb", str(mem), combine_tag="MEM")
-        context.process.run_stdout(f"echo {mem} >> /tmp/mem_consumption", shell=True)
     except nmci.util.ExpectedException as e:
-        msg = f"<b>Daemon memory consumption:</b> unknown ({e})\n"
+        print(f"<b>Daemon memory consumption:</b> unknown ({e})")
 
 
 @step(
@@ -980,7 +981,6 @@ def check_NM_mem_consumption(context, i1, operator_kw, dif, seconds):
     ) as t:
         while t.loop_sleep(1):
             mem = nmci.nmutil.nm_size_kb()
-            nmci.embed.embed_data("mem usage in kb", str(mem), combine_tag="MEM")
             real_dif = mem - int(context.noted[i1].strip())
             if compare_values(operator_kw.lower(), real_dif, int(dif)):
                 break

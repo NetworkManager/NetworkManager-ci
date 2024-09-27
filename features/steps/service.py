@@ -132,7 +132,6 @@ def NM_valgrind_start(context, tool="memcheck"):
         def _mem_size(pid):
             snap_file = nmci.util.tmp_dir(f"snap.{pid}")
             # trunc file to prevent using old data
-            nmci.util.file_set_content(snap_file)
             nmci.process.run(
                 f"vgdb --pid={pid} snapshot {snap_file}", ignore_stderr=True
             )
@@ -173,10 +172,13 @@ def NM_valgrind_start(context, tool="memcheck"):
         context.nm_valgrind_proc = nmci.pexpect.pexpect_service(
             nm_valgrind_cmd, env={**os.environ, "G_SLICE": "always-malloc"}
         )
+        proc = context.nm_valgrind_proc
         alive = nmci.nmutil.wait_for_nm_bus(10 * (i + 1), do_assert=False)
         if alive:
+            if tool == "massif":
+                snap_file = nmci.util.tmp_dir(f"snap.{proc.pid}")
+                nmci.util.file_set_content(snap_file)
             return True
-        proc = context.nm_valgrind_proc
         proc.kill(15)
         r = proc.expect([nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=5)
         if r == 1:
