@@ -947,7 +947,7 @@ class _Util:
         """
         if nmci.cext.context.nm_pid is not None:
             try:
-                kb = nmci.nmutil.nm_size_kb()
+                kb = nmci.nmutil.nm_size_kb(verbose=False)
             except nmci.util.ExpectedException as e:
                 msg = f"<b>Daemon memory consumption:</b> unknown ({e})\n"
             else:

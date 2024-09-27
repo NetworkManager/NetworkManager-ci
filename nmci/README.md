@@ -1914,10 +1914,12 @@ Retrieves NM process ID from system.
 * **Return type:**
   int
 
-### nmci.nmutil.nm_size_kb()
+### nmci.nmutil.nm_size_kb(verbose=True)
 
 Get the memory size of NetworkManager process in KB.
 
+* **Parameters:**
+  **verbose** (*bool**,* *optional*) – Embed measured values, defaults to True
 * **Returns:**
   memory size of NetworkManager process in KB
 * **Return type:**

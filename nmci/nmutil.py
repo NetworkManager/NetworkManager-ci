@@ -135,38 +135,51 @@ class _NMUtil:
             )
         return False
 
-    def nm_size_kb(self):
+    def nm_size_kb(self, verbose=True):
         """
         Get the memory size of NetworkManager process in KB.
 
+        :param verbose: Embed measured values, defaults to True
+        :type verbose: bool, optional
         :return: memory size of NetworkManager process in KB
         :rtype: int
         """
         valgrind = getattr(nmci.cext.context, "nm_valgrind_proc", None)
         if valgrind is not None:
             try:
-                return nmci.cext.context.nm_valgrind_mem_size(valgrind.pid)
+                memsize = nmci.cext.context.nm_valgrind_mem_size(valgrind.pid)
             except Exception as e:
                 raise nmci.util.ExpectedException(
                     f"unable to get mem usage for NetworkManager in valgrind: {e}"
                 )
-        pid = self.nm_pid()
-        if not pid:
-            raise nmci.util.ExpectedException(
-                "unable to get mem usage, NetworkManager is not running!"
+        else:
+            pid = self.nm_pid()
+            if not pid:
+                raise nmci.util.ExpectedException(
+                    "unable to get mem usage, NetworkManager is not running!"
+                )
+            try:
+                smaps = nmci.util.file_get_content(f"/proc/{pid}/smaps")
+            except Exception as e:
+                raise nmci.util.ExpectedException(
+                    f"unable to get mem usage for NetworkManager with pid {pid}: {e}"
+                )
+            memsize = 0
+            for line in smaps.data.strip("\n").split("\n"):
+                fields = line.split()
+                if not fields[0] in ("Private_Dirty:", "Swap:"):
+                    continue
+                memsize += int(fields[1])
+
+        with open("/tmp/mem_consumption", "a") as f:
+            f.write(f"{memsize}\n")
+
+        if verbose:
+            nmci.embed.embed_data(
+                "mem usage in kb",
+                f"{memsize}\n\n",
+                combine_tag=nmci.embed.TRACE_COMBINE_TAG,
             )
-        try:
-            smaps = nmci.util.file_get_content(f"/proc/{pid}/smaps")
-        except Exception as e:
-            raise nmci.util.ExpectedException(
-                f"unable to get mem usage for NetworkManager with pid {pid}: {e}"
-            )
-        memsize = 0
-        for line in smaps.data.strip("\n").split("\n"):
-            fields = line.split()
-            if not fields[0] in ("Private_Dirty:", "Swap:"):
-                continue
-            memsize += int(fields[1])
         return memsize
 
     def context_set_nm_restarted(self, context=None, reset=False):
