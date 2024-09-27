@@ -1176,9 +1176,10 @@ def cleanup_execute(context, command=None, timeout=5, priority=None):
 def run_nmstate(context, log_file):
     # Install podman and git clone nmstate
     nmci.veth.wait_for_testeth0()
-    nmci.util.directory_remove("nmstate", recursive=True)
+    nmci.util.directory_remove("/tmp/nmstate", recursive=True)
+    # Use temporary repo to try some changes in dnf
     nmci.process.run_stdout(
-        "git clone https://github.com/nmstate/nmstate.git",
+        "git clone https://github.com/nmstate/nmstate.git /tmp/nmstate",
         ignore_stderr=True,
         timeout=20,
     )
@@ -1195,7 +1196,7 @@ def run_nmstate(context, log_file):
         release = "rawhide"
 
     # Create the first part of cmd to execute
-    cmd = f"nmstate/automation/run-tests-in-nmci.sh --{release}"
+    cmd = f"/tmp/nmstate/automation/run-tests-in-nmci.sh --{release}"
 
     rpm_dir = ""
     for path in [

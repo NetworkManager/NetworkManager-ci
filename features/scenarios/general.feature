@@ -2187,10 +2187,10 @@ Feature: nmcli - general
     # just CentOS Stream. This should be sufficient to see if NM
     # is not breaking nmstate when we have MR or so.
     * Run tier0 nmstate tests with log in "/tmp/nmstate.txt"
-    Then "PASSED" is visible with command "grep ' PASS' /tmp/nmstate.txt"
-    Then "100%" is visible with command "grep '100%' /tmp/nmstate.txt"
-    Then "FAILED" is not visible with command "grep ' FAILED' /tmp/nmstate.txt"
-    Then "ERROR" is not visible with command "grep ' ERROR' /tmp/nmstate.txt"
+    Then "PASSED" is visible with command "grep -a ' PASS' /tmp/nmstate.txt"
+    Then "100%" is visible with command "grep -a '100%' /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep -a ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep -a ' ERROR' /tmp/nmstate.txt"
 
 
     @rhbz1433303
