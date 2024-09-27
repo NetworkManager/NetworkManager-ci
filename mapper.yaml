@@ -1348,6 +1348,22 @@ testmapper:
         feature: vlan
     - vlan_nic_reconnect_on_link_revive:
         feature: vlan
+    - ipvlan_with_l2_mode:
+        feature: vlan
+        tags: gate
+    - ipvlan_with_l3_mode:
+        feature: vlan
+        tags: gate
+    - ipvlan_with_l3s_mode:
+        feature: vlan
+    - ipvlan_vepa:
+        feature: vlan
+    - ipvlan_private:
+        feature: vlan
+    - ipvlan_bring_down:
+        feature: vlan
+    - ipvlan_after_reboot:
+        feature: vlan
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate

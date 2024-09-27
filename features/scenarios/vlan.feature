@@ -1127,3 +1127,210 @@ Feature: nmcli - vlan
      And "192.168.199.254/24" is visible with command "ip addr show eth1.42"
      And "192.168.10" is visible with command "ip addr show eth1"
 
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_with_l2_mode
+    Scenario: NM - ipvlan - create IPvlan in L2 mode with static IP
+    * Commentary
+    """
+    Set up IPvlan interface "ipvlan0" on parent device "eth7" in L2 mode with a static IPv4 address.
+    """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l2
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Commentary
+    """
+    Validate the IPvlan interface mode and IP configuration.
+    """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "1" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
+    Then "mode l2" is visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_with_l3_mode
+    Scenario: NM - ipvlan - create IPvlan in L3 mode with static IP
+    * Commentary
+      """
+      Set up IPvlan interface "ipvlan0" on parent device "eth7" in L3 mode with a static IPv4 address.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l3
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Commentary
+      """
+      Validate the IPvlan interface mode and IP configuration.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "2" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
+    Then "mode l3" is visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_with_l3s_mode
+    Scenario: NM - ipvlan - create IPvlan in L3s mode with static IP
+    * Commentary
+      """
+      Set up IPvlan interface "ipvlan0" on parent device "eth7" in L3 mode with a static IPv4 address.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode 3
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Commentary
+      """
+      Validate the IPvlan interface mode and IP configuration.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "3" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
+    Then "mode l3s" is visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_vepa
+    Scenario: NM - ipvlan - vepa
+    * Commentary
+      """
+      Set up IPvlan interface "ipvlan0" on parent device "eth7" with VEPA mode on/off.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l3
+        ipvlan.vepa on
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Commentary
+      """
+      Validate the IPvlan interface mode and IP configuration.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "l3 vepa" is visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+    * Bring "down" connection "ipvlan"
+    * Modify connection "ipvlan" changing options "ipvlan.vepa off"
+    * Bring "up" connection "ipvlan"
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "l3 vepa" is not visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_private
+    Scenario: NM - ipvlan - private
+    * Commentary
+      """
+      Set up IPvlan interface "ipvlan0" on parent device "eth7" with private mode on.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l2
+        ipvlan.private yes
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Commentary
+      """
+      Validate the IPvlan interface mode and IP configuration.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "1" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
+    Then "l2 private" is visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+    * Bring "down" connection "ipvlan"
+    * Modify connection "ipvlan" changing options "ipvlan.private off"
+    * Bring "up" connection "ipvlan"
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "l2 private" is not visible with command "ip -d link show dev ipvlan0"
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_bring_down
+    Scenario: NM - ipvlan - bring down IPvlan interface
+    * Commentary
+      """
+      Set up an IPvlan interface "ipvlan0" on parent device "eth7" in L2 mode and bring it down.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l2
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method ignore
+        """
+    * Bring "down" connection "ipvlan"
+    * Commentary
+      """
+      Ensure the IPvlan interface is successfully brought down.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is not visible with command "nmcli device" in "10" seconds
+    Then "ipvlan0" is not visible with command "ip a s"
+
+
+    @RHEL-47334
+    @ver+=1.51.1.2
+    @ipvlan_after_reboot
+    Scenario: NM - ipvlan - verify IPvlan interface state after reboot
+    * Commentary
+      """
+      Set up an IPvlan interface "ipvlan0" on parent device "eth7" in L3 mode, then reboot the system and verify the interface state.
+      """
+    * Add "ipvlan" connection named "ipvlan" for device "ipvlan0" with options
+        """
+        ipvlan.mode l3
+        dev eth7
+        ipv4.method manual
+        ipv4.addresses 192.168.100.10/24
+        ipv6.method manual
+        ipv6.addresses 2168::16/64
+        """
+    * Reboot
+    * Commentary
+      """
+      Ensure the IPvlan interface automatically reconnects with the expected configuration after reboot.
+      """
+    Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
+    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "2168::16" is visible with command "ip a s ipvlan0"
+    Then "2" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"

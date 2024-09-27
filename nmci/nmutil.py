@@ -406,6 +406,8 @@ class _NMUtil:
             # for macsec
             "macsec0",
             "macsec_veth.42",
+            # for vlan
+            "ipvlan0",
         ]
 
         ifnames_to_down = [
