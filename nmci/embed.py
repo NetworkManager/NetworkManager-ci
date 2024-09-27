@@ -392,6 +392,10 @@ class _Embed:
         :param embed_context: context keeping counter and data, defaults to None
         :type embed_context: EmbedContext object
         """
+
+        if combine_tag == TRACE_COMBINE_TAG:
+            combine_tag = self._get_module_from_trace()
+
         self._embed_queue(
             EmbedData(
                 caption=caption,
@@ -524,9 +528,6 @@ class _Embed:
             title = f"Command `{title}`"
         else:
             title = f"Command `{title[:30]}...`"
-
-        if combine_tag == TRACE_COMBINE_TAG:
-            combine_tag = self._get_module_from_trace()
 
         self.embed_data(
             title,
