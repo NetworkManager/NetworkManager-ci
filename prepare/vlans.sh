@@ -32,21 +32,42 @@ function setup {
     echo "*****************************************"
     echo "$NUM vlans inside namespace created!"
     echo "check via: 'ip netns exec eth11_ns ip a s'"
-
-
 }
 
 function delete_connection_files {
     echo "Deleting connection files, NM is unresponsive..."
-    for link in $@; do
-        rm -f /etc/NetworkManager/system-connections/$link.nmconnection
-        ip link del $link || true
+    rm -f /etc/NetworkManager/system-connections/eth11.*
+    rm -f /etc/sysconfig/network-scripts/ifcfg-eth11.*
+    nmcli con reload || true
+}
+
+function delete_links {
+    echo "Deleting link devices, NM is unresponsive..."
+    # get active inetrafce names, parse the following line format:
+    # 012: eth11.XY@eth11: <BROADCAST...
+    links=$(ip link | grep -F eth11. | sed 's/^[^:]*://;s/:.*$//;s/@.*$//')
+    for link in $links; do
+        ip link del $link
     done
-    echo "starting NM..."
-    systemctl start NetworkManager
+
+    # example format of busctl output, grep for array length (number separated by spaces):
+    # ao 14 "/org/freedesktop/NetworkManager/Devices/1" "/org/freedesktop/NetworkManager/Devices/2"...
+    dev=$(timeout 5 \
+        busctl call org.freedesktop.NetworkManager \
+            /org/freedesktop/NetworkManager \
+            org.freedesktop.NetworkManager \
+            GetAllDevices | \
+        grep -o " [0-9]* ")
+    (( dev > 0 && dev < 20 )) && return 0
+
+    # If NM is unresponsive, stop it, it will start after scenario - PID check will not take effect here
+    echo Stopping NM, found number of devices: $dev
+    systemctl stop NetworkManager
 }
 
 function clean {
+    set -x
+    pkill -F /tmp/dnsmasq_vlan.pid || true
     NUM=$(cat /tmp/vlan_count.txt)
     rm -rf /tmp/vlan_count.txt
     rm -rf /var/lib/dnsmasq/vlans.leases
@@ -59,24 +80,23 @@ function clean {
     echo "Cleaning $NUM vlans"
     ID_END=$(($NUM+9))
 
-    for i in $(seq $ID_START $ID_END); do
-        ids="$ids eth11.$i"
-    done
-    nmcli con del $ids || delete_connection_files $ids
+    cons=$(nmcli -f NAME c | grep -F eth11.)
+    nmcli con del $cons || delete_connection_files
 
-    for _ in {1..5}; do
-        # exit when eth11.X is not in `ip link` and `nmcli d`
-        cat <(ip link) <(nmcli d) | grep -F eth11. || break
-        echo Found some vlan devices, waiting...
+    # give NM some time to delete links
+    for _ in {1..10}; do
+        links=$(ip link | grep -F eth11. | wc -l)
+        ((links == 0)) && break
+        echo Found $links vlan devices, waiting...
         sleep 1
     done
 
-    cat <(ip link) <(nmcli d) | grep -F eth11. && delete_connection_files $ids
+    # delete them manually if not gone yet
+    links=$(ip link | grep -F eth11. | wc -l)
+    ((links > 0)) && delete_links
 
     ip netns del eth11_ns || true
     ip link del eth11 || true
-    pkill -F /tmp/dnsmasq_vlan.pid || true
-
 }
 
 if [ "$1" == "setup" ]; then
