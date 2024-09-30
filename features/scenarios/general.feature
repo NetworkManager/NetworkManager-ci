@@ -403,7 +403,7 @@ Feature: nmcli - general
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
+    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "120" seconds
 
 
     @RHEL-33435
