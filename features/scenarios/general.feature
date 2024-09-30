@@ -387,7 +387,7 @@ Feature: nmcli - general
 
     @rhbz1766944
     @ver+=1.29
-    @restart_if_needed @restore_hostname @delete_testeth0
+    @restart_if_needed @restore_hostname @dns_default @delete_testeth0
     @pull_hostname_from_dhcp_no_gw_no_default_hostname
     Scenario: nmcli - general - pull hostname from DHCP - no gw - no need for it
     * Prepare simulated test "testG" device
@@ -403,7 +403,7 @@ Feature: nmcli - general
     When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
     * Bring "up" connection "con_general"
     When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "120" seconds
+    Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
     @RHEL-33435
