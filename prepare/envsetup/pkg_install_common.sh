@@ -73,6 +73,10 @@ install_common_packages () {
     fix_python3_link
     install_behave_pytest
 
+    # Let's remove blacklist and load sch_netem for later usage
+    rm -rf /etc/modprobe.d/sch_netem-blacklist.conf
+    modprobe sch_netem
+
     # Install common pip packages
     python -m pip install --upgrade pip
     python -m pip install pyroute2
