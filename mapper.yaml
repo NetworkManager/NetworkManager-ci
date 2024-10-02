@@ -2248,6 +2248,8 @@ testmapper:
     - libreswan_ikev2_require_id_on_cert:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_wrong_data:
+        feature: libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:

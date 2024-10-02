@@ -707,3 +707,50 @@
     Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
 
+
+    @libreswan @ikev2
+    @libreswan_wrong_data
+    Scenario: libreswan - malformed data in keyfile
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.4-4.el7_7" on "rhel7.7"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.4-4.el7_9" on "rhel7.9"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_2" on "rhel8.2"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_4" on "rhel8.4"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_6" on "rhel8.6"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_8" on "rhel8.8"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-7.el8_10" on "rhel8.10"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-3.el9_0" on "rhel9.0"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-6.el9_2" on "rhel9.2"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-6.el9_4" on "rhel9.4"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9_5" on "rhel9.5"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9" on "rhel9.6"
+    * Cleanup connection "libreswan"
+    * Create keyfile "/etc/NetworkManager/system-connections/libreswan.nmconnection"
+"""
+[connection]
+id=libreswan
+type=vpn
+autoconnect=false
+[vpn]
+ikev2=insist
+leftcert=LibreswanClient
+# Malformed leftid entry
+leftid=%fromcert\n ikev2=insist\n leftcert=LibreswanClient\n leftrsasigkey=%cert\n rightrsasigkey=%cert\n left=%defaultroute\n leftmodecfgclient=yes\n right=11.12.13.14\n leftupdown=/bin/true\nconn ign
+right=11.12.13.14
+service-type=org.freedesktop.NetworkManager.libreswan
+[ipv4]
+method=auto
+[ipv6]
+addr-gen-mode=default
+method=auto
+[proxy]
+"""
+    * Reload connections
+    * Start following journal
+    * Bring "up" connection "libreswan" ignoring error
+    * Commentary
+        """
+        Here we should fail immediatelly and no connecting should happen
+        In some cases we saw those values propagated further and timeout 60s.
+        """
+    When "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
+    Then "Invalid character|name owner .* disappeared" is visible in journal in "5" seconds
