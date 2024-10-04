@@ -716,7 +716,9 @@ method=auto
         """
         Here we should fail immediatelly and no connecting should happen
         In some cases we saw those values propagated further and timeout 60s.
+        We can see several errors:
+        RHEL8.6+/9 has Invaldi character/name owner disappeared
+        RHEL8.4- throws property foo invalid.
         """
     Then "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
-    Then "Invalid character|name owner .* disappeared" is visible in journal in "5" seconds
-    Then "libreswan " is not visible with command "nmcli  connection show -a"
+    Then "Invalid character|name owner .* disappeared|'property 'foo' invalid or not supported" is visible in journal in "5" seconds
