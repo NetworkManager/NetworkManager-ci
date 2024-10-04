@@ -111,10 +111,9 @@
 
     # https://gitlab.gnome.org/GNOME/NetworkManager-libreswan/-/issues/11
     # https://issues.redhat.com/browse/RHEL-14288
-    @libreswan
+    @libreswan @main
     @libreswan_add_profile_wrong_password
     Scenario: nmcli - libreswan - add and connect a connection with worong password
-
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use user "budulinek" with password "simply_wrong" and group "yolo" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan" ignoring error
