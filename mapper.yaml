@@ -2194,10 +2194,6 @@ testmapper:
         feature: libreswan
     - libreswan_provides_and_obsoletes:
         feature: libreswan
-    - libreswan_import:
-        feature: libreswan
-    - libreswan_export:
-        feature: libreswan
     - libreswan_autocompletion:
         feature: libreswan
     - libreswan_activate_asking_for_password:
