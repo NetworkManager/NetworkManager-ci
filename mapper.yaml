@@ -2250,6 +2250,8 @@ testmapper:
         tags: gate NetworkManager-libreswan
     - libreswan_wrong_data:
         feature: libreswan
+    - libreswan_wrong_data_var2:
+        feature: libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:

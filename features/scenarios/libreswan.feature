@@ -754,3 +754,20 @@ method=auto
         """
     When "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
     Then "Invalid character|name owner .* disappeared" is visible in journal in "5" seconds
+
+
+    @libreswan @ikev2
+    @libreswan_wrong_data_var2
+    Scenario: libreswan - unsupported key in data
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
+    * Modify connection "libreswan" changing options "vpn.data 'foo=bar, ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Start following journal
+    * Bring "up" connection "libreswan" ignoring error
+    * Commentary
+        """
+        Here we should fail immediatelly and no connecting should happen
+        In some cases we saw those values propagated further and timeout 60s.
+        """
+    Then "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
+    Then "Invalid character|name owner .* disappeared" is visible in journal in "5" seconds
+    Then "libreswan " is not visible with command "nmcli  connection show -a"
