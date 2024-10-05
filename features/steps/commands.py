@@ -1339,6 +1339,47 @@ def skip_if(context):
     context.skip_check_count = 2
 
 
+@step('Ensure that version of "{package}" package is at least')
+def check_pkg_version_table(context, package):
+    d_ver = []
+    ver = ""
+    for row in context.table:
+        version, distro = row[0], row[1]
+        if distro.startswith("rhel"):
+            if "Enterprise Linux" not in context.rh_release:
+                continue
+            d = [int(x) for x in distro.replace("rhel", "").split(".")]
+            d = [x for x, y in zip(d, context.rh_release_num) if x == y]
+            # apply when matched prefix is longer
+            if len(d) > len(d_ver):
+                d_ver = d
+                ver = version
+        elif distro.startswith("c"):
+            if "CentOS Stream" not in context.rh_release:
+                continue
+            d_ver = int(
+                distro.replace("centos", "")
+                .replace("c", "")
+                .replace("stream", "")
+                .replace("s", "")
+            )
+            if d_ver != context.rh_release_num[0]:
+                continue
+            ver = version
+        elif distro in ["fedora", "rawhide"]:
+            if "Fedora" not in context.rh_release:
+                continue
+            ver = version
+        else:
+            assert False, f"Unsupported distribution: {distro}."
+
+    if ver:
+        print("Will ensure", package, ver)
+        check_package_version(context, package, ver)
+    else:
+        print("No distro matched")
+
+
 @step('Ensure that version of "{package}" package is at least "{version}"')
 @step(
     'Ensure that version of "{package}" package is at least "{version}" on "{distro}"'
