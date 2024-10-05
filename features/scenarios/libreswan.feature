@@ -63,10 +63,12 @@
     @libreswan @ikev2
     @libreswan_ikev2_require_id_on_cert_subject
     Scenario: nmcli - libreswan - test require ID on certs in subject
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9.6"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-5.el9" on "rhel9"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version       | distro  |
+      | 1.2.22-5.el9  | rhel9   |
+      | 1.2.22-2.el9  | rhel9.6 |
+      | 1.2.22-2.el9  | c9s     |
+      | 1.2.22-3.el10 | rhel10  |
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Modify connection "libreswan" changing options
       """
@@ -648,10 +650,12 @@
     @rhelver+=9
     @libreswan_ikev2_require_id_on_cert
     Scenario: libreswan - ikev2 - ipv4 - test require ID on certs
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9.6"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-5.el9" on "rhel9"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version       | distro  |
+      | 1.2.22-5.el9  | rhel9   |
+      | 1.2.22-2.el9  | rhel9.6 |
+      | 1.2.22-2.el9  | c9s     |
+      | 1.2.22-3.el10 | rhel10  |
     * Prepare nmstate libreswan environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
@@ -682,18 +686,20 @@
     @libreswan @ikev2
     @libreswan_wrong_data
     Scenario: libreswan - malformed data in keyfile
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.4-4.el7_7" on "rhel7.7"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.4-4.el7_9" on "rhel7.9"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_2" on "rhel8.2"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_4" on "rhel8.4"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_6" on "rhel8.6"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-6.el8_8" on "rhel8.8"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.10-7.el8_10" on "rhel8.10"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-3.el9_0" on "rhel9.0"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-6.el9_2" on "rhel9.2"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-6.el9_4" on "rhel9.4"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9_5" on "rhel9.5"
-    Given Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9" on "rhel9.6"
+    Given Ensure that version of "NetworkManager-libreswan" package is at least
+      | version         | distro   |
+      | 1.2.4-4.el7_7   | rhel7.7  |
+      | 1.2.4-4.el7_9   | rhel7.9  |
+      | 1.2.10-6.el8_2  | rhel8.2  |
+      | 1.2.10-6.el8_4  | rhel8.4  |
+      | 1.2.10-6.el8_6  | rhel8.6  |
+      | 1.2.10-6.el8_8  | rhel8.8  |
+      | 1.2.10-7.el8_10 | rhel8.10 |
+      | 1.2.14-3.el9_0  | rhel9.0  |
+      | 1.2.14-6.el9_2  | rhel9.2  |
+      | 1.2.18-6.el9_4  | rhel9.4  |
+      | 1.2.22-4.el9_5  | rhel9.5  |
+      | 1.2.22-4.el9    | rhel9.6  |
     * Cleanup connection "libreswan"
     * Create keyfile "/etc/NetworkManager/system-connections/libreswan.nmconnection"
 """

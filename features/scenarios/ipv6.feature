@@ -2764,17 +2764,19 @@
     @ipv6_ndp_ipv6_route_information_buffer_overflow
     Scenario: NM - ipv6 - verify correct processing of v6 route information in NDP
     * Cleanup device "veth0"
-    * Ensure that version of "libndp" package is at least "1.9-1.el9" on "c9s"
-    * Ensure that version of "libndp" package is at least "1.9-1.el10" on "rhel10.0"
-    * Ensure that version of "libndp" package is at least "1.9-1.el9" on "rhel9.5"
-    * Ensure that version of "libndp" package is at least "1.8-6.el9_4" on "rhel9.4"
-    * Ensure that version of "libndp" package is at least "1.8-5.el9_2" on "rhel9.2"
-    * Ensure that version of "libndp" package is at least "1.8-5.el9_0" on "rhel9.0"
-    * Ensure that version of "libndp" package is at least "1.7-7.el8_10" on "rhel8.10"
-    * Ensure that version of "libndp" package is at least "1.7-7.el8_8" on "rhel8.8"
-    * Ensure that version of "libndp" package is at least "1.7-7.el8_6" on "rhel8.6"
-    * Ensure that version of "libndp" package is at least "1.7-6.el8_4" on "rhel8.4"
-    * Ensure that version of "libndp" package is at least "1.7-4.el8_2" on "rhel8.2"
+    * Ensure that version of "libndp" package is at least
+      | version      | distro   |
+      | 1.9-1.el9    | c9s      |
+      | 1.9-1.el10   | rhel10.0 |
+      | 1.9-1.el9    | rhel9.5  |
+      | 1.8-6.el9_4  | rhel9.4  |
+      | 1.8-5.el9_2  | rhel9.2  |
+      | 1.8-5.el9_0  | rhel9.0  |
+      | 1.7-7.el8_10 | rhel8.10 |
+      | 1.7-7.el8_8  | rhel8.8  |
+      | 1.7-7.el8_6  | rhel8.6  |
+      | 1.7-6.el8_4  | rhel8.4  |
+      | 1.7-4.el8_2  | rhel8.2  |
     * Execute "ip link add veth0 type veth peer name veth1"
     * Execute "ip link set dev veth1 up"
     * Add "ethernet" connection named "con_veth0" for device "veth0"
