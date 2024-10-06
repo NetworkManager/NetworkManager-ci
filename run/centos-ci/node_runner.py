@@ -570,11 +570,9 @@ class Runner:
             self.gitlab.set_pipeline("canceled", self.release.replace("-stream", ""))
             # if we have config.log, build failed
             if os.path.isfile("../config.log"):
-                self._gitlab_message = (
-                    f"{self.build_url}\n\nNetworkManager build from source failed!"
-                )
+                self._gitlab_message = "NetworkManager build from source failed!"
             else:
-                self._gitlab_message = f"{self.build_url}\n\nJob unexpectedly aborted!"
+                self._gitlab_message = "Job unexpectedly aborted!"
             if msg:
                 self._gitlab_message += "\n\nReason: " + msg
             self._post_results()
@@ -711,7 +709,6 @@ class Runner:
             status = "STABLE: All tests passed!"
 
         message = [
-            f"{self.build_url}",
             f"Result: {status}",
             *machine_lines,
             f"Executed on: CentOS {self.release}",
@@ -761,13 +758,16 @@ class Runner:
     def _post_results(self, message=None):
         if not message:
             message = self._gitlab_message
+        message = f"{self.build_url}\n\n{message}"
         if self.gitlab:
             if self.gitlab.repository == "NetworkManager-ci":
                 try:
                     self.gitlab.play_commit_job()
                 except Exception:
                     pass
-            self.gitlab.post_commit_comment(message)
+            # post message to MR pipeline thread
+            failed = getattr(self, "failed_tests", True)
+            self.gitlab.post_mr_comment(message, resolved=not failed, replace=False)
 
     def _generate_junit(self):
         logging.debug("Generate JUNIT")

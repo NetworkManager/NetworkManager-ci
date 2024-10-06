@@ -161,11 +161,50 @@ class GitlabTrigger(object):
         for _ in range(3):
             try:
                 com.comments.create({"note": text})
-                return
+                return True
             except Exception as e:
                 exc = e
                 time.sleep(1)
         print(f"Unable to post comment to gitlab:\n{text}\n\nException: {exc}")
+        return False
+
+    def post_mr_comment(self, text, resolved=None, replace=False):
+        mr_id = self.merge_request_id
+        mr = self.gl_project.mergerequests.get(mr_id)
+        discussions = mr.discussions.list(all=True)
+        discussion = None
+        title = f"Pipeline: {os.environ['BUILD_URL']}"
+        for d in discussions:
+            notes = d.attributes.get("notes")
+            for note in notes:
+                if title in note["body"]:
+                    discussion = d
+                    print(f"Found discussion: {title}")
+                    break
+        if discussion is None:
+            print(f"Creating discussion: {title}")
+            discussion = mr.discussions.create({"body": title})
+        try:
+            if text:
+                notes = discussion.attributes.get("notes")
+                if replace:
+                    note_id = notes[-1]["id"]
+                    # prepend the title if it is the only note in the thread
+                    if len(notes) <= 1:
+                        text = f"{title}\n\n{text}"
+                    print(f"Edit discussion note: {notes[-1]['body']} -> {text}")
+                    note = discussion.notes.get(note_id)
+                    note.body = text
+                    note.save()
+                else:
+                    print(f"Create discussion note: {text}")
+                    discussion.notes.create({"body": text})
+        except Exception as e:
+            print(f"Exception in note set: {e}")
+        if resolved is not None:
+            print(f"Discussion set resolved: {resolved}")
+            discussion.resolved = resolved
+            discussion.save()
 
     def play_commit_job(self):
         pipeline = self.pipeline
@@ -191,12 +230,12 @@ class GitlabTrigger(object):
 
     @property
     def merge_request_url(self):
-        mr_id = None
+        mr_url = None
         if self.request_type == "note":
-            mr_id = self.data["merge_request"]["url"]
+            mr_url = self.data["merge_request"]["url"]
         elif self.request_type == "merge_request":
-            mr_id = self.data["object_attributes"]["url"]
-        return mr_id
+            mr_url = self.data["object_attributes"]["url"]
+        return mr_url
 
     @property
     def repository(self):
@@ -264,14 +303,14 @@ class GitlabTrigger(object):
             description = ""
             if status == "pending":
                 description = "The build has started"
-            if status == "running":
+            elif status == "running":
                 description = "The build is running"
             elif status == "canceled":
-                description == "The build has been canceled"
+                description = "The build has been canceled"
             elif status == "success":
-                description == "The build has finshed successfully"
+                description = "The build has finshed successfully"
             elif status == "failed":
-                description == "The build has finshed unstable or failing"
+                description = "The build has finshed unstable or failing"
 
             com = self.gl_project.commits.get(self.commit)
 
@@ -289,11 +328,15 @@ class GitlabTrigger(object):
                             "description": description,
                         }
                     )
-                    return
+                    break
                 except Exception as e:
                     exc = e
                     time.sleep(1)
-            print(f"Unable to set commit status in gitlab:\nException: {exc}")
+            if exc is not None:
+                print(f"Unable to set commit status in gitlab:\nException: {exc}")
+
+            # Post comment directly to MR in pipeline thread
+            self.post_mr_comment(description, resolved=False, replace=True)
 
         except Exception as e:
             print(str(e))
