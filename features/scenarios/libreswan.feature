@@ -216,8 +216,28 @@
     Then "172.29.100.0/24 [^\n]*dev libreswan1" is not visible with command "ip route" in "10" seconds
 
 
+
     @rhbz1348901
-    @rhelver+=8 @ver+=1.4.0
+    @rhelver-=8.4 @ver+=1.4.0
+    @libreswan @ikev2
+    @dns_systemd_resolved
+    @libreswan_dns
+    Scenario: nmcli - libreswan - dns
+    Given Nameserver "11.12.13.14" is set in "20" seconds
+    * Add "libreswan" VPN connection named "libreswan" for device "\*"
+    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Bring "up" connection "libreswan"
+    When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+     And Nameserver "8.8.8.8" is set
+     #And Nameserver "11.12.13.14" is not set
+    * Delete connection "libreswan"
+    When "VPN.VPN-STATE:[^\n]*VPN connected" is not visible with command "nmcli c show libreswan" in "10" seconds
+    Then Nameserver "8.8.8.8" is not set
+     And Nameserver "11.12.13.14" is set
+
+
+    @rhbz1348901
+    @rhelver+8.4 @ver+=1.4.0
     @libreswan @ikev2
     @dns_systemd_resolved
     @libreswan_dns
