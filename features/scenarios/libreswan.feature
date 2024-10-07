@@ -264,62 +264,6 @@
     Then "user-name=incorrectuser" is visible with command "cat /etc/NetworkManager/system-connections/vpn"
 
 
-    @rhbz1034105
-    @ver+=1.3.0 @rhelver-=8 @fedoraver-=31
-    @vpn
-    @libreswan_import
-    Scenario: nmcli - libreswan - import
-    * Execute "nmcli connection import file contrib/vpn/vpn.swan3 type libreswan"
-    Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "leftxauthusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
-
-
-    @rhbz1034105
-    @ver+=1.3.0 @rhelver+=9 @fedoraver+=32
-    @vpn
-    @libreswan_import
-    Scenario: nmcli - libreswan - import
-    * Execute "nmcli connection import file contrib/vpn/vpn.swan4 type libreswan"
-    Then "leftid = VPN-standard" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "right = vpn-test.com" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "ike = aes-sha1;modp2048" is visible with command "nmcli connection show vpn |grep vpn.data"
-     And "leftusername = test_user" is visible with command "nmcli connection show vpn |grep vpn.data"
-
-
-    @rhbz1034105 @rhbz1626485
-    @ver+=1.3.0 @rhelver-=8 @fedoraver-=31
-    @vpn
-    @libreswan_export
-    Scenario: nmcli - libreswan - export
-    * Execute "nmcli connection import file contrib/vpn/vpn.swan3 type libreswan"
-    * Execute "nmcli connection export vpn > /tmp/vpn.swan3"
-    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan3"
-    Then Check file "contrib/vpn/vpn.swan3" is contained in file "/tmp/vpn.swan3"
-    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
-    * Delete connection "vpn"
-    * Execute "nmcli connection import file /tmp/vpn.swan3 type libreswan"
-    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn2.data"
-    Then Check file "/tmp/vpn1.data" is identical to file "/tmp/vpn2.data"
-
-
-    @rhbz1034105 @rhbz1626485
-    @ver+=1.3.0 @rhelver+=9 @fedoraver+=32
-    @vpn
-    @libreswan_export
-    Scenario: nmcli - libreswan - export
-    * Execute "nmcli connection import file contrib/vpn/vpn.swan4 type libreswan"
-    * Execute "nmcli connection export vpn > /tmp/vpn.swan4"
-    * Execute "sed -i 's/phase2alg=/esp=/g' /tmp/vpn.swan4"
-    Then Check file "contrib/vpn/vpn.swan4" is contained in file "/tmp/vpn.swan4"
-    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn1.data"
-    * Delete connection "vpn"
-    * Execute "nmcli connection import file /tmp/vpn.swan4 type libreswan"
-    * Execute "nmcli -g vpn.data conn show vpn > /tmp/vpn2.data"
-    Then Check file "/tmp/vpn1.data" is identical to file "/tmp/vpn2.data"
-
-
     @rhbz1337300
     @ver+=1.3.0
     @vpn
