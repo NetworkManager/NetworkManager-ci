@@ -394,3 +394,47 @@
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
     Then Check noted values "vpn1" and "vpn2" are the same
+
+
+    @libreswan @ikev2
+    @libreswan_wrong_data
+    Scenario: libreswan - malformed data in keyfile
+    * Cleanup connection "libreswan"
+    * Create keyfile "/etc/NetworkManager/system-connections/libreswan.nmconnection"
+"""
+[connection]
+id=libreswan
+type=vpn
+autoconnect=false
+[vpn]
+ikev2=insist
+leftcert=LibreswanClient
+# Malformed leftid entry
+leftid=%fromcert\n ikev2=insist\n leftcert=LibreswanClient\n leftrsasigkey=%cert\n rightrsasigkey=%cert\n left=%defaultroute\n leftmodecfgclient=yes\n right=11.12.13.14\n leftupdown=/bin/true\nconn ign
+right=11.12.13.14
+service-type=org.freedesktop.NetworkManager.libreswan
+[ipv4]
+method=auto
+[ipv6]
+addr-gen-mode=default
+method=auto
+[proxy]
+"""
+    * Reload connections
+    * Bring up connection "libreswan" ignoring error
+    When "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
+#    Then "Invalid character|name owner .* disappeared" is visible with command "journalctl --since '5 seconds ago'"
+
+
+
+    @rhelver-=8
+    @libreswan @main
+    @libreswan_wrong_data_var2
+    Scenario: libreswan - unsupported key in data
+    * Add a connection named "libreswan" for device "\*" to "libreswan" VPN
+    * Use user "budulinek" with password "passwd" and group "Main" with secret "ipsecret" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Execute "nmcli connection modify libreswan +vpn.data 'foo=bar'"
+    * Bring up connection "libreswan" ignoring error
+    Then "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
+
+
