@@ -24,14 +24,11 @@ install_el7_packages () {
     python -m pip install pyyaml
 
 
-    # install dbus-python3 for s390x via pip
-    if uname -a |grep -q s390x; then
-        yum -y install \
-        python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
-        python3 -m pip install dbus-python
-        python3 -m pip install PyGObject
-        python3 -m pip install scapy
-    fi
+    yum -y install \
+        python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo dbus-devel
+    python3 -m pip install dbus-python
+    python3 -m pip install PyGObject
+    python3 -m pip install scapy
 
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
