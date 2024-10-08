@@ -64,7 +64,7 @@
     @libreswan_ikev2_require_id_on_cert_subject
     Scenario: nmcli - libreswan - test require ID on certs in subject
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9.6"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9" on "rhel9"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-5.el9" on "rhel9"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
@@ -646,7 +646,7 @@
     @libreswan_ikev2_require_id_on_cert
     Scenario: libreswan - ikev2 - ipv4 - test require ID on certs
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "rhel9.6"
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-4.el9" on "rhel9"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-5.el9" on "rhel9"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-2.el9" on "c9s"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-3.el10" on "rhel10"
     * Prepare nmstate libreswan environment
