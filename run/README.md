@@ -35,3 +35,7 @@ Some old test executors.
 ## utils
 
 Currently, only j-dump (nm_ci_stats) lives here.
+
+## ocp
+
+Tools to run OCP testing with a custom NetworkManager RPM.
