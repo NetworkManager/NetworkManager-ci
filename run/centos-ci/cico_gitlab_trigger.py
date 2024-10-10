@@ -302,15 +302,15 @@ class GitlabTrigger(object):
         try:
             description = ""
             if status == "pending":
-                description = "The build has started"
+                description = "The build has started."
             elif status == "running":
-                description = "The build is running"
+                description = "The build is running."
             elif status == "canceled":
-                description = "The build has been canceled"
+                description = "The build has been canceled."
             elif status == "success":
-                description = "The build has finshed successfully"
+                description = "The build has finished successfully."
             elif status == "failed":
-                description = "The build has finshed unstable or failing"
+                description = "The build has finished unstable or failing."
 
             com = self.gl_project.commits.get(self.commit)
 
