@@ -407,5 +407,5 @@ Feature: NM: dispatcher
       """
       The dispatcher event 'dns-change' should not be triggered again, since there was no change in the dns configuration.
       """
-     * Execute "nmstatectl apply /tmp/change_global_dns.yaml"
+     * Execute "nmstatectl apply --"
      Then "NM_DISPATCHER_ACTION=dns-change" is not visible in journal in "10" seconds
