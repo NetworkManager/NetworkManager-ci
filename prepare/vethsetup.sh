@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -x
+set -x
 
 # Note: This entire setup is available from NetworkManager 1.0.4 up
 
@@ -56,6 +56,9 @@ function setup_veth_env ()
         pkill dhcpcd
     fi
 
+    # Save device that is the default IPv4 routing one
+    ORIG_DEV=$(ip -4 route | awk '/default/ {for (i=1; i<=NF; i++) if ($i == "dev") print $(i+1)}')
+
     # If different than default connection is up after compilation bring it down and restart service
     for i in $( \
         LANG=C nmcli -g CON-UUID,STATE,DEVICE device \
@@ -82,16 +85,8 @@ function setup_veth_env ()
         ((counter++))
         if [ $counter -eq 20 ]; then
             # in case, there is single ethernet device, connect it and count to 40
-            if [ $(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | wc -l) == 1 ]; then
-                DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | awk -F':' '{print $1}' | head -n 1)
-                echo "Activating single ethernet device '$DEV'"
-                nmcli device connect $DEV
-            # fail otherwise
-            else
-                echo "All ethernet interfaces down, unable to determine gateway"
-                nmcli dev
-                return 1
-            fi
+            echo "Activating single ethernet device $ORIG_DEV"
+            nmcli device connect $ORIG_DEV
         elif [ $counter -eq 40 ]; then
             echo "Unable to get active device"
             return 1
