@@ -218,7 +218,9 @@
 
 
     @rhbz1348901
-    @rhelver-=8.4 @ver+=1.4.0
+    @rhelver-=8.4
+    @fedoraver-=0
+    @ver+=1.4.0
     @libreswan @ikev2
     @dns_systemd_resolved
     @libreswan_dns
@@ -237,7 +239,8 @@
 
 
     @rhbz1348901
-    @rhelver+8.4 @ver+=1.4.0
+    @rhelver+8.4
+    @ver+=1.4.0
     @libreswan @ikev2
     @dns_systemd_resolved
     @libreswan_dns
