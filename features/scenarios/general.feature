@@ -3674,8 +3674,19 @@ Feature: nmcli - general
     And Check bond "bond1" state is "up"
 
 
+    @fedora+=39
+    @rhelver+=9
     @dbusmock_unittests
     Scenario: Execute dbusmock unittests
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
     * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
     * Execute "cd .tmp/python-dbusmock; python -m pytest tests/test_networkmanager.py"
+
+
+    @rhelver+=8.4 @rhelver-=8.10
+    @dbusmock_unittests
+    Scenario: Execute dbusmock unittests
+    * Cleanup execute "rm -rf .tmp/python-dbusmock"
+    * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
+    * Execute "python3.11 -m install pytest"
+    * Execute "cd .tmp/python-dbusmock; python3.11 -m pytest tests/test_networkmanager.py"
