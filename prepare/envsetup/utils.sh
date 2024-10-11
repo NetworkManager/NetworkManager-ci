@@ -6,11 +6,6 @@ CBSC="https://cbs.centos.org/kojifiles/packages"
 KHUB="https://kojihub.stream.centos.org/kojifiles/packages"
 MBOX="https://koji.mbox.centos.org/pkgs/packages"
 
-fix_python3_link() {
-    rm -f /usr/bin/python
-    ln -s `which python3` /usr/bin/python
-}
-
 
 install_behave_pytest () {
   # stable release is old, let's use the lastest available tagged release

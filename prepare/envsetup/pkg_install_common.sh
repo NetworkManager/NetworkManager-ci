@@ -69,8 +69,6 @@ install_common_packages () {
     rm -rf /tmp/nmci-raddb
     cp -ar /etc/raddb/ /tmp/nmci-raddb/
 
-    # installing python3-* package causes removal of /usr/bin/python
-    fix_python3_link
     install_behave_pytest
 
     # Let's remove blacklist and load sch_netem for later usage
