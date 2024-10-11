@@ -164,6 +164,10 @@ EOF
     # get links from brew
     brew_links="../utils/brew_links.sh"
     [ -f "$brew_links" ] || brew_links="./contrib/utils/brew_links.sh"
+    # replace to koji_links on Fedora and CentOS
+    if grep -i -q -e fedora -e centos /etc/redhat-release; then
+      brew_links="$(echo $brew_links | sed 's/brew/koji/g')"
+    fi
     brew_urls="$($brew_links $(rpm -q NetworkManager --qf "%{name} %{version} %{release}"))"
     # fail if not found
     [ -z "$brew_urls" ] && echo "Unable to find $nm_local in brew." && exit 1
