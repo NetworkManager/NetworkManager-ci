@@ -11,6 +11,62 @@ fix_python3_link() {
     ln -s `which python3` /usr/bin/python
 }
 
+install_latest_python () {
+    # Get the currently enabled Python 3 version
+    current_python_module=$(yum module list python3* --enabled | \
+                             grep python3 | \
+                             awk '{print $1}')
+
+    # Check if there is a currently enabled Python 3 module
+    if [ -n "$current_python_module" ]; then
+        echo "Current enabled Python module: $current_python_module"
+    else
+        echo "No currently enabled Python module."
+    fi
+
+    # Get the latest available Python 3 module
+    latest_python_module=$(yum module list python3* | \
+                           grep python3 | \
+                           awk '{print $1}' | \
+                           grep -o 'python3[0-9]*' | \
+                           sort -V | \
+                           tail -n 1)
+
+    # Check if a module is found
+    if [ -z "$latest_python_module" ]; then
+        echo "No Python 3 modules found!"
+        return 1
+    else
+        echo "Latest available Python module: $latest_python_module"
+    fi
+
+    # Check if the current module is the same as the latest module
+    if [ "$current_python_module" == "$latest_python_module" ]; then
+        echo "Python module is already up-to-date. No upgrade is necessary."
+        return 0  # Return 0 instead of exiting the script
+    fi
+
+    # Enable the latest Python 3 module
+    echo "Enabling $latest_python_module..."
+    yum module enable "$latest_python_module" -y
+
+    # Install the corresponding Python module
+    echo "Installing Python module..."
+    yum install -y "$latest_python_module"
+
+    # If there was a current Python 3 module, remove it
+    if [ -n "$current_python_module" ]; then
+        echo "Removing old Python module: $current_python_module..."
+        yum module disable -y $current_python_module
+        yum remove "$current_python_module" -y  # Safely remove the current module
+    fi
+
+    # Verify installation
+    echo "Verifying Python installation..."
+    python3 --version
+    echo "Python module upgrade completed successfully."
+}
+
 
 install_behave_pytest () {
   # stable release is old, let's use the lastest available tagged release

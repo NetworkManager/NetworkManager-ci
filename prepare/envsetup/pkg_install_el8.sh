@@ -126,6 +126,9 @@ install_el8_packages () {
     PKGS_UPGRADE="$PKGS_UPGRADE \
         https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm"
 
+    # Install the newest python3 supported
+    install_latest_python
+
     # Workaround for broken urllib3 and six in 8.8
     python -m pip uninstall urllib3 six -y
     python -m pip install --prefix=/usr urllib3 six==1.15.0
