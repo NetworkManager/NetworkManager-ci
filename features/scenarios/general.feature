@@ -3674,6 +3674,7 @@ Feature: nmcli - general
     And Check bond "bond1" state is "up"
 
 
+    @rhelver+=9
     @dbusmock_unittests
     Scenario: Execute dbusmock unittests
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
