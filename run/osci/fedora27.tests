@@ -100,7 +100,7 @@ persistent_ipv6_routes
 ipv6_honor_ip_order
 team_in_vlan_restart_persistence
 team_in_bridge_mtu
-config_lacp
+team_config_lacp
 team_start_on_boot_with_team_and_one_slave_auto
 add_default_tap_device
 add_default_tun_device
