@@ -86,4 +86,5 @@ install_common_packages () {
     python3l -m pip install python-dbusmock
     python3l -m pip install psutil
     python3l -m pip install scapy
+    python3l -m pip install qemu.qmp
 }

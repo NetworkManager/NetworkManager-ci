@@ -257,9 +257,12 @@ def dracut_run(context):
     )
 
     if not handle_timeout(context, proc, p_timeout, boot_log_proc):
+        nmci.process.run("python3l contrib/dracut/shutdown.py", ignore_stderr=True)
+    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=20)
+    if res != 0:
+        print("killing machine, didn't shutdown in 20s")
         proc.kill(15)
-    res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=5)
-    rc = proc.exitstatus
+        res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=5)
 
     embed_dracut_logs(context)
 
