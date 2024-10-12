@@ -85,4 +85,5 @@ install_common_packages () {
     python -m pip install IPy
     python -m pip install python-dbusmock
     python -m pip install psutil
+    python -m pip install qemu.qmp
 }

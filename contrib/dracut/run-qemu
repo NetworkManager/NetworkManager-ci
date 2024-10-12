@@ -39,7 +39,7 @@ CPUS="2"
 [[ $(nproc) -gt 4 ]] && CPUS="$(($(nproc)-2))"
 
 # Provide rng device sourcing the hosts /dev/urandom and other standard parameters
-ARGS+=(-smp $CPUS -m $RAM -nodefaults -vga none -display none -no-reboot -device virtio-rng -rtc base=localtime)
+ARGS+=(-smp $CPUS -m $RAM -qmp unix:/tmp/qmp.sock,server=on,wait=off -nodefaults -vga none -display none -no-reboot -device virtio-rng -rtc base=localtime)
 
 if [ -f $TESTDIR/qemu.pid ] ; then
   echo "Warning, pidfile exists!"
