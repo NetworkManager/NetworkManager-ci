@@ -2190,7 +2190,7 @@ Feature: nmcli: ipv4
 
 
 
-    @ver+=1.31.1
+    @ver+=1.31.1 @ver-=1.51.1
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
     * Open editor for a type "ethernet"
@@ -2216,6 +2216,41 @@ Feature: nmcli: ipv4
     Then Check "=== \[dhcp-client-id\] ===\s+\[NM property description\]\s+A string sent to the DHCP server to identify the local machine which the DHCP server may use to customize the DHCP lease and options." are present in describe output for object "dhcp-client-id"
 
     Then Check "=== \[dhcp-send-hostname\] ===\s+\[NM property description\]\s+If TRUE, a hostname is sent to the DHCP server when acquiring a lease. Some DHCP servers use this hostname to update DNS databases, essentially providing a static hostname for the computer.  If the \"dhcp-hostname\" property is NULL and this property is TRUE, the current persistent hostname of the computer is sent." are present in describe output for object "dhcp-send-hostname"
+
+    Then Check "=== \[dhcp-hostname\] ===\s+\[NM property description\]\s+If the \"dhcp-send-hostname\" property is TRUE, then the specified name will be sent to the DHCP server when acquiring a lease." are present in describe output for object "dhcp-hostname"
+
+    Then Check "=== \[never-default\] ===\s+\[NM property description\]\s+If TRUE, this connection will never be the default connection for this IP type, meaning it will never be assigned the default route by NetworkManager." are present in describe output for object "never-default"
+
+    Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
+
+
+
+    @ver+=1.51.2
+    @ipv4_describe
+    Scenario: nmcli - ipv4 - describe
+    * Open editor for a type "ethernet"
+    When Check "\[method\]|\[dns\]|\[dns-search\]|\[addresses\]|\[gateway\]|\[routes\]|\[ignore-auto-routes\]|\[ignore-auto-dns\]|\[dhcp-hostname\]|\[never-default\]|\[may-fail\]" are present in describe output for object "ipv4"
+    * Submit "goto ipv4" in editor
+
+    Then Check regex "=== \[method\] ===\s+\[NM property description\]\s+(The IPv4 connection method|IP configuration method).*" in describe output for object "method"
+
+    Then Check "=== \[dns\] ===\s+\[NM property description\]\s+.*DNS.*8.8.8.8" are present in describe output for object "dns"
+
+    Then Check regex "=== \[dns-search\] ===\s+\[NM property description\]\s+(List|Array) of DNS search domains." in describe output for object "dns-search"
+
+    Then Check "ip\[/prefix\], ip\[/prefix\],\.\.\." are present in describe output for object "addresses"
+
+    Then Check "gateway" are present in describe output for object "gateway"
+
+    Then Check "=== \[routes\] ===\s+\[NM property description\]\s+A list of IPv4 destination addresses, prefix length, optional IPv4 next hop addresses, optional route metric, optional attribute. The valid syntax is: \"ip\[/prefix\] \[next-hop\] \[metric\] \[attribute=val\]...\[,ip\[/prefix\]...\]\". For example \"192.0.2.0/24 10.1.1.1 77, 198.51.100.0/24\".\s+\[nmcli specific description\]\s+Enter a list of IPv4 routes formatted as:\s+ip\[/prefix\] \[next-hop\] \[metric\],...\s+Missing prefix is regarded as a prefix of 32.\s+Missing next-hop is regarded as 0.0.0.0.\s+Missing metric means default \(NM/kernel will set a default value\).\s+Examples: 192.168.2.0/24 192.168.2.1 3, 10.1.0.0/16 10.0.0.254\s+10.1.2.0/24\s+" are present in describe output for object "routes"
+
+    Then Check "=== \[ignore-auto-routes\] ===\s+\[NM property description\]\s+When \"method\" is set to \"auto\" and this property to TRUE, automatically configured routes are ignored and only routes specified in the \"routes\" property, if any, are used." are present in describe output for object "ignore-auto-routes"
+
+    Then Check "=== \[ignore-auto-dns\] ===\s+\[NM property description\]\s+When \"method\" is set to \"auto\" and this property to TRUE, automatically configured name ?servers and search domains are ignored and only name ?servers and search domains specified in the \"dns\" and \"dns-search\" properties, if any, are used." are present in describe output for object "ignore-auto-dns"
+
+    Then Check "=== \[dhcp-client-id\] ===\s+\[NM property description\]\s+A string sent to the DHCP server to identify the local machine which the DHCP server may use to customize the DHCP lease and options." are present in describe output for object "dhcp-client-id"
+
+    Then Check "=== \[dhcp-send-hostname\] ===\s+\[NM property description\]\s+If TRUE, a hostname is sent to the DHCP server when acquiring a lease. Some DHCP servers use this hostname to update DNS databases, essentially providing a static hostname for the computer.  If the dhcp-hostname property is NULL and this property is TRUE, the current persistent hostname of the computer is sent. The default value is default \(-1\). In this case the global value from NetworkManager configuration is looked up. If it's not set, the value from dhcp-send-hostname-deprecated, which defaults to TRUE, is used for backwards compatibility. In the future this will change and, in absence of a global default, it will always fallback to TRUE." are present in describe output for object "dhcp-send-hostname"
 
     Then Check "=== \[dhcp-hostname\] ===\s+\[NM property description\]\s+If the \"dhcp-send-hostname\" property is TRUE, then the specified name will be sent to the DHCP server when acquiring a lease." are present in describe output for object "dhcp-hostname"
 
