@@ -476,6 +476,8 @@ def process_request(data, content):
                 and gt.pipeline.status == "skipped"
             ):
                 print("Skipped pipeline detected")
+            elif "changes" in data and "labels" in data["changes"]:
+                print("Labels change only")
             else:
                 if not os.path.exists("/tmp/gl_commits"):
                     os.system("echo '' > /tmp/gl_commits")
