@@ -1244,6 +1244,10 @@ testmapper:
         feature: ipv4
     - ipv4_set_dhcp_send_hostname_global_config:
         feature: ipv4
+    - ipv4_dhcp_ipv6_only_preferred:
+        feature: ipv4
+    - ipv4_dhcp_ipv6_only_preferred_global:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:

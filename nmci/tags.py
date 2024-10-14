@@ -718,6 +718,23 @@ def internal_DHCP_bs(context, scenario):
 _register_tag("internal_DHCP", internal_DHCP_bs)
 
 
+def dhcp4_ipv6_only_no_min_wait_bs(context, scenario):
+    conf = [
+        "# configured by beaker-test",
+        "[Service]",
+        "Environment=NM_TEST_IPV6_ONLY_MIN_WAIT=1",
+    ]
+    context.process.run_stdout("mkdir -p /etc/systemd/system/NetworkManager.service.d/")
+    conf_f = "/etc/systemd/system/NetworkManager.service.d/50-dhcp4-ipv6-only-no-min-wait.conf"
+    # FIXME: Don't abuse add_NM_config() for systemd dropins
+    nmci.nmutil.add_NM_config(conf, conf_f)
+    nmci.process.systemctl("daemon-reload")
+    nmci.nmutil.restart_NM_service()
+
+
+_register_tag("dhcp4_ipv6_only_no_min_wait", dhcp4_ipv6_only_no_min_wait_bs)
+
+
 def dhclient_DHCP_bs(context, scenario):
     distro, version = nmci.misc.distro_detect()
 

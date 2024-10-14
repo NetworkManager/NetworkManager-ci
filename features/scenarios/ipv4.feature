@@ -3780,3 +3780,76 @@ Feature: nmcli: ipv4
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-send-hostname true"
     * Bring "up" connection "con_ipv4"
     Then "example.com" is visible with command "cat /tmp/tshark.log" in "245" seconds
+
+
+    @RHEL-14370
+    @ver+=1.51.2
+    @dhcp4_ipv6_only_no_min_wait
+    @ipv4_dhcp_ipv6_only_preferred
+    Scenario: nmcli - ipv4 - DHCP option "IPv6-only preferred"
+    * Prepare simulated test "testX" device with "none" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix
+    * Commentary
+      """
+      Check that the interface doesn't get the IPv4 address when the IPv6-only preferred
+      option is enabled on both sides
+      """
+    * Execute "ip -n testX_ns addr add dev testXp 172.25.10.1/24"
+    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60 --dhcp-option=108,8i"
+    * Add "ethernet" connection named "con_general" for device "testX" with options
+          """
+          autoconnect no
+          ipv4.dhcp-ipv6-only-preferred yes
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_general"
+    Then "inet6 2620" is visible with command "ip addr show dev testX"
+    Then "inet 172.25" is not visible with command "ip addr show dev testX" for full "15" seconds
+
+    * Commentary
+      """
+      Now disable the option on server side and check that the interface gets the IPv4 address
+      """
+    * Kill children with signal "15"
+    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60"
+    Then "inet 172.25" is visible with command "ip addr show dev testX" in "15" seconds
+
+
+    @RHEL-14370
+    @ver+=1.51.2
+    @ipv4_dhcp_ipv6_only_preferred_global
+    Scenario: nmcli - ipv4 - DHCP option "IPv6-only preferred" with global value
+    * Create NM config file "90-ipv6-only-preferred.conf" with content
+      """
+      [connection.ipv4-dhcp-ipv6-only-preferred]
+      ipv4.dhcp-ipv6-only-preferred=1
+      """
+    * Restart NM
+    * Prepare simulated test "testX" device with "192.168.12" ipv4 and daemon options "--dhcp-option=108,1800i"
+    * Prepare simulated test "testY" device with "192.168.13" ipv4 and daemon options "--dhcp-option=108,1800i"
+    * Prepare simulated test "testZ" device with "192.168.14" ipv4 and daemon options "--dhcp-option=108,1800i"
+    * Add "ethernet" connection named "con_ipv4_X" for device "testX" with options "autoconnect no"
+    * Add "ethernet" connection named "con_ipv4_Y" for device "testY" with options "autoconnect no ipv6.method disabled"
+    * Add "ethernet" connection named "con_ipv4_Z" for device "testZ" with options "autoconnect no ipv4.dhcp-ipv6-only-preferred no"
+    * Bring "up" connection "con_ipv4_X"
+    * Bring "up" connection "con_ipv4_Y"
+    * Bring "up" connection "con_ipv4_Z"
+    # Since both IP methods are "may-fail=yes", give some more time for them to complete
+    * Wait for "10" seconds
+    * Commentary
+    """
+    Device testX has IPv6-only-preferred enabled globally and should not get an IPv4 address
+    """
+    Then "inet6 2620" is visible with command "ip addr show dev testX"
+    Then "inet 192.168.12" is not visible with command "ip addr show dev testX"
+    * Commentary
+    """
+    Device testY has IPv6-only-preferred enabled globally and IPv6 disabled: it should get an IPv4
+    """
+    Then "inet6 2620" is not visible with command "ip addr show dev testY"
+    Then "inet 192.168.13" is visible with command "ip addr show dev testY"
+    * Commentary
+    """
+    Device testZ has IPv6-only-preferred disabled in the profile: it should get both IPv4 and IPv6
+    """
+    Then "inet6 2620" is visible with command "ip addr show dev testZ"
+    Then "inet 192.168.14" is visible with command "ip addr show dev testZ"
