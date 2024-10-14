@@ -209,7 +209,8 @@ _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 def crash_bs(context, scenario):
     context.crash_upload = False
-    nmci.util.file_set_content("/tmp/disable-qe-abrt")
+    if nmci.process.systemctl("is-active abrt-journal-core").returncode == 0:
+        nmci.cext.skip("Found ABRT running.")
 
 
 _register_tag("crash", crash_bs)
