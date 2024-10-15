@@ -147,6 +147,10 @@ class GitlabTrigger(object):
         return author
 
     @property
+    def proj_members(self):
+        return [m.id for m in self.gl_project.members_all.list(get_all=True)]
+
+    @property
     def commit_message(self):
         message = None
         if self.request_type == "note":
@@ -446,7 +450,9 @@ def process_request(data, content):
         params, _ = get_rebuild_detail(gt, gt.description + "\n" + gt.commit_message)
         comment = gt.comment
         params, comment = get_rebuild_detail(gt, comment, params)
-        if comment.lower().startswith("rebuild"):
+        if data["user"]["id"] not in gt.proj_members:
+            print("Unauthorized note...")
+        elif comment.lower().startswith("rebuild"):
             comment = comment.lower().replace("rebuild", "", 1).strip()
             if comment == "":
                 execute_build(gt, content, **params)
@@ -476,6 +482,8 @@ def process_request(data, content):
                 and gt.pipeline.status == "skipped"
             ):
                 print("Skipped pipeline detected")
+            elif data["object_attributes"]["author_id"] not in gt.proj_members:
+                print("External contributor MR update")
             elif "changes" in data and "labels" in data["changes"]:
                 print("Labels change only")
             else:
