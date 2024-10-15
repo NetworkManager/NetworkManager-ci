@@ -23,7 +23,7 @@ def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
     :type phase2_al: str, optional
     """
     RC = nmci.process.run_code(
-        f"MODE={mode} sh prepare/libreswan.sh",
+        f"MODE={mode} bash prepare/libreswan.sh",
         shell=True,
         ignore_stderr=True,
         timeout=60,
@@ -40,7 +40,7 @@ def teardown_libreswan(context):
     :param context: behave context
     :type context: behave.runner.Context
     """
-    nmci.process.run_stdout("sh prepare/libreswan.sh teardown", ignore_stderr=True)
+    nmci.process.run_stdout("bash prepare/libreswan.sh teardown", ignore_stderr=True)
     print("Attach Libreswan logs")
     journal_log = nmci.misc.journal_show(
         syslog_identifier="pluto",

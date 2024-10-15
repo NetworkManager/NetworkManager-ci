@@ -35,7 +35,8 @@ add_pluto_connection ()
 
 libreswan_gen_connection ()
 {
-    if rpm -q --quiet libreswan-4*; then
+    LIB_MAJOR=$(rpm -q libreswan | grep -o '[0-9]' | head -n1)
+    if ((LIB_MAJOR >= 4)); then
         MODECFGDNS="modecfgdns=8.8.8.8"
         FRAGMENTATION="fragmentation=yes"
     else
