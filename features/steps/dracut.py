@@ -196,6 +196,7 @@ def dracut_run(context):
         "cloud-init=disabled",
         "systemd.log_level=debug",
         "systemd.journald.forward_to_console=1",
+        "systemd.log_target=console",
     ]
     kernel_arch_args = {
         "x86_64": ["console=ttyS0,115200n81,", "intel_iommu=on"],
