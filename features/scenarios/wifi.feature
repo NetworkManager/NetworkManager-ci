@@ -402,6 +402,8 @@ Feature: nmcli - wifi
           802-1x.client-cert file:///tmp/certs/client.pem
           802-1x.private-key-password 12345testing
           802-1x.private-key file:///tmp/certs/client.pem
+          802-11-wireless.channel 48
+          802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa3-enterprise"
     Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
@@ -421,6 +423,8 @@ Feature: nmcli - wifi
           802-1x.identity "Bill Smith"
           802-1x.password "testing123"
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
+          802-11-wireless.channel 48
+          802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa3-enterprise"
     Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
