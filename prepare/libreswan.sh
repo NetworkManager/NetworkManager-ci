@@ -22,6 +22,7 @@ start_pluto ()
 {
     is_pluto_running || \
     ip netns exec libreswan ipsec pluto \
+              --config /etc/ipsec.conf \
               --secretsfile "$SECRETS_CFG" \
               --ipsecdir "$LIBRESWAN_DIR" \
               --nssdir "$NSS_DIR" \
@@ -40,7 +41,7 @@ libreswan_gen_connection ()
         MODECFGDNS="modecfgdns=8.8.8.8"
         FRAGMENTATION="fragmentation=yes"
     else
-        MODECFGDNS="modecfgdns1=8.8.8.8"
+        MODECFGDNS="modecfgdns1=8.8.8.8"q
         FRAGMENTATION="ike-frag=yes"
     fi
 
@@ -85,6 +86,12 @@ EOF
     rightid=@yolo
     aggressive=yes
 EOF
+        if ((LIB_MAJOR >= 5)); then
+           cat >> "$CONNECTION_CFG" << EOF
+    ike=AES_CBC
+    esp=AES_GCM
+EOF
+        fi
     fi
 }
 
@@ -191,6 +198,11 @@ libreswan_setup ()
         NSS_CLIENT_DIR="/etc/ipsec.d/"
     fi
 
+    if (($LIB_MAJOR >= 5)); then
+        echo -e "config setup\n  ikev1-policy = accept" > /etc/ipsec.d/ikev1_accept.conf
+        # apply the config in the client side
+        ipsec restart
+    fi
     if [ "$MODE" = "ikev2" ]; then
         IKEv2="insist"
     else

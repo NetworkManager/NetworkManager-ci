@@ -40,11 +40,13 @@ def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
 def set_libreswan_connection(context, user, password, group, secret, gateway, name):
 
     username_option = "leftxauthusername"
+    libver = int(
+        nmci.process.run_stdout(
+            "rpm -q libreswan | grep -o [0-9]* | head -n1", shell=True
+        )
+    )
     if context.rh_release_num[0] != 8:
-        if (
-            nmci.process.run_search_stdout("rpm -q libreswan", "libreswan-4")
-            is not None
-        ):
+        if libver >= 4:
             username_option = "leftusername"
 
     vpn_data = {
@@ -56,6 +58,11 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
         "pskvalue-flags": "2" if secret == "ask" else "0",
         "vendor": "Cisco",
     }
+
+    if libver >= 5:
+        vpn_data["ike"] = "AES_CBC"
+        vpn_data["esp"] = "AES_GCM"
+
     if group != "Main":
         vpn_data["leftid"] = group
 
