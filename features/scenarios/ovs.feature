@@ -1745,6 +1745,44 @@ Feature: nmcli - ovs
     And "192.168.99" is visible with command "ip a show dev br-ex"
 
 
+    @RHEL-50747
+    @ver+=1.51.2
+    @ver/rhel/9/2+=1.42.2.27
+    @ver/rhel/9/4+=1.46.0.20
+    @ver/rhel/9/5+=1.48.10.3
+    @openvswitch
+    @ovs_delete_connecting_interface
+    Scenario: NM - openvswitch - delete interface that is connecting
+    * Commentary
+      """
+      Make dummy ovs interface without address waiting for DHCP (connecting state)
+      """
+    * Add "ovs-interface" connection named "ovs1-if" for device "ovs1" with options "controller ovs1"
+    * Add "ovs-port" connection named "ovs1-port" for device "ovs1" with options
+      """
+      controller br0
+      ovs-port.vlan-mode trunk
+      ovs-port.tag 0
+      ovs-port.trunks "10,20,30-40"
+      connection.autoconnect-ports true
+      """
+    * Add "ovs-bridge" connection named "br0" for device "br0" with options "connection.autoconnect-ports true"
+    * Commentary
+      """
+      Make sure bridge is up and ovs interface is connecting
+      """
+    * Bring "up" connection "br0"
+    When "ovs1" is visible with command "nmcli d" in "10" seconds
+    * Delete connection "br0"
+    * Delete connection "ovs1-port"
+    * Delete connection "ovs1-if"
+    * Commentary
+      """
+      Interface ovs1 should be gone even when it was connecting.
+      """
+    Then "ovs1" is not visible with command "nmcli d" in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

@@ -2125,6 +2125,8 @@ testmapper:
         feature: ovs
     - ovs_cloned_mac_set_on_iface_with_udev_file:
         feature: ovs
+    - ovs_delete_connecting_interface:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
