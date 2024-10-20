@@ -1316,3 +1316,41 @@ Feature: nmcli: connection
     Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
     Then "bond-port-eth2 " is not visible with command "nmcli con show --active"
+
+
+    @RHEL-21160
+    @ver+=1.51.4
+    @connection_ping_ip_addresses
+    Scenario: nmcli - connection - ping ip addresses
+    * Prepare simulated test "testX4" device
+    * Execute "ip -n testX4_ns addr add 192.168.96.1/24 dev testX4p"
+    * Run child "ip netns exec testX4_ns tcpdump -i testX4p -n -v icmp"
+    * Add "ethernet" connection named "con_con" for device "testX4" with options
+          """
+          ipv4.addresses 192.168.96.4/24
+          connection.ip-ping-addresses '192.168.99.1,192.168.96.1'
+          connection.ip-ping-timeout 10
+          connection.ip-ping-addresses-require-all yes
+          ipv4.may-fail no
+          """
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
+    * Expect "192.168.99.1.*192.168.96.1|192.168.96.1.*192.168.99.1" in children in "5" seconds
+
+
+    @RHEL-21160
+    @ver+=1.51.4
+    @connection_ping_ip6_addresses
+    Scenario: nmcli - connection - ping ip6 addresses
+    * Prepare simulated test "testX6" device
+    * Execute "ip -n testX6_ns addr add 2620:dead:beef::1/64 dev testX6p"
+    * Run child "ip netns exec testX6_ns tcpdump -i testX6p -n -v icmp6"
+    * Add "ethernet" connection named "con_con" for device "testX6" with options
+          """
+          ipv6.addresses 2620:dead:beaf::6/64
+          connection.ip-ping-addresses '2620:dead:beaf::1,2620:dead:beef::1'
+          connection.ip-ping-timeout 10
+          connection.ip-ping-addresses-require-all yes
+          ipv6.may-fail no
+          """
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
+    * Expect "2620:dead:beaf::1.*2620:dead:beef::1|2620:dead:beef::1.*2620:dead:beaf::1" in children in "5" seconds

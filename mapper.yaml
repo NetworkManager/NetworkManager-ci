@@ -2497,6 +2497,10 @@ testmapper:
         feature: connection
     - connection_with_higher_priority_active_on_reload:
         feature: connection
+    - connection_ping_ip_addresses:
+        feature: connection
+    - connection_ping_ip6_addresses:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
