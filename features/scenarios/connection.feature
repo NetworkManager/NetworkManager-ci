@@ -1316,3 +1316,18 @@ Feature: nmcli: connection
     Then "bond-port-eth2-port-ovs-clone" is visible with command "nmcli con show --active"
     Then "bond-port-eth1 " is not visible with command "nmcli con show --active"
     Then "bond-port-eth2 " is not visible with command "nmcli con show --active"
+
+
+    @RHEL-21160
+    @ver+=1.51.2
+    @eth0
+    @connection_ping_ip_addresses
+    Scenario: nmcli - connection - ping ip addresses
+    * Add "ethernet" connection named "con_con" for device "eth0" with options
+          """
+          connection.ip-ping-addresses '8.8.8.8, 8.8.4.4'
+          connection.ip-ping-timeout 10
+          connection.ip-ping-addresses-require-all yes
+          ipv4.may-fail no
+          """
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
