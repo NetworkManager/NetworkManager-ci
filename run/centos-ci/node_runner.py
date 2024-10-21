@@ -241,8 +241,8 @@ class Machine:
         logging.debug(f"Update machine {self.id}")
         self.ssh("dnf -y upgrade --nobest", verbose=True)
         self.ssh("systemctl restart NetworkManager", verbose=True)
-        self.ssh("nmcli device connect eth0", verbose=True)
         self.ssh("nmcli d", verbose=True)
+        self.ssh("nmcli device connect eth0", check=False, verbose=True)
         self._reboot()
 
     def prepare(self):
