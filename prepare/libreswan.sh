@@ -41,7 +41,7 @@ libreswan_gen_connection ()
         MODECFGDNS="modecfgdns=8.8.8.8"
         FRAGMENTATION="fragmentation=yes"
     else
-        MODECFGDNS="modecfgdns1=8.8.8.8"q
+        MODECFGDNS="modecfgdns1=8.8.8.8"
         FRAGMENTATION="ike-frag=yes"
     fi
 
