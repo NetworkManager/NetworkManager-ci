@@ -371,6 +371,9 @@ Feature: nmcli - wifi
     @wifi @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_peap_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA3-PEAP profile
+    # Wireless device does not support wpa3 enterprise
+    * Skip if next step fails:
+    * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
     * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
           """
           autoconnect off
@@ -391,6 +394,9 @@ Feature: nmcli - wifi
     @wifi @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_tls
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
+    # Wireless device does not support wpa3 enterprise
+    * Skip if next step fails:
+    * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
     * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
           """
           autoconnect off
@@ -413,6 +419,9 @@ Feature: nmcli - wifi
     @wifi @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_ttls_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TTLS profile
+    # Wireless device does not support wpa3 enterprise
+    * Skip if next step fails:
+    * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
     * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
           """
           autoconnect off
