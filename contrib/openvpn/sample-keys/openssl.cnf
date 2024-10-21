@@ -137,3 +137,12 @@ subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer:always
 extendedKeyUsage       = serverAuth
 keyUsage               = digitalSignature, keyEncipherment
+
+# Server extensions.
+[ server_req ]
+
+basicConstraints       = CA:FALSE
+nsCertType             = server
+nsComment              = "OpenSSL Generated Server Certificate"
+extendedKeyUsage       = serverAuth
+keyUsage               = digitalSignature, keyEncipherment
