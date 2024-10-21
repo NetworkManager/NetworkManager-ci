@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+import datetime
 import filecmp
+import glob
 import os
 import pytest
 import random
@@ -2132,3 +2134,34 @@ def test_black_code_fromatting():
         pytest.skip("python black is not available")
 
     assert proc.returncode == 0
+
+
+def test_cert_validity():
+    def check_cert_date(cert_name):
+        enddate = subprocess.check_output(
+            "openssl x509 -noout -enddate -in".split() + [cert_name], encoding="utf-8"
+        )
+        enddate = enddate.strip().split("=")[-1]
+        # Convert end date to timestamp using date (python lib is unable to guess the format)
+        timestamp = subprocess.check_output(
+            ["date", "-d", enddate, "+%s"], encoding="utf-8"
+        ).strip()
+        # Calculate remaining time
+        timedelta = (
+            datetime.datetime.fromtimestamp(int(timestamp)) - datetime.datetime.now()
+        )
+        # First check that cert is not expired (to output correct error mesage)
+        assert (
+            timedelta > datetime.timedelta()
+        ), f"Cert {cert_name} expired on '{enddate}'!"
+        # Then check if cert is going to expire within month... We discard warnings for now, so assert instead
+        assert timedelta > datetime.timedelta(
+            30
+        ), f"Cert {cert_name} will expire within 30 days, on '{enddate}'!"
+
+    certs = glob.glob("**/*.crt", recursive=True) + glob.glob(
+        "**/*.cert.pem", recursive=True
+    )
+    assert certs, "No certificate found!"
+    for cert in certs:
+        check_cert_date(cert)
