@@ -15,7 +15,7 @@ UnitTests:
   script:
     - |
       yum -y install python3 python3-pip python3-devel python3-gobject \
-          python3-requests python3-systemd iproute gcc curl NetworkManager-libnm git
+          python3-requests python3-systemd iproute gcc curl NetworkManager-libnm git openssl
       python3 -m pip install pytest PyYAML pexpect pyroute2 click==8.0.4 "git+https://github.com/behave/behave@v1.2.7.dev4#egg=behave"
       python3 -m pip install --prefix /usr/ black==22.3.0 sphinx==7.2.6 sphinx-markdown-builder==0.6.5
       set +e
