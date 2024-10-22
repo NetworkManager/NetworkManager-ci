@@ -39,6 +39,10 @@ def http_put_gcp(url, data):
     http_put(url, data)
 
 
+def http_put_oci(url, data):
+    http_put(url, data)
+
+
 @step("Start test-cloud-meta-mock.py")
 def start_test_cloud_meta_mock(context):
     nmci.pexpect.pexpect_service(
@@ -432,3 +436,50 @@ def mock_gcp_ip2(context, ip_addr1, ip_addr2, num):
         f"computeMetadata/v1/instance/network-interfaces/{num}/forwarded-ips",
         json.dumps([ip_addr1, ip_addr2]),
     )
+
+
+@step(
+    'Mock OCI device "{num}" with MAC "{mac}", IP "{ip_addr}", subnet "{cidr}" and gateway "{gw_addr}"'
+)
+def mock_oci_dev(context, num, mac, ip_addr, cidr, gw_addr):
+    mac = _resolve_mac(context, mac)
+    http_put_oci(
+        f"opc/v2/vnics/{num}",
+        json.dumps(
+            {
+                "vnicId": "example.id.X",
+                "privateIp": ip_addr,
+                "vlanTag": 1,
+                "macAddr": mac,
+                "virtualRouterIp": gw_addr,
+                "subnetCidrBlock": cidr,
+                "nicIndex": 0,
+            }
+        ),
+    )
+
+
+@step("Clear OCI mocks")
+def mock_oci_clear(context):
+    http_put_oci("opc/v2/vnics", "[]")
+
+
+@step('Mock OCI MAC address "{mac}" for device "{num}"')
+def mock_oci_mac(context, mac, num):
+    mac = _resolve_mac(context, mac)
+    http_put_oci(f"opc/v2/vnics/{num}/macAddr", mac)
+
+
+@step('Mock OCI IP address "{ip_addr}" for device "{num}"')
+def mock_oci_ip(context, ip_addr, num):
+    http_put_oci(f"opc/v2/vnics/{num}/privateIp", ip_addr)
+
+
+@step('Mock OCI CIDR block "{cidr}" for device "{num}"')
+def mock_oci_cidr(context, cidr, num):
+    http_put_oci(f"opc/v2/vnics/{num}/subnetCidrBlock", cidr)
+
+
+@step('Mock OCI gateway address "{ip_addr}" for device "{num}"')
+def mock_oci_gw(context, gw_addr, num):
+    http_put_oci(f"opc/v2/vnics/{num}/virtualRouterIp", gw_addr)

@@ -85,6 +85,29 @@ Feature: nmcli: cloud
     Then "local 172.31.17.249 dev testX1 table local proto static scope host metric 100" is visible with command "ip route show table all" in "5" seconds
 
 
+    #@ver+=1.51.3
+    @cloud_oci_basic
+    Scenario: cloud - OCI - Basic Oracle Cloud nm-cloud-setup checks
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    * Mock OCI device "0" with MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Commentary
+      """
+      This additional mocked device is needed because nm-cloud-setup skips configuring if there is
+      only 1 interface with 1 address. In OCI we cannot add 2 addresses to an interface, so we
+      return 2 interfaces from the mock server. The 2nd won't be found by nm-c-s, so skipped.
+      """
+    * Mock OCI device "1" with MAC "CC:00:00:00:00:02", IP "172.31.186.249", subnet "172.31.16.0/20" and gateway "172.31.186.1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "5" seconds
+    * Mock OCI IP address "172.31.186.249" for device "0"
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20" on device "testX1" in "5" seconds
+
+
     @rhbz2214880
     @ver+=1.43.10
     @skip_in_centos
@@ -149,12 +172,6 @@ Feature: nmcli: cloud
     * Check "ipv4" address list "/192.168.100.[0-9/]+" on device "eth11"
     Then Check "ipv4" address list "/192.168.101.[0-9/]+ 172.31.176.250/20 172.31.17.250/20" on device "eth12" in "5" seconds
     Then Check "ipv4" address list "/192.168.102.[0-9/]+ 172.31.176.251/20 172.31.17.251/20" on device "eth13" in "5" seconds
-    * Commentary
-      """
-      The order of rules should match the order in the step * Mock EC2 device ...
-      In this case, *.251 and then *.250 (eth13 and then eth12)
-      If this is not true in future versions, the check for order can be skipped.
-      """
     Then "172.31.176.251 .*172.31.176.250 .*172.31.176.251 .*172.31.176.250" is visible with command "ip rule"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "eth11=<noted:eth11>;eth12=<noted:eth12>;eth13=<noted:eth13>" in background
     * Expect "<debug> config device [0-9A-Fa-f:]*: reapply" in children in "20" seconds and kill
