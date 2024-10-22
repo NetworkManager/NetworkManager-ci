@@ -276,7 +276,7 @@ get_online_state() {
 }
 
 get_centos_pkg_release() {
-    DISTRO="el$(awk -F ' ' '{print $NF}' /etc/redhat-release)"
+    DISTRO="el$(grep -o 'release [0-9]*' /etc/redhat-release | grep -o '[0-9]*')"
     VER=$(curl -s $1/ | \
            grep $DISTRO | \
            grep 'a href' | \

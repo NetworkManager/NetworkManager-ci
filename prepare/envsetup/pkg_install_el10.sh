@@ -37,7 +37,21 @@ install_el10_packages () {
 
     # Install util-linux deps to avoid RHEL-32647
     PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
-    PKGS_INSTALL="$PKGS_INSTALL openvswitch"
+
+    # Install centos deps
+    if grep -q -e 'CentOS' /etc/redhat-release; then
+        # OVS deps and GSM perl deps
+        POLICY_VER=$(get_centos_pkg_release "$CBSC/openvswitch-selinux-extra-policy/1.0/")
+        OVS_VER=$(get_centos_pkg_release "$CBSC/openvswitch3.4/3.4.0/")
+        PERL_VER=$(get_centos_pkg_release "$KHUB/perl-IO-Tty/1.20/")
+        PKGS_INSTALL="$PKGS_INSTALL \
+            $CBSC/openvswitch3.4/3.4.0/$OVS_VER/$(arch)/openvswitch3.4-3.4.0-$OVS_VER.$(arch).rpm \
+            $CBSC/openvswitch-selinux-extra-policy/1.0/$POLICY_VER/noarch/openvswitch-selinux-extra-policy-1.0-$POLICY_VER.noarch.rpm \
+            $KHUB/perl-IO-Tty/1.20/$PERL_VER/$(arch)/perl-IO-Tty-1.20-$PERL_VER.$(arch).rpm"
+    else
+        cp -f  contrib/ovs/ovs-rhel10.repo /etc/yum.repos.d/ovs.repo
+        PKGS_INSTALL="$PKGS_INSTALL openvswitch3.3*"
+    fi
 
     # Install vpn dependencies - we need NM-openvpn-gnome for 2FA tests
     PKGS_INSTALL="$PKGS_INSTALL \
