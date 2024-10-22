@@ -19,9 +19,8 @@ install_el10_packages () {
 
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
-        ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate \
-        python3-pyyaml rpm-build sos wireguard-tools systemd-resolved dbus-tools \
-        dbus-daemon"
+        ModemManager file initscripts perl-IO-Tty python3-libnmstate python3-pyyaml \
+        rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon"
 
     # Install non distro deps
     # TODO install from epel once epel-10 is live
@@ -31,7 +30,10 @@ install_el10_packages () {
 
     # Non ditro deps - not even in epel
     PKGS_INSTALL="$PKGS_INSTALL \
-        $KOJI/rp-pppoe/4.0/4.fc40/$(arch)/rp-pppoe-4.0-4.fc40.$(arch).rpm"
+        $KOJI/rp-pppoe/4.0/4.fc40/$(arch)/rp-pppoe-4.0-4.fc40.$(arch).rpm \
+        $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-client-4.4.3-13.P1.fc40.$(arch).rpm \
+        $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-server-4.4.3-13.P1.fc40.$(arch).rpm \
+        $KOJI/dhcp/4.4.3/13.P1.fc40/noarch/dhcp-common-4.4.3-13.P1.fc40.noarch.rpm"
 
     # Install util-linux deps to avoid RHEL-32647
     PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
