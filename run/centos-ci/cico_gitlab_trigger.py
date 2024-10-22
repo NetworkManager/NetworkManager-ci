@@ -373,6 +373,8 @@ def get_rebuild_detail(gt, message, overrides={}):
                 os_version.add("8-stream")
             elif os_alias in ["c9s", "centos9-stream"]:
                 os_version.add("9-stream")
+            elif os_alias in ["c10s", "centos10-stream"]:
+                os_version.add("10-stream")
             else:
                 os_version.add("unknown")
         elif line.strip().lower().startswith("@runfeature"):
@@ -455,6 +457,9 @@ def process_request(data, content):
         elif comment.lower().startswith("rebuild"):
             comment = comment.lower().replace("rebuild", "", 1).strip()
             if comment == "":
+                execute_build(gt, content, **params)
+            elif comment in ["centos10-stream", "c10s"]:
+                params["os_version"] = ["10-stream"]
                 execute_build(gt, content, **params)
             elif comment in ["centos9-stream", "c9s"]:
                 params["os_version"] = ["9-stream"]
