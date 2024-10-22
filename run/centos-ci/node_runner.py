@@ -213,11 +213,15 @@ class Machine:
         self._wait_for_machine()
         self._update()
         self.ssh(f"mkdir -p {self.results_internal}")
-        # enable repos
-        dnf_install = "dnf -y install https://dl.fedoraproject.org/pub/epel/"
-        dnf_package = f"epel{{,-next}}-release-latest-{self.release_num}.noarch.rpm"
-        dnf = dnf_install + dnf_package
-        self.ssh(dnf)
+        release = self.release_num
+        dnf_install = "dnf -y install"
+        if int(release) == 9:
+            dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{release}.noarch.rpm"
+        else:
+            # TODO - fix when final rpm is release
+            dnf_package = "https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/e/epel-release-10-2.el10_0.noarch.rpm"
+        # enable epel repos
+        self.ssh(f"{dnf_install} {dnf_package}")
         # For some reason names can differ, so enable both powertools
         self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
         self.ssh("yum config-manager --set-enabled PowerTools", check=False)
