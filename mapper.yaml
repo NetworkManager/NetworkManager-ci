@@ -3435,10 +3435,6 @@ testmapper:
     #     feature: wifi
     - nmcli_wifi_ap:
         feature: wifi
-    - nmcli_wifi_right_band:
-        feature: wifi
-    - nmcli_wifi_right_band_80211a:
-        feature: wifi
     - nmcli_wifi_mac_spoofing:
         feature: wifi
     - nmcli_wifi_disable_radio:

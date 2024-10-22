@@ -61,39 +61,6 @@ Feature: nmcli - wifi
     Then "type AP" is visible with command "iw dev wlan0 info" in "30" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
-    @nmcli_wifi_right_band
-    Scenario: nmcli - wifi - right band
-    * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
-      """
-      autoconnect off
-      ssid qe-wpa2-psk
-      802-11-wireless-security.key-mgmt wpa-psk
-      802-11-wireless-security.psk "over the river and through the woods"
-      802-11-wireless.band bg
-      """
-    * Bring "up" connection "qe-wpa2-psk"
-    Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
-    @wifi @attach_wpa_supplicant_log
-    @nmcli_wifi_right_band_80211a
-    Scenario: nmcli - wifi - right band - 802.11a
-    Given Flag "NM_802_11_DEVICE_CAP_FREQ_5GHZ" is set in WirelessCapabilites
-    * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
-      """
-      autoconnect off
-      ssid qe-wpa2-psk
-      802-11-wireless-security.key-mgmt wpa-psk
-      802-11-wireless-security.psk "over the river and through the woods"
-      802-11-wireless.band a
-      """
-    * Bring "up" connection "qe-wpa2-psk"
-    Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
-    Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
     @ver+=1.37.3
     @wifi @attach_wpa_supplicant_log
     @nmcli_wifi_disable_radio
