@@ -762,7 +762,8 @@ class Runner:
     def _post_results(self, message=None):
         if not message:
             message = self._gitlab_message
-        message = f"{self.build_url}\n\n{message}"
+        if hasattr(self, "build_url"):
+            message = f"{self.build_url}\n\n{message}"
         if self.gitlab:
             if self.gitlab.repository == "NetworkManager-ci":
                 try:
