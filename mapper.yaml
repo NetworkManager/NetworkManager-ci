@@ -3415,13 +3415,17 @@ testmapper:
   NetworkManager-wifi:
     - nmcli_wifi_wpa2_peap_mschapv2:
         feature: wifi
-    - nmcli_wifi_wpa2_tls:
+    - nmcli_wifi_wpa2_tls_2.4g:
+        feature: wifi
+    - nmcli_wifi_wpa2_tls_5g:
         feature: wifi
     - nmcli_wifi_wpa2_ttls_mschapv2:
         feature: wifi
     - nmcli_wifi_wpa3_peap_mschapv2:
         feature: wifi
-    - nmcli_wifi_wpa3_tls:
+    - nmcli_wifi_wpa3_tls_2.4g:
+        feature: wifi
+    - nmcli_wifi_wpa3_tls_5g:
         feature: wifi
     - nmcli_wifi_wpa3_ttls_mschapv2:
         feature: wifi
@@ -3447,9 +3451,13 @@ testmapper:
         feature: wifi
     - nmcli_wifi_wpa2hidden_psk:
         feature: wifi
-    - nmcli_wifi_wpa2_psk:
+    - nmcli_wifi_wpa2_psk_2.4g:
         feature: wifi
-    - nmcli_wifi_wpa3_psk:
+    - nmcli_wifi_wpa2_psk_5g:
+        feature: wifi
+    - nmcli_wifi_wpa3_psk_2.4g:
+        feature: wifi
+    - nmcli_wifi_wpa3_psk_5g:
         feature: wifi
     - nmcli_wifi_6e_wpa3_tls:
         feature: wifi

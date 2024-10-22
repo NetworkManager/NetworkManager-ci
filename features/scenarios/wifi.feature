@@ -203,7 +203,7 @@ Feature: nmcli - wifi
 
 
     @wifi @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa2_psk
+    @nmcli_wifi_wpa2_psk_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
       """
@@ -212,6 +212,7 @@ Feature: nmcli - wifi
       802-11-wireless-security.key-mgmt wpa-psk
       802-11-wireless-security.psk "over the river and through the woods"
       802-11-wireless-security.proto rsn
+      802-11-wireless.band bg
       """
     * Bring "up" connection "qe-wpa2-psk"
     Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
@@ -219,7 +220,24 @@ Feature: nmcli - wifi
 
 
     @wifi @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa3_psk
+    @nmcli_wifi_wpa2_psk_5g
+    Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
+    * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
+      """
+      autoconnect off
+      ssid qe-wpa2-psk
+      802-11-wireless-security.key-mgmt wpa-psk
+      802-11-wireless-security.psk "over the river and through the woods"
+      802-11-wireless-security.proto rsn
+      802-11-wireless.band a
+      """
+    * Bring "up" connection "qe-wpa2-psk"
+    Then "qe-wpa2-psk" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+
+
+    @wifi @attach_wpa_supplicant_log
+    @nmcli_wifi_wpa3_psk_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa3-psk" for device "wlan0" with options
       """
@@ -227,6 +245,25 @@ Feature: nmcli - wifi
       ssid qe-wpa3-psk
       802-11-wireless-security.key-mgmt sae
       802-11-wireless-security.psk "over the river and through the woods"
+      802-11-wireless.band bg
+
+      """
+    * Bring "up" connection "qe-wpa3-psk"
+    Then "qe-wpa3-psk" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa3-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+
+
+
+    @wifi @attach_wpa_supplicant_log
+    @nmcli_wifi_wpa3_psk_5g
+    Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
+    * Add "wifi" connection named "qe-wpa3-psk" for device "wlan0" with options
+      """
+      autoconnect off
+      ssid qe-wpa3-psk
+      802-11-wireless-security.key-mgmt sae
+      802-11-wireless-security.psk "over the river and through the woods"
+      802-11-wireless.band a
       """
     * Bring "up" connection "qe-wpa3-psk"
     Then "qe-wpa3-psk" is visible with command "iw dev wlan0 link"
@@ -254,7 +291,7 @@ Feature: nmcli - wifi
 
 
     @wifi @wireless_certs @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa2_tls
+    @nmcli_wifi_wpa2_tls_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
           """
@@ -267,6 +304,28 @@ Feature: nmcli - wifi
           802-1x.client-cert file:///tmp/certs/client.pem
           802-1x.private-key-password 12345testing
           802-1x.private-key file:///tmp/certs/client.pem
+          802-11-wireless.band bg
+          """
+    * Bring "up" connection "qe-wpa2-enterprise"
+    Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+
+
+    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @nmcli_wifi_wpa2_tls_5g
+    Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
+    * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa2-enterprise
+          802-11-wireless-security.key-mgmt wpa-eap
+          802-1x.eap tls
+          802-1x.identity "Bill Smith"
+          802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
+          802-1x.client-cert file:///tmp/certs/client.pem
+          802-1x.private-key-password 12345testing
+          802-1x.private-key file:///tmp/certs/client.pem
+          802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa2-enterprise"
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
@@ -316,7 +375,7 @@ Feature: nmcli - wifi
 
 
     @wifi @wireless_certs @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa3_tls
+    @nmcli_wifi_wpa3_tls_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
     # Wireless device does not support wpa3 enterprise
     * Skip if next step fails:
@@ -332,7 +391,31 @@ Feature: nmcli - wifi
           802-1x.client-cert file:///tmp/certs/client.pem
           802-1x.private-key-password 12345testing
           802-1x.private-key file:///tmp/certs/client.pem
-          802-11-wireless.channel 48
+          802-11-wireless.band bg
+          """
+    * Bring "up" connection "qe-wpa3-enterprise"
+    Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
+    Then "\*\s+qe-wpa3-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
+
+
+
+    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @nmcli_wifi_wpa3_tls_5g
+    Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
+    # Wireless device does not support wpa3 enterprise
+    * Skip if next step fails:
+    * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
+    * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
+          """
+          autoconnect off
+          ssid qe-wpa3-enterprise
+          802-11-wireless-security.key-mgmt wpa-eap-suite-b-192
+          802-1x.eap tls
+          802-1x.identity "Bill Smith"
+          802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
+          802-1x.client-cert file:///tmp/certs/client.pem
+          802-1x.private-key-password 12345testing
+          802-1x.private-key file:///tmp/certs/client.pem
           802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa3-enterprise"
