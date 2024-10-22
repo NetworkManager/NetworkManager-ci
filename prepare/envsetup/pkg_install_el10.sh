@@ -1,39 +1,9 @@
 install_el10_packages () {
-    # Enable EPEL but on s390x - not live yet, uncoment after release
-    #if ! uname -a |grep -q s390x; then
-    #    [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
-    #fi
+    # Enable EPEL but on s390x - 10 not live yet, change 9->10 when rpm is released
+    if ! uname -a |grep -q s390x; then
+        [ -f /etc/yum.repos.d/epel.repo ] || rpm -i https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/e/epel-release-10-2.el10_0.noarch.rpm
+    fi
 
-    # Enable fedora 40 repo with lower priority
-    # TODO remove when epel-10 is live
-    cat << EOF > /etc/yum.repos.d/fedora-40.repo
-[fedora]
-name=Fedora 40 - \$basearch
-#baseurl=http://download.example/pub/fedora/linux/releases/40/Everything/\$basearch/os/
-metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-40&arch=\$basearch
-enabled=1
-countme=1
-metadata_expire=7d
-repo_gpgcheck=0
-type=rpm
-gpgcheck=0
-skip_if_unavailable=False
-priority=100
-
-[updates]
-name=Fedora 40 - \$basearch - Updates
-#baseurl=http://download.example/pub/fedora/linux/updates/40/Everything/\$basearch/
-metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f40&arch=\$basearch
-enabled=1
-countme=1
-repo_gpgcheck=0
-type=rpm
-gpgcheck=0
-metadata_expire=6h
-skip_if_unavailable=False
-priority=100
-
-EOF
     dnf makecache
 
 
