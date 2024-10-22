@@ -233,82 +233,6 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa3-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    # @wifi @attach_wpa_supplicant_log
-    # @nmcli_wifi_wpa1_psk
-    # Scenario: nmcli - wifi-sec - configure and connect WPA1-PSK profile
-    # * Add "wifi" connection named "qe-wpa1-psk" for device "wlan0" with options
-    #   """
-    #   autoconnect off
-    #   ssid qe-wpa1-psk
-    #   802-11-wireless-security.key-mgmt wpa-psk
-    #   802-11-wireless-security.psk 'over the river and through the woods'
-    #   802-11-wireless-security.proto wpa
-    #   """
-    # * Bring "up" connection "qe-wpa1-psk"
-    # Then "qe-wpa1-psk" is visible with command "iw dev wlan0 link"
-    # Then "\*\s+qe-wpa1-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
-    # @wifi @wireless_certs @attach_wpa_supplicant_log
-    # @nmcli_wifi_wpa1_peap_mschapv2
-    # Scenario: nmcli - wifi-sec - configure and connect WPA1-PEAP profile
-    # * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
-    #       """
-    #       autoconnect off
-    #       ssid qe-wpa1-enterprise
-    #       802-11-wireless-security.key-mgmt wpa-eap
-    #       802-1x.eap peap
-    #       802-1x.phase2-autheap mschapv2
-    #       802-1x.identity 'Bill Smith'
-    #       802-1x.password testing123
-    #       802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
-    #       """
-    # * Wait for "1" seconds
-    # * Bring "up" connection "qe-wpa1-enterprise"
-    # Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
-    # Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
-    # @wifi @wireless_certs @attach_wpa_supplicant_log
-    # @nmcli_wifi_wpa1_tls
-    # Scenario: nmcli - wifi-sec - configure and connect WPA1-TLS profile
-    # * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
-    #       """
-    #       autoconnect off
-    #       ssid qe-wpa1-enterprise
-    #       802-11-wireless-security.key-mgmt wpa-eap
-    #       802-1x.eap tls
-    #       802-1x.identity 'Bill Smith'
-    #       802-1x.ca-cert 'file:///tmp/certs/eaptest_ca_cert.pem'
-    #       802-1x.client-cert 'file:///tmp/certs/client.pem'
-    #       802-1x.private-key-password '12345testing'
-    #       802-1x.private-key 'file:///tmp/certs/client.pem'
-    #       """
-    # * Wait for "1" seconds
-    # * Bring "up" connection "qe-wpa1-enterprise"
-    # Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
-    # Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
-    # @wifi @wireless_certs @attach_wpa_supplicant_log
-    # @nmcli_wifi_wpa1_ttls_mschapv2
-    # Scenario: nmcli - wifi-sec - configure and connect WPA1-TTLS profile
-    # * Add "wifi" connection named "qe-wpa1-enterprise" for device "wlan0" with options
-    #       """
-    #       autoconnect off
-    #       ssid qe-wpa1-enterprise
-    #       802-11-wireless-security.key-mgmt wpa-eap
-    #       802-1x.eap ttls
-    #       802-1x.phase2-auth mschapv2
-    #       802-1x.identity "Bill Smith"
-    #       802-1x.password testing123
-    #       802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
-    #       """
-    # * Bring "up" connection "qe-wpa1-enterprise"
-    # Then "qe-wpa1-enterprise" is visible with command "iw dev wlan0 link"
-    # Then "\*\s+qe-wpa1-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
-
     @wifi @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_peap_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PEAP profile
@@ -326,7 +250,7 @@ Feature: nmcli - wifi
     * Bring "up" connection "qe-wpa2-enterprise"
     Then "qe-wpa2-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-    Then "inet 1" is visible with command "ip a s wlan0"
+    Then "inet 1" is visible with command "ip a s wlan0" in "20" seconds
 
 
     @wifi @wireless_certs @attach_wpa_supplicant_log
@@ -388,7 +312,7 @@ Feature: nmcli - wifi
     * Bring "up" connection "qe-wpa3-enterprise"
     Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-    Then "inet 1" is visible with command "ip a s wlan0"
+    Then "inet 1" is visible with command "ip a s wlan0" in "20" seconds
 
 
     @wifi @wireless_certs @attach_wpa_supplicant_log
