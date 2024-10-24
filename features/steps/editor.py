@@ -109,7 +109,7 @@ def check_saved_in_editor(context):
     context.prompt.expect("successfully")
 
 
-@step('Delete connection "{name}" and hit enter')
+@step('Delete connection "{name}" and hit Enter')
 def delete_connection_with_enter(context, name):
     assert context.command_code("nmcli connection delete id %s" % name) == 0
     time.sleep(5)

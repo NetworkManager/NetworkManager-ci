@@ -28,7 +28,7 @@ Feature: nmcli - ethernet
     * Check value saved message showed in editor
     * Note the "connection.id" property from editor print output
     * Quit editor
-    Then noted value is visible with command "nmcli con show"
+    Then Noted value is visible with command "nmcli con show"
 
 
 

@@ -1768,7 +1768,7 @@
     * Execute "for if in testX6p dhcpp dupp br0 ; do ip -n testX6_ns link set $if up ; done"
     # block communication between duplicate address device and dnsmasq so that dnsmasq
     # can't be aware of conflict
-    * Load nftables in "testX6_ns" namespace:
+    * Load nftables in "testX6_ns" namespace
         """
         table bridge filter {
           chain forward {
