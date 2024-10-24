@@ -8,7 +8,7 @@ install_el8_packages () {
     cp install/mptcpd-el8/mptcpd-el8.repo /etc/yum.repos.d/
 
     # install python3.11
-    PKGS_INSTALL="$PKGS_INSTALL python3.11 python3.11-pip"
+    PKGS_INSTALL="$PKGS_INSTALL python3.11 python3.11-pip python3.11-devel"
 
     # Needed for gsm_sim
     PKGS_INSTALL="$PKGS_INSTALL \
@@ -21,8 +21,8 @@ install_el8_packages () {
     dnf copr enable -y nmstate/nmstate-git
 
     # Dnf more deps
-    PKGS_INSTALL="$PKGS_INSTALL bzip2 coreutils-debuginfo file haveged openvpn python3.11-pyyaml"
-
+    PKGS_INSTALL="$PKGS_INSTALL bzip2 coreutils-debuginfo file haveged openvpn python3.11-pyyaml \
+        systemd-devel cairo-devel cairo-gobject-devel gobject-introspection-devel dbus-devel"
 
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
@@ -134,6 +134,10 @@ install_el8_packages () {
 
     # Additional PIP packages
     python3l -m pip install netaddr==0.10.1
+    python3l -m pip install pycairo==0.16.3
+    python3l -m pip install pygobject==3.40.0
+    python3l -m pip install systemd==0.17.1
+    python3l -m pip install dbus-python==1.3.2
 
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
