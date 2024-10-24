@@ -9,6 +9,8 @@ MBOX="https://koji.mbox.centos.org/pkgs/packages"
 fix_python3_link() {
     rm -f /usr/bin/python
     ln -s `which python3` /usr/bin/python
+    rm -f /usr/bin/python3l
+    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
 }
 
 

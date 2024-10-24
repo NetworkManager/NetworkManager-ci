@@ -70,8 +70,7 @@ install_common_packages () {
     cp -ar /etc/raddb/ /tmp/nmci-raddb/
 
     # installing python3-* package causes removal of /usr/bin/python
-    ln -s `which python3` /usr/bin/python
-    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
+    fix_python3_link
 
     install_behave_pytest
 
