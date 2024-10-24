@@ -133,6 +133,11 @@ function setup_veth_env ()
     else
         # Backup original nmconnection file
         FILE="$(nmcli -f FILENAME,DEVICE,ACTIVE -t connection |grep "$DEV:yes" | sed "s/:$DEV:yes//")"
+        # Make sure interface-name is set
+        if ! grep -q interface-name "$FILE"; then
+            CON_NAME="$(grep ^id= "$FILE" | sed 's/^id=//')"
+            nmcli con mod id "$CON_NAME" ifname "$DEV"
+        fi
         nmcli device disconnect $DEV 2>&1 > /dev/null
         if [ ! -e /tmp/$DEV.nmconnection ]; then
             mv $FILE /tmp/$DEV.nmconnection
