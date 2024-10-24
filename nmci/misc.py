@@ -15,7 +15,8 @@ except ModuleNotFoundError:
         warnings.warn(
             "ModuleNotFoundError: systemd.journal module is missing", UserWarning
         )
-        pass
+    else:
+        raise
 
 
 import nmci
@@ -1120,7 +1121,7 @@ class _Misc:
             journal by specifiying '-t ID' or 'SYSLOG_IDENTIFIER=ID'. Defaults to 'nmci'
         """
         journal.send(
-            prefix + msg,
+            MESSAGE=prefix + msg,
             priority=priority,
             SYSLOG_IDENTIFIER=SYSLOG_IDENTIFIER,
             MESSAGE_ID=MESSAGE_ID,
