@@ -84,8 +84,8 @@ install_fedora_packages () {
     install_common_packages
 
     # Additional PIP packages
-    python -m pip install netaddr
-    python -m pip install --upgrade --force pyyaml
+    python3l -m pip install netaddr
+    python3l -m pip install --upgrade --force pyyaml
 
     # Make device mac address policy behave like old one
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/

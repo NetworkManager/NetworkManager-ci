@@ -1,15 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3l
 
 # A service that mocks up various metadata providers. Used for testing,
 # can also be used standalone as a development aid.
 #
 # To run standalone:
 #
-# run:     $ systemd-socket-activate -l 8000 python tools/test-cloud-meta-mock.py &
+# run:     $ systemd-socket-activate -l 8000 python3l tools/test-cloud-meta-mock.py &
 #          $ NM_CLOUD_SETUP_EC2_HOST=http://localhost:8000 \
 #            NM_CLOUD_SETUP_LOG=trace \
 #            NM_CLOUD_SETUP_EC2=yes src/nm-cloud-setup/nm-cloud-setup
-# or just: $ python tools/test-cloud-meta-mock.py
+# or just: $ python3l tools/test-cloud-meta-mock.py
 #
 # By default, the utility will server some resources for each known cloud
 # providers, for convenience. The tests start this with "--empty" argument,

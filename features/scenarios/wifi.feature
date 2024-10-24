@@ -489,7 +489,7 @@ Feature: nmcli - wifi
     @wifi @ifcfg-rh
     @nmcli_wifi_add_certificate_as_blob_saved
     Scenario: nmcli - wifi - save certificate blob
-    * Execute "/usr/bin/python contrib/dbus/dbus-set-wifi-tls-blob.py Saved"
+    * Execute "/usr/bin/python3l contrib/dbus/dbus-set-wifi-tls-blob.py Saved"
     Then "802-1x.client-cert:\s+/etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der" is visible with command "nmcli connection show wifi-wlan0"
     And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der"
     And "802-1x.private-key:\s+/etc/sysconfig/network-scripts/wifi-wlan0-private-key.pem" is visible with command "nmcli connection show wifi-wlan0"

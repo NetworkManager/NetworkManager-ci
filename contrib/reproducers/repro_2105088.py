@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3l
 
 # Reproducer for:
 #   https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/993

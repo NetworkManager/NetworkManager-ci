@@ -224,7 +224,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - set autoconnect on without autoconnecting
      * Add "ethernet" connection named "con_con2" for device "eth5" with options "autoconnect no"
      When "con_con2" is visible with command "nmcli con"
-     * Execute "/usr/bin/python contrib/reproducers/repro_1401515.py" without waiting for process to finish
+     * Execute "/usr/bin/python3l contrib/reproducers/repro_1401515.py" without waiting for process to finish
      Then "yes" is visible with command "nmcli connection show con_con2 |grep autoconnect:" in "5" seconds
      Then "con_con" is not visible with command "nmcli -t -f NAME  connection show -a" in "3" seconds
 
@@ -726,7 +726,7 @@ Feature: nmcli: connection
     @eth5_disconnect
     @introspection_active_connection
     Scenario: introspection - check active connections
-     * Execute "/usr/bin/python contrib/gi/network_check.py testeth5 > /tmp/test"
+     * Execute "/usr/bin/python3l contrib/gi/network_check.py testeth5 > /tmp/test"
      When "testeth5" is visible with command "nmcli con s -a"
      Then "Active connections before: 1" is visible with command "cat /tmp/test"
       And "Active connections after: 2.*Active connections after: 2" is visible with command "cat /tmp/test"
@@ -737,14 +737,14 @@ Feature: nmcli: connection
     @connection_user_settings_data
     Scenario: NM - connection - user settings data
     * Add "ethernet" connection named "con_con" for device "testXc" with options "autoconnect no"
-    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con my.own.data good_morning_starshine"
-    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
-    When "good_morning_starshine" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py get id con_con my.own.data"
-     And "the_moon_says_hello" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py get id con_con my.own.data.two"
-    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con -d my.own.data"
-    * Execute "/usr/bin/python contrib/gi/setting-user-data.py set id con_con -d my.own.data.two"
-    Then "[none]|[0]" is visible with command "/usr/bin/python contrib/gi/setting-user-data.py id con_con"
-     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "/usr/bin/python contrib/gi/setting-user-data.py id con_con" in "5" seconds
+    * Execute "/usr/bin/python3l contrib/gi/setting-user-data.py set id con_con my.own.data good_morning_starshine"
+    * Execute "/usr/bin/python3l contrib/gi/setting-user-data.py set id con_con my.own.data.two the_moon_says_hello"
+    When "good_morning_starshine" is visible with command "/usr/bin/python3l contrib/gi/setting-user-data.py get id con_con my.own.data"
+     And "the_moon_says_hello" is visible with command "/usr/bin/python3l contrib/gi/setting-user-data.py get id con_con my.own.data.two"
+    * Execute "/usr/bin/python3l contrib/gi/setting-user-data.py set id con_con -d my.own.data"
+    * Execute "/usr/bin/python3l contrib/gi/setting-user-data.py set id con_con -d my.own.data.two"
+    Then "[none]|[0]" is visible with command "/usr/bin/python3l contrib/gi/setting-user-data.py id con_con"
+     And "\"my.own.data\" = \"good_morning_starshine\"|\"my.own.data.two\" = \"the_moon_says_hello\"" is not visible with command "/usr/bin/python3l contrib/gi/setting-user-data.py id con_con" in "5" seconds
 
 
     @rhbz1448165

@@ -10,33 +10,36 @@ install_el7_packages () {
     yum -y install python3 python3-pip
     yum -y install gcc
 
+    # installing python3-* package causes removal of /usr/bin/python
+    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
 
-    python -m pip install --upgrade pip
-    python -m pip install setuptools --upgrade
-    python -m pip install pexpect
-    python -m pip install pyroute2
-    python -m pip install netaddr
-    python -m pip install IPy
-    python -m pip install python-dbusmock==0.26.1
-    python -m pip install pyte
-    python -m pip install pyyaml
-    python -m pip install systemd
+
+    python3l -m pip install --upgrade pip
+    python3l -m pip install setuptools --upgrade
+    python3l -m pip install pexpect
+    python3l -m pip install pyroute2
+    python3l -m pip install netaddr
+    python3l -m pip install IPy
+    python3l -m pip install python-dbusmock==0.26.1
+    python3l -m pip install pyte
+    python3l -m pip install pyyaml
+    python3l -m pip install systemd
 
 
     # install dbus-python3 for s390x via pip
     if uname -a |grep -q s390x; then
         yum -y install \
         python3-devel cairo-gobject-devel pygobject3-devel cairo-devel cairo pycairo
-        python3 -m pip install dbus-python
-        python3 -m pip install PyGObject
-        python3 -m pip install scapy
+        python3l -m pip install dbus-python
+        python3l -m pip install PyGObject
+        python3l -m pip install scapy
     fi
 
     yum -y install \
         git iw net-tools wireshark psmisc bridge-utils firewalld dhcp ethtool \
         python36-dbus python36-gobject dnsmasq NetworkManager-vpnc iproute-tc \
         openvpn rp-pppoe s390utils-base valgrind ModemManager usb_modeswitch \
-        usbutils jq httpd libselinux-python python-inotify \
+        usbutils jq httpd libselinux-python3l python-inotify \
         --skip-broken
 
     # freeradius

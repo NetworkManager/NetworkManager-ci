@@ -7,6 +7,9 @@ install_el8_packages () {
     # Add mptcpd repo
     cp install/mptcpd-el8/mptcpd-el8.repo /etc/yum.repos.d/
 
+    # install python3.11
+    PKGS_INSTALL="$PKGS_INSTALL python3.11 python3.11-pip"
+
     # Needed for gsm_sim
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/perl-IO-Pty-Easy/0.10/5.fc28/noarch/perl-IO-Pty-Easy-0.10-5.fc28.noarch.rpm \
@@ -18,7 +21,7 @@ install_el8_packages () {
     dnf copr enable -y nmstate/nmstate-git
 
     # Dnf more deps
-    PKGS_INSTALL="$PKGS_INSTALL bzip2 coreutils-debuginfo file haveged openvpn python3-pyyaml"
+    PKGS_INSTALL="$PKGS_INSTALL bzip2 coreutils-debuginfo file haveged openvpn python3.11-pyyaml"
 
 
     # Install vpn dependencies
@@ -126,15 +129,11 @@ install_el8_packages () {
     PKGS_UPGRADE="$PKGS_UPGRADE \
         https://vbenes.fedorapeople.org/NM/NetworkManager-libreswan-1.2.10-4.1.rhel13123.1.el8.x86_64.rpm"
 
-    # Workaround for broken urllib3 and six in 8.8
-    python -m pip uninstall urllib3 six -y
-    python -m pip install --prefix=/usr urllib3 six==1.15.0
-
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
     # Additional PIP packages
-    python -m pip install netaddr==0.10.1
+    python3l -m pip install netaddr==0.10.1
 
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY

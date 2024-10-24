@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 When report_.*html file is created in /tmp, it will be copied to httpd DocumentRoot
 with a file modification time stamp appended and FAIL_ or EMPTY_ prepended to the

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3l
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 # Copyright (C) 2017 Red Hat, Inc.

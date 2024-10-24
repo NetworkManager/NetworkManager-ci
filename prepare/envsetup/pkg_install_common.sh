@@ -70,7 +70,8 @@ install_common_packages () {
     cp -ar /etc/raddb/ /tmp/nmci-raddb/
 
     # installing python3-* package causes removal of /usr/bin/python
-    fix_python3_link
+    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
+
     install_behave_pytest
 
     # Let's remove blacklist and load sch_netem for later usage
@@ -78,11 +79,11 @@ install_common_packages () {
     modprobe sch_netem
 
     # Install common pip packages
-    python -m pip install --upgrade pip
-    python -m pip install pyroute2
-    python -m pip install pexpect
-    python -m pip install pyte
-    python -m pip install IPy
-    python -m pip install python-dbusmock
-    python -m pip install psutil
+    python3l -m pip install --upgrade pip
+    python3l -m pip install pyroute2
+    python3l -m pip install pexpect
+    python3l -m pip install pyte
+    python3l -m pip install IPy
+    python3l -m pip install python-dbusmock
+    python3l -m pip install psutil
 }
