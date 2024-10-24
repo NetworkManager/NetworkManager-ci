@@ -91,6 +91,10 @@ def _before_scenario(context, scenario):
     context.arch = nmci.process.run_stdout(
         "arch", embed_combine_tag=nmci.embed.NO_EMBED
     ).strip()
+    effective_tags = scenario.effective_tags
+    if not isinstance(effective_tags, list):
+        effective_tags = set(effective_tags) - set(scenario.tags)
+        effective_tags = list(effective_tags) + scenario.tags
     context.IS_NMTUI = "nmtui" in scenario.effective_tags
     with open("/etc/redhat-release") as release_f:
         context.rh_release = release_f.read()
@@ -101,7 +105,7 @@ def _before_scenario(context, scenario):
     # skip on invalid version - this shuld not happen but is handy when executing multiple tests in single report
     if (
         nmci.misc.test_tags_match_version(
-            scenario.tags, nmci.misc.nm_version_detect(), nmci.misc.distro_detect()
+            effective_tags, nmci.misc.nm_version_detect(), nmci.misc.distro_detect()
         )
         is None
     ):
@@ -135,13 +139,13 @@ def _before_scenario(context, scenario):
     else:
         nmci.embed.embed_avcs("on this system so far")
 
-    if "dump_status_verbose" in scenario.tags:
+    if "dump_status_verbose" in effective_tags:
         nmci.util.dump_status_verbose = True
 
     # dump status before the test preparation starts
     nmci.util.dump_status("Before Scenario")
 
-    nmci.embed.set_title(f"NMCI: {scenario.tags[-1]}")
+    nmci.embed.set_title(f"NMCI: {effective_tags[-1]}")
 
     if context.IS_NMTUI:
         nmci.process.run_code("pkill nmtui", ignore_stderr=True)
@@ -171,11 +175,11 @@ def _before_scenario(context, scenario):
 
     excepts = []
     if (
-        "eth0" in scenario.tags
-        or "delete_testeth0" in scenario.tags
-        or "connect_testeth0" in scenario.tags
-        or "restart" in scenario.tags
-        or "dummy" in scenario.tags
+        "eth0" in effective_tags
+        or "delete_testeth0" in effective_tags
+        or "connect_testeth0" in effective_tags
+        or "restart" in effective_tags
+        or "dummy" in effective_tags
     ):
         try:
             nmci.tags.skip_restarts_bs(context, scenario)
@@ -184,7 +188,7 @@ def _before_scenario(context, scenario):
         except Exception as e:
             excepts.append(str(e))
 
-    for tag_name in scenario.tags:
+    for tag_name in effective_tags:
         if context.cext.scenario_skipped:
             break
         tag = nmci.tags.tag_registry.get(tag_name, None)
@@ -483,15 +487,6 @@ def _after_scenario(context, scenario):
     assert not excepts, "Exceptions in after scenario:\n\n" + "\n\n".join(excepts)
 
     return status
-
-
-def after_tag(context, tag):
-    if tag == "nmtui":
-        context.IS_NMTUI = True
-    if context.IS_NMTUI:
-        if tag in ("vlan", "bridge", "bond", "team", "inf"):
-            if hasattr(context, "is_virtual"):
-                context.is_virtual = False
 
 
 def after_all(context):
