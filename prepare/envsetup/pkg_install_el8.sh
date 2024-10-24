@@ -136,6 +136,7 @@ install_el8_packages () {
     python3l -m pip install netaddr==0.10.1
     python3l -m pip install pycairo==0.16.3
     python3l -m pip install pygobject==3.40.0
+    python3l -m pip install systemd==0.17.1
 
     # Make crypto policies a bit less strict
     update-crypto-policies --set LEGACY
