@@ -22,7 +22,7 @@ install_el8_packages () {
 
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL bzip2 coreutils-debuginfo file haveged openvpn python3.11-pyyaml \
-        systemd-devel cairo-devel"
+        systemd-devel cairo-devel cairo-gobject-devel gobject-introspection-devel"
 
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
