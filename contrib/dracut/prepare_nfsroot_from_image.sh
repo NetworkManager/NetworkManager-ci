@@ -27,7 +27,13 @@ if [ "$ID" == rhel ]; then
 elif [ "$ID" == centos ]; then
     link=https://cloud.centos.org/centos/$VERSION_ID-stream/$(arch)/images/
     # grep out GenericCloud-x86_64-9-latest.x86_64.qcow2
-    link="$link$(get_all "$link" | grep latest | grep "GenericCloud-$VERSION_ID" | grep 'qcow2$' )"
+    img="$(get_all "$link" | grep latest | grep "GenericCloud-$VERSION_ID" | grep 'qcow2$' )"
+    if [ -z "$img" ]; then
+        link=https://kojihub.stream.centos.org/kojifiles/vol/koji02/packages/CentOS-Stream-GenericCloud/$VERSION_ID/
+        link="$link$(get_all "$link" | sort | tail -n 1)/images/"
+        img="$(get_all "$link" | grep "GenericCloud-$VERSION_ID" | grep $(arch) | grep 'qcow2$' )"
+    fi
+    link="$link$img"
 elif [ "$ID" == fedora ]; then
     VERSION_ID2="$VERSION_ID"
     [[ "$VERSION" == *"Rawhide"* ]] && VERSION_ID=rawhide && VERSION_ID2=Rawhide
@@ -76,11 +82,16 @@ if ! sha256sum $TESTDIR/root.qcow2 | grep -q "$SHA" ; then
 fi
 
 modprobe nbd max_part=8
-qemu-nbd --read-only --connect=/dev/nbd0 $TESTDIR/root.qcow2
+# nbd0 sometimes refuses to work (c10s), use nbd1 then
+nbd=/dev/nbd0
+if ! qemu-nbd --read-only --connect=$nbd $TESTDIR/root.qcow2; then
+    nbd=/dev/nbd1
+    qemu-nbd --read-only --connect=$nbd $TESTDIR/root.qcow2
+fi
 sleep 0.1
-fdisk /dev/nbd0 -l || (sleep 1; fdisk /dev/nbd0 -l; )
-part=$(fdisk /dev/nbd0 -l | grep "Linux \(filesystem\|root\)" | tail -n 1 | sed 's/ .*//')
-[ -z "$part" ] && part=$(fdisk /dev/nbd0 -l | grep "Linux" | tail -n 1 | sed 's/ .*//')
+fdisk $nbd -l || (sleep 1; fdisk $nbd -l; )
+part=$(fdisk $nbd -l | grep "Linux \(filesystem\|root\)" | tail -n 1 | sed 's/ .*//')
+[ -z "$part" ] && part=$(fdisk $nbd -l | grep "Linux" | tail -n 1 | sed 's/ .*//')
 
 mkdir -p $TESTDIR/qcow
 # mount with many options:
@@ -102,7 +113,7 @@ rsync -a $TESTDIR/qcow/ $initdir || echo "WARNING! rsync to nfsroot failed!"
 # umount twice, there might be also bind
 umount $TESTDIR/qcow
 umount $TESTDIR/qcow
-qemu-nbd --disconnect /dev/nbd0
+qemu-nbd --disconnect $nbd
 
 # remove qcow, if not enough space for 2 iSCSI images, +1000M safatey margin for installed NM and kernel later on
 df=$(df -m --output=avail $TESTDIR | tail -n 1)
