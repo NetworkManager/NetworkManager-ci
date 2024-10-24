@@ -33,6 +33,7 @@ install_el10_packages () {
         $KOJI/rp-pppoe/4.0/4.fc40/$(arch)/rp-pppoe-4.0-4.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-client-4.4.3-13.P1.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-server-4.4.3-13.P1.fc40.$(arch).rpm \
+        $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-relay-4.4.3-13.P1.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/noarch/dhcp-common-4.4.3-13.P1.fc40.noarch.rpm"
 
     # Install util-linux deps to avoid RHEL-32647
