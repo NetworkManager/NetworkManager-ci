@@ -29,7 +29,7 @@ dry=0
 shift
 
 echo "The following tests are going to be executed:"
-tests="$(python3 -m nmci mapper_feature "$feature" "$testmapper" name)"
+tests="$(python3l -m nmci mapper_feature "$feature" "$testmapper" name)"
 echo "$tests" | \
   nl --number-width=4 --starting-line-number=0 --number-format=rz --number-separator=" "
 

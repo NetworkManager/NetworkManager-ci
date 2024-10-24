@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3l
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 import os

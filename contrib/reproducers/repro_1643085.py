@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3l
 # all credits to Gris Ge https://bugzilla.redhat.com/show_bug.cgi?id=1642625#c11
 from subprocess import check_call
 import sys

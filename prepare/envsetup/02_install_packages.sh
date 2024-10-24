@@ -1,7 +1,7 @@
 install_packages () {
     if ! test -f /tmp/nm_packages_installed; then
-        /usr/bin/python3 -V || yum -y install python3
-        /usr/bin/python3 -m pip &> /dev/null || yum -y install python3-pip
+        /usr/bin/python3l -V || yum -y install python3
+        /usr/bin/python3l -m pip &> /dev/null || yum -y install python3-pip
         if ! [ -e /usr/bin/debuginfo-install ]; then
             yum -y install /usr/bin/debuginfo-install
         fi

@@ -117,7 +117,7 @@ install_el9_packages () {
     install_common_packages
 
     # Aditional PIP packages
-    python -m pip install netaddr
+    python3l -m pip install netaddr
 
     # Disable mac radnomization
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/

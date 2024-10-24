@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3l
 # behave steps for GUI projects
 #
 # How to configure GUI project:

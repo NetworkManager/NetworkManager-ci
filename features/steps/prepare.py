@@ -1187,7 +1187,7 @@ def libreswan_ng_setup(context):
 
     # We need to run this and expect "env ready" message
     context.ipsec_proc = nmci.pexpect.pexpect_service(
-        f"python3 contrib/ipsec/ipsec_setup.py",
+        f"python3l contrib/ipsec/ipsec_setup.py",
         shell=True,
     )
 

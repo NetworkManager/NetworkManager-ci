@@ -1037,7 +1037,7 @@ Feature: nmcli - general
     @ver+=1.5
     @nmcli_device_wifi_with_two_devices
     Scenario: nmcli - device - wifi show two devices
-    * Execute "cd contrib/dbus; python3 -m unittest dbusmock-unittest.TestNetworkManager.test_two_wifi_with_accesspoints"
+    * Execute "cd contrib/dbus; python3l -m unittest dbusmock-unittest.TestNetworkManager.test_two_wifi_with_accesspoints"
 
 
     @rhbz1114681
@@ -1223,7 +1223,7 @@ Feature: nmcli - general
     @nmcli_general_dbus_set_gateway
     Scenario: nmcli - general - dbus api gateway setting
     * Cleanup connection "con_general"
-    * Execute "/usr/bin/python contrib/dbus/dbus-set-gw.py"
+    * Execute "/usr/bin/python3l contrib/dbus/dbus-set-gw.py"
     Then "ipv4.gateway:\s+192.168.1.100" is visible with command "nmcli connection show con_general"
 
 
@@ -1828,9 +1828,9 @@ Feature: nmcli - general
     @general_nmclient_query_carrier
     Scenario: nmclient - general - query carrier
     * Execute "ip link set dev eth8 up"
-    When "True" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
+    When "True" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
     * Execute "ip link set dev eth8 down"
-    Then "False" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
+    Then "False" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
 
 
     # Tied to the bz, though these are not direct verifiers
@@ -3679,4 +3679,4 @@ Feature: nmcli - general
     Scenario: Execute dbusmock unittests
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
     * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
-    * Execute "cd .tmp/python-dbusmock; python -m pytest tests/test_networkmanager.py"
+    * Execute "cd .tmp/python-dbusmock; python3l -m pytest tests/test_networkmanager.py"

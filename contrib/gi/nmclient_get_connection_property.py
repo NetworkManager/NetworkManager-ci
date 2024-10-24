@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3l
 
 import sys
 import gi

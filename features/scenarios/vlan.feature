@@ -849,12 +849,12 @@ Feature: nmcli - vlan
           remote 1.2.3.1
           """
     * Execute "nmcli con up vlan1"
-    Then "70" is visible with command "/usr/bin/python contrib/gi/nmclient_get_connection_property.py vlan1 destination-port"
-    Then "30" is visible with command "/usr/bin/python contrib/gi/nmclient_get_connection_property.py vlan1 source-port-min"
-    Then "50" is visible with command "/usr/bin/python contrib/gi/nmclient_get_connection_property.py vlan1 source-port-max"
-    Then "70" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py vlan1 get_dst_port"
-    Then "30" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py vlan1 get_src_port_min"
-    Then "50" is visible with command "/usr/bin/python contrib/gi/nmclient_get_device_property.py vlan1 get_src_port_max"
+    Then "70" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_connection_property.py vlan1 destination-port"
+    Then "30" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_connection_property.py vlan1 source-port-min"
+    Then "50" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_connection_property.py vlan1 source-port-max"
+    Then "70" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py vlan1 get_dst_port"
+    Then "30" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py vlan1 get_src_port_min"
+    Then "50" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py vlan1 get_src_port_max"
 
 
     @rhbz1774074

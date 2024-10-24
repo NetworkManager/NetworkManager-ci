@@ -3118,7 +3118,7 @@ Feature: nmcli: ipv4
     # | -> DHCP Nak (from different server)
     # | -> DHCP Ack
     # And this prevented internal DHCP client from getting the ack.
-    * Execute "ip netns exec testX4_ns python contrib/reproducers/repro_2059673.py" without waiting for process to finish
+    * Execute "ip netns exec testX4_ns python3l contrib/reproducers/repro_2059673.py" without waiting for process to finish
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     * Bring "up" connection "con_ipv4"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "40" seconds
@@ -3147,7 +3147,7 @@ Feature: nmcli: ipv4
         | -> DHCP Offer    # Now the internal clients shows error "selecting lease failed: -131"
                            # and can't renew the lease
         """
-    * Run child "ip netns exec testX4_ns python contrib/reproducers/repro_2105088.py testX4p"
+    * Run child "ip netns exec testX4_ns python3l contrib/reproducers/repro_2105088.py testX4p"
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     * Bring "up" connection "con_ipv4"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds

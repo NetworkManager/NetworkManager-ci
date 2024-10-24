@@ -1744,7 +1744,7 @@
     Scenario: NM - bond - dbus api bond setting
     * Cleanup connection "bond0"
     * Cleanup device "nm-bond"
-    * Execute "/usr/bin/python contrib/dbus/dbus-set-bond.py"
+    * Execute "/usr/bin/python3l contrib/dbus/dbus-set-bond.py"
     Then "bond0.*bond\s+nm-bond" is visible with command "nmcli connection"
 
 
@@ -2288,28 +2288,28 @@
     @nmclient_bond_get_state_flags
     Scenario: nmclient - bond - get state flags
     * Add "bond" connection named "bond0" for device "nm-bond"
-    When "LAYER2" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-    When "IS_MASTER" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-     And "MASTER_HAS_SLAVES" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
+    When "LAYER2" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+    When "IS_MASTER" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "MASTER_HAS_SLAVES" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
     * Add slave connection for master "nm-bond" on device "testXB" named "bond0.0"
-    When "LAYER2" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
-    When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
-    When "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
+    When "LAYER2" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
+    When "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     * Prepare simulated veth device "testXB" without carrier
     * Execute "nmcli con modify bond0 ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
-    When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "MASTER_HAS_SLAVES" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-     And "IS_SLAVE" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "MASTER_HAS_SLAVES" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "IS_SLAVE" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
     * Execute "ip netns exec testXB_ns kill -SIGSTOP $(cat /tmp/testXB_ns.pid)"
     * Execute "ip netns exec testXB_ns ip link set testXBp up"
     * Execute "ip netns exec testXB_ns kill -SIGCONT $(cat /tmp/testXB_ns.pid)" without waiting for process to finish
-    Then "MASTER_HAS_SLAVES" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
-    Then "IP4" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
-    Then "IP6" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "MASTER_HAS_SLAVES" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP4" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP6" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
 
 
     @rhbz1454883 @RHEL-33368
@@ -2318,28 +2318,28 @@
     @nmclient_bond_get_state_flags
     Scenario: nmclient - bond - get state flags
     * Add "bond" connection named "bond0" for device "nm-bond"
-    When "LAYER2" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-    When "IS_CONTROLLER" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-     And "CONTROLLER_HAS_PORTS" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
+    When "LAYER2" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+    When "IS_CONTROLLER" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "CONTROLLER_HAS_PORTS" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
     * Add slave connection for master "nm-bond" on device "testXB" named "bond0.0"
-    When "LAYER2" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
-    When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
-    When "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0"
+    When "LAYER2" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
+    When "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     * Prepare simulated veth device "testXB" without carrier
     * Execute "nmcli con modify bond0 ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
-    When "IP4" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "IP6" is not visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0"
-     And "CONTROLLER_HAS_PORTS" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
-     And "IS_PORT" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
+    When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
+     And "CONTROLLER_HAS_PORTS" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "5" seconds
+     And "IS_PORT" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0" in "5" seconds
     * Execute "ip netns exec testXB_ns kill -SIGSTOP $(cat /tmp/testXB_ns.pid)"
     * Execute "ip netns exec testXB_ns ip link set testXBp up"
     * Execute "ip netns exec testXB_ns kill -SIGCONT $(cat /tmp/testXB_ns.pid)" without waiting for process to finish
-    Then "CONTROLLER_HAS_PORTS" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
-    Then "IP4" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
-    Then "IP6" is visible with command "/usr/bin/python contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "CONTROLLER_HAS_PORTS" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP4" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
+    Then "IP6" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0" in "40" seconds
 
 
     @rhbz1591734
@@ -2403,7 +2403,7 @@
     Scenario: NM - bond - bond activation fails with autoconnect true using libnm
     * Cleanup device "nm-bond"
     * Cleanup connection "bond0"
-    Then "Connection added\s+Connection activated" is visible with command "/usr/bin/python contrib/gi/bond_add_activate.py" in "1" seconds
+    Then "Connection added\s+Connection activated" is visible with command "/usr/bin/python3l contrib/gi/bond_add_activate.py" in "1" seconds
 
 
     @rhbz1730793

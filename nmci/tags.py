@@ -554,7 +554,7 @@ def scapy_bs(context, scenario):
             "yum -y install tcpdump", timeout=120, ignore_stderr=True
         )
         context.process.run_stdout(
-            "python -m pip install scapy", ignore_stderr=True, timeout=120
+            "python3l -m pip install scapy", ignore_stderr=True, timeout=120
         )
 
 
@@ -571,11 +571,11 @@ def netaddr_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     # TODO move to envsetup
     if not context.process.run_search_stdout(
-        "python -m pip list", "netaddr", ignore_stderr=True
+        "python3l -m pip list", "netaddr", ignore_stderr=True
     ):
         print("install netaddr")
         context.process.run_stdout(
-            "python -m pip install netaddr", ignore_stderr=True, timeout=120
+            "python3l -m pip install netaddr", ignore_stderr=True, timeout=120
         )
 
 

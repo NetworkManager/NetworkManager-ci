@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3l
 import optparse
 import brainstem
 import sys

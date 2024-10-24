@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3l
 # Author: Beniamino Galvani <bgalvani@redhat.com>
 
 import gi

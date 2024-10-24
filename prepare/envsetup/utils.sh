@@ -9,6 +9,8 @@ MBOX="https://koji.mbox.centos.org/pkgs/packages"
 fix_python3_link() {
     rm -f /usr/bin/python
     ln -s `which python3` /usr/bin/python
+    rm -f /usr/bin/python3l
+    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
 }
 
 
@@ -19,23 +21,23 @@ install_behave_pytest () {
   else
     python3l -m pip install "git+https://github.com/behave/behave@v1.2.7.dev6#egg=behave" --prefix=/usr/
   fi
-  python -m pip install behave_html_pretty_formatter
+  python3l -m pip install behave_html_pretty_formatter
 
-  python -m pip install behave_html_formatter
+  python3l -m pip install behave_html_formatter
   echo -e "[behave.formatters]\nhtml = behave_html_formatter:HTMLFormatter" > ~/.behaverc
 
   which behave || ln -s `which behave-3` /usr/bin/behave
   # pytest is needed for NetworkManager-ci unit tests and nmstate test
-  python -m pip install pytest
+  python3l -m pip install pytest
   # fix click version because of black bug
   # https://github.com/psf/black/issues/2964
-  python -m pip install click==8.0.4
+  python3l -m pip install click==8.0.4
   # black is needed by unit tests to check code format
   # stick to fedora 33 version of black: 22.3.0
-  python -m pip install --prefix /usr/ black==22.3.0
+  python3l -m pip install --prefix /usr/ black==22.3.0
   # install sphinx to build nmci documentation
-  python -m pip install --prefix /usr/ sphinx==7.2.6 || touch /tmp/nm_skip_nmci_doc
-  python -m pip install sphinx-markdown-builder==0.6.5 || touch /tmp/nm_skip_nmci_doc
+  python3l -m pip install --prefix /usr/ sphinx==7.2.6 || touch /tmp/nm_skip_nmci_doc
+  python3l -m pip install sphinx-markdown-builder==0.6.5 || touch /tmp/nm_skip_nmci_doc
 }
 
 
@@ -44,7 +46,7 @@ check_packages () {
            NetworkManager-{openvpn,ppp,pptp,tui,team,wifi,strongswan} || \
         return 1
     which behave || return 1
-    which python || return 1
+    which python3l || return 1
 }
 
 
@@ -227,7 +229,7 @@ install_usb_hub_driver_fc29 () {
         # The module brainstem is already stored in project NetworkManager-ci.
         tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
         cd /tmp/brainstem/development/python/
-        python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+        python3l -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
     popd
     return $rc
 }
@@ -243,12 +245,12 @@ install_usb_hub_driver_el () {
             # Compatible with RHEL7
             tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_14.04_x86_64.tgz
             cd /tmp/brainstem/development/python/
-            python -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
+            python3l -m pip install brainstem-2.7.1-py2.py3-none-any.whl; local rc=$?
         else
             # And with RHEL8
             tar -C /tmp/brainstem -xf brainstem_dev_kit_ubuntu_lts_18.04_no_qt_x86_64_1.tgz
             cd /tmp/brainstem/development/python/
-            python -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
+            python3l -m pip install brainstem-2.7.0-py2.py3-none-any.whl; local rc=$?
         fi
     popd
     return $rc
@@ -261,12 +263,12 @@ get_online_state() {
         echo "get online state #$i failed"
         (( i % 10 )) || {
             echo "After crash reset:";
-            python3 -c "import nmci; nmci.crash.after_crash_reset()";
+            python3l -c "import nmci; nmci.crash.after_crash_reset()";
             continue;
         }
         (( i % 5 )) || {
             echo "Wait for testeth0";
-            python3 -c "import nmci; nmci.veth.wait_for_testeth0()";
+            python3l -c "import nmci; nmci.veth.wait_for_testeth0()";
             continue;
         }
         sleep 1

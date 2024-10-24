@@ -33,7 +33,7 @@ def mock_nm(context):
     # stop NM & start mocker
     nmci.nmutil.stop_NM_service()
     context.nm_mocker = nmci.pexpect.pexpect_service(
-        "python3 -m dbusmock --system --template networkmanager"
+        "python3l -m dbusmock --system --template networkmanager"
     )
 
     # wait for mocker to appear on the bus

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3l
 # author: Gris Ge <fge@redhat.com>
 # https://bugzilla.redhat.com/show_bug.cgi?id=1689054
 

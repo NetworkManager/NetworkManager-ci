@@ -480,7 +480,7 @@ Feature: nmcli - wifi
     @simwifi
     @nmclient_get_wireless_hw_property
     Scenario: nmclient - property - get wireless hardware property
-    Then "True|False" is visible with command "/usr/bin/python contrib/gi/nmclient_get_property.py wireless-hardware-enabled"
+    Then "True|False" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_property.py wireless-hardware-enabled"
 
 
     @rhbz1626391
@@ -1138,7 +1138,7 @@ Feature: nmcli - wifi
     @simwifi
     @simwifi_dbus_invalid_cert_input
     Scenario: nmcli - wifi - dbus invalid certificate input
-    Then "Connection.InvalidProperty" is visible with command "/usr/bin/python contrib/dbus/dbus-set-wifi-bad-cert.py"
+    Then "Connection.InvalidProperty" is visible with command "/usr/bin/python3l contrib/dbus/dbus-set-wifi-bad-cert.py"
 
 
     @simwifi

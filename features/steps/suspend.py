@@ -28,7 +28,7 @@ def mock_logind(context):
     nmci.process.systemctl("mask systemd-logind")
 
     context.logind_proc = nmci.pexpect.pexpect_service(
-        "python3 -m dbusmock --template logind"
+        "python3l -m dbusmock --template logind"
     )
     with nmci.util.start_timeout(10, "mock suspend signal") as t:
         while t.loop_sleep(0.2):

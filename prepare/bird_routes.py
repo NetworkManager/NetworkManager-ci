@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3l
 """
 must be invoked with three arguments:
     dev (e.g. eth1)
