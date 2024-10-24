@@ -802,7 +802,7 @@ Feature: nmcli - wifi
     @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
     @simwifi_ap_in_bridge_wpa_psk_method_manual
     Scenario: nmcli - simwifi - AP - connect to NM AP with WPA2 psk security and method shared
-    * Prepare simulated test "testW" device without dhcp
+    * Prepare simulated test "testW" device without DHCP
     * Add "bridge" connection named "br0" for device "br0" with options
           """
           connection.autoconnect true

@@ -1206,7 +1206,7 @@ Feature: nmcli - general
     @wpa_supplicant_not_started
     Scenario: NM - general - do not start wpa_supplicant
     * Execute "systemctl stop wpa_supplicant"
-    * restart NM
+    * Restart NM
     Then "^active" is not visible with command "systemctl is-active wpa_supplicant" in "5" seconds
 
 
