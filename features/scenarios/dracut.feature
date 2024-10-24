@@ -1,3 +1,4 @@
+@skip_in_centos
 Feature: NM: dracut
 
     # Please do use tags as follows:
