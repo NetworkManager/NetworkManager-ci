@@ -545,26 +545,13 @@ def netcat_bs(context, scenario):
 _register_tag("netcat", netcat_bs)
 
 
-def scapy_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    # TODO move to envsetup
-    if not os.path.isfile("/usr/bin/scapy"):
-        print("installing scapy and tcpdump")
-        context.process.run_stdout(
-            "yum -y install tcpdump", timeout=120, ignore_stderr=True
-        )
-        context.process.run_stdout(
-            "python3l -m pip install scapy", ignore_stderr=True, timeout=120
-        )
-
-
 def scapy_as(context, scenario):
     context.process.run("ip link delete test10", ignore_stderr=True)
     context.process.run("ip link delete test11", ignore_stderr=True)
     context.process.nmcli_force("connection delete ethernet-test10 ethernet-test11")
 
 
-_register_tag("scapy", scapy_bs, scapy_as)
+_register_tag("scapy", None, scapy_as)
 
 
 def netaddr_bs(context, scenario):
