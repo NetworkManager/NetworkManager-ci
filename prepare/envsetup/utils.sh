@@ -15,6 +15,8 @@ fix_python3_link() {
 
 
 install_behave_pytest () {
+  # this is for gitlab-ci.yml script to work
+  shopt -s expand_aliases
   # stable release is old, let's use the lastest available tagged release
   if [ -f /tmp/keep_old_behave ]; then
     python3l -m pip install behave --prefix=/usr/
