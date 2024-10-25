@@ -1275,30 +1275,18 @@ def step_dump_status(context):
 
 @step("NetworkManager is installed from a copr repo")
 def copr_repo_check(context):
-    import dnf
-
-    base = dnf.Base()
-    base.fill_sack()
-
-    q = base.sack.query()
-    i = q.installed()
-    i = i.filter(name="NetworkManager")
-
-    repo_name = ""
-    for pkg in list(i):
-        repo_name = pkg.from_repo
-        break
+    repo_name = nmci.process.run_stdout(
+        ["python3", "contrib/dnf/NetworkManager_repo.py"]
+    ).strip()
 
     if "copr" not in repo_name:
         nmci.cext.skip(
             f"NetworkManager not installed from copr repo, REPO: {repo_name}"
         )
 
-    base.read_all_repos()
-    repo = base.repos.get(repo_name)
-    context.copr_baseurl = repo.remote_location(" ").strip(
-        " "
-    )  # empty string as argument returns empty string
+    context.copr_baseurl = nmci.process.run_stdout(
+        ["python3", "contrib/dnf/repo_url.py", repo_name]
+    ).strip()
     assert (
         context.copr_baseurl
     ), f"Failed to set baseurl, `repo.remote_location` reurned '{context.copr_baseurl}'"
