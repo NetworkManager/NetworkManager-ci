@@ -61,6 +61,9 @@ EOF
     systemctl restart abrtd
     systemctl restart abrt-journal-core
 
+    # Remove cloud init config (if present) - causing fail in ip6gre tunel in c10s
+    rm -f /etc/NetworkManager/conf.d/30-cloud-init-ip6-addr-gen-mode.conf
+
     # if this isn't yet configured
     if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/95-nmci-test.conf; then
         echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
