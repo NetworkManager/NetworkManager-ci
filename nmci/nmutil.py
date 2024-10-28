@@ -1093,6 +1093,10 @@ class _NMUtil:
             "env_enable": "NM_CLOUD_SETUP_GCP",
             "env_mock": "NM_CLOUD_SETUP_GCP_HOST",
         },
+        "oci": {
+            "env_enable": "NM_CLOUD_SETUP_OCI",
+            "env_mock": "NM_CLOUD_SETUP_OCI_HOST",
+        },
     }
 
 

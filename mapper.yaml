@@ -1446,6 +1446,9 @@ testmapper:
     - cloud_gcp_basic:
         feature: cloud
         tags: gate
+    - cloud_oci_basic:
+        feature: cloud
+        tags: gate
     - cloud_no_provider_warning:
         feature: cloud
     - cloud_setup_keep_secondary_ips:

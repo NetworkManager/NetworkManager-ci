@@ -80,6 +80,7 @@ cloud_aliyun_basic
 cloud_azure_basic
 cloud_ec2_basic
 cloud_gcp_basic
+cloud_oci_basic
 8021x_ttls_mschapv2_eap
 8021x_teardown_eth
 hostname_change
