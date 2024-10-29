@@ -57,6 +57,10 @@ Feature: WIFI TUI tests
     * Set "Mode" dropdown to "Access Point"
     * Set "IPv4 CONFIGURATION" category to "Shared"
     * Confirm the connection settings
+    * Come back to main screen
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wifi1" in the list
+    * Choose to "<Activate>" a connection
     Then "ssid qe-ap" is visible with command "iw dev wlan0 info" in "30" seconds
     Then "type AP" is visible with command "iw dev wlan0 info"
 
@@ -71,6 +75,10 @@ Feature: WIFI TUI tests
     * Set "Security" dropdown to "WPA & WPA2 Personal"
     * Set "Password" field to "over the river and through the woods"
     * Confirm the connection settings
+    * Come back to main screen
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wifi1" in the list
+    * Choose to "<Activate>" a connection
     Then "inet 1" is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: qe-wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
@@ -85,6 +93,10 @@ Feature: WIFI TUI tests
     * Set "Security" dropdown to "WPA3 Personal"
     * Set "Password" field to "over the river and through the woods"
     * Confirm the connection settings
+    * Come back to main screen
+    * Choose to "Activate a connection" from main screen
+    * Select connection "wifi1" in the list
+    * Choose to "<Activate>" a connection
     Then "inet 1" is visible with command "ip a s wlan0" in "30" seconds
     Then "SSID: qe-wpa3-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
