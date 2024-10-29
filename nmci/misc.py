@@ -599,6 +599,10 @@ class _Misc:
             return None
 
         tags_ver = self.test_version_tag_filter_for_stream(tags_ver, nm_stream)
+        # match one release below for upstream builds:
+        #  @ver+=1.51.3 matches 1.51.2-3668.copr, but not 1.51.2-3.el10
+        if nm_stream == "upstream":
+            nm_version[2] += 1
         if not self.test_version_tag_eval(tags_ver, nm_version):
             return None
 
