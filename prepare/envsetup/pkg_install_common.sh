@@ -37,12 +37,6 @@ install_common_packages () {
         PKGS_INSTALL="$PKGS_INSTALL iwl*-firmware"
     fi
 
-    # Enable debug logs for wpa_supplicant
-    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK -O /var/run/wpa_supplicant"!' /etc/sysconfig/wpa_supplicant
-
-    # Remove cloud-init dns
-    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
-
     install_plugins_dnf
 
     # Execute
@@ -64,6 +58,12 @@ install_common_packages () {
     echo "update dnf packages..."
     test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE $skip \
                                                                --allowerasing
+
+    # Enable debug logs for wpa_supplicant
+    sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK -O /var/run/wpa_supplicant"!' /etc/sysconfig/wpa_supplicant
+
+    # Remove cloud-init dns
+    rm -rf /etc/NetworkManager/conf.d/99-cloud-init.conf
 
     # backup freeradius conf
     rm -rf /tmp/nmci-raddb
