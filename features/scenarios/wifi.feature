@@ -54,6 +54,8 @@ Feature: nmcli - wifi
       autoconnect off
       ssid qe-ap
       802-11-wireless.mode ap
+      802-11-wireless.band bg
+      802-11-wireless.channel 1
       ipv4.method shared
       """
     * Execute "nmcli connection up qe-ap"

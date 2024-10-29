@@ -57,10 +57,6 @@ Feature: WIFI TUI tests
     * Set "Mode" dropdown to "Access Point"
     * Set "IPv4 CONFIGURATION" category to "Shared"
     * Confirm the connection settings
-    * Come back to main screen
-    * Choose to "Activate a connection" from main screen
-    * Select connection "wifi1" in the list
-    * Choose to "<Activate>" a connection
     Then "ssid qe-ap" is visible with command "iw dev wlan0 info" in "30" seconds
     Then "type AP" is visible with command "iw dev wlan0 info"
 
