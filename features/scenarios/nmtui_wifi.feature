@@ -70,6 +70,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-wpa2-psk"
     * Set "Security" dropdown to "WPA & WPA2 Personal"
     * Set "Password" field to "over the river and through the woods"
+    * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
@@ -88,6 +89,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "qe-wpa3-psk"
     * Set "Security" dropdown to "WPA3 Personal"
     * Set "Password" field to "over the river and through the woods"
+    * Ensure "Automatically connect" is not checked
     * Confirm the connection settings
     * Come back to main screen
     * Choose to "Activate a connection" from main screen
