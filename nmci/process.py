@@ -305,7 +305,7 @@ class _Process:
             proc, argv=argv, argv_real=argv_real, shell=shell, use_cache=use_cache
         )
 
-    def raise_results(self, argv, header, result, exc_type=Exception):
+    def raise_results(self, argv, header, result, exc_type=AssertionError):
         """
         Helper function to raise an exception containing output of the command.
 
