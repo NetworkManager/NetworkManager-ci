@@ -321,7 +321,7 @@ def _after_scenario(context, scenario):
     nmci.misc.html_report_tag_links()
     nmci.misc.html_report_file_links()
 
-    if scenario.status == "failed":
+    if scenario.status == "failed" or scenario.status == "error":
         nmci.util.set_verbose(True)
 
     skipped = context.cext.scenario_skipped
@@ -381,7 +381,10 @@ def _after_scenario(context, scenario):
     nmci.crash.check_crash(context, "crash outside steps (after_scenario tags)")
 
     scenario_fail = (
-        scenario.status == "failed" or context.crashed_step or len(excepts) > 0
+        scenario.status == "failed"
+        or scenario.status == "error"
+        or context.crashed_step
+        or len(excepts) > 0
     )
 
     filter_args = " + ".join(
