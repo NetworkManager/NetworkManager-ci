@@ -2190,7 +2190,7 @@ Feature: nmcli: ipv4
 
 
 
-    @ver+=1.31.1 @ver-=1.51.1
+    @ver+=1.31.1 @ver-=1.51.2
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
     * Open editor for a type "ethernet"
@@ -2225,7 +2225,7 @@ Feature: nmcli: ipv4
 
 
 
-    @ver+=1.51.2
+    @ver+=1.51.3
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
     * Open editor for a type "ethernet"
@@ -3754,7 +3754,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-56565
-    @ver+=1.51.2
+    @ver+=1.51.3
     @tshark
     @restart_if_needed
     @ipv4_set_dhcp_send_hostname_global_config

@@ -2538,7 +2538,7 @@
 
 
     @RHEL-56565
-    @ver+=1.51.2
+    @ver+=1.51.3
     @restart_if_needed
     @ipv6_set_dhcp_send_hostname_global_config
     Scenario: nmcli - ipv6 - set ipv6.dhcp-send-hostname in global config
