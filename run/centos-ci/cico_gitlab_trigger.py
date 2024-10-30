@@ -25,15 +25,23 @@ class GitlabTrigger(object):
         try:
             import gitlab
 
-            self.gl_api = gitlab.Gitlab.from_config(
-                "gitlab.freedesktop.org", config_files
-            )
+            config_files = [cf for cf in config_files if os.path.isfile(cf)]
+            if config_files:
+                self.gl_api = gitlab.Gitlab.from_config(
+                    "gitlab.freedesktop.org", config_files
+                )
+            elif os.environ.get("GITLAB_TOKEN", False):
+                self.gl_api = gitlab.Gitlab(
+                    os.environ.get("CI_SERVER_URL"),
+                    private_token=os.environ.get("GITLAB_TOKEN"),
+                )
             group = "NetworkManager"
             self.gl_project = self.gl_api.projects.get(
                 "%s/%s" % (group, data["repository"]["name"])
             )
         except:
             pass
+        self._pipeline_discussion = None
 
     @property
     def request_type(self):
@@ -172,43 +180,46 @@ class GitlabTrigger(object):
         print(f"Unable to post comment to gitlab:\n{text}\n\nException: {exc}")
         return False
 
-    def post_mr_comment(self, text, resolved=None, replace=False):
+    @property
+    def pipeline_discussion(self):
+        if self._pipeline_discussion is not None:
+            return self._pipeline_discussion
         mr_id = self.merge_request_id
         mr = self.gl_project.mergerequests.get(mr_id)
         discussions = mr.discussions.list(all=True)
-        discussion = None
-        title = f"Pipeline: {os.environ['BUILD_URL']}"
+        title = f"Pipeline Status"
         for d in discussions:
             notes = d.attributes.get("notes")
             for note in notes:
-                if title in note["body"]:
-                    discussion = d
+                if title == note["body"].strip():
+                    self._pipeline_discussion = d
                     print(f"Found discussion: {title}")
                     break
-        if discussion is None:
+        if self._pipeline_discussion is None:
             print(f"Creating discussion: {title}")
-            discussion = mr.discussions.create({"body": title})
+            self._pipeleine_discussion = mr.discussions.create({"body": title})
+        return self._pipeline_discussion
+
+    def get_mr_discussions(self, commit=None):
+        notes = self.pipeline_discussion.attributes.get("notes")
+        note_texts = []
+        for note in notes:
+            note_id = note["id"]
+            note = self.pipeline_discussion.notes.get(note_id)
+            text = note.body
+            if commit is None or commit in text:
+                note_texts.append(text)
+        return note_texts
+
+    def post_mr_discussion(self, text):
         try:
-            if text:
-                notes = discussion.attributes.get("notes")
-                if replace:
-                    note_id = notes[-1]["id"]
-                    # prepend the title if it is the only note in the thread
-                    if len(notes) <= 1:
-                        text = f"{title}\n\n{text}"
-                    print(f"Edit discussion note: {notes[-1]['body']} -> {text}")
-                    note = discussion.notes.get(note_id)
-                    note.body = text
-                    note.save()
-                else:
-                    print(f"Create discussion note: {text}")
-                    discussion.notes.create({"body": text})
+            self.pipeline_discussion.notes.create({"body": text})
         except Exception as e:
             print(f"Exception in note set: {e}")
-        if resolved is not None:
-            print(f"Discussion set resolved: {resolved}")
-            discussion.resolved = resolved
-            discussion.save()
+
+    def set_mr_discussion_resolved(self, resolved):
+        self.pipeline_discussion.resolved = resolved
+        self.pipeline_discussion.save()
 
     def play_commit_job(self):
         pipeline = self.pipeline
@@ -339,9 +350,6 @@ class GitlabTrigger(object):
             if exc is not None:
                 print(f"Unable to set commit status in gitlab:\nException: {exc}")
 
-            # Post comment directly to MR in pipeline thread
-            self.post_mr_comment(description, resolved=False, replace=True)
-
         except Exception as e:
             print(str(e))
 
@@ -404,7 +412,7 @@ def execute_build(
         params.append({"name": "REFSPEC", "value": gt.commit})
         project_dir = "NetworkManager-code-mr"
 
-    if gt.repository == "NetworkManager-ci":  # NMCI always use main for code
+    elif gt.repository == "NetworkManager-ci":  # NMCI always use main for code
         params.append({"name": "MERGE_REQUEST_ID", "value": gt.merge_request_id})
         params.append({"name": "TEST_BRANCH", "value": gt.commit})
         params.append({"name": "REFSPEC", "value": build})

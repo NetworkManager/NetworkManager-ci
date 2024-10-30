@@ -28,10 +28,13 @@ if __name__ == "__main__":
     r._set_gitlab(trigger_data, gl_token)
     if r.gitlab is not None:
         r._gitlab_message = (
+            f"{build_id}\n\n"
+            f"Commit: {r.gitlab.commit}\n\n"
             "Aborted by the new run (or unexpected crash of node_runner)"
         )
         r.gitlab.set_pipeline("canceled", release)
         r._post_results()
+        r.gitlab.set_mr_discussion_resolved(False)
         exit(0)
 
     logging.debug("Gitlab Token or Trigger Data are missing or incorrect, skipping...")

@@ -713,6 +713,7 @@ class Runner:
             status = "STABLE: All tests passed!"
 
         message = [
+            f"Commit: {self.gitlab.commit}",
             f"Result: {status}",
             *machine_lines,
             f"Executed on: CentOS {self.release}",
@@ -771,8 +772,11 @@ class Runner:
                 except Exception:
                     pass
             # post message to MR pipeline thread
-            failed = getattr(self, "failed_tests", True)
-            self.gitlab.post_mr_comment(message, resolved=not failed, replace=False)
+            self.gitlab.post_mr_discussion(message)
+            comments = self.gitlab.get_mr_discussions(self.gitlab.commit)
+            unstable = [c for c in comments if "Result: STABLE" not in c]
+            resolved = unstable == []
+            self.gitlab.set_mr_discussion_resolved(resolved)
 
     def _generate_junit(self):
         logging.debug("Generate JUNIT")
