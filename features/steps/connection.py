@@ -137,17 +137,16 @@ def bring_up_connection_ignore_error(context, name, action):
 
 @step('Check if "{name}" is active connection')
 @step('Check if "{name}" is active connection in "{timeout}" seconds')
-def is_active_connection(context, name, timeout=0):
-    cnt = int(timeout) + 1
-    for _ in range(cnt):
-        if name in nmci.process.nmcli("-t -f NAME connection show --active").split(
-            "\n"
-        ):
-            return True
-        time.sleep(1)
-    raise Exception(
-        f"Connection {name} is not active{' in {timeout} seconds' if timeout else ''}"
-    )
+def is_active_connection(context, name, timeout=180):
+    with nmci.util.start_timeout(float(timeout), f"connection `{name}` active") as t:
+        while t.loop_sleep(1):
+            conns = (
+                nmci.process.nmcli("-t -f NAME connection show --active")
+                .strip("\n")
+                .split("\n")
+            )
+            if name in conns:
+                return True
 
 
 @step('Check if "{name}" is not active connection')
