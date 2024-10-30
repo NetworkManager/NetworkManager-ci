@@ -1354,3 +1354,24 @@ Feature: nmcli: connection
           """
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
     * Expect "2620:dead:beaf::1.*2620:dead:beef::1|2620:dead:beef::1.*2620:dead:beaf::1" in children in "5" seconds
+
+
+    @RHEL-21160
+    @ver+=1.51.4
+    @connection_ping_ip_addresses_unreachable
+    Scenario: nmcli - connection - ping ip addresses
+    * Prepare simulated test "testX4" device
+    * Execute "ip -n testX4_ns addr add 192.168.96.1/24 dev testX4p"
+    * Run child "ip netns exec testX4_ns tcpdump -i testX4p -n -v icmp"
+    * Add "ethernet" connection named "con_con" for device "testX4" with options
+          """
+          ipv4.addresses 192.168.96.4/24
+          connection.ip-ping-addresses '192.168.99.1,192.168.96.5'
+          connection.ip-ping-timeout 10
+          connection.ip-ping-addresses-require-all yes
+          ipv4.may-fail no
+          """
+    Then Fail up connection "con_con" in "10" seconds
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
+    * Expect "192.168.99.1" in children in "5" seconds
+    * Do not expect "192.168.96.5" in children in "1" seconds

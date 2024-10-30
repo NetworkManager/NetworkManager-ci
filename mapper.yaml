@@ -2501,6 +2501,8 @@ testmapper:
         feature: connection
     - connection_ping_ip6_addresses:
         feature: connection
+    - connection_ping_ip_addresses_unreachable:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
