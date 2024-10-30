@@ -2407,7 +2407,7 @@ the output anyway.
 * **Return type:**
   [RunResult](#nmci.process.RunResult)
 
-### nmci.process.raise_results(argv, header, result, exc_type=<class 'Exception'>)
+### nmci.process.raise_results(argv, header, result, exc_type=<class 'AssertionError'>)
 
 Helper function to raise an exception containing output of the command.
 
@@ -2415,7 +2415,7 @@ Helper function to raise an exception containing output of the command.
   * **argv** (*str* *or* *list*) – command to run
   * **header** (*str*) – header for the exception
   * **result** ([*RunResult*](#nmci.process.RunResult)) – result of the command
-  * **exc_type** (*class*) – Exception class to raise, default `Exception`
+  * **exc_type** (*class*) – Exception class to raise, default `AssertionError`
 * **Raises:**
   **Exception** – exception containing output of the command
 

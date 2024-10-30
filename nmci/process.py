@@ -315,7 +315,7 @@ class _Process:
         :type header: str
         :param result: result of the command
         :type result: RunResult
-        :param exc_type: Exception class to raise, default :code:`Exception`
+        :param exc_type: Exception class to raise, default :code:`AssertionError`
         :type exc_type: class
         :raises Exception: exception containing output of the command
         """
