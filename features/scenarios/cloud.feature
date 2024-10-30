@@ -165,7 +165,6 @@ Feature: nmcli: cloud
     * Check "ipv4" address list "/192.168.100.[0-9/]+" on device "eth11"
     * Check "ipv4" address list "/192.168.101.[0-9/]+" on device "eth12"
     * Check "ipv4" address list "/192.168.102.[0-9/]+" on device "eth13"
-    * Mock EC2 device with MAC "eth11", IP "172.31.176.249" and subnet "172.31.16.0/20"
     * Mock EC2 device with MAC "eth13", IPs "172.31.176.251" and "172.31.17.251" and subnet "172.31.16.0/20"
     * Mock EC2 device with MAC "eth12", IPs "172.31.176.250" and "172.31.17.250" and subnet "172.31.16.0/20"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "eth12=<noted:eth12>;eth13=<noted:eth13>"
@@ -179,6 +178,10 @@ Feature: nmcli: cloud
       If this is not true in future versions, the check for order can be skipped.
       """
     Then "172.31.176.251 .*172.31.176.250 .*172.31.176.251 .*172.31.176.250" is visible with command "ip rule"
+    * Clear EC2 mocks
+    * Mock EC2 device with MAC "eth11", IP "172.31.176.249" and subnet "172.31.16.0/20"
+    * Mock EC2 device with MAC "eth13", IPs "172.31.176.251" and "172.31.17.251" and subnet "172.31.16.0/20"
+    * Mock EC2 device with MAC "eth12", IPs "172.31.176.250" and "172.31.17.250" and subnet "172.31.16.0/20"
     * Execute nm-cloud-setup for "ec2" with mapped interfaces "eth11=<noted:eth11>;eth12=<noted:eth12>;eth13=<noted:eth13>" in background
     * Expect "<debug> config device [0-9A-Fa-f:]*: reapply" in children in "20" seconds and kill
     Then Check "ipv4" address list "/192.168.100.[0-9/]+ 172.31.176.249/20" on device "eth11" in "5" seconds
