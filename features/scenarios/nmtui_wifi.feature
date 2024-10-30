@@ -5,7 +5,6 @@ Feature: WIFI TUI tests
   * Prepare virtual terminal environment
 
 
-    @wifi
     @nmtui_wifi_see_all_networks
     Scenario: nmtui - wifi - see all networks
     * Start nmtui
@@ -19,9 +18,10 @@ Feature: WIFI TUI tests
     Then ".*qe-wpa3-enterprise.*" is visible on screen
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_connect_to_wpa2psk_network
     Scenario: nmtui - wifi - connect to WPA2-PSK network straight
+    * Cleanup connection "qe-wpa2-psk"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wpa2-psk" in the list
@@ -33,9 +33,10 @@ Feature: WIFI TUI tests
     Then "inet 1" is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_connect_to_wpa3psk_network
     Scenario: nmtui - wifi - connect to WPA3-PSK network straight
+    * Cleanup connection "qe-wpa3-psk"
     * Start nmtui
     * Choose to "Activate a connection" from main screen
     * Select connection "qe-wpa3-psk" in the list
@@ -47,7 +48,7 @@ Feature: WIFI TUI tests
     Then "inet 1" is visible with command "ip a s wlan0" in "30" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_ap
     Scenario: nmtui - wifi - ap
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -61,7 +62,7 @@ Feature: WIFI TUI tests
     Then "type AP" is visible with command "iw dev wlan0 info"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_wpa2
     Scenario: nmtui - wifi - WPA2 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -80,7 +81,7 @@ Feature: WIFI TUI tests
     Then "SSID: qe-wpa2-psk" is visible with command "iw dev wlan0 link" in "30" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_wpa3
     Scenario: nmtui - wifi - WPA3 psk connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -100,7 +101,7 @@ Feature: WIFI TUI tests
 
 
     @ver+=1.41
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_wpa2_enterprise_tls
     Scenario: nmtui - wifi - WPA2 enterprise tls connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -125,7 +126,7 @@ Feature: WIFI TUI tests
 
 
     @ver+=1.41
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_wpa2_enterprise_peap_mschapv2
     Scenario: nmtui - wifi - WPA2 enterprise peap connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"
@@ -150,7 +151,7 @@ Feature: WIFI TUI tests
 
 
     @ver+=1.41
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmtui_wifi_wpa2_enterprise_ttls_mschapv2
     Scenario: nmtui - wifi - WPA2 enterprise peap connection
     * Prepare new connection of type "Wi-Fi" named "wifi1"

@@ -8,7 +8,7 @@ Feature: nmcli - wifi
     # Scenario:
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_infrastructure_mode_setting
     Scenario: nmcli - wifi - infrastructure mode setting
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -26,7 +26,7 @@ Feature: nmcli - wifi
 
     # Not working
     # @xfail
-    # @wifi @attach_wpa_supplicant_log
+    # @attach_wpa_supplicant_log
     # @nmcli_wifi_adhoc_wpa2_network
     # Scenario: nmcli - wifi - adhoc wpa2 network
     # Given Flag "NM_802_11_DEVICE_CAP_ADHOC" is set in WirelessCapabilites
@@ -45,7 +45,7 @@ Feature: nmcli - wifi
     # Then "type IBSS" is visible with command "iw dev wlan0 info" in "30" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_ap
     Scenario: nmcli - wifi - ap network
     Given Flag "NM_802_11_DEVICE_CAP_AP" is set in WirelessCapabilites
@@ -64,7 +64,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.37.3
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_disable_radio
     Scenario: nmcli - wifi - disable radio
     Given  "enabled" is visible with command "nmcli radio wifi"
@@ -84,7 +84,7 @@ Feature: nmcli - wifi
 
 
     @ver+=1.37.3
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_enable_radio
     Scenario: nmcli - wifi - enable radio
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -103,9 +103,11 @@ Feature: nmcli - wifi
     Then "wlan0\s+wifi\s+connected" is visible with command "nmcli device" in "15" seconds
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_mac_spoofing
     Scenario: nmcli - wifi - mac spoofing (if hw supported)
+    # There might be some delay between tests
+    Given "qe-wpa2-psk" is visible with command "nmcli device wifi list --rescan yes" in "20" seconds
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
       """
       autoconnect off
@@ -120,7 +122,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_set_mtu
     Scenario: nmcli - wifi - set mtu
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -138,7 +140,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1094298
-    @wifi
+    @attach_wpa_supplicant_log
     @nmcli_wifi_seen_bssids
     Scenario: nmcli - wifi - seen bssids
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -155,7 +157,7 @@ Feature: nmcli - wifi
     * Quit editor
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2hidden_psk
     Scenario: nmcli - wifi - set and connect to a hidden network
     * Add "wifi" connection named "qe-hidden-wpa2-psk" for device "wlan0" with options
@@ -171,7 +173,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-hidden-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_psk_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -188,7 +190,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_psk_5g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -205,7 +207,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_psk_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa3-psk" for device "wlan0" with options
@@ -223,7 +225,7 @@ Feature: nmcli - wifi
 
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_psk_5g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa3-psk" for device "wlan0" with options
@@ -239,7 +241,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa3-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_peap_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PEAP profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
@@ -259,7 +261,7 @@ Feature: nmcli - wifi
     Then "inet 1" is visible with command "ip a s wlan0" in "20" seconds
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_tls_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
@@ -280,7 +282,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_tls_5g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
@@ -301,7 +303,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_ttls_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TTLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
@@ -320,7 +322,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_peap_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA3-PEAP profile
     # Wireless device does not support wpa3 enterprise
@@ -343,7 +345,7 @@ Feature: nmcli - wifi
     Then "inet 1" is visible with command "ip a s wlan0" in "20" seconds
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_tls_2.4g
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
     # Wireless device does not support wpa3 enterprise
@@ -368,7 +370,7 @@ Feature: nmcli - wifi
 
 
 
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_tls_5g
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
     # Wireless device does not support wpa3 enterprise
@@ -392,7 +394,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa3-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_ttls_mschapv2
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TTLS profile
     # Wireless device does not support wpa3 enterprise
@@ -416,7 +418,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa3-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_pairwise_ccmp
     Scenario: nmcli - wifi-sec - pairwise - ccmp
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -434,7 +436,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_unmatching_pairwise
     Scenario: nmcli - wifi-sec - unmatching pairwise
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -451,7 +453,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is not visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_group_ccmp
     Scenario: nmcli - wifi-sec - group - ccmp
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -469,7 +471,7 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa2-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-    @wifi @attach_wpa_supplicant_log
+    @attach_wpa_supplicant_log
     @nmcli_wifi_unmatching_group
     Scenario: nmcli - wifi-sec - unmatching group
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
@@ -488,9 +490,11 @@ Feature: nmcli - wifi
 
     @rhbz1115564 @rhbz1184530
     @ver+=1.14
-    @wifi @ifcfg-rh
+    @rhelver-=9
+    @ifcfg-rh @attach_wpa_supplicant_log
     @nmcli_wifi_add_certificate_as_blob_saved
     Scenario: nmcli - wifi - save certificate blob
+    * Cleanup connection "wifi-wlan0"
     * Execute "/usr/bin/python3l contrib/dbus/dbus-set-wifi-tls-blob.py Saved"
     Then "802-1x.client-cert:\s+/etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der" is visible with command "nmcli connection show wifi-wlan0"
     And "3082045e30820346" is visible with command "cat /etc/sysconfig/network-scripts/wifi-wlan0-client-cert.der"
@@ -499,7 +503,7 @@ Feature: nmcli - wifi
 
 
     @rhbz1200451
-    @wifi
+    @attach_wpa_supplicant_log
     @nmcli_wifi_indicate_wifi_band_caps
     Scenario: nmcli - wifi - indicate wireless band capabilities
     Given Flag "NM_802_11_DEVICE_CAP_FREQ_VALID" is set in WirelessCapabilites
@@ -509,7 +513,7 @@ Feature: nmcli - wifi
 
 
     # This needs wifi6E card
-    @wifi @wireless_certs @attach_wpa_supplicant_log
+    @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_6e_wpa3_tls
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile over 6E
     * Skip if next step fails:
