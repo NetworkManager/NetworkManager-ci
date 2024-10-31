@@ -121,7 +121,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1540218 @rhbz1519176
-    @ver+=1.16.2
+    @ver+=1.16.2 @ver-=1.50
     @openvswitch
     @nmcli_add_basic_openvswitch_configuration
     Scenario: nmcli - openvswitch - add basic setup
@@ -1176,7 +1176,7 @@ Feature: nmcli - ovs
 
 
     @rhbz1676551 @rhbz1612503
-    @ver+=1.19.5
+    @ver+=1.19.5 @ver-=1.51.1
     @permissive @openvswitch @dpdk
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
@@ -1195,6 +1195,33 @@ Feature: nmcli - ovs
      And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
      And "Port port0" is visible with command "ovs-vsctl show"
      And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?}" is visible with command "ovs-vsctl show"
+     And "rror" is not visible with command "ovs-vsctl show"
+
+
+    @RHEL-60022
+    @ver+=1.51.2
+    @permissive @openvswitch @dpdk
+    @add_dpdk_port
+    Scenario: NM -  openvswitch - add dpdk device
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
+          """
+          ovs-bridge.datapath-type netdev
+          """
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+    * Commentary
+        """
+        Use very long interface name (15+ chars).
+        """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "very_long_interface_name_123456" with options
+          """
+          conn.master port0
+          ovs-dpdk.devargs 0000:c3:06.0
+          """
+    * Bring "up" connection "ovs-iface0"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+     And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
+     And "Port port0" is visible with command "ovs-vsctl show"
+     And "Port port0\s+Interface\s+very_long_interface_name_123456\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?}" is visible with command "ovs-vsctl show"
      And "rror" is not visible with command "ovs-vsctl show"
 
 
