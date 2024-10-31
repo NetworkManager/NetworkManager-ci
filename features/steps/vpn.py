@@ -159,7 +159,7 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=0):
     cli.expect("Password.*:")
     cli.sendline(password)
     if secret is not None:
-        cli.expect("Group password.*:")
+        cli.expect("Group (p|P)assword.*:")
         cli.sendline(secret)
     if nmci.process.systemctl("-q is-active polkit").returncode == 0:
         ret = cli.expect(["Error", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF])
