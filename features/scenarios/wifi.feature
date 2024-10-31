@@ -166,6 +166,9 @@ Feature: nmcli - wifi
           ssid qe-hidden-wpa2-psk
           802-11-wireless-security.key-mgmt wpa-psk
           802-11-wireless.hidden yes
+          802-11-wireless-security.proto rsn
+          802-11-wireless.cloned-mac-address random
+          connection.auth-retries 20
           802-11-wireless-security.psk 6ubDLTiFr6jDSAxW08GdKU0s5Prh1c5G8CWeYpXHgXeYmhhMyDX8vMMWwLhx8Sl
           """
     * Bring "up" connection "qe-hidden-wpa2-psk"
