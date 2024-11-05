@@ -265,6 +265,11 @@ def mock_azure_dev(context, num, mac, ip_addr1, ip_addr2, subnet, prefix):
             }
         ),
     )
+    # Delay the secondary address a bit to prevent fail due to possible race
+    http_put(
+        ".nmtest/delay",
+        f'["metadata/instance/network/interface/{num}/ipv4/ipAddress/1/privateIpAddress"]',
+    )
 
 
 @step("Clean Azure mocks")
@@ -297,6 +302,11 @@ def mock_azure_ip(context, ip_addr1, ip_addr2, num):
     http_put_azure(
         f"metadata/instance/network/interface/{num}/ipv4/ipAddress?format=text&api-version=2017-04-02",
         json.dumps([{"privateIpAddress": ip_addr1}, {"privateIpAddress": ip_addr2}]),
+    )
+    # Delay the secondary address a bit to prevent fail due to possible race
+    http_put(
+        ".nmtest/delay",
+        f'["metadata/instance/network/interface/{num}/ipv4/ipAddress/1/privateIpAddress"]',
     )
 
 
