@@ -170,7 +170,12 @@ class MockCloudMDRequestHandler(BaseHTTPRequestHandler):
         # Special path to add configs to the Mock server
         if path.startswith(".nmtest/"):
             conf_name = path.removeprefix(".nmtest/")
-            self.server._config[conf_name] = self._read()
+            data = self._read()
+            try:
+                data = json.loads(data)
+            except:
+                pass
+            self.server._config[conf_name] = data
             self._response_and_end(201)
             return
         # Special path for EC2 secret token. It's PUT but must behave like GET. \_(ツ)_/
