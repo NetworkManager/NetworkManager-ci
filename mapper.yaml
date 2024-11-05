@@ -2290,6 +2290,8 @@ testmapper:
         feature: vpn
     - iptunnel_ip6gre_create_device:
         feature: vpn
+    - iptunnel_ip6gre_create_device_with_eui64:
+        feature: vpn
     - wireguard_activate_connection:
         feature: vpn
         timeout: 20m

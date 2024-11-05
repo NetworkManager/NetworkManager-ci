@@ -189,6 +189,26 @@
     Then Ping6 "fe80:deaf::beef%ip6gre1"
 
 
+    @ver+=1.51.3
+    @iptunnel
+    @iptunnel_ip6gre_create_device_with_eui64
+    Scenario: nmcli - vpn - create IP6GRE tunnel with device with EUI64
+    * Add "ip-tunnel" connection named "gre1" for device "ip6gre1" with options
+          """
+          mode ip6gre
+          ip-tunnel.parent veth0
+          remote fe80:feed::beef
+          local fe80:feed::b00f
+          ip6 fe80:deaf::b00f/64
+          ipv4.method disabled
+          autoconnect no
+          ipv6.addr-gen-mode eui64
+          """
+    * Bring "up" connection "gre1"
+    * Wait for "2" seconds
+    Then Ping6 "fe80:deaf::beef%ip6gre1"
+
+
     @ver+=1.16
     @rhelver+=9
     @wireguard
