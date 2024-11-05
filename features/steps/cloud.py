@@ -48,7 +48,7 @@ def start_test_cloud_meta_mock(context):
     nmci.pexpect.pexpect_service(
         " ".join(
             [
-                "python",
+                "python3l",
                 nmci.util.base_dir("contrib/cloud/test-cloud-meta-mock.py"),
                 "--empty",
                 f"{nmci.nmutil.NMCS_MOCK_PORT}",
