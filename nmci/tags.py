@@ -726,10 +726,12 @@ def dhcp4_ipv6_only_no_min_wait_bs(context, scenario):
     ]
     context.process.run_stdout("mkdir -p /etc/systemd/system/NetworkManager.service.d/")
     conf_f = "/etc/systemd/system/NetworkManager.service.d/50-dhcp4-ipv6-only-no-min-wait.conf"
-    # FIXME: Don't abuse add_NM_config() for systemd dropins
-    nmci.nmutil.add_NM_config(conf, conf_f)
-    nmci.process.systemctl("daemon-reload")
-    nmci.nmutil.restart_NM_service()
+
+    def _restart():
+        nmci.process.systemctl("daemon-reload")
+        nmci.nmutil.restart_NM_service()
+
+    nmci.nmutil.add_NM_config(conf, conf_f, op=_restart)
 
 
 _register_tag("dhcp4_ipv6_only_no_min_wait", dhcp4_ipv6_only_no_min_wait_bs)
