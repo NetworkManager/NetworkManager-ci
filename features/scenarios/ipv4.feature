@@ -3783,7 +3783,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-14370
-    @ver+=1.51.2
+    @ver+=1.51.3
     @dhcp4_ipv6_only_no_min_wait
     @ipv4_dhcp_ipv6_only_preferred
     Scenario: nmcli - ipv4 - DHCP option "IPv6-only preferred"
@@ -3815,7 +3815,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-14370
-    @ver+=1.51.2
+    @ver+=1.51.3
     @ipv4_dhcp_ipv6_only_preferred_global
     Scenario: nmcli - ipv4 - DHCP option "IPv6-only preferred" with global value
     * Create NM config file "90-ipv6-only-preferred.conf" with content
