@@ -2810,7 +2810,8 @@
     @fedoraver+=36 @rhelver+=9.2
     @ver+=1.43.6
     @ver+=1.42.7
-    @ver/rhel/9+=1.42.2.6
+    @ver/rhel/9/2+=1.42.2.6
+    @ver-=1.51.2
     @bond_set_balance_slb_options
     Scenario: bond - create bond with "balance-slb" bonding mode (multi chassis link aggregation (MLAG)
      * Add "bond" connection named "bond0" for device "nmbond" with options
@@ -2828,6 +2829,103 @@
      And "balance-xor" is visible with command "cat /sys/class/net/nmbond/bonding/mode"
      And "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
      And "type filter hook ingress device \"eth7\" priority filter; policy accept" is visible with command "nft list table netdev nm-mlag-nmbond"
+
+
+    @RHEL-59559
+    @fedoraver+=36 @rhelver+=9.2
+    @ver+=1.51.3
+    @bond_set_balance_slb_options
+    Scenario: bond - create bond with "balance-slb" bonding mode (multi chassis link aggregation (MLAG)
+    * Add "bond" connection named "bond0" for device "nmbond" with options
+          """
+          autoconnect no
+          bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1
+          ipv4.method manual ipv4.addresses 172.16.1.2/24
+          """
+    * Add "ethernet" connection named "bond0.0" for device "eth4" with options "master nmbond autoconnect no"
+    * Add "ethernet" connection named "bond0.1" for device "eth5" with options "master nmbond autoconnect no"
+    * Add "ethernet" connection named "bond0.2" for device "eth6" with options "master nmbond autoconnect no"
+    * Bring "up" connection "bond0.0"
+    * Bring "up" connection "bond0.1"
+    * Bring "up" connection "bond0.2"
+    When "nmbond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     And "vlan\+srcmac\s+5" is visible with command "cat /sys/class/net/nmbond/bonding/xmit_hash_policy"
+     And "balance-xor" is visible with command "cat /sys/class/net/nmbond/bonding/mode"
+    * Commentary
+        """
+        Forward igmp and icmpv6 packets to the primary device (eth4)
+        Drop broadcast and multicast packets on other devices (eth5, eth6).
+        """
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to \"eth4\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth5"
+     And "icmpv6 type.*fwd to \"eth4\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth5"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth5"
+     And "ip igmp type.*fwd to \"eth4\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd to \"eth4\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+    When Bring "down" connection "bond0.0"
+    * Commentary
+        """
+        Bring primary device down (eth4) and forward igmp and icmpv6 packets to the new primary device (eth5).
+        Drop broadcast and multicast packets on the last device (eth6).
+        """
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to \"eth4\"" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth5"
+     And "icmpv6 type.*fwd to \"eth4\"" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth5"
+     And "meta pkttype { broadcast, multicast }.*drop" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth5"
+     And "ip igmp type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+    When Bring "down" connection "bond0.2"
+    * Commentary
+        """
+        Bring down the last device. We don't need those rules now. Check they are gone.
+        """
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth5"
+     And "icmpv6 type.*fwd to" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth5"
+     And "meta pkttype { broadcast, multicast }.*drop" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth5"
+     And "ip igmp type.*fwd" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+    When Bring "up" connection "bond0.2"
+    * Commentary
+        """
+        Bring another device up again (eth6) and forward igmp and icmpv6 packets to the primary device (eth5).
+        Drop broadcast and multicast packets on this device.
+        """
+
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+    When Bring "up" connection "bond0.0"
+    * Commentary
+        """
+        Bring yet another device up (eth4) and forward igmp and icmpv6 packets to the primary device (eth5).
+        Drop broadcast and multicast packets on this device.
+        """
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+     And "ip igmp type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth4"
+     And "icmpv6 type.*fwd to \"eth5\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth4"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth4"
+    * Bring "down" connection "bond0.1"
+    * Commentary
+        """
+        Bring primary device down (eth5) and forward igmp and icmpv6 to the new primary device (eth6).
+        Drop broadcast and multicast packets on the last device up.
+        """
+    Then "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "ip igmp type.*fwd to \"eth5\"" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth6"
+     And "icmpv6 type.*fwd to \"eth5\"" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth6"
+     And "meta pkttype { broadcast, multicast }.*drop" is not visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth6"
+     And "ip igmp type.*fwd to \"eth6\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 igmp-reports-eth4"
+     And "icmpv6 type.*fwd to \"eth6\"" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 3 igmp-reports-eth4"
+     And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth4"
+
 
 
      @rhbz2107647
