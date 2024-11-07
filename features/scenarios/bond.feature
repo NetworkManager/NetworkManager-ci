@@ -2813,19 +2813,21 @@
     @ver/rhel/9+=1.42.2.6
     @bond_set_balance_slb_options
     Scenario: bond - create bond with "balance-slb" bonding mode (multi chassis link aggregation (MLAG)
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
+     * Add "bond" connection named "bond0" for device "nmbond" with options
            """
            autoconnect no
-           bond.options mode=balance-xor,balance-slb=1,xmit_hash_policy=5
+           bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1
            ipv4.method manual ipv4.addresses 172.16.1.2/24
            """
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
-     * Add "ethernet" connection named "bond0.0" for device "eth7" with options "master nm-bond autoconnect no"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nmbond autoconnect no"
+     * Add "ethernet" connection named "bond0.0" for device "eth7" with options "master nmbond autoconnect no"
      * Bring "up" connection "bond0.1"
      * Bring "up" connection "bond0.0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     And "vlan\+srcmac\s+5" is visible with command "cat /sys/class/net/nm-bond/bonding/xmit_hash_policy"
-     And "balance-xor" is visible with command "cat /sys/class/net/nm-bond/bonding/mode"
+     When "nmbond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
+     And "vlan\+srcmac\s+5" is visible with command "cat /sys/class/net/nmbond/bonding/xmit_hash_policy"
+     And "balance-xor" is visible with command "cat /sys/class/net/nmbond/bonding/mode"
+     And "table netdev nm-mlag-nmbond" is visible with command "nft list table netdev nm-mlag-nmbond"
+     And "type filter hook ingress device \"eth7\" priority filter; policy accept" is visible with command "nft list table netdev nm-mlag-nmbond"
 
 
      @rhbz2107647
