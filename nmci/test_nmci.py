@@ -1157,20 +1157,20 @@ def test_process_run():
         assert nmci.process.run([b"which", "true"]).returncode == 0
         assert nmci.process.run([b"which", b"true"]).returncode == 0
 
-    assert nmci.process.run(["sh", "-c", "echo -n hallo"]) == nmci.process.RunResult(
+    assert nmci.process.run(["sh", "-c", "printf hallo"]) == nmci.process.RunResult(
         0, "hallo", ""
     )
 
-    assert nmci.process.run(["sh", "-c", b"echo -n hallo"]) == nmci.process.RunResult(
+    assert nmci.process.run(["sh", "-c", b"printf hallo"]) == nmci.process.RunResult(
         0, "hallo", ""
     )
 
     assert nmci.process.run(
-        ["sh", b"-c", b"echo -n hallo"], as_bytes=True
+        ["sh", b"-c", b"printf hallo"], as_bytes=True
     ) == nmci.process.RunResult(0, b"hallo", b"")
 
     r = nmci.process.run(
-        ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"],
+        ["sh", b"-c", b"printf hallo; printf hello2 >&2"],
         as_bytes=True,
         ignore_stderr=True,
     )
@@ -1178,11 +1178,11 @@ def test_process_run():
 
     with pytest.raises(Exception):
         nmci.process.run(
-            ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2"], as_bytes=True
+            ["sh", b"-c", b"printf hallo; printf hello2 >&2"], as_bytes=True
         )
 
     r = nmci.process.run(
-        ["sh", b"-c", b"echo -n hallo; echo -n hello2 >&2; exit 5"],
+        ["sh", b"-c", b"printf hallo; printf hello2 >&2; exit 5"],
         as_bytes=True,
         ignore_stderr=True,
     )
@@ -1192,7 +1192,7 @@ def test_process_run():
         [
             "sh",
             b"-c",
-            b"echo -n hallo; echo -n h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+            b"printf hallo; printf h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
         ],
         as_bytes=True,
         ignore_stderr=True,
@@ -1204,7 +1204,7 @@ def test_process_run():
             [
                 "sh",
                 b"-c",
-                b"echo -n hallo; echo -n h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+                b"printf hallo; printf h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
             ],
             ignore_stderr=True,
         )
@@ -1227,7 +1227,7 @@ def test_process_run():
         nmci.process.run_stdout("exit 15", shell=True)
 
     r = nmci.process.run(
-        "echo -n xstderr >&2 ; echo -n xstdout; exit 77", shell=True, ignore_stderr=True
+        "printf xstderr >&2 ; printf xstdout; exit 77", shell=True, ignore_stderr=True
     )
     assert r == (77, "xstdout", "xstderr")
 
@@ -1249,13 +1249,13 @@ def test_process_run():
     assert nmci.process.run_search_stdout("echo", re.compile("^"), pattern_flags=0)
 
     m = nmci.process.run_search_stdout(
-        "echo -n hallo", re.compile("^h(all.)$"), pattern_flags=0
+        "printf hallo", re.compile("^h(all.)$"), pattern_flags=0
     )
     assert m
     assert m.group(1) == "allo"
 
     m = nmci.process.run_search_stdout(
-        "echo -n hallo", re.compile(b"^h(all.)$"), pattern_flags=0
+        "printf hallo", re.compile(b"^h(all.)$"), pattern_flags=0
     )
     assert m
     assert m.group(1) == b"allo"
@@ -1298,22 +1298,22 @@ def test_process_run():
     os.environ["NMCI_TEST_XXX1"] = "global"
 
     assert f"foo//{os.environ.get('NMCI_TEST_XXX1')}" == nmci.process.run_stdout(
-        'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env_extra={"HI": "foo"}
+        'printf "$HI//$NMCI_TEST_XXX1"', shell=True, env_extra={"HI": "foo"}
     )
 
     assert "foo//" == nmci.process.run_stdout(
-        'echo -n "$HI//$NMCI_TEST_XXX1"', shell=True, env={"HI": "foo"}
+        'printf "$HI//$NMCI_TEST_XXX1"', shell=True, env={"HI": "foo"}
     )
 
     assert "foo2//" == nmci.process.run_stdout(
-        'echo -n "$HI//$NMCI_TEST_XXX1"',
+        'printf "$HI//$NMCI_TEST_XXX1"',
         shell=True,
         env={"HI": "foo"},
         env_extra={"HI": "foo2"},
     )
 
     with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
-        r = nmci.process.run("echo -n hello-out", stdout=f_out)
+        r = nmci.process.run("printf hello-out", stdout=f_out)
         assert r == nmci.process.RunResult(0, "", "")
         f_out.seek(0)
         assert b"hello-out" == f_out.read()
@@ -1321,7 +1321,7 @@ def test_process_run():
     with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
         with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_err:
             r = nmci.process.run(
-                "echo -n hello-out; echo -n hello-err >&2",
+                "printf hello-out; printf hello-err >&2",
                 shell=True,
                 stdout=f_out,
                 stderr=f_err,
@@ -1337,7 +1337,7 @@ def test_process_run():
     with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_out:
         with tempfile.TemporaryFile(dir=nmci.util.tmp_dir()) as f_err:
             r = nmci.process.run(
-                "echo -n hello-out; echo -n hello-err >&2",
+                "printf hello-out; printf hello-err >&2",
                 shell=True,
                 stdout=f_out,
                 stderr=subprocess.STDOUT,
@@ -1556,34 +1556,34 @@ def test_process_run_shell_auto():
         ).stdout
     )
 
-    assert "$SHELL" == nmci.process.run("echo -n $SHELL", shell=False).stdout
-    assert "$SHELL" == nmci.process.run("echo -n $SHELL").stdout
-    assert "$SHELL" != nmci.process.run("echo -n $SHELL", shell=True).stdout
-    assert "$SHELL" != nmci.process.run(nmci.process.WithShell("echo -n $SHELL")).stdout
+    assert "$SHELL" == nmci.process.run("printf $SHELL", shell=False).stdout
+    assert "$SHELL" == nmci.process.run("printf $SHELL").stdout
+    assert "$SHELL" != nmci.process.run("printf $SHELL", shell=True).stdout
+    assert "$SHELL" != nmci.process.run(nmci.process.WithShell("printf $SHELL")).stdout
 
 
 def test_process_popen():
 
-    proc = nmci.process.Popen("echo -n hallo").proc
+    proc = nmci.process.Popen("printf hallo").proc
     proc.wait()
     assert proc.stdout.read() == b"hallo"
 
-    proc = nmci.process.Popen("echo -n $SHELL").proc
+    proc = nmci.process.Popen("printf $SHELL").proc
     proc.wait()
     assert proc.stdout.read() == b"$SHELL"
 
-    proc = nmci.process.Popen(nmci.process.WithShell("echo -n $SHELL")).proc
+    proc = nmci.process.Popen(nmci.process.WithShell("printf $SHELL")).proc
     proc.wait()
     assert proc.stdout.read() != b"$SHELL"
 
-    pc = nmci.process.Popen("echo -n hello")
+    pc = nmci.process.Popen("printf hello")
     while pc.read_and_poll() is None:
         time.sleep(0.05)
     assert pc.returncode == 0
     assert pc.stdout == b"hello"
     assert pc.stderr == b""
 
-    pc = nmci.process.Popen(nmci.process.WithShell("echo -n foo; echo -n hello 1>&2"))
+    pc = nmci.process.Popen(nmci.process.WithShell("printf foo; printf hello 1>&2"))
     pc.read_and_wait()
     assert pc.returncode == 0
     assert pc.stdout == b"foo"
