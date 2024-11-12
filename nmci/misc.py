@@ -2,7 +2,7 @@ import configparser
 import glob
 import os
 import re
-import subprocess
+import sys
 import yaml
 import json
 import xml.etree.ElementTree as ET
@@ -11,7 +11,8 @@ import warnings
 try:
     from systemd import journal  # type: ignore [import]
 except ModuleNotFoundError:
-    if "pytest" in os.environ["_"]:
+    # Match executiion as `pytest` or `python -m pytest`
+    if "pytest" in sys.argv[0] or "pytest" in sys.argv:
         warnings.warn(
             "ModuleNotFoundError: systemd.journal module is missing", UserWarning
         )
