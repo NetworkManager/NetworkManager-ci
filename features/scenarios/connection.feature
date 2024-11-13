@@ -1375,3 +1375,15 @@ Feature: nmcli: connection
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
     * Expect "192.168.99.1" in children in "5" seconds
     * Do not expect "192.168.96.5" in children in "1" seconds
+
+
+    @RHEL-58397
+    @ver+=1.51.3
+    @connection_with_empty_sriov_vfs
+    Scenario: NM - connection - activate ethernet connection with empty SR-IOV VFS
+    * Add "ethernet" connection named "con_con" for device "eth4" with options
+      """
+      autoconnect no
+      sriov.vfs ""
+      """
+    Then Bring "up" connection "con_con"

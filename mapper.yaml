@@ -2503,6 +2503,8 @@ testmapper:
         feature: connection
     - connection_ping_ip_addresses_unreachable:
         feature: connection
+    - connection_with_empty_sriov_vfs:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
