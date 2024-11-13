@@ -1774,6 +1774,10 @@ Feature: nmcli - ovs
 
     @RHEL-50747
     @ver+=1.51.2
+    @ver+=1.50.1
+    @ver+=1.48.14
+    @ver+=1.46.4
+    @ver+=1.44.6
     @ver/rhel/9/4+=1.46.0.20
     @ver/rhel/9/5+=1.48.10.3
     @openvswitch
@@ -1810,11 +1814,16 @@ Feature: nmcli - ovs
 
 
     @RHEL-60928
-    @ver-=1.42
+    @ver+=1.42.10
+    @ver-=1.42.2000
     @ver/rhel/9/2+=1.42.2.27
     @openvswitch
     @ovs_delete_connecting_interface
     Scenario: NM - openvswitch - delete interface that is connecting
+    * Commentary
+      """
+      Version for NM-1.42 with old nmcli syntax.
+      """
     * Commentary
       """
       Make dummy ovs interface without address waiting for DHCP (connecting state)
