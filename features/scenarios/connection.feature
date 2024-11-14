@@ -352,22 +352,18 @@ Feature: nmcli: connection
     @ver+=1.48.0.2
     @connection_timestamp_nm_stop
     Scenario: nmcli - connection - timestamp saved on NM stop
-     * Add "ethernet" connection named "con_con" for device "eth6" with options
+     * Prepare simulated test "testX" device
+     * Add "ethernet" connection named "con_con" for device "testX" with options
         """
         ipv6.method disabled
         """
-     When "eth6\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
+     When "testX\s+ethernet\s+connected" is visible with command "nmcli device" in "5" seconds
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_up"
      * Wait for "4" seconds
      * Stop NM
      * Wait for "5" seconds
-     # Set interface as unmanaged so the connection is not brought up on restart
-     * Create NM config file "95-eth6-unmanaged.conf" with content
-       """
-       [device.eth6-unmanaged]
-       match-device=interface-name:eth6
-       managed=0
-       """
+     # Delete interface so connection is not brought up on restart
+     * Execute "ip link del dev testX"
      * Wait for "5" seconds
      * Start NM
      * Note the output of "nmcli -g connection.timestamp con show con_con" as value "timestamp_post"
