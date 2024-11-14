@@ -262,7 +262,7 @@ Feature: nmcli: inf
           p-key 0x8006
           ipv4.addresses 1.2.3.4/24,1.2.4.5/24,1.2.5.6/24,1.2.6.8/24,1.3.5.7/24,1.2.1.2/24,1.1.2.1/24,1.1.2.2/24,1.1.2.3/24,1.1.2.4/24,1.1.2.5/24,1.1.2.6/24,1.1.2.7/24,1.1.2.8/24,1.1.2.9/24,1.1.2.10/24
           """
-    * Run child "tcpdump -l -i any -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -i0 -o0 -e0 tcpdump -l -i any -v -n > /tmp/tcpdump.log"
     * Run child "nmcli con up inf.8006"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Note MAC address output for device "inf_ib0.8006" via ip command

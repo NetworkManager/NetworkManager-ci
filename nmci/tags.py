@@ -2196,7 +2196,7 @@ def tcpdump_bs(context, scenario):
         ["~~~~~~~~~~~~~~~~~~~~~~~~~~ TRAFFIC LOG ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"],
     )
     context.pexpect_service(
-        "tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True
+        "stdbuf -i0 -o0 -e0 tcpdump -nne -i any >> /tmp/network-traffic.log", shell=True
     )
 
 
