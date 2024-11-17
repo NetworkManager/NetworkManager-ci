@@ -33,7 +33,8 @@ if __name__ == "__main__":
             "Aborted by the new run (or unexpected crash of node_runner)"
         )
         r.gitlab.set_pipeline("canceled", release)
-        r._post_results()
+        # Don't post the message to reduce email notifications.
+        # r._post_results()
         r.gitlab.set_mr_discussion_resolved(False)
         exit(0)
 
