@@ -3725,15 +3725,15 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-send-release - set send release to true
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
           """
+          autoconnect no
           ipv4.may-fail no
           ipv4.dhcp-send-release yes
           """
-    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
+    * Run child "tcpdump -i eth2 -v -n"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
-    Then "DHCP-Message .*53.*, length 1: Release" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then Expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
 
 
     @ver+=1.47.1
@@ -3742,15 +3742,15 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - dhcp-send-release - set send release to false
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
           """
+          autoconnect no
           ipv4.may-fail no
           ipv4.dhcp-send-release no
           """
-    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
-    When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n"
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
-    Then "DHCP-Message .*53.*, length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
+    Then Do not expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
 
 
     @RHEL-56565
