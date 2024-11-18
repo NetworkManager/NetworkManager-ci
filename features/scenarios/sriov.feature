@@ -310,7 +310,7 @@
           ipv4.address 1.2.3.4/24
           autoconnect no
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Bring "up" connection "sriov_port2"
     Then "802.1Q.*vlan 100, p 2" is visible with command "grep 100 /tmp/tcpdump.log" in "20" seconds
@@ -334,7 +334,7 @@
     #    ipv4.method manual
     #    ipv4.address 1.2.3.4/24
     #    """
-    # * Run child "stdbuf -i0 -o0 -e0 tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
+    # * Run child "stdbuf -oL -eL tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
     # When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     # * Bring "up" connection "sriov_port2"
     # Then "802.1AD.*vlan 100, p 2" is visible with command "cat /tmp/tcpdump.log" in "20" seconds
@@ -546,7 +546,7 @@
     @sriov_con_add_VF_vlan
     Scenario: nmcli - sriov - add 1 VF with vlan Q
     * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -n -i sriov_device -xxvv -e > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "20" seconds
     * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options
           """

@@ -1425,7 +1425,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.dhcp-client-id AB
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID (Option )?\(?61\)?, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
@@ -1445,7 +1445,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.dhcp-client-id AB
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID Option 61, length 3: \"AB\"" is visible with command "cat /tmp/tcpdump.log" in "10" seconds
@@ -1483,14 +1483,14 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.dhcp-client-id abcd
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "Client-ID (Option )?\(?61\)?, length 5: \"abcd\"" is visible with command "grep 61 /tmp/tcpdump.log" in "10" seconds
     #### Then try hexadecimal client-id
     * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id c0:ff:ee:11"
     * Execute "pkill tcpdump"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1504,7 +1504,7 @@ Feature: nmcli: ipv4
           """
           ipv4.dhcp-client-id none
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
     Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
@@ -1518,7 +1518,7 @@ Feature: nmcli: ipv4
           """
           ipv4.dhcp-client-id none
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
     Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
@@ -1538,7 +1538,7 @@ Feature: nmcli: ipv4
           """
           ipv4.dhcp-client-id none
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
     Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
@@ -1597,7 +1597,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1610,7 +1610,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to mac with internal plugins
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     * Note MAC address output for device "eth2" via ip command
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
@@ -1623,7 +1623,7 @@ Feature: nmcli: ipv4
     @ipv4_dhcp_client_id_default
     Scenario: NM - ipv4 - ipv4 client id should default to duid with internal plugins
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n -l > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
@@ -1640,7 +1640,7 @@ Feature: nmcli: ipv4
           """
     * Restart NM
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
     Then "01:02:03:04:05:06" is visible with command "grep 'Client-ID' /tmp/tcpdump.log"
@@ -1653,7 +1653,7 @@ Feature: nmcli: ipv4
     * Execute "rm -f /etc/dhcp/dhclient.conf /etc/dhcp/dhclient.d/*"
     * Restart NM
     * Add "ethernet" connection named "con_ipv4" for device "eth2"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     * Bring "up" connection "con_ipv4"
     When "BOOTP/DHCP" is visible with command "cat /tmp/tcpdump.log" in "30" seconds
     Then "Client-ID" is not visible with command "cat /tmp/tcpdump.log"
@@ -3728,7 +3728,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.dhcp-send-release yes
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
@@ -3745,7 +3745,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.dhcp-send-release no
           """
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
+    * Run child "stdbuf -oL -eL tcpdump -i eth2 -v -n > /tmp/tcpdump.log"
     When "cannot|empty" is not visible with command "file /tmp/tcpdump.log" in "150" seconds
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds

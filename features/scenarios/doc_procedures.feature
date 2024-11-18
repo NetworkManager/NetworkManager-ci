@@ -561,7 +561,7 @@ Feature: nmcli - procedures in documentation
     Then "using nameserver 192.168.99.1.* for domain example.com" is visible in journal in "10" seconds
     * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
     * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -nn -i any port 53"
+    * Run child "stdbuf -oL -eL tcpdump -nn -i any port 53"
     # We need some time to allow tcpdump to start (especially on ppc64le)
     * Wait for "3" seconds
     Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
@@ -582,7 +582,7 @@ Feature: nmcli - procedures in documentation
     Then "\(ethX\): example.com" is visible with command "resolvectl domain" in "10" seconds
     * Note the output of "ip -4 a show dev eth0 | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "eth0_ip4"
     * Note the output of "ip -4 a show dev ethX | grep -o 'inet [^/]*/' | grep -o '[0-9.]*' | tr -d '\n'" as value "ethX_ip4"
-    * Run child "stdbuf -i0 -o0 -e0 tcpdump -nn -i any port 53"
+    * Run child "stdbuf -oL -eL tcpdump -nn -i any port 53"
     # We need some time to allow tcpdump to start (especially on ppc64le)
     * Wait for "3" seconds
     Then "www.redhat.com.* has address" is visible with command "host -t A www.redhat.com" in "20" seconds
