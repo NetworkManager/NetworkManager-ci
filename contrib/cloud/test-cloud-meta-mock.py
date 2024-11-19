@@ -435,7 +435,7 @@ class SocketHTTPServer(ThreadingHTTPServer):
                 {
                     "vnicId": "example.id.1",
                     "privateIp": ip1,
-                    "vlanTag": 1,
+                    "vlanTag": 0,
                     "macAddr": mac1,
                     "virtualRouterIp": gw1,
                     "subnetCidrBlock": subnet1 + "/" + prefix1,
@@ -444,11 +444,20 @@ class SocketHTTPServer(ThreadingHTTPServer):
                 {
                     "vnicId": "example.id.2",
                     "privateIp": ip2,
-                    "vlanTag": 2,
+                    "vlanTag": 0,
                     "macAddr": mac2,
                     "virtualRouterIp": gw2,
                     "subnetCidrBlock": subnet2 + "/" + prefix1,
-                    "nicIndex": 0,
+                    "nicIndex": 1,
+                },
+                {
+                    "vnicId": "example.id.vlan.100",
+                    "privateIp": "172.31.0.1",
+                    "vlanTag": 100,
+                    "macAddr": "ff:00:00:00:00:01",
+                    "virtualRouterIp": "172.31.255.254",
+                    "subnetCidrBlock": "172.31.0.0/16",
+                    "nicIndex": 1,
                 },
             ],
         )
