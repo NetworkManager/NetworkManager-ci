@@ -429,6 +429,51 @@ def vxlan_device_check_ports(context, dev, dst_port, src_min, src_max):
         assert vxlan["DstPort"] == dst_port, "bad dst port '%s'" % vxlan["DstPort"]
 
 
+@step('macvlan device "{dev}" check for parent "{parent}" and MAC address "{mac}"')
+def macvlan_device_check(context, dev, parent, mac):
+    mac = nmci.ip.mac_norm(mac, force_len=6)
+
+    for d in nmci.nmutil.device_status(device_type="macvlan"):
+        if d["name"] == dev:
+            dev_mac = nmci.ip.mac_norm(
+                d["device"]["HwAddress"].get_string(), force_len=6
+            )
+            assert dev_mac == mac
+            dev_info = nmci.ip.link_show(ifname=dev, binary=False)
+            assert (
+                dev_info["parentdev"] == parent
+            ), f"{parent} != {dev_info['parentdev']}"
+            return
+    raise Exception(f"macvlan device '{dev}' not found")
+
+
+@step(
+    'vlan device "{dev}" check for parent "{parent}", MAC address "{mac}" and VLAN ID "{vlan_id}"'
+)
+def vlan_device_check(context, dev, parent, mac, vlan_id):
+    mac = nmci.ip.mac_norm(mac, force_len=6)
+
+    for d in nmci.nmutil.device_status(device_type="vlan"):
+        if d["name"] == dev:
+            dev_mac = nmci.ip.mac_norm(
+                d["device"]["HwAddress"].get_string(), force_len=6
+            )
+            assert dev_mac == mac, f"{dev_mac} != {mac}"
+
+            conn_path = d["active-connection"]["Connection"]
+            conn = nmci.nmutil.dbus_get_settings(conn_path)
+            dev_vlan_id = conn["vlan"]["id"].get_uint32()
+            assert dev_vlan_id == int(vlan_id), f"{dev_vlan_id} != {int(vlan_id)}"
+
+            dev_info = nmci.ip.link_show(ifname=dev, binary=False)
+            assert (
+                dev_info["parentdev"] == parent
+            ), f"{parent} != {dev_info['parentdev']}"
+
+            return
+    raise Exception(f"macvlan device '{dev}' not found")
+
+
 @step('Snapshot "{action}" for "{devices}"')
 @step('Snapshot "{action}" for "{devices}" with timeout "{timeout}"')
 @step('Snapshot for "{devices}" "{action}" device "{device}"')

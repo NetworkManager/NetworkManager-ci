@@ -1013,7 +1013,11 @@ def check_no_coredump(context, seconds):
 @step(
     'Check "{family}" address list "{expected}" on device "{ifname}" in "{seconds}" seconds'
 )
-def check_address_expect(context, family, expected, ifname, seconds=None):
+@step('Check there are no "{family}" addresses on device "{ifname}"')
+@step(
+    'Check there are no "{family}" addresses on device "{ifname}" in "{seconds}" seconds'
+)
+def check_address_expect(context, family, ifname, expected=[], seconds=None):
     if seconds is not None:
         seconds = float(seconds)
     family = nmci.ip.addr_family_norm(family)

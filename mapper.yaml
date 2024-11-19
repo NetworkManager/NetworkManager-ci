@@ -1497,6 +1497,10 @@ testmapper:
     - cloud_oci_basic_vm:
         feature: cloud
         tags: gate
+    - cloud_oci_basic_baremetal:
+        feature: cloud
+    - cloud_oci_baremetal_with_vlan:
+        feature: cloud
     - cloud_no_provider_warning:
         feature: cloud
     - cloud_setup_keep_secondary_ips:
