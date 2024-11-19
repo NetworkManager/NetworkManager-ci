@@ -115,6 +115,68 @@ Feature: nmcli: cloud
     Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20" on device "testX1" in "5" seconds
 
 
+    @ver+=1.51.91
+    @cloud_oci_basic_baremetal
+    Scenario: cloud - OCI (baremetal instance) - Basic Oracle Cloud nm-cloud-setup checks
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Prepare simulated test "testX2" device with "192.168.101.12" ipv4 and "2620:52:0:beef" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Add "ethernet" connection named "conX2" for device "testX2" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    * Bring "up" connection "conX2"
+    When Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
+     And Check "ipv4" address list "192.168.101.12/24" on device "testX2" in "5" seconds
+    * Mock OCI (baremetal) physical device "0" with NIC index "0", MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Mock OCI (baremetal) physical device "1" with NIC index "1", MAC "CC:00:00:00:00:02", IP "172.31.176.250", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01;testX2=CC:00:00:00:00:02"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "5" seconds
+     And Check "ipv4" address list "192.168.101.12/24 172.31.176.250/20" on device "testX2" in "5" seconds
+    * Mock OCI IP address "172.31.186.249" for device "0"
+    * Mock OCI IP address "172.31.186.250" for device "1"
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01;testX2=CC:00:00:00:00:02"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20" on device "testX1" in "5" seconds
+     And Check "ipv4" address list "192.168.101.12/24 172.31.186.250/20" on device "testX2" in "5" seconds
+
+
+    @ver+=1.51.91
+    @cloud_oci_baremetal_with_vlan
+    Scenario: cloud - OCI (baremetal instance) - Oracle Cloud with VLANs nm-cloud-setup checks
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Bring "up" connection "conX1"
+    When Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
+    * Mock OCI (baremetal) physical device "0" with NIC index "0", MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Mock OCI (baremetal) VLAN device "1" with parent "0" MAC "CC:00:00:00:00:02", IP "172.31.176.250", subnet "172.31.16.0/20", gateway "172.31.176.1" and VLAN tag "123"
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    * Commentary
+      """
+      Macvlan's name is 'macvlanX', being X the interface index in the JSON array from the metadata.
+      VLAN's name is 'parent.vlan_id'.
+      """
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "5" seconds
+     And macvlan device "macvlan1" check for parent "testX1" and MAC address "CC:00:00:00:00:02"
+     And Check there are no "ipv4" addresses on device "macvlan1" in "5" seconds
+     And vlan device "macvlan1.123" check for parent "macvlan1", MAC address "CC:00:00:00:00:02" and VLAN ID "123"
+     And Check "ipv4" address list "172.31.176.250/20" on device "macvlan1.123" in "5" seconds
+    * Mock OCI IP address "172.31.186.249" for device "0"
+    * Mock OCI IP address "172.31.186.250" for device "1"
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20" on device "testX1" in "5" seconds
+     And macvlan device "macvlan1" check for parent "testX1" and MAC address "CC:00:00:00:00:02"
+     And Check there are no "ipv4" addresses on device "macvlan1" in "5" seconds
+     And vlan device "macvlan1.123" check for parent "macvlan1", MAC address "CC:00:00:00:00:02" and VLAN ID "123"
+     And Check "ipv4" address list "172.31.186.250/20" on device "macvlan1.123" in "5" seconds
+    * Commentary
+      """
+      Here nm-cloud-setup is supposed to modify existing MACVLAN and VLAN devices, not to
+      create new ones. Ensure that we still have only one of each.
+      """
+    Then "Exactly" "1" lines are visible with command "ip -br link show type macvlan"
+     And "Exactly" "1" lines are visible with command "ip -br link show type vlan"
+
+
     @rhbz2214880
     @ver+=1.43.10
     @skip_in_centos

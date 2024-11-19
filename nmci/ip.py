@@ -703,6 +703,12 @@ class _IP:
                 g = [s.decode() for s in g.split(b",")]
                 ip_data["flags"] = g
 
+                if m.group(3):
+                    parentdev = m.group(3).removeprefix(b"@")
+                    ip_data["parentdev"] = nmci.util.binary_to_str(parentdev, binary)
+                else:
+                    ip_data["parentdev"] = None
+
                 while i < len(lines):
                     line = lines[i]
                     if not re.match(rb"^ +", line):
@@ -790,6 +796,8 @@ class _IP:
         data = result[0]
 
         data["ifname"] = nmci.util.binary_to_str(data["ifname"], binary)
+        if data["parentdev"]:
+            data["parentdev"] = nmci.util.binary_to_str(data["parentdev"], binary)
 
         return data
 
