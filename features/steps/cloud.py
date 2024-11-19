@@ -449,21 +449,64 @@ def mock_gcp_ip2(context, ip_addr1, ip_addr2, num):
 
 
 @step(
-    'Mock OCI device "{num}" with MAC "{mac}", IP "{ip_addr}", subnet "{cidr}" and gateway "{gw_addr}"'
+    'Mock OCI (VM) device "{num}" with MAC "{mac}", IP "{ip_addr}", subnet "{cidr}" and gateway "{gw_addr}"'
 )
-def mock_oci_dev(context, num, mac, ip_addr, cidr, gw_addr):
+def mock_oci_dev_vm(context, num, mac, ip_addr, cidr, gw_addr):
     mac = _resolve_mac(context, mac)
     http_put_oci(
         f"opc/v2/vnics/{num}",
         json.dumps(
             {
-                "vnicId": "example.id.X",
+                "vnicId": f"example.id.{num}",
                 "privateIp": ip_addr,
-                "vlanTag": 1,
+                "vlanTag": 123,  # nm-c-s must ignore vlanTag, but real env has it set
                 "macAddr": mac,
                 "virtualRouterIp": gw_addr,
                 "subnetCidrBlock": cidr,
-                "nicIndex": 0,
+            }
+        ),
+    )
+
+
+@step(
+    'Mock OCI (baremetal) physical device "{num}" with NIC index "{nic_index}", MAC "{mac}", IP "{ip_addr}", subnet "{cidr}" and gateway "{gw_addr}"'
+)
+def mock_oci_dev_baremetal_phys(context, num, nic_index, mac, ip_addr, cidr, gw_addr):
+    mac = _resolve_mac(context, mac)
+    http_put_oci(
+        f"opc/v2/vnics/{num}",
+        json.dumps(
+            {
+                "vnicId": f"example.id.{num}",
+                "privateIp": ip_addr,
+                "vlanTag": 0,
+                "macAddr": mac,
+                "virtualRouterIp": gw_addr,
+                "subnetCidrBlock": cidr,
+                "nicIndex": int(nic_index),
+            }
+        ),
+    )
+
+
+@step(
+    'Mock OCI (baremetal) VLAN device "{num}" with parent "{nic_index}" MAC "{mac}", IP "{ip_addr}", subnet "{cidr}", gateway "{gw_addr}" and VLAN tag "{vlan_tag}"'
+)
+def mock_oci_dev_baremetal_vlan(
+    context, num, nic_index, mac, ip_addr, cidr, gw_addr, vlan_tag
+):
+    mac = _resolve_mac(context, mac)
+    http_put_oci(
+        f"opc/v2/vnics/{num}",
+        json.dumps(
+            {
+                "vnicId": f"example.id.{num}",
+                "privateIp": ip_addr,
+                "vlanTag": int(vlan_tag),
+                "macAddr": mac,
+                "virtualRouterIp": gw_addr,
+                "subnetCidrBlock": cidr,
+                "nicIndex": int(nic_index),
             }
         ),
     )
@@ -493,3 +536,18 @@ def mock_oci_cidr(context, cidr, num):
 @step('Mock OCI gateway address "{ip_addr}" for device "{num}"')
 def mock_oci_gw(context, gw_addr, num):
     http_put_oci(f"opc/v2/vnics/{num}/virtualRouterIp", gw_addr)
+
+
+@step('Mock OCI VLAN tag "{vlan_tag}" for device "{num}"')
+def mock_oci_vlan(context, vlan_tag, num):
+    # Note that on VM instances, vlanTag is ignored
+    http_put_oci(f"opc/v2/vnics/{num}/vlanTag", vlan_tag)
+
+
+@step('Mock OCI physical NIC index "{nic_index}" for device "{num}"')
+def mock_oci_nic_index(context, nic_index, num):
+    # Note that:
+    #  Valid nicIndex are 0 and 1.
+    #  There presence or absence of the nicIndex field determines if the instance
+    #  is a VM or baremetal. Either all the devices must have it, or none of them.
+    http_put_oci(f"opc/v2/vnics/{num}/nicIndex", nic_index)
