@@ -86,6 +86,7 @@ beaker-hardware:
             kernel-options-post: biosdevname=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt mlx5_core.vf_names=eth
 
 setup: |
+  exec &> >(cat)
   ./prepare/envsetup.sh setup first_test_setup
   file=/tmp/NetworkManager-ci-unit_tests.log
   ./run/publish_behave_logs/setup_pbl.py
