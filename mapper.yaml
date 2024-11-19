@@ -1494,7 +1494,7 @@ testmapper:
     - cloud_gcp_basic:
         feature: cloud
         tags: gate
-    - cloud_oci_basic:
+    - cloud_oci_basic_vm:
         feature: cloud
         tags: gate
     - cloud_no_provider_warning:

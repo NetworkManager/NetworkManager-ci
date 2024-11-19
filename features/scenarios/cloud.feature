@@ -93,20 +93,20 @@ Feature: nmcli: cloud
 
 
     @ver+=1.51.3
-    @cloud_oci_basic
-    Scenario: cloud - OCI - Basic Oracle Cloud nm-cloud-setup checks
+    @cloud_oci_basic_vm
+    Scenario: cloud - OCI (Virtual Machine instance) - Basic Oracle Cloud nm-cloud-setup checks
     * Start test-cloud-meta-mock.py
     * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
     * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
     * Bring "up" connection "conX1"
-    * Mock OCI device "0" with MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Mock OCI (VM) device "0" with MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
     * Commentary
       """
       This additional mocked device is needed because nm-cloud-setup skips configuring if there is
       only 1 interface with 1 address. In OCI we cannot add 2 addresses to an interface, so we
       return 2 interfaces from the mock server. The 2nd won't be found by nm-c-s, so skipped.
       """
-    * Mock OCI device "1" with MAC "CC:00:00:00:00:02", IP "172.31.186.249", subnet "172.31.16.0/20" and gateway "172.31.186.1"
+    * Mock OCI (VM) device "1" with MAC "CC:00:00:00:00:02", IP "172.31.186.249", subnet "172.31.16.0/20" and gateway "172.31.186.1"
     * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
     * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01"
     Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "5" seconds
