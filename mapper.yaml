@@ -1555,6 +1555,8 @@ testmapper:
         feature: ethernet
     - ethtool_features_coal:
         feature: ethernet
+    - ethtool_features_fec:
+        feature: ethernet
     - ethernet_accept_all_mac_addresses_external_device:
         feature: ethernet
     - ethtool_features_pause:

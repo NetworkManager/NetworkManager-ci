@@ -1225,6 +1225,33 @@ Feature: nmcli - ethernet
     Then "Adaptive RX:\s*off  TX:\s*off\s*stats-block-usecs:\s*0\s*sample-interval:\s*0\s*pkt-rate-low:\s*0\s*pkt-rate-high:\s*0\s*rx-usecs:\s*0\s*rx-frames:\s*0\s*rx-usecs-irq:\s*0\s*rx-frames-irq:\s*0\s*tx-usecs:\s*0\s*tx-frames:\s*0\s*tx-usecs-irq:\s*0\s*tx-frames-irq:\s*0\s*rx-usecs-low:\s*0\s*rx-frames?-low:\s*0\s*tx-usecs-low:\s*0\s*tx-frames?-low:\s*0\s*rx-usecs-high:\s*0\s*rx-frames?-high:\s*0\s*tx-usecs-high:\s*0\s*tx-frames?-high:\s*0\s*" is visible with command "ethtool -c eth11"
 
 
+    @RHEL-24055
+    @ver+=1.51.4 @rhelver+=8
+    @prepare_patched_netdevsim
+    @ethtool_features_fec
+    Scenario: nmcli - ethernet - ethtool set fec options
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+        """
+        ipv4.method manual
+        ipv4.addresses 192.0.2.1/24
+        ethtool.fec auto
+        """
+    When Bring "up" connection "con_ethernet"
+     And "Supported/Configured FEC encodings: Auto" is visible with command "ethtool --show-fec eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.fec off"
+    Then Bring "up" connection "con_ethernet"
+     And "Active FEC encoding: Off" is visible with command "ethtool --show-fec eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.fec rs"
+    Then Bring "up" connection "con_ethernet"
+     And "Active FEC encoding: RS" is visible with command "ethtool --show-fec eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.fec baser"
+    Then Bring "up" connection "con_ethernet"
+     And "Active FEC encoding: BaseR" is visible with command "ethtool --show-fec eth11"
+    * Modify connection "con_ethernet" changing options "ethtool.fec llrs"
+    Then Bring "up" connection "con_ethernet"
+     And "Active FEC encoding: LLRS" is visible with command "ethtool --show-fec eth11"
+
+
     @rhbz1942331
     @ver+=1.31
     @ethernet_accept_all_mac_addresses_external_device
