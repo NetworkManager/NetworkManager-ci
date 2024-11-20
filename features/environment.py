@@ -410,7 +410,8 @@ def _after_scenario(context, scenario):
     if nmci.util.is_verbose():
         # Attach journalctl logs
         print("Attaching NM log")
-        nmci.embed.embed_data("NM", log)
+        html_log = nmci.misc.format_NM_journal(log)
+        nmci.embed.embed_data("NM", html_log, mime_type="text/html")
 
     if context.crashed_step:
         print("\n\n" + ("!" * 80))

@@ -1265,6 +1265,13 @@ Get distribution name and version.
 * **Return type:**
   tuple of string and list of int
 
+### nmci.misc.format_NM_journal(log)
+
+Add HTML tags to NM log to color/highlight specific messages (DEBUG/INFO/WARN/ERROR)
+
+* **Parameters:**
+  **log** (*str*) – NM log
+
 ### nmci.misc.format_dict(values, connector=' = ', separator=', ')
 
 Universal dictionary formatter.

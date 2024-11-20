@@ -1,12 +1,13 @@
 import configparser
 import glob
+import html
+import json
 import os
 import re
 import sys
-import yaml
-import json
-import xml.etree.ElementTree as ET
 import warnings
+import yaml
+import xml.etree.ElementTree as ET
 
 try:
     from systemd import journal  # type: ignore [import]
@@ -1254,6 +1255,33 @@ class _Misc:
                 d = d + "\n" + nmci.util.bytes_to_str(suffix)
 
         return d
+
+    def format_NM_journal(self, log):
+        """
+        Add HTML tags to NM log to color/highlight specific messages (DEBUG/INFO/WARN/ERROR)
+
+        :param log: NM log
+        :type log: str
+        """
+        lines = log.strip("\n").split("\n")
+        html_lines = []
+        for line in lines:
+            e_line = html.escape(line)
+            if line.startswith("<"):
+                if line.startswith("<info>"):
+                    line = f'<b style="display:inline-block;width:100%">{e_line}</b>'
+                elif line.startswith("<nmci>"):
+                    line = f'<b style="display:inline-block;width:100%;color:var(--summary-skipped);">{e_line}</b>'
+                elif line.startswith("<warn>"):
+                    line = f'<b style="display:inline-block;width:100%;background-color:var(--undefined-step-bg);">{e_line}</b>'
+                elif line.startswith("<error>"):
+                    line = f'<b style="display:inline-block;width:100%;background-color:var(--failed-step-bg);">{e_line}</b>'
+                else:
+                    line = f"<span>{e_line}</span>"
+            else:
+                line = f'<b style="display:inline-block;width:100%;background-color:var(--commentary-bg);">{e_line}</b>'
+            html_lines.append(line)
+        return "\n".join(html_lines)
 
     def systemd_list_units(self, states=[], patterns=["*.service"], names_only=True):
         """
