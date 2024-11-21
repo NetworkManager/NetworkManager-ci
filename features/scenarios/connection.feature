@@ -1375,6 +1375,7 @@ Feature: nmcli: connection
 
     @RHEL-58397
     @ver+=1.51.3
+    @ver/rhel/9/5+=1.48.10.3
     @connection_with_empty_sriov_vfs
     Scenario: NM - connection - activate ethernet connection with empty SR-IOV VFS
     * Add "ethernet" connection named "con_con" for device "eth4" with options
