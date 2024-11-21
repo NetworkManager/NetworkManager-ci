@@ -1177,6 +1177,7 @@ Feature: nmcli - ovs
 
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5 @ver-=1.51.1
+    @ver/rhel/9/5-1.48.10.3
     @permissive @openvswitch @dpdk
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
@@ -1200,6 +1201,7 @@ Feature: nmcli - ovs
 
     @RHEL-60022
     @ver+=1.51.2
+    @ver/rhel/9/5+=1.48.10.3
     @permissive @openvswitch @dpdk
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
