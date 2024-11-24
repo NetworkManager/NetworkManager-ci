@@ -187,17 +187,17 @@ class GitlabTrigger(object):
         mr_id = self.merge_request_id
         mr = self.gl_project.mergerequests.get(mr_id)
         discussions = mr.discussions.list(all=True)
-        title = f"Pipeline Status"
+        title = f"Pipeline Status. Running Pipelines:"
         for d in discussions:
             notes = d.attributes.get("notes")
             for note in notes:
-                if title == note["body"].strip():
+                if note["body"].strip().startswith(title):
                     self._pipeline_discussion = d
                     print(f"Found discussion: {title}")
-                    break
+                break
         if self._pipeline_discussion is None:
             print(f"Creating discussion: {title}")
-            self._pipeleine_discussion = mr.discussions.create({"body": title})
+            self._pipeline_discussion = mr.discussions.create({"body": title})
         return self._pipeline_discussion
 
     def get_mr_discussions(self, commit=None):
@@ -329,7 +329,8 @@ class GitlabTrigger(object):
 
             com = self.gl_project.commits.get(self.commit)
 
-            build_id = re.match(r"^.*/([^/]+)/$", os.environ["BUILD_URL"])[1]
+            build_url = os.environ["BUILD_URL"]
+            build_id = re.match(r"^.*/([^/]+)/$", build_url)[1]
             pipeline_name = f"c{release}s: NM {build_id}"
 
             exc = None
@@ -338,7 +339,7 @@ class GitlabTrigger(object):
                     com.statuses.create(
                         {
                             "state": status,
-                            "target_url": os.environ["BUILD_URL"],
+                            "target_url": build_url,
                             "name": pipeline_name,
                             "description": description,
                         }
@@ -346,9 +347,18 @@ class GitlabTrigger(object):
                     break
                 except Exception as e:
                     exc = e
+                    print(f"Unable to set commit status in gitlab:\nException: {exc}")
                     time.sleep(1)
-            if exc is not None:
-                print(f"Unable to set commit status in gitlab:\nException: {exc}")
+            # set headline for running jobs
+            status_line = f"\n[{pipeline_name}]({build_url}),"
+            note_id = self.pipeline_discussion.attributes.get("notes")[0]["id"]
+            note = self.pipeline_discussion.notes.get(note_id)
+            if status == "running":
+                note.body += status_line
+            elif status in ["canceled", "success", "failed"]:
+                note.body = note.body.replace(status_line, "")
+            print(f"Setting pipeline title to:\n{note.body}")
+            note.save()
 
         except Exception as e:
             print(str(e))
