@@ -3080,8 +3080,6 @@ testmapper:
         feature: nmtui_ipv4
     - nmtui_ipv4_addresses_can_add_after_removing_invalid:
         feature: nmtui_ipv4
-    - nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form:
-        feature: nmtui_ipv4
     - nmtui_ipv6_addresses_static_no_address:
         feature: nmtui_ipv6
     - nmtui_ipv6_addresses_static_no_mask:
