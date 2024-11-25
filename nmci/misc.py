@@ -43,7 +43,7 @@ class _Misc:
         :rtype: str
         """
         test_name0 = test_name
-        m = re.match("^[^_]*NetworkManager[^_]*_[^_]*Test[^_]*_(.*)$", test_name)
+        m = re.match("^[^_]*NetworkManager[^_]*_[^_]*[0-9]*_(.*)$", test_name)
         if m:
             test_name = m.group(1)
         if test_name and test_name[0] == "@":
