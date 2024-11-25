@@ -182,8 +182,6 @@ class GitlabTrigger(object):
 
     @property
     def pipeline_discussion(self):
-        if self._pipeline_discussion is not None:
-            return self._pipeline_discussion
         mr_id = self.merge_request_id
         mr = self.gl_project.mergerequests.get(mr_id)
         discussions = mr.discussions.list(all=True)
@@ -192,13 +190,13 @@ class GitlabTrigger(object):
             notes = d.attributes.get("notes")
             for note in notes:
                 if note["body"].strip().startswith(title):
-                    self._pipeline_discussion = d
+                    pipeline_discussion = d
                     print(f"Found discussion: {title}")
                 break
-        if self._pipeline_discussion is None:
+        if pipeline_discussion is None:
             print(f"Creating discussion: {title}")
-            self._pipeline_discussion = mr.discussions.create({"body": title})
-        return self._pipeline_discussion
+            pipeline_discussion = mr.discussions.create({"body": title})
+        return pipeline_discussion
 
     def get_mr_discussions(self, commit=None):
         notes = self.pipeline_discussion.attributes.get("notes")
