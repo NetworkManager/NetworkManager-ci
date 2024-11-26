@@ -22,7 +22,7 @@ link=
 . /etc/os-release
 
 if [ "$ID" == rhel ]; then
-    link=$(dnf -v repolist --enabled | grep Repo-baseurl | grep BaseOS | grep /os | sed 's/.*: //g;s!/os!/images/!' )
+    link=$(dnf -v repolist --enabled | grep Repo-baseurl | grep BaseOS | grep /os | grep -v RCMTOOLS | sed 's/.*: //g;s!/os!/images/!' )
     link="$link$(get_all "$link" | grep 'qcow2$')"
 elif [ "$ID" == centos ]; then
     link=https://cloud.centos.org/centos/$VERSION_ID-stream/$(arch)/images/
