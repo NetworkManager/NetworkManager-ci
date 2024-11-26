@@ -712,8 +712,11 @@ class Runner:
         if self.exit_code == 0:
             status = "STABLE: All tests passed!"
 
+        commit = None
+        if self.gitlab is not None:
+            commit = self.gitlab.commit
         message = [
-            f"Commit: {self.gitlab.commit}",
+            f"Commit: {commit}",
             f"Result: {status}",
             *machine_lines,
             f"Executed on: CentOS {self.release}",
