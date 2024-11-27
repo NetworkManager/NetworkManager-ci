@@ -4129,3 +4129,205 @@ Feature: nmcli: ipv4
     * Bring "down" connection "con2"
     * Bring "down" connection "con3"
     Then "0" is visible with command "ip route show table 20053 | wc -l"
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @ipv4_forwarding_with_sysctl_default_forwarding_disabled
+    Scenario: NM - ipv4 - Configure IPv4 forwarding with sysctl default forwarding disabled
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Create "veth" device named "veth0" with options "peer name veth0_p"
+    * Create "veth" device named "veth1" with options "peer name veth1_p"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.0.10/24
+          ipv4.forwarding yes
+          connection.zone trusted
+          """
+    * Add "ethernet" connection named "veth1" for device "veth1" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.1.10/24
+          ipv4.forwarding yes
+          connection.zone trusted
+          """
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Add namespace "ns0"
+    * Add namespace "ns1"
+    * Execute "ip link set veth0_p netns ns0"
+    * Execute "ip link set veth1_p netns ns1"
+    * Execute "ip netns exec ns0 ip link set dev veth0_p up"
+    * Execute "ip netns exec ns1 ip link set dev veth1_p up"
+    * Execute "ip netns exec ns0 ip addr add 192.168.0.20/24 dev veth0_p"
+    * Execute "ip netns exec ns1 ip addr add 192.168.1.20/24 dev veth1_p"
+    * Execute "ip netns exec ns0 ip route add default via 192.168.0.10"
+    * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
+    Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    Then " 0% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @ipv4_forwarding_with_sysctl_default_forwarding_enabled
+    Scenario: NM - ipv4 - Configure IPv4 forwarding with sysctl default forwarding enabled
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
+    * Create "veth" device named "veth0" with options "peer name veth0_p"
+    * Create "veth" device named "veth1" with options "peer name veth1_p"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.0.10/24
+          ipv4.forwarding no
+          connection.zone trusted
+          """
+    * Add "ethernet" connection named "veth1" for device "veth1" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.1.10/24
+          ipv4.forwarding no
+          connection.zone trusted
+          """
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Add namespace "ns0"
+    * Add namespace "ns1"
+    * Execute "ip link set veth0_p netns ns0"
+    * Execute "ip link set veth1_p netns ns1"
+    * Execute "ip netns exec ns0 ip link set dev veth0_p up"
+    * Execute "ip netns exec ns1 ip link set dev veth1_p up"
+    * Execute "ip netns exec ns0 ip addr add 192.168.0.20/24 dev veth0_p"
+    * Execute "ip netns exec ns1 ip addr add 192.168.1.20/24 dev veth1_p"
+    * Execute "ip netns exec ns0 ip route add default via 192.168.0.10"
+    * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
+    Then "100% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    Then "100% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @ipv4_shared_connection_with_sysctl_default_forwarding_disabled
+    Scenario: NM - ipv4 - Configure IPv4 shared connection with sysctl default forwarding enabled
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Create "veth" device named "veth0" with options "peer name veth0_p"
+    * Create "veth" device named "veth1" with options "peer name veth1_p"
+    * Commentary
+      """
+      With a shared connection, NAT is enabled on veth0, translating outgoing traffic to the shared IP.
+      However, this configuration does not allow traffic originating in the reverse direction.
+      """
+    * Add "ethernet" connection named "veth0" for device "veth0" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 192.168.0.10/24
+          connection.zone trusted
+          """
+    * Add "ethernet" connection named "veth1" for device "veth1" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.1.10/24
+          ipv4.forwarding auto
+          connection.zone trusted
+          """
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Add namespace "ns0"
+    * Add namespace "ns1"
+    * Execute "ip link set veth0_p netns ns0"
+    * Execute "ip link set veth1_p netns ns1"
+    * Execute "ip netns exec ns0 ip link set dev veth0_p up"
+    * Execute "ip netns exec ns1 ip link set dev veth1_p up"
+    * Execute "ip netns exec ns0 ip addr add 192.168.0.20/24 dev veth0_p"
+    * Execute "ip netns exec ns1 ip addr add 192.168.1.20/24 dev veth1_p"
+    * Execute "ip netns exec ns0 ip route add default via 192.168.0.10"
+    * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
+    Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled
+    Scenario: NM - ipv4 - Configure multiple IPv4 shared connections with sysctl default forwarding disabled
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Create "veth" device named "veth0" with options "peer name veth0_p"
+    * Create "veth" device named "veth1" with options "peer name veth1_p"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 192.168.3.10/24
+          """
+    * Bring "up" connection "con_ipv4"
+    * Add "ethernet" connection named "veth0" for device "veth0" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 192.168.0.10/24
+          connection.zone trusted
+          """
+    * Add "ethernet" connection named "veth1" for device "veth1" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 192.168.1.10/24
+          ipv4.forwarding auto
+          connection.zone trusted
+          """
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Add namespace "ns0"
+    * Add namespace "ns1"
+    * Execute "ip link set veth0_p netns ns0"
+    * Execute "ip link set veth1_p netns ns1"
+    * Execute "ip netns exec ns0 ip link set dev veth0_p up"
+    * Execute "ip netns exec ns1 ip link set dev veth1_p up"
+    * Execute "ip netns exec ns0 ip addr add 192.168.0.20/24 dev veth0_p"
+    * Execute "ip netns exec ns1 ip addr add 192.168.1.20/24 dev veth1_p"
+    * Execute "ip netns exec ns0 ip route add default via 192.168.0.10"
+    * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
+    Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    * Bring "down" connection "con_ipv4"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "5" seconds
+    Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    * Bring "down" connection "veth0"
+    Then "100% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    Then "100% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "10" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "10" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @ipv4_shared_connection_with_forwarding_ignore
+    Scenario: NM - ipv4 - Configure IPv4 shared connection with forwarding ignore
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
+    * Set sysctl "net.ipv4.conf.eth3.forwarding" to "0"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 172.16.0.1/24
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.8/24
+          ipv4.forwarding ignore
+          """
+    * Bring "up" connection "con_ipv4"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
+    * Bring "down" connection "test1gp"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
+    * Bring "down" connection "con_ipv4"
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
