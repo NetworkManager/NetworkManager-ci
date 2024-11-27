@@ -1249,6 +1249,198 @@ Feature: nmcli - general
     Then "test1g\s+ethernet\s+unmanaged.*test1gp\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
+    @RHEL-60237
+    @ver+=1.51.6
+    @nat_with_sysctl_default_forwarding_disabled
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.1/24
+          ipv4.forwarding yes
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add namespace "peers"
+    * Cleanup execute "nft delete table ip nat || true"
+    * Execute "nft add table ip nat"
+    * Execute "nft add chain ip nat POSTROUTING { type nat hook postrouting priority 100 \; }"
+    * Execute "nft add rule ip nat POSTROUTING oifname eth0 masquerade"
+    * Modify connection "testeth0" changing options "ipv4.forwarding ignore"
+    * Bring "up" connection "testeth0"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    * Set sysctl "net.ipv4.conf.eth0.forwarding" to "1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @nat_with_sysctl_default_forwarding_enabled
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.1/24
+          ipv4.forwarding no
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add namespace "peers"
+    * Cleanup execute "nft delete table ip nat || true"
+    * Execute "nft add table ip nat"
+    * Execute "nft add chain ip nat POSTROUTING { type nat hook postrouting priority 100 \; }"
+    * Execute "nft add rule ip nat POSTROUTING oifname eth0 masquerade"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    * Set sysctl "net.ipv4.conf.eth0.forwarding" to "1"
+    Then "OK" is not visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" for full "10" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @nat_with_sysctl_forwarding
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.1/24
+          ipv4.forwarding yes
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add namespace "peers"
+    * Cleanup execute "nft delete table ip nat || true"
+    * Execute "nft add table ip nat"
+    * Execute "nft add chain ip nat POSTROUTING { type nat hook postrouting priority 100 \; }"
+    * Execute "nft add rule ip nat POSTROUTING oifname eth0 masquerade"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    * Set sysctl "net.ipv4.conf.eth0.forwarding" to "1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @nat_with_sysctl_default_forwarding_disabled_shared_network
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Set sysctl "net.ipv4.conf.eth0.forwarding" to "0"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 172.16.0.1/24
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add namespace "peers"
+    * Modify connection "testeth0" changing options "ipv4.forwarding auto"
+    * Bring "up" connection "testeth0"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth0/forwarding" in "10" seconds
+    * Bring "down" connection "test1gp"
+    Then "OK" is not visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" for full "10" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth0/forwarding" in "10" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @nat_with_sysctl_default_forwarding_disabled_multiple_shared_network
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
+    * Set sysctl "net.ipv4.conf.eth0.forwarding" to "0"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 172.16.0.1/24
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 172.20.0.8/24
+          """
+    * Bring "up" connection "con_general"
+    * Add namespace "peers"
+    * Modify connection "testeth0" changing options "ipv4.forwarding auto"
+    * Bring "up" connection "testeth0"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth0/forwarding" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth8/forwarding" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/test1gp/forwarding" in "5" seconds
+    * Bring "down" connection "con_general"
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth0/forwarding" in "5" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth8/forwarding" in "5" seconds
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/test1gp/forwarding" in "5" seconds
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    * Bring "down" connection "test1gp"
+    Then "OK" is not visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" for full "10" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth0/forwarding" in "10" seconds
+
+
+    @RHEL-60237
+    @ver+=1.51.6
+    @sysctl_shared_network_forwarding_ignore
+    Scenario: NM - general - NAT with sysctl device forwarding
+    * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
+    * Set sysctl "net.ipv4.conf.eth8.forwarding" to "0"
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
+          """
+          autoconnect no
+          ipv4.method shared
+          ipv4.address 172.16.0.1/24
+          connection.zone trusted
+          """
+    * Bring "up" connection "test1gp"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.8/24
+          ipv4.forwarding ignore
+          """
+    * Bring "up" connection "con_general"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth8/forwarding" in "10" seconds
+    * Bring "down" connection "test1gp"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth8/forwarding" in "10" seconds
+    * Bring "down" connection "con_general"
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth8/forwarding" in "10" seconds
+
+
     @rhbz1067299
     @ver-=1.31.4
     @nat_from_shared_network_iptables
