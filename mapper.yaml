@@ -1884,6 +1884,8 @@ testmapper:
         feature: general
     - veth_goes_to_unmanaged_state:
         feature: general
+    - nat_from_sysctl_forwarding_network_iptables:
+        feature: general
     - nat_from_shared_network_iptables:
         feature: general
     - nat_from_shared_network_nftables:

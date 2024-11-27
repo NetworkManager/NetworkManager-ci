@@ -1249,6 +1249,39 @@ Feature: nmcli - general
     Then "test1g\s+ethernet\s+unmanaged.*test1gp\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
+    @RHEL-60237
+    @ver+=1.51.4
+    @nat_from_sysctl_forwarding_network_iptables
+    Scenario: NM - general - NAT from sysctl device forwarding
+    Given Create NM config file with content
+          """
+          [main]
+          firewall-backend=iptables
+          """
+    Given Restart NM
+    * Create "veth" device named "test1g" with options "peer name test1gp"
+    * Add "bridge" connection named "vethbrg" for device "vethbrg" with options
+          """
+          stp no
+          autoconnect no
+          ipv4.method manual
+          ipv4.address 172.16.0.1/24
+          ipv4.forwarding yes
+          """
+    * Bring "up" connection "vethbrg"
+    * Execute "sysctl -w net.ipv4.conf.eth0.forwarding=1"
+    * Execute "iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
+    * Execute "ip link set test1gp master vethbrg"
+    * Execute "ip link set dev test1gp up"
+    * Add namespace "peers"
+    * Execute "ip link set test1g netns peers"
+    * Execute "ip netns exec peers ip link set dev test1g up"
+    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
+    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
+    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
+    Then Unable to ping "172.16.0.111" from "eth0" device
+
+
     @rhbz1067299
     @ver-=1.31.4
     @nat_from_shared_network_iptables
