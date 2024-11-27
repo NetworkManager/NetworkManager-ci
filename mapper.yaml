@@ -1294,6 +1294,16 @@ testmapper:
         feature: ipv4
     - ipv4_add_dns_routes_global:
         feature: ipv4
+    - ipv4_forwarding_with_sysctl_default_forwarding_disabled:
+        feature: ipv4
+    - ipv4_forwarding_with_sysctl_default_forwarding_enabled:
+        feature: ipv4
+    - ipv4_shared_connection_with_sysctl_default_forwarding_disabled:
+        feature: ipv4
+    - ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled:
+        feature: ipv4
+    - ipv4_shared_connection_with_forwarding_ignore:
+        feature: ipv4
     - vlan_add_default_device:
         feature: vlan
     - vlan_add_beyond_range:
