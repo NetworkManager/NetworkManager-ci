@@ -186,6 +186,7 @@ class GitlabTrigger(object):
         mr = self.gl_project.mergerequests.get(mr_id)
         discussions = mr.discussions.list(all=True)
         title = f"Pipeline Status. Running Pipelines:"
+        pipeline_discussion = None
         for d in discussions:
             notes = d.attributes.get("notes")
             for note in notes:
