@@ -233,6 +233,74 @@ Feature: nmcli: ipv4
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric" is visible with command "ip route"
 
 
+    @ver+=1.36
+    @ipv4_route_set_route_with_table
+    Scenario: nmcli - ipv4 - routes - set route with table
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
+          """
+    Then "192.168.1.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "5" seconds
+    Then "192.168.4.1 dev eth3\s+proto static\s+scope link" is visible with command "ip route"
+    Then "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100"
+
+
+    @ver+=1.51.5
+    @ipv4_route_add_route_with_table_reapply
+    Scenario: nmcli - ipv4 - routes - set route with table
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          """
+    When "192.168.1.10/24" is visible with command "ip a s eth3" in "5" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'"
+    * Execute "nmcli device reapply eth3"
+    Then "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
+
+
+    @RHEL-68459
+    @ver+=1.51.5
+    @ipv4_route_delete_route_with_table_reapply
+    Scenario: nmcli - ipv4 - routes - set route with table
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.addresses 192.168.1.10/24
+          ipv4.gateway 192.168.4.1
+          ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
+          """
+    When "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
+    * Modify connection "con_ipv4" changing options "ipv4.routes ''"
+    * Execute "nmcli device reapply eth3"
+    Then "192.168.5.0/24" is not visible with command "ip route list table 100" in "5" seconds
+
+
+    @RHEL-66262
+    @ver+=1.51.5
+    @ipv4_route_cleanup_route_with_table
+    Scenario: nmcli - ipv4 - routes - cleanup route with table
+    # Must set method=static without addresses. Otherwise, the kernel cleanups the routes,
+    # thus the bug cannot be reproduced.
+    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+          """
+          ipv4.method static
+          ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
+          """
+    When "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
+    * Bring "down" connection "con_ipv4"
+    Then "192.168.5.0/24" is not visible with command "ip route list table 100" in "5" seconds
+    # Try again, now deleting the connection instead of just putting it down
+    * Bring "up" connection "con_ipv4"
+    When "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
+    * Delete connection "con_ipv4"
+    Then "192.168.5.0/24" is not visible with command "ip route list table 100" in "5" seconds
+    
+
     @rhbz1373698
     @ver+=1.8.0
     @ver-=1.21.90
@@ -569,8 +637,8 @@ Feature: nmcli: ipv4
     @rhbz1436531
     @ver+=1.10
     @flush_300
-    @ipv4_route_set_route_with_tables
-    Scenario: nmcli - ipv4 - routes - set route with tables
+    @ipv4_route_externally_set_route_with_table
+    Scenario: nmcli - ipv4 - routes - externally set route with tables
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no ipv4.route-table 300"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
@@ -590,8 +658,8 @@ Feature: nmcli: ipv4
     @rhbz1436531
     @ver+=1.10
     @flush_300
-    @ipv4_route_set_route_with_tables_reapply
-    Scenario: nmcli - ipv4 - routes - set route with tables reapply
+    @ipv4_route_externally_set_route_with_table_and_reapply
+    Scenario: nmcli - ipv4 - routes - externally set route with tables reapply
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
     # This is cripppled in kernel VVV 1535977
