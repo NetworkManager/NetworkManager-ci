@@ -20,14 +20,12 @@ index ffd9f84..dbfac37 100644
  }
  
  static int
-@@ -103,12 +110,12 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
- 	struct netdevsim *ns = netdev_priv(dev);
- 	int err;
- 
+@@ -103,2 +110,2 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
 -	err = netif_set_real_num_queues(dev, ch->combined_count,
 -					ch->combined_count);
 +	err = netif_set_real_num_queues(dev, ch->rx_count + ch->combined_count,
 +					ch->tx_count + ch->combined_count);
+@@ -108,7 +115,7 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
  	if (err)
  		return err;
  
