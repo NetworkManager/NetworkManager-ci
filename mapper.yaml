@@ -644,10 +644,10 @@ testmapper:
     - ipv6_routes_with_src:
         feature: ipv6
         tags: gate libndp
-    - ipv6_route_set_route_with_tables:
+    - ipv6_route_externally_set_route_with_table:
         feature: ipv6
         tags: gate libndp
-    - ipv6_route_set_route_with_tables_reapply:
+    - ipv6_route_externally_set_route_with_table_and_reapply:
         feature: ipv6
     - ipv6_correct_slaac_setting:
         feature: ipv6
@@ -677,6 +677,16 @@ testmapper:
         feature: ipv6
         tags: gate libndp
     - ipv6_routes_set_basic_route:
+        feature: ipv6
+        tags: gate
+    - ipv6_route_set_route_with_table:
+        feature: ipv6
+        tags: gate
+    - ipv6_route_add_route_with_table_reapply:
+        feature: ipv6
+    - ipv6_route_delete_route_with_table_reapply:
+        feature: ipv6
+    - ipv6_route_cleanup_route_with_table:
         feature: ipv6
     - ipv6_route_set_route_with_options:
         feature: ipv6
@@ -918,6 +928,16 @@ testmapper:
         tags: gate
     - ipv4_route_set_basic_route:
         feature: ipv4
+        tags: gate
+    - ipv4_route_set_route_with_table:
+        feature: ipv4
+        tags: gate
+    - ipv4_route_add_route_with_table_reapply:
+        feature: ipv4
+    - ipv4_route_delete_route_with_table_reapply:
+        feature: ipv4
+    - ipv4_route_cleanup_route_with_table:
+        feature: ipv4
     - ipv4_route_set_route_with_options:
         feature: ipv4
         tags: gate
@@ -940,10 +960,10 @@ testmapper:
         tags: gate
     - no_metric_route_connection_restart_persistence:
         feature: ipv4
-    - ipv4_route_set_route_with_tables:
+    - ipv4_route_externally_set_route_with_table:
         feature: ipv4
         tags: gate
-    - ipv4_route_set_route_with_tables_reapply:
+    - ipv4_route_externally_set_route_with_table_and_reapply:
         feature: ipv4
     - ipv4_restore_default_route_externally:
         feature: ipv4

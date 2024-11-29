@@ -179,6 +179,71 @@
     Then "3030::1 via 2001::2 dev eth2\s+proto static\s+metric 1" is visible with command "ip -6 route"
 
 
+    @ver+=1.36
+    @ipv6_route_set_route_with_table
+    Scenario: nmcli - ipv6- routes - set route with table
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2000::2/126
+           ipv6.routes '1010::1/128 2000::1 table=100'
+           """
+    When "2000::/126 dev eth3\s+proto kernel" is visible with command "ip -6 route" in "5" seconds
+    Then "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100"
+
+
+    @ver+=1.51.5
+    @ipv6_route_add_route_with_table_reapply
+    Scenario: nmcli - ipv6 - routes - set route with table
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2000::2/126
+           """
+    When "2000::/126 dev eth3\s+proto kernel" is visible with command "ip -6 route" in "5" seconds
+    * Modify connection "con_ipv6" changing options "ipv6.routes '1010::1/128 2000::1 table=100'"
+    * Execute "nmcli device reapply eth3"
+    Then "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100" in "5" seconds
+
+
+    @RHEL-68459
+    @ver+=1.51.5
+    @ipv6_route_delete_route_with_table_reapply
+    Scenario: nmcli - ipv6 - routes - set route with table
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2000::2/126
+           ipv6.routes '1010::1/128 2000::1 table=100'
+           """
+    When "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100" in "5" seconds
+    * Modify connection "con_ipv6" changing options "ipv6.routes ''"
+    * Execute "nmcli device reapply eth3"
+    Then "1010::1 via 2000::1 dev eth3" is not visible with command "ip -6 route list table 100" in "5" seconds
+
+
+    @RHEL-66262
+    @ver+=1.51.5
+    @ipv6_route_cleanup_route_with_table
+    Scenario: nmcli - ipv6 - routes - cleanup route with table
+    # Must set method=static without addresses. Otherwise, the kernel cleanups the routes,
+    # thus the bug cannot be reproduced.
+    * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
+           """
+           ipv6.method static
+           ipv6.addresses 2000::2/126
+           ipv6.routes '1010::1/128 2000::1 table=100'
+           """
+    When "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100" in "5" seconds
+    * Bring "down" connection "con_ipv6"
+    Then "1010::1 via 2000::1 dev eth3" is not visible with command "ip -6 route list table 100" in "5" seconds
+    # Try again, now deleting the connection instead of just putting it down
+    * Bring "up" connection "con_ipv6"
+    When "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100" in "5" seconds
+    * Delete connection "con_ipv6"
+    Then "1010::1 via 2000::1 dev eth3" is not visible with command "ip -6 route list table 100" in "5" seconds
+    
+
     @rhbz1505893
     @eth0
     @ver+=1.9.2
@@ -371,8 +436,8 @@
     @rhbz1436531
     @ver+=1.10
     @flush_300
-    @ipv6_route_set_route_with_tables
-    Scenario: nmcli - ipv6 - routes - set route with tables
+    @ipv6_route_externally_set_route_with_table
+    Scenario: nmcli - ipv6 - routes - externally set route with tables
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options
           """
           ipv6.route-table 300
@@ -404,8 +469,8 @@
     @ver+=1.10
     @ver-1.11
     @flush_300
-    @ipv6_route_set_route_with_tables_reapply
-    Scenario: nmcli - ipv6 - routes - set route with tables reapply
+    @ipv6_route_externally_set_route_with_table_and_reapply
+    Scenario: nmcli - ipv6 - routes - externally set route with tables reapply
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
@@ -430,8 +495,8 @@
     @rhbz1436531
     @ver+=1.11
     @flush_300
-    @ipv6_route_set_route_with_tables_reapply
-    Scenario: nmcli - ipv4 - routes - set route with tables reapply
+    @ipv6_route_externally_set_route_with_table_and_reapply
+    Scenario: nmcli - ipv4 - routes - externally set route with tables reapply
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
