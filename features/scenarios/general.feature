@@ -3680,3 +3680,276 @@ Feature: nmcli - general
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
     * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
     * Execute "cd .tmp/python-dbusmock; python3l -m pytest tests/test_networkmanager.py"
+
+
+    @RHEL-14438
+    @ver+=1.51.3
+    @NM_print_config
+    Scenario: NM - general - Check --print-config option and config dir priorities
+    * Commentary
+      """
+      Create dirs, if they are not present
+      """
+    * Execute "mkdir -p {/var/lib,/usr/lib,/etc,/run}/NetworkManager/conf.d"
+
+    * Commentary
+      """
+      Create /var/lib internal config (impossible to overwrite from /run/, /usr/lib nor /etc)
+      """
+    * Create NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf" with content
+      """
+      [.intern.global-dns]
+      searches=var.lib.intern.conf
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /us/lib 01-custom config
+      """
+    * Create NM config file "/usr/lib/NetworkManager/conf.d/01-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_usr_lib_1
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /us/lib 02-custom config, overwrite section from 01-config
+      """
+    * Create NM config file "/usr/lib/NetworkManager/conf.d/02-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_usr_lib_2
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /run 01-custom config, overwrite sections from /usr/lib configs
+      """
+    * Create NM config file "/run/NetworkManager/conf.d/01-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_run_1
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /run 02-custom config, overwrite sections from /usr/lib configs and /run 01-custom
+      """
+    * Create NM config file "/run/NetworkManager/conf.d/02-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_run_2
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /etc 01-custom config, overwrite sections from /usr/lib and /run configs
+      """
+    * Create NM config file "/etc/NetworkManager/conf.d/01-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_etc_1
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_1" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Create /etc 02-custom config, overwrite sections from /usr/lib, /run configs and /etc 01-custom
+      """
+    * Create NM config file "/etc/NetworkManager/conf.d/02-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_etc_2
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_2" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Delete /etc 01 and 02 configs, create /etc 03-custom overwriting sections in /usr/lib and /run
+      """
+    * Execute "rm -f /etc/NetworkManager/conf.d/{01,02}-custom.conf"
+    * Create NM config file "/etc/NetworkManager/conf.d/03-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_etc_3
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*03-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_3" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Delete /var/lib internal config, modify /etc 03-custom not-overwriting section in /usr/lib and /run, /run 02-custom is active
+      """
+    * Execute "rm -f /var/lib/NetworkManager/NetworkManager-intern.conf"
+    * Create NM config file "/etc/NetworkManager/conf.d/03-custom.conf" with content
+      """
+      [device-custom-ignore-carrier-3]
+      match-device=interface-name:custom_etc_3
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*03-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_etc_3" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Delete /etc 03-custom, /run 01 and 02 configs, create /run 03-custom overwriting section in /usr/lib
+      """
+    * Execute "rm -f /etc/NetworkManager/conf.d/03-custom.conf"
+    * Execute "rm -f /run/NetworkManager/conf.d/{01,02}-custom.conf"
+    * Create NM config file "/run/NetworkManager/conf.d/03-custom.conf" with content
+      """
+      [device-custom-ignore-carrier]
+      match-device=interface-name:custom_run_3
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*03-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*03-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/etc/NetworkManager/conf.d/[^/]*03-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_3" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Modify /run 03-custom not-overwriting section in /usr/lib, /usr/lib 02-custom is active
+      """
+    * Create NM config file "/run/NetworkManager/conf.d/03-custom.conf" with content
+      """
+      [device-custom-ignore-carrier-3]
+      match-device=interface-name:custom_run_3
+      ignore-carrier=no
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*03-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_3" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"
+
+    * Commentary
+      """
+      Mask /usr/lib 02-custom by empty file in /run, /run 03-custom and /usr/lib 01-custom are active
+      """
+    * Create NM config file "/run/NetworkManager/conf.d/02-custom.conf" with content
+      """
+      """
+    Then "/var/lib/NetworkManager/NetworkManager-intern.conf" is not visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*01-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/usr/lib/NetworkManager/conf.d/[^/]*02-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*01-custom.conf" is not visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*02-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "/run/NetworkManager/conf.d/[^/]*03-custom.conf" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_1" is visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_usr_lib_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_1" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
+    Then "match-device=interface-name:custom_run_3" is visible with command "NetworkManager --print-config"
+    Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"

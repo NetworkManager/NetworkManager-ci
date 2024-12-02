@@ -2069,6 +2069,8 @@ testmapper:
         feature: general
     - dbusmock_unittests:
         feature: general
+    - NM_print_config:
+        feature: general
     - openvswitch_capability:
         feature: ovs
     - openvswitch_interface_recognized:
