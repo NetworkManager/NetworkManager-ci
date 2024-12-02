@@ -24,7 +24,10 @@ def fill_file_with_content(context, path):
 def create_config_file(
     context, filename="96-nmci-custom.conf", priority="PRIORITY_FILE", operation=None
 ):
-    path = os.path.join("/etc/NetworkManager/conf.d", filename)
+    if not filename.startswith("/"):
+        path = os.path.join("/etc/NetworkManager/conf.d", filename)
+    else:
+        path = filename
     prio = getattr(nmci.cleanup.Cleanup, priority, None)
     if prio is None:
         prio = int(priority)
