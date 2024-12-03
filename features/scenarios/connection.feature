@@ -270,6 +270,9 @@ Feature: nmcli: connection
 
 
     @ver+=1.8.0
+    @ver-1.51.4
+    @ver/rhel/8+=1.8.0
+    @ver/rhel/9+=1.8.0
     @restart_if_needed
     @keyfile_compliant_with_kickstart
     Scenario: keyfile - connection - pykickstart compliance
@@ -301,6 +304,46 @@ Feature: nmcli: connection
       connection.type=ethernet
       connection.id=con_con
       ipv4.address1=192.0.2.2/24,192.0.2.1
+      ipv4.dns=192.0.2.1;
+      ipv4.method=manual
+      """
+
+
+    @ver+=1.51.4
+    @ver/rhel/8-
+    @ver/rhel/9-
+    @restart_if_needed
+    @keyfile_compliant_with_kickstart
+    Scenario: keyfile - connection - pykickstart compliance
+    * Cleanup connection "con_con"
+    * Create keyfile "/etc/NetworkManager/system-connections/con_con2.nmconnection"
+      """
+      [connection]
+      uuid=8b4753fb-c562-4784-bfa7-f44dc6581e73
+      interface-name=eth5
+      autoconnect=true
+      type=ethernet
+      device=eth5
+      id=con_con2
+
+      [ipv4]
+      address1=192.0.2.2/24,192.0.2.1
+      dns=192.0.2.1
+      method=manual
+      """
+    * Reload connections
+    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
+    * Restart NM
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "45" seconds
+    Then "192.0.2.2" is visible with command "ip a s eth5"
+    And Check keyfile "/etc/NetworkManager/system-connections/con_con2.nmconnection" has options
+      """
+      connection.uuid=8b4753fb-c562-4784-bfa7-f44dc6581e73
+      connection.interface-name=eth5
+      connection.type=ethernet
+      connection.id=con_con
+      ipv4.address1=192.0.2.2/24
+      ipv4.gateway=192.0.2.1
       ipv4.dns=192.0.2.1;
       ipv4.method=manual
       """
