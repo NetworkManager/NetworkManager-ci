@@ -39,9 +39,9 @@ class GitlabTrigger(object):
             self.gl_project = self.gl_api.projects.get(
                 "%s/%s" % (group, data["repository"]["name"])
             )
-        except:
+        except Exception as e:
+            print(e)
             pass
-        self._pipeline_discussion = None
 
     @property
     def request_type(self):
@@ -186,18 +186,18 @@ class GitlabTrigger(object):
         mr = self.gl_project.mergerequests.get(mr_id)
         discussions = mr.discussions.list(all=True)
         title = f"Pipeline Status. Running Pipelines:"
-        pipeline_discussion = None
+        pd = None
         for d in discussions:
             notes = d.attributes.get("notes")
             for note in notes:
                 if note["body"].strip().startswith(title):
-                    pipeline_discussion = d
+                    pd = mr.discussions.get(d.id)
                     print(f"Found discussion: {title}")
                 break
-        if pipeline_discussion is None:
+        if pd is None:
             print(f"Creating discussion: {title}")
-            pipeline_discussion = mr.discussions.create({"body": title})
-        return pipeline_discussion
+            pd = mr.discussions.create({"body": title})
+        return pd
 
     def get_mr_discussions(self, commit=None):
         notes = self.pipeline_discussion.attributes.get("notes")
@@ -217,8 +217,9 @@ class GitlabTrigger(object):
             print(f"Exception in note set: {e}")
 
     def set_mr_discussion_resolved(self, resolved):
-        self.pipeline_discussion.resolved = resolved
-        self.pipeline_discussion.save()
+        d = self.pipeline_discussion
+        d.resolved = resolved
+        d.save()
 
     def play_commit_job(self):
         pipeline = self.pipeline
