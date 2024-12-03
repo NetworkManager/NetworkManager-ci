@@ -229,13 +229,22 @@ def check_solicitation(context, dev, file):
 @step('Check keyfile "{file}" has options')
 def check_keyfile(context, file):
     cp = configparser.ConfigParser()
-    assert file in cp.read(file), "File '%s' is not valid config file" % file
+    with open(file, "r") as f:
+        f_content = f.read()
+    assert file in cp.read(file), "File '%s' is not valid config file:\n%s" % (
+        file,
+        f_content,
+    )
     for line in context.text.split("\n"):
         opt, value = line.split("=")
         opt = opt.split(".")
         value = value.strip()
         cfg_val = cp.get(*opt)
-        assert cfg_val == value, "'%s' not found in file '%s'" % (line, file)
+        assert cfg_val == value, "'%s' not found in file '%s'\n%s" % (
+            line,
+            file,
+            f_content,
+        )
 
 
 @step("Update the noted keyfile")
