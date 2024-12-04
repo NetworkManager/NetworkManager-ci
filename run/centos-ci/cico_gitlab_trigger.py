@@ -350,13 +350,17 @@ class GitlabTrigger(object):
                     print(f"Unable to set commit status in gitlab:\nException: {exc}")
                     time.sleep(1)
             # set headline for running jobs
-            status_line = f"\n[{pipeline_name}]({build_url}),"
+            status_line = f"[{pipeline_name}]({build_url}),"
             note_id = self.pipeline_discussion.attributes.get("notes")[0]["id"]
             note = self.pipeline_discussion.notes.get(note_id)
+            note_lines = note.body.split("\n")
             if status == "running":
-                note.body += status_line
+                if status_line not in note_lines:
+                    note_lines.append(status_line)
             elif status in ["canceled", "success", "failed"]:
-                note.body = note.body.replace(status_line, "")
+                if status_line in note_lines:
+                    note_lines.remove(status_line)
+            note.body = "\n".join(note_lines)
             print(f"Setting pipeline title to:\n{note.body}")
             note.save()
 
