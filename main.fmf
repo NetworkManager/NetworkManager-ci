@@ -15,10 +15,12 @@
          - chrony
          - bash-completion
          - radvd
+         - python3*-pip
+         - wget
       - name: tmt_prepare
         how: shell
         script:
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/initial_setup.sh
+          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/vb/tmt_patches/fmftmt/initial_setup.sh
           - bash ./initial_setup.sh
     execute:
         how: tmt
