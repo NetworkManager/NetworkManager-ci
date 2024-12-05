@@ -17,19 +17,12 @@
          - radvd
          - python3*-pip
          - wget
-      - name: tmt_prepare
-        how: shell
-        script:
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/vb/tmt_patches/fmftmt/initial_setup.sh
-          - bash ./initial_setup.sh
     execute:
         how: tmt
     finish:
         how: shell
         script:
           - cp /tmp/*.html $TMT_PLAN_DATA
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/finish-reserve.sh
-          - bash finish-reserve.sh
 
     /gate:
         discover:
