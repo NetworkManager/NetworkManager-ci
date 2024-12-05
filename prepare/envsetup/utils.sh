@@ -180,12 +180,12 @@ configure_nm_gsm () {
         pushd /root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/$(arch)
             yum -y install \
                 NetworkManager-wwan-$VER-$REL.$(arch).rpm ModemManager \
-                usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm
+                usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL.$(arch).rpm --skip-broken
         popd
     else
         yum -y install \
             usb_modeswitch usbutils NetworkManager-ppp-$VER-$REL \
-            NetworkManager-wwan-$VER-$REL ModemManager
+            NetworkManager-wwan-$VER-$REL ModemManager --skip-broken
     fi
 
     # Reset USB devices
