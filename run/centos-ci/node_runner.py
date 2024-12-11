@@ -218,8 +218,8 @@ class Machine:
         if int(release) == 9:
             dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{release}.noarch.rpm"
         else:
-            # TODO - fix when final rpm is release
-            dnf_package = "https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/e/epel-release-10-2.el10_0.noarch.rpm"
+            # There is not next repo in epel 10 yet
+            dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{release}.noarch.rpm"
         # enable epel repos
         self.ssh(f"{dnf_install} {dnf_package}")
         # For some reason names can differ, so enable both powertools
