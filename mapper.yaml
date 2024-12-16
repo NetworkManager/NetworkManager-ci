@@ -21,6 +21,7 @@ component:
       - jimtcl
       - libmbim
       - libqmi
+      - libqrtr-glib
       - ModemManager
       - usb_modeswitch-data
       - usb_modeswitch
