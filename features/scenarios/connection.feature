@@ -310,6 +310,7 @@ Feature: nmcli: connection
 
 
     @ver+=1.51.4
+    @ver/rhel/10+=1.51.4.2
     @ver/rhel/8-
     @ver/rhel/9-
     @restart_if_needed
