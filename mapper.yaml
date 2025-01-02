@@ -2322,6 +2322,10 @@ testmapper:
     - wireguard_activate_connection:
         feature: vpn
         timeout: 20m
+    - libreswan_add_routing_rules:
+        feature: vpn
+    - wireguard_add_routing_rules:
+        feature: vpn
     - macsec_psk:
         feature: macsec
         tags: gate libnl3
@@ -2358,6 +2362,8 @@ testmapper:
     - openvpn_2fa:
         feature: openvpn
     - openvpn_2fa_save_password:
+        feature: openvpn
+    - openvpn_add_routing_rules:
         feature: openvpn
     - vpnc_add_profile:
         feature: vpnc

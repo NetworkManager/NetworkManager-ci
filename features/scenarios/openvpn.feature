@@ -200,3 +200,26 @@
     * Submit "123456"
     * Auth client
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
+
+
+    @RHEL-70160
+    @ver+=1.51.5
+    @openvpn @openvpn4
+    @openvpn_add_routing_rules
+    Scenario: nmcli - openvpn - add routing rules
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv4.route-table 127"
+    * Execute "nmcli con modify openvpn ipv6.route-table 200"
+    * Execute "nmcli con modify openvpn ipv4.routing-rules 'priority 16383 from all table 127'"
+    * Execute "nmcli con modify openvpn ipv6.routing-rules 'priority 16600 from all table 200'"
+    * Bring "up" connection "openvpn"
+
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show openvpn" in "45" seconds
+    Then "16383:\s+from all lookup 127 proto static" is visible with command "ip rule"
+    Then "16600:\s+from all lookup 200 proto static" is visible with command "ip -6 rule"
+    And "default" is visible with command "ip r show table 127 |grep ^default | grep -v eth0"
+    * Bring "down" connection "openvpn"
+    Then "16383:\s+from all lookup 127 proto static" is not visible with command "ip rule"
+    Then "16600:\s+from all lookup 200 proto static" is not visible with command "ip -6 rule"
+    And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
