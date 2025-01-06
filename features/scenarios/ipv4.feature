@@ -3921,3 +3921,22 @@ Feature: nmcli: ipv4
     """
     Then "inet6 2620" is visible with command "ip addr show dev testZ"
     Then "inet 192.168.14" is visible with command "ip addr show dev testZ"
+
+
+    @RHEL-47301
+    @ver+=1.51.5
+    @ipv4_add_frr_routes_just_once
+    Scenario: nmcli - ipv4 - add frr routes just once
+    * Commentary
+    """
+        We need arp disabled device so let's add dummy
+            Alternatively we can use 'ip link set dev ethX arp off'
+        Let's check that we see committing IPv4 just once if ACD fails.
+    """
+    * Add "dummy" connection named "dummy0*" for device "dummy0" with options
+          """
+          ip4 172.20.1.1/24
+          ipv6.method disabled
+          """
+    * Wait for "35" seconds
+    Then "IPv4" is not visible with command "journalctl -u NetworkManager --since='30 seconds ago' | grep $(cat /sys/class/net/dummy0/ifindex) | grep -E 'start announcing|committing IPv4 configuration'"
