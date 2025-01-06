@@ -27,6 +27,9 @@ node('cico-workspace') {
             if (!params['RESERVE']) {
                 RESERVE = "0s"
             }
+            if (params['GL_TOKEN']) {
+                GL_TOKEN = "${GL_TOKEN}"
+            }
             stage ('Kill old jobs'){
                 def jobname = currentBuild.displayName
                 def buildnum = currentBuild.number.toInteger()
