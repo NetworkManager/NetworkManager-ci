@@ -753,6 +753,7 @@ method=auto
 
 
     @RHEL-70160
+    @RHEL-69901
     @ver+=1.51.5
     @libreswan @ikev2
     @libreswan_add_routing_rules

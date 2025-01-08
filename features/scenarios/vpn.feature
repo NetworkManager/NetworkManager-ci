@@ -259,6 +259,7 @@
 
 
     @RHEL-70160
+    @RHEL-69901
     @ver+=1.16
     @rhelver+=9
     @wireguard

@@ -203,6 +203,7 @@
 
 
     @RHEL-70160
+    @RHEL-69901
     @ver+=1.51.5
     @openvpn @openvpn4
     @openvpn_add_routing_rules
