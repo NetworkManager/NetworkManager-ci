@@ -2336,6 +2336,9 @@ testmapper:
         feature: openvpn
     - openvpn_2fa_save_password:
         feature: openvpn
+    - openvpn_routing_rules:
+        feature: openvpn
+        tags: gate NetworkManager-libreswan
     - vpnc_add_profile:
         feature: vpnc
         tags: gate

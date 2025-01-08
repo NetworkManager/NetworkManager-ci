@@ -200,3 +200,30 @@
     * Submit "123456"
     * Auth client
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
+
+
+
+    @RHEL-73051 @RHEL-73052
+    @ver+=1.51.5
+    @ver/rhel/8/10+=1.40.16.18
+    @openvpn @openvpn4
+    @openvpn_routing_rules
+    Scenario: nmcli - openvpn - routing rules and tables
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con up openvpn ifname tun0"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    * Execute "nmcli con modify openvpn ipv4.route-table 127"
+    * Execute "nmcli con modify openvpn ipv4.routing-rules 'priority 16383 from all table 127'"
+    * Execute "nmcli con down openvpn"
+    * Execute "nmcli con up openvpn ifname tun0"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    * Execute "ip route show table 127"
+    And "default" is visible with command "ip r |grep ^default | grep eth0"
+    And "eth0" is not visible with command "ip r show table 127"
+    And "default via 172.31.70.5 dev tun[1-2] proto static metric 50" is visible with command "ip r show table 127"
+    And "172.31.70.1 via 172.31.70.5 dev tun[1-2] proto static metric 50" is visible with command "ip r show table 127"
+    And "172.31.70.5 dev tun[1-2] proto kernel scope link src 172.31.70.6 metric 50" is visible with command "ip r show table 127"
+    And "tun[1-2]" is not visible with command "ip r"
+    Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn |grep -v fe80::"
