@@ -259,31 +259,6 @@
 
 
     @RHEL-70160
-    @ver+=1.51.5
-    @libreswan @ikev2
-    @libreswan_add_routing_rules
-    Scenario: nmcli - libreswan - add routing rules
-    * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
-    * Execute "nmcli con modify libreswan ipv4.route-table 127"
-    * Execute "nmcli con modify libreswan ipv6.route-table 200"
-    * Execute "nmcli con modify libreswan ipv4.routing-rules 'priority 16383 from all table 127'"
-    * Execute "nmcli con modify libreswan ipv6.routing-rules 'priority 16600 from all table 200'"
-    * Bring "up" connection "libreswan"
-    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
-    And "default" is visible with command "ip r show table 127 |grep ^default | grep -v eth0"
-    Then "16383:\s+from all lookup 127 proto static" is visible with command "ip rule"
-    Then "16600:\s+from all lookup 200 proto static" is visible with command "ip -6 rule"
-    Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS.*172.29.100.2/32" is visible with command "nmcli d show libreswan1"
-    Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
-    Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
-    * Bring "down" connection "libreswan"
-    Then "16383:\s+from all lookup 127 proto static" is not visible with command "ip rule"
-    Then "16600:\s+from all lookup 200 proto static" is not visible with command "ip -6 rule"
-    And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
-
-
     @ver+=1.16
     @rhelver+=9
     @wireguard

@@ -2288,6 +2288,8 @@ testmapper:
         feature: libreswan
     - libreswan_wrong_data_var2:
         feature: libreswan
+    - libreswan_add_routing_rules:
+        feature: libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:
@@ -2322,8 +2324,6 @@ testmapper:
     - wireguard_activate_connection:
         feature: vpn
         timeout: 20m
-    - libreswan_add_routing_rules:
-        feature: vpn
     - wireguard_add_routing_rules:
         feature: vpn
     - macsec_psk:
