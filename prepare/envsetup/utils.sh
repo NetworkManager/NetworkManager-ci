@@ -10,7 +10,11 @@ fix_python3_link() {
     rm -f /usr/bin/python
     ln -s `which python3` /usr/bin/python
     rm -f /usr/bin/python3l
-    ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
+    if [ -f /tmp/keep_old_behave ]; then
+        ln -s $(which python3) /usr/bin/python3l
+    else
+        ln -s $(ls `which python3`* | grep '[0-9]$' | sort -V | tail -n1) /usr/bin/python3l
+    fi
 }
 
 
