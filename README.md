@@ -158,7 +158,7 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   # Test name as stated in mapper.txt. Must be last tag and sole tag on the line
   @bond_8023ad_with_vlan_srcmac
   # Human readable test name as stated in HTML report
-  Scenario: nmcli - bond - options - mode set to 802.3ad with vlan+srcmax
+  Scenario: nmcli - bond - options - mode set to 802.3ad with vlan+srcmac
   # Step for creation a NM profile with options
   * Add "bond" connection named "bond0" for device "nm-bond" and options
                                   """
