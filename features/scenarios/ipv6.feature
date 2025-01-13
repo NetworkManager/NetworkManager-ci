@@ -193,6 +193,7 @@
 
 
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv6_route_add_route_with_table_reapply
     Scenario: nmcli - ipv6 - routes - set route with table
     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
@@ -208,6 +209,7 @@
 
     @RHEL-68459
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv6_route_delete_route_with_table_reapply
     Scenario: nmcli - ipv6 - routes - set route with table
     * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
@@ -224,6 +226,7 @@
 
     @RHEL-66262
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv6_route_cleanup_route_with_table
     Scenario: nmcli - ipv6 - routes - cleanup route with table
     # Must set method=static without addresses. Otherwise, the kernel cleanups the routes,
@@ -242,7 +245,7 @@
     When "1010::1 via 2000::1 dev eth3" is visible with command "ip -6 route list table 100" in "5" seconds
     * Delete connection "con_ipv6"
     Then "1010::1 via 2000::1 dev eth3" is not visible with command "ip -6 route list table 100" in "5" seconds
-    
+
 
     @rhbz1505893
     @eth0

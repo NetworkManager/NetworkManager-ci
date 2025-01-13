@@ -249,6 +249,7 @@ Feature: nmcli: ipv4
 
 
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv4_route_add_route_with_table_reapply
     Scenario: nmcli - ipv4 - routes - set route with table
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -265,6 +266,7 @@ Feature: nmcli: ipv4
 
     @RHEL-68459
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv4_route_delete_route_with_table_reapply
     Scenario: nmcli - ipv4 - routes - set route with table
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -282,6 +284,7 @@ Feature: nmcli: ipv4
 
     @RHEL-66262
     @ver+=1.51.5
+    @ver/rhel/9/5+=1.48.10.5
     @ipv4_route_cleanup_route_with_table
     Scenario: nmcli - ipv4 - routes - cleanup route with table
     # Must set method=static without addresses. Otherwise, the kernel cleanups the routes,
