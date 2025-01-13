@@ -258,10 +258,10 @@
      And "mtu 1300" is visible with command "ip address show dev nm-wireguard"
 
 
-    @RHEL-70160
-    @RHEL-69901
+    @RHEL-70160 @RHEL-69901
     @ver+=1.16
     @rhelver+=9
+    @ver/rhel/9/5+=1.48.10.5
     @wireguard
     @wireguard_add_routing_rules
     Scenario: nmcli - vpn - create and activate wireguard connection

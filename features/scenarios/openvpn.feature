@@ -202,9 +202,9 @@
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
 
 
-    @RHEL-70160
-    @RHEL-69901
-    @ver+=1.51.5
+    @RHEL-70160 @RHEL-69901
+    @ver+=1.51.6
+    @ver/rhel/9/5+=1.48.10.5
     @openvpn @openvpn4
     @openvpn_add_routing_rules
     Scenario: nmcli - openvpn - add routing rules

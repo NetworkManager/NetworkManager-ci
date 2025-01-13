@@ -752,9 +752,9 @@ method=auto
     Then "Invalid character|name owner .* disappeared|'property 'foo' invalid or not supported" is visible in journal in "5" seconds
 
 
-    @RHEL-70160
-    @RHEL-69901
-    @ver+=1.51.5
+    @RHEL-70160 @RHEL-69901
+    @ver+=1.51.6
+    @ver/rhel/9/5+=1.48.10.5
     @libreswan @ikev2
     @libreswan_add_routing_rules
     Scenario: nmcli - libreswan - add routing rules
