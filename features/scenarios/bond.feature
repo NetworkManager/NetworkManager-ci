@@ -3251,8 +3251,75 @@
     * Execute "ip link set dummy1 up"
     * Wait for "2" seconds
     * Execute "ip link set dummy2 down"
-    * Wait for "2" seconds
-    * Execute "ip link set dummy2 up"
     Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+    * Execute "ip link set dummy2 up"
+    * Wait for "2" seconds
     * Execute "ip link set dummy1 down"
     Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+
+
+    @RHEL-59558
+    @ver+=1.51.5
+    @bond_slb_garp_ping
+    Scenario: bond - check ping while link up/down in balance-slb mode
+    * Commentary
+    """
+    Check that putting up/down bonded links (veth1/veth2) does not disrupt connectivity (ping) from bond1 to veth3p.
+    This means RARP message to update link status is sent by NM.
+
+    Topology:
+     Test ping from ns1 to ns2 - routed through bond in root namespace
+     - bond1 - bond veth1p and veth2p, assigned IPv4+6, hidden in ns1
+     - bond2 - NM managed balance-slb bond of veth1 and veth2
+     - br2 - bridge bond2 and veth3 in root namespace
+     - veth3p - assigned IPv4+6, hidden in ns2
+
+                   ns3 |             rootns                  | ns2
+           +---veth1p-----veth1---+           br2            |
+     bond1 +           |          +- bond2 --/   \-- veth3 --- veth3p
+       IP  +---veth2p-----veth2---+                          |   IP
+                       |                                     |
+    """
+    * Add "bridge" connection named "br2" for device "br2" with options "stp off bridge.vlan-filtering on ipv4.method disable ipv6.method disable"
+    * Add "bond" connection named "bond1" for device "bond2" with options
+      """
+      bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1
+      ipv4.method disable ipv6.method disable
+      controller br2
+      """
+    * Add "veth" connection named "veth1" for device "veth1" with options "peer veth1p controller bond2"
+    * Add "veth" connection named "veth2" for device "veth2" with options "peer veth2p controller bond2"
+    * Add "veth" connection named "veth3" for device "veth3" with options "peer veth3p controller br2"
+    * Add namespace "ns1"
+    * Add namespace "ns2"
+    * Execute "ip link set dev veth1p netns ns1"
+    * Execute "ip link set dev veth2p netns ns1"
+    * Execute "ip link set dev veth3p netns ns2"
+    * Execute "ip -n ns1 link add bond1 type bond miimon 100 mode balance-rr"
+    * Execute "ip -n ns1 link set dev veth1p master bond1"
+    * Execute "ip -n ns1 link set dev veth2p master bond1"
+    * Execute "ip -n ns1 link set up dev veth1p"
+    * Execute "ip -n ns1 link set up dev veth2p"
+    * Execute "ip -n ns1 link set up bond1"
+    * Execute "ip -n ns1 addr add 192.168.9.1/24 dev bond1"
+    * Execute "ip -n ns1 addr add 2026::feed:bee/64 dev bond1"
+    * Execute "ip -n ns2 link set up dev veth3p"
+    * Execute "ip -n ns2 addr add 192.168.9.2/24 dev veth3p"
+    * Execute "ip -n ns2 addr add 2026::feed:beef/64 dev veth3p"
+    * Commentary
+    """
+    bond/bridge might not work straight away (ARP learning, DAD...), wait until first ping passes through.
+    """
+    When " 0% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.9.2" in "60" seconds
+    When " 0% packet loss" is visible with command "ip netns exec ns1 ping6 -c 1 2026::feed:beef" in "60" seconds
+    * Run child "ip netns exec ns1 ping -c 30 192.168.9.2"
+    * Run child "ip netns exec ns1 ping6 -c 30 2026::feed:beef"
+    * Wait for "5" seconds
+    * Execute "ip -n ns1 link set veth1p down"
+    * Wait for "5" seconds
+    * Execute "ip -n ns1 link set veth1p up"
+    * Wait for "5" seconds
+    * Execute "ip -n ns1 link set veth2p down"
+    * Wait for "5" seconds
+    * Execute "ip -n ns1 link set veth2p up"
+    Then Expect " 0% packet loss" in children in "30" seconds
