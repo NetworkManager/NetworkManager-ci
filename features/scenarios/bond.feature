@@ -3260,6 +3260,50 @@
 
     @RHEL-59558
     @ver+=1.51.5
+    @bond_slb_l3_bridge_garp
+    Scenario: bond - check GARP message in balance-slb mode when L3 bridged
+    * Add "bridge" connection named "br1" for device "br1" with options "stp off ipv4.method static ipv4.address 192.168.99.1/24 ipv6.method static ipv6.address 2026::feed:bee/64"
+    * Add "bond" connection named "bond1" for device "bond1" with options "bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1 controller br1"
+    * Add "dummy" connection named "dummy1" for device "dummy1" with options "controller bond1"
+    * Add "dummy" connection named "dummy2" for device "dummy2" with options "controller bond1"
+    * Note MAC address output for device "bond1" via ip command as "bond_mac"
+    * Run child "tshark -i bond1"
+    * Execute "ip link set dummy1 down"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy1 up"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy2 down"
+    Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+    * Execute "ip link set dummy2 up"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy1 down"
+    Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+
+
+    @RHEL-59558
+    @ver+=1.51.5
+    @bond_slb_l2_bridge_rarp
+    Scenario: bond - check RARP message in balance-slb mode when L2 bridged
+    * Add "bridge" connection named "br1" for device "br1" with options "stp off ipv4.method disabled ipv6.method disabled"
+    * Add "bond" connection named "bond1" for device "bond1" with options "bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1 controller br1"
+    * Add "dummy" connection named "dummy1" for device "dummy1" with options "controller bond1"
+    * Add "dummy" connection named "dummy2" for device "dummy2" with options "controller bond1"
+    * Note MAC address output for device "bond1" via ip command as "bond_mac"
+    * Run child "tshark -i bond1"
+    * Execute "ip link set dummy1 down"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy1 up"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy2 down"
+    Then Expect "<noted:bond_mac> RARP 42 Who is <noted:bond_mac>" in children in "5" seconds
+    * Execute "ip link set dummy2 up"
+    * Wait for "2" seconds
+    * Execute "ip link set dummy1 down"
+    Then Expect "<noted:bond_mac> RARP 42 Who is <noted:bond_mac>" in children in "5" seconds
+
+
+    @RHEL-59558
+    @ver+=1.51.5
     @bond_slb_garp_ping
     Scenario: bond - check ping while link up/down in balance-slb mode
     * Commentary

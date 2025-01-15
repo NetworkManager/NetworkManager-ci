@@ -356,6 +356,10 @@ testmapper:
         feature: bond
     - bond_slb_garp:
         feature: bond
+    - bond_slb_l3_bridge_garp:
+        feature: bond
+    - bond_slb_l2_bridge_rarp:
+        feature: bond
     - bond_slb_garp_ping:
         feature: bond
     - update_firewall_zone_upon_reconnect:
