@@ -84,6 +84,7 @@ def setup_openvpn(context, tags):
     if "openvpn6" not in tags:
         conf += [
             "server 172.31.70.0 255.255.255.0",
+            "topology net30",
             'push "dhcp-option DNS 172.31.70.53"',
             'push "dhcp-option DOMAIN vpn.domain"',
         ]
