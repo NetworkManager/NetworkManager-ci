@@ -1261,6 +1261,8 @@ testmapper:
         feature: ipv4
     - ipv4_dhcp_send_release:
         feature: ipv4
+    - ipv4_dhcp_send_release_reactivate:
+        feature: ipv4
     - ipv4_dhcp_send_release_disabled:
         feature: ipv4
     - ipv4_set_dhcp_send_hostname_global_config:

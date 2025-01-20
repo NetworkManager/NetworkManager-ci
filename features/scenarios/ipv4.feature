@@ -3807,6 +3807,24 @@ Feature: nmcli: ipv4
     Then Expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
 
 
+    @RHEL-67918
+    @ver+=1.51.5
+    @tcpdump
+    @ipv4_dhcp_send_release_reactivate
+    Scenario: nmcli - ipv4 - dhcp-send-release - set send release to true and quickly reactivate
+    * Commentary
+    """
+    Reactivate connection being activated with autoconnect=yes, NM should not crash and activation should pass.
+    """
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          autoconnect yes
+          ipv4.may-fail no
+          ipv4.dhcp-send-release yes
+          """
+    * Bring "up" connection "con_ipv4"
+
+
     @ver+=1.47.1
     @tcpdump
     @ipv4_dhcp_send_release_disabled
