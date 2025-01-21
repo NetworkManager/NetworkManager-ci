@@ -589,8 +589,30 @@
 
 
     @fedoraver+=41
+    @rhelver-10
     @ver+=1.46
     @ver/rhel/9/2+=1.42.2.24
+    @libreswan_ikev2_ipv4_leftsubnet
+    Scenario: libreswan - ikev2 - leftsubnet
+    * Prepare nmstate libreswan environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = 192.0.2.246, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, leftsubnet = 192.0.4.0/24, right = 192.0.2.157, rightid = hostb.example.org, rightsubnet = 192.0.3.0/24'
+      """
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.157" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
+
+
+    @xfail
+    @RHEL-70164
+    @fedoraver+=41
+    @rhelver+=10
+    # Delete this once 70164 is fixed together with rhelver-10 in test above
     @libreswan_ikev2_ipv4_leftsubnet
     Scenario: libreswan - ikev2 - leftsubnet
     * Prepare nmstate libreswan environment
