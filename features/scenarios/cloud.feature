@@ -38,21 +38,28 @@ Feature: nmcli: cloud
     @ver+=1.48.10.2
     @ver+=1.46.3
     @ver/rhel/9/4+=1.46.0.19
+    @ver/rhel/8+=1.40.16.19
+    @prepare_patched_netdevsim
     @cloud_azure_primary_address_race
     Scenario: cloud - azure - Basic Azure with primary address delayed
     * Start test-cloud-meta-mock.py
-    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
-    * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
+    * Add "dummy" connection named "azure_dummy" for device "dummy1" with options "ipv4.method static ipv4.addresses 169.254.169.254"
+    * Cleanup execute "iptables -t nat -D PREROUTING -i dummy1 -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:19080"
+    * Cleanup execute "iptables -t nat -D OUTPUT -s 169.254.169.254 -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:19080"
+    * Execute "iptables -t nat -A PREROUTING -i dummy1 -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:19080"
+    * Execute "iptables -t nat -A OUTPUT -s 169.254.169.254 -p tcp --dport 80 -j DNAT --to-destination 127.0.0.1:19080"
+    * Add "ethernet" connection named "conX1" for device "eth11" with options "autoconnect no ipv4.method static ipv4.addresses 192.168.101.11/24"
     * Bring "up" connection "conX1"
-    * Mock Azure device "0" with MAC "CC:00:00:00:00:01", IPs "172.31.176.249" and "172.31.17.249" and subnet "172.31.16.0/20"
+    * Note MAC address output for device "eth11" via ip command as "eth11"
+    * Mock Azure device "0" with MAC "eth11", IPs "172.31.176.249" and "172.31.17.249" and subnet "172.31.16.0/20"
     * Mock Azure forced delay on primary address for device "0"
-    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
-    * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "testX1" in "5" seconds
+    * Check "ipv4" address list "192.168.101.11/24" on device "eth11" in "5" seconds
+    * Execute nm-cloud-setup for "azure" with mapped interfaces "eth11=<noted:eth11>"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20 172.31.17.249/20" on device "eth11" in "5" seconds
     * Mock Azure IP addresses "172.31.186.249" and "172.31.18.249" for device "0"
     * Mock Azure forced delay on primary address for device "0"
-    * Execute nm-cloud-setup for "azure" with mapped interfaces "testX1=CC:00:00:00:00:01"
-    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "testX1" in "5" seconds
+    * Execute nm-cloud-setup for "azure" with mapped interfaces "eth11=<noted:eth11>"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.186.249/20 172.31.18.249/20" on device "eth11" in "5" seconds
 
 
     @ver+=1.43.8.2
