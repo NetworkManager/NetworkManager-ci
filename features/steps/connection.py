@@ -54,14 +54,25 @@ def add_multiple_new_connections(
         add_new_connection(context, typ, _con_name, _dev_name, options, cleanup=False)
 
 
+@step('Add "{typ}" connection ignoring warnings named "{name}" with options')
 @step(
-    'Add insecure "{typ}" connection named "{name}" for device "{ifname}" with options'
+    'Add "{typ}" connection ignoring warnings named "{name}" for device "{ifname}" with options'
 )
-def add_insecure(context, typ, name, ifname):
+@step(
+    'Add "{typ}" connection ignoring warnings named "{name}" for device "{ifname}" with options "{options}"'
+)
+def add_with_warnings_ignored(context, typ, name, ifname=None, options=None):
     nmci.cleanup.add_connection(name)
-    options = context.text.replace("\n", " ") if context.text is not None else " "
+    if options is None:
+        options = context.text.replace("\n", " ") if context.text is not None else " "
     options = nmci.misc.str_replace_dict(options, context.noted)
-    command = f"con add type {typ} con-name {name} ifname {ifname} {options}"
+
+    iface = ""
+    if ifname is not None:
+        nmci.cleanup.add_iface(ifname)
+        iface = f"ifname {ifname}"
+
+    command = f"con add type {typ} con-name {name} {iface} {options}"
     result = nmci.process.nmcli_force(command)
 
     message = ""
