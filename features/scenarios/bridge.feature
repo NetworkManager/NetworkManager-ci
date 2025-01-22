@@ -965,7 +965,7 @@ Feature: nmcli - bridge
     @ver+=1.22.0
     @bridge_no_link_till_master
     Scenario: NM - bridge - no link till master
-    * Add "dummy" connection named "bridge-slave-eth4" for device "dummy0" with options
+    * Add "dummy" connection ignoring warnings named "bridge-slave-eth4" for device "dummy0" with options
           """
           ip4 172.25.1.1/24
           master nm-bridge

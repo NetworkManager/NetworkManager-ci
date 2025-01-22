@@ -427,11 +427,11 @@
     @rhelver+=9.3
     @bond_port_prio_with_active_backup
     Scenario: nmcli - bond - port priority
-    * Add "ethernet" connection named "bond0.0" for device "eth1" with options
+    * Add "ethernet" connection ignoring warnings named "bond0.0" for device "eth1" with options
            """
             connection.slave-type bond master nm-bond bond-port.prio 2 connection.autoconnect no
            """
-    * Add "ethernet" connection named "bond0.1" for device "eth4" with options
+    * Add "ethernet" connection ignoring warnings named "bond0.1" for device "eth4" with options
            """
             connection.slave-type bond master nm-bond bond-port.prio 4 connection.autoconnect no
            """
@@ -664,7 +664,7 @@
     @bond_mac_reconnect_preserve
     Scenario: nmcli - bond - mac reconnect preserve
     * Note the output of "nmcli -g GENERAL.HWADDR device show eth1" as value "old_eth1"
-    * Add "bond-slave" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+    * Add "bond-slave" connection ignoring warnings named "bond0.0" for device "eth1" with options "master nm-bond"
     * Add "bond" connection named "bond0" with options
           """
           ip4 172.16.1.1/24
@@ -3007,8 +3007,8 @@
     * Wait for "0.2" seconds
     * Execute "for if in veth{0,1}; do ip link set ${if} up; done"
     * Run child "ip netns exec ns1 dnsmasq -d -h --interface bond1 --except-interface lo --host-record=client1234,172.25.1.101 --log-queries --no-resolv --server=8.8.8.8"
-    * Add "ethernet" connection named "veth0" for device "veth0" with options "master bond0 slave-type bond"
-    * Add "ethernet" connection named "veth1" for device "veth1" with options "master bond0 slave-type bond"
+    * Add "ethernet" connection ignoring warnings named "veth0" for device "veth0" with options "master bond0 slave-type bond"
+    * Add "ethernet" connection ignoring warnings named "veth1" for device "veth1" with options "master bond0 slave-type bond"
     * Add "bond" connection named "bond0" for device "bond0" with options
         """
         ipv6.method disabled
