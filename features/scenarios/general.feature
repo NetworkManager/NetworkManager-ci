@@ -3399,7 +3399,7 @@ Feature: nmcli - general
     # of the controller profile needs to unblock the port, which starts autoconnecting
     # and bringing both up.
     * Prepare simulated test "testA" device
-    * Add "ethernet" connection named "c-testA" for device "testA" with options
+    * Add "ethernet" connection ignoring warnings named "c-testA" for device "testA" with options
           """
           autoconnect yes
           master bond1
@@ -3432,7 +3432,7 @@ Feature: nmcli - general
       carrier-wait-timeout=1500
       """
     * Prepare simulated test "testA" device
-    * Add "ethernet" connection named "c-testA" for device "testA" with options
+    * Add "ethernet" connection ignoring warnings named "c-testA" for device "testA" with options
           """
           autoconnect no
           master bond1
@@ -3471,7 +3471,7 @@ Feature: nmcli - general
       carrier-wait-timeout=1500
       """
     * Prepare simulated test "testA" device
-    * Add "ethernet" connection named "c-testA" for device "testA" with options
+    * Add "ethernet" connection ignoring warnings named "c-testA" for device "testA" with options
           """
           autoconnect yes
           master bond1
@@ -3514,19 +3514,19 @@ Feature: nmcli - general
       """
     * Prepare simulated test "testA" device
     * Prepare simulated test "testB" device
-    * Add "ethernet" connection named "c-testA" for device "testA" with options
+    * Add "ethernet" connection ignoring warnings named "c-testA" for device "testA" with options
           """
           autoconnect yes
           master bond1
           slave-type bond
           """
-    * Add "ethernet" connection named "c-testB" for device "testB" with options
+    * Add "ethernet" connection ignoring warnings named "c-testB" for device "testB" with options
           """
           autoconnect yes
           master bond1
           slave-type bond
           """
-    *  Add "bond" connection named "c-bond1" for device "bond1" with options
+    *  Add "bond" connection ignoring warnings named "c-bond1" for device "bond1" with options
           """
           autoconnect no
           """
@@ -3652,7 +3652,7 @@ Feature: nmcli - general
             - connection.master is now connection.controller
             - connection.autoconnect-slaves is now connection.autoconnect-ports
           """
-    * Add "ethernet" connection named "con_general" for device "eth8" with options
+    * Add "ethernet" connection ignoring warnings named "con_general" for device "eth8" with options
           """
           controller bond1
           port-type bond

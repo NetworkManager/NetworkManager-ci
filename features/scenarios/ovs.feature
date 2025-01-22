@@ -1788,8 +1788,8 @@ Feature: nmcli - ovs
       """
       Make dummy ovs interface without address waiting for DHCP (connecting state)
       """
-    * Add "ovs-interface" connection named "ovs1-if" for device "ovs1" with options "controller ovs1"
-    * Add "ovs-port" connection named "ovs1-port" for device "ovs1" with options
+    * Add "ovs-interface" connection ignoring warnings named "ovs1-if" for device "ovs1" with options "controller ovs1"
+    * Add "ovs-port" connection ignoring warnings named "ovs1-port" for device "ovs1" with options
       """
       controller br0
       ovs-port.vlan-mode trunk
@@ -1830,7 +1830,7 @@ Feature: nmcli - ovs
       """
       Make dummy ovs interface without address waiting for DHCP (connecting state)
       """
-    * Add "ovs-interface" connection named "ovs1-if" for device "ovs1" with options "master ovs1"
+    * Add "ovs-interface" connection ignoring warnings named "ovs1-if" for device "ovs1" with options "master ovs1"
     * Add "ovs-port" connection named "ovs1-port" for device "ovs1" with options
       """
       master br0

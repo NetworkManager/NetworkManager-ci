@@ -289,7 +289,7 @@ Feature: nmcli - vlan
           config '{ "runner": {"name":"lacp", "fast_rate":true }}'
           """
     * Add "team-slave" connection named "vlan_team7.0" for device "eth7" with options "mtu 9000 master team7"
-    * Add "vlan" connection named "vlan_bridge7.15" with options
+    * Add "vlan" connection ignoring warnings named "vlan_bridge7.15" with options
           """
           dev team7
           id 15
