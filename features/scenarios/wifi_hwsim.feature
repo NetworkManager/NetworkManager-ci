@@ -38,7 +38,7 @@ Feature: nmcli - wifi
     @simwifi_wep_tls
     Scenario: nmcli - simwifi - connect to WEP TLS
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
+    * Add "wifi" connection ignoring warnings named "wifi" for device "wlan0" with options
             """
             autoconnect no
             ssid dynwep
@@ -59,7 +59,7 @@ Feature: nmcli - wifi
     @simwifi_wep_ttls_mschapv2_eap
     Scenario: nmcli - simwifi - connect to WEP TTLS MSCHAPv2 + EAP
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
+    * Add "wifi" connection ignoring warnings named "wifi" for device "wlan0" with options
           """
           autoconnect no
           ssid dynwep
@@ -80,7 +80,7 @@ Feature: nmcli - wifi
     @simwifi_wep_peap_gtc
     Scenario: nmcli - simwifi - connect to WEP PEAP GTC
     Given "dynwep" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
-    * Add insecure "wifi" connection named "wifi" for device "wlan0" with options
+    * Add "wifi" connection ignoring warnings named "wifi" for device "wlan0" with options
           """
           autoconnect no
           ssid dynwep
@@ -1059,7 +1059,7 @@ Feature: nmcli - wifi
     @simwifi
     @simwifi_wifisec_authalg_wrong_values
     Scenario: nmcli - simwifi - set wrong authalg & leap with from keymgmt
-    * Add insecure "wifi" connection named "wifi0" for device "wlan0" with options
+    * Add "wifi" connection ignoring warnings named "wifi0" for device "wlan0" with options
       """
       ssid open
       autoconnect off
