@@ -1127,6 +1127,8 @@ testmapper:
     - ipv4_method_shared:
         feature: ipv4
         tags: gate
+    - ipv4_method_shared_configurable_dhcp_range:
+        feature: ipv4
     - ipv4_method_shared_with_already_running_dnsmasq:
         feature: ipv4
     - ipv4_do_not_remove_second_ip_route:

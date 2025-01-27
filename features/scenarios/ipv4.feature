@@ -2147,6 +2147,28 @@ Feature: nmcli: ipv4
      And Check noted values "1" and "2" are the same
 
 
+    @ver+=1.51.5
+    @ipv4_method_shared_configurable_dhcp_range
+    Scenario: nmcli - ipv4 - method shared configurable dhcp range
+    * Prepare veth pairs "test1,test2" bridged over "vethbr"
+    * Commentary
+      """
+      Clean lease file after the test, if the test is run again,
+      the address is leased to the previous (already destroyed) veth.
+      """
+    * Cleanup execute "rm -f /var/lib/NetworkManager/dnsmasq-test1.leases"
+    * Add "ethernet" connection named "tc1" for device "test1" with options
+          """
+          ipv4.method shared
+          ipv4.addresses 192.168.10.1/24
+          ipv4.shared-dhcp-range 192.168.10.10,192.168.10.10
+          autoconnect yes
+          """
+    * Add "ethernet" connection named "tc2" for device "test2" with options "autoconnect no"
+    Then Bring "up" connection "tc2"
+    And "192.168.10.10/24" is visible with command "ip a show dev test2" in "10" seconds
+
+
     @rhbz1404148
     @ver+=1.10
     @kill_dnsmasq_ip4
