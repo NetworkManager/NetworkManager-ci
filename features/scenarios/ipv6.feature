@@ -2891,7 +2891,7 @@
         """
 
     @RHEL-45878
-    @ver+=1.49.0
+    @ver+=1.51
     @eth0
     @ipv6_add_dns_routes
     Scenario: NM - ipv6 - add DNS routes
