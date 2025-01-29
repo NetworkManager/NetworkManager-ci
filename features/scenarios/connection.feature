@@ -273,6 +273,7 @@ Feature: nmcli: connection
     @ver-1.51.4
     @ver/rhel/8+=1.8.0
     @ver/rhel/9+=1.8.0
+    @ver/rhel/9-1.51.6
     @restart_if_needed
     @keyfile_compliant_with_kickstart
     Scenario: keyfile - connection - pykickstart compliance
@@ -312,7 +313,7 @@ Feature: nmcli: connection
     @ver+=1.51.4
     @ver/rhel/10+=1.51.4.2
     @ver/rhel/8-
-    @ver/rhel/9-
+    @ver/rhel/9+=1.51.6
     @restart_if_needed
     @keyfile_compliant_with_kickstart
     Scenario: keyfile - connection - pykickstart compliance
