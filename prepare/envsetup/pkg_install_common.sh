@@ -6,7 +6,7 @@ install_common_packages () {
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
-        httpd iproute-tc iputils iw jq mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 podman \
+        httpd iproute-tc iputils iw jq lshw mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 podman \
         psmisc python3-dbus python3-gobject python3-inotify python3-libselinux python3-netaddr \
         python3-systemd s390utils-base tcpdump tuned valgrind wireshark-cli wpa_supplicant lsof \
         telnet dbus-x11 rsync"
