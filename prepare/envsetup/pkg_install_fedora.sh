@@ -4,7 +4,7 @@ install_fedora_packages () {
     systemctl restart sshd
 
     # Pip down some deps
-    PKGS_INSTALL="$PKGS_INSTALL python3-pip libyaml-devel"
+    PKGS_INSTALL="$PKGS_INSTALL libyaml-devel"
 
     # Needed for gsm_sim
     PKGS_INSTALL="$PKGS_INSTALL perl-IO-Pty-Easy perl-IO-Tty"
