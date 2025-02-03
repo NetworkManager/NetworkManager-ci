@@ -217,6 +217,19 @@ class _Process:
         else:
             self._cache = {}
 
+        self._dnf_transient = None
+
+    @property
+    def _is_dnf_transient(self):
+        if self._dnf_transient is None:
+            try:
+                with open("/proc/cmdline") as f:
+                    proc_cmdline = f.read()
+                self._dnf_transient = "ostree" in proc_cmdline
+            except:
+                self._dnf_transient = False
+        return self._dnf_transient
+
     def _run_prepare_args(self, argv, shell, env, env_extra, namespace):
         if namespace:
             argv = WithNamespace(namespace, argv)
@@ -1042,7 +1055,13 @@ class _Process:
         :returns: RunResult object
         :rtype: RunResult
         """
-        s_argv = WithPrefix(["dnf"], argv)
+
+        s_argv = argv
+
+        if self._is_dnf_transient:
+            s_argv = WithPrefix(["--transient"], s_argv)
+
+        s_argv = WithPrefix(["dnf"], s_argv)
 
         for _ in range(attempts):
             result = self._run(

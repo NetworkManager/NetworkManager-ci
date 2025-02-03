@@ -3,6 +3,9 @@ install_common_packages () {
     sed -i '/ip_resolve=/d' /etc/dnf/dnf.conf
     echo 'ip_resolve=4' >> /etc/dnf/dnf.conf
 
+    dnf=dnf
+    grep -q ostree /proc/cmdline && dnf="dnf --transient"
+
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         bind-utils dhcp-relay dhcp-server dnsmasq ethtool firewalld freeradius gcc git hostapd \
@@ -52,11 +55,11 @@ install_common_packages () {
     skip="--skip-broken"
     rpm -q dnf5 && skip="--skip-unavailable"
 
-    test -n "$PKGS_INSTALL" && dnf -y install $PKGS_INSTALL $skip \
+    test -n "$PKGS_INSTALL" && $dnf -y install $PKGS_INSTALL $skip \
                                                                --nobest \
                                                                $disable_repo
     echo "update dnf packages..."
-    test -n "$PKGS_UPGRADE" && dnf -y upgrade $PKGS_UPGRADE $skip \
+    test -n "$PKGS_UPGRADE" && $dnf -y upgrade $PKGS_UPGRADE $skip \
                                                                --allowerasing
 
     # Enable debug logs for wpa_supplicant
@@ -73,6 +76,9 @@ install_common_packages () {
     rm -rf /etc/modprobe.d/sch_netem-blacklist.conf
     modprobe sch_netem
 
+    # remount rw overlay, if in image mode
+    grep -q ostree /proc/cmdline && ( bootc usr-overlay; sudo mount -o remount,rw lazy /usr )
+
     # installing python3-* package causes removal of /usr/bin/python
     fix_python3_link
 
@@ -87,4 +93,8 @@ install_common_packages () {
     python3l -m pip install psutil
     python3l -m pip install scapy
     python3l -m pip install qemu.qmp
+
+    # remount ro overlay, if in image mode
+    grep -q ostree /proc/cmdline && sudo mount -o remount,ro lazy /usr
+
 }

@@ -1,5 +1,8 @@
 #! /bin/bash
 
+dnf=dnf
+grep -q ostree /proc/cmdline && dnf="dnf --transient"
+
 if test -f /tmp/nmstate_setup.txt; then
     exit 0
 else
@@ -7,14 +10,14 @@ else
     # dnf copr -y enable nmstate/nispor
     # dnf copr -y enable nmstate/nmstate-git
 
-    dnf remove -y \
+    $dnf remove -y \
             nmstate python3-libnmstate nmstate-libs nmstate-plugin-ovsdb
     if grep -q 'release 8' /etc/redhat-release; then
-        dnf install -y \
+        $dnf install -y \
             nispor nmstate-1* nmstate-libs-1* \
             python3-libnmstate-1* nmstate-plugin-ovsdb
     elif grep -q 'release 9' /etc/redhat-release; then
-        dnf install -y \
+        $dnf install -y \
             nispor nmstate-2* nmstate-libs-2* \
             python3-libnmstate-2*
     fi
