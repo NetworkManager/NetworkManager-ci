@@ -148,6 +148,11 @@ function setup_veth_env ()
 
         # Copy backup to /etc/sysconfig/network-scripts/ and reload
         yes | cp -rf /tmp/$DEV.nmconnection /etc/NetworkManager/system-connections/testeth0.nmconnection
+        echo "Selinux contexts in system-connections ater cp:"
+        ls -lZ /etc/NetworkManager/system-connections
+        restorecon /etc/NetworkManager/system-connections/testeth0.nmconnection
+        echo "Selinux contexts in system-connections after restorecon of testeth0.nmconnection:"
+        ls -lZ /etc/NetworkManager/system-connections
         sleep 0.5
         nmcli con reload
         sleep 0.5
