@@ -1334,3 +1334,20 @@ Feature: nmcli - vlan
     Then "192.168.100.10" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
     Then "2" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
+
+
+    @RHEL-72475
+    @ver+=1.51.6
+    @vlan_add_multiple_qos_mappings
+    Scenario: NM - vlan - add multiple igress egress qos mappings
+    * Add "vlan" connection named "eth1.100" for device "eth1.100" with options
+        """
+        connection.id eth1.100
+        ipv4.method disabled
+        ipv6.method disabled
+        vlan.parent eth1 vlan.id 100
+        vlan.egress-priority-map "2:2 3:3"
+        vlan.ingress-priority-map "2:2 3:3"
+        """
+    Then "ingress-qos-map { 2:2 3:3 }" is visible with command "ip -d link show eth1.100"
+    Then "egress-qos-map { 2:2 3:3 }" is visible with command "ip -d link show eth1.100"

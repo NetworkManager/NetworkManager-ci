@@ -1413,6 +1413,9 @@ testmapper:
         feature: vlan
     - ipvlan_after_reboot:
         feature: vlan
+    - vlan_add_multiple_qos_mappings:
+        feature: vlan
+        tags: gate
     - vrf_one_address_two_devices:
         feature: vrf
         tags: gate
