@@ -14,6 +14,19 @@ function dump_state ()
 
 }
 
+detect_NM_plugin ()
+{
+    # Do we have keyfiles or ifcfg plugins enabled?
+    DEV=$(nmcli -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
+    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep system-connections); then
+        echo keyfiles > /tmp/nm_plugin
+        # Remove all ifcfg files as we don't need them
+        rm -rf /etc/sysconfig/network-scripts/*
+    else
+        echo ifcfg > /tmp/nm_plugin
+    fi
+}
+
 function setup_veth_env ()
 {
     # Log state of net before the setup
@@ -54,6 +67,12 @@ function setup_veth_env ()
     # immediatelly and expected profile is not up.
     if grep -q 'release 10' /etc/redhat-release; then
         pkill dhcpcd
+    fi
+
+    # Activate first ethernet device in the list, if none is up (VM after reboot)
+    if ! ( nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | grep :connected ); then
+        DEV=$(nmcli -f DEVICE,TYPE,STATE -t d | grep :ethernet | awk -F':' '{print $1}' | head -n 1)
+        nmcli d connect $DEV
     fi
 
     # Save device that is the default IPv4 routing one
@@ -101,19 +120,17 @@ function setup_veth_env ()
     UUID=${UUID_NAME%:*}
 
     # Do we have keyfiles or ifcfg plugins enabled?
-    if nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep -q system-connections; then
-        touch /tmp/nm_plugin_keyfiles
-    fi
+    detect_NM_plugin
 
     # Overwrite the name in order to be sure to have all the NM keys (including UUID) in the ifcfg file
     for i in {1..10}; do
         nmcli con mod $UUID connection.id "$NAME"
-        test -f /tmp/nm_plugin_keyfiles && break
+        grep -q keyfiles /tmp/nm_plugin && break
         grep -q "UUID=$UUID" /etc/sysconfig/network-scripts/ifcfg-$DEV && break
         sleep 0.5
     done
 
-    if ! test -f /tmp/nm_plugin_keyfiles; then
+    if grep -q ifcfg /tmp/nm_plugin; then
         # Backup original ifcfg
         nmcli device disconnect $DEV 2>&1 > /dev/null
 
@@ -412,7 +429,9 @@ function teardown_veth_env ()
         nmcli con del testeth${X}
     done
 
-    if ! test -f /tmp/nm_plugin_keyfiles; then
+    ! test -f /tmp/nm_plugin && detect_NM_plugin
+
+    if grep -q ifcfg /tmp/nm_plugin; then
         # Get ORIGDEV name to bring device back to and copy the profile back
         ORIGDEV=$(grep DEVICE /tmp/ifcfg-* | awk -F '=' '{print $2}' | tr -d '"')
         if [ "x$ORIGDEV" == "x" ]; then
@@ -429,7 +448,7 @@ function teardown_veth_env ()
         ORIGDEV=$(grep interface-name /tmp/*.nmconnection | awk -F '=' '{print $2}' | tr -d '"')
         # Disconnect eth0
         nmcli device disconnect eth0
-        rm /etc/NetworkManager/system-connections/testeth0.nmconnection
+        rm /etc/NetworkManager/system-connections/testeth0*.nmconnection
         # Move all profiles
         mv -f /tmp/$ORIGDEV.nmconnection /etc/NetworkManager/system-connections/$ORIGDEV.nmconnection
         # mv also copies selinux context of user_tmp_t, switch it back to NetworkManager_etc_rw_t
@@ -481,4 +500,6 @@ elif [ "$1" == "teardown" ]; then
     teardown_veth_env
 elif [ "$1" == "check" ]; then
     check_veth_env
+elif [ "$1" == "detect_plugin" ]; then
+    detect_NM_plugin
 fi

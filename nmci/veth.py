@@ -125,17 +125,25 @@ class _Veth:
         print("* restoring testeth0")
         nmci.process.nmcli_force("con delete testeth0")
 
-        if not os.path.isfile("/tmp/nm_plugin_keyfiles"):
+        if not os.path.isfile("/tmp/nm_plugin"):
+            raise Exception(f"Invalid /tmp/nm_plugin: File not found")
+
+        with open("/tmp/nm_plugin", "r") as f:
+            plugin = f.read()
+
+        if "ifcfg" in plugin:
             # defaults to ifcfg files (RHELs)
             shutil.copy2(
                 "/tmp/testeth0", "/etc/sysconfig/network-scripts/ifcfg-testeth0"
             )
-        else:
+        elif "keyfile" in plugin:
             # defaults to keyfiles (F33+)
             shutil.copy2(
                 "/tmp/testeth0",
                 "/etc/NetworkManager/system-connections/testeth0.nmconnection",
             )
+        else:
+            raise Exception(f"Invalid /tmp/nm_plugin: {plugin}")
 
         time.sleep(1)
         nmci.process.nmcli("con reload")
