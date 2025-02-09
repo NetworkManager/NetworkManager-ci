@@ -98,29 +98,29 @@ configure_networking () {
 
     # Do we need virtual eth setup?
     veth=0
-    if [ $wlan -eq 0 ]; then
-        if [ $dcb_inf_wol_sriov -eq 0 ]; then
-            for X in $(seq 0 10); do
-                if ! nmcli -f DEVICE -t device |grep eth${X}$; then
-                    veth=1
-                    break
-                else
-                    # Setting ipv6 dad to 0 as parallel test on different machines
-                    # there can be dad connected failures
-                    sysctl net.ipv6.conf.eth$X.accept_dad=0
-                fi
-            done
+    # if we have /tmp file, veth=1 - to prevent non-veth setup on veth
+    if [ -f /tmp/nm_veth_configured ]; then
+        veth=1
+    else
+            if [ $wlan -eq 0 ]; then
+                if [ $dcb_inf_wol_sriov -eq 0 ]; then
+                for X in $(seq 0 10); do
+                    if ! nmcli -f DEVICE -t device |grep eth${X}$; then
+                        veth=1
+                        break
+                    else
+                        # Setting ipv6 dad to 0 as parallel test on different machines
+                        # there can be dad connected failures
+                        sysctl net.ipv6.conf.eth$X.accept_dad=0
+                    fi
+                done
 
+            fi
         fi
     fi
 
     # Do we have keyfiles or ifcfg plugins enabled?
-    DEV=$(nmcli -t d | grep :ethernet | grep :connected | awk -F':' '{print $1}' | head -n 1)
-    if test $(nmcli -t -f FILENAME,DEVICE,ACTIVE connection|grep "$DEV:yes"| grep system-connections); then
-        touch /tmp/nm_plugin_keyfiles
-        # Remove all ifcfg files as we don't need them
-        rm -rf /etc/sysconfig/network-scripts/*
-    fi
+    bash prepare/vethsetup.sh detect_plugin
 
     # Comment out all mentions of plugins
     for file in `grep -rl '^\s*plugins\s*=' /etc/NetworkManager/`; do
@@ -144,7 +144,7 @@ configure_networking () {
     # Do veth setup if yes
     if [ $veth -eq 1 ]; then
         echo $(pwd)
-        sh prepare/vethsetup.sh setup
+        sh prepare/vethsetup.sh check
 
         # Copy this once more just to be sure it's there as it's really crucial
         testeth0_file="$(nmcli -t -f FILENAME,NAME con show | grep ':testeth0' | sed 's/:testeth0//' )"
