@@ -46,14 +46,7 @@ function setup () {
     fi
 
     # If we have all necessary things done
-    if ! test -f /tmp/netdevsim_installed; then
-
-        # Install build dependencies with skipbroken as yasm not present on 9
-        yum -y install \
-               wget git kernel-headers gcc \
-               patch elfutils-libelf-devel bc yasm --skip-broken
-        yum -y install kernel-devel-$MAJOR-$MINOR
-
+    if ! test -f /tmp/netdevsim_installed && ! grep -q ostree /proc/cmdline; then
         # Install srpm (first try manualy cached file in /root)
         rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm || \
         wget $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
