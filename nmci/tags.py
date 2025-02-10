@@ -2131,9 +2131,18 @@ _register_tag("need_config_server", need_config_server_bs, need_config_server_as
 
 
 def no_config_server_bs(context, scenario):
-    if context.process.run_code("rpm -q NetworkManager-config-server") == 1:
-        context.restore_config_server = False
-    else:
+    context.restore_config_server = False
+    with open("/proc/cmdline") as f:
+        p_cmdline = f.read()
+    context.image_mode = "ostree" in p_cmdline
+
+    if context.process.run_code("rpm -q NetworkManager-config-server") == 0:
+        context.restore_config_server = True
+
+        if context.image_mode:
+            # unlock /usr
+            nmci.process.run("mount -o remount,rw lazy /usr")
+
         # context.process.run_stdout('yum -y remove NetworkManager-config-server')
         config_files = (
             context.process.run_stdout("rpm -ql NetworkManager-config-server")
@@ -2144,13 +2153,21 @@ def no_config_server_bs(context, scenario):
             config_file = config_file.strip()
             if os.path.isfile(config_file):
                 print(f"* disabling file: {config_file}")
-                context.process.run_stdout(f"mv -f {config_file} {config_file}.off")
-        nmci.nmutil.reload_NM_service()
-        context.restore_config_server = True
+                nmci.process.run_stdout(f"mv -f {config_file} {config_file}.off")
+                nmci.nmutil.reload_NM_service()
+
+        if context.image_mode:
+            # lock /usr back
+            nmci.process.run("mount -o remount,ro lazy /usr")
 
 
 def no_config_server_as(context, scenario):
     if context.restore_config_server:
+
+        if context.image_mode:
+            # unlock /usr
+            nmci.process.run("mount -o remount,rw lazy /usr")
+
         config_files = (
             context.process.run_stdout("rpm -ql NetworkManager-config-server")
             .strip()
@@ -2160,8 +2177,15 @@ def no_config_server_as(context, scenario):
             config_file = config_file.strip()
             if os.path.isfile(config_file + ".off"):
                 print(f"* enabling file: {config_file}")
-                context.process.run_stdout(f"mv -f {config_file}.off {config_file}")
+                context.process.run(
+                    f"mv -f {config_file}.off {config_file}", ignore_stderr=True
+                )
         nmci.cleanup.add_NM_service("restart")
+
+        if context.image_mode:
+            # lock /usr back
+            nmci.process.run("mount -o remount,ro lazy /usr")
+
     conns = nmci.process.nmcli("-t -f UUID,NAME c").strip().split("\n")
     # UUID has fixed length, 36 characters
     uuids = [c[:36] for c in conns if c and "testeth" not in c]
