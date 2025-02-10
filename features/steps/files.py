@@ -178,6 +178,13 @@ def check_ifcfg_exists_given_device(context, con_name):
 def write_dispatcher_file(context, path, params=None, source=None):
     if not path.startswith("/"):
         path = "/etc/NetworkManager/dispatcher.d/%s" % path
+    image_mode = False
+    if path.startswith("/usr/"):
+        with open("/proc/cmdline") as f:
+            p_cmdline = f.read()
+        image_mode = "ostree" in p_cmdline
+        if image_mode:
+            nmci.process.run_stdout("mount -o remount,rw lazy /usr")
     dir_name = os.path.dirname(path)
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -188,6 +195,18 @@ def write_dispatcher_file(context, path, params=None, source=None):
         "/tmp/dispatcher.txt",
         priority=nmci.Cleanup.PRIORITY_FILE + 1,
     )
+    if image_mode:
+        nmci.cleanup.add_callback(
+            lambda: nmci.process.run("mount -o remount,rw lazy /usr"),
+            f"image-mode-unlock",
+            priority=nmci.cleanup.Cleanup.PRIORITY_FILE - 1,
+        )
+        nmci.cleanup.add_callback(
+            lambda: nmci.process.run("mount -o remount,ro lazy /usr"),
+            f"image-mode-lock",
+            priority=nmci.cleanup.Cleanup.PRIORITY_FILE + 1,
+        )
+    nmci.cleanup.add_file(path)
 
     if source is None:
         nmci.util.file_set_content("/tmp/dispatcher.txt", "")
@@ -200,7 +219,8 @@ def write_dispatcher_file(context, path, params=None, source=None):
         shutil.copyfile(f"{nmci.util.BASE_DIR}/contrib/dispatcher/{source}", path)
 
     nmci.process.exec.chmod("+x", path)
-    nmci.cleanup.add_file(path)
+    if image_mode:
+        nmci.process.run_stdout("mount -o remount,ro lazy /usr")
 
 
 @step("Reset /etc/hosts")
