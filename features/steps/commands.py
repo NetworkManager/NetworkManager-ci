@@ -1463,3 +1463,8 @@ def check_package_version(context, package, version, distro=None):
         if package in PKGS_REQUIRE_NM_RESTART:
             nmci.nmutil.restart_NM_service()
             nmci.cleanup.add_NM_service(operation="restart")
+
+
+@step('DNF "{cmd}"')
+def dnf(context, cmd):
+    nmci.process.dnf(cmd)
