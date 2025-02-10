@@ -217,7 +217,7 @@ def libreswan_teardown(context):
         shell=True,
     )
     teardown_log = nmci.util.file_get_content_simple("/tmp/libreswan_teardown.log")
-    conf = nmci.util.file_get_content_simple("/opt/ipsec/connection.conf")
+    conf = nmci.util.file_get_content_simple("/var/ipsec/connection.conf")
     context.embed("text/plain", teardown_log, caption="Libreswan Teardown")
     context.embed("text/plain", conf, caption="Libreswan Config")
 

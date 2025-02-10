@@ -55,7 +55,7 @@ cd ..
 If you have machine that have old configuration be sure to clean up files in the following dirs (if exist), otherwise prepare fails with certificate serial error:
 
 ```bash
-rm -f /opt/ipsec/nss/*
+rm -f /var/ipsec/nss/*
 rm -f /var/lib/ipsec/nss/*
 rm -f /etc/ipsec.d/nss/*
 ```
