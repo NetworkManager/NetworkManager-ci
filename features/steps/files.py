@@ -299,6 +299,9 @@ def create_network_profile_file(context, file):
         nmci.process.run_code(["chmod", "600", file]) == 0
     ), f"Unable to set permissions on '{file}'"
 
+    # Restore selinux context - crash in imagemode
+    nmci.process.run_stdout(f"restorecon {file}")
+
     for line in content.split("\n"):
         if re.match(r"(id|name)=", line, re.IGNORECASE):
             name = line.split("=")[1]
