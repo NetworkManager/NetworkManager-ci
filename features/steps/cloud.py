@@ -459,11 +459,11 @@ def mock_oci_dev(context, num, mac, ip_addr, cidr, gw_addr):
             {
                 "vnicId": "example.id.X",
                 "privateIp": ip_addr,
-                "vlanTag": 1,
+                "vlanTag": 0,
                 "macAddr": mac,
                 "virtualRouterIp": gw_addr,
                 "subnetCidrBlock": cidr,
-                "nicIndex": 0,
+                "nicIndex": int(num),
             }
         ),
     )
