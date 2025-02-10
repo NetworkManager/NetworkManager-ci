@@ -1,7 +1,7 @@
 #!/bin/bash
 set +x
 
-LIBRESWAN_DIR="/opt/ipsec"
+LIBRESWAN_DIR="/var/ipsec"
 
 
 # Allow only users with root priviledge to run the script.

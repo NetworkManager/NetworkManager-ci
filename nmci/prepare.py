@@ -49,7 +49,7 @@ def teardown_libreswan(context):
     )
     nmci.embed.embed_data("Libreswan Pluto Journal", journal_log)
 
-    conf = nmci.util.file_get_content_simple("/opt/ipsec/connection.conf")
+    conf = nmci.util.file_get_content_simple("/var/ipsec/connection.conf")
     nmci.embed.embed_data("Libreswan Config", conf)
 
 
