@@ -657,7 +657,7 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
     exp.sendeof()
 
     assert (
-        exp.expect([pattern, pexpect.EOF]) == 0
+        exp.expect([pattern, pexpect.EOF], timeout=5) == 0
     ), 'pattern %s is not visible with "%s"' % (pattern, command)
 
 
@@ -673,7 +673,7 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
     exp.sendeof()
 
     assert (
-        exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT]) != 0
+        exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT], timeout=5) != 0
     ), 'pattern %s is visible with "%s"' % (pattern, command)
 
 
