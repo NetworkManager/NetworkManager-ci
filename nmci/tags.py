@@ -1705,9 +1705,7 @@ def firewall_bs(context, scenario):
     if context.process.run_code("rpm -q firewalld") != 0:
         print("install firewalld")
         nmci.veth.wait_for_testeth0()
-        context.process.run_stdout(
-            "yum -y install firewalld", timeout=120, ignore_stderr=True
-        )
+        context.process.dnf("-y install firewalld")
     # configure log verbosity
     log_level = "4"
     override_file = "/etc/systemd/system/firewalld.service.d/30-firewalld-debug.conf"
