@@ -475,8 +475,8 @@ Feature: nmcli - procedures in documentation
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"
     ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
-    * Execute "mkdir -p /usr/local/bin"
-    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
+    * Execute "mkdir -p /var/local/bin"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /var/local/bin/802-1x-tr-mgmt"
     * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
     * Execute "systemctl daemon-reload"
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
