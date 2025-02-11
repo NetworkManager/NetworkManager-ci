@@ -1468,3 +1468,18 @@ def check_package_version(context, package, version, distro=None):
 @step('DNF "{cmd}"')
 def dnf(context, cmd):
     nmci.process.dnf(cmd)
+
+
+@step('"{action}" Image Mode')
+def image_mode_toggle(context, action):
+    mode = None
+    if action.lower() == "lock":
+        mode = "ro"
+    elif action.lower() == "unlock":
+        mode = "rw"
+    else:
+        assert False, f"unrecognized action: {action}"
+    with open("/proc/cmdline") as f:
+        image_mode = "ostree" in f.read()
+    if image_mode:
+        nmci.process.run(f"mount -o remount,{mode} lazy /usr")
