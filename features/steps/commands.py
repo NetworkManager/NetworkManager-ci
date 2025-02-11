@@ -1468,3 +1468,31 @@ def check_package_version(context, package, version, distro=None):
 @step('DNF "{cmd}"')
 def dnf(context, cmd):
     nmci.process.dnf(cmd)
+
+
+@step('"{action}" Image Mode')
+def image_mode_toggle(context, action):
+    mode = None
+    if action.lower() == "lock":
+        mode = "ro"
+    elif action.lower() == "unlock":
+        mode = "rw"
+    else:
+        assert False, f"unrecognized action: {action}"
+    with open("/proc/cmdline") as f:
+        image_mode = "ostree" in f.read()
+    if image_mode:
+        # register cleanup to unlock and lock image during after scenario, set unique-tag to string to execute it only once
+        nmci.cleanup.add_callback(
+            lambda: nmci.process.run(f"mount -o remount,rw lazy /usr"),
+            "image-mode-unlock",
+            unique_tag=f"image-mode-unlock",
+            priority=nmci.cleanup.Cleanup.PRIORITY_TAG - 1,
+        )
+        nmci.cleanup.add_callback(
+            lambda: nmci.process.run(f"mount -o remount,ro lazy /usr"),
+            "image-mode-lock",
+            unique_tag=f"image-mode-lock",
+            priority=nmci.cleanup.Cleanup.PRIORITY_FILE + 1,
+        )
+        nmci.process.run(f"mount -o remount,{mode} lazy /usr")

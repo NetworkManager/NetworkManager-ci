@@ -2901,7 +2901,9 @@ Feature: nmcli - general
      * Execute "mv /etc/NetworkManager/system-connections/con_general* /tmp/"
      * Delete connection "con_general"
      When "con_general" is not visible with command "nmcli connection"
+     * "Unlock" Image Mode
      * Execute "mv /tmp/con_general* /usr/lib/NetworkManager/system-connections/"
+     * "Lock" Image Mode
      * Execute "nmcli con reload"
      When "con_general" is visible with command "nmcli connection"
       And Noted value is visible with command "nmcli connection"
@@ -2925,6 +2927,7 @@ Feature: nmcli - general
       [main]
       plugins=keyfile,ifcfg-rh
       """
+    * "Unlock" Image Mode
     * Create keyfile "/usr/lib/NetworkManager/system-connections/con_general.nmconnection"
       """
       [connection]
@@ -3686,6 +3689,7 @@ Feature: nmcli - general
     @ver+=1.51.3
     @NM_print_config
     Scenario: NM - general - Check --print-config option and config dir priorities
+    * "Unlock" Image Mode
     * Commentary
       """
       Create dirs, if they are not present
