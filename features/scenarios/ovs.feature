@@ -1856,6 +1856,21 @@ Feature: nmcli - ovs
     Then "ovs1" is not visible with command "nmcli d" in "10" seconds
 
 
+    @RHEL-77167
+    @ver+=1.51.8
+    @openvswitch
+    @ovs_bond_ports_stable_after_reboot
+    Scenario: NM - openvswitch - check that bond ports are connected after NM restart reboot (race condition)
+    * Cleanup execute "nmcli -f name connection | grep '^br\|^ovs\|^patch\|-if' | xargs nmcli connection delete"
+    * Commentary
+    """
+    Reproducer applies nmstate yaml config, and then restarts NM 10x checking bond is active after each restart.
+    Bug should be visble within 20 NM restarts (2 retries).
+    """
+    * NM is restarted within next "1" steps
+    * Execute reproducer "repro_77167.sh" for "4" times
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

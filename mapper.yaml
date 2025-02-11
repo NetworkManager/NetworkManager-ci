@@ -2184,6 +2184,8 @@ testmapper:
         feature: ovs
     - ovs_delete_connecting_interface:
         feature: ovs
+    - ovs_bond_ports_stable_after_reboot:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
