@@ -37,9 +37,12 @@ test_setup() {
     sed -i 's/After=dracut-cmdline.service/After=dracut-cmdline.service\nAfter=dbus.service/' $DRACUT_NM_INITRD
   fi
 
+  grep -q ostree /proc/cmdline && mount -o remount,rw lazy /usr
+
   cp -fa conf/smart_sleep.py /usr/local/bin/smart_sleep
   chmod +x /usr/local/bin/smart_sleep
 
+  grep -q ostree /proc/cmdline && mount -o remount,ro lazy /usr
 
   basedir=/usr/lib/dracut/
 
