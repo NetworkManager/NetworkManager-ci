@@ -2913,6 +2913,13 @@ _register_tag(
 
 
 def slow_dnsmasq_bs(context, scenario):
+    with open("/proc/cmdline") as f:
+        p_cmdline = f.read()
+    context.image_mode = "ostree" in p_cmdline
+    if context.image_mode:
+        # unlock /usr
+        nmci.process.run("mount -o remount,rw lazy /usr")
+
     dnsmasq_bin = context.process.run_stdout("which dnsmasq").strip("\n")
     nmci.util.file_set_content(
         f"{dnsmasq_bin}.slow",
@@ -2934,6 +2941,10 @@ def slow_dnsmasq_as(context, scenario):
     # this is to ensure `sleep 3` dnsmasq.slow finished in case of fail
     time.sleep(3)
     context.process.run("pkill dnsmasq.orig")
+
+    if context.image_mode:
+        # lock /usr
+        nmci.process.run("mount -o remount,ro lazy /usr")
 
 
 _register_tag("slow_dnsmasq", slow_dnsmasq_bs, slow_dnsmasq_as)
