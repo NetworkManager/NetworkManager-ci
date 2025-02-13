@@ -1,0 +1,11 @@
+[connection]
+id=br-ex-port
+uuid=4249c3cb-b247-48c0-b389-54b3cf0efffe
+type=ovs-port
+controller=e457c40c-0f5f-45b2-8c2b-ea0ec76751b3
+interface-name=br-ex
+master=e457c40c-0f5f-45b2-8c2b-ea0ec76751b3
+port-type=ovs-bridge
+slave-type=ovs-bridge
+
+[ovs-port]

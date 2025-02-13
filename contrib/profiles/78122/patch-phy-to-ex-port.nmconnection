@@ -1,0 +1,11 @@
+[connection]
+id=patch-phy-to-ex-port
+uuid=e58293d8-0e06-4b9c-a222-7224749aa15a
+type=ovs-port
+controller=49ffa318-681b-43e2-9722-a5f415ab6bb4
+interface-name=patch-phy-to-ex
+master=49ffa318-681b-43e2-9722-a5f415ab6bb4
+port-type=ovs-bridge
+slave-type=ovs-bridge
+
+[ovs-port]

@@ -1871,6 +1871,61 @@ Feature: nmcli - ovs
     * Execute reproducer "repro_77167.sh" for "4" times
 
 
+    @RHEL-78122
+    @ver+=1.51.90.2
+    @openvswitch
+    @keyfile
+    @ovs_bond_ports_autoconnect_retries_reboot
+    Scenario: NM - openvswitch - check autoretry on bond ports after reboot
+    * Create keyfile "/etc/NetworkManager/system-connections/br-ex-br.nmconnection"
+      """
+      ./contrib/profiles/78122/br-ex-br.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/br-ex-if.nmconnection"
+      """
+      ./contrib/profiles/78122/br-ex-if.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/br-ex-port.nmconnection"
+      """
+      ./contrib/profiles/78122/br-ex-port.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/br-phy-br.nmconnection"
+      """
+      ./contrib/profiles/78122/br-phy-br.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/nic1.nmconnection"
+      """
+      ./contrib/profiles/78122/nic1.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/nic2.nmconnection"
+      """
+      ./contrib/profiles/78122/nic2.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/ovs-bond-port.nmconnection"
+      """
+      ./contrib/profiles/78122/ovs-bond-port.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/patch-ex-to-phy-if.nmconnection"
+      """
+      ./contrib/profiles/78122/patch-ex-to-phy-if.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/patch-ex-to-phy-port.nmconnection"
+      """
+      ./contrib/profiles/78122/patch-ex-to-phy-port.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/patch-phy-to-ex-if.nmconnection"
+      """
+      ./contrib/profiles/78122/patch-phy-to-ex-if.nmconnection
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/patch-phy-to-ex-port.nmconnection"
+      """
+      ./contrib/profiles/78122/patch-phy-to-ex-port.nmconnection
+      """
+    * Reboot
+    Then "^activated" is visible with command "nmcli -g GENERAL.STATE connection show nic1" in "10" seconds
+    Then "^activated" is visible with command "nmcli -g GENERAL.STATE connection show nic2" in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

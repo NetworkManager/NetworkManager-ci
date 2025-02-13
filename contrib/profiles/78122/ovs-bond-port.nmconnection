@@ -1,0 +1,13 @@
+[connection]
+id=ovs-bond-port
+uuid=3f34449f-9fce-4983-a9ea-0e98fcdf057f
+type=ovs-port
+controller=49ffa318-681b-43e2-9722-a5f415ab6bb4
+interface-name=ovs-bond
+master=49ffa318-681b-43e2-9722-a5f415ab6bb4
+port-type=ovs-bridge
+slave-type=ovs-bridge
+
+[ovs-port]
+bond-mode=active-backup
+lacp=off
