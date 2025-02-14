@@ -3057,6 +3057,27 @@ testmapper:
     - nmtui_ethernet_static_combined:
         feature: nmtui_ethernet
         tags: gate
+    - nmtui_veth_create_default_connection:
+        feature: nmtui_veth
+        tags: gate
+    - nmtui_veth_activate_connection_wo_autoconnect:
+        feature: nmtui_veth
+    - nmtui_veth_deactivate_connection:
+        feature: nmtui_veth
+    - nmtui_veth_delete_connection_down:
+        feature: nmtui_veth
+    - nmtui_veth_delete_connection_up:
+        feature: nmtui_veth
+    - nmtui_veth_set_mtu:
+        feature: nmtui_veth
+    - nmtui_veth_cloned_mac:
+        feature: nmtui_veth
+    - nmtui_veth_static_ipv4:
+        feature: nmtui_veth
+    - nmtui_veth_static_ipv6:
+        feature: nmtui_veth
+    - nmtui_veth_static_combined:
+        feature: nmtui_veth
     - nmtui_ipv4_addresses_static_no_address:
         feature: nmtui_ipv4
     - nmtui_ipv4_addresses_static_no_mask:
