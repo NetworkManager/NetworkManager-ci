@@ -298,10 +298,16 @@ EOF
      inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
   ) || exit 1
 
+  ifcfg=
+  release=$(grep -o 'release [0-9]*' /etc/redhat-release | grep -o "[0-9]*" )
+
+  grep -q -i enterprise /etc/redhat-release && (( release < 10 )) && ifcfg=ifcfg
+  grep -q -i fedora /etc/redhat-release && (( release < 40 )) && ifcfg=ifcfg
+
   # Make NFS client's dracut image using NM module
   dracut -i $TESTDIR/overlay-client / \
          -o "plymouth dash dmraid network-legacy" \
-         -a "debug network-manager ifcfg" \
+         -a "debug network-manager $ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext4 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
          -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
