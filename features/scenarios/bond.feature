@@ -3245,7 +3245,7 @@
     * Add "dummy" connection named "dummy1" for device "dummy1" with options "controller bond1"
     * Add "dummy" connection named "dummy2" for device "dummy2" with options "controller bond1"
     * Note MAC address output for device "bond1" via ip command as "bond_mac"
-    * Run child "tshark -i bond1"
+    * Run child "tshark -o nameres.mac_name:FALSE -i bond1"
     * Execute "ip link set dummy1 down"
     * Wait for "2" seconds
     * Execute "ip link set dummy1 up"
@@ -3267,7 +3267,7 @@
     * Add "dummy" connection named "dummy1" for device "dummy1" with options "controller bond1"
     * Add "dummy" connection named "dummy2" for device "dummy2" with options "controller bond1"
     * Note MAC address output for device "bond1" via ip command as "bond_mac"
-    * Run child "tshark -i bond1"
+    * Run child "tshark -o nameres.mac_name:FALSE -i bond1"
     * Execute "ip link set dummy1 down"
     * Wait for "2" seconds
     * Execute "ip link set dummy1 up"
@@ -3289,7 +3289,7 @@
     * Add "dummy" connection named "dummy1" for device "dummy1" with options "controller bond1"
     * Add "dummy" connection named "dummy2" for device "dummy2" with options "controller bond1"
     * Note MAC address output for device "bond1" via ip command as "bond_mac"
-    * Run child "tshark -i bond1"
+    * Run child "tshark -o nameres.mac_name:FALSE -i bond1"
     * Execute "ip link set dummy1 down"
     * Wait for "2" seconds
     * Execute "ip link set dummy1 up"
