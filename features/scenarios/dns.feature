@@ -1135,6 +1135,22 @@ Feature: nmcli - dns
 
 
 ##########################################
+# DNSCONFD TESTS
+##########################################
+
+    @attach_dnsconfd_log
+    @ver+=1.51.90
+    @dns_dnsconfd_unbound
+    Scenario: NM - dnsconf - run upsteam test suite
+    * Commentary
+      """
+      Run whole test suite reusing the NM packages from the host
+      """
+    * Execute "contrib/dnsconfd/test.sh &> /tmp/dnsconfd.txt </dev/null"
+
+
+
+##########################################
 # OTHER TESTS
 ##########################################
 
