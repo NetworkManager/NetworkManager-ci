@@ -101,6 +101,7 @@ def _before_scenario(context, scenario):
     _, context.rh_release_num = nmci.misc.distro_detect(
         release_file_content=context.rh_release
     )
+    excepts = []
 
     # skip on invalid version - this shuld not happen but is handy when executing multiple tests in single report
     if (
@@ -134,10 +135,13 @@ def _before_scenario(context, scenario):
     if len(failed_services) > 0:
         nmci.process.systemctl("reset-failed")
 
-    if os.path.exists("/tmp/nmci-ausearch-checkpoint-file"):
-        nmci.embed.embed_avcs("after the previous scenario")
-    else:
-        nmci.embed.embed_avcs("on this system so far")
+    try:
+        if os.path.exists("/tmp/nmci-ausearch-checkpoint-file"):
+            nmci.embed.embed_avcs("after the previous scenario")
+        else:
+            nmci.embed.embed_avcs("on this system so far")
+    except Exception:
+        excepts.append(traceback.format_exc())
 
     if "dump_status_verbose" in effective_tags:
         nmci.util.dump_status_verbose = True
@@ -173,7 +177,6 @@ def _before_scenario(context, scenario):
                     time.sleep(1)
         context.start_timestamp = int(time.time())
 
-    excepts = []
     if (
         "eth0" in effective_tags
         or "delete_testeth0" in effective_tags
@@ -428,10 +431,12 @@ def _after_scenario(context, scenario):
             try:
                 nmci.crash.after_crash_reset()
             except Exception as e:
-                excepts.append(e)
+                excepts.append(traceback.format_exc())
 
-    nmci.embed.embed_avcs("during this scenario")
-
+    try:
+        nmci.embed.embed_avcs("during this scenario")
+    except Exception:
+        excepts.append(traceback.format_exc())
     # collect failed services' logs and reset them
     failed_services = nmci.misc.systemd_list_units(states=["failed"])
     if len(failed_services) > 0:
