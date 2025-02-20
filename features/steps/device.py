@@ -758,8 +758,8 @@ def activate_devices_check(context, device_num, sec_high, sec_low=0):
     )
     # setup
     nmci.nmutil.stop_NM_service()
-    nmci.process.systemctl(["mask", "NetworkManager-dispatcher"])
     nmci.process.systemctl(["stop", "NetworkManager-dispatcher"])
+    nmci.process.systemctl(["mask", "NetworkManager-dispatcher"])
     nmci.process.run(
         f"cd contrib/gi; ./setup.sh {device_num}",
         shell=True,
