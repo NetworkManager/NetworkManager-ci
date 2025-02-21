@@ -203,6 +203,8 @@ EOF
 
   # Enable NM debug
   cp -fa /etc/NetworkManager/conf.d/95-nmci-test.conf $initdir/etc/NetworkManager/conf.d/95-nmci-test.conf
+  # Try swtch from nettols to internal - to fix rawhide
+  sed -i 's/nettools/internal/g' $initdir/etc/NetworkManager/conf.d/NetworkManager.conf
 
   # clean any NM connection that might be in the image
   rm -rf $initdir/etc/NetworkManager/system-connections/*
