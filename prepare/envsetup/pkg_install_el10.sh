@@ -1,7 +1,7 @@
 install_el10_packages () {
-    # Enable EPEL but on s390x - 10 not live yet, change 9->10 when rpm is released
+    # Enable EPEL but on s390x
     if ! uname -a |grep -q s390x; then
-        [ -f /etc/yum.repos.d/epel.repo ] || rpm -i https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/e/epel-release-10-2.el10_0.noarch.rpm
+        [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
     fi
 
     dnf makecache
