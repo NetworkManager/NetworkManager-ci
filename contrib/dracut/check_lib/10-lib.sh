@@ -1,5 +1,8 @@
 # general checks and functions
 
+LF="
+"
+
 die() {
   die_cmd "$@" 1>&2
 }

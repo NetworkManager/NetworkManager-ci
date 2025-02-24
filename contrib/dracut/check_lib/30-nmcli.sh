@@ -73,3 +73,9 @@ nmcli_con_prop() {
   done
   die "'$prop' of '$con' is not '$val', but '$res'"
 }
+
+
+NM_config_grep() {
+  conf="$(NetworkManager --print-config)"
+  echo "$conf" | grep -q "$1" || die "'$1' not found in \`NetworkManager --print-config\`:$LF$LF$conf"
+}
