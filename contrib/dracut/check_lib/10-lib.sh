@@ -1,5 +1,8 @@
 # general checks and functions
 
+LF="
+"
+
 die() {
   die_cmd "$@" 1>&2
 }
@@ -35,6 +38,8 @@ clean_root() {
   rm -vf /check.sh
   echo "== cleaning resolv.conf =="
   rm -vf /etc/resolv.conf
+  echo "== cleaning NM dnsconfd config =="
+  rm -vrf /etc/NetworkManager/conf.d/dnsconfd.conf
   echo "== cleaning hostname =="
   echo > /etc/hostname
   echo "== sync =="
@@ -197,4 +202,38 @@ debug_shell() {
   while sleep 100; do
     true
   done
+}
+
+dnsconfd_domain_server() {
+  local dns_status rep i
+  rep="$3"
+  if ! [[ "$rep" ]]; then rep=1; fi
+  i=0
+  while (( i++ < rep )); do
+    dns_status="$(dnsconfd status --json)"
+    if echo "$dns_status" | jq '."cache_config"."'$1'"' | grep -F -q "$2"; then
+      echo "[OK] Nameserver for '$1' is '$2' ($((i-1))s)"
+      return 0
+    fi
+    sleep 1
+    echo "checking again..."
+  done
+  die "Nameserver '$2' is not set for '$1':$LF$dns_status"
+}
+
+dnsconfd_prop() {
+  local dns_status rep i
+  rep="$3"
+  if ! [[ "$rep" ]]; then rep=1; fi
+  i=0
+  while (( i++ < rep )); do
+    dns_status="$(dnsconfd status --json)"
+    if echo "$dns_status" | jq '."'$1'"' | grep -F -q "$2"; then
+      echo "[OK] '$1' is '$2' ($((i-1))s)"
+      return 0
+    fi
+    sleep 1
+    echo "checking again..."
+  done
+  die "dnsconfd: '$2' is not set for '$1':$LF$dns_status"
 }

@@ -149,6 +149,9 @@ EOF
   rpm_list="$rpm_list $(rpm -qa | grep ^kernel | grep -F "$(uname -r)" )"
   set -x
 
+  # Install dnfconfd
+  rpm_list="$rpm_list dnsconfd jq"
+
   # dnf5 only args
   which dnf5 && skip_unavail="--skip-unavailable"
   # Override --releasever, as epel repofile does not work with --inistallroot
@@ -212,7 +215,6 @@ EOF
   systemctl --root "$initdir" enable dbus.service
   systemctl --root "$initdir" enable NetworkManager.service
   systemctl --root "$initdir" enable systemd-hostnamed.service
-
 
   # creare iscsi images
   mkdir -p $TESTDIR/nfs/nfs3-5

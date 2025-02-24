@@ -832,6 +832,137 @@ Feature: NM: dracut
 
 
     @rhelver+=8.3 @fedoraver+=38
+    @ver+=1.51.7
+    @not_on_ppc64le @skip_in_centos
+    @dracut
+    @dracut_NM_NFS_root_nfs_dnsconfd
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp rd.net.dns=tls
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
+      | kernel | rd.net.dns=dns+tls://8.8.8.8#dns.google rd.net.dns-backend=dnsconfd    |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
+      | check  | NM_config_grep 'servers=dns.tls://8.8.8.8#dns.google'                  |
+      | check  | NM_config_grep 'dns=dnsconfd'                                          |
+      | check  | # the following 2 lines are workaround for dnsconfd                    |
+      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
+      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_prop mode backup                                              |
+      | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
+      | check  | dnsconfd_domain_server nfs.redhat.com dns+udp://192.168.50.1 5         |
+      | check  | dnsconfd_domain_server nfs6.redhat.com 'dns+udp://[deaf:beef::1]' 5    |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
+      | check  | nfs_server 192.168.50.1                                                |
+
+
+    @rhelver+=8.3 @fedoraver+=38
+    @ver+=1.51.7
+    @not_on_ppc64le @skip_in_centos
+    @dracut
+    @dracut_NM_NFS_root_nfs_dnsconfd_exclusive
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp rd.net.dns=tls rd.net.dns-resolve-mode=exclusive
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
+      | kernel | rd.net.dns=dns+tls://8.8.8.8#dns.google rd.net.dns-backend=dnsconfd    |
+      | kernel | rd.net.dns-resolve-mode=exclusive                                      |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
+      | check  | NM_config_grep servers=dns\+tls://8.8.8.8#dns.google$                  |
+      | check  | NM_config_grep 'dns=dnsconfd'                                          |
+      | check  | NM_config_grep 'resolve-mode=exclusive'                                |
+      | check  | # the following 2 lines are workaround for dnsconfd                    |
+      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
+      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_prop mode exclusive                                           |
+      | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
+      | check  | nfs_server 192.168.50.1                                                |
+
+
+    @rhelver+=8.3 @fedoraver+=38
+    @ver+=1.51.7
+    @not_on_ppc64le @skip_in_centos
+    @dracut
+    @dracut_NM_NFS_root_nfs_dnsconfd_prefer
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp rd.net.dns=tls rd.net.dns-resolve-mode=prefer
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
+      | kernel | rd.net.dns=dns+tls://8.8.8.8#dns.google rd.net.dns-backend=dnsconfd    |
+      | kernel | rd.net.dns-resolve-mode=prefer                                         |
+      | qemu   | -device virtio-net,netdev=nfs,mac=52:54:00:12:34:00                    |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
+      | check  | NM_config_grep servers=dns\+tls://8.8.8.8#dns.google$                  |
+      | check  | NM_config_grep 'dns=dnsconfd'                                          |
+      | check  | NM_config_grep 'resolve-mode=prefer'                                   |
+      | check  | # the following 2 lines are workaround for dnsconfd                    |
+      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
+      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_prop mode prefer                                              |
+      | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
+      | check  | dnsconfd_domain_server nfs.redhat.com dns+udp://192.168.50.1 5         |
+      | check  | dnsconfd_domain_server nfs6.redhat.com 'dns+udp://[deaf:beef::1]' 5    |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | no_ifcfg                                                               |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
+      | check  | nfs_server 192.168.50.1                                                |
+
+
+    @rhelver+=8.3 @fedoraver+=38
     @ver+=1.29.0
     @not_on_ppc64le @skip_in_centos
     @dracut @long
