@@ -1013,3 +1013,19 @@ def replace_device_routes(context, count, proto, dev, batch):
 def flush_device_routes(context, proto, dev):
     proto = int(proto)
     nmci.process.run(f"ip -{proto} route flush dev {dev}", timeout=500)
+
+
+@step('PCAP "{ifname}" interface')
+def pcap_ifname(context, ifname):
+    nmci.pexpect.pexpect_service(f"tshark -i {ifname} -w /tmp/{ifname}.pcap -F libpcap")
+    nmci.cleanup.add_callback(
+        lambda: nmci.embed.embed_file_if_exists(
+            f"PCAP of {ifname}", f"/tmp/{ifname}.pcap", as_base64=True
+        ),
+        name="embed-pcap",
+        priority=nmci.cleanup.Cleanup.PRIORITY_PEXPECT_SERVICE + 1,
+    )
+    nmci.cleanup.add_file(
+        f"/tmp/{ifname}.pcap",
+        priority=nmci.cleanup.Cleanup.PRIORITY_PEXPECT_SERVICE + 2,
+    )
