@@ -1133,6 +1133,43 @@ Feature: nmcli - dns
     * Restart NM
     Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"
 
+##########################################
+# SYSTEMD-DNSCONFD TESTS
+##########################################
+
+
+    @RHEL-67917
+    @ver+=1.51.90
+    @dns_dnsconfd_unbound_dns_over_tls
+    Scenario: NM - dns - dnsconfd dns over tls via unbound
+    * Cleanup execute "dnsconfd config uninstall"
+    * Cleanup execute "systemctl stop dnsconfd"
+    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
+    * Execute "dnsconfd config install"
+    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
+    * Execute "systemctl start dnsconfd"
+    * Note the output of "ip r |head -n 1|awk '{print $3}'" as value "gateway"
+    * Note the output of "ip a s eth0  |grep inet |head -n 1 |awk '{print $2}'" as value "ipv4"
+    * Add "ethernet" connection named "con_dns" for device "eth0" with options
+        """
+        ipv6.method disable
+        ipv4.method manual
+        ipv4.addresses <noted:ipv4>
+        ipv4.gateway <noted:gateway>
+        ipv4.dns-search google.com
+        ipv4.dns dns+tls://8.8.8.8#dns.google
+        """
+    * Bring "up" connection "con_dns"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
+    Then Ping "meet"
+    Then Ping "nix.cz"
+    * Execute "nmcli device reapply eth0"
+    * Execute "sleep 2"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
+    Then Ping "meet"
+    Then Ping "nix.cz"
+
+
 
 ##########################################
 # OTHER TESTS
@@ -1412,6 +1449,6 @@ Feature: nmcli - dns
     Then "2000::1" is visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
     Then "exactly" "2" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
     * Execute "nmcli connection modify con_dns -ipv6.addresses 2607:f0d0:1002:51::4/64 -ipv6.dns 2000::1 ipv6.method disabled"
-    * Execute "nmcli device reapply eth2"
+        * Execute "nmcli device reapply eth2"
     Then "2000::1" is not visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
     Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
