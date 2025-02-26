@@ -608,7 +608,6 @@
     Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
 
 
-    @xfail
     @RHEL-70164
     @fedoraver+=41
     @rhelver+=10
