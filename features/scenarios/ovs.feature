@@ -1858,6 +1858,7 @@ Feature: nmcli - ovs
 
     @RHEL-77167
     @ver+=1.51.8
+    @ver/rhel/9/5+=1.48.10.8
     @openvswitch
     @ovs_bond_ports_stable_after_reboot
     Scenario: NM - openvswitch - check that bond ports are connected after NM restart reboot (race condition)
@@ -1873,6 +1874,7 @@ Feature: nmcli - ovs
 
     @RHEL-78122
     @ver+=1.51.90.2
+    @ver/rhel/9/5+=1.48.10.8
     @openvswitch
     @keyfile
     @ovs_bond_ports_autoconnect_retries_reboot
