@@ -1448,6 +1448,7 @@ def dracut_as(context, scenario):
             nmci.embed.embed_data("Exception in dracut_bs", traceback.format_exc())
     # assert when everything is embedded
     assert "no free leases" not in dhcpd_log, "DHCPD leases exhausted"
+    assert "no address availiable" not in dhcpd_log, "DHCPD leases exhausted"
 
 
 _register_tag("dracut", dracut_bs, dracut_as)
