@@ -984,6 +984,56 @@ class _Misc:
 
         return json.loads(s)
 
+    def parse_dnsconfd_json(self, ifname):
+        import subprocess
+        # Function to run the command and get the output as JSON
+        def get_dnsconf_data():
+            # Run the command and get the output
+            try:
+                result = subprocess.run(['dnsconfd', 'status', '--json'], capture_output=True, text=True, check=True)
+                return json.loads(result.stdout)
+            except subprocess.CalledProcessError as e:
+                print(f"Error running command: {e}")
+                return None
+            except json.JSONDecodeError as e:
+                print(f"Error parsing JSON: {e}")
+                return None
+
+        # Function to format DNS config into the desired structure
+        def format_dns_data(dns_data):
+            formatted_data = {
+                "dns": [],
+                "domains": [],
+                "default_route": False
+            }
+
+            # Extracting DNS server addresses from the "servers" section
+            servers = dns_data.get("servers", [])
+            for server in servers:
+                # Wait for the correct server
+                if ifname in server.get("interface"):
+                    address = server.get("address")
+                    if address:
+                        formatted_data["dns"].append(address)
+                    # Add routing domains to "domains"
+                    routing_domains = server.get("routing_domains", [])
+                    for domain in routing_domains:
+                        formatted_data["domains"].append([domain, "routing"])
+
+            result = subprocess.run(['ip', 'r'], capture_output=True, text=True)
+            routes = result.stdout.splitlines()
+            if any('default' in line and ifname in line for line in routes):
+                formatted_data["default_route"] = True
+            return formatted_data
+
+        dns_data = get_dnsconf_data()  # Get DNS config data from the command
+        if dns_data:
+            formatted_data = format_dns_data(dns_data)
+        else:
+            print("Failed to retrieve DNS configuration data.")
+
+        return formatted_data
+
     def get_dns_info(self, dns_plugin, ifindex=None, ifname=None):
         """
         Get DNS interface info. At least one of ifindex and ifname must be set.
@@ -1010,6 +1060,8 @@ class _Misc:
         elif dns_plugin == "systemd-resolved":
             info = nmci.sdresolved.link_get_all(ifdata["ifindex"])
             pass
+        elif dns_plugin == "dnsconfd":
+            info = self.parse_dnsconfd_json(ifdata["ifname"])
         else:
             raise ValueError(f'Invalid dns_plugin "{dns_plugin}"')
 

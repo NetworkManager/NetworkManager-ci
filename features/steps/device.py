@@ -43,7 +43,8 @@ def dns_check(dns_plugin, device, kind, arg, has):
     while attempt < 8:
         try:
             info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
-
+            with open("/tmp/final.json", "a") as file:
+                json.dump(info, file)
             assert info["default_route"] is not None or dns_plugin == "systemd-resolved"
 
             if kind == "dns":

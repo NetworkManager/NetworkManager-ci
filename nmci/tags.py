@@ -709,6 +709,35 @@ def dns_systemd_resolved_as(context, scenario):
 _register_tag("dns_systemd_resolved", dns_systemd_resolved_bs, dns_systemd_resolved_as)
 
 
+def dns_dnsconfd_bs(context, scenario):
+    if context.process.systemctl("is-active systemd-resolved").returncode == 0:
+        print("stopping systemd-resolved")
+        context.systemd_resolved = True
+        context.process.systemctl("stop systemd-resolved")
+        context.process.run_stdout("rm -rf /etc/resolv.conf")
+    else:
+        context.systemd_resolved = False
+    conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
+    conf_f = "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
+    nmci.nmutil.add_NM_config(conf, conf_f)
+    context.dns_plugin = "dnsconfd"
+
+
+def dns_dnsconfd_as(context, scenario):
+    context.dns_plugin = ""
+    if context.systemd_resolved is True:
+        print("starting systemd-resolved")
+        context.process.systemctl("unmask systemd-resolved")
+        context.process.systemctl("reset-failed systemd-resolved")
+        context.process.systemctl("restart systemd-resolved")
+        context.process.run_stdout("rm -rf /etc/resolv.conf")
+        context.process.run_stdout(
+            "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
+        )
+
+_register_tag("dns_dnsconfd", dns_dnsconfd_bs, dns_dnsconfd_as)
+
+
 def internal_DHCP_bs(context, scenario):
     conf = ["# configured by beaker-test", "[main]", "dhcp=internal"]
     conf_f = "/etc/NetworkManager/conf.d/96-nmci-dhcp-internal.conf"

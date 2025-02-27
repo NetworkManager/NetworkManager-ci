@@ -1170,6 +1170,78 @@ Feature: nmcli - dns
     Then Ping "nix.cz"
 
 
+    @RHEL-67917
+    @ver+=1.51.90
+    @dns_dnsconfd
+    @openvpn @openvpn4
+    @dns_dnsconfd_unbound_full_tunnel_vpn
+    Scenario: NM - dns - full-tunnel VPN
+    * Cleanup execute "dnsconfd config uninstall"
+    * Cleanup execute "systemctl stop dnsconfd"
+    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
+    * Execute "dnsconfd config install"
+
+    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
+    * Execute "systemctl start dnsconfd"
+
+    # Create ethernet connection
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create full-tunnel VPN connection
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Bring "up" connection "openvpn"
+
+    # Check tun1 configuration
+    Then device "tun1" has DNS server "172.31.70.53"
+    Then device "tun1" has DNS domain "."
+    Then device "tun1" has DNS domain "vpn.domain"
+
+    # Check eth2 configuration
+    Then device "eth2" has DNS server "172.16.1.53"
+    Then device "eth2" has DNS domain "con_dns.domain"
+    Then device "eth2" does not have DNS domain "."
+
+
+
+    @RHEL-67917
+    @ver+=1.51.90
+    @dns_dnsconfd
+    @openvpn @openvpn4
+    @dns_dnsconfd_unbound_split_tunnel_vpn
+    Scenario: NM - dns - full-tunnel VPN
+    * Cleanup execute "dnsconfd config uninstall"
+    * Cleanup execute "systemctl stop dnsconfd"
+    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
+    * Execute "dnsconfd config install"
+
+    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
+    * Execute "systemctl start dnsconfd"
+
+    # Create ethernet connection with default route
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
+    * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
+    * Execute "nmcli connection modify con_dns ipv4.dns 172.16.1.53 ipv4.dns-search con_dns.domain"
+    * Bring "up" connection "con_dns"
+
+    # Create split-tunnel VPN connection
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "nmcli con modify openvpn ipv4.never-default yes"
+    * Bring "up" connection "openvpn"
+
+    # Check eth2 configuration
+    Then device "eth2" has DNS server "172.16.1.53"
+    Then device "eth2" has DNS domain "."
+    Then device "eth2" has DNS domain "con_dns.domain"
+
+    # Check tun1 configuration
+    Then device "tun1" has DNS server "172.31.70.53"
+    Then device "tun1" does not have DNS domain "."
+    Then device "tun1" has DNS domain "vpn.domain"
 
 ##########################################
 # OTHER TESTS
