@@ -216,6 +216,9 @@ EOF
   systemctl --root "$initdir" enable NetworkManager.service
   systemctl --root "$initdir" enable systemd-hostnamed.service
 
+  # fix polkit rules.d dir permissions - RHEL9
+  chown polkitd:root $initdir/usr/share/polkit-1/rules.d/
+
   # creare iscsi images
   mkdir -p $TESTDIR/nfs/nfs3-5
   mkdir -p $TESTDIR/nfs/ip/192.168.50.101
