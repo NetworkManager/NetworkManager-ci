@@ -717,14 +717,24 @@ def dns_dnsconfd_bs(context, scenario):
         context.process.run_stdout("rm -rf /etc/resolv.conf")
     else:
         context.systemd_resolved = False
-    conf = ["# configured by beaker-test", "[main]", "dns=dnsmasq"]
-    conf_f = "/etc/NetworkManager/conf.d/96-nmci-test-dns.conf"
-    nmci.nmutil.add_NM_config(conf, conf_f)
+
+    context.process.run_stdout("dnsconfd config install")
+    context.process.run_stdout("systemctl restart dnsconfd")
+    time.sleep(2)
     context.dns_plugin = "dnsconfd"
 
 
 def dns_dnsconfd_as(context, scenario):
     context.dns_plugin = ""
+
+    context.process.run_stdout("dnsconfd status > /tmp/dnsconf_status.txt", shell=True)
+    status = nmci.util.file_get_content_simple("/tmp/dnsconf_status.txt")
+    nmci.embed.embed_data("Dnsconfd status", status)
+
+    context.process.run_stdout("dnsconfd config uninstall")
+    context.process.run_stdout("systemctl stop dnsconfd")
+    time.sleep(1)
+
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
         context.process.systemctl("unmask systemd-resolved")
@@ -734,6 +744,7 @@ def dns_dnsconfd_as(context, scenario):
         context.process.run_stdout(
             "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
         )
+
 
 _register_tag("dns_dnsconfd", dns_dnsconfd_bs, dns_dnsconfd_as)
 

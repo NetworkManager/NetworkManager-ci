@@ -1140,14 +1140,9 @@ Feature: nmcli - dns
 
     @RHEL-67917
     @ver+=1.51.90
+    @dns_dnsconfd
     @dns_dnsconfd_unbound_dns_over_tls
     Scenario: NM - dns - dnsconfd dns over tls via unbound
-    * Cleanup execute "dnsconfd config uninstall"
-    * Cleanup execute "systemctl stop dnsconfd"
-    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
-    * Execute "dnsconfd config install"
-    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
-    * Execute "systemctl start dnsconfd"
     * Note the output of "ip r |head -n 1|awk '{print $3}'" as value "gateway"
     * Note the output of "ip a s eth0  |grep inet |head -n 1 |awk '{print $2}'" as value "ipv4"
     * Add "ethernet" connection named "con_dns" for device "eth0" with options
@@ -1164,7 +1159,6 @@ Feature: nmcli - dns
     Then Ping "meet"
     Then Ping "nix.cz"
     * Execute "nmcli device reapply eth0"
-    * Execute "sleep 2"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
     Then Ping "meet"
     Then Ping "nix.cz"
@@ -1176,14 +1170,6 @@ Feature: nmcli - dns
     @openvpn @openvpn4
     @dns_dnsconfd_unbound_full_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
-    * Cleanup execute "dnsconfd config uninstall"
-    * Cleanup execute "systemctl stop dnsconfd"
-    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
-    * Execute "dnsconfd config install"
-
-    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
-    * Execute "systemctl start dnsconfd"
-
     # Create ethernet connection
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"
@@ -1213,14 +1199,6 @@ Feature: nmcli - dns
     @openvpn @openvpn4
     @dns_dnsconfd_unbound_split_tunnel_vpn
     Scenario: NM - dns - full-tunnel VPN
-    * Cleanup execute "dnsconfd config uninstall"
-    * Cleanup execute "systemctl stop dnsconfd"
-    * Execute "rpm -q --quiet dnsconfd  || dnf -y install dnsconfd"
-    * Execute "dnsconfd config install"
-
-    When "dns=dnsconfd" is visible with command "NetworkManager --print-config" in "2" seconds
-    * Execute "systemctl start dnsconfd"
-
     # Create ethernet connection with default route
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "autoconnect no"
     * Execute "nmcli connection modify con_dns ipv4.method manual ipv4.addresses 172.16.1.1/24 ipv4.gateway 172.16.1.2"

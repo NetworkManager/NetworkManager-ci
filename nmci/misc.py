@@ -986,11 +986,17 @@ class _Misc:
 
     def parse_dnsconfd_json(self, ifname):
         import subprocess
+
         # Function to run the command and get the output as JSON
         def get_dnsconf_data():
             # Run the command and get the output
             try:
-                result = subprocess.run(['dnsconfd', 'status', '--json'], capture_output=True, text=True, check=True)
+                result = subprocess.run(
+                    ["dnsconfd", "status", "--json"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
                 return json.loads(result.stdout)
             except subprocess.CalledProcessError as e:
                 print(f"Error running command: {e}")
@@ -1001,11 +1007,7 @@ class _Misc:
 
         # Function to format DNS config into the desired structure
         def format_dns_data(dns_data):
-            formatted_data = {
-                "dns": [],
-                "domains": [],
-                "default_route": False
-            }
+            formatted_data = {"dns": [], "domains": [], "default_route": False}
 
             # Extracting DNS server addresses from the "servers" section
             servers = dns_data.get("servers", [])
@@ -1020,9 +1022,9 @@ class _Misc:
                     for domain in routing_domains:
                         formatted_data["domains"].append([domain, "routing"])
 
-            result = subprocess.run(['ip', 'r'], capture_output=True, text=True)
+            result = subprocess.run(["ip", "r"], capture_output=True, text=True)
             routes = result.stdout.splitlines()
-            if any('default' in line and ifname in line for line in routes):
+            if any("default" in line and ifname in line for line in routes):
                 formatted_data["default_route"] = True
             return formatted_data
 
