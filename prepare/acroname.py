@@ -47,7 +47,7 @@ def main():
                     )
                     gotResult = True
                     break
-            except (result != brainstem.result.Result.NO_ERROR):
+            except result != brainstem.result.Result.NO_ERROR:
                 continue
         if gotResult:
             break
