@@ -1451,6 +1451,17 @@ Executes [`nmci/helpers/nmlog-parse-dnsmasq.sh`](nmci/helpers/nmlog-parse-dnsmas
 * **Return type:**
   dict
 
+### nmci.misc.parse_dnsconfd_json(ifname)
+
+Return dnsconfd status as python object/dict.
+
+* **Parameters:**
+  **ifname** (*str*) – interface name
+* **Returns:**
+  parsed status
+* **Return type:**
+  dict
+
 ### nmci.misc.str_replace_dict(text, values, dict_name='noted')
 
 Render templated text with values from dictionary. Can be used to

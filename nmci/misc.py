@@ -985,6 +985,14 @@ class _Misc:
         return json.loads(s)
 
     def parse_dnsconfd_json(self, ifname):
+        """
+        Return dnsconfd status as python object/dict.
+
+        :param ifname: interface name
+        :type ifname: str
+        :return: parsed status
+        :rtype: dict
+        """
         import subprocess
 
         # Function to run the command and get the output as JSON
