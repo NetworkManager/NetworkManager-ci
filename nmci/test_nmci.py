@@ -1067,19 +1067,19 @@ def test_file_set_content(tmp_path):
     with open(fn, "rb") as f:
         assert b"\n" == f.read()
 
-    nmci.util.file_set_content(fn, [b"bin_data:", b"\x01\xF2\x03\x04"])
+    nmci.util.file_set_content(fn, [b"bin_data:", b"\x01\xf2\x03\x04"])
     with open(fn, "rb") as f:
-        assert b"bin_data:\n\x01\xF2\x03\x04\n" == f.read()
+        assert b"bin_data:\n\x01\xf2\x03\x04\n" == f.read()
 
-    assert (b"bin_data:\n\x01\xF2\x03\x04\n", True) == nmci.util.file_get_content(
+    assert (b"bin_data:\n\x01\xf2\x03\x04\n", True) == nmci.util.file_get_content(
         fn, encoding=None
     )
 
-    assert (b"bin_data:\n\x01\xF2", False) == nmci.util.file_get_content(
+    assert (b"bin_data:\n\x01\xf2", False) == nmci.util.file_get_content(
         fn, encoding=None, max_size=12, warn_max_size=False
     )
 
-    assert (b"bin_data:\n\x01\xF2\x03", False) == nmci.util.file_get_content(
+    assert (b"bin_data:\n\x01\xf2\x03", False) == nmci.util.file_get_content(
         fn, encoding=None, max_size=13, warn_max_size=False
     )
 
@@ -1192,7 +1192,7 @@ def test_process_run():
         [
             "sh",
             b"-c",
-            b"printf hallo; printf h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+            b"printf hallo; printf h\x1b[2Jnonutf\xccf\\cello2 >&2; exit 5",
         ],
         as_bytes=True,
         ignore_stderr=True,
@@ -1204,7 +1204,7 @@ def test_process_run():
             [
                 "sh",
                 b"-c",
-                b"printf hallo; printf h\x1B[2Jnonutf\xccf\\cello2 >&2; exit 5",
+                b"printf hallo; printf h\x1b[2Jnonutf\xccf\\cello2 >&2; exit 5",
             ],
             ignore_stderr=True,
         )
@@ -1591,7 +1591,7 @@ def test_process_popen():
 
 
 def test_ip_link_add_nonutf8():
-    ifname = b"\xCB[2Jnonutf\xCCf\\c"
+    ifname = b"\xcb[2Jnonutf\xccf\\c"
 
     if not nmci.ip.link_show_maybe(ifname=ifname):
         rc = nmci.process.run_code(
@@ -1674,7 +1674,10 @@ def test_namespaces(cleanup_namespace):
 @Stub.misc_nm_version_detect(("upstream", [1, 39, 3, 30276]))
 def test_misc_version_control():
 
-    assert nmci.misc.test_version_check(test_name="@pass", feature="general",) == (
+    assert nmci.misc.test_version_check(
+        test_name="@pass",
+        feature="general",
+    ) == (
         nmci.util.base_dir("features/scenarios/general.feature"),
         "pass",
         ["pass"],

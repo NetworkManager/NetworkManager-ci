@@ -405,17 +405,13 @@ class Job:
                 tag_stats["bs_avg"] = sum(bs_times) / bs_num
                 tag_stats["bs_min"] = min(bs_times)
                 tag_stats["bs_max"] = max(bs_times)
-                tag_stats["bs_dev"] = math.sqrt(
-                    sum([t**2 for t in bs_times]) / bs_num
-                )
+                tag_stats["bs_dev"] = math.sqrt(sum([t**2 for t in bs_times]) / bs_num)
             if as_num:
                 tag_stats["as_num"] = as_num
                 tag_stats["as_avg"] = sum(as_times) / as_num
                 tag_stats["as_min"] = min(as_times)
                 tag_stats["as_max"] = max(as_times)
-                tag_stats["as_dev"] = math.sqrt(
-                    sum([t**2 for t in as_times]) / as_num
-                )
+                tag_stats["as_dev"] = math.sqrt(sum([t**2 for t in as_times]) / as_num)
 
         for step_decorator, step_stats in self.steps.items():
             times = [

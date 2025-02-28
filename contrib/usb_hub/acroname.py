@@ -33,7 +33,7 @@ def main():
                 if result == brainstem.result.Result.NO_ERROR:
                     gotResult = True
                     break
-            except (result != brainstem.result.Result.NO_ERROR):
+            except result != brainstem.result.Result.NO_ERROR:
                 continue
 
         if gotResult:
