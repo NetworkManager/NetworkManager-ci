@@ -39,10 +39,10 @@ install_behave_pytest () {
   # https://github.com/psf/black/issues/2964
   python3l -m pip install click==8.0.4
   # black is needed by unit tests to check code format
-  # stick to fedora 33 version of black: 22.3.0
-  python3l -m pip install --prefix /usr/ black==22.3.0
+  # stick to fedora 33 version of black: 25.1.0
+  python3l -m pip install --prefix /usr/ black==25.1.0
   # install sphinx to build nmci documentation
-  python3l -m pip install --prefix /usr/ sphinx==7.2.6 || touch /tmp/nm_skip_nmci_doc
+  python3l -m pip install --prefix /usr/ sphinx==8.2.1 || touch /tmp/nm_skip_nmci_doc
   python3l -m pip install sphinx-markdown-builder==0.6.5 || touch /tmp/nm_skip_nmci_doc
 }
 

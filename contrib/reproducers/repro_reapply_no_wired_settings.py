@@ -9,6 +9,7 @@ import sys
 gi.require_version("NM", "1.0")
 from gi.repository import Gio, GLib, NM
 
+
 # callback function, data should contain dictionary, with name of the function to call under "fn_name" key
 def cb(caller, result, data):
     try:

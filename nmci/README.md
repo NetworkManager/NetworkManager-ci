@@ -624,7 +624,7 @@ Embed General Data
   * **combine_tag** (*str**,* *optional*) – join multiple embeds under single caption, defaults to None
   * **embed_context** (*EmbedContext object*) – context keeping counter and data, defaults to None
 
-### nmci.embed.embed_dump(caption, dump_id, \*, data=None, links=None)
+### nmci.embed.embed_dump(caption, dump_id, , data=None, links=None)
 
 embed new crash dump
 
@@ -885,7 +885,7 @@ Zero IP address for given family
 * **Return type:**
   int
 
-### nmci.ip.address_add(address, ifname=None, \*, ifindex=None, wait_for_device=None, addr_family=None, namespace=None)
+### nmci.ip.address_add(address, ifname=None, , ifindex=None, wait_for_device=None, addr_family=None, namespace=None)
 
 Add IP address to interface.
 
@@ -918,7 +918,7 @@ Check if expected address is present on interface.
 * **Return type:**
   dict
 
-### nmci.ip.address_flush(ifname=None, \*, ifindex=None, wait_for_device=None, addr_family=None, namespace=None)
+### nmci.ip.address_flush(ifname=None, , ifindex=None, wait_for_device=None, addr_family=None, namespace=None)
 
 Flush addresses on given interface.
 
@@ -1029,7 +1029,7 @@ appended with separated space: `peer='p_name'` is appended as
   * **parent_link** (*str**,* *optional*) – name of parent link (e.g. for vlan type), defaults to None
   * **wait_for_device** (*float**,* *optional*) – timeout until device appears, defaults to None
 
-### nmci.ip.link_delete(ifname=None, \*, ifindex=None, accept_nodev=False, namespace=None)
+### nmci.ip.link_delete(ifname=None, , ifindex=None, accept_nodev=False, namespace=None)
 
 Delete link.
 
@@ -1056,7 +1056,7 @@ appended with separated space: `peer='p_name'` is appended as
   * **netns** (*str**,* *optional*) – new namespace for interface, defaults to None
   * **master** (*str**,* *optional*) – new master of interface, defaults to None
 
-### nmci.ip.link_show(ifname=None, \*, timeout=None, \*\*kwargs)
+### nmci.ip.link_show(ifname=None, , timeout=None, \*\*kwargs)
 
 Show single link. Interface name or index must be provided.
 
@@ -1089,7 +1089,7 @@ Show all links. Parameter binary can be:
 * **Return type:**
   dict
 
-### nmci.ip.link_show_maybe(ifname=None, \*, allow_missing=True, \*\*kwargs)
+### nmci.ip.link_show_maybe(ifname=None, , allow_missing=True, \*\*kwargs)
 
 Show single link. Interface name or index must be provided.
 
@@ -1380,7 +1380,7 @@ eponymous journal fields.
   * **SYSLOG_IDENTIFIER** – identifier allowing to retrieve the messages from
     journal by specifiying ‘-t ID’ or ‘SYSLOG_IDENTIFIER=ID’. Defaults to ‘nmci’
 
-### nmci.misc.journal_show(service=None, \*, syslog_identifier=None, cursor=None, short=False, journal_args=None, as_bytes=False, max_size=None, warn_max_size=True, prefix=None, suffix=None)
+### nmci.misc.journal_show(service=None, , syslog_identifier=None, cursor=None, short=False, journal_args=None, as_bytes=False, max_size=None, warn_max_size=True, prefix=None, suffix=None)
 
 Get journal messgages satisfying the filters.
 
@@ -1795,7 +1795,7 @@ Create NM configuration file, and properly clean it after scenario.
   * **cleanup_priority** (*int*) – priority of the cleanup, defaults to PRIORITY_FILE
   * **op** (*str* *or* *callable*) – operation over NM service, can be ‘restart’, ‘reload’ or callable, defaults to ‘restart’
 
-### nmci.nmutil.connection_show(\*, only_active=False, without_active_externally=False, name=None, uuid=None, setting_type=None)
+### nmci.nmutil.connection_show(, only_active=False, without_active_externally=False, name=None, uuid=None, setting_type=None)
 
 Call `nmcli connection show` to get a list of profiles. It augments
 the result with directly fetched data from D-Bus (the fetched data
@@ -1915,7 +1915,7 @@ Retrieves all properties of a given connection setting from dbus.
 * **Return type:**
   Glib.Variant
 
-### nmci.nmutil.device_status(\*, name=None, device_type=None, get_ipaddrs=False)
+### nmci.nmutil.device_status(, name=None, device_type=None, get_ipaddrs=False)
 
 Call `nmcli device status` to get a list of profiles. It augments
 the result with directly fetched data from D-Bus (the fetched data
@@ -2253,7 +2253,7 @@ Teardown hostapd for wireless testing.
 
 Helper class to run commands and check their output.
 
-### nmci.process.Popen(argv, \*, shell=False, cwd=None, env=None, env_extra=None, stdout=-1, stderr=-1, namespace=None)
+### nmci.process.Popen(argv, , shell=False, cwd=None, env=None, env_extra=None, stdout=-1, stderr=-1, namespace=None)
 
 Run a command and return a PopenCollect object. The PopenCollect object
 can be used to read stdout and stderr and to wait for the process to

@@ -11,6 +11,7 @@ test_res = []
 
 ################################################
 
+
 # async callback, appends test result to test_res list
 def add_con_cb(client, result, data):
     try:
