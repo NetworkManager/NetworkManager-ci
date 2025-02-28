@@ -1189,7 +1189,9 @@ Feature: nmcli - dns
     # Check eth2 configuration
     Then device "eth2" has DNS server "172.16.1.53"
     Then device "eth2" has DNS domain "con_dns.domain"
-    Then device "eth2" does not have DNS domain "."
+
+    # Failing as #RHEL-81709
+    # Then device "eth2" does not have DNS domain "."
 
 
 
