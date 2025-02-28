@@ -17,14 +17,6 @@ core_pattern_setup
 
 mount_list
 
-echo "== ls initrd ifcfg =="
-ls -la /run/initramfs/state/etc/sysconfig/network-scripts
-
-for file in $(find /run/initramfs/state/etc/sysconfig/network-scripts -type f); do
-    echo "== $file =="
-    cat $file
-done
-
 echo "== checking services =="
 for service in dbus NetworkManager; do
     for i in {1..15}; do
@@ -41,21 +33,14 @@ done
 echo "== NetworkManager --version =="
 NetworkManager --version
 
-echo "== ls ifcfg =="
-ls -la /etc/sysconfig/network-scripts/
+echo "== NetworkManager --print-config =="
+NetworkManager --print-config
 
-for file in $(find /etc/sysconfig/network-scripts/ -type f); do
-    echo "== $file =="
-    cat $file
-done
-
-echo "== ls system-connections =="
-ls -la /etc/NetworkManager/system-connections
-
-for file in $(find /etc/NetworkManager/system-connections -type f); do
-    echo "== $file =="
-    cat $file
-done
+verbose_ls_dir /run/initramfs/state/etc/sysconfig/network-scripts
+verbose_ls_dir /etc/sysconfig/network-scripts/
+verbose_ls_dir /etc/NetworkManager/system-connections
+verbose_ls_dir /run/NetworkManager/
+verbose_ls_dir /usr/lib/NetworkManager/
 
 nmcli_list
 

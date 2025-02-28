@@ -47,6 +47,15 @@ clean_root() {
   echo "done"
 }
 
+verbose_ls_dir() {
+  echo "== ls $1 =="
+  ls -lZaR $1
+
+  for file in $(find $1 -type f); do
+      echo "== $file =="
+      cat $file
+  done
+}
 
 vm_state() {
   echo "== $1 =="
