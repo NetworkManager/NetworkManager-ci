@@ -198,7 +198,7 @@ libreswan_setup ()
         NSS_CLIENT_DIR="/etc/ipsec.d/"
     fi
 
-    if (($LIB_MAJOR >= 5)); then
+    if (($LIB_MAJOR >= 5)) && [ ! -f /etc/ipsec.d/ikev1_accept.conf ]; then
         echo -e "config setup\n  ikev1-policy = accept" > /etc/ipsec.d/ikev1_accept.conf
         # apply the config in the client side
         ipsec restart
