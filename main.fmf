@@ -11382,14 +11382,6 @@
         duration: 10m
         tty: true
     
-    /nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form:
-        test: run/runtest.sh nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
-        environment:
-            TEST: NetworkManager_1386_nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
-        order: 13860
-        duration: 10m
-        tty: true
-    
     /nmtui_ipv4_addresses_can_add_after_removing_invalid:
         test: run/runtest.sh nmtui_ipv4_addresses_can_add_after_removing_invalid
         environment:
