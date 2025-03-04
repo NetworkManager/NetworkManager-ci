@@ -1223,6 +1223,32 @@ Feature: nmcli - dns
     Then device "tun1" does not have DNS domain "."
     Then device "tun1" has DNS domain "vpn.domain"
 
+
+    @RHEL-67917
+    @ver+=1.51.90
+    @dns_dnsconfd
+    @dns_dnsconfd_unbound_global_only
+    Scenario: NM - dns - dnsconfd dns over tls via unbound
+    * Create NM config file "90-nmci-test-dns-main.conf" with content
+      """
+        [global-dns]
+        [global-dns-domain-*]
+        servers=1.1.1.1,dns+tls://8.8.8.8#dns.google
+      """
+    * Restart NM
+    * Add "ethernet" connection named "con_dns" for device "eth2" with options
+        """
+        autoconnect no
+        ipv4.dns 172.16.1.53
+        ipv4.dns-search con_dns.domain
+        """
+    * Bring "up" connection "con_dns"
+    Then device "eth3" does not have DNS server "172.15.1.53"
+    Then device "eth3" does not have DNS domain "."
+    Then device "eth3" does not have DNS domain "con_dns.domain"
+
+
+
 ##########################################
 # OTHER TESTS
 ##########################################
