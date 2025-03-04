@@ -1680,29 +1680,6 @@ def pptp_bs(context, scenario):
     # Load ppp_generic to avoid first test failure
     context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
 
-    nmci.veth.wait_for_testeth0()
-    # Install under RHEL7 only
-    if "Maipo" in context.rh_release:
-        print("install epel-release-7")
-        context.process.run_stdout(
-            "[ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
-    context.process.run_stdout(
-        "[ -x /usr/sbin/pptpd ] || yum -y install /usr/sbin/pptpd",
-        shell=True,
-        timeout=120,
-        ignore_stderr=True,
-    )
-    context.process.run_stdout(
-        "rpm -q NetworkManager-pptp || yum -y install NetworkManager-pptp",
-        shell=True,
-        timeout=120,
-        ignore_stderr=True,
-    )
-
     context.process.run_stdout("rm -f /etc/ppp/ppp-secrets")
     nmci.util.file_set_content("/etc/ppp/chap-secrets", ["budulinek pptpd passwd *"])
 
