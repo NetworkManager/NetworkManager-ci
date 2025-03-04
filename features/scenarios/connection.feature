@@ -1429,3 +1429,21 @@ Feature: nmcli: connection
       sriov.vfs ""
       """
     Then Bring "up" connection "con_con"
+
+
+    @RHEL-77157
+    @ver+=1.52
+    @keyfile
+    @connection_change_name_with_incorrect_selinux_label
+    Scenario: NM - connection - change connection name of the connection with incorrect selinux label
+    * Add "dummy" connection named "dummy1" for device "dummy1"
+    * Cleanup execute "rm -f /etc/NetworkManager/system-connections/dummy*.nmconnection; nmcli con reload"
+    * Execute "chcon -t etc_t /etc/NetworkManager/system-connections/dummy1.nmconnection"
+    * Reload connections
+    * Commentary
+    """
+    The following step should not crash.
+    """
+    Then "Error" is visible with command "nmcli c mod id dummy1 connection.id dummy2"
+    Then "dummy1" is visible with command "nmcli c"
+    Then "dummy2" is not visible with command "nmcli c"

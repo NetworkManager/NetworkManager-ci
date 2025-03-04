@@ -2573,6 +2573,8 @@ testmapper:
         feature: connection
     - connection_with_empty_sriov_vfs:
         feature: connection
+    - connection_change_name_with_incorrect_selinux_label:
+        feature: connection
     - add_default_tap_device:
         feature: tuntap
         tags: gate
