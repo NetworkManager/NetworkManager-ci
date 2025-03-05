@@ -20,7 +20,6 @@ configure_environment () {
     [ "$1" == "nm-applet" ] && touch /tmp/keep_old_behave
     configure_basic_system
     install_packages
-    configure_installed_packages
     [ "$1" == "first_test_setup" ] && return
 
     # Configure hw specific needs (veth, wifi, etc)
