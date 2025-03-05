@@ -106,6 +106,7 @@ testmapper:
   default:
     - pass:
         feature: general
+        tags: gate jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info libndp hostapd wpa_supplicant libnl3 dracut NetworkManager-libreswan
     - skip_step_skip:
         feature: general
     - skip_step_pass:
