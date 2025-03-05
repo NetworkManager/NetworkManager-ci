@@ -1,8 +1,6 @@
 #!/bin/bash
 set -x
 
-# Note: This entire setup is available from NetworkManager 1.0.4 up
-
 function dump_state ()
 {
     echo -e "\n\n** STATE DUMP Start"
@@ -494,6 +492,8 @@ function teardown_veth_env ()
 
 }
 
+export TERM=dumb
+
 if [ "$1" == "setup" ]; then
     setup_veth_env
 elif [ "$1" == "teardown" ]; then
@@ -503,3 +503,4 @@ elif [ "$1" == "check" ]; then
 elif [ "$1" == "detect_plugin" ]; then
     detect_NM_plugin
 fi
+
