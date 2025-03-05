@@ -29,6 +29,8 @@ install_packages () {
             install_"$release"_packages
         fi
 
+        configure_installed_packages
+
         touch /tmp/nm_packages_installed
     fi
 }
