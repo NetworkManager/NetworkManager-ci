@@ -1873,7 +1873,7 @@ Feature: nmcli - ovs
 
 
     @RHEL-78122
-    @ver+=1.51.90.2
+    @ver+=1.52
     @ver/rhel/9/5+=1.48.10.8
     @openvswitch
     @keyfile
