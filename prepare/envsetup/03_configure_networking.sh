@@ -102,8 +102,8 @@ configure_networking () {
     if [ -f /tmp/nm_veth_configured ]; then
         veth=1
     else
-            if [ $wlan -eq 0 ]; then
-                if [ $dcb_inf_wol_sriov -eq 0 ]; then
+        if [ $wlan -eq 0 ]; then
+            if [ $dcb_inf_wol_sriov -eq 0 ]; then
                 for X in $(seq 0 10); do
                     if ! nmcli -f DEVICE -t device |grep eth${X}$; then
                         veth=1
@@ -226,7 +226,8 @@ configure_networking () {
 
     systemctl daemon-reload
     systemctl restart NetworkManager
-    sleep 5
+    sleep 1
+
     nmcli con del "System eth0"
     nmcli con up testeth0; rc=$?
     if [ $rc -ne 0 ]; then
