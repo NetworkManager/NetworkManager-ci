@@ -20,17 +20,16 @@ install_el9_packages () {
 
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
-        # OVS deps and GSM perl deps
-        POLICY_VER=$(get_centos_pkg_release "$CBSC/openvswitch-selinux-extra-policy/1.0/")
-        OVS_VER=$(get_centos_pkg_release "$CBSC/openvswitch2.17/2.17.0/")
+        # We need to install OVS repo
+        dnf -y install centos-release-nfv-openvswitch.noarch
+        # GSM perl deps
         PERL_VER=$(get_centos_pkg_release "$KHUB/perl-IO-Tty/1.16/")
         PKGS_INSTALL="$PKGS_INSTALL \
-            $CBSC/openvswitch2.17/2.17.0/$OVS_VER/$(arch)/openvswitch2.17-2.17.0-$OVS_VER.$(arch).rpm \
-            $CBSC/openvswitch-selinux-extra-policy/1.0/$POLICY_VER/noarch/openvswitch-selinux-extra-policy-1.0-$POLICY_VER.noarch.rpm \
+            openvswitch3.4* \
             $KHUB/perl-IO-Tty/1.16/$PERL_VER/$(arch)/perl-IO-Tty-1.16-$PERL_VER.$(arch).rpm"
     else
         cp -f  contrib/ovs/ovs-rhel9.repo /etc/yum.repos.d/ovs.repo
-        PKGS_INSTALL="$PKGS_INSTALL openvswitch2.17*"
+        PKGS_INSTALL="$PKGS_INSTALL openvswitch3.3*"
     fi
 
     # Install vpn dependencies
