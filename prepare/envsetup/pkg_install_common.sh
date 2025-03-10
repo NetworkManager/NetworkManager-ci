@@ -55,11 +55,10 @@ install_common_packages () {
     fi
 
     skip="--skip-broken"
-    rpm -q dnf5 && skip="--skip-unavailable"
+    rpm -q dnf5 && skip="--skip-unavailable --no-gpgchecks"
 
     test -n "$PKGS_INSTALL" && $dnf -y install $PKGS_INSTALL $skip \
                                                                --nobest \
-                                                               --no-gpgchecks \
                                                                $disable_repo
     echo "update dnf packages..."
     test -n "$PKGS_UPGRADE" && $dnf -y upgrade $PKGS_UPGRADE $skip \
