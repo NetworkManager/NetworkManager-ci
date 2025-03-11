@@ -1229,6 +1229,19 @@ Feature: nmcli - dns
     Then device "tun1" does not have DNS domain "."
     Then device "tun1" has DNS domain "vpn.domain"
 
+
+    @attach_dnsconfd_log
+    @ver+=1.52.0
+    @dns_dnsconfd_unbound
+    Scenario: NM - dnsconf - run upsteam test suite
+    * Commentary
+      """
+      Run whole test suite reusing the NM packages from the host.
+      All tests should pass in c9s, c10s, rhel9.7+ and rhel10.0+
+      """
+    * Execute "contrib/dnsconfd/test.sh &> /tmp/dnsconfd.txt </dev/null"
+
+
 ##########################################
 # OTHER TESTS
 ##########################################

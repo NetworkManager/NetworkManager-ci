@@ -10447,7 +10447,15 @@ r-libreswan']
         order: 12700
         duration: 10m
         tty: true
-    
+
+    /dns_dnsconfd_unbound:
+        test: run/runtest.sh dns_dnsconfd_unbound
+        environment:
+            TEST: NetworkManager_1270_dns_dnsconfd
+        order: 12705
+        duration: 10m
+        tty: true
+ 
     /dns_resolved_two_default:
         test: run/runtest.sh dns_resolved_two_default
         environment:

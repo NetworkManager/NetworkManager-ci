@@ -1,0 +1,61 @@
+summary: Run integration tests with tmt
+discover:
+  how: fmf
+  filter: tag:integration
+execute:
+    how: tmt
+prepare:
+  - name: packages
+    order: 4
+    how: install
+    package:
+      - podman
+      - beakerlib
+      - systemd
+      - dbus-tools
+      - rsyslog
+
+  - name: copy-nm-packages
+    order: 5
+    how: shell
+    script: find /tmp/rpms -name "*.rpm" -exec cp "{}" ./tests \;
+  - name: build-base-container
+    order: 6
+    how: shell
+    script: ./tests/build_ostree.sh
+  - name: build-containers
+    order: 7
+    how: shell
+    script: ./tests/build_images.sh
+adjust:
+  - when: trigger is not defined or trigger == human
+    provision:
+        how: virtual
+        image: fedora-rawhide
+  - when: distro == centos-stream or distro == rhel
+    prepare+:
+     - how: shell
+       name: enable CRB
+       order: 1
+       script: 'dnf config-manager --set-enabled crb || dnf config-manager --set-enabled rhel-CRB || dnf config-manager --set-enabled beaker-CRB || true'
+  - when: distro == centos-stream-9 or distro == rhel-9
+    prepare+:
+     - how: install
+       name: install EPEL
+       order: 2
+       package:
+         - https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+  - when: distro == centos-stream-10 or distro == rhel-10
+    prepare+:
+     - how: install
+       name: install EPEL
+       order: 2
+       package:
+         - https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+  - when: distro == centos-stream or distro == rhel
+    prepare+:
+     - how: shell
+       name: enable EPEL
+       order: 3
+       script: 'dnf config-manager --set-enabled epel'
+

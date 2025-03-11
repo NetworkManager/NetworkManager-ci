@@ -757,6 +757,13 @@ def dns_dnsconfd_as(context, scenario):
 _register_tag("dns_dnsconfd", dns_dnsconfd_bs, dns_dnsconfd_as)
 
 
+def attach_dnsconfd_log_as(context, scenario):
+    nmci.embed.embed_file_if_exists("DNSCONFD", "/tmp/dnsconfd.txt")
+
+
+_register_tag("attach_dnsconfd_log", None, attach_dnsconfd_log_as)
+
+
 def internal_DHCP_bs(context, scenario):
     conf = ["# configured by beaker-test", "[main]", "dhcp=internal"]
     conf_f = "/etc/NetworkManager/conf.d/96-nmci-dhcp-internal.conf"
