@@ -1570,6 +1570,13 @@ def attach_wpa_supplicant_log_as(context, scenario):
 _register_tag("attach_wpa_supplicant_log", None, attach_wpa_supplicant_log_as)
 
 
+def attach_dnsconfd_log_as(context, scenario):
+    nmci.embed.embed_file_if_exists("DNSCONFD", "/tmp/dnsconfd.txt")
+
+
+_register_tag("attach_dnsconfd_log", None, attach_dnsconfd_log_as)
+
+
 def performance_bs(context, scenario):
     # Set the speed factor
     context.machine_speed_factor = 1

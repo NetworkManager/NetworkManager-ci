@@ -1,0 +1,80 @@
+summary: Run integration tests with tmt
+discover:
+  how: fmf
+  filter: tag:integration
+execute:
+    how: tmt
+prepare:
+  - name: packages
+    order: 4
+    how: install
+    package:
+      - podman
+      - beakerlib
+      - python3-devel
+      - python3-setuptools
+      - python3-rpm-macros
+      - python3-pip
+      - python3-pyyaml
+      - python3-systemd
+      - python3-idna
+      - systemd
+      - rpm-build
+      - systemd-rpm-macros
+      - selinux-policy-devel
+      - selinux-policy-targeted
+      - audit
+      - dbus-tools
+      - rsyslog
+      - jq
+      - pkgconfig(glib-2.0)
+      - pkgconfig(gio-2.0)
+      - pkgconfig(libcurl)
+      - pkgconfig(check)
+      - pkgconfig(libsystemd)
+      - gcc
+      - cmake
+  - name: copy-nm-packages
+    order: 5
+    how: shell
+    script: find /tmp/rpms -name "*.rpm" -exec cp "{}" ./tests \;
+  - name: build-base-container
+    order: 6
+    how: shell
+    script: ./tests/build_ostree.sh
+  - name: build-containers
+    order: 7
+    how: shell
+    script: ./tests/build_images.sh
+adjust:
+  - when: trigger is not defined or trigger == human
+    provision:
+        how: virtual
+        image: fedora-rawhide
+  - when: distro == centos-stream or distro == rhel
+    prepare+:
+     - how: shell
+       name: enable CRB
+       order: 1
+       script: 'dnf config-manager --set-enabled crb || dnf config-manager --set-enabled rhel-CRB || dnf config-manager --set-enabled beaker-CRB'
+  - when: distro == centos-stream-9 or distro == rhel-9
+    prepare+:
+     - how: install
+       name: install EPEL
+       order: 2
+       package:
+         - https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+  - when: distro == centos-stream-10 or distro == rhel-10
+    prepare+:
+     - how: install
+       name: install EPEL
+       order: 2
+       package:
+         - https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+  - when: distro == centos-stream or distro == rhel
+    prepare+:
+     - how: shell
+       name: enable EPEL
+       order: 3
+       script: 'dnf config-manager --set-enabled epel'
+
