@@ -5,8 +5,7 @@ Feature: Veth TUI tests
   * Prepare virtual terminal environment
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_create_default_connection
     Scenario: nmtui - veth - create default connection
     * Start nmtui
@@ -22,8 +21,7 @@ Feature: Veth TUI tests
     And "veth2:unmanaged" is visible with command "nmcli -g DEVICE,STATE d" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_activate_connection_wo_autoconnect
     Scenario: nmtui - veth - activate connection
     * Start nmtui
@@ -49,8 +47,7 @@ Feature: Veth TUI tests
     And "veth2:unmanaged" is visible with command "nmcli -g DEVICE,STATE d" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_deactivate_connection
     Scenario: nmtui - veth - deactivate connection
     * Add "veth" connection named "con_veth" for device "veth1" with options "autoconnect no peer veth2 ipv4.method disabled ipv6.method disabled"
@@ -64,8 +61,7 @@ Feature: Veth TUI tests
     And "veth2" is not visible with command "nmcli d" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_delete_connection_down
     Scenario: nmtui - veth - delete nonactive connection
     * Start nmtui
@@ -88,8 +84,7 @@ Feature: Veth TUI tests
     And "veth2" is not visible with command "nmcli d" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_delete_connection_up
     Scenario: nmtui - veth - delete active connection
     * Add "veth" connection named "con_veth" for device "veth1" with options "autoconnect no peer veth2 ipv4.method disabled ipv6.method disabled"
@@ -104,8 +99,7 @@ Feature: Veth TUI tests
     And "veth2" is not visible with command "nmcli d" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_set_mtu
     Scenario: nmtui - veth - set mtu
     * Start nmtui
@@ -124,8 +118,7 @@ Feature: Veth TUI tests
     And "mtu 128" is visible with command "ip a s veth1" in "5" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_cloned_mac
     Scenario: nmtui - veth - cloned mac
     * Start nmtui
@@ -143,8 +136,7 @@ Feature: Veth TUI tests
     Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a" in "60" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_static_ipv4
     Scenario: nmtui - veth - static IPv4 configuration
     * Prepare new connection of type "Veth" named "con_veth"
@@ -158,8 +150,7 @@ Feature: Veth TUI tests
     Then "veth1\s+ethernet\s+connected\s+con_veth" is visible with command "nmcli device"
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_static_ipv6
     Scenario: nmtui - veth - static IPv6 configuration
     * Prepare new connection of type "Veth" named "con_veth"
@@ -177,8 +168,7 @@ Feature: Veth TUI tests
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip a s veth1" in "10" seconds
 
 
-    @ver+=1.50
-    @ver/rhel/9/5+=1.48.10.7
+    @ver+=1.48.10.7
     @nmtui_veth_static_combined
     Scenario: nmtui - veth - static IPv4 and IPv6 combined
     * Prepare new connection of type "Veth" named "con_veth"
