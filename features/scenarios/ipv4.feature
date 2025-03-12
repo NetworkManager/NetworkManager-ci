@@ -3389,7 +3389,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with no explicit configuration and no default route
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Execute "ip mptcp endpoint show"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv6.method disabled"
@@ -3408,7 +3408,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with no explicit configuration
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3427,7 +3427,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP disabled in NM
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0x1 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0x1 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3444,7 +3444,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with no explicit configuration
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0x2 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0x2 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3461,7 +3461,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP enabled even without sysctl
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "0"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x6 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x6 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3479,7 +3479,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP enabled even without default route
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 connection.mptcp-flags 0xa ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 connection.mptcp-flags 0xa ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3497,7 +3497,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with flag signal
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "signal"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x10 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x10 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3515,7 +3515,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with flag subflow
     * Prepare simulated MPTCP setup with "2" veths named "veth"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x20 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x20 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3533,7 +3533,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with flag backup
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "backup"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x40 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x40 ipv6.method disabled"
     * Bring "up" connection "veth0"
@@ -3551,7 +3551,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP with flag fullmesh
     * Prepare simulated MPTCP setup with "2" veths named "veth" and MPTCP type "fullmesh"
     * Set sysctl "net.mptcp.enabled" to "1"
-    * Execute "ip mptcp limits set subflow 2 add_addr_accepted 2"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
     * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1 connection.mptcp-flags 0x80 ipv6.method disabled"
     * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags 0x80 ipv6.method disabled"
     * Bring "up" connection "veth0"
