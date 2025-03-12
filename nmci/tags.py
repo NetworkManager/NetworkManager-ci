@@ -718,8 +718,14 @@ def dns_dnsconfd_bs(context, scenario):
     else:
         context.systemd_resolved = False
 
-    context.process.run_stdout("dnsconfd config install")
-    context.process.run_stdout("systemctl restart dnsconfd")
+    if context.process.systemctl("is-active dnsconfd").returncode != 0:
+        print("starting dnsconfd")
+        context.process.run_stdout("dnsconfd config install")
+        context.process.systemctl("enable dnsconfd")
+        context.process.systemctl("start dnsconfd")
+        context.dnsconfd = False
+    else:
+        context.dnsconfd = True
     time.sleep(2)
     context.dns_plugin = "dnsconfd"
 
@@ -730,10 +736,12 @@ def dns_dnsconfd_as(context, scenario):
     context.process.run_stdout("dnsconfd status > /tmp/dnsconf_status.txt", shell=True)
     status = nmci.util.file_get_content_simple("/tmp/dnsconf_status.txt")
     nmci.embed.embed_data("Dnsconfd status", status)
-
-    context.process.run_stdout("dnsconfd config uninstall")
-    context.process.run_stdout("systemctl stop dnsconfd")
     time.sleep(1)
+    if context.dnsconfd is False:
+        print("stopping dnsconfd")
+        context.process.run_stdout("dnsconfd config uninstall")
+        context.process.systemctl("disable dnsconfd")
+        context.process.systemctl("stop dnsconfd")
 
     if context.systemd_resolved is True:
         print("starting systemd-resolved")

@@ -1138,7 +1138,7 @@ Feature: nmcli - dns
 ##########################################
 
 
-    @RHEL-67917
+    @RHEL-67917 @RHEL-80307
     @ver+=1.51.90
     @dns_dnsconfd
     @dns_dnsconfd_unbound_dns_over_tls
@@ -1154,6 +1154,12 @@ Feature: nmcli - dns
         ipv4.dns-search google.com
         ipv4.dns dns+tls://8.8.8.8#dns.google
         """
+    * Commentary
+        """
+        Let's stop dnsconfd service to see if it is started correctly by NM
+        """
+    * Execute "systemctl stop dnsconfd"
+
     * Bring "up" connection "con_dns"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
     Then Ping "meet"
