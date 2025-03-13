@@ -892,6 +892,8 @@ testmapper:
         feature: ipv6
     - ipv6_mptcp_flags_0x8:
         feature: ipv6
+    - ipv6_mptcp_endpoints_dad:
+        feature: ipv6
     - ipv6_route_cache_consistancy:
         feature: ipv6
     - ipv6_prefsrc_route:
@@ -1257,6 +1259,8 @@ testmapper:
     - ipv4_mptcp_reapply_change_flag:
         feature: ipv4
     - ipv4_mptcp_remove_endpoints:
+        feature: ipv4
+    - ipv4_mptcp_endpoints_dad:
         feature: ipv4
     - ipv4_prefsrc_route:
         feature: ipv4

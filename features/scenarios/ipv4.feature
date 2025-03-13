@@ -3598,6 +3598,51 @@ Feature: nmcli: ipv4
     Then "eth3" is not visible with command "ip mptcp endpoint" in "5" seconds
 
 
+    @RHEL-78752
+    @ver+=1.52
+    @ipv4_mptcp_endpoints_dad
+    Scenario: MPTCP ensure endpoints are created correctly with DAD active
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Add namespace "ns1"
+    * Execute "ip netns exec ns1 sysctl -w net.mptcp.enabled=1"
+    * Create "veth" device named "v1" with options "peer name v1p netns ns1"
+    * Create "veth" device named "v2" with options "peer name v2p netns ns1"
+    * Execute "ip link set v1 up"
+    * Execute "ip link set v2 up"
+    * Execute "ip -n ns1 link set v1p up"
+    * Execute "ip -n ns1 link set v2p up"
+    * Execute "ip -n ns1 addr add dev v1p 172.20.1.100/24"
+    * Execute "ip -n ns1 addr add dev v2p 172.20.2.100/24"
+    * Add "ethernet" connection named "v1" for device "v1" with options
+      """
+      ip4 172.20.1.1/24
+      ipv6.method disabled
+      ipv4.dad-timeout 200
+      connection.mptcp-flags also-without-default-route,subflow
+      autoconnect no
+      """
+    * Add "ethernet" connection named "v2" for device "v2" with options
+      """
+      ip4 172.20.2.1/24
+      ipv6.method disabled
+      ipv4.dad-timeout 200
+      connection.mptcp-flags also-without-default-route,subflow
+      autoconnect no
+      """
+    * Bring "up" connection "v1"
+    * Execute "ip mptcp endpoint show"
+    * Run child "ip netns exec ns1 mptcpize run iperf3 -s"
+    * Wait for "1" seconds
+    * Run child "mptcpize run iperf3 -c 172.20.1.100 -t 30"
+    * Wait for "5" seconds
+    * Bring "up" connection "v2"
+    * Wait for "2" seconds
+    * Execute "ip mptcp endpoint show"
+    * Execute "ss -nti0"
+    Then "ESTAB.* 172.20.1.1:.* 172.20.1.100:5201 .* tcp-ulp-mptcp" is visible with command "ss -nti0"
+    Then "ESTAB.* 172.20.2.1%v2:.* 172.20.1.100:5201 .* tcp-ulp-mptcp" is visible with command "ss -nti0"
+
+
     @rhbz2046293
     @ver+=1.43.3
     @ipv4_prefsrc_route

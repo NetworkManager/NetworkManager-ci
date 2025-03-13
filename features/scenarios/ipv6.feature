@@ -2744,6 +2744,55 @@
     Then "exactly" "2" lines are visible with command "ip mptcp endpoint show"
 
 
+    @RHEL-78752
+    @ver+=1.52
+    @ipv6_mptcp_endpoints_dad
+    Scenario: MPTCP ensure endpoints are created correctly with DAD active
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Add namespace "ns1"
+    * Execute "ip netns exec ns1 sysctl -w net.mptcp.enabled=1"
+    * Create "veth" device named "v1" with options "peer name v1p netns ns1"
+    * Create "veth" device named "v2" with options "peer name v2p netns ns1"
+    * Execute "ip link set v1 up"
+    * Execute "ip link set v2 up"
+    * Execute "ip -n ns1 link set v1p up"
+    * Execute "ip -n ns1 link set v2p up"
+    * Execute "ip -n ns1 addr add dev v1p 2000:1::100/24"
+    * Execute "ip -n ns1 addr add dev v2p 2000:2::100/24"
+    * Commentary
+    """
+    IPv6 DAD is the default and can not be configured.
+    """
+    * Add "ethernet" connection named "v1" for device "v1" with options
+      """
+      ip6 2000:1::1/24
+      ipv4.method disabled
+      connection.mptcp-flags also-without-default-route,subflow
+      connection.zone trusted
+      autoconnect no
+      """
+    * Add "ethernet" connection named "v2" for device "v2" with options
+      """
+      ip6 2000:2::1/24
+      ipv4.method disabled
+      connection.mptcp-flags also-without-default-route,subflow
+      connection.zone trusted
+      autoconnect no
+      """
+    * Bring "up" connection "v1"
+    * Execute "ip mptcp endpoint show"
+    * Run child "ip netns exec ns1 mptcpize run iperf3 -s"
+    * Wait for "1" seconds
+    * Run child "mptcpize run iperf3 -c 2000:1::100 -t 30"
+    * Wait for "5" seconds
+    * Bring "up" connection "v2"
+    * Wait for "2" seconds
+    * Execute "ip mptcp endpoint show"
+    * Execute "ss -nti0"
+    Then "ESTAB.* \[2000:1::1\]:.* \[2000:1::100\]:5201 .* tcp-ulp-mptcp" is visible with command "ss -nti0"
+    Then "ESTAB.* \[2000:2::1\]%v2:.* \[2000:1::100\]:5201 .* tcp-ulp-mptcp" is visible with command "ss -nti0"
+
+
     @rhbz2060684
     @ver+=1.41.8
     @ipv6_route_cache_consistancy
