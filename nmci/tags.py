@@ -2115,6 +2115,7 @@ def backup_sysconfig_network_bs(context, scenario):
 
 def backup_sysconfig_network_as(context, scenario):
     context.process.run_stdout("mv -f /tmp/sysnetwork.backup /etc/sysconfig/network")
+    context.process.run_stdout("restorecon /etc/sysconfig/network")
     nmci.nmutil.reload_NM_connections()
     context.process.nmcli_force("connection down testeth9")
 
