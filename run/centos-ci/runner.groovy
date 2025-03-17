@@ -55,8 +55,7 @@ node('cico-workspace') {
         }
         stage('clone git repo') {
             REPO1="https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git"
-            REPO2="git@gitlab.freedesktop.org:NetworkManager/NetworkManager-ci.git"
-            REPO3="https://github.com/NetworkManager/NetworkManager-ci.git"
+            REPO2="https://github.com/NetworkManager/NetworkManager-ci.git"
             if (MERGE_REQUEST_ID) {
                 FETCH = "cd NetworkManager-ci && git fetch --update-head-ok origin merge-requests/${MERGE_REQUEST_ID}/head:${TEST_BRANCH}"
             }
@@ -64,7 +63,7 @@ node('cico-workspace') {
                 FETCH = "cd NetworkManager-ci && git fetch --update-head-ok origin ${TEST_BRANCH}:${TEST_BRANCH}"
             }
             CLONE = "rm -rf NetworkManager-ci; timeout 2m git clone -n --depth 1"
-            GET_REPO = "(${CLONE} ${REPO1} && ${FETCH}) || (${CLONE} ${REPO2} && ${FETCH}) || (${CLONE} ${REPO3} && ${FETCH})"
+            GET_REPO = "(${CLONE} ${REPO1} && ${FETCH}) || (${CLONE} ${REPO2} && ${FETCH})"
             sh "python3 -m pip install --user python-gitlab pyyaml==5.4.1"
             sh "${GET_REPO} || (sleep 10; ${GET_REPO}) || (sleep 10; ${GET_REPO})"
             sh "cd NetworkManager-ci; git checkout ${TEST_BRANCH}"
