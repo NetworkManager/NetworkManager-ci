@@ -18,7 +18,7 @@ rm -rf /etc/yum.repos.d/CentOS-Media.repo
 
 RC=1
 # Get a build script from NM repo
-if wget https://gitlab.freedesktop.org/NetworkManager/NetworkManager/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh; then
+if wget ${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh; then
     # Build NM
     BUILD_REPO=$BUILD_REPO \
     WITH_DEBUG=$WITH_DEBUG \

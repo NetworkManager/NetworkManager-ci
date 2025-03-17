@@ -843,7 +843,7 @@ class Runner:
         parser.add_argument(
             "-r",
             "--nm_repo",
-            default="https://gitlab.freedesktop.org/NetworkManager/NetworkManager/",
+            default=None,
         )
         parser.add_argument("-v", "--os_version", default="c8s")
         parser.add_argument(
@@ -863,6 +863,10 @@ class Runner:
         if args.build_id:
             self.build_url = args.build_id
         self.repo = args.nm_repo
+        if not self.repo:
+            # get cloned NM-ci repo - FD gitlab (or github if FD gitlab is down)
+            nm_ci_repo = run("git remote get-url origin").stdout.strip()
+            self.repo = nm_ci_repo.replace("NetworkManager-ci", "NetworkManager")
         self.release = args.os_version
         self.release_num = self.release.split("-")[0]
 
