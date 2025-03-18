@@ -880,24 +880,19 @@ class Runner:
                 self.mr = f"mr{self.gitlab.merge_request_id}"
 
     def check_if_copr_possible(self):
-        if (
-            not self.repo
-            or self.repo
-            == "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/"
-        ):
-            p = re.compile("nm-1-[0-9][0-9]")
-            # Let's check if we have stable branch"
-            if self.refspec == "stock":
-                self.copr_repo = "stock"
-            if self.refspec == "main":
-                self.copr_repo = "NetworkManager-main-debug"
-            elif self.refspec == "nm-1-28":
-                self.copr_repo = "NetworkManager-CI-1.28-git"
-            elif self.refspec == "nm-1-26":
-                self.copr_repo = "NetworkManager-CI-1.26-git"
-            elif p.match(self.refspec):
-                branch = "1." + self.refspec.split("-")[-1]
-                self.copr_repo = f"NetworkManager-{branch}-debug"
+        p = re.compile("nm-1-[0-9][0-9]")
+        # Let's check if we have stable branch"
+        if self.refspec == "stock":
+            self.copr_repo = "stock"
+        if self.refspec == "main":
+            self.copr_repo = "NetworkManager-main-debug"
+        elif self.refspec == "nm-1-28":
+            self.copr_repo = "NetworkManager-CI-1.28-git"
+        elif self.refspec == "nm-1-26":
+            self.copr_repo = "NetworkManager-CI-1.26-git"
+        elif p.match(self.refspec):
+            branch = "1." + self.refspec.split("-")[-1]
+            self.copr_repo = f"NetworkManager-{branch}-debug"
         logging.debug(f"COPR repo: {self.copr_repo}")
 
     def wait_for_machines(self, abort_on_fail=True, poll_results=False):
