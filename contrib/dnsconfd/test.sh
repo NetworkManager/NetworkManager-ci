@@ -24,7 +24,7 @@ mkdir $TARGET_DIR
 
 # Do we have copr?
 if rpm -q NetworkManager |grep copr; then
-    dnf download --disablerepo=* --enablerepo=copr* \
+    dnf download --disablerepo=* --enablerepo=*copr* \
         NetworkManager NetworkManager-libnm \
         --destdir $TARGET_DIR
 fi
