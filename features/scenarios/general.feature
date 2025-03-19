@@ -2903,6 +2903,7 @@ Feature: nmcli - general
      When "con_general" is not visible with command "nmcli connection"
      * "Unlock" Image Mode
      * Execute "mv /tmp/con_general* /usr/lib/NetworkManager/system-connections/"
+     * Execute "restorecon /usr/lib/NetworkManager/system-connections/con_general*"
      * "Lock" Image Mode
      * Execute "nmcli con reload"
      When "con_general" is visible with command "nmcli connection"
