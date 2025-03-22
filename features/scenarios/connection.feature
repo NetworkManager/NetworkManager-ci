@@ -1447,3 +1447,8 @@ Feature: nmcli: connection
     Then "Error" is visible with command "nmcli c mod id dummy1 connection.id dummy2"
     Then "dummy1" is visible with command "nmcli c"
     Then "dummy2" is not visible with command "nmcli c"
+    * Commentary
+    """
+    Expect AVC not to fail after scenario.
+    """
+    Then Expect AVC "NetworkManager.*dummy1"
