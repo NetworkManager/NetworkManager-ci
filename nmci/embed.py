@@ -1,8 +1,8 @@
 import collections
 import os
+import re
 import traceback
 import shutil
-from subprocess import TimeoutExpired
 
 import xml.etree.ElementTree as ET
 
@@ -639,51 +639,13 @@ class _Embed:
         :param msg: custom part of the embed message
         :type msg: str
         """
-        if not shutil.which("ausearch"):
-            return False
-        try:
-            get_avcs = nmci.process.run(
-                "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
-                ignore_stderr=True,
-                ignore_returncode=True,
-                embed_combine_tag=self.NO_EMBED,
-            )
-            if get_avcs.returncode == 12:
-                avc_log = nmci.process.run_stdout(
-                    "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
-                    ignore_stderr=True,
-                    ignore_returncode=True,
-                    embed_combine_tag=self.NO_EMBED,
-                )
-            else:
-                avc_log = get_avcs.stdout
-        except TimeoutExpired:
-            self.embed_exception("SELinux ausearch timed out!")
-            print("Warning: ausearch timed out!")
-            avc_log = None
+        avc_log = nmci.misc.get_avcs(embed=False)
+
         if avc_log:
             self.embed_data("SELinux AVCs " + msg, avc_log)
-
-            # check avcs in NM related packages
-            important_avc = False
-            for nm_pkg in nmci.crash.NM_PKGS:
-                if nm_pkg in avc_log:
-                    important_avc = True
-                    break
-
-            if nmci.util.is_verbose() and shutil.which("sealert"):
-                avcs_file = f"{nmci.util.tmp_dir()}/audit-avcs.log"
-                nmci.util.file_set_content(avcs_file, avc_log)
-                # FIXME: this approach doesn't capture the same messages that
-                # we can get from the journal. However it *can* work sometimes
-                # and I (David) didn't figured out yet how to limit journal for
-                # between-scenario AVCs
-                sealert_analysis = nmci.process.run_stdout(
-                    f"sealert -a {avcs_file}", embed_stdout=False
-                )
-                self.embed_data(f"sealert analysis of AVCS {msg}", sealert_analysis)
-                nmci.util.file_remove(avcs_file)
-
+            important_avc = nmci.misc.search_str_re_list_any(
+                nmci.crash.NM_PKGS, avc_log
+            )
             assert not important_avc, "Found imporatnt AVC"
 
     def embed_exception(self, caption=None):

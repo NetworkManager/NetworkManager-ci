@@ -1500,3 +1500,10 @@ def image_mode_toggle(context, action):
             priority=nmci.cleanup.Cleanup.PRIORITY_FILE + 1,
         )
         nmci.process.run(f"mount -o remount,{mode} lazy /usr")
+
+
+@step('Expect AVC "{pattern}"')
+@step('Expect AVC "{pattern}" in "{timeout}" seconds')
+def expect_avc(context, pattern, timeout=15):
+    timeout = float(timeout)
+    nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)

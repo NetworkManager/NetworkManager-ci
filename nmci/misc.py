@@ -4,10 +4,13 @@ import html
 import json
 import os
 import re
+import shutil
 import sys
 import warnings
 import yaml
 import xml.etree.ElementTree as ET
+
+from subprocess import TimeoutExpired
 
 try:
     from systemd import journal  # type: ignore [import]
@@ -1375,6 +1378,103 @@ class _Misc:
         else:
             ret = res
         return ret
+
+    def get_avcs(self, wait_for_avcs=None, wait_for_all=False, timeout=10, embed=True):
+        """
+        Get new AVCs from previous call, wait for specific message.
+
+        :param wait_for_avcs: Description of AVC to wait for, defaults to None
+        :type wait_for_avcs: str, or re.Patter, or iterative of them, optional
+        :param wait_for_all: Wait until all patterns in the list are matched, defaults to False
+        :type wait_for_all: bool, optional
+        :param timeout: How long to search for AVCs, defaults to 19
+        :type timeout: float, optional
+        :param embed: Whether to embed sealert commands. Should be enabled, except calls from embed class, defaults to True
+        :type embed: bool, optional
+        :return: String representation of AVCs found
+        :rtype: str
+        """
+        if not shutil.which("ausearch"):
+            return False
+        embed_cls = None if embed else nmci.embed.NO_EMBED
+        avc_log = ""
+        with nmci.util.start_timeout(timeout) as t:
+            while t.loop_sleep(1):
+                try:
+                    get_avcs = nmci.process.run(
+                        "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file --format interpret",
+                        ignore_stderr=True,
+                        ignore_returncode=True,
+                        embed_combine_tag=embed_cls,
+                    )
+                    if get_avcs.returncode == 12:
+                        avc_log += nmci.process.run_stdout(
+                            "ausearch -m avc --checkpoint /tmp/nmci-ausearch-checkpoint-file -ts checkpoint --format interpret",
+                            ignore_stderr=True,
+                            ignore_returncode=True,
+                            embed_combine_tag=embed_cls,
+                        )
+                    else:
+                        avc_log += get_avcs.stdout
+                except TimeoutExpired:
+                    nmci.embed.embed_exception("SELinux ausearch timed out!")
+                    print("Warning: ausearch timed out!")
+                    avc_log = None
+
+                # If there is nothing to wait for, return what we have
+                if not wait_for_avcs:
+                    return avc_log
+
+                # If we have some avcs, check wait_for_avcs values are present
+                if avc_log:
+                    if wait_for_all:
+                        if self.search_str_re_list_all(wait_for_avcs, avc_log):
+                            return avc_log
+                    else:
+                        if self.search_str_re_list_any(wait_for_avcs, avc_log):
+                            return avc_log
+
+        return avc_log
+
+    def search_str_re_list_any(self, needle, haystack):
+        """
+        Search in string. Search for str, re.Pattern or iterative of them. Search for any match.
+
+        :param needle: Searh pattern
+        :type needle: str, re.Pattern, or iterative of them
+        :param haystack: Text to be searched in.
+        :type haystack: str
+        :return: True if any pattern matches, False otherwise
+        :rtype: bool
+        """
+        if needle is None:
+            return True
+        elif isinstance(needle, str):
+            return needle in haystack
+        elif isinstance(needle, re.Pattern):
+            return needle.search(haystack) is not None
+        else:
+            return any(self.search_str_re_list_any(n, haystack) for n in needle)
+
+    def search_str_re_list_all(self, needle, haystack):
+        """
+        Search in string. Search for str, re.Pattern or iterative of them. All pattern must be found.
+
+        :param needle: Searh pattern
+        :type needle: str, re.Pattern, or iterative of them
+        :param haystack: Text to be searched in.
+        :type haystack: str
+        :return: True if all patterns match, False otherwise
+        :rtype: bool
+        """
+        if needle is None:
+            return True
+        elif isinstance(needle, str):
+            return needle in haystack
+        elif isinstance(needle, re.Pattern):
+            return needle.search(haystack) is not None
+        else:
+            return all(self.search_str_re_list_all(n, haystack) for n in needle)
 
     def list_to_intervals(self, numbers):
         """
