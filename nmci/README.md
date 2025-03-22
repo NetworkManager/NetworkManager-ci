@@ -1296,6 +1296,20 @@ Format duration in seconds to 3 decimal places and append `'s'`.
 * **Return type:**
   str
 
+### nmci.misc.get_avcs(wait_for_avcs=None, wait_for_all=False, timeout=10, embed=True)
+
+Get new AVCs from previous call, wait for specific message.
+
+* **Parameters:**
+  * **wait_for_avcs** (*str**, or* *re.Patter**, or* *iterative* *of* *them**,* *optional*) – Description of AVC to wait for, defaults to None
+  * **wait_for_all** (*bool**,* *optional*) – Wait until all patterns in the list are matched, defaults to False
+  * **timeout** (*float**,* *optional*) – How long to search for AVCs, defaults to 19
+  * **embed** (*bool**,* *optional*) – Whether to embed sealert commands. Should be enabled, except calls from embed class, defaults to True
+* **Returns:**
+  String representation of AVCs found
+* **Return type:**
+  str
+
 ### nmci.misc.get_dns_info(dns_plugin, ifindex=None, ifname=None)
 
 Get DNS interface info. At least one of ifindex and ifname must be set.
@@ -1461,6 +1475,30 @@ Return dnsconfd status as python object/dict.
   parsed status
 * **Return type:**
   dict
+
+### nmci.misc.search_str_re_list_all(needle, haystack)
+
+Search in string. Search for str, re.Pattern or iterative of them. All pattern must be found.
+
+* **Parameters:**
+  * **needle** (*str**,* *re.Pattern**, or* *iterative* *of* *them*) – Searh pattern
+  * **haystack** (*str*) – Text to be searched in.
+* **Returns:**
+  True if all patterns match, False otherwise
+* **Return type:**
+  bool
+
+### nmci.misc.search_str_re_list_any(needle, haystack)
+
+Search in string. Search for str, re.Pattern or iterative of them. Search for any match.
+
+* **Parameters:**
+  * **needle** (*str**,* *re.Pattern**, or* *iterative* *of* *them*) – Searh pattern
+  * **haystack** (*str*) – Text to be searched in.
+* **Returns:**
+  True if any pattern matches, False otherwise
+* **Return type:**
+  bool
 
 ### nmci.misc.str_replace_dict(text, values, dict_name='noted')
 
