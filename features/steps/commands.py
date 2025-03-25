@@ -1507,3 +1507,13 @@ def image_mode_toggle(context, action):
 def expect_avc(context, pattern, timeout=15):
     timeout = float(timeout)
     nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
+
+
+@step('Ignore possible AVC "{pattern}"')
+@step('Ignore possible AVC "{pattern}" in "{timeout}" seconds')
+def ignore_avc(context, pattern, timeout=15):
+    timeout = float(timeout)
+    try:
+        nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
+    except AssertionError:
+        nmci.embed.embed_exception("No AVC matched")
