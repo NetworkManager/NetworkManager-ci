@@ -2916,6 +2916,7 @@ Feature: nmcli - general
      #Then "con_general" is not visible with command "nmcli connection"
      #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
      #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+     * Ignore possible AVC "NetworkManager.*nmmeta"
 
 
     @rhbz1674545
@@ -2962,6 +2963,7 @@ Feature: nmcli - general
     #Then "con_general" is not visible with command "nmcli connection"
     #And "con_general" is visible with command "ls /usr/lib/NetworkManager/system-connections/"
     #And "/etc/NetworkManager/system-connections/<noted_value>.nmmeta" is symlink with destination "/dev/null"
+    * Ignore possible AVC "NetworkManager.*nmmeta"
 
 
     @rhbz1708660
