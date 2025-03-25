@@ -25,6 +25,7 @@ Feature: nmcli: gsm
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     And "default" is visible with command "ip r |grep 700"
+    * Ignore possible AVC "ModemManager"
 
 
     @ver+=1.39.7
@@ -43,6 +44,7 @@ Feature: nmcli: gsm
     * Dismiss Proxy configuration in editor
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     And "default" is visible with command "ip r |grep 700"
+    * Ignore possible AVC "ModemManager"
 
 
     @ver+=1.12.0
@@ -56,6 +58,7 @@ Feature: nmcli: gsm
      And "default" is visible with command "ip r |grep 700"
      And "172.31.82.2 peer 172.31.82.1" is visible with command "ip addr show $(nmcli -g general.ip-iface device show modemu)"
      And Nameserver "172.16.1.1" is set
+     * Ignore possible AVC "ModemManager"
 
 
     @ver+=1.12.0
@@ -69,6 +72,7 @@ Feature: nmcli: gsm
      * Bring "down" connection "gsm"
     Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "60" seconds
      And "default" is not visible with command "ip r |grep 700"
+     * Ignore possible AVC "ModemManager"
 
 
     @rhbz1388613 @rhbz1460217
@@ -92,6 +96,7 @@ Feature: nmcli: gsm
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     Then "mtu 1600" is visible with command "ip a s |grep mtu" in "10" seconds
      And "mtu 1600" is visible with command "nmcli |grep gsm"
+     * Ignore possible AVC "ModemManager"
 
 
     @rhbz1585611
@@ -115,6 +120,7 @@ Feature: nmcli: gsm
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     Then "default" is visible with command "ip r |grep 120" in "60" seconds
     And "proto kernel scope" is visible with command "ip r |grep 120"
+    * Ignore possible AVC "ModemManager"
 
 
     @ver+=1.12.0
@@ -139,6 +145,7 @@ Feature: nmcli: gsm
      * Reload connections
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    * Ignore possible AVC "ModemManager"
 
 
     @ver+=1.18.0
@@ -159,3 +166,4 @@ Feature: nmcli: gsm
     Then "serial.baud:\s+5" is visible with command "nmcli con show gsm"
     Then "serial.send-delay:\s+100" is visible with command "nmcli con show gsm"
      And "default" is visible with command "ip r |grep 700"
+     * Ignore possible AVC "ModemManager"
