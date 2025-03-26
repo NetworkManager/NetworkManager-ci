@@ -4,6 +4,11 @@ install_el10_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
     fi
 
+    # Epel release is a bit crippled in 10.1, let's remove minor versions
+    if grep -q "VERSION_ID=\"10.1\"" /etc/os-release; then
+        sed -i 's/\${releasever_minor:+\.\$releasever_minor}//g' /etc/yum.repos.d/epel*
+    fi
+
     dnf makecache
 
 
