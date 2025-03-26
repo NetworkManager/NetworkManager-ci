@@ -46,7 +46,7 @@ function setup () {
     fi
 
     # If we have all necessary things done
-    if ! test -f /tmp/netdevsim_installed && ! grep -q ostree /proc/cmdline; then
+    if ! test -f /tmp/netdevsim_installed; then
         # Install srpm (first try manualy cached file in /root)
         rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm || \
         wget $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
