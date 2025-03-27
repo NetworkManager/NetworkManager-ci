@@ -1140,6 +1140,7 @@ Feature: nmcli - dns
 
     @RHEL-67917 @RHEL-80307
     @ver+=1.51.90
+    @ver-=1.53.1
     @dns_dnsconfd
     @dns_dnsconfd_unbound_dns_over_tls
     Scenario: NM - dns - dnsconfd dns over tls via unbound
@@ -1160,6 +1161,49 @@ Feature: nmcli - dns
         """
     * Execute "systemctl stop dnsconfd"
 
+    * Bring "up" connection "con_dns"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
+    Then Ping "meet"
+    Then Ping "nix.cz"
+    * Execute "nmcli device reapply eth0"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
+    Then Ping "meet"
+    Then Ping "nix.cz"
+
+
+    @RHEL-67917 @RHEL-80307 @RHEL-83175
+    @ver+=1.53.2
+    @dns_dnsconfd
+    @dns_dnsconfd_unbound_dns_over_tls
+    Scenario: NM - dns - dnsconfd dns over tls via unbound
+    * Note the output of "ip r |head -n 1|awk '{print $3}'" as value "gateway"
+    * Note the output of "ip a s eth0  |grep inet |head -n 1 |awk '{print $2}'" as value "ipv4"
+    * Add "ethernet" connection named "con_dns" for device "eth0" with options
+        """
+        ipv6.method disable
+        ipv4.method manual
+        ipv4.addresses <noted:ipv4>
+        ipv4.gateway <noted:gateway>
+        ipv4.dns-search google.com
+        ipv4.dns dns+tls://8.8.8.8#dns.google
+        """
+    * Commentary
+        """
+        Let's check if NM doesn't crash when unbound is masked
+        """
+    * Execute "systemctl mask unbound"
+    * Bring "up" connection "con_dns"
+    Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
+    * Commentary
+        """
+        Ping will not work here as we have crippled dnsconfd/unbound connection
+        """
+    * Execute "systemctl unmask unbound"
+    * Commentary
+        """
+        Let's stop dnsconfd service to see if it is started correctly by NM
+        """
+    * Execute "systemctl stop dnsconfd"
     * Bring "up" connection "con_dns"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
     Then Ping "meet"

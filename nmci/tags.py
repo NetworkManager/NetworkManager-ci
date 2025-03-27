@@ -742,6 +742,7 @@ def dns_dnsconfd_as(context, scenario):
         context.process.run_stdout("dnsconfd config uninstall")
         context.process.systemctl("disable dnsconfd")
         context.process.systemctl("stop dnsconfd")
+        context.process.systemctl("unmask unbound")
 
     if context.systemd_resolved is True:
         print("starting systemd-resolved")
