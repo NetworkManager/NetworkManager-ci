@@ -293,8 +293,6 @@ Feature: nmcli - vlan
           """
           dev team7
           id 15
-          ipv4.method disabled
-          ipv6.method ignore
           master bridge7
           connection.slave-type bridge
           """

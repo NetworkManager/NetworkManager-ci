@@ -3331,7 +3331,6 @@
     * Add "bond" connection named "bond1" for device "bond2" with options
       """
       bond.options mode=balance-xor,xmit_hash_policy=vlan+srcmac,balance-slb=1
-      ipv4.method disable ipv6.method disable
       controller br2
       """
     * Add "veth" connection named "veth1" for device "veth1" with options "peer veth1p controller bond2"
