@@ -41,6 +41,10 @@ install_el10_packages () {
         $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-relay-4.4.3-13.P1.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/noarch/dhcp-common-4.4.3-13.P1.fc40.noarch.rpm"
 
+    # Valgrind vgdb was split to different RPM not yet in repo
+    PKGS_INSTALL="$PKGS_INSTALL \
+        $KHUB/valgrind/3.24.0/6.el10/$(arch)/valgrind-gdb-3.24.0-6.el10.$(arch).rpm"
+
     # Install util-linux deps to avoid RHEL-32647
     PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
 
