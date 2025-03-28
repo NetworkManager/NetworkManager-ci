@@ -403,6 +403,7 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=8.6
+    @not_in_image_mode
     @radius @8021x_doc_procedure @attach_wpa_supplicant_log
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
