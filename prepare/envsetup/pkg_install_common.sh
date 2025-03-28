@@ -81,6 +81,10 @@ install_common_packages () {
     # remount rw overlay, if in image mode
     grep -q ostree /proc/cmdline && ( bootc usr-overlay; sudo mount -o remount,rw lazy /usr )
 
+    # Workaround: restart polkit to accept new dnsconfd rule possibly installed in transient mode
+    grep -q ostree /proc/cmdline && ( systemctl restart polkit )
+
+
     # installing python3-* package causes removal of /usr/bin/python
     fix_python3_link
 
