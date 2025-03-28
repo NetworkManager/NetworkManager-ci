@@ -276,9 +276,8 @@ def setup_pkcs11(context):
     if not shutil.which("pkcs11-tool"):
         install_packages.append("opensc")
     if len(install_packages) > 0:
-        nmci.process.run_stdout(
-            f"yum -y install {' '.join(install_packages)}",
-            timeout=120,
+        nmci.process.dnf(
+            f"-y install {' '.join(install_packages)}",
             ignore_stderr=True,
         )
     re_token = re.compile(r"(?m)Label:[\s]*nmci[\s]*$")

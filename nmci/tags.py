@@ -995,17 +995,15 @@ def need_dispatcher_scripts_bs(context, scenario):
     if context.rh_release_num < [10, 0]:
         if os.path.isfile("/tmp/nm-builddir"):
             print("install dispatcher scripts")
-            context.process.run_stdout(
-                "yum install -y $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*",
+            context.process.dnf(
+                "-y install $(cat /tmp/nm-builddir)/noarch/NetworkManager-dispatcher-routing-rules*",
                 shell=True,
-                timeout=120,
                 ignore_stderr=True,
             )
         else:
             print("install NetworkManager-config-routing-rules")
-            context.process.run_stdout(
-                "yum -y install NetworkManager-config-routing-rules",
-                timeout=120,
+            context.process.dnf(
+                "-y install NetworkManager-config-routing-rules",
                 ignore_stderr=True,
             )
         nmci.nmutil.reload_NM_service()
@@ -1015,9 +1013,8 @@ def need_dispatcher_scripts_as(context, scenario):
     # do this only on RHEL-=9
     if context.rh_release_num < [10, 0]:
         nmci.veth.wait_for_testeth0()
-        context.process.run_stdout(
-            "yum -y remove NetworkManager-config-routing-rules",
-            timeout=120,
+        context.process.dnf(
+            "-y remove NetworkManager-config-routing-rules",
             ignore_stderr=True,
         )
         context.process.run_stdout(
@@ -1868,9 +1865,7 @@ def slow_team_bs(context, scenario):
             "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
             shell=True,
         )
-        context.process.run_stdout(
-            "yum -y install teamd libteam", timeout=120, ignore_stderr=True
-        )
+        context.process.dnf("-y install teamd libteam", ignore_stderr=True)
         context.cext.skip("Skipping as unable to install slow_team")
     nmci.nmutil.reload_NM_service()
 
