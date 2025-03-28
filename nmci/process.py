@@ -230,6 +230,19 @@ class _Process:
                 self._dnf_transient = False
         return self._dnf_transient
 
+    def _unlock_usr(self):
+        self._usr_locked = True
+        try:
+            open("/usr/empty", "w")
+            self._usr_locked = False
+        except:
+            self.run_code(["mount", "-o", "remount,rw", "lazy", "/usr"])
+
+    def _lock_usr(self):
+        # never run before _unlock_usr()
+        if self._usr_locked == True:
+            self.run_code(["mount", "-o", "remount,ro", "lazy", "/usr"])
+
     def _run_prepare_args(self, argv, shell, env, env_extra, namespace):
         if namespace:
             argv = WithNamespace(namespace, argv)
@@ -1059,6 +1072,7 @@ class _Process:
         s_argv = argv
 
         if self._is_dnf_transient:
+            self._unlock_usr()
             s_argv = WithPrefix(["--transient"], s_argv)
 
         s_argv = WithPrefix(["dnf"], s_argv)
@@ -1082,6 +1096,8 @@ class _Process:
             )
             if result.returncode == 0:
                 break
+        if self._is_dnf_transient:
+            self._lock_usr()
         if not ignore_returncode and result.returncode != 0:
             self.raise_results(s_argv, "exited with non-zero status", result)
         if not ignore_stderr and result.stderr:
