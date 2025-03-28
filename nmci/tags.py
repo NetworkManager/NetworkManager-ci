@@ -170,6 +170,17 @@ def not_on_aarch64_but_pegas_bs(context, scenario):
 _register_tag("not_on_aarch64_but_pegas", not_on_aarch64_but_pegas_bs)
 
 
+def not_in_image_mode_bs(context, scenario):
+    with open("/proc/cmdline") as cmdline_f:
+        cmdline = cmdline_f.read()
+
+    if "ostree" in cmdline:
+        nmci.cext.skip("Skipping in image mode")
+
+
+_register_tag("not_in_image_mode", not_in_image_mode_bs)
+
+
 def gsm_sim_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping on not intel arch")
