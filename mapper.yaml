@@ -3767,5 +3767,8 @@ testmapper:
         feature: ovs
     - add_dpdk_port_with_mtu:
         feature: ovs
+    - add_dpdk_port_lsc_interrupt:
+        feature: ovs
     - dpdk_teardown:
         feature: ovs
+
