@@ -2774,6 +2774,7 @@
     * Add "ethernet" connection named "v2" for device "v2" with options
       """
       ip6 2000:2::1/24
+      ipv6.routes "2000::/8 2000:2::100"
       ipv4.method disabled
       connection.mptcp-flags also-without-default-route,subflow
       connection.zone trusted
