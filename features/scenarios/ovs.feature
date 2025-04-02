@@ -1274,6 +1274,34 @@ Feature: nmcli - ovs
      And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?, n_rxq=[\"]?2[\"]?, n_rxq_desc=[\"]?128[\"]?, n_txq_desc=[\"]?256[\"]?}" is visible with command "ovs-vsctl show"
 
 
+     @RHEL-77148
+     @ver+=1.53.1
+     @permissive @openvswitch @dpdk
+     @add_dpdk_port_lsc_interrupt
+     Scenario: NM -  openvswitch - add dpdk device and lsc-interrupt argument
+     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
+           """
+           ovs-bridge.datapath-type netdev
+           """
+     * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+           """
+           conn.master port0
+           ovs-dpdk.devargs 0000:c3:06.0
+           ovs-dpdk.lsc-interrupt enabled
+           """
+     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+     And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?, dpdk-lsc-interrupt=[\"]?true[\"]?}" is visible with command "ovs-vsctl show"
+     * Modify connection "ovs-iface0" changing options "ovs-dpdk.lsc-interrupt disabled"
+     * Bring "up" connection "ovs-iface0"
+     Then "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?, dpdk-lsc-interrupt=[\"]?false[\"]?}" is visible with command "ovs-vsctl show"
+     * Modify connection "ovs-iface0" changing options "ovs-dpdk.lsc-interrupt ''"
+     * Bring "up" connection "ovs-iface0"
+     Then "lsc-interrupt" is not visible with command "ovs-vsctl show"
+
+
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5
     @permissive @openvswitch @dpdk
