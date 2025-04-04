@@ -1108,8 +1108,8 @@ def lims(context, lim, ns=None):
         nmci.process.run(f"ip mptcp limits set {lim}", namespace=ns)
 
 
-@step("Prepare nmstate libreswan environment")
-def libreswan_ng_setup(context):
+@step('Prepare nmstate libreswan server for "{ipsec_type}" environment')
+def libreswan_ng_setup(context, ipsec_type):
     # ensure correct versions are installed
     nmci.veth.wait_for_testeth0()
     if context.rh_release_num <= [9, 1]:
@@ -1187,7 +1187,7 @@ def libreswan_ng_setup(context):
 
     # We need to run this and expect "env ready" message
     context.ipsec_proc = nmci.pexpect.pexpect_service(
-        f"python3l contrib/ipsec/ipsec_setup.py",
+        f"python3l contrib/ipsec/ipsec_setup.py {ipsec_type}",
         shell=True,
     )
 
@@ -1211,14 +1211,15 @@ def libreswan_ng_setup(context):
         pluto_journal.expect("listening for IKE messages")
         print(f"pluto started in {t.elapsed_time():.3f}s")
 
-    hostb_conn = "/tmp/hostb_ipsec_conf/ipsec.d/hostb_conn.conf"
+    import yaml
 
-    with open(hostb_conn) as hbc:
-        for line in hbc.readlines():
-            if "rightrsasigkey=" in line:
-                hosta_key = line.strip().split("=", 1)[1]
-            if "leftrsasigkey=" in line:
-                hostb_key = line.strip().split("=", 1)[1]
+    # Load data from YAML
+    with open("/tmp/ipsec_config.yaml", "r") as f:
+        data = yaml.safe_load(f) or {}  # Ensure data is a dictionary
 
-    os.environ["HOSTA_RSA_KEY"] = hosta_key
-    os.environ["HOSTB_RSA_KEY"] = hostb_key
+    # Update os.environ with YAML variables
+    for key, value in data.items():
+        os.environ[key] = str(value)
+        # And store them in noted dict as well
+        print(f"Exporting {os.environ[key]} as {str(value)}")
+        context.noted[key] = str(value)

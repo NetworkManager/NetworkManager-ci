@@ -444,129 +444,134 @@
     Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
 
 
-    @libreswan_ikev2_ipv4_leftcert
-    Scenario: libreswan - ikev2 - ipv4 - certs
-    * Prepare nmstate libreswan environment
-    * Add "vpn" connection named "libreswan" for device "\*" with options
-      """
-      autoconnect no
-      vpn-type libreswan
-      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = hostb.example.org, salifetime = 24h'
-      """
-    * Bring "up" connection "libreswan"
-    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
-    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
-
-
     @fedoraver+=40
     @libreswan_ikev2_ipv4_psk
     Scenario: libreswan - ikev2 - ipv4 - psk
-    * Prepare nmstate libreswan environment
-    When "rundir" is visible with command "ps aux|grep pluto |grep hostb" in "15" seconds
+    * Prepare nmstate libreswan server for "psk" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'authby = secret, ikev2 = insist, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
-      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      vpn.data 'authby = secret, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
+      vpn.secrets 'pskvalue = <noted:PSK>'
       """
     * Bring "up" connection "libreswan"
-    Then "203.0.113.[^\n]*/32" is visible with command "ip a s hosta_nic"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
 
 
     @libreswan_ikev2_ipv4_rsa
     Scenario: libreswan - ikev2 - ipv4 - rsa
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "rsa" environment
     * Note the output of "echo $HOSTA_RSA_KEY" as value "hosta_rsa"
     * Note the output of "echo $HOSTB_RSA_KEY" as value "hostb_rsa"
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'ikev2 = insist, left = 192.0.2.249, leftid = hosta-rsa.example.org, leftrsasigkey = <noted:hosta_rsa>, right = 192.0.2.154, rightid = hostb-rsa.example.org, rightrsasigkey = <noted:hostb_rsa>'
+      vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, leftrsasigkey = <noted:CLI_RSA>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, rightrsasigkey = <noted:SRV_RSA>'
       """
     * Bring "up" connection "libreswan"
-    Then "203.0.113.[^\n]*/32" is visible with command "ip a s hosta_nic"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.154" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.249 dst 192.0.2.154" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
 
 
-    @libreswan_ikev2_ipv4_leftcert_var2
+    @libreswan_ikev2_ipv4_leftcert
     Scenario: libreswan - ikev2 - ipv4 - certs
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "cert" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = %fromcert'
+      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, salifetime = 24h'
       """
     * Bring "up" connection "libreswan"
-    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
+
+
+    @libreswan_ikev2_ipv4_leftcert_var2
+    Scenario: libreswan - ikev2 - ipv4 - certs
+    * Prepare nmstate libreswan server for "cert" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = %fromcert'
+      """
+    * Bring "up" connection "libreswan"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
 
 
     @fedoraver+=40
     @libreswan_ikev2_interface
     Scenario: libreswan - ikev2 - ipv4 - interface
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "psk" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'authby = secret, ikev2 = insist, ipsec-interface = 9, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
-      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      vpn.data 'authby = secret, ikev2 = insist, ipsec-interface = 9, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
+      vpn.secrets 'pskvalue = <noted:PSK>'
       """
     * Execute "nmcli con show libreswan --show-secrets"
     * Bring "up" connection "libreswan"
-    Then "203.0.113.[^\n]*/32" is visible with command "ip a s ipsec9"
+    Then "10.0.1.[^\n]*/32" is visible with command "ip a s ipsec9"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show ipsec9"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show ipsec9"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
 
 
     @fedoraver+=40
     @libreswan_ikev2_dpd_interface
     Scenario: libreswan - ikev2 - dpd
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "psk" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'authby = secret, dpdaction = restart, dpddelay = 1, dpdtimeout = 60, ikev2 = insist, ipsec-interface = 10, left = 192.0.2.250, leftid = hosta-psk.example.org, right = 192.0.2.153, rightid = hostb-psk.example.org'
-      vpn.secrets 'pskvalue = JjyNzrnHTnMqzloKaMuq2uCfJvSSUqTYdAXqD2U2OCFyVIJUUEHmXihBbPrUcmik'
+      vpn.data 'authby = secret, dpdaction = restart, dpddelay = 1, dpdtimeout = 60, ikev2 = insist, ipsec-interface = 10, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
+      vpn.secrets 'pskvalue = <noted:PSK>'
       """
     * Wait for "1" seconds
     * Bring "up" connection "libreswan"
-    Then "203.0.113.[^\n]*/32" is visible with command "ip a s ipsec10"
+    Then "10.0.1.[^\n]*/32" is visible with command "ip a s ipsec10"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.[^\n]*/32" is visible with command "nmcli d show ipsec10"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.153" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.250 dst 192.0.2.153" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show ipsec10"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
 
 
     @fedoraver+=41
@@ -574,58 +579,40 @@
     @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_p2p_cert
     Scenario: libreswan - ikev2 - p2p
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "p2p" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'ikev2 = insist, left = 192.0.2.248, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, right = 192.0.2.155, rightid = hostb.example.org, rightsubnet = 192.0.2.155/32'
+      vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, rightsubnet = <noted:SRV_ADDR_V4>/32'
       """
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.155" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.248 dst 192.0.2.155" is visible with command "ip xfrm state"
-
-
-    @fedoraver+=41
-    @rhelver-10
-    @ver+=1.46
-    @ver/rhel/9/2+=1.42.2.24
-    @libreswan_ikev2_ipv4_leftsubnet
-    Scenario: libreswan - ikev2 - leftsubnet
-    * Prepare nmstate libreswan environment
-    * Add "vpn" connection named "libreswan" for device "\*" with options
-      """
-      autoconnect no
-      vpn-type libreswan
-      vpn.data 'ikev2 = insist, left = 192.0.2.246, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, leftsubnet = 192.0.4.0/24, right = 192.0.2.157, rightid = hostb.example.org, rightsubnet = 192.0.3.0/24'
-      """
-    * Bring "up" connection "libreswan"
-    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.157" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "192.0.2.1/32 dst 192.0.2.2/32" is visible with command "ip xfrm policy"
+    Then "192.0.2.2/32 dst 192.0.2.1/32" is visible with command "ip xfrm policy"
 
 
     @RHEL-70164
     @fedoraver+=41
-    @rhelver+=10
-    # Delete this once 70164 is fixed together with rhelver-10 in test above
+    @ver+=1.46
+    @ver/rhel/9/2+=1.42.2.24
     @libreswan_ikev2_ipv4_leftsubnet
     Scenario: libreswan - ikev2 - leftsubnet
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "site_site" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'ikev2 = insist, left = 192.0.2.246, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, leftsubnet = 192.0.4.0/24, right = 192.0.2.157, rightid = hostb.example.org, rightsubnet = 192.0.3.0/24'
+      vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftmodecfgclient = no, leftsubnet = <noted:CLI_SUBNET_V4>, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V4>'
       """
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.157" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.246 dst 192.0.2.157" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 10.0.9.0/24 dst 10.0.0.0/24.*src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm policy"
+    Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
     @fedoraver+=41
@@ -633,18 +620,19 @@
     @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_cert
     Scenario: libreswan - ikev2 - ipv6 - p2p
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "p2p" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = 2001:db8:f::a, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, right = 2001:db8:f::b, rightid = hostb.example.org, rightsubnet = 2001:db8:f::b/128'
+      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftcert = <noted:CLI_KEY_ID>, leftid = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V6>, rightid = <noted:SRV_KEY_ID>, rightsubnet = <noted:SRV_ADDR_V6>/128'
       """
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP6.ADDRESS[^\n]*2001:db8:f::a/64" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*2001:db8:f::b" is visible with command "nmcli c show libreswan"
-    Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
+    Then "IP6.ADDRESS[^\n]*2001:db8:a::2/64" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*2001:db8:a::1" is visible with command "nmcli c show libreswan"
+    Then "src 2001:db8:a::2/128 dst 2001:db8:a::1/128.*2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+    Then "src 2001:db8:a::1/128 dst 2001:db8:a::2/128.*2001:db8:a::1 dst 2001:db8:a::2" is visible with command "ip xfrm policy"
 
 
     @fedoraver+=41
@@ -652,18 +640,19 @@
     @ver/rhel/9/4+=1.46.0.10
     @libreswan_ikev2_ipv6_p2p_client_server
     Scenario: libreswan - ikev2 - ipv6 - client - server
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "host_site" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = 2001:db8:f::a, leftcert = hosta.example.org, leftid = hosta.example.org, leftmodecfgclient = no, right = 2001:db8:f::b, rightid = hostb.example.org, rightsubnet = 2001:db8:f::b/128'
+      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftid = %fromcert, leftcert = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V6>'
       """
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP6.ADDRESS[^\n]*2001:db8:f::a/64" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*2001:db8:f::b" is visible with command "nmcli c show libreswan"
-    Then "src 2001:db8:f::a dst 2001:db8:f::b" is visible with command "ip xfrm state"
+    Then "IP6.ADDRESS[^\n]*2001:db8:a::2/64" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*2001:db8:a::1" is visible with command "nmcli c show libreswan"
+    Then "src 2001:db8:a::2/128 dst fd00:a::/64.*2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+    Then "src fd00:a::/64 dst 2001:db8:a::2/128.*2001:db8:a::1 dst 2001:db8:a::2" is visible with command "ip xfrm policy"
 
 
     @RHEL-58040
@@ -677,21 +666,22 @@
       | 1.2.22-2.el9  | rhel9.6 |
       | 1.2.22-2.el9  | c9s     |
       | 1.2.22-3.el10 | rhel10  |
-    * Prepare nmstate libreswan environment
+    * Prepare nmstate libreswan server for "cert" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = 192.0.2.251, leftcert = hosta.example.org, leftid = %fromcert, right = 192.0.2.152, rightid = hostb.example.org, salifetime = 24h, require-id-on-certificate = yes'
+      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, salifetime = 24h, require-id-on-certificate = yes'
       """
     * Bring "up" connection "libreswan"
-    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli c show libreswan"
-    Then "IP4.ADDRESS[^\n]*203.0.113.2/32" is visible with command "nmcli d show hosta_nic"
-    Then "IP4.ADDRESS[^\n]*192.0.2.251/24" is visible with command "nmcli d show hosta_nic"
-    Then "VPN.GATEWAY:[^\n]*192.0.2.152" is visible with command "nmcli c show libreswan"
-    Then "src 192.0.2.251 dst 192.0.2.152" is visible with command "ip xfrm state"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
     # Re-up doesn't work with VPN
     * Bring "down" connection "libreswan"
     * Modify connection "libreswan" changing options "+vpn.data 'rightid = hostc.example.com'"
@@ -700,7 +690,7 @@
     * Execute "nmcli con down id libreswan 2>&1 || true"
     * Modify connection "libreswan" changing options "+vpn.data 'require-id-on-certificate = no'"
     * Bring "up" connection "libreswan"
-    Then "203.0.113.2/32" is visible with command "ip a s hosta_nic"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
 
 
