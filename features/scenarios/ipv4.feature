@@ -4132,7 +4132,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.51.6
+    @ver+=1.53.2.2
     @ipv4_forwarding_with_sysctl_default_forwarding_disabled
     Scenario: NM - ipv4 - Configure IPv4 forwarding with sysctl default forwarding disabled
     * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
@@ -4171,7 +4171,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.51.6
+    @ver+=1.53.2.2
     @ipv4_forwarding_with_sysctl_default_forwarding_enabled
     Scenario: NM - ipv4 - Configure IPv4 forwarding with sysctl default forwarding enabled
     * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
@@ -4210,7 +4210,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.51.6
+    @ver+=1.53.2.2
     @ipv4_shared_connection_with_sysctl_default_forwarding_disabled
     Scenario: NM - ipv4 - Configure IPv4 shared connection with sysctl default forwarding enabled
     * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
@@ -4252,7 +4252,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.51.6
+    @ver+=1.53.2.2
     @ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled
     Scenario: NM - ipv4 - Configure multiple IPv4 shared connections with sysctl default forwarding disabled
     * Set sysctl "net.ipv4.conf.default.forwarding" to "0"
@@ -4304,7 +4304,7 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.51.6
+    @ver+=1.53.2.2
     @ipv4_shared_connection_with_forwarding_ignore
     Scenario: NM - ipv4 - Configure IPv4 shared connection with forwarding ignore
     * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
