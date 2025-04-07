@@ -2757,15 +2757,15 @@
     * Execute "ip link set v2 up"
     * Execute "ip -n ns1 link set v1p up"
     * Execute "ip -n ns1 link set v2p up"
-    * Execute "ip -n ns1 addr add dev v1p 2000:1::100/24"
-    * Execute "ip -n ns1 addr add dev v2p 2000:2::100/24"
+    * Execute "ip -n ns1 addr add dev v1p 2000:1::100/64"
+    * Execute "ip -n ns1 addr add dev v2p 2000:2::100/64"
     * Commentary
     """
     IPv6 DAD is the default and can not be configured.
     """
     * Add "ethernet" connection named "v1" for device "v1" with options
       """
-      ip6 2000:1::1/24
+      ip6 2000:1::1/64
       ipv4.method disabled
       connection.mptcp-flags also-without-default-route,subflow
       connection.zone trusted
@@ -2773,7 +2773,7 @@
       """
     * Add "ethernet" connection named "v2" for device "v2" with options
       """
-      ip6 2000:2::1/24
+      ip6 2000:2::1/64
       ipv6.routes "2000::/8 2000:2::100"
       ipv4.method disabled
       connection.mptcp-flags also-without-default-route,subflow
