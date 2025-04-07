@@ -4,10 +4,15 @@ install_el9_packages () {
         [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     fi
 
+    # install python3.11
+    PKGS_INSTALL="$PKGS_INSTALL python3.11 python3.11-pip python3.11-devel"
+
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
-        ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate
+        python3.11-pyyaml systemd-devel cairo-devel cairo-gobject-devel gobject-introspection-devel
+        dbus-devel ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate \
         python3-pyyaml rpm-build sos systemd-resolved wireguard-tools dnsconfd tmt"
+
 
     # Install non distro deps
     PKGS_INSTALL="$PKGS_INSTALL \
@@ -119,8 +124,15 @@ install_el9_packages () {
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
+    # Copy libnmstate from python3.9 to python3.11
+    cp -r /usr/lib/python3.9/site-packages/libnmstate /usr/lib/python3.11/site-packages/
+
     # Aditional PIP packages
-    python3l -m pip install netaddr
+    python3l -m pip install netaddr==0.10.1
+    python3l -m pip install pycairo==0.16.3
+    python3l -m pip install pygobject==3.40.0
+    python3l -m pip install systemd==0.17.1
+    python3l -m pip install dbus-python==1.3.2
 
     # Disable mac radnomization
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/
