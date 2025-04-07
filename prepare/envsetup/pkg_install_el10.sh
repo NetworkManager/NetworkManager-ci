@@ -5,7 +5,8 @@ install_el10_packages () {
     fi
 
     # Epel release is a bit crippled in 10.1, let's remove minor versions
-    if grep -q "VERSION_ID=\"10.1\"" /etc/os-release; then
+    # Seems to be the case also for RHEL10.0 now
+    if grep -q 'release 10' /etc/redhat-release; then
         sed -i 's/\${releasever_minor:+\.\$releasever_minor}//g' /etc/yum.repos.d/epel*
     fi
 
@@ -25,7 +26,7 @@ install_el10_packages () {
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager file initscripts perl-IO-Tty python3-libnmstate python3-pyyaml \
-        rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon dnsconfd"
+        rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon dnsconfd "
 
     # Install non distro deps
     # TODO install from epel once epel-10 is live
