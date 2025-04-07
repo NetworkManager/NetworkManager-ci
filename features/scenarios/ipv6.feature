@@ -2045,7 +2045,7 @@
 
 
      @rhbz1755467
-     @ver+=1.22
+     @ver+=1.22 @ver-1.53.2
      @internal_DHCP @dhcpd @rhelver+=8 @fedoraver-=35
      @ipv6_prefix_delegation_internal
      Scenario: nmcli - ipv6 - prefix delegation
@@ -2077,6 +2077,54 @@
      Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "20" seconds
      And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
      And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+
+
+    @RHEL-85765
+    @ver+=1.53.2.2
+    @internal_DHCP @dhcpd @rhelver+=8
+    @ipv6_prefix_delegation_internal
+    Scenario: nmcli - ipv6 - prefix delegation
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+    * Prepare simulated test "testY6" device without DHCP
+    * Prepare simulated test "testZ6" device without DHCP
+    * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+        """
+        ipv4.method disabled
+        ipv6.method auto
+        ipv6.route-metric 50
+        autoconnect no
+        """
+    * Bring "up" connection "con_ipv6"
+    When "inet6 fc01:" is visible with command "ip a show dev testX6" in "5" seconds
+    * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+        """
+        ipv4.method disabled
+        ipv6.method shared
+        autoconnect no
+        prefix-delegation.subnet-id 0x22
+        """
+    * Bring "up" connection "con_ipv62"
+    * Add "ethernet" connection named "con_ipv63" for device "testZ6" with options
+        """
+        ipv4.method disabled
+        ipv6.method shared
+        autoconnect no
+        prefix-delegation.subnet-id 0x33
+        """
+    * Bring "up" connection "con_ipv63"
+    When "iaaddr" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+    When "iaprefix" is visible with command "cat /tmp/ip6leases.conf" in "10" seconds
+    * Note the output of "ip -6 addr show dev testX6 scope link | awk '/inet6/ {print $2}' | cut -d/ -f1" as value "addr"
+    * Execute "echo <noted:addr>"
+    * Execute "ip netns exec testX6_ns ip route add fc01:bbbb:2::/32 via <noted:addr> dev testX6p"
+    #Then Finish "ip netns exec testY6_ns rdisc -d -v"
+    Then "inet6 fc01:bbbb:2:22:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns a show dev testY6p" in "20" seconds
+    Then "inet6 fc01:bbbb:2:33:[a-f0-9:]+/64" is visible with command "ip -n testZ6_ns a show dev testZ6p" in "20" seconds
+    And  "tentative" is not visible with command "ip -n testY6_ns a show dev testY6p" in "15" seconds
+    And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+    And  Execute "ip netns exec testZ6_ns ping -c2 fc01::1"
 
 
      @ver+=1.34
