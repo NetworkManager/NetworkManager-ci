@@ -2,6 +2,9 @@ install_common_packages () {
     # Set dnf to use ipv4 DNS only
     sed -i '/ip_resolve=/d' /etc/dnf/dnf.conf
     echo 'ip_resolve=4' >> /etc/dnf/dnf.conf
+    # Set DNF not to install weak deps
+    sed -i '/install_weak_deps=/d' /etc/dnf/dnf.conf
+    echo 'install_weak_deps=0' >> /etc/dnf/dnf.conf
 
     dnf=dnf
     grep -q ostree /proc/cmdline && dnf="dnf --transient"
