@@ -129,7 +129,7 @@ install_el9_packages () {
 
     # Aditional PIP packages
     python3l -m pip install netaddr==0.10.1
-    python3l -m pip install pycairo==0.16.3
+    python3l -m pip install pycairo==1.16.3
     python3l -m pip install pygobject==3.40.0
     python3l -m pip install systemd==0.17.1
     python3l -m pip install dbus-python==1.3.2
