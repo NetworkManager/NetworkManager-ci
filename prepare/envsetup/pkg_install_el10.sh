@@ -121,7 +121,7 @@ install_el10_packages () {
     modprobe sch_netem
 
     # Aditional PIP packages
-    python3l -m pip install netaddr tmt
+    python3l -m pip install netaddr
 
     # Disable mac radnomization
     test -d /etc/systemd/network/ || mkdir /etc/systemd/network/
