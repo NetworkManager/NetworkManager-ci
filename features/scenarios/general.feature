@@ -3960,3 +3960,54 @@ Feature: nmcli - general
     Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
     Then "match-device=interface-name:custom_run_3" is visible with command "NetworkManager --print-config"
     Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"
+
+    @RHEL-80273
+    @ver+=1.53.3
+    @nmcli_port_arguments_order
+    Scenario: nmcli - general - port related arguments order
+    * Commentary
+      """
+      This test case checks that specifying port-type, type or controller as last arguments in the
+      command line is interpreted correctly. Port connections has more restrictions than non-port ones,
+      like requiring a controller of the right type or not allowing IP configs.
+      We will check that they fail for the right reason.
+      """
+    * Cleanup connection "nm-test1"
+    * Cleanup connection "nm-test2"
+    * Cleanup connection "nm-test3"
+    * Cleanup connection "nm-test4"
+    * Add "bond" connection named "bond0" for device "nm-bond" 
+    Then "Warning: controller 'bond0' doesn't refer to any existing profile of type 'bridge'" is visible with command "nmcli connection add type ethernet ifname eth3 con-name nm-test1 controller bond0 port-type bridge" in "0" seconds
+     And "Warning: controller 'bond0' doesn't refer to any existing profile of type 'bridge'" is visible with command "nmcli connection add ifname eth4 con-name nm-test2 controller bond0 type bridge-slave" in "0" seconds
+     And "Error: invalid or not allowed setting 'ipv4'" is visible with command "nmcli connection add type ethernet ifname eth5 con-name nm-test3 ipv4.method disabled controller bond0 port-type bond" in "0" seconds
+    * Add "ovs-interface" connection ignoring warnings named "ovs-if-br-ex" for device "br-ex" with options "controller ovs-port-phys0 autoconnect no"
+    * Add "ovs-bridge" connection named "br-ex" for device "br-ex"
+    * Commentary
+      """
+      In OVS there might be duplicated device names. Matching the controller only by interface name
+      might choose the wrong controller. However, the type and port-type should restrict the type of the
+      controller to be chosen.
+      Important: we use `Execute` here to ensure that we are testing the order of the arguments
+      """
+    * Execute "nmcli connection add con-name nm-test4 ifname port1 controller br-ex autoconnect no type ovs-port port-type ovs-bridge"
+
+    @RHEL-80273
+    @ver+=1.53.3
+    @nmcli_port_type_guess
+    Scenario: nmcli - general - port-type guess
+    * Add "bond" connection named "bond0" for device "nm-bond"
+    * Add "ethernet" connection named "eth3" for device "eth3" with options "controller bond0"
+    Then "bond" is visible with command "nmcli -g connection.port-type connection show eth3" in "0" seconds
+    * Add "bridge" connection named "br0" for device "nm-bridge"
+    * Add "ethernet" connection named "eth4" for device "eth4" with options "controller br0"
+    Then "bridge" is visible with command "nmcli -g connection.port-type connection show eth4" in "0" seconds
+    * Commentary
+      """
+      In OVS there might be duplicated device names. Guessing the port-type by the controller's type only
+      is not possible, then. However, the connection's type enforces a specific port-type in this case:
+      i.e. ovs-port can only have port-type=ovs-bridge.
+      """
+    * Add "ovs-interface" connection ignoring warnings named "ovs-if-br-ex" for device "br-ex" with options "controller ovs-port-phys0 autoconnect no"
+    * Add "ovs-bridge" connection named "br-ex" for device "br-ex"
+    * Add "ovs-port" connection named "ovs-port-phys0" for device "port1" with options "controller br-ex autoconnect no"
+    Then "ovs-bridge" is visible with command "nmcli -g connection.port-type connection show ovs-port-phys0" in "0" seconds
