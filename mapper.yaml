@@ -3270,6 +3270,18 @@ testmapper:
         feature: nmtui_ipv6
     - nmtui_ipv6_addresses_can_add_after_removing_invalid:
         feature: nmtui_ipv6
+    - nmtui_loopback_modify_generated:
+        feature: nmtui_loopback
+    - nmtui_loopback_static_ipv4:
+        feature: nmtui_loopback
+    - nmtui_loopback_static_ipv6:
+        feature: nmtui_loopback
+    - nmtui_loopback_static_combined:
+        feature: nmtui_loopback
+    - nmtui_loopback_delete_connection_down:
+        feature: nmtui_loopback
+    - nmtui_loopback_set_mtu:
+        feature: nmtui_loopback
     - nmtui_vlan_add_default_connection:
         feature: nmtui_vlan
     - nmtui_vlan_set_device:
