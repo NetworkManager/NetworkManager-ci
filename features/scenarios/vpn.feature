@@ -258,6 +258,51 @@
      And "mtu 1300" is visible with command "ip address show dev nm-wireguard"
 
 
+    @RHEL-79975
+    @rhelver+=9
+    @ver+=1.53.2.2
+    @wireguard @firewall
+    @wireguard_allowedIP
+    Scenario: nmcli - docs - Configuring wireguard server & client with nmcli
+    * Add "wireguard" connection named "server-wg0" for device "wg0" with options "autoconnect no"
+    * Modify connection "server-wg0" changing options "ipv4.method manual ipv4.addresses 192.0.2.1/24"
+    * Modify connection "server-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::1/32"
+    * Modify connection "server-wg0" changing options "wireguard.private-key 'YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg='"
+    * Modify connection "server-wg0" changing options "wireguard.listen-port 51820"
+    * Execute "echo -e '[wireguard-peer.bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=]\nallowed-ips=192.0.2.2;::/0;' >> /etc/NetworkManager/system-connections/server-wg0.nmconnection"
+    * Reload connections
+    * Bring "up" connection "server-wg0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show server-wg0" in "40" seconds
+     Then "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=" is visible with command "wg show wg0"
+      And "inet 192.0.2.1/24 brd 192.0.2.255 scope global noprefixroute wg0" is visible with command "ip address show wg0"
+      And "inet6 2001:db8:1::1/32 scope global noprefixroute" is visible with command "ip address show wg0"
+     * Execute "firewall-cmd --permanent --add-port=51820/udp --zone=public"
+     * Execute "firewall-cmd --permanent --zone=public --add-masquerade"
+     * Execute "firewall-cmd --reload"
+     Then "51820/udp" is visible with command "firewall-cmd --list-all"
+    * Add "wireguard" connection named "client-wg0" for device "wg1" with options
+        """
+        autoconnect no
+        ipv4.method disabled
+        ipv6.method manual ipv6.addresses 2001:db8:1::2/32 ipv6.gateway 2001:db8:1::1
+        wireguard.private-key 'aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A='
+        """
+    * Execute "echo -e '[wireguard-peer.UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=]\nendpoint=2001:db8:1::1:51820\nallowed-ips=::/0;\npersistent-keepalive=20' >> /etc/NetworkManager/system-connections/client-wg0.nmconnection"
+    * Reload connections
+    * Bring "up" connection "client-wg0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show client-wg0" in "40" seconds
+    * Execute "ip -6 r"
+    * Execute "nft list ruleset"
+    And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
+    Then "meta l4proto udp meta mark set ct mark" is visible with command "nft list table ip6 nm-wg-wg0"
+    Then "meta l4proto udp meta mark set ct mark" is visible with command "nft list table ip6 nm-wg-wg1"
+    * Bring "down" connection "client-wg0"
+
+    Then "meta l4proto udp meta mark set ct mark" is not visible with command "nft list table ip6 nm-wg-wg1"
+    * Bring "down" connection "server-wg0"
+    Then "meta l4proto udp meta mark set ct mark" is not visible with command "nft list table ip6 nm-wg-wg0"
+
+
     @RHEL-70160 @RHEL-69901
     @ver+=1.16
     @rhelver+=9
