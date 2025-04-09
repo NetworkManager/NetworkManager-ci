@@ -61,6 +61,6 @@ fi
 \cp -f $SETUP_DIR/nmci.fmf $DNSCONFD_DIR/plans/
 
 pushd /tmp/dnsconfd
-tmt --feeling-safe --context=distro=$ID-$VERSION_ID --context trigger=CI run -vvv -a plan --name plans/nmci provision --how local
+python3l -m tmt --feeling-safe --context=distro=$ID-$VERSION_ID --context trigger=CI run -v -a plan --name plans/nmci provision --how local
 
 popd

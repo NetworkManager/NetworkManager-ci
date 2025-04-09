@@ -1282,6 +1282,8 @@ Feature: nmcli - dns
       """
       Run whole test suite reusing the NM packages from the host.
       All tests should pass in c9s, c10s, rhel9.7+ and rhel10.0+
+      See dnsconfd_summary bellow for logs and dnsconfd_full to
+      see full debug log.
       """
     * Execute "contrib/dnsconfd/test.sh &> /tmp/dnsconfd.txt </dev/null"
 

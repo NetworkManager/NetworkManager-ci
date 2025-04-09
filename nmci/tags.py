@@ -770,7 +770,12 @@ _register_tag("dns_dnsconfd", dns_dnsconfd_bs, dns_dnsconfd_as)
 
 
 def attach_dnsconfd_log_as(context, scenario):
-    nmci.embed.embed_file_if_exists("DNSCONFD", "/tmp/dnsconfd.txt")
+    context.process.run_stdout(
+        "cp $(ls /var/tmp/tmt/run-*/log.txt |tail -n 1) /tmp/dnsconfd_debug.log",
+        shell=True,
+    )
+    nmci.embed.embed_file_if_exists("dnsconfd_summary", "/tmp/dnsconfd.txt")
+    nmci.embed.embed_file_if_exists("dnsconfd_full", "/tmp/dnsconfd_debug.log")
 
 
 _register_tag("attach_dnsconfd_log", None, attach_dnsconfd_log_as)
