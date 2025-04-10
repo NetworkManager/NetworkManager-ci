@@ -1502,6 +1502,9 @@ testmapper:
     - cloud_oci_basic_vm:
         feature: cloud
         tags: gate
+    - cloud_oci_vm_vnic:
+        feature: cloud
+        tags: gate
     - cloud_oci_basic_baremetal:
         feature: cloud
     - cloud_oci_baremetal_with_vlan:

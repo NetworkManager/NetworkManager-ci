@@ -177,6 +177,22 @@ Feature: nmcli: cloud
      And "Exactly" "1" lines are visible with command "ip -br link show type vlan"
 
 
+    @ver+=1.53.2.2
+    @cloud_oci_vm_vnic
+    Scenario: cloud - OCI - Apply config also on non DHCP device in VMs
+    * Start test-cloud-meta-mock.py
+    * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
+    * Prepare simulated test "testX2" device without DHCP
+    * Add "ethernet" connection named "conX1" for device "testX1"
+    * Add "ethernet" connection named "conX2" for device "testX2"
+    * Mock OCI (VM) device "0" with MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
+    * Mock OCI (VM) device "1" with MAC "CC:00:00:00:00:02", IP "172.31.186.249", subnet "172.31.16.0/20" and gateway "172.31.186.1"
+    * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
+    * Execute nm-cloud-setup for "oci" with mapped interfaces "testX1=CC:00:00:00:00:01;testX2=CC:00:00:00:00:02"
+    Then Check "ipv4" address list "192.168.101.11/24 172.31.176.249/20" on device "testX1" in "5" seconds
+    Then Check "ipv4" address list "172.31.186.249/20" on device "testX2" in "5" seconds
+
+
     @rhbz2214880
     @ver+=1.43.10
     @skip_in_centos
