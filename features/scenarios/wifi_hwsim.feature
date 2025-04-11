@@ -45,9 +45,9 @@ Feature: nmcli - wifi
             802-11-wireless-security.key-mgmt ieee8021x
             802-1x.eap tls
             802-1x.identity test
-            802-1x.ca-cert /tmp/certs/test_user.ca.pem
-            802-1x.client-cert /tmp/certs/test_user.cert.pem
-            802-1x.private-key /tmp/certs/test_user.key.enc.pem
+            802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+            802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+            802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
             802-1x.private-key-password redhat
             """"
     * Wait for "1" seconds
@@ -67,7 +67,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity TESTERS\\test_mschapv2
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap mschapv2
           802-1x.password password
           """
@@ -88,7 +88,7 @@ Feature: nmcli - wifi
           802-1x.eap peap
           802-1x.identity test_gtc
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth gtc
           802-1x.password password
           """
@@ -184,7 +184,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11 - saved PIN
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password 1234"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
@@ -195,7 +195,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient'"
     * Wait for "3" seconds
     * Execute "nmcli con up wifi passwd-file /tmp/pkcs11_passwd-file"
     Then "wlan0:connected:wifi" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
@@ -207,7 +207,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS - PKCS#11
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient' 802-1x.private-key-password-flags 2"
     * Wait for "3" seconds
     * Spawn "nmcli -a con up wifi" command
     * Expect "802-1x.identity"
@@ -225,7 +225,7 @@ Feature: nmcli - wifi
     # these settings are hacky and may stop working when this is resolved: https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/792
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234' 802-1x.private-key-password-flags 4"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert 'pkcs11:token=nmci;object=nmclient' 802-1x.client-cert-password-flags 4 802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234' 802-1x.private-key-password-flags 4"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
@@ -236,7 +236,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
@@ -247,7 +247,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS - bad private key password
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat123456"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem 802-1x.private-key-password redhat123456"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi" ignoring error
      And "GENERAL.STATE:activated" is not visible with command "nmcli -f GENERAL.STATE -t connection show id wifi"
@@ -260,7 +260,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS - no private key password
     Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
-    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.pem 802-1x.private-key-password-flags 4"
+    * Execute "nmcli con modify wifi 802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.pem 802-1x.private-key-password-flags 4"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 
@@ -278,7 +278,7 @@ Feature: nmcli - wifi
           802-1x.eap peap
           802-1x.identity test_gtc
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth gtc
           802-1x.password password
           """
@@ -299,7 +299,7 @@ Feature: nmcli - wifi
           802-1x.eap peap
           802-1x.identity test_md5
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth md5
           802-1x.password password
           """
@@ -320,7 +320,7 @@ Feature: nmcli - wifi
           802-1x.eap peap
           802-1x.identity TESTERS\\test_mschapv2
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
@@ -341,7 +341,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth pap
           802-1x.password password
           """
@@ -362,7 +362,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth chap
           802-1x.password password
           """
@@ -383,7 +383,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschap
           802-1x.password password
           """
@@ -404,7 +404,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
@@ -425,7 +425,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity TESTERS\\test_mschapv2
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap mschapv2
           802-1x.password password
           """
@@ -446,7 +446,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_md5
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap md5
           802-1x.password password
           """
@@ -467,7 +467,7 @@ Feature: nmcli - wifi
           802-1x.eap ttls
           802-1x.identity test_gtc
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap gtc
           802-1x.password password
           """
@@ -632,7 +632,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - simwifi - connect to TLS
     Given "wpa3-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-eap"
-    * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap-suite-b-192 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /tmp/certs/test_user.ca.pem 802-1x.client-cert /tmp/certs/test_user.cert.pem 802-1x.private-key /tmp/certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
+    * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap-suite-b-192 802-1x.eap tls 802-1x.identity test 802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem 802-1x.private-key-password redhat"
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
 

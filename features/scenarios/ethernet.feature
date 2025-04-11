@@ -412,7 +412,7 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
           802-1x.client-cert-password-flags 4
           802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
@@ -432,7 +432,7 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
           802-1x.client-cert-password-flags 4
           802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
@@ -452,7 +452,7 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
           802-1x.client-cert-password-flags 4
           802-1x.private-key 'pkcs11:token=nmci;object=nmclient'
@@ -478,7 +478,7 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.client-cert 'pkcs11:token=nmci;object=nmclient'
           802-1x.client-cert-password-flags 4
           802-1x.private-key 'pkcs11:token=nmci;object=nmclient?pin-value=1234'
@@ -513,9 +513,9 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
-          802-1x.client-cert /tmp/certs/test_user.cert.pem
-          802-1x.private-key /tmp/certs/test_user.key.enc.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
           802-1x.private-key-password redhat
           """
     Then Bring "up" connection "con_ethernet"
@@ -532,9 +532,9 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
-          802-1x.client-cert /tmp/certs/test_user.cert.pem
-          802-1x.private-key /tmp/certs/test_user.key.enc.aes256.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.aes256.pem
           802-1x.private-key-password redhat
           """
     Then Bring "up" connection "con_ethernet"
@@ -550,9 +550,9 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
-          802-1x.client-cert /tmp/certs/test_user.cert.pem
-          802-1x.private-key /tmp/certs/test_user.key.enc.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
           802-1x.private-key-password redhat12345
           """
     Then Bring "up" connection "con_ethernet" ignoring error
@@ -570,9 +570,9 @@ Feature: nmcli - ethernet
           autoconnect no
           802-1x.eap tls
           802-1x.identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
-          802-1x.client-cert /tmp/certs/test_user.cert.pem
-          802-1x.private-key /tmp/certs/test_user.key.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.pem
           802-1x.private-key-password-flags 4
           """
     Then Bring "up" connection "con_ethernet"
@@ -588,9 +588,9 @@ Feature: nmcli - ethernet
            autoconnect no
            802-1x.eap tls
            802-1x.identity test
-           802-1x.ca-cert /tmp/certs/test_user.ca.pem
-           802-1x.client-cert /tmp/certs/test_user.cert.pem
-           802-1x.private-key /tmp/certs/test_user.key.enc.pem
+           802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+           802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+           802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
            802-1x.private-key-password-flags 4
            """
     Then "Secrets were required, but not provided" is visible with command "nmcli con up con_ethernet" in "30" seconds
@@ -608,8 +608,8 @@ Feature: nmcli - ethernet
            autoconnect no
            802-1x.eap tls
            802-1x.identity test
-           802-1x.ca-cert /tmp/certs/test_user.ca.pem
-           802-1x.private-key /tmp/certs/test_user.p12
+           802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+           802-1x.private-key /etc/pki/nm-ci-certs/test_user.p12
            802-1x.private-key-password redhat
            """
      Then Bring "up" connection "con_ethernet"
@@ -629,7 +629,7 @@ Feature: nmcli - ethernet
           802-1x.eap peap
           802-1x.identity test_md5
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth md5
           802-1x.password password
           """
@@ -647,7 +647,7 @@ Feature: nmcli - ethernet
           802-1x.eap peap
           802-1x.identity TESTERS\\test_mschapv2
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
@@ -665,7 +665,7 @@ Feature: nmcli - ethernet
           802-1x.eap peap
           802-1x.identity test_gtc
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth gtc
           802-1x.password password
           """
@@ -683,7 +683,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth pap
           802-1x.password password
           """
@@ -701,7 +701,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth chap
           802-1x.password password
           """
@@ -719,7 +719,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschap
           802-1x.password password
           """
@@ -737,7 +737,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
@@ -755,7 +755,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity TESTERS\\test_mschapv2
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap mschapv2
           802-1x.password password
           """
@@ -773,7 +773,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_md5
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap md5
           802-1x.password password
           """
@@ -791,7 +791,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_gtc
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-autheap gtc
           802-1x.password password
           """
@@ -811,7 +811,7 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth chap
           802-1x.password password
           connection.auth-retries 1
@@ -845,7 +845,7 @@ Feature: nmcli - ethernet
     #   802-1x.eap ttls
     #   802-1x.identity test_ttls
     #   802-1x.anonymous-identity test
-    #   802-1x.ca-cert /tmp/certs/test_user.ca.pem
+    #   802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
     #   802-1x.phase2-auth chap
     #   802-1x.password password
     #   connection.auth-retries 5
@@ -937,9 +937,9 @@ Feature: nmcli - ethernet
     * Add "ethernet" connection named "con_ethernet" for device "\*" with options
           """
           802-1x.eap 'tls'
-          802-1x.client-cert /tmp/certs/test_user.ca.pem
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.private-key-password x
-          802-1x.private-key /tmp/certs/test_user.cert_and_enc_key.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.cert_and_enc_key.pem
           802-1x.password pass1
           """
     * Reload connections
@@ -971,11 +971,11 @@ Feature: nmcli - ethernet
           802-1x.eap ttls
           802-1x.identity test_ttls
           802-1x.anonymous-identity test
-          802-1x.ca-path /tmp/certs/
+          802-1x.ca-path /etc/pki/nm-ci-certs/
           802-1x.phase2-auth mschapv2
           802-1x.password password
           """
-    Then "/tmp/certs/" is visible with command "nmcli -t -f 802-1x.ca-path con show id con_ethernet"
+    Then "/etc/pki/nm-ci-certs/" is visible with command "nmcli -t -f 802-1x.ca-path con show id con_ethernet"
 
 
     @ver+=1.32.0
@@ -989,7 +989,7 @@ Feature: nmcli - ethernet
           802-1x.optional yes
           802-1x.identity test_md5
           802-1x.anonymous-identity test
-          802-1x.ca-cert /tmp/certs/test_user.ca.pem
+          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
           802-1x.phase2-auth md5
           802-1x.password password
           """
