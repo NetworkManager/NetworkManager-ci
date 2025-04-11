@@ -4,7 +4,7 @@ set +x
 HOSTAPD_CFG="/etc/hostapd/wireless.conf"
 EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
 HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
-CLIENT_KEYS_PATH="/tmp/certs"
+CLIENT_KEYS_PATH="/etc/pki/nm-ci-certs"
 
 function get_phy() {
     ifname=$1

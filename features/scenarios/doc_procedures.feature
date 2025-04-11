@@ -79,7 +79,7 @@ Feature: nmcli - procedures in documentation
     * Add "ethernet" connection named "con_ethernet" for device "test8X" with options "autoconnect no"
     * Modify connection "con_ethernet" changing options "802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
     * Modify connection "con_ethernet" changing options "802-1x.password password"
-    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /tmp/certs/test_user.ca.pem"
+    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
     Then Bring "up" connection "con_ethernet"
 
 
@@ -98,7 +98,7 @@ Feature: nmcli - procedures in documentation
     * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
     * Modify connection "wifi" changing options "802-11-wireless-security.key-mgmt wpa-eap 802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
     * Modify connection "wifi" changing options "802-1x.password password"
-    * Modify connection "wifi" changing options "802-1x.ca-cert /tmp/certs/test_user.ca.pem"
+    * Modify connection "wifi" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
     Then Bring "up" connection "wifi"
 
 
