@@ -985,6 +985,7 @@ class _IP:
         ifname,
         link_type,
         *args,
+        address=None,
         ifindex=None,
         namespace=None,
         parent_link=None,
@@ -1001,6 +1002,8 @@ class _IP:
         :type ifname: str
         :param link_type: interface type
         :type link_type: str
+        :param address: MAC address, defaults to None
+        :type address: str, optional
         :param ifindex: interface index, defaults to None
         :type ifindex: int or str, optional
         :param namespace: namespace, defaults to None
@@ -1021,10 +1024,11 @@ class _IP:
         if namespace is not None:
             ns_args = ["-n", namespace]
 
-        # index must be specified before type
-        index_args = []
+        common_args = []
         if ifindex is not None:
-            index_args = ["index", str(ifindex)]
+            common_args += ["index", str(ifindex)]
+        if address is not None:
+            common_args += ["address", address]
 
         parent_link_args = []
         if parent_link is not None:
@@ -1038,7 +1042,7 @@ class _IP:
                 "add",
                 *parent_link_args,
                 ifname,
-                *index_args,
+                *common_args,
                 "type",
                 link_type,
                 *merged_args,
