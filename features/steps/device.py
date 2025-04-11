@@ -885,10 +885,20 @@ def cleanup_connection(context, iface):
 @step(
     'Create "{typ}" device named "{name}" in namespace "{namespace}" with ifindex "{ifindex}" and options "{options}"'
 )
-def add_device(context, typ, name, namespace=None, ifindex=None, options=""):
+@step(
+    'Create "{typ}" device named "{name}" in namespace "{namespace}" with MAC address "{address}" and options "{options}"'
+)
+@step(
+    'Create "{typ}" device named "{name}" in namespace "{namespace}" with ifindex "{ifindex}" and MAC address "{address}" and options "{options}"'
+)
+def add_device(
+    context, typ, name, namespace=None, ifindex=None, address=None, options=""
+):
     nmci.cleanup.add_iface(name)
     if ifindex == "None":
         ifindex = None
+    if address == "None":
+        address = None
     if not ifindex:
         # Make sure the new device gets the hightest ifindex of all links.
         # This is what generally happens when adding a new link and some tests
@@ -914,6 +924,7 @@ def add_device(context, typ, name, namespace=None, ifindex=None, options=""):
         *shlex.split(options),
         namespace=namespace,
         ifindex=ifindex,
+        address=address,
         wait_for_device=5,
     )
 

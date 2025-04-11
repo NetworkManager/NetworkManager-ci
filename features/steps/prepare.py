@@ -331,6 +331,9 @@ def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None
     'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix'
 )
 @step(
+    'Prepare simulated test "{device}" device with MAC address "{address}" and "{ipv4}" ipv4 and "{ipv6}" ipv6 dhcp address prefix'
+)
+@step(
     'Prepare simulated test "{device}" device with "{ipv4}" ipv4 and daemon options "{daemon_options}"'
 )
 @step('Prepare simulated test "{device}" device with "{lease_time}" leasetime')
@@ -345,6 +348,7 @@ def prepare_simdev(
     ipv4=None,
     ipv6=None,
     ifindex=None,
+    address=None,
     option=None,
     daemon_options=None,
 ):
@@ -397,7 +401,7 @@ def prepare_simdev(
 
     nmci.ip.netns_add(f"{device}_ns")
     context.execute_steps(
-        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
+        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and MAC address "{address}" and options "peer name {device}p"'
     )
     context.command_code(
         "ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(
@@ -601,12 +605,15 @@ def prepare_simdev(context, device):
 
 
 @step('Prepare simulated test "{device}" device without DHCP')
-def prepare_simdev_no_dhcp(context, device):
+@step(
+    'Prepare simulated test "{device}" device with MAC address "{address}" and without DHCP'
+)
+def prepare_simdev_no_dhcp(context, device, address=None):
     nmci.veth.manage_device(device)
 
     nmci.ip.netns_add(f"{device}_ns")
     context.execute_steps(
-        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
+        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with MAC address "{address}" and options "peer name {device}p"'
     )
     nmci.ip.link_set(ifname=device, namespace=f"{device}_ns", netns=str(os.getpid()))
     # Fix potential race with indices in "iptunnel" prepare
