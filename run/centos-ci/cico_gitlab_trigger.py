@@ -121,7 +121,16 @@ class GitlabTrigger(object):
     def latest_main_commit(self):
         if self.gl_project is None:
             return None
-        branch = self.gl_project.branches.get("main")
+        branch = None
+        for _ in range(3):
+            try:
+                branch = self.gl_project.branches.get("main")
+                break
+            except:
+                time.sleep(1)
+        if branch is None:
+            print("Warning: unable to get main branch via GL API")
+            return None
         commit_id = branch.commit["id"]
         return commit_id
 
