@@ -184,7 +184,12 @@ Feature: nmcli: cloud
     * Prepare simulated test "testX1" device with MAC address "CC:00:00:00:00:01" and "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
     * Prepare simulated test "testX2" device with MAC address "CC:00:00:00:00:02" and without DHCP
     * Add "ethernet" connection named "conX1" for device "testX1"
-    * Add "ethernet" connection named "conX2" for device "testX2"
+    * Commentary
+        """
+        This step is removed as even disconnected device should connect.
+        * Add "ethernet" connection named "conX2" for device "testX2"
+
+        """
     * Mock OCI (VM) device "0" with MAC "CC:00:00:00:00:01", IP "172.31.176.249", subnet "172.31.16.0/20" and gateway "172.31.176.1"
     * Mock OCI (VM) device "1" with MAC "CC:00:00:00:00:02", IP "172.31.186.249", subnet "172.31.16.0/20" and gateway "172.31.186.1"
     * Check "ipv4" address list "192.168.101.11/24" on device "testX1" in "5" seconds
