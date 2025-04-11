@@ -646,7 +646,7 @@ class _Embed:
             important_avc = nmci.misc.search_str_re_list_any(
                 nmci.crash.NM_PKGS, avc_log
             )
-            assert not important_avc, "Found imporatnt AVC"
+            assert not important_avc, "Found important AVC"
 
     def embed_exception(self, caption=None):
         """Embed traceback of last exception. Should be used in `except` branch only.
