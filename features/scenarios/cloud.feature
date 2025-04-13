@@ -178,6 +178,7 @@ Feature: nmcli: cloud
 
 
     @ver+=1.53.2.2
+    @ver+=1.52.0.3
     @cloud_oci_vm_vnic
     Scenario: cloud - OCI - Apply config also on non DHCP device in VMs
     * Start test-cloud-meta-mock.py
