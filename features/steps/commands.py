@@ -316,6 +316,9 @@ def check_pattern_command(
     else:
         interval = 4
 
+    pattern = nmci.misc.str_replace_dict(pattern, getattr(context, "noted", {}))
+    command = nmci.misc.str_replace_dict(command, getattr(context, "noted", {}))
+
     while xtimeout.loop_sleep(interval):
         stdout = nmci.process.run_stdout(
             command,
