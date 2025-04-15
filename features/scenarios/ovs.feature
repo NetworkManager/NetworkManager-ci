@@ -1189,13 +1189,13 @@ Feature: nmcli - ovs
     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
           """
           conn.master port0
-          ovs-dpdk.devargs 0000:c3:06.0
+          ovs-dpdk.devargs <noted:sriov_dev1_id>
           """
     * Bring "up" connection "ovs-iface0"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
      And "Port port0" is visible with command "ovs-vsctl show"
-     And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?}" is visible with command "ovs-vsctl show"
+     And "Port port0\s+Interface\s+iface0\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev1_id>[\"]?}" is visible with command "ovs-vsctl show"
      And "rror" is not visible with command "ovs-vsctl show"
 
 
@@ -1217,13 +1217,13 @@ Feature: nmcli - ovs
     * Add "ovs-interface" connection named "ovs-iface0" for device "very_long_interface_name_123456" with options
           """
           conn.master port0
-          ovs-dpdk.devargs 0000:c3:06.0
+          ovs-dpdk.devargs <noted:sriov_dev1_id>
           """
     * Bring "up" connection "ovs-iface0"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge ovsbridge0" is visible with command "ovs-vsctl show"
      And "Port port0" is visible with command "ovs-vsctl show"
-     And "Port port0\s+Interface\s+very_long_interface_name_123456\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?}" is visible with command "ovs-vsctl show"
+     And "Port port0\s+Interface\s+very_long_interface_name_123456\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev1_id>[\"]?}" is visible with command "ovs-vsctl show"
      And "rror" is not visible with command "ovs-vsctl show"
 
 
@@ -1240,13 +1240,13 @@ Feature: nmcli - ovs
      * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
            """
            conn.master port0
-           ovs-dpdk.devargs 0000:c3:06.0
+           ovs-dpdk.devargs <noted:sriov_dev1_id>
            ovs-dpdk.n-rxq 2
            """
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
-     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?, n_rxq=[\"]?2[\"]?}" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev1_id>[\"]?, n_rxq=[\"]?2[\"]?}" is visible with command "ovs-vsctl show"
 
 
      @rhbz2156385
@@ -1263,7 +1263,7 @@ Feature: nmcli - ovs
      * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
            """
            conn.master port0
-           ovs-dpdk.devargs 0000:c3:06.0
+           ovs-dpdk.devargs <noted:sriov_dev1_id>
            ovs-dpdk.n-rxq 2
            ovs-dpdk.n-rxq-desc 128
            ovs-dpdk.n-txq-desc 256
@@ -1271,7 +1271,7 @@ Feature: nmcli - ovs
      Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
      And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
      And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
-     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?, n_rxq=[\"]?2[\"]?, n_rxq_desc=[\"]?128[\"]?, n_txq_desc=[\"]?256[\"]?}" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev1_id>[\"]?, n_rxq=[\"]?2[\"]?, n_rxq_desc=[\"]?128[\"]?, n_txq_desc=[\"]?256[\"]?}" is visible with command "ovs-vsctl show"
 
 
     @rhbz1676551 @rhbz1612503
@@ -1292,12 +1292,12 @@ Feature: nmcli - ovs
     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
           """
           conn.master port0
-          ovs-dpdk.devargs 0000:c3:06.0
+          ovs-dpdk.devargs <noted:sriov_dev1_id>
           """
     * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
           """
           conn.master bond0
-          ovs-dpdk.devargs 0000:c3:06.1
+          ovs-dpdk.devargs <noted:sriov_dev2_id>
           """
     * Add "dummy" connection named "ovs-dummy" for device "dummy0" with options "conn.master bond0 slave-type ovs-port"
     * Bring "up" connection "ovs-dummy"
@@ -1305,8 +1305,8 @@ Feature: nmcli - ovs
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
     And "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
     And "Port [\"]?port0[\"]?" is visible with command "ovs-vsctl show"
-    And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.0[\"]?}" is visible with command "ovs-vsctl show"
-    And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.1[\"]?}\s+Interface\s+[\"]?dummy0[\"]?\s+type: system|Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?dummy0[\"]?\s+type: system\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?0000:c3:06.1[\"]?}" is visible with command "ovs-vsctl show"
+    And "Port [\"]?port0[\"]?\s+Interface\s+[\"]?iface0[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev1_id>[\"]?}" is visible with command "ovs-vsctl show"
+    And "Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev2_id>[\"]?}\s+Interface\s+[\"]?dummy0[\"]?\s+type: system|Port [\"]?bond0[\"]?\s+tag: 120\s+Interface\s+[\"]?dummy0[\"]?\s+type: system\s+Interface\s+[\"]?iface1[\"]?\s+type: dpdk\s+options: {dpdk-devargs=[\"]?<noted:sriov_dev2_id>[\"]?}" is visible with command "ovs-vsctl show"
 
 
     @rhbz1804167
@@ -1594,14 +1594,14 @@ Feature: nmcli - ovs
     * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
           """
           conn.master bond0
-          ovs-dpdk.devargs 000:42:10.0
+          ovs-dpdk.devargs <noted:sriov_dev1_id>
           ovs-interface.type dpdk
           802-3-ethernet.mtu 9000
           """
     * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
           """
           conn.master bond0
-          ovs-dpdk.devargs 000:42:10.2
+          ovs-dpdk.devargs <noted_sriov_dev2_id>
           ovs-interface.type dpdk
           802-3-ethernet.mtu 9000
           """

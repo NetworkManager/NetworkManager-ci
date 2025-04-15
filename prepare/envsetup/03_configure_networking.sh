@@ -63,10 +63,9 @@ configure_networking () {
             device_names=$(nmcli device |grep ethernet | grep -oP '^\S+' | while read -r name; do \
                         ethtool -i "$name" 2>/dev/null | grep -q "$driver" && echo "$name"; \
                         done)
-            # In case of now used i40e driver we need second device
-            # as the first is used for machine connection only
+
             if [ "$driver" == "i40e" ]; then
-                device=$(echo $device_names | awk '{print $2}')
+                device=$(echo $device_names | awk '{print $1}')
             fi
             if [ "$driver" == "mlx5_core" ]; then
                 device=$(echo $device_names | awk '{print $1}')

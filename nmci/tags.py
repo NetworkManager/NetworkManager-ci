@@ -1944,6 +1944,7 @@ def dpdk_bs(context, scenario):
         context.process.run_stdout(
             "if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi",
             shell=True,
+            ignore_stderr=True,
             timeout=120,
         )
         context.process.run_stdout(
@@ -1969,18 +1970,27 @@ def dpdk_bs(context, scenario):
         time.sleep(2)
 
         # Moving those two VFs from device driver to vfio-pci driver
-        # In newer versions of dpdk-tools there are dpdk binaries with py in the end
+        # And save them to noted
+        dev1_id = context.process.run_stdout(
+            "dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |head -n 1",
+            shell=True,
+            ignore_stderr=True,
+        ).strip()
+        context.noted["sriov_dev1_id"] = dev1_id
+        dev2_id = context.process.run_stdout(
+            "dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |tail -n 1",
+            shell=True,
+            ignore_stderr=True,
+        ).strip()
+        context.noted["sriov_dev2_id"] = dev2_id
+
         context.process.run_stdout(
-            # Usable for ixgbe driver VFs
-            # "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b vfio-pci 0000:42:10.0",
-            "dpdk-devbind -b vfio-pci 0000:c3:06.0 || dpdk-devbind.py -b vfio-pci 0000:c3:06.0",
+            f"dpdk-devbind.py -b vfio-pci {dev1_id}",
             shell=True,
             ignore_stderr=True,
         )
         context.process.run_stdout(
-            # Usable for ixgbe driver VFs
-            # "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b vfio-pci 0000:42:10.2",
-            "dpdk-devbind -b vfio-pci 0000:c3:06.1 || dpdk-devbind.py -b vfio-pci 0000:c3:06.1",
+            f"dpdk-devbind.py -b vfio-pci {dev2_id}",
             shell=True,
             ignore_stderr=True,
         )
@@ -1992,6 +2002,20 @@ def dpdk_bs(context, scenario):
             assert False, "DPDK setup failed"
 
         nmci.util.file_set_content("/tmp/nm_dpdk_configured", "")
+    else:
+        # Just save device names to noted
+        dev1_id = context.process.run_stdout(
+            "dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |head -n 1",
+            shell=True,
+            ignore_stderr=True,
+        ).strip()
+        context.noted["sriov_dev1_id"] = dev1_id
+        dev2_id = context.process.run_stdout(
+            "dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |tail -n 1",
+            shell=True,
+            ignore_stderr=True,
+        ).strip()
+        context.noted["sriov_dev2_id"] = dev2_id
 
 
 _register_tag("dpdk", dpdk_bs, None)
@@ -2004,14 +2028,14 @@ def dpdk_remove_as(context, scenario):
         context.process.run_stdout(
             # Usable for ixgbe driver VFs
             # "dpdk-devbind -b vfio-pci 0000:42:10.0 || dpdk-devbind.py -b ixgbevf 0000:42:10.0",
-            "dpdk-devbind -b vfio-pci 0000:c3:06.0 || dpdk-devbind.py -b iavf 0000:c3:06.0",
+            "dpdk-devbind.py -b iavf $(dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |head -n 1)",
             shell=True,
             ignore_stderr=True,
         )
         context.process.run_stdout(
             # Usable for ixgbe driver VFs
             # "dpdk-devbind -b vfio-pci 0000:42:10.2 || dpdk-devbind.py -b ixgbevf 0000:42:10.2",
-            "dpdk-devbind -b vfio-pci 0000:c3:06.1 || dpdk-devbind.py -b iavf 0000:c3:06.1",
+            "dpdk-devbind.py -b iavf $(dpdk-devbind.py -s |grep 'Virtual Function' |awk '{print $1}' |head -n 1)",
             shell=True,
             ignore_stderr=True,
         )

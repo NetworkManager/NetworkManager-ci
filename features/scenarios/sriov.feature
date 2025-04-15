@@ -196,7 +196,7 @@
           ipv4.address 1.2.3.4/24
           autoconnect no
           """
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Bring "up" connection "sriov"
     Then "1" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
     And " connected" is visible with command "nmcli  device |grep eth0"
@@ -248,7 +248,7 @@
           autoconnect no
           """
     * Bring "up" connection "sriov_controller"
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov" for device "eth0" with options
           """
           ipv4.method manual
@@ -276,7 +276,7 @@
           autoconnect no
           """
     * Bring "up" connection "sriov_controller"
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov" for device "eth0" with options
           """
           ipv4.method manual
@@ -303,7 +303,7 @@
           autoconnect no
           """
     * Bring "up" connection "sriov_controller"
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -351,7 +351,7 @@
           sriov.vfs '0 mac=00:11:22:33:44:99 trust=true'
           sriov.total-vfs 1
           """
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -373,7 +373,7 @@
           sriov.vfs '0 mac=00:11:22:33:44:99 trust=false'
           sriov.total-vfs 1
           """
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -396,7 +396,7 @@
           sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=false'
           sriov.total-vfs 1
           """
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -416,7 +416,7 @@
           sriov.vfs '0 mac=00:11:22:33:44:55 spoof-check=true'
           sriov.total-vfs 1
           """
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -439,7 +439,7 @@
           autoconnect no
           """
     * Bring "up" connection "sriov_controller"
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "ethernet" connection named "sriov_port2" for device "eth0" with options
           """
           ipv4.method manual
@@ -465,7 +465,7 @@
           sriov.total-vfs 1
           """
     When "sriov_device\:ethernet\:connected\:sriov" is visible with command "nmcli -t device" in "15" seconds
-    When "eth0" is visible with command "nmcli dev" in "5" seconds
+    When "eth0" is visible with command "nmcli dev" in "60" seconds
     * Add "bond" connection named "sriov_bond0" for device "bond0" with options
           """
           ipv4.method manual
