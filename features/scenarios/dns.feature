@@ -1440,17 +1440,12 @@ Feature: nmcli - dns
     * Stop NM
     * Remove file "/etc/resolv.conf" if exists
     * Execute "echo 'nameserver 1.2.3.4' > /run/no-resolv.conf"
+    * Execute "chcon -t net_conf_t /run/no-resolv.conf || true"
     * Create symlink "/etc/resolv.conf" with destination "/run/no-resolv.conf"
     * Start NM
     * Wait for "2" seconds
     Then "/etc/resolv.conf" is symlink with destination "/run/no-resolv.conf"
     Then "nameserver 1.2.3.4" is visible with command "cat /run/no-resolv.conf"
-    * Commentary
-    """
-    AVC denial reported here:
-    https://issues.redhat.com/browse/RHEL-87537
-    """
-    Then Ignore possible AVC "NetworkManager.*no-resolv"
 
 
     @rhbz2134563
