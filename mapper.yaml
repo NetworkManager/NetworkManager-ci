@@ -3280,6 +3280,8 @@ testmapper:
         feature: nmtui_loopback
     - nmtui_loopback_delete_connection_down:
         feature: nmtui_loopback
+    - nmtui_loopback_delete_connection_up:
+        feature: nmtui_loopback
     - nmtui_loopback_set_mtu:
         feature: nmtui_loopback
     - nmtui_vlan_add_default_connection:
