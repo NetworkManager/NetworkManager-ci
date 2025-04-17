@@ -1601,7 +1601,7 @@ Feature: nmcli - ovs
     * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
           """
           conn.master bond0
-          ovs-dpdk.devargs <noted_sriov_dev2_id>
+	  ovs-dpdk.devargs <noted:sriov_dev2_id>
           ovs-interface.type dpdk
           802-3-ethernet.mtu 9000
           """
