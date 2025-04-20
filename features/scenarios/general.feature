@@ -1192,7 +1192,7 @@ Feature: nmcli - general
     @firewall @restart_if_needed
     @show_zones_after_firewalld_install
     Scenario: NM - general - show zones after firewall restart
-    * DNF "-y remove firewalld"
+    * DNF "-y remove --noautoremove firewalld"
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "eth8" with options "connection.zone work"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
