@@ -771,6 +771,7 @@ class _Util:
                 "nmcli -f ALL c",
                 "nmcli -f ALL d w l",
                 "cat /etc/resolv.conf",
+                "iptables-save",
             ]
             if (
                 nmci.process.systemctl(
