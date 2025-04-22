@@ -1958,6 +1958,74 @@ Feature: nmcli - ovs
      Then "lsc-interrupt" is not visible with command "ovs-vsctl show"
 
 
+    @RHEL-86877
+    @ver+=1.53.3
+    @openvswitch
+    @nmcli_reapply_openvswitch_configuration
+    Scenario: nmcli - openvswitch - reapply
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options "ovs-bridge.rstp-enable true"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
+          """
+          connection.controller ovsbridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          connection.controller port0
+          ipv4.method manual
+          ipv4.address 172.25.10.1/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+
+    Then "Bridge [\"]?ovsbridge0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?port0[\"]?\s+Interface [\"]?iface0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "^\[\]$" is visible with command "ovs-vsctl get Bridge ovsbridge0 fail_mode"
+     And "^false$" is visible with command "ovs-vsctl get Bridge ovsbridge0 mcast_snooping_enable"
+     And "^true$" is visible with command "ovs-vsctl get Bridge ovsbridge0 rstp_enable"
+     And "^false$" is visible with command "ovs-vsctl get Bridge ovsbridge0 stp_enable"
+
+    * Execute "nmcli device modify ovsbridge0 ovs-bridge.fail-mode standalone ovs-bridge.rstp-enable false ovs-bridge.mcast-snooping-enable true ovs-bridge.stp-enable true"
+     Then "^standalone$" is visible with command "ovs-vsctl get Bridge ovsbridge0 fail_mode"
+      And "^true$" is visible with command "ovs-vsctl get Bridge ovsbridge0 mcast_snooping_enable"
+      And "^false$" is visible with command "ovs-vsctl get Bridge ovsbridge0 rstp_enable"
+      And "^true$" is visible with command "ovs-vsctl get Bridge ovsbridge0 stp_enable"
+
+    * Execute "nmcli device modify ovsbridge0 ovs-bridge.fail-mode "" ovs-bridge.rstp-enable true ovs-bridge.mcast-snooping-enable false ovs-bridge.stp-enable false"
+     Then "^\[\]$" is visible with command "ovs-vsctl get Bridge ovsbridge0 fail_mode"
+      And "^false$" is visible with command "ovs-vsctl get Bridge ovsbridge0 mcast_snooping_enable"
+      And "^true$" is visible with command "ovs-vsctl get Bridge ovsbridge0 rstp_enable"
+      And "^false$" is visible with command "ovs-vsctl get Bridge ovsbridge0 stp_enable"
+
+     Then "^\[\]$" is visible with command "ovs-vsctl get Port port0 tag"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 vlan_mode"
+     And "^0$" is visible with command "ovs-vsctl get Port port0 bond_updelay"
+     And "^0$" is visible with command "ovs-vsctl get Port port0 bond_downdelay"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 lacp"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 bond_mode"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 trunks"
+
+    * Execute "nmcli device modify port0 ovs-port.tag 10 ovs-port.vlan-mode access ovs-port.bond-updelay 100 ovs-port.bond-downdelay 200"
+    * Execute "nmcli device modify port0 ovs-port.lacp active ovs-port.bond-mode active-backup ovs-port.trunks 1-5"
+
+     Then "^10$" is visible with command "ovs-vsctl get Port port0 tag"
+     And "^access$" is visible with command "ovs-vsctl get Port port0 vlan_mode"
+     And "^100$" is visible with command "ovs-vsctl get Port port0 bond_updelay"
+     And "^200$" is visible with command "ovs-vsctl get Port port0 bond_downdelay"
+     And "^active$" is visible with command "ovs-vsctl get Port port0 lacp"
+     And "^active-backup$" is visible with command "ovs-vsctl get Port port0 bond_mode"
+     And "^\[1, 2, 3, 4, 5\]$" is visible with command "ovs-vsctl get Port port0 trunks"
+
+    * Execute "nmcli device modify port0 ovs-port.tag 0 ovs-port.vlan-mode "" ovs-port.bond-updelay 0 ovs-port.bond-downdelay 0"
+    * Execute "nmcli device modify port0 ovs-port.lacp "" ovs-port.bond-mode "" ovs-port.trunks "" "
+
+     Then "^\[\]$" is visible with command "ovs-vsctl get Port port0 tag"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 vlan_mode"
+     And "^0$" is visible with command "ovs-vsctl get Port port0 bond_updelay"
+     And "^0$" is visible with command "ovs-vsctl get Port port0 bond_downdelay"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 lacp"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 bond_mode"
+     And "^\[\]$" is visible with command "ovs-vsctl get Port port0 trunks"
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup
