@@ -5,7 +5,7 @@ Feature: Loopback TUI tests
   * Prepare virtual terminal environment
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_modify_generated
     Scenario: nmtui - loopback - modify generated connection
     * Cleanup connection "lo"
@@ -22,7 +22,7 @@ Feature: Loopback TUI tests
     Then "lo\s+loopback\s+connected\s+lo" is visible with command "nmcli device"
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_static_ipv4
     Scenario: nmtui - loopback - create static IPv4 connection
     * Start nmtui
@@ -38,7 +38,7 @@ Feature: Loopback TUI tests
     Then "lo\s+loopback\s+connected\s+loopback1" is visible with command "nmcli device"
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_static_ipv6
     Scenario: nmtui - loopback - static IPv6 configuration
     * Prepare new connection of type "Loopback" named "lo2c"
@@ -50,7 +50,7 @@ Feature: Loopback TUI tests
     Then "inet6 2607:f0d0:1002:51::4/64" is visible with command "ip a s lo" in "10" seconds
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_static_combined
     Scenario: nmtui - loopback - static IPv4 and IPv6 combined
     * Prepare new connection of type "Loopback" named "lo3c"
@@ -66,7 +66,7 @@ Feature: Loopback TUI tests
     Then "lo\s+loopback\s+connected\s+lo3c" is visible with command "nmcli device"
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_delete_connection_down
     Scenario: nmtui - loopback - delete nonactive connection
     * Start nmtui
@@ -83,7 +83,7 @@ Feature: Loopback TUI tests
     Then "deleteme" is not visible with command "nmcli connection"
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_delete_connection_up
     Scenario: nmtui - loopback - delete active connection
     * Start nmtui
@@ -105,7 +105,7 @@ Feature: Loopback TUI tests
     Then "inet 192.168.1.10/24" is not visible with command "ip a s lo" in "10" seconds
 
 
-    @ver+=1.53.3
+    @ver+=1.53.4
     @nmtui_loopback_set_mtu
     Scenario: nmtui - loopback - set mtu
     * Start nmtui
