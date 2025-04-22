@@ -146,6 +146,8 @@ Feature: nmcli - ovs
 
     @RHEL-34617
     @ver+=1.48.4
+    @ver+=1.46.7
+    @ver/rhel/9/4+=1.46.0.28
     @openvswitch
     @nmcli_add_openvswitch_port_by_mac
     Scenario: nmcli - openvswitch - add port by MAC address
