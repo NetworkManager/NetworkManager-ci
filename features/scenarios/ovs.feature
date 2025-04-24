@@ -2026,6 +2026,31 @@ Feature: nmcli - ovs
      And "^\[\]$" is visible with command "ovs-vsctl get Port port0 trunks"
 
 
+    @RHEL-86767
+    @ver+=1.53.3
+    @openvswitch
+    @nmcli_remove_openvswitch_bridge_on_delete
+    Scenario: nmcli - openvswitch - remove ovs bridge on connection delete
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "connection.controller ovsbridge0"
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          connection.controller port0
+          ipv4.method manual
+          ipv4.address 172.25.10.1/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+    Then "ovsbridge0" is visible with command "ovs-vsctl show"
+    * Execute "ovs-vsctl add-port ovsbridge0 test-port -- set interface test-port type=internal"
+    * Commentary
+        """
+        Check that the OVS bridge created by NM is removed when the connection is deleted or brought down,
+        even if there are externally-created ports.
+        """ 
+    * Delete connection "ovs-bridge0"
+    Then "ovsbridge0" is not visible with command "ovs-vsctl show" in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

@@ -2224,6 +2224,8 @@ testmapper:
         feature: ovs
     - ovs_bond_ports_autoconnect_retries_reboot:
         feature: ovs
+    - nmcli_remove_openvswitch_bridge_on_delete:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
