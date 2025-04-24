@@ -157,6 +157,16 @@ Feature: nmcli - wifi
     Then "wpa2-eap" is visible with command "iw dev wlan0 link"
 
 
+    @simwifi
+    @simwifi_wpa2_arg_passwd
+    Scenario: nmcli - wifi - connect WPA network providing password to connect command
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Cleanup connection "wpa2-eap"
+    * Execute "nmcli -a device wifi connect wpa2-eap password secret123"
+    Then "\*\s+wpa2-eap" is visible with command "nmcli -f IN-USE,SSID device wifi list" in "45" seconds
+    Then "wpa2-eap" is visible with command "iw dev wlan0 link"
+
+
     @rhbz2059608
     @ver+=1.38.0
     @ifcfg-rh @simwifi

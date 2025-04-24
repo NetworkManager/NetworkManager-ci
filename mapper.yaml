@@ -2804,6 +2804,8 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_wpa2_ask_passwd:
         feature: wifi_hwsim
+    - simwifi_wpa2_arg_passwd:
+        feature: wifi_hwsim
     - simwifi_set_existing_bssid:
         feature: wifi_hwsim
     - simwifi_nmcli_radio:
