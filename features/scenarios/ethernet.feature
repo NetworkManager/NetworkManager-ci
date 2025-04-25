@@ -1229,6 +1229,8 @@ Feature: nmcli - ethernet
     @ver+=1.51.4 @rhelver+=8
     @ver+=1.50.3
     @ver+=1.48.17
+    @ver+=1.46.7
+    @ver/rhel/9/4+=1.46.0.29
     @ver/rhel/9/5+=1.48.10.9
     @prepare_patched_netdevsim
     @ethtool_features_fec
