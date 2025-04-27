@@ -517,7 +517,8 @@ Feature: nmcli - procedures in documentation
 
 
     @doc_set_gateway_nmstate
-    Scenario: nmstate - set gateway to existing profile
+    Scenario: nmstate - doc - set gateway to existing profile
+    * Doc: "Setting the default gateway on an existing connection using nmstatectl"
     * Add "ethernet" connection named "con_doc" for device "eth1" with options
             """
             ipv4.method manual
@@ -530,6 +531,93 @@ Feature: nmcli - procedures in documentation
     Then "2001:db8:1::1" is visible with command "ip -6 r"
     Then "192.0.2.1" is visible with command "nmcli c show con_doc"
     Then "2001:db8:1::1" is visible with command "nmcli c show con_doc"
+
+
+    @eth0
+    @doc_set_gateway_multiple
+    Scenario: nmcli - doc - set gateway to multiple devices
+    * Doc: "How NetworkManager manages multiple default gateways"
+    * Add "ethernet" connection named "con_doc_1" for device "eth1" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.2.5/24"
+            ipv4.gateway 192.0.2.1
+            ipv6.method manual
+            ipv6.addresses "2001:db8:1::6/64"
+            ipv6.gateway "2001:db8:1::1"
+            """
+    * Add "ethernet" connection named "con_doc_2" for device "eth2" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.3.5/24"
+            ipv4.gateway 192.0.3.1
+            ipv6.method manual
+            ipv6.addresses "2001:db8:2::6/64"
+            ipv6.gateway "2001:db8:2::1"
+            """
+    Then "default via 192.0.2.1 dev eth1 proto static metric 100" is visible with command "ip -4 r"
+    And "default via 192.0.3.1 dev eth2 proto static metric 101" is visible with command "ip -4 r"
+    And "default via 2001:db8:1::1 dev eth1 proto static metric 100 pref medium" is visible with command "ip -6 r"
+    And "default via 2001:db8:2::1 dev eth2 proto static metric 101 pref medium" is visible with command "ip -6 r"
+
+
+    @eth0
+    @doc_set_gateway_multiple_with_metric
+    Scenario: nmcli - doc - set gateway and metric to multiple devices
+    * Doc: "Configuring NetworkManager to avoid using a specific profile to provide a default gateway"
+    * Add "ethernet" connection named "con_doc_1" for device "eth1" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.2.5/24"
+            ipv4.gateway 192.0.2.1
+            ipv6.method manual
+            ipv6.addresses "2001:db8:1::6/64"
+            ipv6.gateway "2001:db8:1::1"
+            ipv6.route-metric 200
+            """
+    * Add "ethernet" connection named "con_doc_2" for device "eth2" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.3.5/24"
+            ipv4.gateway 192.0.3.1
+            ipv4.route-metric 40
+            ipv6.method manual
+            ipv6.addresses "2001:db8:2::6/64"
+            ipv6.gateway "2001:db8:2::1"
+            """
+    Then "default via 192.0.2.1 dev eth1 proto static metric 100" is visible with command "ip -4 r"
+    And "default via 192.0.3.1 dev eth2 proto static metric 40" is visible with command "ip -4 r"
+    And "default via 2001:db8:1::1 dev eth1 proto static metric 200 pref medium" is visible with command "ip -6 r"
+    And "default via 2001:db8:2::1 dev eth2 proto static metric 101 pref medium" is visible with command "ip -6 r"
+
+
+    @doc_set_gateway_ignore
+    Scenario: nmcli - doc - set connection to ignore gateway
+    * Doc: "Fixing unexpected routing behavior due to multiple default gateways"
+    * Add "ethernet" connection named "con_doc_1" for device "eth1" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.2.5/24"
+            ipv4.gateway 192.0.2.1
+            ipv4.never-default yes
+            ipv6.method manual
+            ipv6.addresses "2001:db8:1::6/64"
+            ipv6.gateway "2001:db8:1::1"
+            ipv6.never-default yes
+            """
+    * Add "ethernet" connection named "con_doc_2" for device "eth2" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.3.5/24"
+            ipv4.gateway 192.0.3.1
+            ipv6.method manual
+            ipv6.addresses "2001:db8:2::6/64"
+            ipv6.gateway "2001:db8:2::1"
+            """
+    Then "default via [^\n]* dev eth1" is not visible with command "ip -4 r"
+    And "default via 192.0.3.1 dev eth2 proto static metric 101" is visible with command "ip -4 r"
+    Then "default via [^\n]* dev eth1" is not visible with command "ip -6 r"
+    And "default via 2001:db8:2::1 dev eth2 proto static metric 101 pref medium" is visible with command "ip -6 r"
 
 
     # the same feature as general_nmcli_offline_connection_add_modify tests

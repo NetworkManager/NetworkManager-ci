@@ -2901,6 +2901,15 @@ testmapper:
     - doc_set_gateway_nmstate:
         feature: doc_procedures
         tags: gate
+    - doc_set_gateway_multiple:
+        feature: doc_procedures
+        tags: gate
+    - doc_set_gateway_multiple_with_metric:
+        feature: doc_procedures
+        tags: gate
+    - doc_set_gateway_ignore:
+        feature: doc_procedures
+        tags: gate
     - doc_nmcli_offline_connection_add:
         feature: doc_procedures
         tags: gate
