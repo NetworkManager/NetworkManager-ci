@@ -2898,6 +2898,9 @@ testmapper:
     - doc_set_gateway_on_existing_profile:
         feature: doc_procedures
         tags: gate
+    - doc_set_gateway_nmstate:
+        feature: doc_procedures
+        tags: gate
     - doc_nmcli_offline_connection_add:
         feature: doc_procedures
         tags: gate

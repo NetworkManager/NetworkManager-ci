@@ -505,7 +505,7 @@ Feature: nmcli - procedures in documentation
     * Add "ethernet" connection named "con_doc" for device "eth10" with options
             """
             ipv4.method manual
-            ipv4.addresses "192.168.122.253"
+            ipv4.addresses "192.0.2.5/24"
             ipv6.method manual
             ipv6.addresses "2001:db8:1::6"
             """
@@ -514,6 +514,22 @@ Feature: nmcli - procedures in documentation
     * Bring "up" connection "con_doc"
     Then "default via 192.0.2.1 dev eth10 proto static metric 10" is visible with command "ip -4 route" in "20" seconds
     Then "default via 2001:db8:1::1 dev eth10 proto static metric 10.* pref medium" is visible with command "ip -6 route" in "20" seconds
+
+
+    @doc_set_gateway_nmstate
+    Scenario: nmstate - set gateway to existing profile
+    * Add "ethernet" connection named "con_doc" for device "eth1" with options
+            """
+            ipv4.method manual
+            ipv4.addresses "192.0.2.5/24"
+            ipv6.method manual
+            ipv6.addresses "2001:db8:1::6"
+            """
+    * Execute "nmstatectl apply contrib/doc/set_default_gw.yml"
+    Then "default via 192.0.2.1" is visible with command "ip -4 r"
+    Then "2001:db8:1::1" is visible with command "ip -6 r"
+    Then "192.0.2.1" is visible with command "nmcli c show con_doc"
+    Then "2001:db8:1::1" is visible with command "nmcli c show con_doc"
 
 
     # the same feature as general_nmcli_offline_connection_add_modify tests
