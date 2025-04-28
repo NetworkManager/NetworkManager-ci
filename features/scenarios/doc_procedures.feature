@@ -620,6 +620,45 @@ Feature: nmcli - procedures in documentation
     And "default via 2001:db8:2::1 dev eth2 proto static metric 101 pref medium" is visible with command "ip -6 r"
 
 
+    @prepare_patched_netdevsim
+    @doc_unmanage_interface_permanent
+    Scenario: NM - unmanage in terface in config
+    * Doc: "Permanently configuring a device as unmanaged in NetworkManager"
+    * Create NM config file "99-unmanage-doc.conf" with content and "reload" NM
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:eth11
+      """
+    Then "unmanaged:eth11" is visible with command "nmcli -g state,device device status"
+    Then "disconnected:eth12" is visible with command "nmcli -g state,device device status"
+    Then "disconnected:eth13" is visible with command "nmcli -g state,device device status"
+    * Note MAC address output for device "eth12" via ip command as "mac_eth12"
+    * Create NM config file "99-unmanage-doc.conf" with content and "reload" NM
+      """
+      [keyfile]
+      unmanaged-devices=mac:<noted:mac_eth12>
+      """
+    Then "disconnected:eth11" is visible with command "nmcli -g state,device device status"
+    Then "unmanaged:eth12" is visible with command "nmcli -g state,device device status"
+    Then "disconnected:eth13" is visible with command "nmcli -g state,device device status"
+    * Create NM config file "99-unmanage-doc.conf" with content and "reload" NM
+      """
+      [keyfile]
+      unmanaged-devices=type:ethernet
+      """
+    Then "unmanaged:eth11" is visible with command "nmcli -g state,device device status"
+    Then "unmanaged:eth12" is visible with command "nmcli -g state,device device status"
+    Then "unmanaged:eth13" is visible with command "nmcli -g state,device device status"
+    * Create NM config file "99-unmanage-doc.conf" with content and "reload" NM
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:eth11;interface-name:eth12
+      """
+    Then "unmanaged:eth11" is visible with command "nmcli -g state,device device status"
+    Then "unmanaged:eth12" is visible with command "nmcli -g state,device device status"
+    Then "disconnected:eth13" is visible with command "nmcli -g state,device device status"
+
+
     # the same feature as general_nmcli_offline_connection_add_modify tests
     @rhelver+=8.7 @rhelver+=9.1
     @ver+=1.39.2

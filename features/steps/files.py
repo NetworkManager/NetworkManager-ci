@@ -38,7 +38,10 @@ def create_config_file(
         # if operation is None, restart is done in Scenario, so register NM restart cleanup
         nmci.cleanup.add_NM_service(priority=prio)
 
-    nmci.nmutil.add_NM_config(context.text, path, cleanup_priority=prio, op=do_op)
+    content = context.text
+    content = nmci.misc.str_replace_dict(content, getattr(context, "noted", {}))
+
+    nmci.nmutil.add_NM_config(content, path, cleanup_priority=prio, op=do_op)
 
 
 @step('Cleanup NM config file "{cfg}"')
