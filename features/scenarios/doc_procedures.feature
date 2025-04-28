@@ -659,6 +659,21 @@ Feature: nmcli - procedures in documentation
     Then "disconnected:eth13" is visible with command "nmcli -g state,device device status"
 
 
+    @doc_unmanage_interface_temporary
+    Scenario: nmcli - unmanage device temporarily
+    * Doc: "Temporarily configuring a device as unmanaged in NetworkManager"
+    * Cleanup execute "nmcli d set eth1 managed yes"
+    When "disconnected:eth1:" is visible with command "nmcli -g state,device,type device status"
+    * Execute "nmcli device set eth1 managed no"
+    Then "unmanaged:eth1:" is visible with command "nmcli -g state,device,type device status"
+    * Reload NM
+    Then "unmanaged:eth1:" is visible with command "nmcli -g state,device,type device status"
+    * Restart NM
+    Then "unmanaged:eth1:" is visible with command "nmcli -g state,device,type device status"
+    * Reboot
+    Then "disconnected:eth1:" is visible with command "nmcli -g state,device,type device status"
+
+
     # the same feature as general_nmcli_offline_connection_add_modify tests
     @rhelver+=8.7 @rhelver+=9.1
     @ver+=1.39.2
