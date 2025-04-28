@@ -1062,6 +1062,7 @@ Feature: nmcli - ethernet
           ethtool.ring-rx-jumbo 1000
           ethtool.ring-rx-mini 100
           ethtool.ring-rx 1
+          autoconnect no
           """
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
@@ -1077,6 +1078,7 @@ Feature: nmcli - ethernet
     @prepare_patched_netdevsim
     @ethtool_features_ring
     Scenario: nmcli - ethernet - ethtool set ring options
+    * Note the output of "ethtool -g eth11" as value "ring"
     * Run child "journalctl -f -u NetworkManager -o cat"
     When Expect "<" in children in "10" seconds
     * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
@@ -1087,13 +1089,14 @@ Feature: nmcli - ethernet
           ethtool.ring-rx-jumbo 1000
           ethtool.ring-rx-mini 100
           ethtool.ring-rx 1
+          autoconnect no
           """
     Then Expect "ethtool.ring-rx-mini\s+= 100" in children in "10" seconds
     * Kill children
     * Bring "up" connection "con_ethernet"
     When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
     * Disconnect device "eth11"
-    When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
+    When Noted value "ring" is visible with command "ethtool -g eth11"
     * Modify connection "con_ethernet" changing options "ethtool.ring-tx 0 ethtool.ring-rx-jumbo 0 ethtool.ring-rx-mini 0 ethtool.ring-rx 0"
     * Bring "up" connection "con_ethernet"
     When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
