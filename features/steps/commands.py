@@ -1228,6 +1228,7 @@ def run_nmstate(context, log_file):
             "copr list | grep networkmanager/NetworkManager",
             shell=True,
             ignore_returncode=True,
+            ignore_stderr=True,
             attempts=1,
         ).returncode
         == 0
@@ -1235,6 +1236,7 @@ def run_nmstate(context, log_file):
         copr = nmci.process.dnf(
             "copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
             shell=True,
+            ignore_stderr=True,
             ignore_returncode=True,
             attempts=1,
         ).stdout.strip()
