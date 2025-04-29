@@ -31,7 +31,8 @@ install_fedora_packages () {
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-$VER-$REL.$(arch).rpm \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
-        $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm"
+        $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-extra-$VER-$REL.$(arch).rpm \
+        $KOJI/kernel/$VER/$REL/$(arch)/kernel-devel-$VER-$REL.$(arch).rpm"
 
 
     ##############################################################################
