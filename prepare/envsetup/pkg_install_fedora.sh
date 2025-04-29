@@ -43,6 +43,11 @@ install_fedora_packages () {
     #####
     #####
 
+    # kernel-headers version matching of running kernel is a bit challenging
+    # kernel-6.13.12 -> kernel-headers-6.13.3
+    HEADER_VER=${VER%.*}
+    PKGS_INSTALL="$PKGS_INSTALL $(bash contrib/utils/koji_links.sh kernel-headers $HEADER_VER | grep kernel-headers- )"
+
     # F40 and Rawhide (41) libreswan
     if grep -iqe "release 40" /etc/redhat-release; then
         PKGS_UPGRADE="$PKGS_UPGRADE \
