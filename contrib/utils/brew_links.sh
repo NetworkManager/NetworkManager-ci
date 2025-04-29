@@ -117,6 +117,8 @@ if [ -z "$ver" ]; then
         fi
         ver=$(get_latest $url_base/$package/)
     fi
+else
+    ver=$(get_all $url_base/$package/ | grep "$ver" | sort -V | tail -n 1)
 fi
 build=$3
 if [ -z "$build" ]; then
@@ -158,6 +160,8 @@ if [ -z "$build" ]; then
             build=$(get_all $url_base/$package/$ver/ | sort -V | tail -n 1)
         fi
     fi
+else
+    build=$(get_all $url_base/$package/$ver | grep "$build" | sort -V | tail -n 1)
 fi
 arch=$4
 if [ -z "$arch" ]; then
