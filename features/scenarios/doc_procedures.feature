@@ -674,6 +674,40 @@ Feature: nmcli - procedures in documentation
     Then "disconnected:eth1:" is visible with command "nmcli -g state,device,type device status"
 
 
+    @ver+=1.52
+    @doc_nmcli_route_all_options
+    Scenario: nmcli - set all route options in connection
+    * Doc: "Configuring a static route using an nmcli command"
+    * Add "ethernet" connection named "con_doc" for device "eth1" with options
+      """
+      ipv4.method manual
+      ipv4.addresses 192.168.100.6/24
+      ipv4.routes "192.168.4.1/24 192.168.100.254 30
+            cwnd=30
+            lock-cwnd=true
+            lock-mtu=true
+            lock-window=true
+            mtu=1450
+            onlink=true
+            scope=20
+            src=192.168.4.99
+            table=32766
+            tos=47
+            type=unicast
+            window=10"
+      """
+    * Commentary
+      """
+      The route is discarded by kernel, because all params are set.
+      """
+    * Modify connection "con_doc" changing options "+ipv4.routes '192.168.0.0/24 192.168.100.1'"
+    Then "192.168.0.0/24" is visible with command "nmcli -g ipv4.routes c show con_doc"
+    And "192.168.4.1/24" is visible with command "nmcli -g ipv4.routes c show con_doc"
+    * Modify connection "con_doc" changing options "-ipv4.routes '192.168.0.0/24 192.168.100.1'"
+    Then "192.168.0.0/24" is not visible with command "nmcli -g ipv4.routes c show con_doc"
+    And "192.168.4.1/24" is visible with command "nmcli -g ipv4.routes c show con_doc"
+
+
     # the same feature as general_nmcli_offline_connection_add_modify tests
     @rhelver+=8.7 @rhelver+=9.1
     @ver+=1.39.2

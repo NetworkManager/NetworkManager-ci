@@ -2918,6 +2918,9 @@ testmapper:
     - doc_unmanage_interface_temporary:
         feature: doc_procedures
         tags: gate
+    - doc_nmcli_route_all_options:
+        feature: doc_procedures
+        tags: gate
     - doc_nmcli_offline_connection_add:
         feature: doc_procedures
         tags: gate
