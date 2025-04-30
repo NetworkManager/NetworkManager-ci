@@ -1959,7 +1959,7 @@ Feature: nmcli - ovs
 
 
     @RHEL-86877
-    @ver+=1.53.3
+    @ver+=1.53.3.2
     @openvswitch
     @nmcli_reapply_openvswitch_configuration
     Scenario: nmcli - openvswitch - reapply
@@ -2027,7 +2027,7 @@ Feature: nmcli - ovs
 
 
     @RHEL-86767
-    @ver+=1.53.3
+    @ver+=1.53.3.2
     @openvswitch
     @nmcli_remove_openvswitch_bridge_on_delete
     Scenario: nmcli - openvswitch - remove ovs bridge on connection delete
