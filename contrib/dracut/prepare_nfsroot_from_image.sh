@@ -83,9 +83,9 @@ fi
 
 modprobe nbd max_part=8
 # nbd0 sometimes refuses to work (c10s), use nbd1 then
-nbd=/dev/nbd0
-if ! qemu-nbd --read-only --connect=$nbd $TESTDIR/root.qcow2; then
-    nbd=/dev/nbd1
+nbd=/dev/nbd1
+if qemu-nbd --read-only --connect=$nbd $TESTDIR/root.qcow2; then
+    nbd=/dev/nbd0
     qemu-nbd --read-only --connect=$nbd $TESTDIR/root.qcow2
 fi
 sleep 0.1
