@@ -168,14 +168,32 @@ def pbr_doc_proc(context):
         * Execute "ip -n servers_ns address add 203.0.113.2/24 dev serversp"
         * Prepare simulated test "int_work" device without DHCP
         * Execute "ip -n int_work_ns address add 10.0.0.2/24 dev int_workp"
+        * Add namespace "internet"
         * Create "veth" device named "defA" in namespace "provA_ns" with options "peer name defAp"
-        * Execute "ip -n provA_ns link set dev defA up"
+        * Execute "ip -n provA_ns link set dev defAp netns internet"
         * Create "veth" device named "defB" in namespace "provB_ns" with options "peer name defBp"
+        * Execute "ip -n provB_ns link set dev defBp netns internet"
+        * Create "bridge" device named "br0" in namespace "internet" with options "stp_state 0"
+        * Execute "ip -n internet link set dev defAp master br0"
+        * Execute "ip -n internet link set dev defBp master br0"
+        * Execute "ip -n internet link set dev br0 up"
+        * Execute "ip -n internet link set dev defAp up"
+        * Execute "ip -n internet link set dev defBp up"
+        * Execute "ip -n provA_ns link set dev defA up"
         * Execute "ip -n provB_ns link set dev defB up"
+        * Execute "ip -n provA_ns addr add 172.20.20.1/24 dev defA"
+        * Execute "ip -n provB_ns addr add 172.20.20.2/24 dev defB"
+        * Execute "ip -n internet addr add 172.20.20.20/24 dev br0"
+        * Execute "ip -n internet route add 203.0.113.0/24 via 172.20.20.1 dev br0"
+        * Execute "ip -n internet route add 198.51.100.0/30 via 172.20.20.1 dev br0"
+        * Execute "ip -n internet route add 10.0.0.0/24 via 172.20.20.2 dev br0"
+        * Execute "ip -n internet route add 192.0.2.0/30 via 172.20.20.2 dev br0"
+        * Execute "ip -n provB_ns route add default via 192.0.2.1"
+        * Execute "ip -n int_work_ns route add default via 10.0.0.1"
+        * Execute "ip -n servers_ns route add default via 203.0.113.1"
+        * Execute "ip -n provA_ns route add default via 198.51.100.1"
     """
     )
-    context.command_code("ip -n provA_ns addr add 172.20.20.20/24 dev defA")
-    context.command_code("ip -n provB_ns addr add 172.20.20.20/24 dev defB")
 
 
 @step(

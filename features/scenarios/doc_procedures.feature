@@ -8,67 +8,60 @@ Feature: nmcli - procedures in documentation
     # Scenario:
 
     @ver+=1.18
-    @firewall @eth0 @tcpdump
+    @firewall @eth0
     @policy_based_routing_doc_procedure
     Scenario: nmcli - docs -  Configuring policy-based routing to define alternative routes
+    * Doc: "Routing traffic from a specific subnet to a different default gateway using NetworkManager"
     * Prepare PBR documentation procedure
     * Add "ethernet" connection named "Provider-A" for device "provA" with options
           """
           ipv4.method manual
           ipv4.addresses 198.51.100.1/30
           ipv4.gateway 198.51.100.2
-          ipv4.dns 198.51.100.2
+          ipv4.dns 198.51.100.200
           connection.zone external
           """
-    * Bring "up" connection "Provider-A"
     * Add "ethernet" connection named "Provider-B" for device "provB" with options
           """
           ipv4.method manual
           ipv4.addresses 192.0.2.1/30
-          ipv4.routes '0.0.0.0/1 192.0.2.2 table=5000, 128.0.0.0/1 192.0.2.2 table=5000'
+          ipv4.routes "0.0.0.0/0 192.0.2.2 table=5000"
           connection.zone external
           """
     * Add "ethernet" connection named "Internal-Workstations" for device "int_work" with options
           """
           ipv4.method manual
           ipv4.addresses 10.0.0.1/24
-          ipv4.routes '10.0.0.0/24 table=5000'
+          ipv4.routes "10.0.0.0/24 table=5000"
           ipv4.routing-rules 'priority 5 from 10.0.0.0/24 table 5000'
           connection.zone trusted
           """
-    * Bring "up" connection "Internal-Workstations"
-    * Bring "up" connection "Provider-B"
     * Add "ethernet" connection named "Servers" for device "servers" with options
           """
           ipv4.method manual
           ipv4.addresses 203.0.113.1/24
           connection.zone trusted
           """
-    * Bring "up" connection "Servers"
-    * Execute "ip -n provB_ns route add default via 192.0.2.1"
-    * Execute "ip -n int_work_ns route add default via 10.0.0.1"
-    * Execute "ip -n servers_ns route add default via 203.0.113.1"
-    * Execute "ip -n provA_ns route add default via 198.51.100.1"
-    # do not bring down eth0 sooner, adding other default routes above may fail
-    * Bring "down" connection "testeth0"
+    * "_gateway \(10.0.0.1\) .* 192.0.2.2 \(192.0.2.2\)" is visible with command "ip netns exec int_work_ns traceroute 172.20.20.20"
+    * "_gateway \(203.0.113.1\) .* 198.51.100.2 \(198.51.100.2\)" is visible with command "ip netns exec servers_ns traceroute 172.20.20.20"
     Then "external\s+interfaces: provA provB" is visible with command "firewall-cmd --get-active-zones"
     Then "trusted\s+interfaces: int_work servers" is visible with command "firewall-cmd --get-active-zones"
+    Then "masquerade: yes" is visible with command "firewall-cmd --info-zone=external"
     Then "from 10.0.0.0/24 lookup 5000" is visible with command "ip rule list"
-    Then "0.0.0.0/1 via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
+    Then "default via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
     Then "10.0.0.0/24 dev int_work" is visible with command "ip route list table 5000"
-    Then "128.0.0.0/1 via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
     * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
     * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
     * Execute "ip netns exec servers_ns ping -c 3 172.20.20.20"
-    * Execute "pkill tcpdump"
+    * Kill children
     Then "198.51.100.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provA.log" in "30" seconds
      And "> 172.20.20.20" is not visible with command "cat /tmp/tcpdump_provB.log"
     * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
     * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
     * Execute "ip netns exec int_work_ns ping -c 3 172.20.20.20"
-    * Execute "pkill tcpdump"
+    * Kill children
     Then "192.0.2.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provB.log" in "30" seconds
-     And "> 8.8.8.8" is not visible with command "cat /tmp/tcpdump_provA.log"
+     And "> 172.20.20.20" is not visible with command "cat /tmp/tcpdump_provA.log"
 
 
     @ver+=1.6.0
