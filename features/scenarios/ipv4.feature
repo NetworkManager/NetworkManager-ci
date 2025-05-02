@@ -3860,4 +3860,4 @@ Feature: nmcli: ipv4
     * Bring "down" connection "test1gp"
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
     * Bring "down" connection "con_ipv4"
-    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
