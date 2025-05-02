@@ -125,6 +125,7 @@ chapters = {
     "Routing traffic from a specific subnet to a different default gateway using the legacy network scripts": "routing-traffic-from-a-specific-subnet-to-a-different-default-gateway-using-the-legacy-network-scripts_configuring-policy-based-routing-to-define-alternative-routes",
     "Creating a dummy interface with both an IPv4 and IPv6 address using nmcli": "creating-a-dummy-interface-with-both-an-ipv4-and-ipv6-address-using-nmcli_creating-a-dummy-interface",
     "Using nmstate-autoconf to automatically configure network interfaces": "proc_using-nmstate-autoconf-to-automatically-configure-network-interfaces_assembly_using-nmstate-autoconf-to-automatically-configure-the-network-state-using-lldp",
+    "Configuring the DHCP timeout behavior of a NetworkManager connection": "configuring_and_managing_networking/configuring-the-dhcp-timeout-behavior-of-a-networkmanager-connection#configuring-the-dhcp-timeout-behavior-of-a-networkmanager-connection",
     "The key file format of NetworkManager profiles": "con_the-key-file-format-of-networkmanager-profiles_assembly_manually-creating-networkmanager-profiles-in-key-file-format",
     "Creating a NetworkManager profile in key file format": "proc_creating-a-networkmanager-profile-in-key-file-format_assembly_manually-creating-networkmanager-profiles-in-key-file-format",
     "Configuring the netconsole service to log kernel messages to a remote host": "configuring-the-netconsole-service-to-log-kernel-messages-to-a-remote-host_using-netconsole-to-log-kernel-messages-over-a-network",

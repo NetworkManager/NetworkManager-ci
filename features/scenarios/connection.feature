@@ -966,6 +966,7 @@ Feature: nmcli: connection
     @ver+=1.43.2
     @connection_multiconnect_autoconnect_retries
     Scenario: nmcli - connection - multiconnect autoconnect retry count per device
+    * Doc: "Configuring the DHCP timeout behavior of a NetworkManager connection"
     * Prepare simulated test "testX1" device without DHCP
     * Prepare simulated test "testX2" device without DHCP
     * Prepare simulated test "testX3" device without DHCP
