@@ -3,9 +3,18 @@
 set -e
 SETUP_DIR="$(pwd)/contrib/dnsconfd"
 DNSCONFD_DIR="/tmp/dnsconfd"
+DNSCONFD_VER=$(rpm -q --qf '%{VERSION}' dnsconfd)
 
-rm -rf /tmp/dnsconfd || true
+rm -rf $DNSCONFD_DIR || true
 git clone https://github.com/InfrastructureServices/dnsconfd.git $DNSCONFD_DIR
+
+pushd $DNSCONFD_DIR
+if [ "$DNSCONFD_VER" == "1.7.2" ]; then
+    git checkout 823369e59ce1bdf29f1a3f75e54e61b049c2c79a
+else
+    git checkout tags/$DNSCONFD_VER
+fi
+popd
 
 if [ -f /etc/os-release ]; then
     source /etc/os-release
@@ -51,16 +60,11 @@ if [ -z "$(ls -A /tmp/rpms)" ]; then
         --destdir $TARGET_DIR
 fi
 
-# We need slightly newer of dnsconfd in c10s
-if [ "$ID-$VERSION_ID" == "centos-10" ]; then
-    wget -r -np -nH --cut-dirs=3 -A rpm -P $TARGET_DIR https://vbenes.fedorapeople.org/NM/dnsconfd_rpms/
-fi
-
 # Let's move our changes to dnsconfd dir
 \cp -f $SETUP_DIR/dnsconfd.Dockerfile $DNSCONFD_DIR/tests/
 \cp -f $SETUP_DIR/nmci.fmf $DNSCONFD_DIR/plans/
 
-pushd /tmp/dnsconfd
+pushd $DNSCONFD_DIR
 python3l -m tmt --feeling-safe --context=distro=$ID-$VERSION_ID --context trigger=CI run -v -a plan --name plans/nmci provision --how local
 
 popd
