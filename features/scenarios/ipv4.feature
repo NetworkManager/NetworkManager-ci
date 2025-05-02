@@ -1953,6 +1953,11 @@ Feature: nmcli: ipv4
     @long @restart_if_needed
     @dhcp4_outages_in_various_situation
     Scenario: NM - ipv4 - all types of dhcp outages
+    * Doc: "Configuring the DHCP timeout behavior of a NetworkManager connection"
+    * Commentary
+    """
+    Docs are covered by testB4 device and con_delayed_reboot
+    """
     ################# PREPARE testX4 AND testY4 ################################
     ## testX4 con_ipv4 for renewal_gw_after_dhcp_outage_for_assumed_var1
     * Prepare simulated test "testX4" device with "192.168.199" ipv4 and "dead:beaf:1" ipv6 dhcp address prefix
@@ -1985,8 +1990,18 @@ Feature: nmcli: ipv4
     ## testZ4 and profie for renewal_gw_after_dhcp_outage
     * Prepare simulated test "testZ4" device with "192.168.201" ipv4 and "dead:beaf:3" ipv6 dhcp address prefix
     * Add "ethernet" connection named "profie" for device "testZ4" with options "ipv4.may-fail no"
+    ## testB4 and con_delayed_reboot for autoactivation after fail - with DHCP stopped
+    * Prepare simulated test "testB4" device with "192.168.203" ipv4 and "dead:beaf:5" ipv6 dhcp address prefix
+    * Execute "ip netns exec testB4_ns kill -SIGSTOP $(cat /tmp/testB4_ns.pid)"
+    * Add "ethernet" connection named "con_delayed_reboot" for device "testB4" with options
+      """
+      ipv4.dhcp-timeout 30
+      ipv4.may-fail no
+      ipv6.dhcp-timeout 30
+      """
     * Bring "up" connection "con_ipv42"
     * Bring "up" connection "profie"
+    # Do not bring up con_delayed_reboot, it should autoconnect
     When "default" is visible with command "ip r |grep testA4" in "30" seconds
     When "default" is visible with command "ip r |grep testZ4" in "30" seconds
     When "inet 192" is visible with command "ip a s |grep testA4" in "30" seconds
@@ -2002,14 +2017,19 @@ Feature: nmcli: ipv4
     When "default" is not visible with command "ip r |grep testY4" in "130" seconds
     When "default" is not visible with command "ip r |grep testZ4" in "130" seconds
     When "default" is not visible with command "ip r |grep testA4" in "130" seconds
+    When "default" is not visible with command "ip r |grep testB4" in "130" seconds
     When "inet 192.168." is not visible with command "ip a s testX4" in "10" seconds
     When "inet 192.168." is not visible with command "ip a s testY4" in "10" seconds
     When "inet 192.168." is not visible with command "ip a s testZ4" in "10" seconds
     When "inet 192.168." is not visible with command "ip a s testA4" in "10" seconds
+    When "inet 192.168." is not visible with command "ip a s testB4" in "10" seconds
+    # con_delayed_reboot connection should disconnect after 120s timeout, but try again in 5 minutes
+    When "con_delayed reboot" is not visible with command "nmcli c show -a" in "130" seconds
 
-    ### RESTART DHCP servers for testX4 and testY4 devices
+    ### RESTART DHCP servers for testX4 and testY4 and testB4 devices
     * Execute "ip netns exec testY4_ns kill -SIGCONT $(cat /tmp/testY4_ns.pid)"
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
+    * Execute "ip netns exec testB4_ns kill -SIGCONT $(cat /tmp/testB4_ns.pid)"
     # Default route for testX4 should not be back in 150s as the device is now external
     When "default" is not visible with command "ip r| grep testX4" for full "150" seconds
     # Default route for testY4 should be back in the same timeframe
@@ -2017,9 +2037,13 @@ Feature: nmcli: ipv4
     Then "inet 192.168." is not visible with command "ip a s testX4"
     Then "inet 192.168." is visible with command "ip a s testY4"
     Then "routers = 192.168" is visible with command "nmcli con show connie"
+    # con_delayed_reboot should activate on testB4 in 300s afetr fail, we already waited 150s
+    Then "default" is visible with command "ip r| grep testB4" in "170" seconds
+    Then "inet 192.168." is visible with command "ip a s testB4"
+    Then "routers = 192.168" is visible with command "nmcli con show con_delayed_reboot"
 
-    ## RESTART DHCP server for testA4 after 500s (we already waited for 130 + 150)
-    * Execute "sleep 120 && ip netns exec testA4_ns kill -SIGCONT $(cat /tmp/testA4_ns.pid)"
+    ## RESTART DHCP server for testA4 after 500s (we already waited for 130 + 150 + 170)
+    * Execute "sleep 60 && ip netns exec testA4_ns kill -SIGCONT $(cat /tmp/testA4_ns.pid)"
     Then "routers = 192.168" is visible with command "nmcli con show con_ipv42" in "300" seconds
     Then "default via 192.168.* dev testA4" is visible with command "ip r"
 
