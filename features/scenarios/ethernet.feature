@@ -507,17 +507,13 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_tls
     Scenario: nmcli - ethernet - connect to 8021x - tls
-    * Add "ethernet" connection named "con_ethernet" with options
-          """
-          ifname test8X
-          autoconnect no
-          802-1x.eap tls
-          802-1x.identity test
-          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
-          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
-          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
-          802-1x.private-key-password redhat
-          """
+    # RHEL10 version
+    * Doc: "Configuring 802.1X network authentication on an existing Ethernet connection using nmcli"
+    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no"
+    * Modify connection "con_ethernet" changing options "802-1x.eap tls 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem"
+    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
+    * Modify connection "con_ethernet" changing options "802-1x.identity test"
+    * Modify connection "con_ethernet" changing options "802-1x.private-key-password redhat"
     Then Bring "up" connection "con_ethernet"
 
 
@@ -640,17 +636,12 @@ Feature: nmcli - ethernet
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_peap_mschapv2
     Scenario: nmcli - ethernet - connect to 8021x - peap - mschapv2
-    * Add "ethernet" connection named "con_ethernet" with options
-          """
-          ifname test8X
-          autoconnect no
-          802-1x.eap peap
-          802-1x.identity TESTERS\\test_mschapv2
-          802-1x.anonymous-identity test
-          802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
-          802-1x.phase2-auth mschapv2
-          802-1x.password password
-          """
+    # RHEL8/9 version
+    * Doc: "Configuring 802.1X network authentication on an existing Ethernet connection using nmcli"
+    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no"
+    * Modify connection "con_ethernet" changing options "802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
+    * Modify connection "con_ethernet" changing options "802-1x.password password"
+    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
     Then Bring "up" connection "con_ethernet"
 
 

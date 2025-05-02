@@ -64,24 +64,6 @@ Feature: nmcli - procedures in documentation
      And "> 172.20.20.20" is not visible with command "cat /tmp/tcpdump_provA.log"
 
 
-    @ver+=1.6.0
-    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @8021x_peap_mschapv2_doc_procedure
-    Scenario: nmcli - docs - Configuring 802.1x network authentication on an existing Ethernet connection using nmcli
-    * Doc: "Configuring 802.1X network authentication on an existing Ethernet connection using nmcli"
-    * Add "ethernet" connection named "con_ethernet" for device "test8X" with options "autoconnect no"
-    * Modify connection "con_ethernet" changing options "802-1x.eap peap 802-1x.identity TESTERS\\test_mschapv2 802-1x.phase2-auth mschapv2"
-    * Modify connection "con_ethernet" changing options "802-1x.password password"
-    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
-    Then Bring "up" connection "con_ethernet"
-
-
-    @8021x_teardown
-    @8021x_teardown_doc
-    Scenario: just remove 802.1-x set up
-    * Execute "echo 'this is skipped'"
-
-
     @ver+=1.10 @fedoraver+=31
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_peap_mschapv2_doc_procedure

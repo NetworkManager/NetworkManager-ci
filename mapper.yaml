@@ -1541,7 +1541,7 @@ testmapper:
         tags: hostapd
     - 8021x_tls:
         feature: ethernet
-        tags: hostapd
+        tags: gate hostapd
     - 8021x_tls_bad_private_key_password:
         feature: ethernet
     - 8021x_tls_aes256_private_key:
@@ -1559,7 +1559,7 @@ testmapper:
         tags: hostapd
     - 8021x_peap_mschapv2:
         feature: ethernet
-        tags: hostapd
+        tags: gate hostapd
     - 8021x_peap_gtc:
         feature: ethernet
         tags: wpa_supplicant hostapd
@@ -2852,12 +2852,6 @@ testmapper:
         tags: gate
     # Do not add @simwifi tests below nmcli_simwifi_teardown ^^
     - policy_based_routing_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - 8021x_peap_mschapv2_doc_procedure:
-        feature: doc_procedures
-        tags: gate
-    - 8021x_teardown_doc:
         feature: doc_procedures
         tags: gate
     - simwifi_peap_mschapv2_doc_procedure:
