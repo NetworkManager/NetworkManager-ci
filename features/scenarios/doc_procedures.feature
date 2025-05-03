@@ -383,16 +383,20 @@ Feature: nmcli - procedures in documentation
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
     #   - el8: https://bugzilla.redhat.com/show_bug.cgi?id=2064284
-    @permissive @firewall
+    @firewall
     @8021x_hostapd_freeradius_doc_procedure
     Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
+    * Doc: "Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend"
     ### 1. Setting up the bridge on the authenticator
     * Add "bridge" connection named "br0" for device "br0" with options
             """
             con-name br0
-            bridge.group-forward-mask 8 connection.autoconnect-slaves 1
-            ipv4.method disabled ipv6.method disabled
-            stp off forward-delay 2
+            bridge.group-forward-mask 8
+            connection.autoconnect-ports 1
+            ipv4.method disabled
+            ipv6.method disabled
+            stp off
+            forward-delay 2
             """
     # Sometimes we need to avoid too many EAPOLs to hit hostapd, drop zone to bridge seems to be doing it correctly
     * Add "ethernet" connection named "br0-uplink" for device "eth4" with options "master br0 connection.zone drop"
@@ -419,10 +423,14 @@ Feature: nmcli - procedures in documentation
     Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
     * Add "ethernet" connection named "test1-ttls" for device "test1" with options
             """
-            autoconnect no 802-1x.eap ttls 802-1x.phase2-auth pap
-            802-1x.identity example_user 802-1x.password user_password
+            autoconnect no
+            802-1x.eap ttls
+            802-1x.phase2-auth pap
+            802-1x.identity example_user
+            802-1x.password user_password
             802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
-            802-1x.auth-timeout 75 connection.auth-retries 5
+            802-1x.auth-timeout 75
+            connection.auth-retries 5
             """
     # Just in case a bit of time to settle
     * Wait for "1" seconds
@@ -441,10 +449,15 @@ Feature: nmcli - procedures in documentation
     Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
     * Add "ethernet" connection named "test1-tls" for device "test1" with options
             """
-            autoconnect no 802-1x.eap tls 802-1x.identity spam
-            802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem 802-1x.client-cert /etc/pki/tls/certs/8021x.pem
-            802-1x.private-key /etc/pki/tls/private/8021x.key 802-1x.private-key-password whatever
-            802-1x.auth-timeout 75 connection.auth-retries 5
+            autoconnect no
+            802-1x.eap tls
+            802-1x.identity spam
+            802-1x.ca-cert /etc/pki/tls/certs/8021x-ca.pem
+            802-1x.client-cert /etc/pki/tls/certs/8021x.pem
+            802-1x.private-key /etc/pki/tls/private/8021x.key
+            802-1x.private-key-password whatever
+            802-1x.auth-timeout 75
+            connection.auth-retries 5
             """
     * Wait for "1" seconds
     When Bring "up" connection "test1-tls"
