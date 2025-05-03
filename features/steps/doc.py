@@ -239,6 +239,7 @@ chapters = {
     "Tracing TCP retransmissions": "tracing-tcp-retransmissions_network-tracing-using-the-bpf-compiler-collection",
     "Displaying TCP state change information": "displaying-tcp-state-change-information_network-tracing-using-the-bpf-compiler-collection",
     "Summarizing and aggregating TCP traffic sent to specific subnets": "summarizing-and-aggregating-tcp-traffic-sent-to-specific-subnets_network-tracing-using-the-bpf-compiler-collection",
+    "Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend": "assembly_setting-up-an-802-1x-network-authentication-service-for-lan-clients-using-hostapd-with-freeradius-backend_configuring-and-managing-networking",
     "Displaying the network throughput by IP address and port": "displaying-the-network-throughput-by-ip-address-and-port_network-tracing-using-the-bpf-compiler-collection",
     "Tracing established TCP connections": "tracing-established-tcp-connections_network-tracing-using-the-bpf-compiler-collection",
     "Tracing IPv4 and IPv6 listen attempts": "tracing-ipv4-and-ipv6-listen-attempts_network-tracing-using-the-bpf-compiler-collection",

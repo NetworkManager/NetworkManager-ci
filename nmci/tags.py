@@ -1783,6 +1783,10 @@ def firewall_as(context, scenario):
         ignore_stderr=True,
     )
     context.process.run_stdout(
+        "firewall-cmd --permanent --remove-service=radius",
+        ignore_stderr=True,
+    )
+    context.process.run_stdout(
         "firewall-cmd --permanent --zone=public --remove-masquerade",
         ignore_stderr=True,
     )
@@ -2885,7 +2889,7 @@ def radius_bs(context, scenario):
         shutil.chown("/etc/raddb/certs/server.pem", None, "radiusd")
         with open("/etc/raddb/mods-enabled/eap", "r+") as f:
             eap = f.read()
-            # external certs: change paths to cert+key and possibly passowrd
+            # external certs: change paths to cert+key and possibly password
             eap = re.sub(
                 r"(\n\s*eap {[^}]*default_eap_type = )[^\n]*(\n)",
                 r"\g<1>ttls\g<2>",
@@ -2931,8 +2935,10 @@ def radius_bs(context, scenario):
     context.process.run_stdout("chown -R radiusd:radiusd /var/run/radiusd")
     if context.process.systemctl("is-active radiusd").returncode == 0:
         context.process.systemctl("stop radiusd")
+    # Check radius config
+    context.process.run_stdout("radiusd -XC")
     context.process.run_stdout(
-        "systemd-run --service-type forking --unit nm-radiusd.service /usr/sbin/radiusd -l stdout -x",
+        "systemd-run --service-type exec --unit nm-radiusd.service /usr/sbin/radiusd -X",
         ignore_stderr=True,
     )
 
@@ -2961,7 +2967,10 @@ def tag8021x_doc_procedure_bs(context, scenario):
 
 
 def tag8021x_doc_procedure_as(context, scenario):
-    context.process.systemctl("stop 802-1x-tr-mgmt hostapd")
+    context.process.systemctl("stop 802-1x-tr-mgmt 802-1x-tr-mgmt@br0 hostapd")
+    context.process.run(
+        "rm -rf /var/local/bin/802-1x-tr-mgmt /etc/systemd/system/802-1x-tr-mgmt*.service"
+    )
     if nmci.util.is_verbose():
         nmci.embed.embed_service_log("HOSTAPD", syslog_identifier="hostapd")
         nmci.embed.embed_service_log(

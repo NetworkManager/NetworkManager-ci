@@ -378,12 +378,13 @@ Feature: nmcli - procedures in documentation
 
 
     @rhelver+=8.6
+    @rhelver-10
     @not_in_image_mode
+    @permissive @firewall
     @radius @8021x_doc_procedure @attach_wpa_supplicant_log
     # permissive is required until selinux-policy is updated in:
     #   - el9: https://bugzilla.redhat.com/show_bug.cgi?id=2064688
     #   - el8: https://bugzilla.redhat.com/show_bug.cgi?id=2064284
-    @firewall
     @8021x_hostapd_freeradius_doc_procedure
     Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
     * Doc: "Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend"
@@ -417,7 +418,7 @@ Feature: nmcli - procedures in documentation
      And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
      And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
      And Noted value contains "SUCCESS"
-    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TLS.conf -D wired -i test1 -d -t" without shell
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1 -d -t" without shell
     Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
     * Kill children with signal "15"
     Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
@@ -465,7 +466,7 @@ Feature: nmcli - procedures in documentation
     * Disconnect device "test1"
     ### .8. Blocking and allowing traffic based on hostapd authentication events and check connection using NM
     * Execute "mkdir -p /var/local/bin"
-    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /var/local/bin/802-1x-tr-mgmt"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt /usr/local/bin/802-1x-tr-mgmt"
     * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt.service /etc/systemd/system/802-1x-tr-mgmt.service"
     * Execute "systemctl daemon-reload"
     * Add "ethernet" connection named "test1-plain" for device "test1" with options "autoconnect no"
@@ -485,6 +486,61 @@ Feature: nmcli - procedures in documentation
         """
     * Skip if next step fails:
     Then Ping "192.168.100.1" from "test1" device
+
+
+    @rhelver+=10
+    @permissive
+    # permissive is needed for 802-1x-tr-mgmt service to start
+    # selinux-policy bug seems to be not fixed on rhel10
+    @not_in_image_mode
+    @firewall @radius @8021x_doc_procedure @attach_wpa_supplicant_log
+    @8021x_hostapd_freeradius_doc_procedure
+    Scenario: nmcli - docs - set up 802.1x using FreeRadius and hostapd
+    * Doc: "Setting up an 802.1x network authentication service for LAN clients by using hostapd with FreeRADIUS backend"
+    ### .1 Prerequisites - handled by @radius tag
+    ### .2 Setting up the bridge on the authenticator
+    * Add "bridge" connection named "br0" for device "br0"
+    * Create "veth" device named "test1" with options "peer name test1b"
+    * Execute "ip link set test1 up"
+    * Add "ethernet" connection named "br0-port1" for device "test1b" with options "port-type bridge controller br0"
+    * Modify connection "br0" changing options "group-forward-mask 8 stp off"
+    * Modify connection "br0" changing options "connection.autoconnect-ports 1"
+    * Bring "up" connection "br0"
+    Then "0x8" is visible with command "cat /sys/class/net/br0/bridge/group_fwd_mask"
+    Then "test1b@" is visible with command "ip link show master br0"
+    ### .3 - configs are handled by @radius tag
+    * Execute "firewall-cmd --permanent --add-service=radius"
+    * Execute "firewall-cmd --reload"
+    ### .4 Configuring hostapd as an authenticator in a wired network
+    * Execute "cp contrib/8021x/doc_procedures/hostapd.conf /etc/hostapd/hostapd.conf"
+    Then Execute "systemctl start hostapd"
+    * Execute "systemctl status hostapd"
+    ### .5 Testing EAP-TTLS authentication against a FreeRADIUS server or authenticator
+    * Execute "cp -f contrib/8021x/doc_procedures/wpa_supplicant-*.conf /etc/wpa_supplicant/"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "\nSUCCESS$"
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1" without shell
+    Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
+    * Kill children with signal "15"
+    Then Expect "CTRL-EVENT-TERMINATING" in children in "5" seconds
+    ### .6 Blocking and allowing traffic based on hostapd authentication events and check connection using NM
+    * Note MAC address output for device "test1" via ip command as "test1_mac"
+    * Execute "mkdir -p /var/local/bin"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt-rhel10 /usr/local/bin/802-1x-tr-mgmt"
+    * Execute "cp -f contrib/8021x/doc_procedures/802-1x-tr-mgmt@.service /etc/systemd/system/802-1x-tr-mgmt@.service"
+    * Execute "systemctl daemon-reload"
+    * Execute "systemctl start 802-1x-tr-mgmt@br0.service"
+    Then Noted value "test1_mac" is not visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
+    Then Note the output of "eapol_test -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -s client_password"
+     And Noted value contains "EAP: Status notification: remote certificate verification \(param=success\)"
+     And Noted value contains "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully"
+     And Noted value contains "\nSUCCESS"
+    * Run child "wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant-TTLS.conf -D wired -i test1" without shell
+    Then Expect "CTRL-EVENT-EAP-SUCCESS EAP authentication completed successfully" in children in "5" seconds
+    * Kill children with signal "15"
+    Then Noted value "test1_mac" is visible with command "nft list set bridge tr-mgmt-br0 allowed_macs"
 
 
     @doc_set_gateway_on_existing_profile

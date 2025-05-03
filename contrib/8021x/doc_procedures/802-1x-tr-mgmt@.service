@@ -1,0 +1,14 @@
+[Unit]
+Description=Example 802.1x traffic management for hostapd
+After=hostapd.service
+After=sys-devices-virtual-net-%i.device
+
+[Service]
+Type=simple
+ExecStartPre=bash -c '/usr/sbin/hostapd_cli ping | grep PONG'
+ExecStartPre=/usr/local/bin/802-1x-tr-mgmt %i block_all
+ExecStart=/usr/sbin/hostapd_cli -i %i -a /usr/local/bin/802-1x-tr-mgmt
+ExecStopPost=/usr/local/bin/802-1x-tr-mgmt %i allow_all
+
+[Install]
+WantedBy=multi-user.target
