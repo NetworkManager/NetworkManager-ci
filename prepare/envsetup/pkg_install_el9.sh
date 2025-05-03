@@ -121,6 +121,28 @@ install_el9_packages () {
         $KOJI/scsi-target-utils/1.0.79/3.fc34/$(arch)/scsi-target-utils-1.0.79-3.fc34.$(arch).rpm \
         $KOJI/perl-Config-General/2.63/14.fc34/noarch/perl-Config-General-2.63-14.fc34.noarch.rpm"
 
+    ##############################################################################
+    #####            _   _       _    __ _
+    #####           | | | | ___ | |_ / _(_)_  _____  ___
+    #####           | |_| |/ _ \| __| |_| \ \/ / _ \/ __|
+    #####           |  _  | (_) | |_|  _| |>  <  __/\__ \
+    #####           |_| |_|\___/ \__|_| |_/_/\_\___||___/
+    #####
+    #####
+
+    # Install freeradius not in centos compose yet
+    grep -q CentOS /etc/redhat-release && PKGS_UPGRADE="$PKGS_UPGRADE \
+         $KHUB/freeradius/3.0.21/44.el9/$(arch)/freeradius-3.0.21-44.el9.$(arch).rpm"
+
+    #####
+    #####            _   _       _    __ _
+    #####           | | | | ___ | |_ / _(_)_  _____  ___
+    #####           | |_| |/ _ \| __| |_| \ \/ / _ \/ __|
+    #####           |  _  | (_) | |_|  _| |>  <  __/\__ \
+    #####           |_| |_|\___/ \__|_| |_/_/\_\___||___/
+    #####
+    ##############################################################################
+
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
 
