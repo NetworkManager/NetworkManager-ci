@@ -10114,24 +10114,6 @@ r-libreswan']
         duration: 10m
         tty: true
     
-    /8021x_peap_mschapv2_doc_procedure:
-        test: run/runtest.sh 8021x_peap_mschapv2_doc_procedure
-        tag: ['gate']
-        environment:
-            TEST: NetworkManager_1232_8021x_peap_mschapv2_doc_procedure
-        order: 12320
-        duration: 10m
-        tty: true
-    
-    /8021x_teardown_doc:
-        test: run/runtest.sh 8021x_teardown_doc
-        tag: ['gate']
-        environment:
-            TEST: NetworkManager_1233_8021x_teardown_doc
-        order: 12330
-        duration: 10m
-        tty: true
-    
     /simwifi_peap_mschapv2_doc_procedure:
         test: run/runtest.sh simwifi_peap_mschapv2_doc_procedure
         tag: ['gate']

@@ -146,8 +146,6 @@ simwifi_tls_wpa3
 nmcli_simwifi_teardown
 simwifi_ap_in_bridge_wpa_psk_method_manual
 policy_based_routing_doc_procedure
-8021x_peap_mschapv2_doc_procedure
-8021x_teardown_doc
 simwifi_peap_mschapv2_doc_procedure
 simwifi_hotspot_doc_procedure
 simwifi_hotspot_sae_doc_procedure
@@ -161,6 +159,8 @@ wireguard_nmcli_doc_procedure
 wireguard_nmtui_doc_procedure
 vxlan_doc_procedure
 8021x_hostapd_freeradius_doc_procedure
+8021x_peap_mschapv2
+8021x_tls
 doc_set_gateway_on_existing_profile
 doc_nmcli_offline_connection_add
 doc_set_mtu_9000
