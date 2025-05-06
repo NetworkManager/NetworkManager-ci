@@ -761,10 +761,40 @@ Feature: nmcli - procedures in documentation
     * Doc: "Using nmcli to create key file connection profiles in offline mode"
     * Cleanup connection "Example-Connection"
     * Stop NM
-    * Execute "nmcli --offline connection add type ethernet con-name Example-Connection ipv4.addresses 192.0.2.1/24 ipv4.dns 192.0.2.200 ipv4.method manual > /etc/NetworkManager/system-connections/output.nmconnection"
-    * Execute "chmod 600 /etc/NetworkManager/system-connections/output.nmconnection ; chown root:root /etc/NetworkManager/system-connections/output.nmconnection"
+    * Execute "nmcli --offline connection add type ethernet con-name Example-Connection ipv4.addresses 192.0.2.1/24 ipv4.dns 192.0.2.200 ipv4.method manual > /etc/NetworkManager/system-connections/example.nmconnection"
     * Start NM
-    Then "ethernet\s+/etc/NetworkManager/system-connections/output.nmconnection\s+Example-Connection" is visible with command "nmcli -f TYPE,FILENAME,NAME connection"
+    * Execute "chmod 600 /etc/NetworkManager/system-connections/example.nmconnection ; chown root:root /etc/NetworkManager/system-connections/example.nmconnection"
+    Then "ethernet\s+/etc/NetworkManager/system-connections/example.nmconnection\s+Example-Connection" is not visible with command "nmcli -f TYPE,FILENAME,NAME connection"
+    * Reload connections
+    * Bring "up" connection "Example-Connection"
+    Then "ethernet\s+/etc/NetworkManager/system-connections/example.nmconnection\s+Example-Connection" is visible with command "nmcli -f TYPE,FILENAME,NAME connection" in "10" seconds
+    Then Execute "nmcli connection show Example-Connection"
+
+
+    @restart_if_needed
+    @doc_keyfile_connection_add
+    Scenario: nmcli - doc - general - Using nmcli to create key file connection profiles in offline mode
+    * Doc: "Using nmcli to create key file connection profiles in offline mode"
+    * Cleanup connection "Example-Connection"
+    * Create keyfile "/etc/NetworkManager/system-connections/example.nmconnection"
+      """
+      [connection]
+      id=Example-Connection
+      type=ethernet
+      autoconnect=true
+      interface-name=eth2
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      method=auto
+      """
+    * Execute "chmod 600 /etc/NetworkManager/system-connections/example.nmconnection ; chown root:root /etc/NetworkManager/system-connections/example.nmconnection"
+    Then "ethernet\s+/etc/NetworkManager/system-connections/example.nmconnection\s+Example-Connection" is not visible with command "nmcli -f TYPE,FILENAME,NAME connection"
+    * Reload connections
+    * Bring "up" connection "Example-Connection"
+    Then "ethernet\s+/etc/NetworkManager/system-connections/example.nmconnection\s+Example-Connection" is visible with command "nmcli -f TYPE,FILENAME,NAME connection" in "10" seconds
     Then Execute "nmcli connection show Example-Connection"
 
 
