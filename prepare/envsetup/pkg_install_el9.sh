@@ -23,10 +23,6 @@ install_el9_packages () {
         $BREW/rhel-9/packages/wireshark/3.4.0/1.el9.1/$(arch)/wireshark-cli-3.4.0-1.el9.1.$(arch).rpm \
         $KOJI/rp-pppoe/3.15/1.fc35/$(arch)/rp-pppoe-3.15-1.fc35.$(arch).rpm"
 
-    # Valgrind vgdb was split to different RPM not yet in repo
-    PKGS_INSTALL="$PKGS_INSTALL \
-        $KHUB/valgrind/3.24.0/4.el9/$(arch)/valgrind-gdb-3.24.0-4.el9.$(arch).rpm"
-
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
         # We need to install OVS repo
