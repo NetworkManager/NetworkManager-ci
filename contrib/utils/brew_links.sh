@@ -118,7 +118,13 @@ if [ -z "$ver" ]; then
         ver=$(get_latest $url_base/$package/)
     fi
 else
-    ver=$(get_all $url_base/$package/ | grep "$ver" | sort -V | tail -n 1)
+    ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
+    if [ -z "$ver2" ]; then
+       url_base="https://kojipkgs.fedoraproject.org/packages"
+       provider=koji
+       ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
+    fi
+    ver="$ver2"
 fi
 build=$3
 if [ -z "$build" ]; then
@@ -161,7 +167,7 @@ if [ -z "$build" ]; then
         fi
     fi
 else
-    build=$(get_all $url_base/$package/$ver | grep "$build" | sort -V | tail -n 1)
+    build=$(get_all $url_base/$package/$ver | grep -F "$build" | sort -V | tail -n 1)
 fi
 arch=$4
 if [ -z "$arch" ]; then
