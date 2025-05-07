@@ -1377,13 +1377,6 @@ Feature: nmcli: connection
           """
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
     * Expect "192.168.99.1.*192.168.96.1|192.168.96.1.*192.168.99.1" in children in "5" seconds
-    * Commentary
-    """
-    This is reported bug against selinux-policy.
-    https://issues.redhat.com/browse/RHEL-83529
-    Remove the following check once it starts failing.
-    """
-    * Expect AVC "ping.*NetworkManager"
 
 
     @RHEL-21160
@@ -1403,13 +1396,6 @@ Feature: nmcli: connection
           """
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "10" seconds
     * Expect "2620:dead:beaf::1.*2620:dead:beef::1|2620:dead:beef::1.*2620:dead:beaf::1" in children in "5" seconds
-    * Commentary
-    """
-    This is reported bug against selinux-policy.
-    https://issues.redhat.com/browse/RHEL-83529
-    Remove the following check once it starts failing.
-    """
-    * Expect AVC "ping.*NetworkManager"
 
 
     @RHEL-21160
@@ -1431,13 +1417,6 @@ Feature: nmcli: connection
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "20" seconds
     * Expect "192.168.99.1" in children in "5" seconds
     * Do not expect "192.168.96.5" in children in "1" seconds
-    * Commentary
-    """
-    This is reported bug against selinux-policy.
-    https://issues.redhat.com/browse/RHEL-83529
-    Remove the following check once it starts failing.
-    """
-    * Expect AVC "ping.*NetworkManager"
 
 
     @RHEL-58397
