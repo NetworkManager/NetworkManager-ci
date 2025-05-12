@@ -59,7 +59,7 @@
 
     @RHEL-58040
     @fedoraver+=43
-    @rhelver+=9
+    @rhelver+=9.6
     @libreswan @ikev2
     @libreswan_ikev2_require_id_on_cert_subject
     Scenario: nmcli - libreswan - test require ID on certs in subject
