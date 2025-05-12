@@ -393,7 +393,7 @@ Feature: nmcli - procedures in documentation
             """
             con-name br0
             bridge.group-forward-mask 8
-            connection.autoconnect-ports 1
+            connection.autoconnect-slaves 1
             ipv4.method disabled
             ipv6.method disabled
             stp off
