@@ -833,7 +833,7 @@ def test_feature_tags():
         return False
 
     def check_jira(tag):
-        prefixes = ["RHEL", "RHELDOCS"]
+        prefixes = ["NST", "NMT", "RHEL", "RHELDOCS"]
         for prefix in prefixes:
             if tag.startswith(f"{prefix}-"):
                 assert re.fullmatch(rf"{prefix}-\d+", tag)
