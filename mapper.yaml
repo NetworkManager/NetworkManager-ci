@@ -499,6 +499,8 @@ testmapper:
     - bridge_reapply_modifying_just_managed_ports:
         feature: bridge
         tags: gate
+    - bridge_autoconnect_virtual_port:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:

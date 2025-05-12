@@ -1332,3 +1332,26 @@ Feature: nmcli - bridge
     * Wait for "5" seconds
     Then "1 PVID" is visible with command "bridge -d vlan show |grep dummy1"
     Then "100 PVID" is visible with command "bridge -d vlan show |grep dummy0"
+
+    #@NMT-1610
+    @ver+=1.53.5
+    @bridge_autoconnect_virtual_port
+    Scenario: a virtual device port can autoconnect via autoconnect-port, even if it's unrealized
+    # This bug can only be reproduced with autoconnect=no in both controller and port,
+    # and autoconnect-ports=yes in the controller.
+    * Add "bridge" connection named "bridge0" for device "bridge0" with options
+        """
+        autoconnect no
+        connection.autoconnect-ports true
+        ipv4.method disabled
+        ipv6.method disabled
+        """
+    * Add "vlan" connection named "vlan100" for device "vlan100" with options
+        """
+        autoconnect no
+        controller bridge0
+        vlan.parent eth1
+        vlan.id 100
+        """
+    When Bring "up" connection "bridge0"
+    Then "vlan100:connected:vlan100" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
