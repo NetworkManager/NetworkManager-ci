@@ -1960,6 +1960,8 @@ Feature: nmcli - ovs
 
     @RHEL-86877
     @ver+=1.53.3.2
+    @ver+=1.46.8
+    @ver/rhel/9/4+=1.46.0.30
     @openvswitch
     @nmcli_reapply_openvswitch_configuration
     Scenario: nmcli - openvswitch - reapply
