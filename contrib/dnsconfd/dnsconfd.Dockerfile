@@ -4,8 +4,7 @@ COPY ./baseroot /
 COPY ./*.rpm ./
 
 RUN PKGS="systemd iproute ./*.rpm openvpn NetworkManager-openvpn sssd-client */usr/bin/dig \
-    polkit bind-utils bind-dnssec-utils dbus-tools net-tools rsyslog tcpdump procps-ng python3-idna vim crypto-policies-scripts less gdb" && \
-    if ! (grep -q '^ID="centos"' /etc/os-release && grep -q '^VERSION_ID="10"' /etc/os-release); then PKGS="$PKGS dnsconfd*"; fi && \
+    polkit bind-utils bind-dnssec-utils dbus-tools net-tools rsyslog tcpdump procps-ng python3-idna vim crypto-policies-scripts less gdb dnsconfd*" && \
     dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs $PKGS
 # we will replace the path in code only for testing purposes
 # accessing sysfs in the container could be dangerous for the host machine and would require
