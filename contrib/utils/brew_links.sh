@@ -35,7 +35,7 @@ BEGIN { p=0; }
 QUOT="'"'"'
 
 get_all() {
-    curl -L --insecure --max-redirs 5 -s "$1" |sed 's/<tr>/\n/g' | awk "$AWK_SCR" | sed "s/.*a href=[$QUOT]\([^$QUOT]*\)[$QUOT].*/\1/;s@/*\$@@"
+    curl -L --insecure --max-redirs 5 --connect-timeout 5 -s "$1" |sed 's/<tr>/\n/g' | awk "$AWK_SCR" | sed "s/.*a href=[$QUOT]\([^$QUOT]*\)[$QUOT].*/\1/;s@/*\$@@"
 }
 
 get_latest() {
