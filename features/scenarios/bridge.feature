@@ -1333,7 +1333,8 @@ Feature: nmcli - bridge
     Then "1 PVID" is visible with command "bridge -d vlan show |grep dummy1"
     Then "100 PVID" is visible with command "bridge -d vlan show |grep dummy0"
 
-    #@NMT-1610
+
+    @NMT-1610
     @ver+=1.53.5
     @bridge_autoconnect_virtual_port
     Scenario: a virtual device port can autoconnect via autoconnect-port, even if it's unrealized
