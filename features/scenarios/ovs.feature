@@ -1963,7 +1963,7 @@ Feature: nmcli - ovs
     @ver+=1.46.8
     @ver+=1.48.17
     @ver+=1.50.3
-    @ver+=1.52.0
+    @ver+=1.52.0.4
     @ver/rhel/9/4+=1.46.0.30
     @openvswitch
     @nmcli_reapply_openvswitch_configuration
