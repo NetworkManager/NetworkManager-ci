@@ -4011,3 +4011,10 @@ Feature: nmcli - general
     * Add "ovs-bridge" connection named "br-ex" for device "br-ex"
     * Add "ovs-port" connection named "ovs-port-phys0" for device "port1" with options "controller br-ex autoconnect no"
     Then "ovs-bridge" is visible with command "nmcli -g connection.port-type connection show ovs-port-phys0" in "0" seconds
+
+
+    @RHEL-89914
+    @ver+=1.53.4
+    @assume_external_controller_with_port
+    Scenario: NM - connection - assume external controller with a port
+    * Execute reproducer "repro_rhel89914.sh"
