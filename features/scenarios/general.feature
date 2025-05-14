@@ -3727,3 +3727,16 @@ Feature: nmcli - general
     * Add "ovs-bridge" connection named "br-ex" for device "br-ex"
     * Add "ovs-port" connection named "ovs-port-phys0" for device "port1" with options "controller br-ex autoconnect no"
     Then "ovs-bridge" is visible with command "nmcli -g connection.port-type connection show ovs-port-phys0" in "0" seconds
+
+
+    @RHEL-89914
+    @ver+=1.53.4.2
+    @assume_external_controller_with_port
+    Scenario: NM - connection - assume external controller with a port
+    * Commentary
+        """
+        This is testing reevaluation of is-controller and connected (externally) behavior.
+        Test creates and deletes 100 times a VRF interface connected to a virtual Ethernet pair.
+        We should always see connected (100) but never unmanaged.
+        """
+    * Execute reproducer "repro_rhel89914.sh"

@@ -1910,6 +1910,8 @@ testmapper:
     - insufficient_perms_connection_down:
         feature: general
         tags: gate
+    - assume_external_controller_with_port:
+        feature: general
     - insufficient_perms_connection_up:
         feature: general
         tags: gate
