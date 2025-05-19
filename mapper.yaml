@@ -3066,6 +3066,8 @@ testmapper:
         feature: dns
     - dns_reapply_on_disabled_ipv6:
         feature: dns
+    - dns_reapply_device_with_same_globals:
+        feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
     - nmtui_general_open_edit_menu:

@@ -1570,3 +1570,40 @@ Feature: nmcli - dns
         * Execute "nmcli device reapply eth2"
     Then "2000::1" is not visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
     Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
+
+
+    @RHEL-92314 @RHEL-92020
+    @ver+=1.53.4.2
+    @dns_reapply_device_with_same_globals
+    Scenario: NM - dns - reapply device with the same globals present
+    * Create NM config file "90-nmci-test-dns-none.conf" with content
+      """
+        [global-dns]
+        searches=example.net,example.org
+        options=rotate,debug
+
+        [global-dns-domain-*]
+        servers=2001:db8:1::d1,2001:db8:1::d2,192.0.2.1
+        options=
+
+      """
+    * Restart NM
+    * Wait for "1" seconds
+    * Add "dummy" connection named "dummy0*" for device "dummy0" with options
+        """
+        ipv4.method manual
+        ipv4.dns-search example.net,example.org
+        ipv4.addresses 192.0.2.251/24
+        ipv4.dns 192.0.2.1
+        ipv6.method manual
+        ipv6.dns 2001:db8:1::d1,2001:db8:1::d2
+        ipv6.addresses 2001:db8:1::1/64
+        ipv6.dns-search example.net,example.org
+        """
+    * Modify connection "dummy0*" changing options "ipv6.dns-options rotate,debug"
+    * Commentary
+        """
+        We shouldn't crash now
+        """
+    * Execute "nmcli device reapply dummy0"
+
