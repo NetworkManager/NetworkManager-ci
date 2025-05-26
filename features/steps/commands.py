@@ -1184,6 +1184,13 @@ def run_nmstate(context, log_file):
     # Install podman and git clone nmstate
     nmci.veth.wait_for_testeth0()
     nmci.util.directory_remove("/tmp/nmstate", recursive=True)
+
+    nmci.process.run_stdout(
+        "yum -y install podman",
+        ignore_stderr=True,
+        timeout=200,
+    )
+
     # Use temporary repo to try some changes in dnf
     nmci.process.run_stdout(
         "git clone https://github.com/nmstate/nmstate.git /tmp/nmstate",
