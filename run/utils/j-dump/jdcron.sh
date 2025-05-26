@@ -186,7 +186,7 @@ process_job() {
 		JOB_FULL_NAME="${JOB_HEADER}${job}"
 		[ -n "$JOB_HEADER" ] && JDUMP_JOB_NAME="--name ${job%-upstream}" || unset JDUMP_JOB_NAME
 
-		$JDUMP_BIN $JDUMP_OPTIONS $JDUMP_STEPS_DIR $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1 &
+		timeout 1h $JDUMP_BIN $JDUMP_OPTIONS $JDUMP_STEPS_DIR $JDUMP_JOB_NAME "$JENKINS_URL" "$JOB_FULL_NAME" >> "$LOG_FILE" 2>&1 &
 		if (( ++i > 6 ))
 		then
 			i=0
