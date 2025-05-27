@@ -14,26 +14,6 @@ Feature: nmcli: inf
     Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
 
 
-    @ver-1.40
-    @inf_create_connection_novice_mode
-    Scenario: nmcli - inf - novice - create infiniband with default options
-     * Cleanup connection "infiniband"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "infiniband" in editor
-     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
-     * Enter in editor
-     * Expect "Interface name"
-     * Submit "inf_ib0" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
-     * Submit "no" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-     * Wait for "1" seconds
-     * Bring "up" connection "infiniband"
-    Then "inet 172" is visible with command "ip a s inf_ib0" in "30" seconds
-
-
     @ver+=1.40
     @inf_create_connection_novice_mode
     Scenario: nmcli - inf - novice - create infiniband with default options
@@ -70,43 +50,6 @@ Feature: nmcli: inf
           """
     * Bring "up" connection "inf"
     * Bring "up" connection "inf.8006"
-    Then "inet 172" is visible with command "ip a s inf_ib0.8006" in "30" seconds
-
-
-    @ver+=1.10.0
-    @ver-1.40
-    @inf_create_port_novice_mode
-    Scenario: nmcli - inf - novice - create infiniband port with default options
-     * Cleanup connection "inf_ib0.8006"
-     * Cleanup connection "infiniband"
-     * Add "infiniband" connection named "inf" for device "inf_ib0"
-     * Bring "up" connection "inf"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "infiniband" in editor
-     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
-     * Enter in editor
-     * Expect "Interface name"
-     * Submit "inf_ib0.8006" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
-     * Submit "yes" in editor
-     * Expect "MAC"
-     * Enter in editor
-     * Expect "MTU"
-     * Enter in editor
-     * Expect "Transport mode"
-     * Submit "datagram" in editor
-     # TO avoid https://bugzilla.redhat.com/show_bug.cgi?id=2053603
-     #* Enter in editor
-     * Expect "P_KEY"
-     * Submit "0x8006" in editor
-     * Expect "Parent interface"
-     * Submit "inf_ib0" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-     * Wait for "1" seconds
-     * Bring "up" connection "inf"
-     * Bring "up" connection "infiniband"
     Then "inet 172" is visible with command "ip a s inf_ib0.8006" in "30" seconds
 
 
