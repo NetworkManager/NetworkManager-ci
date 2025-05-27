@@ -439,11 +439,7 @@ testmapper:
         feature: bridge
     - outer_bridge_restart_persistence:
         feature: bridge
-    - bridge_set_mac:
-        feature: bridge
     - bridge_set_mac_var1:
-        feature: bridge
-    - bridge_set_mac_var2:
         feature: bridge
     - bridge_external_unmanaged:
         feature: bridge
