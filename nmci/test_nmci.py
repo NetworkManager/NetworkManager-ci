@@ -1681,7 +1681,7 @@ def test_misc_version_control():
     )
 
     for stream, version in [
-        ("rhel-8-6", [1, 36, 0, 4]),
+        ("rhel-8-10", [1, 40, 0, 4]),
     ]:
         with Stub.misc_nm_version_detect((stream, version)):
             assert nmci.misc.test_version_check(test_name="ipv6_check_addr_order") == (
@@ -1689,9 +1689,8 @@ def test_misc_version_control():
                 "ipv6_check_addr_order",
                 [
                     "rhbz1995372",
-                    "ver+=1.36",
-                    "ver-1.36.7",
-                    "ver-1.38",
+                    "ver-",
+                    "ver/rhel/8+=1.39.7.2",
                     "ipv6_check_addr_order",
                 ],
             )
@@ -1708,8 +1707,6 @@ def test_misc_version_control():
                     "rhbz1995372",
                     "ver+=1.36.7",
                     "ver+=1.38",
-                    "ver/rhel/8+=1.36.7",
-                    "ver/rhel/8+=1.38",
                     "ver/rhel/8-1.39.7.2",
                     "ipv6_check_addr_order",
                 ],

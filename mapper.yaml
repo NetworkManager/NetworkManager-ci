@@ -788,8 +788,6 @@ testmapper:
     - nm-online_wait_for_ipv6_to_finish:
         feature: ipv6
         tags: gate libndp
-    - ipv6_shared_connection_error:
-        feature: ipv6
     - ipv6_shared_connection:
         feature: ipv6
         tags: gate libndp
