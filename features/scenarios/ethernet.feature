@@ -866,27 +866,6 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
-    @rhbz1113941
-    @ver+=1.6.0
-    @ver-=1.10.0
-    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
-    @8021x_without_password
-    Scenario: nmcli - ethernet - connect to 8021x - md5 - ask for password
-    * Add "ethernet" connection named "con_ethernet" with options
-          """
-          ifname test8X
-          802-1x.eap md5
-          802-1x.identity user
-          autoconnect no
-          """
-    * Spawn "nmcli -a con up con_ethernet" command
-    * Expect "identity.*user"
-    * Enter in editor
-    * Send "password" in editor
-    * Enter in editor
-    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-
-
     @rhbz1113941 @rhbz1438476
     @ver+=1.10.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
@@ -1038,30 +1017,6 @@ Feature: nmcli - ethernet
     * Bring "up" connection "con_ethernet"
     * Note the output of "ethtool -k eth1 | grep tx-checksum-ipv4:" as value "out2"
     Then Check noted values "out1" and "out2" are the same
-
-
-    @rhbz1614700 @rhbz1807171
-    @ver+=1.25 @ver-=1.34 @rhelver+=8 @fedoraver+=34
-    @prepare_patched_netdevsim
-    @ethtool_features_ring
-    Scenario: nmcli - ethernet - ethtool set ring options
-    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
-          """
-          ipv4.method manual
-          ipv4.addresses 192.0.2.1/24
-          ethtool.ring-tx 1000
-          ethtool.ring-rx-jumbo 1000
-          ethtool.ring-rx-mini 100
-          ethtool.ring-rx 1
-          autoconnect no
-          """
-    * Bring "up" connection "con_ethernet"
-    When "RX:\s+1\s*RX Mini:\s+100\s*RX Jumbo:\s+1000\s*TX:\s+1000" is visible with command "ethtool -g eth11"
-    * Disconnect device "eth11"
-    When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
-    * Modify connection "con_ethernet" changing options "ethtool.ring-tx 0 ethtool.ring-rx-jumbo 0 ethtool.ring-rx-mini 0 ethtool.ring-rx 0"
-    * Bring "up" connection "con_ethernet"
-    When "RX:\s+0\s*RX Mini:\s+0\s*RX Jumbo:\s+0\s*TX:\s+0" is visible with command "ethtool -g eth11"
 
 
     @rhbz1614700 @rhbz1807171 @rhbz2034086
