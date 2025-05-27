@@ -1814,8 +1814,6 @@ testmapper:
     - nmcli_device_disconnect:
         feature: general
         tags: gate
-    - run_once_new_connection:
-        feature: general
     - run_once_ip4_renewal:
         feature: general
         tags: gate
@@ -1934,8 +1932,6 @@ testmapper:
         tags: gate
     - nmcli_device_attempt_hw_delete:
         feature: general
-    - nmcli_novice_mode_readline:
-        feature: general
     - nmcli_device_wifi_with_two_devices:
         feature: general
     - veth_goes_to_unmanaged_state:
@@ -1949,8 +1945,6 @@ testmapper:
     - nmcli_general_activate_static_connection_carrier_not_ignored:
         feature: general
     - nmcli_monitor:
-        feature: general
-    - device_dbus_signal:
         feature: general
     - dns_over_dbus:
         feature: general

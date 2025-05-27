@@ -126,36 +126,6 @@ Feature: nmcli - general
     Then "localhost|fedora" is not visible with command "hostnamectl --transient" in "60" seconds
 
 
-    @ver+=1.4.0
-    @ver-=1.29
-    @restore_hostname @eth0
-    @pull_hostname_from_dns
-    Scenario: nmcli - general - pull hostname from DNS
-    # Note: we want to test the name resolution via DNS lookup. If we used the
-    # default DHCP range, even if the DNS lookup fails the glibc resolver would
-    # look into /etc/hosts and return one of the names there. Instead, use a
-    # different range without mapping in /etc/hosts.
-    # Note/2: we also add a static address so that NM will first try to resolve
-    # that (and fail because at that point there is no name server). Later,
-    # after the DHCPv4 lease is obtained, NM will try again and succeed.
-    # Note/3: --dhcp-option=12 is to prevent NM from sending a hostname option
-    * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,foo-bar"
-    * Execute "hostnamectl set-hostname """
-    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
-    * Wait for "1" seconds
-    * Add "ethernet" connection named "con_general" for device "testG" with options
-          """
-          autoconnect no
-          ipv6.method ignore
-          ipv4.method auto
-          """
-    * Modify connection "con_general" changing options "ipv4.address 172.25.13.1/30 ethernet.cloned-mac-address 00:11:22:33:44:55"
-    When "localhost|fedora" is visible with command "hostnamectl --transient" in "60" seconds
-    * Bring "up" connection "con_general"
-    When "ransient" is visible with command "hostnamectl" in "60" seconds
-    Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
-
-
     @rhbz2166711
     @ver/rhel/8/6+=1.36.0.13
     @ver/rhel/8/7+=1.40.0.6
@@ -549,25 +519,6 @@ Feature: nmcli - general
     Then "NetworkManager is not running" is visible with command "nmcli general" in "5" seconds
 
 
-    @rhbz1361145
-    @ver+=1.39.2
-    @ver-=1.39.9
-    @restart_if_needed
-    @general_nmcli_offline_connection_add_modify
-    Scenario: nmcli - general - offline connection add and modify
-    * Stop NM
-    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0"
-    Then Noted value contains "id=offline0"
-     And Noted value contains "type=dummy"
-     And Noted value contains "interface-name=dummy0"
-     And Noted value contains "method=disabled"
-    When Note the output of "nmcli --offline c add con-name offline0 type dummy ifname dummy0 | nmcli --offline c modify ipv4.method auto ipv6.method auto"
-    Then Noted value contains "id=offline0"
-     And Noted value contains "type=dummy"
-     And Noted value contains "interface-name=dummy0"
-     And Noted value contains "method=auto"
-
-
     @rhbz1361145 @rhbz2082682
     @ver+=1.39.10
     @restart_if_needed
@@ -678,12 +629,6 @@ Feature: nmcli - general
     Then "inet 1" is visible with command "ip a s eth0" in "40" seconds
 
 
-    @ver-1.37.3
-    @nmcli_radio_status
-    Scenario: nmcli - radio - status
-    Then "WIFI-HW\s+WIFI\s+WWAN-HW\s+WWAN\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled\s+enabled|disabled" is visible with command "nmcli radio"
-
-
     @ver+=1.37.3
     @nmcli_radio_status
     Scenario: nmcli - radio - status
@@ -738,47 +683,6 @@ Feature: nmcli - general
     Then "eth9\s+ethernet\s+connected" is visible with command "nmcli device"
 
 
-    @ver+=1.12.2
-    @ver-1.21
-    @dhcpd
-    @nmcli_device_reapply_routes
-    Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testG" device
-    * Add "ethernet" connection named "con_general" for device "testG"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "25" seconds
-    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
-     And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-     And "routers = 192.168.99.1" is visible with command "nmcli con show con_general"
-     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
-     And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric" is visible with command "ip r"
-
-
-    @rhbz1763062
-    @ver+=1.21
-    @ver-1.37.90
-    @ver-1.36.7
-    @ver/rhel/8/6-1.36.0.6
-    @ver/rhel/9/0-1.36.0.5
-    @dhcpd
-    @nmcli_device_reapply_routes
-    Scenario: NM - device - reapply just routes
-    * Prepare simulated test "testG" device
-    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * Add "ethernet" connection named "con_general" for device "testG"
-    * Modify connection "con_general" changing options "ipv4.routes '192.168.5.0/24 192.168.99.111 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
-    * Execute "ip netns exec testG_ns kill -SIGCONT $(cat /tmp/testG_ns.pid)"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "25" seconds
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "5" seconds
-    And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
-    And "192.168.5.0/24 via 192.168.99.111 dev testG\s+proto static\s+metric" is visible with command "ip route"
-    And "routers = 192.168.99.1" is visible with command "nmcli con show con_general" in "70" seconds
-    And "default via 192.168.99.1 dev testG\s+proto dhcp\s+metric 21" is visible with command "ip r"
-
-
     @rhbz1763062
     @ver+=1.37.90
     @ver+=1.36.7
@@ -820,26 +724,6 @@ Feature: nmcli - general
      And "routers = 192.168.99.1" is not visible with command "nmcli con show con_general"
      And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
      And "9000" is visible with command "ip a s testG" in "5" seconds
-
-
-    @rhbz1032717 @rhbz1505893
-    @ver+=1.10.2 @ver-1.18
-    @dhcpd
-    @nmcli_device_reapply_all
-    Scenario: NM - device - reapply even address and gate
-    * Prepare simulated test "testG" device
-    * Add "ethernet" connection named "con_general" for device "testG"
-    When "connected" is visible with command "nmcli -g GENERAL.STATE dev show testG" in "45" seconds
-    * Modify connection "con_general" changing options "ipv4.method static ipv4.addresses 192.168.3.10/24 ipv4.gateway 192.168.4.1 ipv4.routes '192.168.5.0/24 192.168.3.11 1' ipv4.route-metric 21 ipv6.method static ipv6.addresses 2000::2/126 ipv6.routes '1010::1/128 2000::1 1'"
-    * Execute "ip netns exec testG_ns kill -SIGSTOP $(cat /tmp/testG_ns.pid)"
-    * "Error.*" is not visible with command "nmcli device reapply testG" in "1" seconds
-    Then "1010::1 via 2000::1 dev testG\s+proto static\s+metric 1" is visible with command "ip -6 route" in "45" seconds
-     And "2000::/126 dev testG\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
-     And "192.168.3.0/24 dev testG\s+proto kernel\s+scope link\s+src 192.168.3.10 metric 21" is visible with command "ip route" in "45" seconds
-     And "192.168.4.1 dev testG\s+proto static\s+scope link\s+metric 21" is visible with command "ip route"
-     And "192.168.5.0/24 via 192.168.3.11 dev testG\s+proto static\s+metric 1" is visible with command "ip route"
-     And "routers = 192.168.99.1" is not visible with command "nmcli con show con_general"
-     And "default via 192.168.99.1 dev testG" is not visible with command "ip r"
 
 
     @rhbz1113941
@@ -899,23 +783,6 @@ Feature: nmcli - general
     * Restart NM
     Then "connected:con_general:testG" is visible with command "nmcli -t -f STATE,CONNECTION,DEVICE device" in "10" seconds
      And "con_general2" is not visible with command "nmcli device"
-
-
-    @rhbz1007365
-    @ver-=1.39.2
-    @nmcli_novice_mode_readline
-    Scenario: nmcli - general - using readline library in novice mode
-    * Cleanup connection "bridge" and device "nm-bridge"
-    * Open wizard for adding new connection
-    * Expect "Connection type"
-    * Send "bond" in editor
-    * Clear the text typed in editor
-    * Submit "bridge" in editor
-    Then Expect "There are \d+ optional .*[Bb]ridge"
-    * Submit "no" in editor
-    * Dismiss IP configuration in editor
-    * Dismiss Proxy configuration in editor
-    Then "nm-bridge" is visible with command "nmcli connection show bridge"
 
 
     @rhbz1136836 @rhbz1173632
@@ -1249,30 +1116,6 @@ Feature: nmcli - general
     Then "test1g\s+ethernet\s+unmanaged.*test1gp\s+ethernet\s+unmanaged" is visible with command "nmcli device"
 
 
-    @rhbz1067299
-    @ver-=1.31.4
-    @nat_from_shared_network_iptables
-    Scenario: NM - general - NAT_dhcp from shared networks
-    * Create "veth" device named "test1g" with options "peer name test1gp"
-    * Add "bridge" connection named "vethbrg" for device "vethbrg" with options
-          """
-          stp no
-          autoconnect no
-          ipv4.method shared
-          ipv4.address 172.16.0.1/24
-          """
-    * Bring "up" connection "vethbrg"
-    * Execute "ip link set test1gp master vethbrg"
-    * Execute "ip link set dev test1gp up"
-    * Add namespace "peers"
-    * Execute "ip link set test1g netns peers"
-    * Execute "ip netns exec peers ip link set dev test1g up"
-    * Execute "ip netns exec peers ip addr add 172.16.0.111/24 dev test1g"
-    * Execute "ip netns exec peers ip route add default via 172.16.0.1"
-    Then "OK" is visible with command "ip netns exec peers curl --interface test1g http://static.redhat.com/test/rhel-networkmanager.txt" in "20" seconds
-    Then Unable to ping "172.16.0.111" from "eth0" device
-
-
     @rhbz1067299 @rhbz1548825
     @rhelver+=8 @fedoraver+=32
     @ver+=1.31.5
@@ -1336,42 +1179,6 @@ Feature: nmcli - general
     Then Unable to ping "172.16.0.111" from "eth0" device
 
 
-    @rhbz1083683 @rhbz1256772 @rhbz1260243
-    @ver-=1.34
-    @restart_if_needed @runonce
-    @run_once_new_connection
-    Scenario: NM - general - run once and quit start new ipv4 and ipv6 connection
-    * Prepare simulated test "testG" device
-    * Add "ethernet" connection named "con_general" for device "testG" with options
-          """
-          ipv4.addresses 1.2.3.4/24
-          ipv4.may-fail no
-          ipv6.addresses 1::128/128
-          ipv6.may-fail no
-          connection.autoconnect yes
-          """
-    * Bring "up" connection "con_general"
-    * Disconnect device "testG"
-    * Stop NM and clean "testG"
-    When "state DOWN" is visible with command "ip a s testG" in "15" seconds
-    * Create NM config file "01-nmci-run-once.conf" with content
-      """
-      [main]
-      configure-and-quit=yes
-      dhcp=internal
-      """
-    * Start NM without PID wait
-    Then "192." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
-    Then "1.2.3.4\/24" is visible with command "ip a s testG |grep 'inet '|grep -v dynamic" in "60" seconds
-    Then "2620:" is visible with command "ip a s testG |grep 'inet6'|grep  dynamic" in "60" seconds
-    Then "1::128\/128" is visible with command "ip a s testG |grep 'inet6'" in "60" seconds
-    Then "default via 192" is visible with command "ip r |grep testG" in "60" seconds
-    Then "1.2.3.0\/24" is visible with command "ip r |grep testG" in "60" seconds
-    Then "1::128" is visible with command "ip -6 r |grep testG" in "60" seconds
-    Then "nm-iface-helper --ifname testG" is visible with command "ps aux|grep helper" in "60" seconds
-    Then "inactive" is visible with command "systemctl is-active NetworkManager"
-
-
     @rhbz1083683 @rhbz1256772
     @restart_if_needed @runonce
     @run_once_ip4_renewal
@@ -1426,30 +1233,6 @@ Feature: nmcli - general
 
 
     @rhbz1201497
-    @ver-1.10
-    @restart_if_needed @eth0 @restore_hostname @runonce
-    @run_once_helper_for_localhost_localdomain
-    Scenario: NM - general - helper running for localhost on localdo
-    * Bring "up" connection "testeth0"
-    * Disconnect device "eth0"
-    * Wait for "2" seconds
-    * Stop NM and clean "eth0"
-    When "state DOWN" is visible with command "ip a s eth0" in "5" seconds
-    * Execute "hostnamectl set-hostname localhost.localdomain"
-    * Create NM config file "01-nmci-run-once.conf" with content
-      """
-      [main]
-      configure-and-quit=yes
-      dhcp=internal
-      """
-    * Execute "ip link set dev eth0 up"
-    * Wait for "1" seconds
-    * Start NM without PID wait
-    Then "eth0" is visible with command "ps aux|grep helper" in "40" seconds
-    Then "eth0" is visible with command "ps aux|grep helper" for full "20" seconds
-
-
-    @rhbz1201497
     @ver+=1.10
     @restart_if_needed @eth0 @restore_hostname @runonce
     @run_once_helper_for_localhost_localdomain
@@ -1498,25 +1281,6 @@ Feature: nmcli - general
     @nm_wait_online_requires_NM
     Scenario: NM - general - NM wait online - requires NM
     Then "Requires=NetworkManager.service" is visible with command "cat /usr/lib/systemd/system/NetworkManager-wait-online.service"
-
-
-    @rhbz1086906
-    @ver-1.39.3
-    @ver-1.38.1
-    @ver-1.36.5
-    @ver/rhel/8/6-1.36.0.6
-    @ver/rhel/9/0-1.36.0.5
-    @delete_testeth0 @restart_if_needed
-    @wait-online-for-both-ips
-    Scenario: NM - general - wait-online - for both ipv4 and ipv6
-    * Prepare simulated test "testG" device
-    * Add "ethernet" connection named "con_general" for device "testG" with options "ipv4.may-fail no ipv6.may-fail no"
-    * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "50" seconds
-    * Restart NM
-    #When "2620:" is not visible with command "ip a s testG"
-    * Execute "/usr/bin/nm-online -s -q --timeout=30"
-    When "inet .* global" is visible with command "ip a s testG"
-    Then "inet6 .* global" is visible with command "ip a s testG"
 
 
     @rhbz1086906 @rhbz2050216 @rhbz2077605
@@ -1577,39 +1341,6 @@ Feature: nmcli - general
     * Wait for "10" seconds
     When "FAIL" is visible with command "cat /tmp/nm-online.txt"
      And Execute "ip netns exec testG_ns ip link set testGp up"
-    Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
-
-
-    @rhbz1759956
-    @ver+=1.22.5 @ver-=1.24
-    @delete_testeth0 @restart_if_needed
-    @nm_online_wait_for_second_connection
-    Scenario: NM - general - wait for second device
-    * Add "ethernet" connection named "con_general" for device "testG" with options
-          """
-          802-1x.eap md5
-          802-1x.identity user
-          802-1x.password password
-          connection.autoconnect-priority 50
-          connection.auth-retries 1
-          """
-    * Add "ethernet" connection named "con_general2" for device "testG" with options
-          """
-          connection.autoconnect-priority 20
-          """
-    * Stop NM
-    * Execute "rm -rf /var/run/NetworkManager"
-    * Prepare simulated test "testG" device
-    * Execute "ip netns exec testG_ns pkill -SIGSTOP -F /tmp/testG_ns.pid"
-    * Execute "ip addr flush dev testG"
-    * Start NM
-    * Run child "echo FAIL > /tmp/nm-online.txt && /usr/bin/nm-online -s -q --timeout=60 && echo PASS > /tmp/nm-online.txt"
-    When "con_general" is visible with command "nmcli con show -a" in "10" seconds
-    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Wait for "30" seconds
-    When "con_general2" is visible with command "nmcli con show -a" in "20" seconds
-    When "FAIL" is visible with command "cat /tmp/nm-online.txt"
-    * Execute "ip netns exec testG_ns pkill -SIGCONT -F /tmp/testG_ns.pid"
     Then "PASS" is visible with command "cat /tmp/nm-online.txt" in "10" seconds
 
 
@@ -1910,21 +1641,6 @@ Feature: nmcli - general
     * Modify connection "con_general" changing options "-ipv4.address 1.2.3.4/24"
     * "Error.*" is not visible with command "nmcli device reapply eth8" in "1" seconds
     Then "up" is not visible with command "cat /tmp/dispatcher.txt"
-
-
-    @rhbz1371920
-    @ver+=1.4.0
-    @ver-1.31.4
-    @kill_dbus-monitor
-    @device_dbus_signal
-    Scenario: NM - general - device dbus signal
-    * Prepare simulated test "testG" device
-    * Add "ethernet" connection named "con_general" for device "testG"
-    * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
-    * Bring "up" connection "con_general"
-    Then "NetworkManager.Device.Wired; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
-     And "NetworkManager.Device.Veth; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
-     And "DBus.Properties; member=PropertiesChanged" is visible with command "grep PropertiesChanged /tmp/dbus.txt"
 
 
     @rhbz1404594
