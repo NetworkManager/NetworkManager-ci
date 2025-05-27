@@ -58,21 +58,6 @@
 
 
     @rhelver-=9
-    @ver-=1.39.6
-    @nmcli_novice_mode_create_team
-    Scenario: nmcli - team - novice - create team
-     * Cleanup connection "team" and device "nm-team"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "team" in editor
-     * Expect "There .* optional"
-     * Submit "no" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-     Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump" in "5" seconds
-
-
-    @rhelver-=9
     @ver+=1.39.7
     @nmcli_novice_mode_create_team
     Scenario: nmcli - team - novice - create team
@@ -87,28 +72,6 @@
      * Dismiss IP configuration in editor
      * Dismiss Proxy configuration in editor
      Then "ifname": "nm-team" is visible with command "teamdctl nm-team state dump" in "5" seconds
-
-
-    @rhelver-=9
-    @ver+=1.21.1 @ver-=1.39.6
-    @nmcli_novice_mode_create_team_slave_with_default_options
-    Scenario: nmcli - team - novice - create port with default options
-     * Cleanup connection "team-slave" and device "eth5"
-     * Add "team" connection named "team0" for device "nm-team"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "team-slave" in editor
-     * Expect "aster"
-     * Submit "nm-team" in editor
-     * Expect "There .* optional.*for General"
-     * Submit "yes" in editor
-     * Expect "Interface name"
-     * Submit "eth5" in editor
-     * Expect "There .* optional"
-     * Submit "no" in editor
-     * Wait for "1" seconds
-     * Bring "up" connection "team-slave"
-    Then Check slave "eth5" in team "nm-team" is "up"
 
 
     @rhelver-=9
@@ -459,25 +422,6 @@
     Then Check slave "eth6" in team "nm-team" is "up"
 
 
-    @rhelver-=9
-    @ver+=1.1.1 @ver-=1.24
-    @teamd
-    @team_reflect_changes_from_outside_of_NM
-    Scenario: nmcli - team - reflect changes from outside of NM
-    * Execute "systemd-run --unit teamd teamd --team-dev=team0"
-    * Wait for "2" seconds
-    When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
-    * Execute "ip link set dev team0 up"
-    When "team0\s+team\s+unmanaged" is visible with command "nmcli d"
-    * Create "dummy" device named "dummy0"
-    * Execute "ip addr add 1.1.1.1/24 dev team0"
-    When "team0\s+team\s+connected\s+team0" is visible with command "nmcli d" in "5" seconds
-    When "dummy0\s+dummy\s+unmanaged" is visible with command "nmcli d"
-    * Execute "teamdctl team0 port add dummy0"
-    When "dummy0\s+dummy\s+connected\s+dummy" is visible with command "nmcli d"
-    Then "TEAM.SLAVES:\s+dummy0" is visible with command "nmcli -f team.slaves dev show team0"
-
-
     @rhbz1816202
     @rhelver-=9
     @ver+=1.25
@@ -796,51 +740,6 @@
 
     @rhbz1398925
     @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_runners
-    Scenario: nmcli - team_abs - set runners
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          connection.autoconnect-slaves yes
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"roundrobin\"" is visible with command "teamdctl nm-team state dump"
-     And Check slave "eth5" in team "nm-team" is "up"
-    # VVV Set random runner
-    * Execute "nmcli connection modify team0 team.runner random"
-    * Bring "up" connection "team0"
-    Then "{\s*\"runner\": {\s*\"name\": \"random\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"kernel_team_mode_name\": \"random\"" is visible with command "teamdctl nm-team state dump"
-     And Check slave "eth5" in team "nm-team" is "up"
-    # VVV Set broadcast runner
-    * Execute "nmcli connection modify team0 team.runner broadcast"
-    * Bring "up" connection "team0"
-    Then "{\s*\"runner\": {\s*\"name\": \"broadcast\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "\"kernel_team_mode_name\": \"broadcast\"" is visible with command "teamdctl nm-team state dump"
-     And Check slave "eth5" in team "nm-team" is "up"
-    # VVV Set activebackup runner
-    * Execute "nmcli connection modify team0 team.runner activebackup"
-    * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"activebackup\"" is visible with command "teamdctl nm-team state dump"
-     And "{\s*\"runner\": {\s*\"name\": \"activebackup\"\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And Check slave "eth5" in team "nm-team" is "up"
-    # VVV Set loadbalance runner
-    * Execute "nmcli connection modify team0 team.runner loadbalance"
-    * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
-     And "{\s*\"runner\": {\s*\"name\": \"loadbalance\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And Check slave "eth5" in team "nm-team" is "up"
-    # VVV Set lacp runner
-    * Execute "nmcli connection modify team0 team.runner lacp"
-    * Bring "up" connection "team0"
-    Then "\"kernel_team_mode_name\": \"loadbalance\"" is visible with command "teamdctl nm-team state dump"
-     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-
-
-    @rhbz1398925
-    @rhelver-=9
     @ver+=1.19.2
     @team_abs_set_runners
     Scenario: nmcli - team_abs - set runners
@@ -939,27 +838,6 @@
     * Bring "down" connection "team0.0"
     * Note the output of "ip a s eth6|grep ether |awk '{print $2}'" as value "team2"
     Then Check noted values "team" and "team2" are the same
-
-
-    @rhbz1398925
-    @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_runner_tx_hash
-    Scenario: nmcli - team_abs - set runner tx-hash
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          team.runner lacp
-          connection.autoconnect-slaves yes
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    When "\"tx_hash\": \[\s+\"eth\",\s+\"ipv4\",\s+\"ipv6\"\s+\]" is visible with command "teamdctl nm-team conf dump"
-     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"eth\", \"ipv4\", \"ipv6\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli connection modify team0 team.runner-tx-hash l3"
-    * Bring "up" connection "team0"
-    Then "\"tx_hash\": \[\s+\"l3\"\s+\]" is visible with command "teamdctl nm-team conf dump"
-     And "{\s*\"runner\": {\s*\"name\": \"lacp\", \"tx_hash\": \[\s*\"l3\"\s*]\s*}\s*}" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925
@@ -1067,32 +945,6 @@
 
     @rhbz1398925 @rhbz1533810
     @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_runner_sys_prio
-    Scenario: nmcli - team_abs - set runner sys_prio
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          team.runner lacp
-          connection.autoconnect-slaves yes
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    When "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
-     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
-    * Execute "nmcli connection modify team0 team.runner-sys-prio 255"
-    * Bring "up" connection "team0"
-    When "\"sys_prio\": 255" is visible with command "teamdctl nm-team state dump"
-     And "255" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
-    # This need to be fixed in 1533810
-    * Execute "nmcli connection modify team0 team.runner-sys-prio default"
-    * Bring "up" connection "team0"
-    Then "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
-     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
-
-
-    @rhbz1398925 @rhbz1533810
-    @rhelver-=9
     @ver+=1.19.2
     @team_abs_set_runner_sys_prio
     Scenario: nmcli - team_abs - set runner sys_prio
@@ -1115,38 +967,6 @@
     * Bring "up" connection "team0"
     Then "\"sys_prio\": 65535" is visible with command "teamdctl nm-team state dump"
     And "65535 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.runner-sys-prio'"
-
-
-    @rhbz1398925 @rhbz1533830
-    @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_runner_min_ports
-    Scenario: nmcli - team_abs - set runner min_ports
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          ip4 1.2.3.4/24
-          team.runner lacp
-          team.runner-min-ports 2
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    * Bring "up" connection "team0.0"
-    When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
-     And "2" is visible with command "nmcli connection show team0 |grep min-port"
-    * Execute "nmcli connection modify team0 team.runner-min-ports ''"
-    * Bring "up" connection "team0"
-    When "min_ports" is not visible with command "teamdctl nm-team conf dump"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
-    * Execute "nmcli connection modify team0 team.runner-min-ports 2"
-    * Bring "up" connection "team0"
-    * Bring "up" connection "team0.0"
-    When "\"min_ports\": 2" is visible with command "teamdctl nm-team conf dump"
-     And "2" is visible with command "nmcli connection show team0 |grep min-port"
-    * Execute "nmcli connection modify team0 team.runner-min-ports default"
-    * Bring "up" connection "team0"
-    Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
 
 
     @rhbz1398925 @rhbz1533830
@@ -1179,45 +999,6 @@
     # * Bring "up" connection "team0"
     # Then "min_ports" is not visible with command "teamdctl nm-team conf dump"
     # And "0 \(default\)" is visible with command "nmcli connection show team0 |grep min-port"
-
-
-
-    @rhbz1398925 @rhbz1533830
-    @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_runner_agg_select_policy
-    Scenario: nmcli - team_abs - set runner agg-select-policy
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          team.runner lacp
-          connection.autoconnect-slaves yes
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio\"" is visible with command "teamdctl nm-team state dump"
-     And "agg_select_policy" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli connection modify team0 team.runner-agg-select-policy lacp_prio_stable"
-    * Bring "up" connection "team0"
-    When "\"select_policy\": \"lacp_prio_stable\"" is visible with command "teamdctl nm-team state dump"
-     And "\"agg_select_policy\": \"lacp_prio_stable\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli connection modify team0 team.runner-agg-select-policy bandwidth"
-    * Bring "up" connection "team0"
-    When "\"select_policy\": \"bandwidth\"" is visible with command "teamdctl nm-team state dump"
-     And "\"agg_select_policy\": \"bandwidth\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli connection modify team0 team.runner-agg-select-policy count"
-    * Bring "up" connection "team0"
-    When "\"select_policy\": \"count\"" is visible with command "teamdctl nm-team state dump"
-     And "\"agg_select_policy\": \"count\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    * Execute "nmcli connection modify team0 team.runner-agg-select-policy port_config"
-    * Bring "up" connection "team0"
-    When "\"select_policy\": \"port_config\"" is visible with command "teamdctl nm-team state dump"
-     And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
-    # VVV Verify bug 1533830
-    * Execute "nmcli connection modify team0 team.runner-agg-select-policy ''"
-    * Bring "up" connection "team0"
-    Then "\"select_policy\": \"port_config\"" is visible with command "teamdctl nm-team state dump"
-     And "\"agg_select_policy\": \"port_config\"" is visible with command "nmcli connection show team0 |grep 'team.config'"
 
 
     @rhbz1398925 @rhbz1533830
@@ -1260,38 +1041,6 @@
 
     @rhbz1398925
     @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_notify_peers
-    Scenario: nmcli - team_abs - set notify_peers
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          ip4 1.2.3.4/24
-          team.runner lacp
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    * Bring "up" connection "team0.0"
-    When "notify_peers" is not visible with command "teamdctl nm-team conf dump"
-     And "notify_peers" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "0 \(disabled\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
-    * Execute "nmcli connection modify team0 team.runner activebackup"
-    * Bring "up" connection "team0"
-    When "\"notify_peers\": {\s+\"count\": 1" is visible with command "teamdctl nm-team conf dump"
-     And "notify_peers" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "1" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
-    * Execute "nmcli connection modify team0 team.notify-peers-count 2 team.notify-peers-interval 20"
-    * Bring "up" connection "team0"
-    Then "\"notify_peers\": {\s+\"count\": 2,\s+\"interval\": 20" is visible with command "teamdctl nm-team conf dump"
-     And "notify_peers" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "2" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
-     And "20" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
-
-
-    @rhbz1398925
-    @rhelver-=9
     @ver+=1.19.2
     @team_abs_set_notify_peers
     Scenario: nmcli - team_abs - set notify_peers
@@ -1320,38 +1069,6 @@
     And "notify_peers" is visible with command "nmcli connection show team0 |grep 'team.config'"
     And "2" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-count'"
     And "20" is visible with command "nmcli connection show team0 |grep 'team.notify-peers-interval'"
-
-
-    @rhbz1398925
-    @rhelver-=9
-    @ver+=1.10 @ver-=1.19.1
-    @team_abs_set_mcast_rejoin
-    Scenario: nmcli - team_abs - set mcast_rejoin
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          autoconnect no
-          ip4 1.2.3.4/24
-          team.runner lacp
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options "master nm-team"
-    * Bring "up" connection "team0"
-    * Bring "up" connection "team0.0"
-    When "mcast_rejoin" is not visible with command "teamdctl nm-team conf dump"
-     And "mcast_rejoin" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "0 \(disabled\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
-    * Execute "nmcli connection modify team0 team.runner activebackup"
-    * Bring "up" connection "team0"
-    When "\"mcast_rejoin\": {\s+\"count\": 1" is visible with command "teamdctl nm-team conf dump"
-     And "mcast_rejoin" is not visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "1" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
-     And "0 \(default\)" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
-    * Execute "nmcli connection modify team0 team.mcast-rejoin-count 2 team.mcast-rejoin-interval 20"
-    * Bring "up" connection "team0"
-    Then "\"mcast_rejoin\": {\s+\"count\": 2,\s+\"interval\": 20" is visible with command "teamdctl nm-team conf dump"
-     And "mcast_rejoin" is visible with command "nmcli connection show team0 |grep 'team.config'"
-     And "2" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-count'"
-     And "20" is visible with command "nmcli connection show team0 |grep 'team.mcast-rejoin-interval'"
 
 
     @rhbz1398925
@@ -1555,40 +1272,6 @@
     * Bring "up" connection "team0"
     Then "\"validate_active\": true" is visible with command "ps aux | grep -v grep | grep teamd"
      And "\"validate_inactive\": true" is visible with command "ps aux | grep -v grep | grep teamd"
-
-
-    @ver+=1.20
-    @rhelver-=9
-    @ver-=1.22.0
-    @team_port_multiple_slaves
-    Scenario: nmcli - teamd - add multiple slaves with team-port option
-    * Add "team" connection named "team0" for device "nm-team" with options
-          """
-          team.runner activebackup
-          ip4 172.20.1.3/24
-          """
-    * Add "ethernet" connection named "team0.0" for device "eth5" with options
-          """
-          master nm-team
-          team-port.prio -10
-          team-port.sticky true
-          """
-    * Bring "up" connection "team0.0"
-    Then JSON "{"prio":-10, "sticky":true}" is visible with command "nmcli -g team-port.config connection show id team0.0 | sed 's/\\//g'"
-    * Bring "up" connection "team0.0"
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show team0" in "45" seconds
-     And JSON "{"device":"nm-team","ports":{"eth5":{"prio":-10,"sticky":true}}}" is visible with command "teamdctl nm-team config dump"
-     And JSON "{"ports":{"eth6":{}}}" is not visible with command "teamdctl nm-team config dump"
-    * Add "ethernet" connection named "team0.1" for device "eth6" with options
-          """
-          master nm-team
-          team-port.prio 10
-          team-port.sticky false
-          """
-    Then JSON "{"prio":10}" is visible with command "nmcli -g team-port.config connection show id team0.1 | sed 's/\\//g'"
-    * Bring "up" connection "team0.1"
-    Then JSON "{"device":"nm-team","ports":{"eth5":{"prio":-10,"sticky":true}}}" is visible with command "teamdctl nm-team config dump"
-     And JSON "{"device":"nm-team","ports":{"eth6":{"prio": 10}}}" is visible with command "teamdctl nm-team config dump"
 
 
     @rhbz1755406
