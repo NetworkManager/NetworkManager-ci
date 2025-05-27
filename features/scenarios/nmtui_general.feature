@@ -44,23 +44,6 @@ Feature: General TUI tests
     Then ".*Hostname testhostname.*" is visible on screen
 
 
-    @ver-=1.2.9
-    @restore_hostname
-    @nmtui_general_set_new_hostname
-    Scenario: nmtui - general - set hostname
-    * Note the output of "hostname"
-    * Start nmtui
-    * Choose to "Set system hostname" from main screen
-    * ".*Set Hostname.*" is visible on screen
-    * Set current field to "testsethostname"
-    * ".*Hostname testsethostname.*" is visible on screen
-    * Press "ENTER" key
-    * ".*Set hostname to 'testsethostname'.*" is visible on screen
-    * Press "ENTER" key
-    Then Nmtui process is not running
-    Then "testsethostname" is visible with command "hostname"
-
-
     @ver+=1.3.0
     @restore_hostname
     @nmtui_general_set_new_hostname
