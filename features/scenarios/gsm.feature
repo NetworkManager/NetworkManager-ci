@@ -28,37 +28,6 @@ Feature: nmcli: gsm
      And Ping "8.8.8.8" "7" times
 
 
-    @ver+=1.21.3
-    @ver-1.39.7
-    @gsm
-    @gsm_create_assisted_connection
-    Scenario: nmcli - gsm - create an assisted connection
-    * Open wizard for adding new connection
-    * Expect "Connection type"
-    * Submit "gsm" in editor
-    * Enter in editor
-    * Expect "Interface name"
-    * Enter in editor
-    * Submit "yes" in editor
-    * Expect "Username"
-    * Submit "user" in editor
-    * Expect "Password"
-    * Submit "pass" in editor
-    * Expect "APN"
-    * Submit "internet" in editor
-    * Dismiss IP configuration in editor
-    * Dismiss Proxy configuration in editor
-    Then "gsm.password:\s+pass" is visible with command "nmcli connection show gsm --show-secrets"
-    Then "gsm.username:\s+user" is visible with command "nmcli connection show gsm --show-secrets"
-    Then "gsm.apn:internet" is visible with command "nmcli -t connection show gsm --show-secrets"
-    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    # Workaround
-    * Wait for "10" seconds
-
-    And "default" is visible with command "ip r |grep 700"
-    * Ping "8.8.8.8" "7" times
-
-
     @ver+=1.39.7
     @gsm
     @gsm_create_assisted_connection
