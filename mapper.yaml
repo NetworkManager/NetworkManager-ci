@@ -1016,8 +1016,6 @@ testmapper:
         feature: ipv4
     - ipv4_dns_resolvconf_symlinked:
         feature: ipv4
-    - ipv4_dns_resolvconf_rhel7_default:
-        feature: ipv4
     - ipv4_dns_resolvconf_file:
         feature: ipv4
     - ipv4_dns_add_another_one:
@@ -1105,12 +1103,6 @@ testmapper:
     - set_mtu_from_DHCP:
         feature: ipv4
         tags: gate
-    - renewal_gw_after_dhcp_outage:
-        feature: ipv4
-        timeout: 20m
-    - renewal_gw_after_long_dhcp_outage:
-        feature: ipv4
-        timeout: 20m
     - dhcp-timeout:
         feature: ipv4
     - dhcp-timeout_infinity:
@@ -1145,13 +1137,9 @@ testmapper:
         feature: ipv4
     - ipv4_honor_ip_order_2:
         feature: ipv4
-    - ipv4_rp_filter_set_loose:
-        feature: ipv4
     - ipv4_rp_filter_set_loose_rhel:
         feature: ipv4
     - ipv4_rp_filter_do_not_touch:
-        feature: ipv4
-    - ipv4_rp_filter_reset:
         feature: ipv4
     - ipv4_rp_filter_reset_rhel:
         feature: ipv4
@@ -1168,8 +1156,6 @@ testmapper:
     - nm_dhcp_lease_renewal_link_down:
         feature: ipv4
     - dhcp_renewal_with_ipv6:
-        feature: ipv4
-    - ipv4_dhcp_client_id_change_lease_restart:
         feature: ipv4
     - ipv4_prefix_route_missing_after_ip_link_down_up:
         feature: ipv4
