@@ -61,21 +61,6 @@
      Then "bond0.0" is visible with command "nmcli con"
 
 
-    @ver+=1.33 @ver-=1.39.6
-    @nmcli_novice_mode_create_bond_with_default_options
-    Scenario: nmcli - bond - novice - create bond with default options
-     * Cleanup connection "bond" and device "nm-bond"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "bond" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
-     * Submit "no" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-    Then "nm-bond" is visible with command "ip a s nm-bond" in "3" seconds
-    Then Check bond "nm-bond" state is "up"
-
-
     @ver+=1.39.7
     @nmcli_novice_mode_create_bond_with_default_options
     Scenario: nmcli - bond - novice - create bond with default options
@@ -114,37 +99,6 @@
      And "method=auto" is not visible with command "cat /etc/NetworkManager/system-connections/bond0.nmconnection"
 
 
-    @ver+=1.33 @ver-=1.39.6
-    @nmcli_novice_mode_create_bond_with_mii_monitor_values
-    Scenario: nmcli - bond - novice - create bond with miimon monitor
-     * Cleanup connection "bond" and device "nm-bond"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "bond" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
-     * Enter in editor
-     * Expect "Bonding mode"
-     * Submit "0" in editor
-     * Expect "Bonding monitoring mode \(miimon\/arp\) \[miimon\]"
-     * Enter in editor
-     * Expect "Bonding miimon \[100\]"
-     * Submit "100" in editor
-     * Expect "Bonding downdelay \[0\]"
-     * Submit "400" in editor
-     * Expect "Bonding updelay \[0\]"
-     * Submit "400" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-    # Remove double up to prevent 1753214
-    # * Bring "up" connection "bond"
-    When "activated" is visible with command "nmcli c show bond" in "45" seconds
-    Then Check bond "nm-bond" link state is "up"
-    Then "MII Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-    Then "Up Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
-    Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
-
-
     @ver+=1.39.7
     @nmcli_novice_mode_create_bond_with_mii_monitor_values
     Scenario: nmcli - bond - novice - create bond with miimon monitor
@@ -177,39 +131,6 @@
     Then "Down Delay \(ms\): 400" is visible with command "cat /proc/net/bonding/nm-bond"
 
 
-    @ver+=1.33 @ver-=1.39.6
-    @nmcli_novice_mode_create_bond_with_arp_monitor_values
-    Scenario: nmcli - bond - novice - create bond with arp monitor
-     * Cleanup connection "bond-1" and device "nm-bond1"
-     * Cleanup connection "bond" and device "nm-bond"
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "bond" in editor
-     * Expect "Do you want to provide them\? \(yes\/no\) \[yes\]"
-     * Enter in editor
-     * Expect "Bonding mode"
-     * Submit "1" in editor
-     * Expect "Bonding primary interface \[none\]"
-     * Enter in editor
-     * Expect "Bonding monitoring mode \(miimon\/arp\) \[miimon\]"
-     * Submit "arp" in editor
-     * Expect "Bonding arp-interval \[0\]"
-     * Submit "100" in editor
-     * Expect "Bonding arp-ip-target \[none\]"
-     * Submit "192.168.100.1" in editor
-     * Dismiss IP configuration in editor
-     * Dismiss Proxy configuration in editor
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-     * Bring "up" connection "bond"
-     Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "MII Polling Interval \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "Up Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
-
-
     @ver+=1.39.7
     @nmcli_novice_mode_create_bond_with_arp_monitor_values
     Scenario: nmcli - bond - novice - create bond with arp monitor
@@ -242,52 +163,6 @@
      Then "Down Delay \(ms\): 0" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
      Then "ARP IP target/s \(n.n.n.n form\):.*192.168.100.1" is visible with command "cat /proc/net/bonding/nm-bond"
-
-
-    @ver-1.21.1
-    @nmcli_novice_mode_create_bond-slave_with_default_options
-    Scenario: nmcli - bond - novice - create bond-slave with default options
-     * Cleanup connection "bond-slave" and device "eth1"
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "bond-slave" in editor
-     * Expect "Interface name"
-     * Submit "eth1" in editor
-     * Expect "aster"
-     * Submit "nm-bond" in editor
-    Then "activated" is visible with command "nmcli c show bond-slave-eth1" in "45" seconds
-    Then Check bond "nm-bond" link state is "up"
-    Then Check slave "eth1" in bond "nm-bond" in proc
-
-
-
-    @ver+=1.33
-    @ver-1.39.7
-    @nmcli_novice_mode_create_bond-slave_with_default_options
-    Scenario: nmcli - bond - novice - create bond-slave with default options
-     * Cleanup connection "bond-slave" and device "eth1"
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
-     * Open wizard for adding new connection
-     * Expect "Connection type"
-     * Submit "bond-slave" in editor
-     * Expect "aster"
-     * Submit "nm-bond" in editor
-     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
-     * Submit "yes" in editor
-     * Expect "Interface name"
-     * Submit "eth1" in editor
-     * Expect "Do you want to provide it\? \(yes\/no\) \[yes\]"
-     * Submit "no"
-    Then "activated" is visible with command "nmcli c show bond-slave" in "45" seconds
-    Then Check bond "nm-bond" link state is "up"
-    Then Check slave "eth1" in bond "nm-bond" in proc
 
 
     @ver+=1.39.7
@@ -359,32 +234,6 @@
      * Bring "up" connection "bond0.1"
      Then Check slave "eth1" in bond "nm-bond" in proc
      Then Check slave "eth4" in bond "nm-bond" in proc
-
-
-    @rhbz1949127
-    @ver+=1.33
-    @ver-1.40.2
-    @bond_add_slaves_with_queue-id
-    Scenario: nmcli - bond - add slaves
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ipv4.addresses 1.2.3.4/24 ipv4.method manual
-           """
-    * Add "ethernet" connection named "bond0.0" for device "eth1" with options
-           """
-           master nm-bond queue-id 2
-           """
-    * Add "ethernet" connection named "bond0.1" for device "eth4" with options
-           """
-           master nm-bond queue-id 4
-           """
-    When "activated" is visible with command "nmcli -g GENERAL.STATE con show bond0" in "40" seconds
-    Then Check slave "eth1" in bond "nm-bond" in proc
-     And "2" is visible with command "nmcli -f bond-port.queue-id con show bond0.0"
-     And "Slave queue ID: 2" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth1/,/^$/p'"
-    Then Check slave "eth4" in bond "nm-bond" in proc
-     And "Slave queue ID: 4" is visible with command "cat /proc/net/bonding/nm-bond | sed -n '/eth4/,/^$/p'"
-     And "4" is visible with command "nmcli -f bond-port.queue-id con show bond0.1"
 
 
     @rhbz1949127 @rhbz2126262
@@ -1087,24 +936,6 @@
      Then Check slave "eth4" in bond "nm-bond" in proc
 
 
-    @ver-=1.24
-    @bond_set_miimon_values
-    Scenario: nmcli - bond - options - set new miimon values
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-     * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=100,updelay=100"
-     * Bring "up" connection "bond0"
-     Then "Bonding Mode: load balancing \(round-robin\)" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then Check bond "nm-bond" link state is "up"
-     Then "MII Polling Interval \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "Up Delay \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then "Down Delay \(ms\): 100" is visible with command "cat /proc/net/bonding/nm-bond"
-
-
     @rhbz1806549
     @ver+=1.25
     @bond_set_miimon_values
@@ -1425,49 +1256,6 @@
      * Bring "up" connection "bond0"
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
-
-
-    @ver-=1.26
-    @bond_active-backup_primary_set
-    Scenario: nmcli - bond - options - mode set to active backup with primary device
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           ip4 172.16.1.1/24
-           """
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
-     * Modify connection "bond0" changing options "bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2"
-     * Bring "up" connection "bond0"
-     * Bring "up" connection "bond0.0"
-     * Bring "up" connection "bond0.1"
-     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
-     Then Check bond "nm-bond" link state is "up"
-
-
-
-    @rhbz1856640 @rhbz1876577
-    @ver+=1.27 @ver-=1.29
-    @bond_active-backup_primary_set
-    Scenario: nmcli - bond - options - mode set to active backup with primary device
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           autoconnect no
-           ip4 172.16.1.1/24
-           -- connection.autoconnect-slaves 1
-           bond.options mode=active-backup,primary=eth1,miimon=100,fail_over_mac=2,primary=eth1
-           """
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
-     * Bring "up" connection "bond0"
-     When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
-     When Check bond "nm-bond" link state is "up"
-     * "Error" is not visible with command "nmcli device modify nm-bond +bond.options 'primary = eth4'"
-     When "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth4 \(primary_reselect always\)\s+Currently Active Slave: eth4" is visible with command "cat /proc/net/bonding/nm-bond"
-     * "Error" is not visible with command "nmcli connection modify bond0 +bond.options 'active_slave = eth1' && nmcli device reapply nm-bond"
-     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     Then "Bonding Mode: fault-tolerance \(active-backup\) \(fail_over_mac follow\)\s+Primary Slave: eth1 \(primary_reselect always\)\s+Currently Active Slave: eth1" is visible with command "cat /proc/net/bonding/nm-bond"
-
 
 
     @rhbz1856640 @rhbz1876577 @rhbz1933292
@@ -1878,25 +1666,6 @@
      Then "Error.*requires 'miimon' option to be enabled" is visible with command "nmcli con add type bond con-name bond0 ifname nm-bond autoconnect no -- connection.autoconnect-slaves 1 bond.options mode=balance-rr,miimon=0,peer_notif_delay=600" in "1" seconds
 
 
-    @rhbz1299103 @rhbz1348573
-    @ver-=1.26
-    @bond_set_balance_tlb_options
-    Scenario: nmcli - bond - set balance-tlb options
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           autoconnect no
-           ip4 172.16.1.1/24
-           -- connection.autoconnect-slaves 1
-           bond.options mode=balance-tlb,tlb_dynamic_lb=0,lp_interval=666
-           """
-     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond autoconnect no"
-     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond autoconnect no"
-     * Bring "up" connection "bond0"
-     #When "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "40" seconds
-     Then "0" is visible with command "cat /sys/class/net/nm-bond/bonding/tlb_dynamic_lb"
-      And "666" is visible with command "cat /sys/class/net/nm-bond/bonding/lp_interval"
-
-
     @rhbz1299103 @rhbz1348573 @rhbz1856640
     @ver+=1.27
     @bond_set_balance_tlb_options
@@ -1995,28 +1764,6 @@
      * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond"
      * Bring "up" connection "bond-slave-eth1"
     Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "45" seconds
-     And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
-     And "eth1:ethernet:connected:bond-slave-eth1" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
-
-
-    @rhbz1360386
-    @ver+=1.7.1 @ver-=1.24
-    @bridge_bond_autoconnect_nested_slaves
-    Scenario: nmcli - bond - autoconnect slaves of slaves
-     * Add "bridge" connection named "bond_bridge0" for device "bond-bridge" with options
-           """
-           autoconnect no
-           ipv4.method manual ipv4.addresses 172.16.1.2/24
-           connection.autoconnect-slaves 1 bridge.stp off
-           """
-     * Add "bond" connection named "bond0" for device "nm-bond" with options
-           """
-           master bond-bridge autoconnect no
-           connection.autoconnect-slaves 1
-           """
-     * Add "ethernet" connection named "bond-slave-eth1" for device "eth1" with options "master nm-bond autoconnect no"
-     * Bring "up" connection "bond_bridge0"
-    Then "bond-bridge:bridge:connected:bond_bridge0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "60" seconds
      And "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
      And "eth1:ethernet:connected:bond-slave-eth1" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "5" seconds
 
@@ -2170,37 +1917,6 @@
      And "eth4:connected:bond0.1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "nm-bond.153:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device"
      And "10.66.66.1/24" is visible with command "ip a s nm-bond.153"
-
-
-     @rhbz1371126
-     @ver-1.13
-     @restart_if_needed
-     @bond_leave_L2_only_up_when_going_down
-     Scenario: nmcli - bond - leave UP with L2 only config
-      * Prepare simulated test "testXB" device
-      * Add "bond" connection named "bond0" for device "nm-bond" with options
-            """
-            autoconnect no
-            ipv4.method disabled ipv6.method ignore
-            """
-      * Add "ethernet" connection named "bond0.0" for device "testXB" with options
-            """
-            autoconnect no
-            connection.master nm-bond
-            connection.slave-type bond
-            """
-      * Bring "up" connection "bond0.0"
-      When "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
-       And "state UP" is visible with command "ip -6 a s nm-bond"
-       And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
-      * Kill NM
-      * Restart NM
-      When "state UP" is visible with command "ip -6 a s nm-bond"
-       And "inet6 fe80" is visible with command "ip -6 a s nm-bond" for full "10" seconds
-      * Bring "up" connection "bond0.0"
-      Then "nm-bond:bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,TYPE,STATE,CONNECTION device" in "40" seconds
-       And "state UP" is visible with command "ip -6 a s nm-bond"
-       And "inet6 fe80" is visible with command "ip -6 a s nm-bond"
 
 
     @rhbz1593282
@@ -2518,17 +2234,6 @@
     Then "default" is visible with command "ip r |grep bond0"
 
 
-    @rhbz1718173
-    @ver+=1.20 @ver-=1.29
-    @bond_normalize_connection
-    Scenario: NM - bond - bond normalize connection
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          bond.options mode=4,arp_interval=2,arp_ip_target=1.1.1.1
-          """
-    Then "mode=802.3ad" is visible with command "nmcli c show bond0"
-
-
     @rhbz1718173 @rhbz1923999
     @ver+=1.29
     @bond_normalize_connection
@@ -2540,22 +2245,6 @@
           """
     Then "mode=802.3ad" is visible with command "nmcli c show bond0"
     Then "error" is not visible with command "journalctl -u NetworkManager --since -10s -p 3 -o cat |grep ad_actor_system"
-
-
-    @rhbz1847814
-    @ver+=1.25
-    @ver-=1.37.2
-    @bond_reapply
-    Scenario: NM - device - reapply just routes
-    * Add "bond" connection named "bond0" for device "nm-bond" with options
-          """
-          ip4 172.16.1.1/24
-          bond.options mode=0,miimon=100,updelay=100
-          """
-    * Bring "up" connection "bond0"
-    * Modify connection "bond0" changing options "bond.options mode=0,miimon=100,downdelay=1000,updelay=100"
-    * Execute "nmcli d reapply nm-bond"
-    Then "1000" is visible with command "cat /sys/class/net/nm-bond/bonding/downdelay"
 
 
     @rhbz1847814 @rhbz2065049
