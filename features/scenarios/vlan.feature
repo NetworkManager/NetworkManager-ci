@@ -416,21 +416,6 @@ Feature: nmcli - vlan
      And "REORDER_HDR" is not visible with command "ip -d l show vlan"
 
 
-    @rhbz1363995
-    @ver+=1.4 @ver-=1.24
-    @vlan_preserve_assumed_connection_ips
-    Scenario: nmcli - bridge - preserve assumed connection's addresses
-    * Cleanup device "vlan"
-    * Execute "ip link add link eth7 name vlan type vlan id 80"
-    * Execute "ip link set dev vlan up"
-    * Execute "ip add add 30.0.0.1/24 dev vlan"
-    When "vlan:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-     And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
-    * Execute "ip link set dev vlan down"
-    Then "vlan:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-     And "inet 30.0.0.1\/24" is visible with command "ip a s vlan"
-
-
     @rhbz1363995 @rhbz1816202
     @ver+=1.25
     @vlan_preserve_assumed_connection_ips
@@ -606,51 +591,6 @@ Feature: nmcli - vlan
     Then "Exactly" "1" lines with pattern "team7.1" are visible with command "ip r show default" in "2" seconds
 
 
-    @rhbz1553595
-    @ver+=1.10.2 @ver-=1.17.90
-    @restart_if_needed
-    @vlan_on_bond_autoconnect
-    Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add "bond" connection named "bond0" for device "nm-bond"
-    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
-    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-    * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
-    * Modify connection "vlan_bond7" property "vlan.parent" to noted value
-    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
-    * Reboot
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    * Restart NM
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-
-
-    @rhbz1553595 @rhbz1701585
-    @ver+=1.18.0 @ver-=1.29
-    @restart_if_needed
-    @vlan_on_bond_autoconnect
-    Scenario: NM - vlan - autoconnect vlan on bond specified as UUID
-    * Add "bond" connection named "bond0" for device "nm-bond"
-    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show bond0"
-    * Add slave connection for master "nm-bond" on device "eth1" named "bond0.0"
-    * Add slave connection for master "nm-bond" on device "eth4" named "bond0.1"
-    * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
-    * Modify connection "vlan_bond7" property "vlan.parent" to noted value
-    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
-    * Reboot
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    * Restart NM
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    * Execute "nmcli networking off"
-    * Restart NM
-    * Execute "nmcli networking on"
-    Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-
-
     @rhbz1553595 @rhbz1701585 @rhbz1937723 @rhbz2155991
     @ver+=1.30.0
     @restart_if_needed
@@ -751,20 +691,6 @@ Feature: nmcli - vlan
     * Add "macvlan" connection named "vlan2" for device "mvl2" with options "mode bridge macvlan.parent eth7.99"
     * Add "macvlan" connection named "vlan" for device "mvl" with options "mode bridge macvlan.parent eth7.299"
     * Restart NM
-
-
-    @rhbz1716438
-    @ver+=1.18.3 @ver-=1.26
-    @vlan_L2_UUID
-    Scenario: NM - vlan - L2 only master via UUID
-    * Add "ethernet" connection named "vlan1" for device "eth7" with options "ipv4.method disabled ipv6.method ignore"
-    * Note the output of "nmcli --mode tabular -t -f connection.uuid connection show vlan1"
-    * Add "vlan" connection named "vlan" for device "eth7.80" with options "dev eth7 id 80 ip4 192.168.1.2/24"
-    * Modify connection "vlan" property "vlan.parent" to noted value
-    * Execute "nmcli connection modify vlan connection.autoconnect yes"
-    * Bring "up" connection "vlan"
-    Then "eth7:connected:vlan1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
-    Then "eth7.80:connected:vlan" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
     @rhbz1716438 @rhbz1818697
