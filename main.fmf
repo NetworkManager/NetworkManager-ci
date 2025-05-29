@@ -6023,10 +6023,10 @@ r-libreswan']
         duration: 10m
         tty: true
     
-    /dracut_NM_vlan_mutliple_over_nic:
-        test: run/runtest.sh dracut_NM_vlan_mutliple_over_nic
+    /dracut_NM_vlan_multiple_over_nic:
+        test: run/runtest.sh dracut_NM_vlan_multiple_over_nic
         environment:
-            TEST: NetworkManager_733_dracut_NM_vlan_mutliple_over_nic
+            TEST: NetworkManager_733_dracut_NM_vlan_multiple_over_nic
         order: 7330
         duration: 10m
         tty: true

@@ -1656,7 +1656,7 @@ Feature: NM: dracut
     @ver+=1.25
     @not_on_ppc64le @skip_in_centos
     @dracut @long
-    @dracut_NM_vlan_mutliple_over_nic
+    @dracut_NM_vlan_multiple_over_nic
     Scenario: NM - dracut - NM module - multiple VLANs over single NIC
     * Run dracut test
       | Param  | Value                                                                 |
