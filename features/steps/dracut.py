@@ -29,7 +29,9 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
     while t.loop_sleep():
         res = proc.expect([pexpect.EOF, KVM_HW_ERROR, pexpect.TIMEOUT], timeout=0.1)
         if res == 0:
-            return True
+            # Do not exit if state is "BOOT", wait for "PASS" or "FAIL" message from console log
+            if context.dracut_vm_state != "BOOT":
+                return True
         if res == 1:
             nmci.cext.skip("KVM hardware error detected.")
         message = boot_log_proc.expect(
