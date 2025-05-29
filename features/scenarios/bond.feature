@@ -2946,6 +2946,8 @@
     * Wait for "2" seconds
     * Execute "ip link set dummy1 down"
     Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+    # Remove once https://issues.redhat.com/browse/RHEL-93741 is resolved
+    * Ignore possible AVC "NetworkManager.*iptables_t" in "5" seconds
 
 
     @RHEL-59558
@@ -2969,6 +2971,8 @@
     * Wait for "2" seconds
     * Execute "ip link set dummy1 down"
     Then Expect "<noted:bond_mac> ARP 42 Gratuitous ARP for 192.168.99.1" in children in "5" seconds
+    # Remove once https://issues.redhat.com/browse/RHEL-93741 is resolved
+    * Ignore possible AVC "NetworkManager.*iptables_t" in "5" seconds
 
 
     @RHEL-59558
@@ -2992,6 +2996,8 @@
     * Wait for "2" seconds
     * Execute "ip link set dummy1 down"
     Then Expect "<noted:bond_mac> RARP 42 Who is <noted:bond_mac>" in children in "5" seconds
+    # Remove once https://issues.redhat.com/browse/RHEL-93741 is resolved
+    * Ignore possible AVC "NetworkManager.*iptables_t" in "5" seconds
 
 
     @RHEL-59558
@@ -3058,3 +3064,5 @@
     * Wait for "5" seconds
     * Execute "ip -n ns1 link set veth2p up"
     Then Expect " 0% packet loss" in children in "30" seconds
+    # Remove once https://issues.redhat.com/browse/RHEL-93741 is resolved
+    * Ignore possible AVC "NetworkManager.*iptables_t" in "5" seconds
