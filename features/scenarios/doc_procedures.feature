@@ -379,6 +379,7 @@ Feature: nmcli - procedures in documentation
 
     @rhelver+=8.6
     @rhelver-10
+    @fedoraver-
     @not_in_image_mode
     @permissive @firewall
     @radius @8021x_doc_procedure @attach_wpa_supplicant_log
