@@ -1458,6 +1458,8 @@ Feature: nmcli: connection
     @keyfile
     @connection_change_name_with_incorrect_selinux_label
     Scenario: NM - connection - change connection name of the connection with incorrect selinux label
+    * Skip if next step fails:
+    * Execute "getenforce | grep -i enforcing"
     * Add "dummy" connection named "dummy1" for device "dummy1"
     * Cleanup execute "rm -f /etc/NetworkManager/system-connections/dummy*.nmconnection; nmcli con reload"
     * Execute "chcon -t etc_t /etc/NetworkManager/system-connections/dummy1.nmconnection"
