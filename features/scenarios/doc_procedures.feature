@@ -53,14 +53,14 @@ Feature: nmcli - procedures in documentation
     Then "from 10.0.0.0/24 lookup 5000" is visible with command "ip rule list"
     Then "default via 192.0.2.2 dev provB" is visible with command "ip route list table 5000"
     Then "10.0.0.0/24 dev int_work" is visible with command "ip route list table 5000"
-    * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
-    * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
+    * Run child "ip netns exec provA_ns stdbuf -oL -eL tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
+    * Run child "ip netns exec provB_ns stdbuf -oL -eL tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
     * Execute "ip netns exec servers_ns ping -c 3 172.20.20.20"
     * Kill children
     Then "198.51.100.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provA.log" in "30" seconds
      And "> 172.20.20.20" is not visible with command "cat /tmp/tcpdump_provB.log"
-    * Run child "ip netns exec provA_ns tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
-    * Run child "ip netns exec provB_ns tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
+    * Run child "ip netns exec provA_ns stdbuf -oL -eL tcpdump -nn -i provAp icmp > /tmp/tcpdump_provA.log"
+    * Run child "ip netns exec provB_ns stdbuf -oL -eL tcpdump -nn -i provBp icmp > /tmp/tcpdump_provB.log"
     * Execute "ip netns exec int_work_ns ping -c 3 172.20.20.20"
     * Kill children
     Then "192.0.2.1 > 172.20.20.20" is visible with command "cat /tmp/tcpdump_provB.log" in "30" seconds

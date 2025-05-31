@@ -1114,7 +1114,7 @@ def mptcp(context, num, veth, typ="subflow"):
     else:
         redir = ">"
     nmci.pexpect.pexpect_service(
-        f"ip netns exec {nsname} tcpdump -i any -Ulvnn --number 'tcp port 9006' {redir} /tmp/tcpdump.log",
+        f"ip netns exec {nsname} stdbuf -oL -eL tcpdump -i any -Ulvnn --number 'tcp port 9006' {redir} /tmp/tcpdump.log",
         shell=True,
         label="child",
     )

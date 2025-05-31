@@ -1366,7 +1366,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - ping ip addresses
     * Prepare simulated test "testX4" device
     * Execute "ip -n testX4_ns addr add 192.168.96.1/24 dev testX4p"
-    * Run child "ip netns exec testX4_ns tcpdump -i testX4p -n -v icmp"
+    * Run child "ip netns exec testX4_ns stdbuf -oL -eL tcpdump -i testX4p -n -v icmp"
     * Add "ethernet" connection named "con_con" for device "testX4" with options
           """
           ipv4.addresses 192.168.96.4/24
@@ -1392,7 +1392,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - ping ip6 addresses
     * Prepare simulated test "testX6" device
     * Execute "ip -n testX6_ns addr add 2620:dead:beef::1/64 dev testX6p"
-    * Run child "ip netns exec testX6_ns tcpdump -i testX6p -n -v icmp6"
+    * Run child "ip netns exec testX6_ns stdbuf -oL -eL tcpdump -i testX6p -n -v icmp6"
     * Add "ethernet" connection named "con_con" for device "testX6" with options
           """
           ipv6.addresses 2620:dead:beaf::6/64
@@ -1418,7 +1418,7 @@ Feature: nmcli: connection
     Scenario: nmcli - connection - ping ip addresses
     * Prepare simulated test "testX4" device
     * Execute "ip -n testX4_ns addr add 192.168.96.1/24 dev testX4p"
-    * Run child "ip netns exec testX4_ns tcpdump -i testX4p -n -v icmp"
+    * Run child "ip netns exec testX4_ns stdbuf -oL -eL tcpdump -i testX4p -n -v icmp"
     * Add "ethernet" connection named "con_con" for device "testX4" with options
           """
           ipv4.addresses 192.168.96.4/24
