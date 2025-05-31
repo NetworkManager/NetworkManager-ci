@@ -42,8 +42,11 @@ Feature: nmcli - procedures in documentation
           ipv4.addresses 203.0.113.1/24
           connection.zone trusted
           """
-    * "_gateway \(10.0.0.1\) .* 192.0.2.2 \(192.0.2.2\)" is visible with command "ip netns exec int_work_ns traceroute 172.20.20.20"
-    * "_gateway \(203.0.113.1\) .* 198.51.100.2 \(198.51.100.2\)" is visible with command "ip netns exec servers_ns traceroute 172.20.20.20"
+    # Disable reverse DNS lookups of traceroute - it does't work (timeouts), even when dnsmasq provides PTR records.
+    # * "_gateway \(10.0.0.1\) .* 192.0.2.2 \(192.0.2.2\)" is visible with command "ip netns exec int_work_ns traceroute 172.20.20.20"
+    # * "_gateway \(203.0.113.1\) .* 198.51.100.2 \(198.51.100.2\)" is visible with command "ip netns exec servers_ns traceroute 172.20.20.20"
+    * "203.0.113.1 .* 198.51.100.2 .* 172.20.20.20" is visible with command "ip netns exec servers_ns traceroute -n 172.20.20.20" in "5" seconds
+    * "10.0.0.1 .* 192.0.2.2 .* 172.20.20.20" is visible with command "ip netns exec int_work_ns traceroute -n 172.20.20.20" in "5" seconds
     Then "external\s+interfaces: provA provB" is visible with command "firewall-cmd --get-active-zones"
     Then "trusted\s+interfaces: int_work servers" is visible with command "firewall-cmd --get-active-zones"
     Then "masquerade: yes" is visible with command "firewall-cmd --info-zone=external"
