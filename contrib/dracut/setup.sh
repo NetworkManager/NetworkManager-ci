@@ -165,6 +165,9 @@ EOF
   nm_local="$(rpm -q NetworkManager)"
   nm_nfs="$(rpm --root=$initdir -q NetworkManager)"
 
+  # Create unbound /var/lib dir - missing in Fedora
+  mkdir $initdir/var/lib/unbound
+
   # if NM not in repo, it is gating, try brew links
   if ! [ "$nm_local" == "$nm_nfs" ]; then
     # get links from brew
