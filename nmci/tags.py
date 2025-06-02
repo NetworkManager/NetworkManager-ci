@@ -1726,12 +1726,13 @@ def pptp_bs(context, scenario):
             ],
         )
 
-        context.process.systemctl("unmask pptpd")
-        context.process.systemctl("restart pptpd")
         context.process.run_stdout(
             "echo 'require-mppe-128' >> /etc/ppp/options.pptpd",
             shell=True,
         )
+
+        context.process.systemctl("unmask pptpd")
+        context.process.systemctl("restart pptpd")
 
         time.sleep(0.5)
 
