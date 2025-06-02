@@ -11,7 +11,7 @@ install_el9_packages () {
     PKGS_INSTALL="$PKGS_INSTALL \
         python3.11-pyyaml systemd-devel cairo-devel cairo-gobject-devel gobject-introspection-devel
         dbus-devel ModemManager dhcp-client file initscripts perl-IO-Tty python3-libnmstate \
-        python3-pyyaml rpm-build sos systemd-resolved wireguard-tools dnsconfd"
+        python3-pyyaml rpm-build sos systemd-resolved wireguard-tools"
 
 
     # Install non distro deps
