@@ -1889,8 +1889,9 @@ Feature: nmcli - general
     Then "/run/NetworkManager/system-connections/dummy1.nmconnection:dummy1" is visible with command "nmcli -t -f 'filename,name,uuid' c show"
 
 
-    # Skip on unmaintained RHEL8
+    # Skip on unmaintained RHEL8 and F40
     @rhelver+=9
+    @fedoraver+=41
     # Latest nmstate dropped support for NM<=1.40
     # https://issues.redhat.com/browse/RHEL-1595
     @ver+=1.41
