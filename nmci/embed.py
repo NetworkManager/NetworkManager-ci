@@ -639,7 +639,9 @@ class _Embed:
         :param msg: custom part of the embed message
         :type msg: str
         """
-        AVC_IGNORE_LIST = []
+        AVC_IGNORE_LIST = [
+            "iptables_t",  # ignore iptables kill AVC, reported, fail on many bond tests not very often
+        ]
         avc_log = nmci.misc.get_avcs(embed=False)
 
         avcs = avc_log.split("----\n")
