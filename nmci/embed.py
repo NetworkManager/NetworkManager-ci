@@ -639,14 +639,24 @@ class _Embed:
         :param msg: custom part of the embed message
         :type msg: str
         """
+        AVC_IGNORE_LIST = []
         avc_log = nmci.misc.get_avcs(embed=False)
 
+        avcs = avc_log.split("----\n")
         if avc_log:
             self.embed_data("SELinux AVCs " + msg, avc_log)
-            important_avc = nmci.misc.search_str_re_list_any(
-                nmci.crash.NM_PKGS, avc_log
+        important_avcs = [
+            avc
+            for avc in avcs
+            if nmci.misc.search_str_re_list_any(nmci.crash.NM_PKGS, avc)
+            and not nmci.misc.search_str_re_list_any(AVC_IGNORE_LIST, avc)
+        ]
+        if important_avcs:
+            self.embed_data(
+                "Important SELinux AVCs " + msg,
+                "----\n" + "----\n".join(important_avcs),
             )
-            assert not important_avc, "Found important AVC"
+        assert not important_avcs, "Found important AVCs"
 
     def embed_exception(self, caption=None):
         """Embed traceback of last exception. Should be used in `except` branch only.
