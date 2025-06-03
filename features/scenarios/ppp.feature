@@ -101,8 +101,6 @@ Feature: nmcli - ppp
      And Nameserver "8.8.4.4" is set in "5" seconds
     Then "inet 192.168.111.2 peer 192.168.111.254/32" is visible with command "ip a s my-ppp"
     And "default via 192.168.111.254 dev my-ppp" is visible with command "ip r"
-    # Remove once https://issues.redhat.com/browse/RHEL-93741 is resolved
-    * Ignore possible AVC "NetworkManager.*iptables_t" in "5" seconds
 
 
     @rhbz1478694
