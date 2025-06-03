@@ -76,6 +76,7 @@ def setup_openvpn(context, tags):
         "dev tun",
         "persist-key",
         "persist-tun",
+        "tun-mtu 1400",
         f"ca {samples}/sample-keys/ca.crt",
         f"cert {samples}/sample-keys/server.crt",
         f"key {samples}/sample-keys/server.key",

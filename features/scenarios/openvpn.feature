@@ -67,9 +67,6 @@
      And "default" is not visible with command "ip -6 r s default | grep -v eth10"
 
 
-    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1383
-    @fedoraver-
-    @rhelver-=9
     @rhbz1267004
     @openvpn
     @openvpn_set_mtu
