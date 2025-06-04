@@ -35,7 +35,8 @@ mkdir $TARGET_DIR
 if rpm -q NetworkManager |grep copr; then
     dnf download --disablerepo=* --enablerepo=*copr* \
         NetworkManager NetworkManager-libnm \
-        --destdir $TARGET_DIR
+        --destdir $TARGET_DIR \
+        --arch=$(arch) # to avoid src.rpm downloading
 fi
 
 # Did we compiled NM?
