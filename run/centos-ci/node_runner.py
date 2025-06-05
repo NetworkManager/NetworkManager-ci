@@ -248,8 +248,7 @@ class Machine:
         if NM_restart.returncode != 0:
             logging.debug("Unable to start NetworkManager, dumping last core (if any).")
             self.ssh("coredumpctl list", check=False, verbose=True)
-            self.ssh("coredumpctl dump > core.dump", check=False, verbose=True)
-            self.scp_from("core.dump", f"./core.dump.{self.id}", check=False)
+            self.ssh(f"coredumpctl dump > ../core.dump.m{self.id}", check=False, verbose=True)
             raise Exception("Unable to start NetworkManager.")
 
     def _update(self):
