@@ -241,9 +241,7 @@ class Machine:
         )
         return True
 
-    def _update(self):
-        logging.debug(f"Update machine {self.id}")
-        self.ssh("dnf -y upgrade --nobest", verbose=True)
+    def restartNM(self):
         NM_restart = self.ssh(
             "systemctl restart NetworkManager", verbose=True, check=False
         )
@@ -252,6 +250,11 @@ class Machine:
             self.ssh("coredumpctl list", check=False, verbose=True)
             self.ssh("coredumpctl dump > core.dump", check=False, verbose=True)
             raise Exception("Unable to start NetworkManager.")
+
+    def _update(self):
+        logging.debug(f"Update machine {self.id}")
+        self.ssh("dnf -y upgrade --nobest", verbose=True)
+        self.restartNM()
         self.ssh("nmcli d", verbose=True)
         self.ssh("nmcli device connect eth0", check=False, verbose=True)
         self._reboot()
@@ -263,7 +266,7 @@ class Machine:
             "contrib/conf/95-nmci-test.conf",
             "/etc/NetworkManager/conf.d/95-nmci-test.conf",
         )
-        self.ssh("systemctl restart NetworkManager")
+        self.restartNM()
         # copy NetworkManager-ci repo (already checked out at correct commit)
         self.scp_to("../NetworkManager-ci/", "")
         # execute envsetup - with stock NM package, will update later, should not matter
