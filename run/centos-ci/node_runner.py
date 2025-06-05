@@ -244,7 +244,14 @@ class Machine:
     def _update(self):
         logging.debug(f"Update machine {self.id}")
         self.ssh("dnf -y upgrade --nobest", verbose=True)
-        self.ssh("systemctl restart NetworkManager", verbose=True)
+        NM_restart = self.ssh(
+            "systemctl restart NetworkManager", verbose=True, check=False
+        )
+        if NM_restart.returncode != 0:
+            logging.debug("Unable to start NetworkManager, dumping last core (if any).")
+            self.ssh("coredumpctl list", check=False, verbose=True)
+            self.ssh("coredumpctl dump > core.dump", check=False, verbose=True)
+            raise Exception("Unable to start NetworkManager.")
         self.ssh("nmcli d", verbose=True)
         self.ssh("nmcli device connect eth0", check=False, verbose=True)
         self._reboot()
