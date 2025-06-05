@@ -697,3 +697,73 @@
     Then "Destroyed" is visible with command "nmstatectl apply /tmp/sriov_dont_disable_on_acitvation_fail.yaml" in "0" seconds
     Then "activated" is visible with command "nmcli -g GENERAL.STATE con show eth0.101" in "5" seconds
     Then Check slave "eth0.101" in bond "bond0" in proc
+
+
+    @RHEL-69125
+    @ver+=1.54.0
+    @sriov_preserve_on_down
+    Scenario: nmcli - sriov - preserve-on-down
+    * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
+
+    * Commentary
+        """
+        Test sriov.preserve-on-down=default (no)
+        """
+    * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options
+          """
+          sriov.total-vfs 2
+          ipv4.method disabled
+          ipv6.method disabled
+          """
+    * Bring "up" connection "sriov_controller"
+    Then "2" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+    * Bring "down" connection "sriov_controller"
+    Then "0" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+
+    * Commentary
+        """
+        Test sriov.preserve-on-down=yes
+        """
+    * Modify connection "sriov_controller" changing options "sriov.preserve-on-down yes sriov.total-vfs 3"
+    * Bring "up" connection "sriov_controller"
+    Then "3" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+    * Bring "down" connection "sriov_controller"
+    Then "3" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+
+    * Commentary
+        """
+        Test sriov.preserve-on-down=default (global default yes)
+        """
+    * Create NM config file "90-sriov-preserve-on-down.conf" with content
+      """
+      [connection-sriov-preserve-on-down]
+      match-device=interface-name:sriov_device
+      sriov.preserve-on-down=1
+      """
+    * Execute "nmcli general reload conf"
+    * Modify connection "sriov_controller" changing options "sriov.preserve-on-down default sriov.total-vfs 4"
+    * Bring "up" connection "sriov_controller"
+    Then "4" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+    * Bring "down" connection "sriov_controller"
+    Then "4" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+
+    * Commentary
+        """
+        Test reapply of sriov.preserve-on-down
+        """
+    * Modify connection "sriov_controller" changing options "sriov.preserve-on-down no sriov.total-vfs 2"
+    * Bring "up" connection "sriov_controller"
+    Then "2" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+    * Execute "nmcli device modify sriov_device sriov.preserve-on-down yes"
+    * Bring "down" connection "sriov_controller"
+    Then "2" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+
+    * Commentary
+        """
+        Test sriov.preserve-on-down=no
+        """
+    * Modify connection "sriov_controller" changing options "sriov.preserve-on-down no sriov.total-vfs 3"
+    * Bring "up" connection "sriov_controller"
+    Then "3" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+    * Bring "down" connection "sriov_controller"
+    Then "0" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
