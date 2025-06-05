@@ -336,7 +336,9 @@ class GitlabTrigger(object):
             elif status == "failed":
                 description = "The build has finished unstable or failing."
 
-            com = self.gl_project.commits.get(self.commit)
+            com = self.gl_api.projects.get(self.source_project_id).commits.get(
+                self.commit
+            )
 
             build_url = os.environ["BUILD_URL"]
             build_id = re.match(r"^.*/([^/]+)/$", build_url)[1]
