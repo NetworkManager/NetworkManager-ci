@@ -298,6 +298,27 @@
     Then "meta l4proto udp meta mark set ct mark" is not visible with command "nft list table ip6 nm-wg-wg0"
 
 
+    @ver+=1.55.0
+    @wireguard
+    @wireguard_nmcli
+    Scenario: nmcli - Configuring wireguard server & client fully with nmcli
+    * Add "wireguard" connection named "server-wg0" for device "wg0" with options "autoconnect no"
+    * Modify connection "server-wg0" changing options "ipv4.method manual ipv4.addresses 192.0.2.1/24"
+    * Modify connection "server-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::1/32"
+    * Modify connection "server-wg0" changing options "wireguard.private-key 'YFAnE0psgIdiAF7XR4abxiwVRnlMfeltxu10s/c4JXg=' wireguard.listen-port 51820 wireguard.peers 'bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM= allowed-ips=192.0.2.2;::/0 preshared-key=k85B+MlttrXZD1LiJ9HQg3a0vzLSriLx3RWIJ+rSimo='"
+    * Bring "up" connection "server-wg0"
+    * Add "wireguard" connection named "client-wg0" for device "wg1" with options "autoconnect no"
+    * Modify connection "client-wg0" changing options "ipv4.method manual ipv4.addresses 192.0.2.2/24"
+    * Modify connection "client-wg0" changing options "ipv6.method manual ipv6.addresses 2001:db8:1::2/32"
+    * Modify connection "client-wg0" changing options "ipv4.gateway 192.0.2.1 ipv6.gateway 2001:db8:1::1"
+    * Modify connection "client-wg0" changing options "wireguard.private-key 'aPUcp5vHz8yMLrzk8SsDyYnV33IhE/k20e52iKJFV0A=' wireguard.peers 'UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE= endpoint=192.0.2.1:51820 allowed-ips=192.0.2.1;2001:db8:1::1 persistent-keepalive=20, hijfI/RUoKExhpnnWfc/qQRaEtMo8kkgMKiJqk6mTAA= allowed-ips=192.168.55.0/24 preshared-key=k85B+MlttrXZD1LiJ9HQg3a0vzLSriLx3RWIJ+rSimo='"
+    * Bring "up" connection "client-wg0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show client-wg0" in "40" seconds
+    Then "bnwfQcC8/g2i4vvEqcRUM2e6Hi3Nskk6G9t4r26nFVM=\s+192.0.2.2/32 ::/0" is visible with command "wg show wg0 allowed-ips"
+    Then "UtjqCJ57DeAscYKRfp7cFGiQqdONRn69u249Fa4O6BE=\s+192.0.2.1/32 2001:db8:1::1/128" is visible with command "wg show wg1 allowed-ips"
+    Then "hijfI/RUoKExhpnnWfc/qQRaEtMo8kkgMKiJqk6mTAA=\s+192.168.55.0/24" is visible with command "wg show wg1 allowed-ips"
+
+
     @RHEL-70160 @RHEL-69901
     @ver+=1.16
     @rhelver+=9
