@@ -213,6 +213,15 @@ debug_shell() {
   done
 }
 
+dnsconfd_running() {
+  if ! systemctl is-active dnsconfd; then
+    echo "  configuring and starting dnsconfd..."
+    dnsconfd config install || die "unable to do 'dnsconfd config install'"
+    systemctl restart dnsconfd || die "unable to start dnsconfd: $(echo; systemctl status dnsconfd)"
+  fi
+  echo "[OK] dnsconfd is running"
+}
+
 dnsconfd_domain_server() {
   local dns_status rep i
   rep="$3"
