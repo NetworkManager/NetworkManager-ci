@@ -2363,6 +2363,8 @@ testmapper:
         timeout: 20m
     - wireguard_add_routing_rules:
         feature: vpn
+    - wireguard_nmcli:
+        feature: vpn
     - wireguard_allowedIP:
         feature: vpn
     - macsec_psk:
