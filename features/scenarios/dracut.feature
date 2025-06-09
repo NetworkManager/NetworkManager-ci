@@ -859,9 +859,7 @@ Feature: NM: dracut
       | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
       | check  | NM_config_grep 'servers=dns.tls://8.8.8.8#dns.google'                  |
       | check  | NM_config_grep 'dns=dnsconfd'                                          |
-      | check  | # the following 2 lines are workaround for dnsconfd                    |
-      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
-      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_running                                                       |
       | check  | dnsconfd_prop mode backup                                              |
       | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
       | check  | dnsconfd_domain_server nfs.redhat.com dns+udp://192.168.50.1 5         |
@@ -904,9 +902,7 @@ Feature: NM: dracut
       | check  | NM_config_grep servers=dns\+tls://8.8.8.8#dns.google$                  |
       | check  | NM_config_grep 'dns=dnsconfd'                                          |
       | check  | NM_config_grep 'resolve-mode=exclusive'                                |
-      | check  | # the following 2 lines are workaround for dnsconfd                    |
-      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
-      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_running                                                       |
       | check  | dnsconfd_prop mode exclusive                                           |
       | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
       | check  | nmcli_con_num 1                                                        |
@@ -947,9 +943,7 @@ Feature: NM: dracut
       | check  | NM_config_grep servers=dns\+tls://8.8.8.8#dns.google$                  |
       | check  | NM_config_grep 'dns=dnsconfd'                                          |
       | check  | NM_config_grep 'resolve-mode=prefer'                                   |
-      | check  | # the following 2 lines are workaround for dnsconfd                    |
-      | check  | dnsconfd config install && echo [OK] dnsconfd configured               |
-      | check  | systemctl restart dnsconfd && echo [OK] dnsconfd restarted             |
+      | check  | dnsconfd_running                                                       |
       | check  | dnsconfd_prop mode prefer                                              |
       | check  | dnsconfd_domain_server . 'dns+tls://8.8.8.8#dns.google' 5              |
       | check  | dnsconfd_domain_server nfs.redhat.com dns+udp://192.168.50.1 5         |
