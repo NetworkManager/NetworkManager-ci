@@ -150,7 +150,7 @@ EOF
   set -x
 
   # Install dnfconfd
-  rpm_list="$rpm_list dnsconfd jq"
+  rpm_list="$rpm_list dnsconfd dnsconfd-unbound jq"
 
   # dnf5 only args
   which dnf5 && skip_unavail="--skip-unavailable"
