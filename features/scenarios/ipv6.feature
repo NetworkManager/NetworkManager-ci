@@ -2605,7 +2605,7 @@
     """
     We see some strange failures here and there, adding few ip -6 commands for debugging
     """
-    * Execute "echo ADDR; ip -6 addr; echo ROUTES; ip -6 route; echo ALL ROUTES; ip -6 route show table all; echo RULES; ip rule"
+    * Execute "echo ADDR; ip -6 addr; echo ROUTES; ip -6 route; echo ALL ROUTES; ip -6 route show table all; echo RULES; ip -6 rule"
     Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
     Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
 
