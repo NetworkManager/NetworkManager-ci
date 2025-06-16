@@ -2601,6 +2601,14 @@
     """
     * Bring "up" connection "con2"
     * Bring "up" connection "con3"
+    * Commentary
+    """
+    We see some strange failures here and there, adding few ip -6 commands for debugging
+    """
+    * Execute "ip -6 addr"
+    * Execute "ip -6 route"
+    * Execute "ip -6 route show table all"
+    * Execute "ip -6 rule"
     Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
     Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
 
