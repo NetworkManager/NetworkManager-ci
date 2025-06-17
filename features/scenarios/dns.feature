@@ -1353,6 +1353,7 @@ Feature: nmcli - dns
 
     @RHEL-92314 @RHEL-92020
     @ver+=1.53.4.2
+    @ver/rhel/9/4+=1.46.0.32
     @dns_reapply_device_with_same_globals
     Scenario: NM - dns - reapply device with the same globals present
     * Create NM config file "90-nmci-test-dns-none.conf" with content
