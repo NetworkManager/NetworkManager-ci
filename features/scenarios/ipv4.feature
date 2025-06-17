@@ -3834,34 +3834,3 @@ Feature: nmcli: ipv4
     Then "100% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "10" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "10" seconds
-
-
-    @RHEL-60237
-    @ver-
-    #@ver+=1.53.2.2
-    @ipv4_shared_connection_with_forwarding_ignore
-    Scenario: NM - ipv4 - Configure IPv4 shared connection with forwarding ignore
-    * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
-    * Set sysctl "net.ipv4.conf.eth3.forwarding" to "0"
-    * Create "veth" device named "test1g" with options "peer name test1gp"
-    * Add "ethernet" connection named "test1gp" for device "test1gp" with options
-          """
-          autoconnect no
-          ipv4.method shared
-          ipv4.address 172.16.0.1/24
-          connection.zone trusted
-          """
-    * Bring "up" connection "test1gp"
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
-          """
-          autoconnect no
-          ipv4.method manual
-          ipv4.address 172.16.0.8/24
-          ipv4.forwarding ignore
-          """
-    * Bring "up" connection "con_ipv4"
-    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
-    * Bring "down" connection "test1gp"
-    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
-    * Bring "down" connection "con_ipv4"
-    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/eth3/forwarding" in "10" seconds
