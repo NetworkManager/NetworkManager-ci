@@ -152,6 +152,9 @@ EOF
   # Install dnfconfd
   rpm_list="$rpm_list dnsconfd dnsconfd-unbound jq"
 
+  # create /var/tmp directory if missing (F42 qcow)
+  mkdir -p $initdir/var/tmp
+
   # dnf5 only args
   which dnf5 && skip_unavail="--skip-unavailable"
   # Override --releasever, as epel repofile does not work with --inistallroot
