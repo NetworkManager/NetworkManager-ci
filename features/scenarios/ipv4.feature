@@ -3834,7 +3834,8 @@ Feature: nmcli: ipv4
 
 
     @RHEL-60237
-    @ver+=1.53.2.2
+    @ver-
+    #@ver+=1.53.2.2
     @ipv4_shared_connection_with_forwarding_ignore
     Scenario: NM - ipv4 - Configure IPv4 shared connection with forwarding ignore
     * Set sysctl "net.ipv4.conf.default.forwarding" to "1"
