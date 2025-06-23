@@ -774,10 +774,10 @@ method=auto
     Scenario: nmcli - libreswan - add routing rules
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
     * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
-    * Execute "nmcli con modify libreswan ipv4.route-table 127"
-    * Execute "nmcli con modify libreswan ipv6.route-table 200"
-    * Execute "nmcli con modify libreswan ipv4.routing-rules 'priority 16383 from all table 127'"
-    * Execute "nmcli con modify libreswan ipv6.routing-rules 'priority 16600 from all table 200'"
+    * Modify connection "libreswan" changing options "ipv4.route-table 127"
+    * Modify connection "libreswan" changing options "ipv6.route-table 200"
+    * Modify connection "libreswan" changing options "ipv4.routing-rules 'priority 16383 from all table 127'"
+    * Modify connection "libreswan" changing options "ipv6.routing-rules 'priority 16600 from all table 200'"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     And "default" is visible with command "ip r show table 127 |grep ^default | grep -v eth0"
