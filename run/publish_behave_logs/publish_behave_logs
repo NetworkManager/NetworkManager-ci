@@ -13,11 +13,14 @@ from sys import argv, stdout
 from time import localtime, sleep, strftime
 from selinux import restorecon
 import re
+import os
 import pyinotify
 
 
 def copy_file(src):
     """copy the file, add FAIL_ prefix if scenarion not marked as passed"""
+    DOCUMENT_ROOT = os.environ["DOCUMENT_ROOT"]
+
     prefix = "FAIL_"
     success_re = re.compile(
         r"""<div[^>]+class="(scenario-header[^"]+passed|passed[^"]+scenario-header)"""
@@ -73,13 +76,14 @@ def main():
 
 
 if __name__ == "__main__":
-    global DOCUMENT_ROOT
     if len(argv) == 1:
         DOCUMENT_ROOT = "/var/www/html"
     elif len(argv) == 2:
         DOCUMENT_ROOT = argv[1]
     else:
         raise SystemExit("specify just one destination directory as command argument!")
+
+    os.environ["DOCUMENT_ROOT"] = DOCUMENT_ROOT
 
     if not isdir(DOCUMENT_ROOT):
         raise SystemExit("Directory {} must exist!".format(DOCUMENT_ROOT))
