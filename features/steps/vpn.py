@@ -37,7 +37,23 @@ def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
 @step(
     'Use user "{user}" with password "{password}" and group "{group}" with secret "{secret}" for gateway "{gateway}" on Libreswan connection "{name}"'
 )
-def set_libreswan_connection(context, user, password, group, secret, gateway, name):
+@step(
+    'Use certificate "{cert}" for gateway "{gateway}" on Libreswan connection "{name}"'
+)
+@step(
+    'Use certificate "{cert}" with ID "{leftid}" for gateway "{gateway}" on Libreswan connection "{name}"'
+)
+def set_libreswan_connection(
+    context,
+    gateway,
+    name,
+    user=None,
+    password="ask",
+    group="Main",
+    secret="ask",
+    cert=None,
+    leftid=None,
+):
 
     username_option = "leftxauthusername"
     libver = int(
@@ -49,15 +65,28 @@ def set_libreswan_connection(context, user, password, group, secret, gateway, na
         if libver >= 4:
             username_option = "leftusername"
 
-    vpn_data = {
-        username_option: user,
-        "right": gateway,
-        "xauthpasswordinputmodes": "ask" if password == "ask" else "save",
-        "xauthpassword-flags": "2" if password == "ask" else "0",
-        "pskinputmodes": "ask" if secret == "ask" else "save",
-        "pskvalue-flags": "2" if secret == "ask" else "0",
-        "vendor": "Cisco",
-    }
+    vpn_data = {"right": gateway}
+
+    if user is not None:
+        vpn_data = {
+            **vpn_data,
+            username_option: user,
+            "xauthpasswordinputmodes": "ask" if password == "ask" else "save",
+            "xauthpassword-flags": "2" if password == "ask" else "0",
+            "pskinputmodes": "ask" if secret == "ask" else "save",
+            "pskvalue-flags": "2" if secret == "ask" else "0",
+            "vendor": "Cisco",
+        }
+
+    if cert is not None:
+        if leftid is None:
+            leftid = "%fromcert"
+        vpn_data = {
+            **vpn_data,
+            "ikev2": "insist",
+            "leftcert": cert,
+            "leftid": leftid,
+        }
 
     if libver >= 5:
         vpn_data["ike"] = "AES_CBC"

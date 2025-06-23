@@ -46,7 +46,7 @@
     @libreswan_ikev2
     Scenario: nmcli - libreswan - connect in ike2
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -70,9 +70,10 @@
       | 1.2.22-2.el9  | c9s     |
       | 1.2.22-3.el10 | rhel10  |
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Modify connection "libreswan" changing options
       """
-      vpn.data "ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14, rightid=CN=libreswan_server, require-id-on-certificate=yes"
+      +vpn.data "rightid=CN=libreswan_server, require-id-on-certificate=yes"
       """
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
@@ -129,7 +130,7 @@
     @libreswan_connection_renewal
     Scenario: NM - libreswan - main connection lifetime renewal
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan" for full "130" seconds
     Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
@@ -198,7 +199,7 @@
     @libreswan_terminate
     Scenario: nmcli - libreswan - terminate connection
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     * Bring "down" connection "libreswan"
@@ -210,7 +211,7 @@
     @libreswan_delete_active_profile
     Scenario: nmcli - libreswan - delete active profile
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     * Delete connection "libreswan"
@@ -229,7 +230,7 @@
     Scenario: nmcli - libreswan - dns
     Given Nameserver "11.12.13.14" is set in "20" seconds
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
      And Nameserver "8.8.8.8" is set
@@ -249,7 +250,7 @@
     Scenario: nmcli - libreswan - dns
     Given Nameserver "11.12.13.14" is set in "20" seconds
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
      And Nameserver "8.8.8.8" is set
@@ -293,7 +294,7 @@
     @libreswan_start_as_secondary
     Scenario: nmcli - libreswan - start as secondary
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Execute "sleep 2; nmcli con modify lib1 connection.secondaries libreswan; sleep 3"
     * Bring "down" connection "lib1"
     * Execute "ip link set dev libreswan1 up"
@@ -385,7 +386,7 @@
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
     * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
     When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     # options in vpn.data may be in arbitrary order, sort them so it is comparable
@@ -433,7 +434,8 @@
     # Import the server cert into local db
     * Execute "pk12util -W "" -i contrib/libreswan/server/libreswan_server.p12 -d sql:/var/lib/ipsec/nss/"
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, rightcert=LibreswanServer, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "+vpn.data 'rightcert=LibreswanServer'"
     * Bring "up" connection "libreswan"
     Then "11.12.13.0/24 [^\n]*dev libreswan1" is visible with command "ip route"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -748,7 +750,8 @@ method=auto
     @libreswan_wrong_data_var2
     Scenario: libreswan - unsupported key in data
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'foo=bar, ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Modify connection "libreswan" changing options "+vpn.data 'foo=bar'"
     * Start following journal
     * Bring "up" connection "libreswan" ignoring error
     * Commentary
@@ -770,7 +773,7 @@ method=auto
     @libreswan_add_routing_rules
     Scenario: nmcli - libreswan - add routing rules
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Execute "nmcli con modify libreswan ipv4.route-table 127"
     * Execute "nmcli con modify libreswan ipv6.route-table 200"
     * Execute "nmcli con modify libreswan ipv4.routing-rules 'priority 16383 from all table 127'"
