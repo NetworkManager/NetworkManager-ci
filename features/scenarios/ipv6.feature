@@ -1104,7 +1104,7 @@
           ip4 192.168.99.1/24
           ip6 2620:52:0:beef::1/64
           """
-    * Execute "nmcli connection modify tc16 ipv6.may-fail no"
+    * Modify connection "tc16" changing options "ipv6.may-fail no"
     Then "tentative" is not visible with command "nmcli connection down testeth0 ; nmcli connection down tc16; sleep 2; nmcli connection up id tc16; time nm-online ;ip a s test10|grep 'global tentative'; nmcli connection up testeth0"
 
 
@@ -1140,7 +1140,7 @@
     Scenario: NM - ipv6 - no activation scheduled error
     * Prepare simulated test "testA6" device
     * Add "ethernet" connection named "con_ipv6" for device "testA6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.may-fail no ipv4.method disabled"
+    * Modify connection "con_ipv6" changing options "ipv6.may-fail no ipv4.method disabled"
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
     * Bring "up" connection "con_ipv6"
@@ -1249,10 +1249,10 @@
     @ipv6_honor_ip_order
     Scenario: NM - ipv6 - honor IP order from configuration upon restart
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
-    * Execute "nmcli con modify con_ipv6 ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
+    * Modify connection "con_ipv6" changing options "ipv6.method manual ipv6.addresses 2001:db8:e:10::4/64,2001:db8:e:10::57/64,2001:db8:e:10::30/64"
     * Bring "up" connection "con_ipv6"
     When "2001:db8:e:10::4/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::30/64" is visible with command "ip a show eth2" in "45" seconds
-    * Execute "nmcli con modify con_ipv6 ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses 2001:db8:e:10::30/64,2001:db8:e:10::57/64,2001:db8:e:10::4/64"
     * Execute "nmcli dev reapply eth2"
     Then "2001:db8:e:10::30/64 scope global.*2001:db8:e:10::57/64 scope global.*2001:db8:e:10::4/64" is visible with command "ip a show eth2"
     * Restart NM
@@ -1430,8 +1430,8 @@
     Scenario: nmcli - general - finish dad with no carrier
     * Add "ethernet" connection named "ethernet0" for device "testX6" with options "autoconnect no"
     * Prepare simulated veth device "testX6" without carrier
-    * Execute "nmcli con modify ethernet0 ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24"
-    * Execute "nmcli con modify ethernet0 ipv4.may-fail yes ipv6.method manual ipv6.addresses 2001::2/128"
+    * Modify connection "ethernet0" changing options "ipv4.may-fail no ipv4.method manual ipv4.addresses 1.2.3.4/24"
+    * Modify connection "ethernet0" changing options "ipv4.may-fail yes ipv6.method manual ipv6.addresses 2001::2/128"
     * Bring "up" connection "ethernet0"
     Then "activated" is visible with command "nmcli -g GENERAL.STATE connection show ethernet0" in "45" seconds
      And "1.2.3.4" is visible with command "ip a s testX6"
@@ -2164,17 +2164,17 @@
           """
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::102/64 1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
     * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
     * Execute "nmcli device modify testX6 ipv6.addresses ''"
     Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::103/64 1:2:3::102/64 1:2:3::101/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
 
@@ -2197,17 +2197,17 @@
           """
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 1:2:3::102/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Execute "nmcli connection modify con_ipv6 ipv6.addresses '1:2:3::101/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
     * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
     Then Check "ipv6" address list "1:2:3::101/64 1:2:3::103/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
     * Execute "nmcli device modify testX6 ipv6.addresses ''"
     Then Check "ipv6" address list "/2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
-    * Execute "nmcli connection modify con_ipv6 ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
+    * Modify connection "con_ipv6" changing options "ipv6.method manual ipv6.addresses '1:2:3::101/64,1:2:3::102/64,1:2:3::103/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 1:2:3::102/64 1:2:3::103/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6" in "6" seconds
 

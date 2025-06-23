@@ -41,7 +41,7 @@
     Scenario: nmcli - pptp - terminate connection
     * Add "pptp" VPN connection named "pptp" for device "\*"
     * Use user "budulinek" with password "passwd" and MPPE set to "yes" for gateway "127.0.0.1" on PPTP connection "pptp"
-    * Execute "nmcli c modify pptp vpn.persistent true"
+    * Modify connection "pptp" changing options "vpn.persistent true"
     * Bring "up" connection "pptp"
     When "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show pptp"
     * Execute "pkill -f nm-pptp-pppd-plugin"

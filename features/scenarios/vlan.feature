@@ -610,7 +610,7 @@ Feature: nmcli - vlan
           """
     * Add "vlan" connection named "vlan_bond7" with options "dev nm-bond id 7 ip4 192.168.168.16/24 autoconnect no"
     * Modify connection "vlan_bond7" property "vlan.parent" to noted value
-    * Execute "nmcli connection modify vlan_bond7 connection.autoconnect yes"
+    * Modify connection "vlan_bond7" changing options "connection.autoconnect yes"
     * Reboot
     Then "nm-bond:connected:bond0" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
     Then "nm-bond.7:connected:vlan_bond7" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds

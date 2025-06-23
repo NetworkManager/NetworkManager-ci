@@ -312,10 +312,10 @@
           ipv4.method manual
           ipv4.addresses 172.25.17.1/24
           """
-    * Execute "nmcli con modify wireguard ipv4.route-table 127"
-    * Execute "nmcli con modify wireguard ipv6.route-table 200"
-    * Execute "nmcli con modify wireguard ipv4.routing-rules 'priority 16383 from all table 127'"
-    * Execute "nmcli con modify wireguard ipv6.routing-rules 'priority 16600 from all table 200'"
+    * Modify connection "wireguard" changing options "ipv4.route-table 127"
+    * Modify connection "wireguard" changing options "ipv6.route-table 200"
+    * Modify connection "wireguard" changing options "ipv4.routing-rules 'priority 16383 from all table 127'"
+    * Modify connection "wireguard" changing options "ipv6.routing-rules 'priority 16600 from all table 200'"
     * Bring "up" connection "wireguard"
     Then "qOdhat/redhat/redhat/redhat/redhat/redhatUE=" is visible with command "WG_HIDE_KEYS=never wg | grep 'private key:'" in "10" seconds
     Then "16383:\s+from all lookup 127 proto static" is visible with command "ip rule"

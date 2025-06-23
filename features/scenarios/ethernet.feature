@@ -203,20 +203,20 @@ Feature: nmcli - ethernet
     @ethernet_duplex_speed_auto_negotiation
     Scenario: nmcli - ethernet - duplex speed and auto-negotiation
     * Add "ethernet" connection named "ethernet" for device "eth1"
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.duplex full 802-3-ethernet.speed 10"
+    * Modify connection "ethernet" changing options "802-3-ethernet.duplex full 802-3-ethernet.speed 10"
     When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
       """
       ethernet.duplex=full
       ethernet.speed=10
       """
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate yes"
+    * Modify connection "ethernet" changing options "802-3-ethernet.auto-negotiate yes"
     When Check keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection" has options
       """
       ethernet.auto-negotiate=true
       ethernet.duplex=full
       ethernet.speed=10
       """
-    * Execute "nmcli connection modify ethernet 802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
+    * Modify connection "ethernet" changing options "802-3-ethernet.auto-negotiate no 802-3-ethernet.speed 0"
     Then "auto-negotiate=true" is not visible with command "cat /etc/NetworkManager/system-connections/ethernet.nmconnection"
     Then "speed=10" is not visible with command "cat /etc/NetworkManager/system-connections/ethernet.nmconnection"
 
@@ -324,11 +324,11 @@ Feature: nmcli - ethernet
     * Restart NM
     * Add "ethernet" connection named "ethernet" for device "sriov_device"
     # Wake-on-lan 94 equals to (phy, unicast, multicast, broadcast, magic) alias pumbg
-    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan 92"
+    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan 92"
     * Bring "up" connection "ethernet"
     * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
-    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan default"
+    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan default"
     * Restart NM
     * Bring "up" connection "ethernet"
     * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
@@ -339,7 +339,7 @@ Feature: nmcli - ethernet
     @nmcli_ethernet_wol_enable_magic
     Scenario: nmcli - ethernet - wake-on-lan magic
     * Add "ethernet" connection named "ethernet" for device "sriov_device"
-    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan magic"
+    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan magic"
     * Bring "up" connection "ethernet"
     Then "Wake-on: g" is visible with command "ethtool sriov_device"
 
@@ -348,7 +348,7 @@ Feature: nmcli - ethernet
     @nmcli_ethernet_wol_disable
     Scenario: nmcli - ethernet - wake-on-lan disable
     * Add "ethernet" connection named "ethernet" for device "sriov_device"
-    * Execute "nmcli c modify ethernet 802-3-ethernet.wake-on-lan none"
+    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan none"
     * Bring "up" connection "ethernet"
     Then "Wake-on: d" is visible with command "ethtool sriov_device"
 
@@ -1311,7 +1311,7 @@ Feature: nmcli - ethernet
       [proxy]
       """
     * Reload connections
-    * Execute "nmcli c modify id con_ethernet connection.autoconnect false"
+    * Modify connection "con_ethernet" changing options "connection.autoconnect false"
     When Execute "ls /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
     Then "mac-address" is not visible with command "cat /etc/NetworkManager/system-connections/con_ethernet.nmconnection"
 

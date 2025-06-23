@@ -86,7 +86,7 @@ Feature: nmcli - ppp
           service isp username test password networkmanager
           autoconnect no
           """
-    * Execute "nmcli connection modify ppp connection.zone external"
+    * Modify connection "ppp" changing options "connection.zone external"
     * Bring "up" connection "ppp"
     When "external" is visible with command "firewall-cmd --get-zone-of-interface=my-ppp" in "10" seconds
      And Nameserver "8.8.8.8" is set in "5" seconds

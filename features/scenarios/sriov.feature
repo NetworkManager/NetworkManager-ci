@@ -229,7 +229,7 @@
     Scenario: nmcli - sriov - set VF number to 0
     * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
     * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options "sriov.total-vfs 1 autoconnect no"
-    * Execute "nmcli connection modify sriov_controller sriov.total-vfs 0"
+    * Modify connection "sriov_controller" changing options "sriov.total-vfs 0"
     * Bring "up" connection "sriov_controller"
     Then "1" is not visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
     And "vf 0" is not visible with command "ip link show dev sriov_device |grep 'vf 0'"
@@ -519,7 +519,7 @@
           sriov.total-vfs 1
           sriov.autoprobe-drivers false
           """
-    * Execute "nmcli connection modify sriov_controller sriov.total-vfs 0"
+    * Modify connection "sriov_controller" changing options "sriov.total-vfs 0"
     * Bring "up" connection "sriov_controller"
     Then "1" is not visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
     And "vf 0" is not visible with command "ip link show dev sriov_device |grep 'vf 0'"

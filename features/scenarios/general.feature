@@ -1816,7 +1816,7 @@ Feature: nmcli - general
           connection.autoconnect no
           ip4 172.25.14.1/24
           """
-    * Execute "nmcli connection modify con_general sriov.total-vfs 3"
+    * Modify connection "con_general" changing options "sriov.total-vfs 3"
     * Bring "up" connection "con_general"
     When "Exactly" "3" lines with pattern "vf" are visible with command "ip -c link show eth11" in "5" seconds
     When "Exactly" "0" lines with pattern "vf" are visible with command "ip -c link show eth11" in "15" seconds
@@ -3312,7 +3312,7 @@ Feature: nmcli - general
         We enable autoconnect-slaves on the bond and give carrier on one port. The port autoconnects,
         brings up the bond, and the bond connects testB port too (despite having no carrier).
         """
-    * Execute "nmcli connection modify c-bond1 connection.autoconnect-slaves yes"
+    * Modify connection "c-bond1" changing options "connection.autoconnect-slaves yes"
     * Execute "ip netns exec testA_ns ip link set testAp up"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"

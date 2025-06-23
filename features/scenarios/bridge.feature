@@ -78,7 +78,7 @@ Feature: nmcli - bridge
           group-forward-mask 8
           ip4 1.2.3.4/24
           """
-    * Execute "nmcli con modify br88 bridge.group-forward-mask 0"
+    * Modify connection "br88" changing options "bridge.group-forward-mask 0"
     * Bring "up" connection "br88"
     And "group-forward-mask=8" is not visible with command "cat /etc/NetworkManager/system-connections/br88.nmconnection"
     And "0x0" is visible with command "cat /sys/class/net/br88/bridge/group_fwd_mask"
@@ -431,7 +431,6 @@ Feature: nmcli - bridge
     * Add "ethernet" connection named "bridge-nonslave-eth4" for device "eth4" with options "autoconnect no"
     * Bring "up" connection "bridge-nonslave-eth4"
     When "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
-    * Execute "nmcli con modify bridge-nonslave-eth4 master br15 slave-type bridge"
     * Add "bridge" connection named "bridge4" for device "br15" with options
           """
           autoconnect yes
@@ -439,6 +438,8 @@ Feature: nmcli - bridge
           bridge.stp yes
           bridge.forward-delay 2
           """
+    * Modify connection "bridge-nonslave-eth4" changing options "master br15 slave-type bridge"
+    * Bring "up" connection "bridge-nonslave-eth4"
     Then "br15\s+bridge\s+connected\s+bridge4" is visible with command "nmcli d" in "40" seconds
      And "eth4\s+ethernet\s+connected\s+bridge-nonslave-eth4" is visible with command "nmcli d"
      And "eth4.*master br15" is visible with command "ip a s eth4"
@@ -576,7 +577,7 @@ Feature: nmcli - bridge
      * Modify connection "bridge4.1" changing options "connection.master bridge0 connection.slave-type bridge"
      When "connection.master:\s+bridge0" is visible with command "nmcli c s bridge4.1 | grep 'master:'"
       And "connection.slave-type:\s+bridge" is visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"
-     * Execute "nmcli con modify bridge4.1 connection.master "" connection.slave-type """
+     * Modify connection "bridge4.1" changing options "connection.master "" connection.slave-type """
    #  * Modify connection "bridge4.1" changing options "connection.master '' connection.slave-type ''"
      When "connection.master:\s+bridge0" is not visible with command "nmcli c s bridge4.1 | grep 'master:'"
       And "connection.slave-type:\s+bridge" is not visible with command "nmcli c s bridge4.1 | grep 'slave-type:'"

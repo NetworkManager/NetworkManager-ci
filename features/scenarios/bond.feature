@@ -720,7 +720,7 @@
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
+    * Modify connection "bond0" changing options "con.autoconnect-sl 1"
     * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
@@ -827,7 +827,7 @@
     * Add slave connection for master "nm-bond" on device "eth11" named "bond0.0"
     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
     * Add slave connection for master "nm-bond" on device "eth5" named "bond0.2"
-    * Execute "nmcli con modify bond0 con.autoconnect-sl 1"
+    * Modify connection "bond0" changing options "con.autoconnect-sl 1"
     * Create NM config file "95-nmci-bond.conf" with content
       """
       [main]
@@ -2014,7 +2014,7 @@
     When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     When "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     * Prepare simulated veth device "testXB" without carrier
-    * Execute "nmcli con modify bond0 ipv4.may-fail no"
+    * Modify connection "bond0" changing options "ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
     When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
      And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
@@ -2044,7 +2044,7 @@
     When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     When "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0.0"
     * Prepare simulated veth device "testXB" without carrier
-    * Execute "nmcli con modify bond0 ipv4.may-fail no"
+    * Modify connection "bond0" changing options "ipv4.may-fail no"
     * Execute "nmcli con up bond0.0" without waiting for process to finish
     When "IP4" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"
      And "IP6" is not visible with command "/usr/bin/python3l contrib/gi/nmclient_get_state_flags.py bond0"

@@ -92,12 +92,12 @@ Feature: nmcli: gsm
     @gsm_mtu
     Scenario: nmcli - gsm - mtu
     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet gsm.mtu 1430"
-    * Execute "nmcli con modify gsm gsm.mtu 1430"
+    * Modify connection "gsm" changing options "gsm.mtu 1430"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      And "mtu 1430" is visible with command "ip a s |grep -v -e lo -e eth|grep mtu" in "5" seconds
      And "mtu 1430" is visible with command "nmcli |grep gsm"
-     * Execute "nmcli con modify gsm gsm.mtu 1500"
+     * Modify connection "gsm" changing options "gsm.mtu 1500"
      * Bring "up" connection "gsm"
      When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
      Then "mtu 1500" is visible with command "ip a s |grep -v -e lo -e eth|grep mtu" in "5" seconds
@@ -113,7 +113,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 700"
-    * Execute "nmcli con modify gsm ipv4.route-metric 120"
+    * Modify connection "gsm" changing options "ipv4.route-metric 120"
     * Bring "up" connection "gsm"
     * Wait for "5" seconds
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
@@ -195,7 +195,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
-    * Execute "nmcli con modify gsm ipv4.dns 10.38.5.26"
+    * Modify connection "gsm" changing options "ipv4.dns 10.38.5.26"
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "80" seconds
      And Ping "nix.cz" "7" times

@@ -143,7 +143,7 @@ Feature: nmcli: inf
     Scenario: nmcli - inf - inf master in bond
      * Add "infiniband" connection named "inf" for device "inf_ib0"
      * Add "bond" connection named "bond0" for device "nm-bond" with options "bond.options mode=active-backup"
-     * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
+     * Modify connection "inf" changing options "connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
      Then "inet 172" is visible with command "ip a s nm-bond" in "30" seconds
@@ -160,7 +160,7 @@ Feature: nmcli: inf
     Scenario: nmcli - inf - inf master in bond res
      * Add "infiniband" connection named "inf" for device "inf_ib0"
      * Add "bond" connection named "bond0" for device "nm-bond" with options "bond.options mode=active-backup"
-     * Execute "nmcli connection modify id inf connection.slave-type bond connection.master nm-bond"
+     * Modify connection "inf" changing options "connection.slave-type bond connection.master nm-bond"
      * Bring "up" connection "inf"
      * Bring "up" connection "bond0"
      Then "inet 172" is visible with command "ip a s nm-bond" in "30" seconds

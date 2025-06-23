@@ -294,7 +294,7 @@ Feature: nmcli: connection
       method=manual
       """
     * Reload connections
-    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
+    * Modify connection "uuid" changing options "8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "45" seconds
     Then "192.0.2.2" is visible with command "ip a s eth5"
@@ -334,7 +334,7 @@ Feature: nmcli: connection
       method=manual
       """
     * Reload connections
-    * Execute "nmcli con modify uuid 8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
+    * Modify connection "uuid" changing options "8b4753fb-c562-4784-bfa7-f44dc6581e73 connection.id con_con"
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_con" in "45" seconds
     Then "192.0.2.2" is visible with command "ip a s eth5"
@@ -496,7 +496,7 @@ Feature: nmcli: connection
      Scenario: nmcli - connection - zone to drop and public
       * Add "ethernet" connection named "con_con" for device "eth5"
       When "public(\s+[(]default[)])?\s+interfaces: eth0 eth5" is visible with command "firewall-cmd --get-active-zones" in "10" seconds
-      * Execute "nmcli c modify con_con connection.zone internal"
+      * Modify connection "con_con" changing options "connection.zone internal"
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
@@ -505,13 +505,13 @@ Feature: nmcli: connection
       * Restart NM
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
-      * Execute "nmcli c modify con_con connection.zone trusted"
+      * Modify connection "con_con" changing options "connection.zone trusted"
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
-      * Execute "nmcli c modify con_con connection.zone work"
+      * Modify connection "con_con" changing options "connection.zone work"
       Then "work\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
 

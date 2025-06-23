@@ -194,10 +194,10 @@
     Scenario: nmcli - openvpn - add routing rules
     * Add "openvpn" VPN connection named "openvpn" for device "\*"
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
-    * Execute "nmcli con modify openvpn ipv4.route-table 127"
-    * Execute "nmcli con modify openvpn ipv6.route-table 200"
-    * Execute "nmcli con modify openvpn ipv4.routing-rules 'priority 16383 from all table 127'"
-    * Execute "nmcli con modify openvpn ipv6.routing-rules 'priority 16600 from all table 200'"
+    * Modify connection "openvpn" changing options "ipv4.route-table 127"
+    * Modify connection "openvpn" changing options "ipv6.route-table 200"
+    * Modify connection "openvpn" changing options "ipv4.routing-rules 'priority 16383 from all table 127'"
+    * Modify connection "openvpn" changing options "ipv6.routing-rules 'priority 16600 from all table 200'"
     * Bring "up" connection "openvpn"
 
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show openvpn" in "45" seconds

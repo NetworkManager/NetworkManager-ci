@@ -65,7 +65,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
      And "mtu 1500" is visible with command "nmcli |grep gsm"
-    * Execute "nmcli con modify gsm gsm.mtu 1600"
+    * Modify connection "gsm" changing options "gsm.mtu 1600"
     * Bring "down" connection "gsm"
     * Wait for "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"
@@ -89,7 +89,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
     And "proto kernel scope" is visible with command "ip r |grep 700"
-    * Execute "nmcli con modify gsm ipv4.route-metric 120"
+    * Modify connection "gsm" changing options "ipv4.route-metric 120"
     * Bring "down" connection "gsm"
     * Wait for "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"

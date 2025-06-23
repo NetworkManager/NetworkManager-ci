@@ -407,7 +407,7 @@ Feature: nmcli: ipv4
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth3 weight 5" is visible with command "ip route"
-    * Execute "nmcli connection modify con_ipv4 ipv4.routes '192.168.5.0/24 192.168.3.11, 192.168.5.0/24 192.168.3.12'"
+    * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.5.0/24 192.168.3.11, 192.168.5.0/24 192.168.3.12'"
     * Execute "nmcli c up con_ipv4"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.12 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
@@ -431,7 +431,7 @@ Feature: nmcli: ipv4
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth3 weight 5" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
-    * Execute "nmcli connection modify con_ipv4 ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'"
+    * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'"
     * Execute "nmcli c up con_ipv4"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is not visible with command "ip route"
@@ -1476,7 +1476,7 @@ Feature: nmcli: ipv4
     @ipv4_set_very_long_dhcp_client_id
     Scenario: nmcli - ipv4 - dhcp-client-id - set long client id
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ipv4.may-fail no autoconnect no"
-    * Execute "nmcli connection modify con_ipv4 ipv4.dhcp-client-id $(printf '=%.0s' {1..999})"
+    * Modify connection "con_ipv4" changing options "ipv4.dhcp-client-id "$(printf '=%.0s' {1..999})""
     Then Bring "up" connection "con_ipv4"
 
 
@@ -1915,7 +1915,7 @@ Feature: nmcli: ipv4
     @custom_shared_range_preserves_restart
     Scenario: nmcli - ipv4 - shared custom range preserves restart
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no"
-    * Execute "nmcli connection modify con_ipv4 ipv4.addresses 192.168.100.1/24 ipv4.method shared connection.autoconnect yes"
+    * Modify connection "con_ipv4" changing options "ipv4.addresses 192.168.100.1/24 ipv4.method shared connection.autoconnect yes"
     * Restart NM
     Then "ipv4.addresses:\s+192.168.100.1/24" is visible with command "nmcli con show con_ipv4"
 
@@ -2335,7 +2335,8 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - routing rules manipulation
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no"
     * Bring "up" connection "con_ipv4"
-    * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7, priority 7 from 0.0.0.0/0 table 8' autoconnect yes"
+    * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7, priority 7 from 0.0.0.0/0 table 8'"
+    * Modify connection "con_ipv4" changing options "autoconnect yes"
     * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     * Reboot
@@ -2846,10 +2847,10 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_con" for device "testX4" with options "ipv4.method auto ipv4.may-fail no"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4"
-    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.2/24,192.168.99.3/24'"
+    * Modify connection "con_con" changing options "ipv4.addresses '192.168.99.2/24,192.168.99.3/24'"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "192.168.99.2/24 192.168.99.3/24 /192.168.99.[0-9]+/24$" on device "testX4"
-    * Execute "nmcli connection modify con_con ipv4.addresses '192.168.99.2/24'"
+    * Modify connection "con_con" changing options "ipv4.addresses '192.168.99.2/24'"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "192.168.99.2/24 /192.168.99.[0-9]+/24$" on device "testX4"
     * Execute "nmcli device modify testX4 +ipv4.addresses '192.168.99.4/24'"
@@ -2859,7 +2860,7 @@ Feature: nmcli: ipv4
      And "192.168.99.([0-24-9][0-9]*|3[0-9]+)/24" is visible with command "ip addr show dev testX4 secondary"
     * Execute "nmcli device modify testX4 ipv4.addresses ''"
     Then Check "ipv4" address list "/192.168.99.[0-9]+/24$" on device "testX4" in "3" seconds
-    * Execute "nmcli connection modify con_con ipv4.method manual ipv4.addresses '192.168.99.2/24,192.168.99.3/24,192.168.99.4/24'"
+    * Modify connection "con_con" changing options "ipv4.method manual ipv4.addresses '192.168.99.2/24,192.168.99.3/24,192.168.99.4/24'"
     * Bring "up" connection "con_con"
     Then Check "ipv4" address list "192.168.99.2/24 192.168.99.3/24 192.168.99.4/24" on device "testX4"
 

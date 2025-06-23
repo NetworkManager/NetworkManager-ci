@@ -28,7 +28,7 @@
           ipv4.method manual ipv4.addresses 10.0.0.2/24
           tc.qdiscs 'root fq_codel'
           """
-    * Execute "nmcli con modify con_tc tc.qdiscs 'root pfifo_fast'"
+    * Modify connection "con_tc" changing options "tc.qdiscs 'root pfifo_fast'"
     * Bring "up" connection "con_tc"
     Then "pfifo_fast" is visible with command "ip a s dummy0" in "5" seconds
 
@@ -138,10 +138,10 @@
           ipv4.may-fail no
           ipv4.dhcp-hostname example.com
           """
-    * Execute "nmcli connection modify con_tc +tc.qdisc "root prio handle 10:""
-    * Execute "nmcli connection modify con_tc +tc.qdisc "ingress handle ffff:""
-    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff: matchall action mirred egress mirror dev dummy0""
-    * Execute "nmcli connection modify con_tc +tc.tfilter "parent 10:   matchall action mirred egress mirror dev dummy0""
+    * Modify connection "con_tc" changing options "+tc.qdisc "root prio handle 10:""
+    * Modify connection "con_tc" changing options "+tc.qdisc "ingress handle ffff:""
+    * Modify connection "con_tc" changing options "+tc.tfilter "parent ffff: matchall action mirred egress mirror dev dummy0""
+    * Modify connection "con_tc" changing options "+tc.tfilter "parent 10:   matchall action mirred egress mirror dev dummy0""
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
     * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
@@ -164,9 +164,9 @@
           ipv4.may-fail no
           ipv4.dhcp-hostname example.com
           """
-    * Execute "nmcli connection modify con_tc +tc.qdisc "clsact""
-    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff3 matchall action mirred egress mirror dev dummy0""
-    * Execute "nmcli connection modify con_tc +tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev dummy0""
+    * Modify connection "con_tc" changing options "+tc.qdisc "clsact""
+    * Modify connection "con_tc" changing options "+tc.tfilter "parent ffff:fff3 matchall action mirred egress mirror dev dummy0""
+    * Modify connection "con_tc" changing options "+tc.tfilter "parent ffff:fff2  matchall action mirred egress mirror dev dummy0""
     * Bring "down" connection "con_tc"
     * Bring "up" connection "con_tc"
     * Run child "tshark -l -O bootp -i dummy0 > /tmp/tshark.log"
