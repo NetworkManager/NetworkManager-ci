@@ -381,7 +381,8 @@
 
 
     @rhbz1633174
-    @ver+=1.14.0 @rhelver+=8
+    # This is for NM-libreswan <= 1.2.24
+    @ver+=1.14.0 @rhelver+=8 @rhelver-=9.6 @rhelver-=10.0 @fedoraver-=42
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
@@ -398,9 +399,57 @@
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     # add required options, which are not exported
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
-    When Check noted values "vpn1" and "vpn2" are the same
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then Check noted values "vpn1" and "vpn2" are the same
+
+
+    @rhbz1633174
+    # This is for NM-libreswan >= 1.2.26
+    @rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    @libreswan @ikev2
+    @libreswan_reimport_ikev2
+    Scenario: nmcli - libreswan - reimport exported IKEv2 connection
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.26"
+    * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
+    * Bring "up" connection "libreswan"
+    When "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    # options in vpn.data may be in arbitrary order, sort them so it is comparable
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export libreswan | tee /tmp/vpn.swan"
+    * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
+    * Commentary
+    """
+    This is a bug, `esp` is exported as phase2alg, and that is ignored at the import.
+    """
+    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
+    * Bring "down" connection "libreswan"
+    * Delete connection "libreswan"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    # add required options, which are not exported
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    * Commentary
+    """
+    Do the import/export again, as the first import/export set some default values.
+    """
+    * Execute "nmcli connection export libreswan | tee /tmp/vpn.swan"
+    * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
+    * Commentary
+    """
+    This is a bug, `esp` is exported as phase2alg, and that is ignored at the import.
+    """
+    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
+    * Bring "down" connection "libreswan"
+    * Delete connection "libreswan"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    # add required options, which are not exported
+    * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn3"
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then Check noted values "vpn2" and "vpn3" are the same
 
 
     @rhbz1557035
