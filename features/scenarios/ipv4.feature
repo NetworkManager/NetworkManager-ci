@@ -2333,6 +2333,7 @@ Feature: nmcli: ipv4
     @restart_if_needed
     @ipv4_routing_rules_manipulation
     Scenario: NM - ipv4 - routing rules manipulation
+    * Note the output of "ip rule" as value "rule1"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no"
     * Bring "up" connection "con_ipv4"
     * Modify connection "con_ipv4" changing options "ipv4.routing-rules 'priority 5 table 6, priority 6 from 192.168.6.7/32 table 7, priority 7 from 0.0.0.0/0 table 8'"
@@ -2344,7 +2345,8 @@ Feature: nmcli: ipv4
     When "5:\s+from all lookup 6 proto static\s+6:\s+from 192.168.6.7 lookup 7 proto static\s+7:\s+from all lookup 8 proto static" is visible with command "ip rule"
     * Bring "down" connection "con_ipv4"
     Then "5:\s+from all lookup 6 proto static\s+6:\s+from 192.168.6.7 lookup 7 proto static\s+7:\s+from all lookup 8 proto static" is not visible with command "ip rule"
-    And "Exactly" "3" lines are visible with command "ip rule"
+    * Note the output of "ip rule" as value "rule2"
+    Then Check noted values "rule1" and "rule2" are the same
 
 
     @rhbz2167805
