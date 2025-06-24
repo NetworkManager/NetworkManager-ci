@@ -3740,4 +3740,6 @@ Feature: nmcli - general
         Test creates and deletes 100 times a VRF interface connected to a virtual Ethernet pair.
         We should always see connected (100) but never unmanaged.
         """
+    * Cleanup namespace "ns1"
+    * Cleanup device "veth0"
     * Execute reproducer "repro_rhel89914.sh"
