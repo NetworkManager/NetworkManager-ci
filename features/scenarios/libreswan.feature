@@ -763,7 +763,7 @@ method=auto
         RHEL8.4- throws property foo invalid.
         """
     Then "libreswan " is not visible with command "nmcli  connection show -a" in "2" seconds
-    Then "Invalid character|name owner .* disappeared|'property 'foo' invalid or not supported" is visible in journal in "5" seconds
+    Then "Invalid character|name owner .* disappeared|property 'foo' invalid or not supported" is visible in journal in "5" seconds
 
 
     @RHEL-70160 @RHEL-69901
