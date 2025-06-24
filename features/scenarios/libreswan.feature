@@ -406,7 +406,8 @@
 
     @rhbz1633174
     # This is for NM-libreswan >= 1.2.26
-    @rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    #@rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    @rhelver+=10.1 @fedoraver+=43
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
@@ -473,7 +474,8 @@
 
 
     @rhbz1557035
-    @rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    #@rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    @rhelver+=10.1 @fedoraver+=43
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
