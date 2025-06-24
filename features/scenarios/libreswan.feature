@@ -453,7 +453,7 @@
 
 
     @rhbz1557035
-    @ver+=1.14.0 @rhelver+=8
+    @ver+=1.14.0 @rhelver+=8 @rhelver-=9.6 @rhelver-=10.0 @fedoraver-=42
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
@@ -466,6 +466,28 @@
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
+    * Delete connection "vpn"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    Then Check noted values "vpn1" and "vpn2" are the same
+
+
+    @rhbz1557035
+    @rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
+    @vpn
+    @libreswan_configurable_options_reimport
+    Scenario: nmcli - libreswan - check libreswan options in vpn.data
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.26"
+    * Add "vpn" connection named "vpn" for device "\*" with options
+          """
+          autoconnect no
+          vpn-type libreswan
+          vpn.data 'right=1.2.3.4, leftmodecfgclient=yes, rightid=@server, rightrsasigkey=server-key, left=1.2.3.5, leftid=@client, leftrsasigkey=client-key, leftcert=client-cert, ike=aes256-sha1;modp1536, esp=aes256-sha1, ikelifetime=10m, salifetime=1h, rightsubnet=1.2.3.0/24, ikev2=yes, narrowing=yes, rekey=no, fragmentation=no'
+          """
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
+    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
