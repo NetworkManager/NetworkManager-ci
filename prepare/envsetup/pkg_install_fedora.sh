@@ -12,7 +12,7 @@ install_fedora_packages () {
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager bzip2 gdb python3-libnmstate \
-        rp-pppoe tcpreplay usb_modeswitch usbutils wireguard-tools"
+        rp-pppoe tcpreplay tmt usb_modeswitch usbutils wireguard-tools"
 
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
