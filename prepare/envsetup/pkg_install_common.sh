@@ -107,7 +107,7 @@ install_common_packages () {
     python3l -m pip install psutil
     python3l -m pip install scapy
     python3l -m pip install qemu.qmp
-    python3l -m pip install tmt
+    which tmt || python3l -m pip install tmt
 
     # remount ro overlay, if in image mode
     grep -q ostree /proc/cmdline && sudo mount -o remount,ro lazy /usr
