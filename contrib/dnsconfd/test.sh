@@ -1,6 +1,6 @@
 #/bin/bash
 
-set -e
+set -e -x
 
 function skip_test_on_arch() {
     local file="$1" arch="${2:-s390x}"
@@ -86,6 +86,11 @@ fi
 \cp -f $SETUP_DIR/nmci.fmf $DNSCONFD_DIR/plans/
 
 pushd $DNSCONFD_DIR
-tmt --feeling-safe --context=distro=$ID-$VERSION_ID --context trigger=CI run -v -a plan --name plans/nmci provision --how local
+# detect tmt - try harmless command
+# 1) rpm install - tmt command should work
+# 2) pip install - we install to latest python3l, but might get executed by older python3, execute with python3l then
+TMT_BIN=tmt
+tmt --version || TMT_BIN="python3l -m tmt"
+$TMT_BIN --feeling-safe --context=distro=$ID-$VERSION_ID --context trigger=CI run -v -a plan --name plans/nmci provision --how local
 
 popd
