@@ -64,10 +64,9 @@ EOF
     # Remove cloud init config (if present) - causing fail in ip6gre tunel in c10s
     rm -f /etc/NetworkManager/conf.d/30-cloud-init-ip6-addr-gen-mode.conf
 
-    # if this isn't yet configured
-    if ! grep -q 'level=TRACE' /etc/NetworkManager/conf.d/95-nmci-test.conf; then
-        echo -e "[logging]\nlevel=TRACE\ndomains=ALL" >> /etc/NetworkManager/conf.d/95-nmci-test.conf
-    fi
+    # configure NM trace logs
+    cp contrib/conf/95-nmci-test.conf /etc/NetworkManager/conf.d/
+    restorecon /etc/NetworkManager/conf.d/95-nmci-test.conf || true
 
     # Set max corefile size to infinity
     sed 's/.*DefaultLimitCORE=.*/DefaultLimitCORE=infinity/g' -i /etc/systemd/system.conf
