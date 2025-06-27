@@ -2167,7 +2167,7 @@
     * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64,1:2:3::102/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::102/64 1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
-    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64"
+    * Modify connection "con_ipv6" changing options "ipv6.addresses '1:2:3::101/64'"
     * Bring "up" connection "con_ipv6"
     Then Check "ipv6" address list "1:2:3::101/64 /2620:dead:beaf:[0-9a-f:]+/128 2620:dead:beaf:0:ecaa:bbff:fecc:ddee/64 fe80::ecaa:bbff:fecc:ddee/64" on device "testX6"
     * Execute "nmcli device modify testX6 +ipv6.addresses '1:2:3::103/64'"
