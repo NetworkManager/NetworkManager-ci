@@ -846,7 +846,7 @@ method=auto
     @libreswan_add_routing_rules
     Scenario: nmcli - libreswan - add routing rules
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
-    * Modify connection "libreswan" changing options "vpn.data 'ikev2=insist, leftcert=LibreswanClient, leftid=%fromcert, right=11.12.13.14'"
+    * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Modify connection "libreswan" changing options "ipv4.route-table 127"
     * Modify connection "libreswan" changing options "ipv6.route-table 200"
     * Modify connection "libreswan" changing options "ipv4.routing-rules 'priority 16383 from all table 127'"
