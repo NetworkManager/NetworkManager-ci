@@ -16,6 +16,6 @@ for c in nm_client.get_active_connections():
         break
 
 if con != None:
-    print(con.get_state_flags())
+    print(repr(con.get_state_flags()))
 else:
     print("Error: no %s connection" % connection_name)
