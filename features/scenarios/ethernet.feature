@@ -1064,13 +1064,18 @@ Feature: nmcli - ethernet
           ethtool.channels-combined 2
           """
     * Bring "up" connection "con_ethernet"
-    When "RX:\s+4\s*TX:\s+3\s*Other:\s+2\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    * Commentary
+      """
+      Match only last 4 lines, should be "Current hardware settings".
+      However, ethtool v6.15+ doesn't print "Current hardware settings" anymore.
+      """
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+2\s*Combined:\s+2" is visible with command "ethtool -l eth11 | tail -n4"
     * Modify connection "con_ethernet" changing options "ethtool.channels-other 9"
     * Bring "up" connection "con_ethernet"
-    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9\s*Combined:\s+2" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9\s*Combined:\s+2" is visible with command "ethtool -l eth11 | tail -n4"
     * Modify connection "con_ethernet" changing options "ethtool.channels-combined ''"
     * Bring "up" connection "con_ethernet"
-    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9" is visible with command "ethtool -l eth11 | sed -e '1,/Current hardware/d'"
+    When "RX:\s+4\s*TX:\s+3\s*Other:\s+9" is visible with command "ethtool -l eth11 | tail -n4"
     * Note the output of "ethtool -l eth11 | grep -i combined" as value "channels_combined_after"
     Then Check noted values "channels_combined_before" and "channels_combined_after" are the same
     * Disconnect device "eth11"
