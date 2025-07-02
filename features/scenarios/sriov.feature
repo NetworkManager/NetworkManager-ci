@@ -700,7 +700,7 @@
 
 
     @RHEL-69125
-    @ver+=1.54.0
+    @ver+=1.53.91
     @sriov_preserve_on_down
     Scenario: nmcli - sriov - preserve-on-down
     * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
