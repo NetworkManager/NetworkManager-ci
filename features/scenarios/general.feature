@@ -3693,10 +3693,10 @@ Feature: nmcli - general
     * Cleanup connection "nm-test2"
     * Cleanup connection "nm-test3"
     * Cleanup connection "nm-test4"
-    * Add "bond" connection named "bond0" for device "nm-bond" 
+    * Add "bond" connection named "bond0" for device "nm-bond"
     Then "Warning: controller 'bond0' doesn't refer to any existing profile of type 'bridge'" is visible with command "nmcli connection add type ethernet ifname eth3 con-name nm-test1 controller bond0 port-type bridge" in "0" seconds
      And "Warning: controller 'bond0' doesn't refer to any existing profile of type 'bridge'" is visible with command "nmcli connection add ifname eth4 con-name nm-test2 controller bond0 type bridge-slave" in "0" seconds
-     And "Error: invalid or not allowed setting 'ipv4'" is visible with command "nmcli connection add type ethernet ifname eth5 con-name nm-test3 ipv4.method disabled controller bond0 port-type bond" in "0" seconds
+     And "Error: invalid or not allowed setting 'ipv4'" is visible with command "nmcli connection add type ethernet ifname eth5 con-name nm-test3 ipv4.method auto controller bond0 port-type bond" in "0" seconds
     * Add "ovs-interface" connection ignoring warnings named "ovs-if-br-ex" for device "br-ex" with options "controller ovs-port-phys0 autoconnect no"
     * Add "ovs-bridge" connection named "br-ex" for device "br-ex"
     * Commentary
