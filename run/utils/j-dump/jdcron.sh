@@ -30,6 +30,40 @@ log() {
 	echo "$*" >> "$LOG_FILE"
 }
 
+upload_to_reportportal() {
+	# Upload data to reportportal, if enabled in config
+	[ -z "$REPORTPORTAL_API_URL" ] && return
+	# We should be in OUTPUT_DIR already
+	for file in ./cache/junits/*.xml; do
+		if [ -f $file ]; then
+			zfile=${file%.xml}.zip
+			zip $zfile $file
+			# extract name from {path}/{name}.{build}.xml
+			name=${file%.xml}
+			name=${name%.*}
+			name=${name##*/}
+			curl -L -X POST "$REPORTPORTAL_API_URL" \
+					-H 'Content-Type: multipart/form-data' \
+					-H "Authorization: Bearer $REPORTPORTAL_TOKEN" \
+					-F "file=@$zfile;type=application/x-zip-compressed" \
+					-F 'launchImportRq="{
+				\"attributes\": [
+					{
+					\"key\": \"skippedIsNotIssue\",
+					\"system\": true,
+					\"value\": \"true\"
+					}
+				],
+				\"description\": \"NetworkManager-ci\",
+				\"mode\": \"DEFAULT\",
+				\"name\": \"'$name'\",
+				\"startTime\": \"2023-11-08T10:23:34.259Z\"
+				}";type=application/json' && rm $file
+
+		fi
+	done
+}
+
 index_html_heading() {
 	echo -e '<!DOCTYPE html>\n' \
 	        '<html>\n' \
@@ -121,9 +155,9 @@ job_name_2_description() {
 	# Distribution
 	printf " executed on "
 	if echo "$1" | grep -q "c[0-9]*s"; then
-		echo "$1" -n | sed 's/.*-//;s/c/CentOS /;s/s/ stream/'
+		echo -n "$1" | sed 's/.*-//;s/c/CentOS /;s/s/ stream/'
 	else
-		echo "$1" -n | sed 's/.*-//;s/\([0-9]\)/ \1/;s/rhel/RHEL/;s/fedora/Fedora/;s/rawhide/Fedora Rawhide/'
+		echo -n "$1" | sed 's/.*-//;s/\([0-9]\)/ \1/;s/rhel/RHEL/;s/fedora/Fedora/;s/rawhide/Fedora Rawhide/'
 	fi
 }
 
@@ -227,8 +261,11 @@ done
 index_html_trailing
 js_trailing
 
+upload_to_reportportal
+
 mv -f $OUTPUT_DIR/*.* $FINAL_DIR
-cp -r $OUTPUT_DIR/cache $FINAL_DIR
+mkdir -p $FINAL_DIR/cache
+cp -r $OUTPUT_DIR/cache/*.json $FINAL_DIR/cache
 /sbin/restorecon -R $FINAL_DIR
 
 [ "$?" = "0" ] && log "*** Success ***"
