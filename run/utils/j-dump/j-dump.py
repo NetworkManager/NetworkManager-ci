@@ -8,6 +8,7 @@ import jsonpickle
 import math
 import time
 import re
+import xml.etree.ElementTree as ET
 
 import behave.step_registry
 import behave.runner
@@ -73,6 +74,9 @@ class Job:
         if not os.path.isdir(self.cache_dir):
             call("mkdir -p %s" % (self.cache_dir), shell=True)
         self.cache_file = self.cache_dir + self.name + ".json"
+        if not os.path.isdir(self.cache_dir + "junits"):
+            call("mkdir -p %s" % (self.cache_dir + "junits"), shell=True)
+        self.junit_prefix = self.cache_dir + "junits/" + self.nick.replace("-veth", "")
 
     def connect(self):
         try:
@@ -142,7 +146,7 @@ class Job:
         build.tests_skipped = statuses.count("SKIP")
 
     def process_taskout_log(self, build):
-        log = self.get_taskout_log(build)
+        log = build.get_taskout_log()
         t_s = time.time()
         tests = {}
         tags = {}
@@ -202,30 +206,12 @@ class Job:
                     "tags_bs": tags_bs_time,
                     "status": status,
                 }
-        dprint(f"taskout-log-processing: {time.time() - t_s:.3f}s")
+        dprint(f"{build.name}: taskout-log-processing: {time.time() - t_s:.3f}s")
         return tests, tags, steps
 
-    def get_taskout_log(self, build):
-        t_s = time.time()
-        log = ""
-        for url in [
-            "/artifact/artifacts/taskout.log",
-            "/artifact/artifacts/runner.txt",
-            "/consoleText",
-        ]:
-            try:
-                # ignore SSL errors for now
-                req = requests.get(build.url + url, verify=False)
-                if req.status_code != 200:
-                    continue
-                log = req.text
-                break
-            except:
-                log = ""
-        dprint(f"taskout-log get: {time.time() - t_s:.3f}s")
-        return log
-
-    def remove_build(self, build_id):
+    def remove_build(self, build_id, remove_junit=True):
+        if remove_junit:
+            call(f"rm -f {self.junit_prefix}.{build_id}.zip", shell=True)
         self.builds = [build for build in self.builds if build.id != build_id]
         for failure in self.failures.values():
             failure.builds = [build for build in failure.builds if build.id != build_id]
@@ -249,12 +235,15 @@ class Job:
         for build in self.builds:
             if build.status == "RUNNING":
                 self.remove_build(build.id)
+            if not hasattr(build, "name"):
+                build.name = f"Build {self.nick} #{build.id}"
 
         cached_build_ids = [build.id for build in self.builds]
         sorted(cached_build_ids, reverse=True)
 
+        # refresh latest build, do not remove junit if it is generated already
         if cached_build_ids:
-            self.remove_build(cached_build_ids[0])
+            self.remove_build(cached_build_ids[0], remove_junit=False)
 
         for build_id in cached_build_ids:
             if build_id not in build_ids:
@@ -264,6 +253,13 @@ class Job:
                 self.failures.pop(failure_name)
 
     def save_cache(self):
+        # cleanup private build attrs
+        for build in self.builds:
+            if getattr(build, "_taskout_log", None):
+                del build._taskout_log
+            if getattr(build, "_junit_xml", None):
+                del build._junit_xml
+
         data = (self.builds, self.failures, self.tests, self.tags, self.stats)
         data_json = jsonpickle.encode(data, keys=True)
         with open(self.cache_file, "w") as fd:
@@ -473,6 +469,14 @@ class Job:
 
         self.sorted_failures = failures
 
+    def postprocess_junits(self):
+        for build in self.builds:
+            if os.path.isfile(f"{self.junit_prefix}.{build.id}.zip") or os.path.isfile(
+                f"{self.junit_prefix}.{build.id}.xml"
+            ):
+                continue
+            build.make_junit_xml_v1(f"{self.junit_prefix}.{build.id}.xml")
+
     def __html_write_header__(self, fd, file_builds, file_failures, failure=False):
         style_build = "color:red"
         style_failure = ""
@@ -681,6 +685,7 @@ class Build:
         self.timestamp = build.get_timestamp()
         self.duration = build.get_duration()
         self.failures = {}
+        self.name = f"Build {job.nick} #{self.id}"
 
         if self.status == "NOT_BUILT" or self.status == "ABORTED":
             self.failed = True
@@ -697,8 +702,9 @@ class Build:
                     if result_name.endswith("_timeout"):
                         result_name = result_name.rsplit("_", 1)[0]
                     job.add_failure(result_name, self)
-            self.name = results.name
+            self.name = results.name or f"Build {job.nick} #{self.id}"
         else:
+            self.name = f"RUNNING {job.nick} #{self.id}"
             if not self.status:
                 if build.is_running():
                     self.status = "RUNNING"
@@ -750,6 +756,83 @@ class Build:
 
     def add_failure(self, failure_name, failure):
         self.failures[failure_name] = failure
+
+    def get_taskout_log(self):
+        taskout_log = getattr(self, "_taskout_log", None)
+        if taskout_log is not None:
+            return taskout_log
+        t_s = time.time()
+        self._taskout_log = ""
+        for url in [
+            "/artifact/artifacts/taskout.log",
+            "/artifact/artifacts/runner.txt",
+            "/consoleText",
+        ]:
+            try:
+                # ignore SSL errors for now
+                req = requests.get(self.url + url, verify=False)
+                if req.status_code != 200:
+                    continue
+                self._taskout_log = req.text
+                break
+            except:
+                self._taskout_log = ""
+        dprint(f"{self.name}: taskout-log get: {time.time() - t_s:.3f}s")
+        return self._taskout_log
+
+    def get_junit_xml(self):
+        junit_xml = getattr(self, "_junit_xml", None)
+        if junit_xml is not None:
+            return junit_xml
+        t_s = time.time()
+        self._junit_xml = ""
+        for url in [
+            "/artifact/artifacts/junit.xml",
+            "/artifact/junit.xml",
+        ]:
+            try:
+                # ignore SSL errors for now
+                req = requests.get(self.url + url, verify=False)
+                if req.status_code != 200:
+                    continue
+                self._junit_xml = req.text
+                break
+            except:
+                self._junit_xml = ""
+        dprint(f"{self.name}: junit-xml get: {time.time() - t_s:.3f}s")
+        return self._junit_xml
+
+    def make_junit_xml_v1(self, output_file_name):
+        if self.status == "RUNING":
+            return
+        taskout = self.get_taskout_log()
+        tests_outputs = taskout.split("Running test ")
+        # in case build in jenkins is incomplete
+        if len(tests_outputs) < 1000:
+            return
+        junit = self.get_junit_xml()
+
+        xml_o = ET.ElementTree(ET.XML(junit))
+        root = xml_o.getroot()
+        if root.tag != "testsuite":
+            root = root.find(".//testsuite")
+        # set testsuite metadata
+        root.set("name", "NetworkManager-ci")
+        root.set("timestamp", self.timestamp.isoformat())
+        root.set("time", str(self.duration.seconds))
+        # go through testcases and set output + some metadata
+        for tc in root.findall(".//testcase"):
+            name = tc.get("name")
+            for t in tests_outputs:
+                if t.startswith(name) and name + ".html" in t:
+                    tag_name = "system-out"
+                    if "Test result: FAIL" in t:
+                        tag_name = "failure"
+                    if "Test result: SKIP" in t:
+                        tag_name = "skipped"
+                    x = ET.SubElement(tc, tag_name)
+                    x.text = t
+        xml_o.write(output_file_name)
 
 
 def failure_number(failure):
@@ -851,6 +934,8 @@ def process_job(server, job_name, job_nick, max_builds=50):
     # save(name, "failures", Failure.failures)
 
     job.postprocess_failures(job.get_builds())
+
+    job.postprocess_junits()
 
     job.save_cache()
 
