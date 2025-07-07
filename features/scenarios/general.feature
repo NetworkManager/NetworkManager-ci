@@ -3708,6 +3708,14 @@ Feature: nmcli - general
       """
     * Execute "nmcli connection add con-name nm-test4 ifname port1 controller br-ex autoconnect no type ovs-port port-type ovs-bridge"
 
+
+    @ver+=1.53.91
+    @nmcli_port_with_ip_disabled
+    Scenario: nmcli - general - add connection with port controller settings and ip4 disabled and ip6 ignore
+    * Add "bond" connection named "bond0" for device "nm-bond"
+    Then Add "ethernet" connection named "bond-port" for device "eth2" with options "ipv4.method disabled ipv6.method ignore controller bond0 port-type bond"
+
+
     @RHEL-80273
     @ver+=1.53.3
     @nmcli_port_type_guess

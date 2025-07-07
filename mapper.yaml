@@ -2121,6 +2121,8 @@ testmapper:
         feature: general
     - nmcli_port_arguments_order:
         feature: general
+    - nmcli_port_with_ip_disabled:
+        feature: general
     - nmcli_port_type_guess:
         feature: general
     - openvswitch_capability:
