@@ -3,6 +3,10 @@ import time
 import yaml
 from nmstate.tests.integration.testlib.ipsec import IpsecTestEnv
 
+# pull podman images
+print("env repare")
+IpsecTestEnv.prepare()
+
 print("env setup")
 
 IpsecTestEnv.setup()
