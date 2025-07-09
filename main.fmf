@@ -9,6 +9,8 @@
       - name: packages
         how: install
         package:
+         - wget
+         - git-core
          - chkconfig
          - dnsmasq
          - tcpdump
