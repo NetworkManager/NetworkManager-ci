@@ -2137,6 +2137,8 @@ testmapper:
         feature: ovs
     - nmcli_activate_parent_connection_keep_children_alive:
         feature: ovs
+    - nmcli_create_no_ip_ovs_port_bond:
+        feature: ovs
     - nmcli_add_basic_openvswitch_configuration:
         feature: ovs
     - nmcli_add_openvswitch_port_by_mac:

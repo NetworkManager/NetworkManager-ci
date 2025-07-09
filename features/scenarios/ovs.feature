@@ -120,6 +120,28 @@ Feature: nmcli - ovs
     Then "connected:ovs0.100" is visible with command "nmcli -t -f STATE,CONNECTION device" in "5" seconds
 
 
+    @RHEL-90756
+    @ver+=1.53.91.2
+    @openvswitch
+    @nmcli_create_no_ip_ovs_port_bond
+    Scenario: nmcli - openvswitch - create ipv4/6 disabled ovs port bond
+    * Add "ovs-bridge" connection named "ovs-bridge-br0" for device "br0"
+    * Add "ovs-port" connection named "ovs-port-bond0" for device "bond0"
+        """
+        connection.master br0 connection.slave-type ovs-bridge
+        """
+    * Add "bond" connection named "ovs-iface-bond0" for device "bond0"
+        """
+        ipv4.method disabled
+        ipv6.method disabled
+        connection.master bond0
+        connection.slave-type ovs-port
+        """
+    Then "ovs-iface-bond0" is visible with command "nmcli c"
+    Then "ovs-bridge-br0" is visible with command "nmcli c"
+    Then "ovs-iface-bond0" is visible with command "nmcli c"
+
+
     @rhbz1540218 @rhbz1519176
     @ver+=1.16.2 @ver-=1.50
     @openvswitch
