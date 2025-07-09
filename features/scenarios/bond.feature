@@ -2630,6 +2630,11 @@
      * Execute "ip link set test-br0-v0 master test-br0"
      * Execute "ip link set test-br0-v0 up"
      * Execute "ip link set test-br0-v1 up"
+     * Commentary
+       """
+       Wait until NM creates assumed connection. This might take a while on secondaries.
+       """
+     When "test-br0" is visible with command "nmcli connection" in "15" seconds
      * Add "bond" connection named "test-bond0" for device "test-bond0" with options
        """
        master test-br0
