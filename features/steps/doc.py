@@ -256,6 +256,7 @@ chapters = {
     "Using different DNS servers for different domains": "using-different-dns-servers-for-different-domains_configuring-and-managing-networking",
     # Configuring firewalls and packet filters
     "Manually assigning a zone to a network connection in a connection profile file": "manually-assigning-a-zone-to-a-network-connection-in-a-connection-profile-file_working-with-firewalld-zones",
+    "Identifying the reason why NetworkManager does not manage a certain network device": "configuring-networkmanager-to-ignore-certain-devices_configuring-and-managing-networking#identifying-the-reason-why-networkmanager-does-not-manage-a-certain-network-device_configuring-networkmanager-to-ignore-certain-devices",
 }
 
 guides = {

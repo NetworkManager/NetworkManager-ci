@@ -2922,6 +2922,8 @@ testmapper:
         tags: gate
     - doc_firewalld_zones_via_ifcfg:
         feature: doc_procedures
+    - doc_unmanaged_reason:
+        feature: doc_procedures
     - gsm_sim_create_default_connection:
         feature: gsm_sim
     - gsm_sim_disconnect:

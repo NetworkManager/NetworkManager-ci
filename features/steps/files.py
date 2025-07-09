@@ -49,6 +49,22 @@ def cleanup_NM_cfg(context, cfg):
     nmci.cleanup.add_NM_config(cfg)
 
 
+@step('Create udev rule "{fname}" with content')
+def create_udev_file(context, fname):
+    if not fname.startswith("/"):
+        path = os.path.join("/etc/udev/rules.d", fname)
+    else:
+        path = fname
+
+    nmci.cleanup.add_udev_rule(path)
+
+    content = context.text
+    content = nmci.misc.str_replace_dict(content, getattr(context, "noted", {}))
+
+    nmci.util.file_set_content(path, content)
+    nmci.util.update_udevadm()
+
+
 @step('Append lines to file "{name}"')
 @step('Append "{line}" to file "{name}"')
 def append_to_file(context, name, line=None):

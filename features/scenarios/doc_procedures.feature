@@ -919,3 +919,42 @@ Feature: nmcli - procedures in documentation
     * Reload connections
     When Execute "nmcli connection up con_con"
     Then "internal" is visible with command "firewall-cmd --get-zone-of-interface eth5"
+
+
+    @RHELDOCS-19823
+    @rhelver+=9.6
+    @rhelver+=10.0
+    @doc_unmanaged_reason
+    Scenario: test unmanaged reson for certain devices
+    * Doc: "Identifying the reason why NetworkManager does not manage a certain network device"
+    * Create udev rule "90-nmci-unmanage-testX1.rules" with content
+      """
+      ENV{ID_NET_DRIVER}=="veth", ENV{INTERFACE}=="testX1*", ENV{NM_UNMANAGED}="1"
+      """
+    * Create NM config file "99-unmanage-testX2.conf" with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:testX2
+      """
+    * Create NM config file "99-unmanage-testX3.conf" with content
+      """
+      [device-unmanage-testX3]
+      match-device=interface-name:testX3*
+      managed=0
+      """
+    * Commentary
+    """
+    Use reboot step to delete all possible device state config in /run/NetworkManager.
+    Without reboot, testX3 RESON is unmanaged by udev on some systems.
+    """
+    * Reboot
+    * Create "veth" device named "testX1" with options "peer testX2"
+    * Create "veth" device named "testX3" with options "peer testX4"
+    * Create "dummy" device named "testX5"
+    * Execute "NetworkManager --print-config"
+    * Execute "nmcli d set testX4 managed no"
+    Then String "77 (The device is unmanaged via udev rule)" is visible with command "nmcli -g GENERAL.REASON d show testX1"
+    Then String "76 (The device is unmanaged by user decision via settings plugin" is visible with command "nmcli -g GENERAL.REASON d show testX2"
+    Then String "74 (The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)" is visible with command "nmcli -g GENERAL.REASON d show testX3"
+    Then String "75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no'))" is visible with command "nmcli -g GENERAL.REASON d show testX4"
+    Then String "70 (The device is unmanaged because it is an external device and is unconfigured (down or without addresses))" is visible with command "nmcli -g GENERAL.REASON d show testX5"
