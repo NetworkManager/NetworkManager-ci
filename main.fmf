@@ -2478,10 +2478,10 @@ r-libreswan']
         duration: 10m
         tty: true
     
-    /ipv6_send_fqdn.fqdn_to_dhcpv6:
-        test: run/runtest.sh ipv6_send_fqdn.fqdn_to_dhcpv6
+    /ipv6_send_fqdn_dot_fqdn_to_dhcpv6:
+        test: run/runtest.sh ipv6_send_fqdn_dot_fqdn_to_dhcpv6
         environment:
-            TEST: NetworkManager_300_ipv6_send_fqdn.fqdn_to_dhcpv6
+            TEST: NetworkManager_300_ipv6_send_fqdn_dot_fqdn_to_dhcpv6
         order: 3000
         duration: 10m
         tty: true

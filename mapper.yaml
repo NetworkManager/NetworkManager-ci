@@ -748,7 +748,7 @@ testmapper:
     - ipv6_dhcp-hostname_remove:
         feature: ipv6
         tags: gate libndp
-    - ipv6_send_fqdn.fqdn_to_dhcpv6:
+    - ipv6_send_fqdn_dot_fqdn_to_dhcpv6:
         feature: ipv6
     - ipv6_DHCPv6:
         feature: ipv6
@@ -3582,7 +3582,7 @@ testmapper:
   NetworkManager-wifi:
     - nmcli_wifi_wpa2_peap_mschapv2:
         feature: wifi
-    - nmcli_wifi_wpa2_tls_2.4g:
+    - nmcli_wifi_wpa2_tls_2_4g:
         feature: wifi
     - nmcli_wifi_wpa2_tls_5g:
         feature: wifi
@@ -3590,7 +3590,7 @@ testmapper:
         feature: wifi
     - nmcli_wifi_wpa3_peap_mschapv2:
         feature: wifi
-    - nmcli_wifi_wpa3_tls_2.4g:
+    - nmcli_wifi_wpa3_tls_2_4g:
         feature: wifi
     - nmcli_wifi_wpa3_tls_5g:
         feature: wifi
@@ -3614,11 +3614,11 @@ testmapper:
         feature: wifi
     - nmcli_wifi_wpa2hidden_psk:
         feature: wifi
-    - nmcli_wifi_wpa2_psk_2.4g:
+    - nmcli_wifi_wpa2_psk_2_4g:
         feature: wifi
     - nmcli_wifi_wpa2_psk_5g:
         feature: wifi
-    - nmcli_wifi_wpa3_psk_2.4g:
+    - nmcli_wifi_wpa3_psk_2_4g:
         feature: wifi
     - nmcli_wifi_wpa3_psk_5g:
         feature: wifi

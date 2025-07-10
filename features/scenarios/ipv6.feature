@@ -707,7 +707,7 @@
 
 
     @restore_hostname @eth2_disconnect @tshark
-    @ipv6_send_fqdn.fqdn_to_dhcpv6
+    @ipv6_send_fqdn_dot_fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"

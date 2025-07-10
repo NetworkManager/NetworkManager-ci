@@ -177,7 +177,7 @@ Feature: nmcli - wifi
 
 
     @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa2_psk_2.4g
+    @nmcli_wifi_wpa2_psk_2_4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa2-psk" for device "wlan0" with options
       """
@@ -211,7 +211,7 @@ Feature: nmcli - wifi
 
 
     @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa3_psk_2.4g
+    @nmcli_wifi_wpa3_psk_2_4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
     * Add "wifi" connection named "qe-wpa3-psk" for device "wlan0" with options
       """
@@ -265,7 +265,7 @@ Feature: nmcli - wifi
 
 
     @wireless_certs @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa2_tls_2.4g
+    @nmcli_wifi_wpa2_tls_2_4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
           """
@@ -349,7 +349,7 @@ Feature: nmcli - wifi
 
 
     @wireless_certs @attach_wpa_supplicant_log
-    @nmcli_wifi_wpa3_tls_2.4g
+    @nmcli_wifi_wpa3_tls_2_4g
     Scenario: nmcli - wifi-sec - configure and connect WPA3-TLS profile
     # Wireless device does not support wpa3 enterprise
     * Skip if next step fails:

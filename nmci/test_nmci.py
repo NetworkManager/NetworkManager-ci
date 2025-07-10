@@ -1010,6 +1010,9 @@ def test_last_scen_tag_is_test_tag_and_correctly_tagged():
             assert not tag["last_tag"].endswith(
                 "_timeout"
             ), f"test @{tag['last_tag']} ends with '_timeout'"
+            assert (
+                not "." in tag["last_tag"]
+            ), f"test @{tag['last_tag']} contains '.' character."
             if tag["last_tag"] in featureless_tests:
                 continue
             assert tag["last_tag"] in (

@@ -164,7 +164,7 @@ tests = [
     "ipv6_never-default_remove",
     "ipv6_dhcp-hostname_set",
     "ipv6_dhcp-hostname_remove",
-    "ipv6_send_fqdn.fqdn_to_dhcpv6",
+    "ipv6_send_fqdn_dot_fqdn_to_dhcpv6",
     "ipv6_secondary_address",
     "ipv6_ip6-privacy_0",
     "ipv6_ip6-privacy_1",
