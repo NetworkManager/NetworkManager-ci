@@ -2639,3 +2639,22 @@
     * Bring "down" connection "con2"
     * Bring "down" connection "con3"
     Then "0" is visible with command "ip -6 route show table 1313681456 | wc -l"
+
+
+    @RHEL-91479
+    @ver+=1.53.92
+    @ipv6_do_not_touch_ipv6_disabled_on_reapply
+    Scenario: NM - ipv6 - do not touch ipv6_disabled on ipv4 reapply
+    * Add "ethernet" connection named "eth10*" for device "eth10" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.2.25/24
+          """
+    * Bring "up" connection "eth10*"
+    When "fe80" is visible with command "ip a s eth10" in "5" seconds
+    * Wait for "2" seconds
+    * Run child "ip monitor address route dev eth10 > /tmp/ip_monitor.log"
+    * Modify connection "eth10*" changing options "ipv4.addresses 192.168.2.24/24"
+    * Execute "nmcli device reapply eth10"
+    Then "Deleted fe80" is not visible with command "cat /tmp/ip_monitor.log" in "2" seconds
+    Then "Deleted default via fe80" is not visible with command "cat /tmp/ip_monitor.log"

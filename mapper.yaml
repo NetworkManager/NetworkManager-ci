@@ -904,6 +904,8 @@ testmapper:
         tags: gate libndp
     - ipv6_add_dns_routes:
         feature: ipv6
+    - ipv6_do_not_touch_ipv6_disabled_on_reapply:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
