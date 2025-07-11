@@ -9,11 +9,19 @@ rm -rf $DNSCONFD_DIR || true
 git clone https://github.com/InfrastructureServices/dnsconfd.git $DNSCONFD_DIR
 
 pushd $DNSCONFD_DIR
-if [ "$DNSCONFD_VER" == "1.7.2" ]; then
-    git checkout 823369e59ce1bdf29f1a3f75e54e61b049c2c79a
-else
-    git checkout tags/$DNSCONFD_VER
-fi
+    if [ "$DNSCONFD_VER" == "1.7.2" ]; then
+        git checkout 823369e59ce1bdf29f1a3f75e54e61b049c2c79a
+    else
+        git checkout tags/$DNSCONFD_VER
+    fi
+
+    # Include a missing NM logs in Cleanup phase into all tests if not present
+    for file in $DNSCONFD_DIR/tests/*/test.sh; do
+        line='        rlRun "podman exec $dnsconfd_cid journalctl -u NetworkManager" 0 "Saving NM logs"'
+        if ! grep -q "Saving NM logs" $file; then 
+	    echo "patching $file" && sed -i "/rlPhaseStartCleanup/a\\$line" $file
+	fi
+    done
 popd
 
 if [ -f /etc/os-release ]; then
