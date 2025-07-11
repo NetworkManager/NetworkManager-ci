@@ -1,0 +1,24 @@
+From b9a90418ad86781f041cc4b67a1d119f351524c8 Mon Sep 17 00:00:00 2001
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Fri, 11 Jul 2025 11:10:56 +0200
+Subject: [PATCH] tests.dhcp: save NM logs
+
+---
+ tests/dhcp/test.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tests/dhcp/test.sh b/tests/dhcp/test.sh
+index 1057ca7..6e34992 100755
+--- a/tests/dhcp/test.sh
++++ b/tests/dhcp/test.sh
+@@ -47,6 +47,7 @@ rlJournalStart
+     rlPhaseStartCleanup
+         rlRun "podman exec $dnsconfd_cid journalctl -u dnsconfd" 0 "Saving dnsconfd logs"
+         rlRun "podman exec $dnsconfd_cid journalctl -u unbound" 0 "Saving unbound logs"
++        rlRun "podman exec $dnsconfd_cid journalctl -u NetworkManager" 0 "Saving NM logs"
+         rlRun "podman exec $dnsconfd_cid ip route" 0 "Saving present routes"
+         rlRun "popd"
+         rlRun "podman stop -t 0 $dnsconfd_cid $dnsmasq1_cid $dnsmasq2_cid $dnsmasq3_cid $dhcp4_cid $dhcp6_cid" 0 "Stopping containers"
+-- 
+2.47.1
+

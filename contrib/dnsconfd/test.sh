@@ -14,6 +14,10 @@ if [ "$DNSCONFD_VER" == "1.7.2" ]; then
 else
     git checkout tags/$DNSCONFD_VER
 fi
+for patch in $SETUP_DIR/*.patch; do
+    echo $patch
+    [ -f $patch ] && git apply $patch
+done
 popd
 
 if [ -f /etc/os-release ]; then
