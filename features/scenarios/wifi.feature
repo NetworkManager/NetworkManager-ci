@@ -267,6 +267,9 @@ Feature: nmcli - wifi
     @wireless_certs @attach_wpa_supplicant_log
     @nmcli_wifi_wpa2_tls_2_4g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
+    # Wireless device does not support wpa3 enterprise
+    * Skip if next step fails:
+    * "qe-wpa2-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 44'"
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
           """
           autoconnect off
@@ -354,6 +357,8 @@ Feature: nmcli - wifi
     # Wireless device does not support wpa3 enterprise
     * Skip if next step fails:
     * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
+    * Skip if next step fails:
+    * "qe-wpa3-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 44'"
     * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
           """
           autoconnect off
