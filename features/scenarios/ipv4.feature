@@ -3402,6 +3402,7 @@ Feature: nmcli: ipv4
           """
     * Bring "up" connection "con_ipv4"
     * Run child "tcpdump -i eth2 -v -n"
+    * Bring "up" connection "con_ipv4"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "8" seconds
     * Bring "down" connection "con_ipv4"
     Then Expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
