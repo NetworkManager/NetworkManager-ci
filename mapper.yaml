@@ -59,7 +59,7 @@ beaker-hardware:
       group: desktopqe-nm
       kernel-options: biosdevname=0 net.ifnames=0
   - aarch64:
-      memory: 131072
+      hostname: ampere-mtsnow-altramax-0%%
   - ppc64le:
       memory: 65536
   - subcomponents:
