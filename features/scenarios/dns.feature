@@ -1351,9 +1351,11 @@ Feature: nmcli - dns
     Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
 
 
-    @RHEL-92314 @RHEL-92020
+    @RHEL-92314 @RHEL-92020 @RHEL-92313 @RHEL-97261
     @ver+=1.53.4.2
     @ver/rhel/9/4+=1.46.0.32
+    @ver/rhel/9/6+=1.52.0.5
+    @ver/rhel/10/0+=1.52.0.5
     @dns_reapply_device_with_same_globals
     Scenario: NM - dns - reapply device with the same globals present
     * Create NM config file "90-nmci-test-dns-none.conf" with content
