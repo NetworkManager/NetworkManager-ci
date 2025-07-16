@@ -1151,3 +1151,138 @@ Feature: nmcli - bridge
         """
     When Bring "up" connection "bridge0"
     Then "vlan100:connected:vlan100" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
+
+
+    @RHEL-102318
+    @ver+=1.55.2
+    @bridge_port_vlan_reapply
+    Scenario: nmcli - bridge - VLAN configuration reapply on bridge ports
+    * Cleanup connection "br0+" and device "br0"
+    * Cleanup connection "dummy0+" and device "dummy0"
+    * Add "bridge" connection named "br0+" for device "br0" with options
+          """
+          autoconnect no
+          bridge.vlan-filtering yes
+          bridge.vlan-default-pvid 0
+          """
+    * Add "dummy" connection named "dummy0+" for device "dummy0" with options
+          """
+          autoconnect no
+          controller br0
+          """
+
+    # Case 1: Reapply with no change
+    * Modify connection "dummy0+" changing options "bridge-port.vlans 1"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":1}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":1}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 2: Reapply with a simple VLAN change
+    * Modify connection "dummy0+" changing options "bridge-port.vlans 2"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":2}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans 3"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":3}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 3: Reapply with a VLAN range
+    * Modify connection "dummy0+" changing options "bridge-port.vlans 10-12"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":10},{"vlan":11},{"vlan":12}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans 20-22"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":20},{"vlan":21},{"vlan":22}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 4: Reapply with a specific PVID set on the port
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '100 pvid, 101, 200'"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":100,"flags":["PVID"]},{"vlan":101},{"vlan":200}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '100, 200 pvid'"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":100},{"vlan":200,"flags":["PVID"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 5: Change bridge default PVID
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 42"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans ''"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["PVID","Egress Untagged"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 99"
+    * Execute "nmcli device reapply br0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":99,"flags":["PVID","Egress Untagged"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 6: Bridge with default PVID and port with specific VLANs
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 50"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '60,70'"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":50,"flags":["PVID","Egress Untagged"]},{"vlan":60},{"vlan":70}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":50,"flags":["PVID","Egress Untagged"]},{"vlan":60},{"vlan":70}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 55"
+    * Execute "nmcli device reapply br0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":55,"flags":["PVID","Egress Untagged"]},{"vlan":60},{"vlan":70}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '80,90'"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":55,"flags":["PVID","Egress Untagged"]},{"vlan":80},{"vlan":90}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 7: Explicit Untagged VLAN (Not PVID)
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '100 pvid, 200 untagged'"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":100,"flags":["PVID"]},{"vlan":200,"flags":["Egress Untagged"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":100,"flags":["PVID"]},{"vlan":200,"flags":["Egress Untagged"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 8: Remove a VLAN from a list
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '80,90'"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":80},{"vlan":90}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '80'"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":80}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 9: Switch from Inherited to Port-Specific PVID
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 42"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans ''"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["PVID","Egress Untagged"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '300 pvid'"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["Egress Untagged"]},{"vlan":300,"flags":["PVID"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Bring "down" connection "dummy0+"
+    * Bring "down" connection "br0+"
+
+    # Case 10: Switch from Port-Specific to Inherited PVID
+    * Modify connection "br0+" changing options "bridge.vlan-default-pvid 42"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '300 pvid'"
+    * Bring "up" connection "br0+"
+    * Bring "up" connection "dummy0+"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["Egress Untagged"]},{"vlan":300,"flags":["PVID"]}]}]" is visible with command "bridge -j vlan show dev dummy0"
+    * Modify connection "dummy0+" changing options "bridge-port.vlans '300'"
+    * Execute "nmcli device reapply dummy0"
+    Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["PVID","Egress Untagged"]},{"vlan":300}]}]" is visible with command "bridge -j vlan show dev dummy0"

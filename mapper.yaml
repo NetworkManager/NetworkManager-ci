@@ -499,6 +499,8 @@ testmapper:
         tags: gate
     - bridge_autoconnect_virtual_port:
         feature: bridge
+    - bridge_port_vlan_reapply:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
