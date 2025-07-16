@@ -1,6 +1,13 @@
 #/bin/bash
 
 set -e
+
+function skip_test_on_arch() {
+    local file="$1" arch="${2:-s390x}"
+    [[ -f "$file" ]] || { echo "File not found"; return 1; }
+    echo -e "adjust:\n  - when: arch == $arch\n    enabled: false" >> "$file"
+}
+
 SETUP_DIR="$(pwd)/contrib/dnsconfd"
 DNSCONFD_DIR="/tmp/dnsconfd"
 DNSCONFD_VER=$(rpm -q --qf '%{VERSION}' dnsconfd)
@@ -11,7 +18,11 @@ git clone https://github.com/InfrastructureServices/dnsconfd.git $DNSCONFD_DIR
 pushd $DNSCONFD_DIR
     if [ "$DNSCONFD_VER" == "1.7.2" ]; then
         git checkout 823369e59ce1bdf29f1a3f75e54e61b049c2c79a
+        skip_test_on_arch /tmp/dnsconfd/tests/dhcp/main.fmf s390x
     else
+        if [ "$DNSCONFD_VER" == "1.7.3" ]; then
+            skip_test_on_arch /tmp/dnsconfd/tests/dhcp/main.fmf s390x
+	fi
         git checkout tags/$DNSCONFD_VER
     fi
 
@@ -19,7 +30,7 @@ pushd $DNSCONFD_DIR
     for file in $DNSCONFD_DIR/tests/*/test.sh; do
         line='        rlRun "podman exec $dnsconfd_cid journalctl -u NetworkManager" 0 "Saving NM logs"'
         if ! grep -q "Saving NM logs" $file; then 
-	    echo "patching $file" && sed -i "/rlPhaseStartCleanup/a\\$line" $file
+	    echo "Adding NM logs to $file" && sed -i "/rlPhaseStartCleanup/a\\$line" $file
 	fi
     done
 popd
