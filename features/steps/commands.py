@@ -273,26 +273,6 @@ def note_the_output_lines_as(context, command, index="noted-value", pattern=None
     context.noted[index] = str(len(out))
 
 
-def json_compare(pattern, out):
-    pattern_type = type(pattern)
-    if pattern_type is dict:
-        for x in pattern:
-            if x in out:
-                r = json_compare(pattern[x], out[x])
-                if r != 0:
-                    return r
-            else:
-                return 1
-        return 0
-    elif pattern_type is list:
-        assert False, "TODO: compare lists soomehow"
-    else:
-        if out == pattern:
-            return 0
-        else:
-            return 1
-
-
 def check_pattern_command(
     context,
     command,
@@ -331,7 +311,7 @@ def check_pattern_command(
         if check_class == "exact":
             ret = 0 if pattern in stdout else 1
         elif check_class == "json":
-            ret = json_compare(json.loads(pattern), json.loads(stdout))
+            ret = 0 if json.loads(pattern) == json.loads(stdout) else 1
         else:
             ret = (
                 0
