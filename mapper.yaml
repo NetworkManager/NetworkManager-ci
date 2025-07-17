@@ -73,7 +73,7 @@ beaker-hardware:
             hostname: wifi6-ml5-vm5.tpb.lab.eng.brq.redhat.com
       NetworkManager-infiniband:
         - x86_64:
-            hostname: rdma-qe-40.rdma.lab.eng.rdu2.redhat.com
+            hostname: rdma-qe-4%%
 
       NetworkManager-gsm:
         - x86_64:
