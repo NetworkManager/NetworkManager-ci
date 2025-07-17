@@ -62,6 +62,8 @@ beaker-hardware:
       hostname: ampere-mtsnow-altramax-0%%
   - ppc64le:
       memory: 65536
+  - s390x:
+      hostname: s390x-kvm-109.lab.eng.rdu2.redhat.com
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
