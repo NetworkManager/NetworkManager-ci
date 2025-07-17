@@ -428,7 +428,8 @@ class _NMUtil:
             "em1",
             # for sriov
             "p4p1",
-            "sriov_device"
+            "sriov_device",
+            "eno1",
             # for loopback
             "lo",
         ]
@@ -439,6 +440,7 @@ class _NMUtil:
             # for sriov
             "p4p1",
             "sriov_device",
+            "eno1",
             # for pppoe
             "test11",
             # for loopback
