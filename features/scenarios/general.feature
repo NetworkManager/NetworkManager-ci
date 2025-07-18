@@ -220,6 +220,38 @@ Feature: nmcli - general
     Then "foo-bar" is visible with command "hostnamectl --transient" in "60" seconds
 
 
+    @RHEL-104357
+    @ver+=1.55.2
+    @internal_DHCP @dhcpd
+    @restore_hostname @eth0
+    @pull_long_hostname_from_dns
+    Scenario: nmcli - general - pull long hostname from DNS
+    # See the first note from test @pull_hostname_from_dns
+    # Test that a reverse-DNS lookup result longer than 64 characters works
+    # and that NM properly takes the first label as system hostname,
+    # adding the search domain to resolv.conf
+    * Prepare simulated test "testG" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:55,172.25.15.1,myhost789012345678901234567890123456789012345678901234567890123 --dhcp-fqdn --domain foobar.com"
+    * Execute "hostnamectl set-hostname """
+    * Execute "hostnamectl set-hostname --transient localhost.localdomain"
+    * Wait for "1" seconds
+    * Add "ethernet" connection named "con_general" for device "testG" with options "autoconnect no ipv4.method auto"
+    * Modify connection "con_general" changing options "ethernet.cloned-mac-address 00:11:22:33:44:55"
+    * Bring "up" connection "con_general"
+    Then "\(connected\)" is visible with command "nmcli -g GENERAL.STATE dev show testG"
+    Then "myhost789012345678901234567890123456789012345678901234567890123" is visible with command "hostnamectl --transient" in "30" seconds
+    And "search foobar.com" is visible with command "cat /etc/resolv.conf"
+    * Bring "down" connection "con_general"
+    Then "localhost|fedora" is visible with command "hostnamectl --transient" in "30" seconds
+
+    * Prepare simulated test "testH" device with "172.25.15" ipv4 and daemon options "--dhcp-option=12 --dhcp-host=00:11:22:33:44:66,172.25.15.1,foobar --dhcp-fqdn --domain very.very.long.domain.name.that.exceeds.sixty.four.characters.com"
+    * Add "ethernet" connection named "con_general2" for device "testH" with options "autoconnect no ipv4.method auto"
+    * Modify connection "con_general2" changing options "ethernet.cloned-mac-address 00:11:22:33:44:66"
+    * Bring "up" connection "con_general2"
+    Then "\(connected\)" is visible with command "nmcli -g GENERAL.STATE dev show testH"
+    Then "foobar" is visible with command "hostnamectl --transient" in "30" seconds
+    And "search very.very.long.domain.name.that.exceeds.sixty.four.characters.com" is visible with command "cat /etc/resolv.conf"
+
+
     @RHEL-17972
     @ver+=1.49.2
     @ver/rhel/9+=1.46.0.19
