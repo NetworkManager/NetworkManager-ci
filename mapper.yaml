@@ -59,32 +59,32 @@ beaker-hardware:
       group: desktopqe-nm
       kernel-options: biosdevname=0 net.ifnames=0
   - aarch64:
-      hostname: ampere-mtsnow-altramax-0%%
+      hostname: ampere-mtsnow-altramax-%%.khw
   - ppc64le:
       memory: 65536
   - s390x:
-      hostname: s390x-kvm-1%%.lab.eng.rdu2.redhat.com
+      hostname: s390x-kvm-1%%.lab
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
             # Some issues with Mediatek device on RHEL10
-            # hostname: wifi2-ml5-vm1.tpb.lab.eng.brq.redhat.com
+            # hostname: wifi2-ml5-vm1.%%
             # BE200 6E support not enabled on 9.2
-            # hostname: wifi1-ml5-vm2.tpb.lab.eng.brq.redhat.com
+            # hostname: wifi1-ml5-vm2.%%
             # AX211 seems to be correctly working on 9.2+
-            hostname: wifi6-ml5-vm5.tpb.lab.eng.brq.redhat.com
+            hostname: wifi6-ml5-vm5%%
       NetworkManager-infiniband:
         - x86_64:
             hostname: rdma-qe-4%%
 
       NetworkManager-gsm:
         - x86_64:
-            hostname: hp-z400-tpb-c-04.tpb.lab.eng.brq.redhat.com
+            hostname: hp-z400-tpb-c-04.%%
             kernel-options: biosdevname=0 net.ifnames=0
 
       NetworkManager-dcb:
         - x86_64:
-            hostname: dell-per740-79.rhts.eng.pek2.redhat.com
+            hostname: dell-per740-79.%%
             kernel-options: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
             kernel-options-post: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt mlx5_core.vf_names=eth
 
