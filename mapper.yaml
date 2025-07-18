@@ -59,11 +59,11 @@ beaker-hardware:
       group: desktopqe-nm
       kernel-options: biosdevname=0 net.ifnames=0
   - aarch64:
-      hostname: ampere-mtsnow-altramax-%%.khw
+      hostname: ampere-mtsnow-altramax-%%.khw%%
   - ppc64le:
       memory: 65536
   - s390x:
-      hostname: s390x-kvm-1%%.lab
+      hostname: s390x-kvm-1%%.lab%%
   - subcomponents:
       NetworkManager-wifi:
         - x86_64:
