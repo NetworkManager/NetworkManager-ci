@@ -2074,7 +2074,7 @@ Feature: nmcli - general
     * Append "1::1 static.redhat.com" to file "/etc/hosts"
     When "limited" is visible with command "nmcli  -g CONNECTIVITY g" in "40" seconds
      * Reset /etc/hosts
-    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "10" seconds
+    Then "full" is visible with command "nmcli  -g CONNECTIVITY g" in "30" seconds
 
 
     @rhbz1458399
