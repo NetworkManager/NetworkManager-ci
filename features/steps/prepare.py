@@ -1118,6 +1118,8 @@ def mptcp(context, num, veth, typ="subflow"):
         shell=True,
         label="child",
     )
+    # We need some sleep here to avoid s390x failures here and there
+    time.sleep(0.5)
     nmci.pexpect.pexpect_service(
         f"ip netns exec {nsname} mptcpize run ncat -k -l 9006 {redir} /tmp/nmci-mptcp-ncat.log ",
         shell=True,
