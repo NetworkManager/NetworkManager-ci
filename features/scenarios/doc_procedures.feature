@@ -963,5 +963,5 @@ Feature: nmcli - procedures in documentation
     Then String "77 (The device is unmanaged via udev rule)" is visible with command "nmcli -g GENERAL.REASON d show testX1"
     Then String "76 (The device is unmanaged by user decision via settings plugin" is visible with command "nmcli -g GENERAL.REASON d show testX2"
     Then String "74 (The device is unmanaged by user decision in NetworkManager.conf ('unmanaged' in a [device*] section)" is visible with command "nmcli -g GENERAL.REASON d show testX3"
-    Then String "75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no'))" is visible with command "nmcli -g GENERAL.REASON d show testX4"
-    Then String "70 (The device is unmanaged because it is an external device and is unconfigured (down or without addresses))" is visible with command "nmcli -g GENERAL.REASON d show testX5"
+    Then String "75 (The device is unmanaged by explicit user decision (e.g. 'nmcli device set $DEV managed no')" is visible with command "nmcli -g GENERAL.REASON d show testX4"
+    Then String "70 (The device is unmanaged because it is an external device and is unconfigured (down or without addresses)" is visible with command "nmcli -g GENERAL.REASON d show testX5"
