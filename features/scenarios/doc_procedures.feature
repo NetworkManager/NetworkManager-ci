@@ -929,6 +929,8 @@ Feature: nmcli - procedures in documentation
     @RHELDOCS-19823
     @rhelver+=9.6
     @rhelver+=10.0
+    @fedoraver+=42
+    @ver+=1.48
     @doc_unmanaged_reason
     Scenario: test unmanaged reson for certain devices
     * Doc: "Identifying the reason why NetworkManager does not manage a certain network device"
