@@ -206,6 +206,8 @@ def dracut_run(context):
     initrd = "initramfs.client.NM"
     checks = []
     timeout = "6m"
+    if arch != "x86_64":
+        timeout = "10m"
     ram = "1200"
     for row in context.table:
         if "qemu" in row[0].lower():
