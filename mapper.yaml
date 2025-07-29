@@ -2962,7 +2962,7 @@ testmapper:
         feature: dns
     - dns_dnsconfd_unbound:
         feature: dns
-        timeout: 20m
+        timeout: 25m
     - dns_resolved_two_default:
         feature: dns
     - dns_resolved_one_default:

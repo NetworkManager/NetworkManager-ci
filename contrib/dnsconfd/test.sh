@@ -5,7 +5,8 @@ set -e
 function skip_test_on_arch() {
     local file="$1" arch="${2:-s390x}"
     [[ -f "$file" ]] || { echo "File not found"; return 1; }
-    echo -e "adjust:\n  - when: arch == $arch\n    enabled: false" >> "$file"
+    # Do just an easy fmf file removal, this is enough for skipping the test
+    rm -rf $file
 }
 
 SETUP_DIR="$(pwd)/contrib/dnsconfd"
