@@ -78,6 +78,8 @@ test_setup() {
     cp -fa /etc/$file $initdir/etc/$file
   done
 
+  systemctl restart tuned
+  tuned-adm profile throughput-performance
 
   rsync -a /etc/ssh/ $initdir/etc/ssh
   rsync -a /root/.ssh/ $initdir/root/.ssh
