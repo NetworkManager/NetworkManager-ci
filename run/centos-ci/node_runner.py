@@ -255,6 +255,8 @@ class Machine:
 
     def _update(self):
         logging.debug(f"Update machine {self.id}")
+        self.scp_to("contrib/dracut/conf/modprobe-kvm.conf", "/etc/modprobe.d/kvm.conf")
+        self.ssh("dracut -f")
         self.ssh("dnf -y upgrade --nobest", verbose=True)
         self.restartNM()
         self.ssh("nmcli d", verbose=True)

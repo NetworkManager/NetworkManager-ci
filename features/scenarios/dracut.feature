@@ -1,4 +1,3 @@
-@skip_in_centos
 @not_in_image_mode
 Feature: NM: dracut
 
