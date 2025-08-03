@@ -311,7 +311,52 @@ def check_pattern_command(
         if check_class == "exact":
             ret = 0 if pattern in stdout else 1
         elif check_class == "json":
-            ret = 0 if json.loads(pattern) == json.loads(stdout) else 1
+
+            def obj_contains_all(needle, haystack):
+                """
+                Check if needle is "sub-object" of haystack, meaning
+                needle must be fully contained in haystack,
+                however haystack can contain someting more.
+
+                Corenr case: list - this tries to ignore the order,
+                but it searches for first match, so beware of generic needles:
+                [{}, {"a":1}] is not found in [{"a":1}, {}], because
+                first elements are matched ({} is sub-object of {"a":1}),
+                however second objects no longer match. So, {} in the needle
+                is too generic to match and might result in unexpected behaviour.
+                """
+
+                if isinstance(needle, str) or isinstance(needle, int):
+                    return 0 if needle == haystack else 1
+                if isinstance(needle, list):
+                    if not isinstance(haystack, list):
+                        return 1
+                    hs = haystack.copy()
+                    for i in needle:
+                        found = False
+                        for j in hs:
+                            if obj_contains_all(i, j) == 0:
+                                hs.remove(j)
+                                found = True
+                                break
+                        if not found:
+                            return 1
+                    return 0
+                if isinstance(needle, dict):
+                    if not isinstance(haystack, dict):
+                        return 1
+                    for i in needle:
+                        if i in haystack:
+                            r = obj_contains_all(needle[i], haystack[i])
+                            if r != 0:
+                                return r
+                        else:
+                            return 1
+                    return 0
+
+            pattern_j = json.loads(pattern)
+            stdout_j = json.loads(stdout)
+            ret = obj_contains_all(pattern_j, stdout_j)
         else:
             ret = (
                 0
