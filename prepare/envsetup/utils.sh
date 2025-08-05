@@ -25,11 +25,9 @@ fix_python3_link() {
 install_behave_pytest () {
   # this is for gitlab-ci.yml script to work
   shopt -s expand_aliases
-  # stable release is old, let's use the lastest available tagged release
-  if [ -f /tmp/keep_old_behave ]; then
+  # do not reinstall behave (e.g. in GUI tests where envsetup runs in behave)
+  if ! [ -f /tmp/keep_old_behave ]; then
     python3l -m pip install behave --prefix=/usr/
-  else
-    python3l -m pip install "git+https://github.com/behave/behave@v1.2.7.dev6#egg=behave" --prefix=/usr/
   fi
   python3l -m pip install behave_html_pretty_formatter
 
