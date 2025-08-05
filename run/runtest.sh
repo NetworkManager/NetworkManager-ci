@@ -323,6 +323,8 @@ if [ -n "$FEATURE_FILE" ]; then
         call_behave "$FEATURE_FILE" "$NMTEST_REPORT" "${ALL_TAGS[@]}"
         rc=$?
     fi
+    [ "$rc" = 0 -a -f /tmp/nmci_test_skipped ] && rc=77
+    rm /tmp/nmci_test_skipped
     if array_contains xfail "${ALL_TAGS[@]}"; then
         if [ "$rc" = 0 ]; then
             rc=1

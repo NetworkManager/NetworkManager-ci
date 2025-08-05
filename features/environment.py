@@ -46,6 +46,8 @@ def before_scenario(context, scenario):
     nmci.misc.journal_send(f"Entering before_scenario() of: {scenario.name}")
     try:
         status = _before_scenario(context, scenario)
+    except nmci.misc.SkipTestException:
+        status = "skipped"
     except Exception as E:
         E_tb = traceback.format_exc()
         print(E_tb)
@@ -53,11 +55,8 @@ def before_scenario(context, scenario):
         if context.cext.scenario_skipped:
             # reset skipped flag, we do not want to skip when exception
             context.cext.scenario_skipped = False
-            nmci.embed.formatter_add_scenario(scenario)
         raise E
     nmci.embed.before_scenario_finish(status)
-    if context.cext.scenario_skipped:
-        nmci.embed.formatter_add_scenario(scenario)
     nmci.misc.journal_send(f"Leaving before_scenario() of: {scenario.name}")
 
 
@@ -500,7 +499,5 @@ def _after_scenario(context, scenario):
 
 def after_all(context):
     if context.cext.scenario_skipped:
-        for f in context._runner.formatters:
-            f.close()
-        sys.exit(77)
+        open("/tmp/nmci_test_skipped", "w")
     print("ALL DONE")
