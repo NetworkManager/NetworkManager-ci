@@ -84,6 +84,9 @@ cloud_ec2_basic
 cloud_gcp_basic
 cloud_oci_basic_vm
 8021x_ttls_mschapv2_eap
+8021x_hostapd_freeradius_doc_procedure
+8021x_peap_mschapv2
+8021x_tls
 8021x_teardown_eth
 hostname_change
 pull_hostname_from_dhcp
@@ -158,9 +161,6 @@ macsec_doc_procedure
 wireguard_nmcli_doc_procedure
 wireguard_nmtui_doc_procedure
 vxlan_doc_procedure
-8021x_hostapd_freeradius_doc_procedure
-8021x_peap_mschapv2
-8021x_tls
 doc_set_gateway_on_existing_profile
 doc_nmcli_offline_connection_add
 doc_set_mtu_9000
