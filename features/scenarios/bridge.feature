@@ -1155,6 +1155,8 @@ Feature: nmcli - bridge
 
     @RHEL-102318
     @ver+=1.55.2
+    @ver+=1.54.0
+    @ver/rhel/9/4+=1.46.0.34
     @bridge_port_vlan_reapply
     Scenario: nmcli - bridge - VLAN configuration reapply on bridge ports
     * Cleanup connection "br0+" and device "br0"
