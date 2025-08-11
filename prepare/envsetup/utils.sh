@@ -49,7 +49,7 @@ install_behave_pytest () {
 
 check_packages () {
     rpm -q iw ethtool wireshark-cli \
-           NetworkManager-{openvpn,ppp,pptp,tui,team,wifi,strongswan} || \
+           NetworkManager-{openvpn,ppp,pptp,tui,wifi,strongswan} || \
         return 1
     which behave || return 1
     which python3l || return 1
