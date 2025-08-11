@@ -7,7 +7,7 @@ set -x
 
 configure_environment () {
     # Configure real basics and install packages
-    if ! get_online_state; then
+    if [ "$1" != "image_mode_setup" ] && ! get_online_state; then
         set +x
         echo "***************************************************"
         echo "SETUP ERROR:"
@@ -17,10 +17,12 @@ configure_environment () {
         echo "***************************************************"
         exit 1
     fi
+
     [ "$1" == "nm-applet" ] && touch /tmp/keep_old_behave
     configure_basic_system
     install_packages
     [ "$1" == "first_test_setup" ] && return
+    [ "$1" == "image_mode_setup" ] && return
 
     # Configure hw specific needs (veth, wifi, etc)
     configure_networking $1
