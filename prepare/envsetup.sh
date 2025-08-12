@@ -22,7 +22,11 @@ configure_environment () {
     configure_basic_system
     install_packages
     [ "$1" == "first_test_setup" ] && return
-    [ "$1" == "image_mode_setup" ] && return
+    if [ "$1" == "image_mode_setup" ]; then
+        K_VER=$(rpm -q kernel | head -n 1 | sed 's/^kernel-//')
+        K_VER=$K_VER bash prepare/netdevsim.sh setup 0
+        return
+    fi
 
     # Configure hw specific needs (veth, wifi, etc)
     configure_networking $1

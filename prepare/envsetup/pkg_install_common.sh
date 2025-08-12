@@ -10,8 +10,16 @@ install_common_packages () {
     grep -q ostree /proc/cmdline && dnf="dnf --transient"
 
     # Dnf more deps
-    K_MAJOR="$(uname -r |awk -F '-' '{print $1}')"
-    K_MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
+
+    # If running kernel is found in installed kernels, use it
+    if rpm -q kernel | grep -F $(uname -r); then
+        K_VER=$(uname -r)
+    else
+    # If not, we are probably building image, so let's use the installed one
+        K_VER=$(rpm -q kernel | head -n 1 | sed 's/kernel-//')
+    fi
+    K_MAJOR="$(echo $K_VER |awk -F '-' '{print $1}')"
+    K_MINOR="$(echo $K_VER |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     PKGS_INSTALL="$PKGS_INSTALL \
         bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel ethtool firewalld \
         freeradius gcc git hostapd httpd iperf3 iproute-tc iptables iputils iw jq kernel-headers kernel-devel-$K_MAJOR-$K_MINOR \

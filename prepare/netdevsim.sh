@@ -1,11 +1,13 @@
 #!/bin/bash
 set -x
 
+[ -z "$K_VER" ] && K_VER=$(uname -r)
+
 function setup () {
     # If $1 is empty, $NUM defaults to "3"
     NUM="${1:-3}"
-    MAJOR="$(uname -r |awk -F '-' '{print $1}')"
-    MINOR="$(uname -r |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
+    MAJOR="$(echo $K_VER |awk -F '-' '{print $1}')"
+    MINOR="$(echo $K_VER |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     LINUX=linux-$MAJOR-$MINOR
     # We need this patched netdevsim device to support ring/coal ethtool options and physical address
     PATCH="0001-netdevsim-add-coal-ring-channels-8.3.patch"
@@ -81,14 +83,17 @@ function setup () {
 
         cd $DRIVER
         # If we cannot build exit 1
-        make -C /lib/modules/$(uname -r)/build M=$PWD ARCH=$ARCH || \
+        make -C /lib/modules/$K_VER/build M=$PWD ARCH=$ARCH || \
           { echo "Unable to build module"; exit 1; }
-        make -C /lib/modules/$(uname -r)/build M=$PWD modules_install || \
+        make -C /lib/modules/$K_VER/build M=$PWD modules_install || \
           { echo "Unable to install module"; exit 1; }
 
         # We are all OK installing deps
         touch /tmp/netdevsim_installed
     fi
+
+    # Do not load driver when no device needed (compile only mode)
+    [ "$NUM" == 0 ] && exit 0
 
     # Remove module in case netdevsim is loaded
     if lsmod |grep netdevsim > /dev/null; then
@@ -105,7 +110,7 @@ function setup () {
         # RHEL9 prefers signed module, use insmod instead
         if grep "release 9" /etc/redhat-release; then
             rmmod netdevsim
-            insmod /lib/modules/$(uname -r)/extra/netdevsim.ko
+            insmod /lib/modules/$K_VER/extra/netdevsim.ko
         fi
         sleep 0.5
         echo "0 $NUM 128" > /sys/bus/netdevsim/new_device
