@@ -2643,6 +2643,8 @@
 
     @RHEL-91479
     @ver+=1.53.92
+    @ver/rhel/9/6+=1.52.0.6
+    @ver/rhel/10/0+=1.52.0.6
     @ipv6_do_not_touch_ipv6_disabled_on_reapply
     Scenario: NM - ipv6 - do not touch ipv6_disabled on ipv4 reapply
     * Add "ethernet" connection named "eth10*" for device "eth10" with options

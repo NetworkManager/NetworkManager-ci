@@ -335,7 +335,7 @@ Feature: nmcli - ovs
           slave-type ovs-port
           """
     * Add "ovs-interface" connection named "ovs-interface0" for device "ovsbridge0" with options "conn.master ovsbridge0"
-    * Add "vlan" connection named "vlan0" for device "vlan0" with options 
+    * Add "vlan" connection named "vlan0" for device "vlan0" with options
           """
           vlan.parent ovsbridge0
           vlan.id 101
@@ -2055,6 +2055,8 @@ Feature: nmcli - ovs
 
     @RHEL-86767
     @ver+=1.53.3.2
+    @ver/rhel/9/6+=1.52.0.6
+    @ver/rhel/10/0+=1.52.0.6
     @openvswitch
     @nmcli_remove_openvswitch_bridge_on_delete
     Scenario: nmcli - openvswitch - remove ovs bridge on connection delete
@@ -2073,7 +2075,7 @@ Feature: nmcli - ovs
         """
         Check that the OVS bridge created by NM is removed when the connection is deleted or brought down,
         even if there are externally-created ports.
-        """ 
+        """
     * Delete connection "ovs-bridge0"
     Then "ovsbridge0" is not visible with command "ovs-vsctl show" in "10" seconds
 

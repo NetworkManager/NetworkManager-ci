@@ -2246,7 +2246,7 @@ Feature: nmcli - general
 
 
     @rhbz1593519
-    @ver+=1.12 
+    @ver+=1.12
     @NM_starts_with_incorrect_logging_config
     Scenario: NM - general - nm starts even when logging is incorrectly configured
     * Stop NM
@@ -3772,6 +3772,8 @@ Feature: nmcli - general
 
     @RHEL-89914
     @ver+=1.53.4.2
+    @ver/rhel/9/6+=1.52.0.6
+    @ver/rhel/10/0+=1.52.0.6
     @assume_external_controller_with_port
     Scenario: NM - connection - assume external controller with a port
     * Commentary
