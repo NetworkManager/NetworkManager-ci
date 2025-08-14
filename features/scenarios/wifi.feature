@@ -269,7 +269,7 @@ Feature: nmcli - wifi
     Scenario: nmcli - wifi-sec - configure and connect WPA2-TLS profile
     # Wireless device does not support wpa3 enterprise
     * Skip if next step fails:
-    * "qe-wpa2-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 44'"
+    * "qe-wpa2-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 48'"
     * Add "wifi" connection named "qe-wpa2-enterprise" for device "wlan0" with options
           """
           autoconnect off
@@ -358,7 +358,7 @@ Feature: nmcli - wifi
     * Skip if next step fails:
     * "GCMP-256" is visible with command "iw list |grep -A 20 'Supported Ciphers'"
     * Skip if next step fails:
-    * "qe-wpa3-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 44'"
+    * "qe-wpa3-enterprise" is visible with command "nmcli device wifi list |grep -e qe-wpa[2-3]-enterprise |grep -v 48'"
     * Add "wifi" connection named "qe-wpa3-enterprise" for device "wlan0" with options
           """
           autoconnect off
@@ -418,7 +418,7 @@ Feature: nmcli - wifi
           802-1x.identity "Bill Smith"
           802-1x.password "testing123"
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
-          802-11-wireless.channel 44
+          802-11-wireless.channel 48
           802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa3-enterprise"
