@@ -478,7 +478,7 @@ function wireless_hostapd_check ()
 function prepare_test_bed ()
 {
     # Install haveged to increase entropy
-    yum -y install haveged
+    dnf -y install haveged
     systemctl restart haveged
 
     if $DO_NAMESPACE; then

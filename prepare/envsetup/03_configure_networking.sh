@@ -16,7 +16,7 @@ configure_networking () {
     modprobe dummy numdummies=0
 
     # Install server package
-    yum -y install NetworkManager-config-server
+    $dnf -y install NetworkManager-config-server
 
     # If we have custom built packages let's store it's dir
     dir="$(find /root /tmp -name nm-build)"

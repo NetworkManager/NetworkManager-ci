@@ -172,12 +172,10 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
     """
     nmci.veth.wait_for_testeth0()
     if context.arch == "s390x":
-        nmci.process.run_stdout(
-            f"[ -x /usr/sbin/racoon ] || yum -y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.{context.arch}.rpm",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
+        if not os.path.isfile("/usr/sbin/racoon"):
+            nmci.process.dnf(
+                f"-y install https://vbenes.fedorapeople.org/NM/ipsec-tools-0.8.2-1.el7.{context.arch}.rpm"
+            )
     else:
         # Install under RHEL7 only
         if "Maipo" in context.rh_release:
@@ -187,12 +185,8 @@ def setup_racoon(context, mode, dh_group, phase1_al="aes", phase2_al=None):
                 timeout=120,
                 ignore_stderr=True,
             )
-        nmci.process.run_stdout(
-            "[ -x /usr/sbin/racoon ] || yum -y install ipsec-tools",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
+        if not os.path.isfile("/usr/sbin/racoon"):
+            nmci.process.dnf("-y install ipsec-tools")
 
     RC = nmci.process.run_code(
         f"sh prepare/racoon.sh {mode} {dh_group} {phase1_al}",
@@ -231,12 +225,9 @@ def setup_hostapd(context):
                 timeout=120,
                 ignore_stderr=True,
             )
-        nmci.process.run_stdout(
-            "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
+        if not os.path.isfile("/usr/sbin/hostapd"):
+            nmci.process.dnf("-y install hostapd")
+            time.sleep(10)
     if (
         nmci.process.run_code(
             "sh prepare/hostapd_wired.sh contrib/8021x/certs",
@@ -354,12 +345,9 @@ def setup_hostapd_wireless(context, args=None):
                 timeout=120,
                 ignore_stderr=True,
             )
-        nmci.process.run_stdout(
-            "[ -x /usr/sbin/hostapd ] || (yum -y install hostapd; sleep 10)",
-            shell=True,
-            timeout=120,
-            ignore_stderr=True,
-        )
+        if not os.path.isfile("/usr/sbin/hostapd"):
+            nmci.process.dnf("-y install hostapd")
+            time.sleep(10)
     argv = ["sh", "prepare/hostapd_wireless.sh", "contrib/8021x/certs"]
     if args is not None:
         argv.extend(args)

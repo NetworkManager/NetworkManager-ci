@@ -6,9 +6,6 @@ install_common_packages () {
     sed -i '/install_weak_deps=/d' /etc/dnf/dnf.conf
     echo 'install_weak_deps=0' >> /etc/dnf/dnf.conf
 
-    dnf=dnf
-    grep -q ostree /proc/cmdline && dnf="dnf --transient"
-
     # Dnf more deps
 
     # If running kernel is found in installed kernels, use it

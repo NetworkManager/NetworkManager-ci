@@ -6,6 +6,10 @@ CBSC="https://cbs.centos.org/kojifiles/packages"
 KHUB="https://kojihub.stream.centos.org/kojifiles/packages"
 MBOX="https://koji.mbox.centos.org/pkgs/packages"
 
+# DNF alias for image mode
+dnf=dnf
+grep -q ostree /proc/cmdline && dnf="dnf --transient"
+
 fix_python3_link() {
     rm -f /usr/bin/python
     ln -s `which python3` /usr/bin/python

@@ -1086,15 +1086,6 @@ _register_tag("netservice", netservice_bs, netservice_as)
 
 def tag8021x_bs(context, scenario):
     if not os.path.isfile("/tmp/nm_8021x_configured"):
-        if context.arch == "s390x":
-            # TODO move to envsetup
-            print("install hostapd.el7 on s390x")
-            context.process.run_stdout(
-                "[ -x /usr/sbin/hostapd ] || (yum -y install 'https://vbenes.fedorapeople.org/NM/hostapd-2.6-7.el7.s390x.rpm'; time.sleep 10)",
-                shell=True,
-                timeout=120,
-                ignore_stderr=True,
-            )
         nmci.prepare.setup_hostapd(context)
 
 
@@ -1274,11 +1265,7 @@ def vpnc_bs(context, scenario):
         )
     if context.process.run_code("rpm -q NetworkManager-vpnc") != 0:
         print("install NetworkManager-vpnc")
-        context.process.run_stdout(
-            "yum -y install NetworkManager-vpnc",
-            timeout=120,
-            ignore_stderr=True,
-        )
+        context.process.dnf("nstall NetworkManager-vpnc")
         nmci.nmutil.restart_NM_service()
     nmci.prepare.setup_racoon(context, mode="aggressive", dh_group=2)
 
@@ -1306,9 +1293,7 @@ def tcpreplay_bs(context, scenario):
         )
     if not os.path.isfile("/usr/bin/tcpreplay"):
         print("install tcpreplay")
-        context.process.run_stdout(
-            "yum -y install tcpreplay", timeout=120, ignore_stderr=True
-        )
+        context.process.dnf("-y install tcpreplay")
 
 
 _register_tag("tcpreplay", tcpreplay_bs)
@@ -1341,10 +1326,8 @@ _register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
 def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
-        context.process.run_stdout(
-            "yum -y install NetworkManager-libreswan",
-            timeout=120,
-            ignore_stderr=True,
+        context.process.dnf(
+            "-y install NetworkManager-libreswan",
         )
         nmci.nmutil.restart_NM_service()
 
@@ -1866,10 +1849,8 @@ def slow_team_bs(context, scenario):
         "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
         shell=True,
     )
-    context.process.run_stdout(
-        "yum -y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm",
-        timeout=120,
-        ignore_stderr=True,
+    context.process.dnf(
+        "-y install https://vbenes.fedorapeople.org/NM/slow_libteam-1.25-5.el7_4.1.1.x86_64.rpm https://vbenes.fedorapeople.org/NM/slow_teamd-1.25-5.el7_4.1.1.x86_64.rpm",
     )
     if context.process.run_code("rpm --quiet -q teamd") != 0:
         # Restore teamd package if we don't have the slow ones
@@ -1887,9 +1868,7 @@ def slow_team_as(context, scenario):
         "for i in $(rpm -qa |grep team|grep -v Netw); do rpm -e $i --nodeps; done",
         shell=True,
     )
-    context.process.run_stdout(
-        "yum -y install teamd libteam", timeout=120, ignore_stderr=True
-    )
+    context.process.dnf("-y install teamd libteam")
     nmci.nmutil.reload_NM_service()
 
 
@@ -1901,9 +1880,7 @@ def openvswitch_bs(context, scenario):
         context.cext.skip("Skipping as on s390x and not Ootpa")
     if context.process.run_code("rpm -q NetworkManager-ovs") != 0:
         print("install NetworkManager-ovs")
-        context.process.run_stdout(
-            "yum -y install NetworkManager-ovs", timeout=120, ignore_stderr=True
-        )
+        context.process.dnf("-y install NetworkManager-ovs")
         context.process.systemctl("daemon-reload")
     print("Start openvswitch")
     context.process.systemctl("reset-failed openvswitch")
@@ -1948,12 +1925,8 @@ _register_tag("openvswitch", openvswitch_bs, openvswitch_as)
 def dpdk_bs(context, scenario):
     if not os.path.isfile("/tmp/nm_dpdk_configured"):
         context.process.run_stdout("sysctl -w vm.nr_hugepages=10")
-        context.process.run_stdout(
-            "if ! rpm -q --quiet dpdk dpdk-tools; then yum -y install dpdk dpdk-tools; fi",
-            shell=True,
-            ignore_stderr=True,
-            timeout=120,
-        )
+        if nmci.process.run("rpm -q --quiet dpdk dpdk-tools").returncode != 0:
+            nmci.process.dnf("-y install dpdk dpdk-tools")
         context.process.run_stdout(
             "sed -i.bak s/openvswitch:hugetlbfs/root:root/g /etc/sysconfig/openvswitch"
         )
@@ -2170,11 +2143,7 @@ _register_tag(
 
 def remove_fedora_connection_checker_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
-    context.process.run(
-        "yum -y remove NetworkManager-config-connectivity-fedora",
-        ignore_stderr=True,
-        timeout=120,
-    )
+    context.process.dnf("-y remove NetworkManager-config-connectivity-fedora")
     nmci.nmutil.reload_NM_service()
 
 
@@ -2186,9 +2155,7 @@ def need_config_server_bs(context, scenario):
         context.remove_config_server = False
     else:
         print("Install NetworkManager-config-server")
-        context.process.run_stdout(
-            "yum -y install NetworkManager-config-server", timeout=120
-        )
+        context.process.dnf("-y install NetworkManager-config-server")
         nmci.nmutil.reload_NM_service()
         context.remove_config_server = True
 
@@ -2196,9 +2163,7 @@ def need_config_server_bs(context, scenario):
 def need_config_server_as(context, scenario):
     if context.remove_config_server:
         print("removing NetworkManager-config-server")
-        context.process.run_stdout(
-            "yum -y remove NetworkManager-config-server", timeout=120
-        )
+        context.process.dnf("-y remove NetworkManager-config-server")
         nmci.cleanup.add_NM_service("restart")
 
 
@@ -2218,7 +2183,6 @@ def no_config_server_bs(context, scenario):
             # unlock /usr
             nmci.process.run("mount -o remount,rw lazy /usr")
 
-        # context.process.run_stdout('yum -y remove NetworkManager-config-server')
         config_files = (
             context.process.run_stdout("rpm -ql NetworkManager-config-server")
             .strip()
@@ -2960,9 +2924,7 @@ def tag8021x_doc_procedure_bs(context, scenario):
     shutil.copy("/etc/raddb/certs/client.key", "/etc/pki/tls/private/8021x.key")
     shutil.copy("/etc/raddb/certs/client.pem", "/etc/pki/tls/certs/8021x.pem")
     shutil.copy("/etc/raddb/certs/ca.pem", "/etc/pki/tls/certs/8021x-ca.pem")
-    context.process.run_stdout(
-        "yum -y install hostapd wpa_supplicant", ignore_stderr=True, timeout=120
-    )
+    context.process.dnf("-y install hostapd wpa_supplicant")
     with open("/etc/sysconfig/hostapd", "r+") as f:
         content = f.read()
         f.seek(0)

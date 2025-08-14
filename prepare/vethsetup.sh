@@ -56,7 +56,7 @@ function setup_veth_env ()
 
     # Need 'config server' like setup
     if ! rpm -q NetworkManager-config-server; then
-        yum -y install NetworkManager-config-server
+        dnf -y install NetworkManager-config-server
     fi
 
     # in OS env there seems to be dhcpcd running on eth0

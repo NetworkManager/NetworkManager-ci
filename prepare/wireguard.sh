@@ -57,7 +57,7 @@ if (is_installed) ; then
 fi
 
 # install tools required for build
-yum -y install libmnl-devel elfutils-libelf-devel kernel-devel-$(uname -r) pkg-config gcc git
+dnf -y install libmnl-devel elfutils-libelf-devel kernel-devel-$(uname -r) pkg-config gcc git
 
 cd contrib/wireguard/
 
