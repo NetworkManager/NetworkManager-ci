@@ -222,6 +222,7 @@ Feature: nmcli - general
 
     @RHEL-104357
     @ver+=1.55.2
+    @ver+=1.54
     @internal_DHCP @dhcpd
     @restore_hostname @eth0
     @pull_long_hostname_from_dns
