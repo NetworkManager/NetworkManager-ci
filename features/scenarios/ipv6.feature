@@ -2643,6 +2643,7 @@
 
     @RHEL-91479
     @ver+=1.53.92
+    @ver/rhel/8/10+=1.40.16.20
     @ver/rhel/9/6+=1.52.0.6
     @ver/rhel/10/0+=1.52.0.6
     @ipv6_do_not_touch_ipv6_disabled_on_reapply
