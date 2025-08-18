@@ -787,6 +787,8 @@ def prepare_wireguard(context):
 @step('Prepare netdevsim | num "{num}"')
 def prepare_netdevsim(context, num="1"):
     init_command_embeds(context)
+    if cmd_output_rc("grep -q ostree /proc/cmdline", shell=True) == 0:
+        context.scenario.skip("Skip netdevsim in image mode.")
     _, rc = cmd_output_rc(
         f"sudo bash {NM_CI_RUNNER_CMD} prepare/netdevsim.sh setup {num}"
         "&> /tmp/netdevsim.log",
