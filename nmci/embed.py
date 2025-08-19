@@ -641,6 +641,9 @@ class _Embed:
         """
         AVC_IGNORE_LIST = [
             "iptables_t",  # ignore iptables kill AVC, reported, fail on many bond tests not very often
+            *getattr(
+                nmci.cext.context, "ignore_avcs", []
+            ),  # ignore AVCs we ignored during scenario (might appear during after_scenario too)
         ]
         avc_log = nmci.misc.get_avcs(embed=False)
 

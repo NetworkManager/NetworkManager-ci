@@ -1545,6 +1545,8 @@ def expect_avc(context, pattern, timeout=15):
 @step('Ignore possible AVC "{pattern}"')
 @step('Ignore possible AVC "{pattern}" in "{timeout}" seconds')
 def ignore_avc(context, pattern, timeout=15):
+    context.ignore_avcs = getattr(context, "ignore_avcs", [])
+    context.ignore_avcs.append(pattern)
     timeout = float(timeout)
     try:
         nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
