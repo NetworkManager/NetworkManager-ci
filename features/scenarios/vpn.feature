@@ -344,3 +344,28 @@
     * Bring "down" connection "wireguard"
     Then "16383:\s+from all lookup 127 proto static" is not visible with command "ip rule"
     Then "16600:\s+from all lookup 200 proto static" is not visible with command "ip -6 rule"
+
+
+    @ver+=1.55.3
+    @wireguard
+    @wireguard_honor_prefix_routes
+    Scenario: nmcli - vpn - honor prefix routes
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1790
+    * Add "wireguard" connection named "wireguard" for device "nm-wireguard" with options
+          """
+          wireguard.private-key OPpa3U0J5Qm0bI2wm+WvAPZGp7ilkhk/Ic1FZoj2MEw=
+          wireguard.peers '6Q/0FbeS9rYyFvZBBopuxUTWcwDCo9a+9jaBrJleJjU= allowed-ips=172.16.1.0/24;fd01:1::/64, TnD4ET5UiBHQxBtx5T1GcMdFQ0LYPPErdFG8Q7gJVXA= allowed-ips=172.16.2.0/24;fd01:2::/64'
+          ipv4.method manual
+          ipv4.addresses 172.16.1.42/24,172.16.2.99/24
+          ipv6.method manual
+          ipv6.addresses fd01:1::42/64,fd01:2::99/64
+          """
+    * Bring "up" connection "wireguard"
+    * Commentary
+    """
+    Check that hosts in the peer networks are reachable using the matching local address as source IP.
+    """
+    Then "dev nm-wireguard .*src 172.16.1.42" is visible with command "ip route get 172.16.1.253"
+    Then "dev nm-wireguard .*src 172.16.2.99" is visible with command "ip route get 172.16.2.253"
+    Then "dev nm-wireguard .*src fd01:1::42" is visible with command "ip -6 route get fd01:1::ff"
+    Then "dev nm-wireguard .*src fd01:2::99" is visible with command "ip -6 route get fd01:2::ff"
