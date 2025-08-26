@@ -54,7 +54,7 @@ elif [ "$ID" == fedora ]; then
 
     # filter only relevant SHA to root.sha
     checksum="$link$(get_all "$link" | grep "CHECKSUM")"
-    wget --no-verbose -O $TESTDIR/root.sha $checksum --no-check-certificate
+    wget --tries=5 --no-verbose -O $TESTDIR/root.sha $checksum --no-check-certificate
     sed -n -i "/Base-Generic/ p;/Base-$VERSION_ID.*qcow2/ p" $TESTDIR/root.sha
 
     link="$link$img"
@@ -67,12 +67,12 @@ fi
 
 echo "ImageLink: $link"
 
-wget --no-verbose -O $TESTDIR/root.sha $link.SHA256SUM --no-check-certificate
+wget --tries=5 --no-verbose -O $TESTDIR/root.sha $link.SHA256SUM --no-check-certificate
 SHA=$(sed -n 's/.* = //p' < $TESTDIR/root.sha)
 
 # Download image if checksum is not correct
 if ! sha256sum $TESTDIR/root.qcow2 | grep -q "$SHA" ; then
-    wget --no-verbose -O $TESTDIR/root.qcow2 $link --no-check-certificate
+    wget --tries=5 --no-verbose -O $TESTDIR/root.qcow2 $link --no-check-certificate
 fi
 
 # Exit if checksum is not correct

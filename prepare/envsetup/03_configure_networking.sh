@@ -200,8 +200,8 @@ configure_networking () {
 
             # obtain valid certificates
             mkdir /tmp/certs
-            wget http://tools.lab.eng.brq2.redhat.com:8080/client.pem -O /tmp/certs/client.pem
-            wget http://tools.lab.eng.brq2.redhat.com:8080/ca.pem -O /tmp/certs/eaptest_ca_cert.pem
+            wget --tries=5 http://tools.lab.eng.brq2.redhat.com:8080/client.pem -O /tmp/certs/client.pem
+            wget --tries=5 http://tools.lab.eng.brq2.redhat.com:8080/ca.pem -O /tmp/certs/eaptest_ca_cert.pem
             touch /tmp/nm_wifi_configured
         fi
 
