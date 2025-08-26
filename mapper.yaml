@@ -3068,9 +3068,9 @@ testmapper:
         feature: dns
     - dns_resolved_mdns:
         feature: dns
-    - dns_global:
-        feature: dns
     - dns_reapply_on_disabled_ipv6:
+        feature: dns
+    - dns_global_options:
         feature: dns
     - dns_reapply_device_with_same_globals:
         feature: dns
