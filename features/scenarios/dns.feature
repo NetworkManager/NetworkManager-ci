@@ -1313,23 +1313,6 @@ Feature: nmcli - dns
     Then "nameserver 2620:dead:beaf::1" is visible with command "cat /run/NetworkManager/resolv.conf" in "45" seconds
 
 
-    @rhbz2019306
-    @ver+=1.43.0
-    @ver+=1.42.0
-    @ver+=1.41.91
-    @ver/rhel/9/2+=1.42.2.20
-    @dns_default @restart_if_needed
-    @dns_global
-    Scenario: NM - dns global options
-    * Create NM config file "95-nmci-resolv.conf" with content
-      """
-      [global-dns]
-      options=timeout:666
-      """
-    * Restart NM
-    Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
-
-
     @rhbz2189247
     @ver+=1.43.4
     @ver+=1.42.5
@@ -1349,6 +1332,28 @@ Feature: nmcli - dns
         * Execute "nmcli device reapply eth2"
     Then "2000::1" is not visible with command "grep nameserver /etc/resolv.conf" in "1" seconds
     Then "exactly" "1" lines with pattern "interface: eth2" are visible with command "nmcli | sed '/DNS configuration:/,/^[^ \t]/ !d'"
+
+
+##########################################
+# DNS-GLOBAL CONFIG TESTS
+##########################################
+
+
+    @rhbz2019306
+    @ver+=1.43.0
+    @ver+=1.42.0
+    @ver+=1.41.91
+    @ver/rhel/9/2+=1.42.2.20
+    @dns_default
+    @dns_global_options
+    Scenario: NM - dns global options
+    * Create NM config file "95-nmci-resolv.conf" with content
+      """
+      [global-dns]
+      options=timeout:666
+      """
+    * Restart NM
+    Then "options timeout:666" is visible with command "grep options /etc/resolv.conf" in "5" seconds
 
 
     @RHEL-92314 @RHEL-92020 @RHEL-92313 @RHEL-97261

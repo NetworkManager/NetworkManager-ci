@@ -10777,10 +10777,10 @@ r-libreswan']
         duration: 10m
         tty: true
     
-    /dns_global:
-        test: run/runtest.sh dns_global
+    /dns_global_options:
+        test: run/runtest.sh dns_global_options
         environment:
-            TEST: NetworkManager_1313_dns_global
+            TEST: NetworkManager_1313_dns_global_options
         order: 13130
         duration: 10m
         tty: true
