@@ -1552,3 +1552,40 @@ def ignore_avc(context, pattern, timeout=15):
         nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
     except AssertionError:
         nmci.embed.embed_exception("No AVC matched")
+
+
+@step('Set global DNS config via dbus to "{value}"')
+def dbus_global_dns_set(context, value):
+    cmd = [
+        "busctl",
+        "set-property",
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+    ]
+    nmci.cleanup.add_callback(
+        lambda: nmci.process.run([*cmd, "a{sv}", "0"]),
+        name="reset-global-config-via-dbus",
+        # we need to call this once, even if the step is executed multiple times
+        unique_tag="GLOBAL_DNS_RESET",
+        # do cleanup after NM is restarted after config drop
+        priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_RESTART + 1,
+    )
+    nmci.process.run([*cmd, *value.split()])
+
+
+@step('Check that global DNS config is "{config}"')
+def dbus_global_dns_get(context, config):
+    cmd = [
+        "busctl",
+        "get-property",
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+    ]
+    running_config = nmci.process.run_stdout(cmd).strip()
+    assert (
+        config == running_config
+    ), f"Global DNS config mismatch, running != expected: `{running_config}` != `{config}`"
