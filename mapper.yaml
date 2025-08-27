@@ -3072,7 +3072,19 @@ testmapper:
         feature: dns
     - dns_global_options:
         feature: dns
+    - dns_global_search:
+        feature: dns
+    - dns_global_search_options:
+        feature: dns
+    - dns_global_domains_all:
+        feature: dns
+    - dns_global_domain_split:
+        feature: dns
+    - dns_global_domain_search_option:
+        feature: dns
     - dns_reapply_device_with_same_globals:
+        feature: dns
+    - dns_global_dbus:
         feature: dns
     - nmtui_general_exit_nmtui:
         feature: nmtui_general
