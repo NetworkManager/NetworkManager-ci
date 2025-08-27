@@ -1552,3 +1552,22 @@ def ignore_avc(context, pattern, timeout=15):
         nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
     except AssertionError:
         nmci.embed.embed_exception("No AVC matched")
+
+
+@step('Set global DNS config via dbus to "{value}"')
+def dbus_global_dns(context, value):
+    cmd = [
+        "busctl",
+        "set-property",
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+    ]
+    nmci.cleanup.add_callback(
+        lambda: nmci.process.run([*cmd, "a{sv}", "0"]),
+        name="reset-global-config-via-dbus",
+        # we need to call this once, even if the step is executed multiple times
+        unique_tag="GLOBAL_DNS_RESET",
+    )
+    nmci.process.run([*cmd, *value.split()])
