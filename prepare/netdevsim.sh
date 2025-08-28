@@ -6,6 +6,7 @@ set -x
 function setup () {
     # If $1 is empty, $NUM defaults to "3"
     NUM="${1:-3}"
+    (( $NUM > 255 )) && echo "can't add more than 255 devices" &&  exit 1
     MAJOR="$(echo $K_VER |awk -F '-' '{print $1}')"
     MINOR="$(echo $K_VER |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     LINUX=linux-$MAJOR-$MINOR
@@ -18,7 +19,7 @@ function setup () {
     if grep Fedora /etc/redhat-release; then
         URL='https://kojipkgs.fedoraproject.org//packages/kernel'
         LINUX="$(echo $LINUX |awk -F '.' '{print $1 "." $2}')"
-        PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
+        PATCH="0001-netdevsim-fix-channels.patch 0001-netdevsim-fix-ring.patch"
     elif grep "release 8" /etc/redhat-release; then
         PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
         URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
@@ -65,9 +66,15 @@ function setup () {
         # Patch critical features:
         #  - either add features for old kernels
         #  - or fix in new kernels
-        cat $PATCH | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
-        # Set permanent address - needed for GUI and cloud test
-        cat "0001-netdevsim-physical-address.patch" | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
+        # Apply the patch ignoring error
+        cat $PATCH | patch -p1 -N -f -l || true
+        # Check if the patch can be reversed (do this due to some hunks might already applied and `patch` has no swtich to check for this)
+        echo "Check that patch was applied - dry-run in reverse"
+        cat $PATCH | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
+        # Do the same for physical adress patch
+        cat "0001-netdevsim-physical-address.patch" | patch -p1 -N -f -l || true
+        echo "Check that physical address patch was applied - dry-run in reverse"
+        cat "0001-netdevsim-physical-address.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
 
         ARCH="$(arch)"
 
@@ -113,17 +120,22 @@ function setup () {
             insmod /lib/modules/$K_VER/extra/netdevsim.ko
         fi
         sleep 0.5
-        echo "0 $NUM 128" > /sys/bus/netdevsim/new_device
-
+        echo "0 0 128" > /sys/bus/netdevsim/new_device
+        for i in $(seq 1 $NUM); do
+            echo "$i 6e:81:1e:c4:50:$(printf %02x $i)" > /sys/bus/netdevsim/devices/netdevsim0/new_port
+        done
         # Make sure the netdevsim devices based from eth11,
         # even if eth0-eth10 are not there yet.
         # prepare_patched_netdevsim_bs() expects this.
         n=11
-        for i in $(ls -d /sys/devices/netdevsim*/net/eth* |sort); do
+        for i in $(ls -d /sys/devices/netdevsim*/net/eth* |sort -V); do
             O=$(basename $i)
             N=eth$n
-            [ $N = $O ] && break
-            ip link set $N name $O; n=$(( n+1 ))
+            ip link set $O down
+            [ $N = $O ] || ip link set "$O" name "$N";
+            mac="$(ethtool -P $O | grep -o "[0-9a-fA-F:]*" | tail -n1)"
+            ip link set $N address "$mac"
+            n=$(( n+1 ))
         done
 
         touch /tmp/netdevsim

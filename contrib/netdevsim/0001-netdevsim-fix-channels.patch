@@ -25,15 +25,9 @@ index ffd9f84..dbfac37 100644
 -					ch->combined_count);
 +	err = netif_set_real_num_queues(dev, ch->rx_count + ch->combined_count,
 +					ch->tx_count + ch->combined_count);
-@@ -108,7 +115,7 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
- 	if (err)
- 		return err;
- 
+@@ -134,1 +141,1 @@ nsim_set_channels(struct net_device *dev, struct ethtool_channels *ch)
 -	ns->ethtool.channels = ch->combined_count;
 +	memcpy(&ns->ethtool.channels, ch, sizeof(ns->ethtool.channels));
- 	return 0;
- }
- 
 @@ -174,7 +181,10 @@ void nsim_ethtool_init(struct netdevsim *ns)
  	ns->ethtool.fec.fec = ETHTOOL_FEC_NONE;
  	ns->ethtool.fec.active_fec = ETHTOOL_FEC_NONE;
