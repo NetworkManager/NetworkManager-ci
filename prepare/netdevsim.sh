@@ -66,8 +66,8 @@ function setup () {
         #  - either add features for old kernels
         #  - or fix in new kernels
         cat $PATCH | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
-        # Set permanent address - needed for GUI and cloud test
-        cat "0001-netdevsim-physical-address.patch" | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the patch"; exit 1; }
+        # Set permanent address - needed for GUI and cloud test - first check if already applied, reversed dry run with -R
+        cat "0001-netdevsim-physical-address.patch" | patch -p1 -R --dry-run -t -l || cat "0001-netdevsim-physical-address.patch" | patch -p1 --merge -t -l || { echo "Unable to patch, please fix the physical address patch"; exit 1; }
 
         ARCH="$(arch)"
 
@@ -113,11 +113,13 @@ function setup () {
             insmod /lib/modules/$K_VER/extra/netdevsim.ko
         fi
         sleep 0.5
-        echo "0 $NUM 128" > /sys/bus/netdevsim/new_device
-
+        echo "0 0 128" > /sys/bus/netdevsim/new_device
+        for i in $(seq 1 $NUM); do
+            echo "$i 6e:81:1e:c4:50:b$i" > /sys/bus/netdevsim/devices/netdevsim0/new_port
+        done
         # Make sure the netdevsim devices based from eth11,
         # even if eth0-eth10 are not there yet.
-        # prepare_patched_netdevsim_bs() expects this.
+        # prepareip a_patched_netdevsim_bs() expects this.
         n=11
         for i in $(ls -d /sys/devices/netdevsim*/net/eth* |sort); do
             O=$(basename $i)

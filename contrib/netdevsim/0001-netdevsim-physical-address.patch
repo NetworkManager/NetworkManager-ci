@@ -1,18 +1,193 @@
-From: Filip Pokryvka <fpokryvk@redhat.com>
-Date: Mon, 30 Oct 2023 15:50:13 +0200
-Subject: [PATCH] netdevsim: set device perm addr
+From 54cb59cf81b02de847178c054eed7957170e9386 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+Date: Thu, 10 Jul 2025 13:18:33 +0200
+Subject: [PATCH] net: netdevsim: Support setting dev->perm_addr on port
+ creation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Network management daemons that match on the device permanent address
+currently have no virtual interface types to test against.
+NetworkManager, in particular, has carried an out of tree patch to set
+the permanent address on netdevsim devices to use in its CI for this
+purpose.
+
+To support this use case, support setting netdev->perm_addr when
+creating a netdevsim port.
+
+Reviewed-by: Simon Horman <horms@kernel.org>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://patch.msgid.link/20250710-netdevsim-perm_addr-v4-1-c9db2fecf3bf@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+ drivers/net/netdevsim/bus.c       | 26 ++++++++++++++++++++++----
+ drivers/net/netdevsim/dev.c       | 14 +++++++-------
+ drivers/net/netdevsim/netdev.c    |  9 ++++++---
+ drivers/net/netdevsim/netdevsim.h |  9 +++++----
+ 4 files changed, 40 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/net/netdevsim/bus.c b/drivers/net/netdevsim/bus.c
+index 64c0cdd31bf854..830abcb9847658 100644
+--- a/drivers/net/netdevsim/bus.c
++++ b/drivers/net/netdevsim/bus.c
+@@ -66,17 +66,35 @@ new_port_store(struct device *dev, struct device_attribute *attr,
+ 	       const char *buf, size_t count)
+ {
+ 	struct nsim_bus_dev *nsim_bus_dev = to_nsim_bus_dev(dev);
++	u8 eth_addr[ETH_ALEN] = {};
+ 	unsigned int port_index;
++	bool addr_set = false;
+ 	int ret;
+ 
+ 	/* Prevent to use nsim_bus_dev before initialization. */
+ 	if (!smp_load_acquire(&nsim_bus_dev->init))
+ 		return -EBUSY;
+-	ret = kstrtouint(buf, 0, &port_index);
+-	if (ret)
+-		return ret;
+ 
+-	ret = nsim_drv_port_add(nsim_bus_dev, NSIM_DEV_PORT_TYPE_PF, port_index);
++	ret = sscanf(buf, "%u %hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &port_index,
++		     &eth_addr[0], &eth_addr[1], &eth_addr[2], &eth_addr[3],
++		     &eth_addr[4], &eth_addr[5]);
++	switch (ret) {
++	case 7:
++		if (!is_valid_ether_addr(eth_addr)) {
++			pr_err("The supplied perm_addr is not a valid MAC address\n");
++			return -EINVAL;
++		}
++		addr_set = true;
++		fallthrough;
++	case 1:
++		break;
++	default:
++		pr_err("Format for adding new port is \"id [perm_addr]\" (uint MAC).\n");
++		return -EINVAL;
++	}
++
++	ret = nsim_drv_port_add(nsim_bus_dev, NSIM_DEV_PORT_TYPE_PF, port_index,
++				addr_set ? eth_addr : NULL);
+ 	return ret ? ret : count;
+ }
+ 
+diff --git a/drivers/net/netdevsim/dev.c b/drivers/net/netdevsim/dev.c
+index b3647691060c1f..01c7edb28d963c 100644
+--- a/drivers/net/netdevsim/dev.c
++++ b/drivers/net/netdevsim/dev.c
+@@ -589,7 +589,7 @@ static void nsim_dev_dummy_region_exit(struct nsim_dev *nsim_dev)
+ 
+ static int
+ __nsim_dev_port_add(struct nsim_dev *nsim_dev, enum nsim_dev_port_type type,
+-		    unsigned int port_index);
++		    unsigned int port_index, u8 perm_addr[ETH_ALEN]);
+ static void __nsim_dev_port_del(struct nsim_dev_port *nsim_dev_port);
+ 
+ static int nsim_esw_legacy_enable(struct nsim_dev *nsim_dev,
+@@ -613,7 +613,7 @@ static int nsim_esw_switchdev_enable(struct nsim_dev *nsim_dev,
+ 	int i, err;
+ 
+ 	for (i = 0; i < nsim_dev_get_vfs(nsim_dev); i++) {
+-		err = __nsim_dev_port_add(nsim_dev, NSIM_DEV_PORT_TYPE_VF, i);
++		err = __nsim_dev_port_add(nsim_dev, NSIM_DEV_PORT_TYPE_VF, i, NULL);
+ 		if (err) {
+ 			NL_SET_ERR_MSG_MOD(extack, "Failed to initialize VFs' netdevsim ports");
+ 			pr_err("Failed to initialize VF id=%d. %d.\n", i, err);
+@@ -1396,7 +1396,7 @@ static const struct devlink_ops nsim_dev_devlink_ops = {
+ #define NSIM_DEV_TEST1_DEFAULT true
+ 
+ static int __nsim_dev_port_add(struct nsim_dev *nsim_dev, enum nsim_dev_port_type type,
+-			       unsigned int port_index)
++			       unsigned int port_index, u8 perm_addr[ETH_ALEN])
+ {
+ 	struct devlink_port_attrs attrs = {};
+ 	struct nsim_dev_port *nsim_dev_port;
+@@ -1433,7 +1433,7 @@ static int __nsim_dev_port_add(struct nsim_dev *nsim_dev, enum nsim_dev_port_typ
+ 	if (err)
+ 		goto err_dl_port_unregister;
+ 
+-	nsim_dev_port->ns = nsim_create(nsim_dev, nsim_dev_port);
++	nsim_dev_port->ns = nsim_create(nsim_dev, nsim_dev_port, perm_addr);
+ 	if (IS_ERR(nsim_dev_port->ns)) {
+ 		err = PTR_ERR(nsim_dev_port->ns);
+ 		goto err_port_debugfs_exit;
+@@ -1489,7 +1489,7 @@ static int nsim_dev_port_add_all(struct nsim_dev *nsim_dev,
+ 	int i, err;
+ 
+ 	for (i = 0; i < port_count; i++) {
+-		err = __nsim_dev_port_add(nsim_dev, NSIM_DEV_PORT_TYPE_PF, i);
++		err = __nsim_dev_port_add(nsim_dev, NSIM_DEV_PORT_TYPE_PF, i, NULL);
+ 		if (err)
+ 			goto err_port_del_all;
+ 	}
+@@ -1745,7 +1745,7 @@ __nsim_dev_port_lookup(struct nsim_dev *nsim_dev, enum nsim_dev_port_type type,
+ }
+ 
+ int nsim_drv_port_add(struct nsim_bus_dev *nsim_bus_dev, enum nsim_dev_port_type type,
+-		      unsigned int port_index)
++		      unsigned int port_index, u8 perm_addr[ETH_ALEN])
+ {
+ 	struct nsim_dev *nsim_dev = dev_get_drvdata(&nsim_bus_dev->dev);
+ 	int err;
+@@ -1754,7 +1754,7 @@ int nsim_drv_port_add(struct nsim_bus_dev *nsim_bus_dev, enum nsim_dev_port_type
+ 	if (__nsim_dev_port_lookup(nsim_dev, type, port_index))
+ 		err = -EEXIST;
+ 	else
+-		err = __nsim_dev_port_add(nsim_dev, type, port_index);
++		err = __nsim_dev_port_add(nsim_dev, type, port_index, perm_addr);
+ 	devl_unlock(priv_to_devlink(nsim_dev));
+ 	return err;
+ }
 diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
-index 2908e0a0d6e1..16e1621bea8b 100644
+index e36d3e846c2dc3..f316e44130f722 100644
 --- a/drivers/net/netdevsim/netdev.c
 +++ b/drivers/net/netdevsim/netdev.c
-@@ -264,6 +312,7 @@ static void nsim_setup(struct net_device *dev)
- {
- 	ether_setup(dev);
- 	eth_hw_addr_random(dev);
-+	memcpy(dev->perm_addr, dev->dev_addr, dev->addr_len);
+@@ -998,8 +998,9 @@ static void nsim_exit_netdevsim(struct netdevsim *ns)
+ 	mock_phc_destroy(ns->phc);
+ }
  
- 	dev->tx_queue_len = 0;
- 	dev->flags |= IFF_NOARP;
--- 
-2.26.2
+-struct netdevsim *
+-nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
++struct netdevsim *nsim_create(struct nsim_dev *nsim_dev,
++			      struct nsim_dev_port *nsim_dev_port,
++			      u8 perm_addr[ETH_ALEN])
+ {
+ 	struct net_device *dev;
+ 	struct netdevsim *ns;
+@@ -1010,6 +1011,9 @@ nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port)
+ 	if (!dev)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	if (perm_addr)
++		memcpy(dev->perm_addr, perm_addr, ETH_ALEN);
++
+ 	dev_net_set(dev, nsim_dev_net(nsim_dev));
+ 	ns = netdev_priv(dev);
+ 	ns->netdev = dev;
+diff --git a/drivers/net/netdevsim/netdevsim.h b/drivers/net/netdevsim/netdevsim.h
+index 809dd29fc5fea2..8eeeb925607745 100644
+--- a/drivers/net/netdevsim/netdevsim.h
++++ b/drivers/net/netdevsim/netdevsim.h
+@@ -143,8 +143,9 @@ struct netdevsim {
+ 	struct netdev_net_notifier nn;
+ };
+ 
+-struct netdevsim *
+-nsim_create(struct nsim_dev *nsim_dev, struct nsim_dev_port *nsim_dev_port);
++struct netdevsim *nsim_create(struct nsim_dev *nsim_dev,
++			      struct nsim_dev_port *nsim_dev_port,
++			      u8 perm_addr[ETH_ALEN]);
+ void nsim_destroy(struct netdevsim *ns);
+ bool netdev_is_nsim(struct net_device *dev);
+ 
+@@ -362,8 +363,8 @@ void nsim_dev_exit(void);
+ int nsim_drv_probe(struct nsim_bus_dev *nsim_bus_dev);
+ void nsim_drv_remove(struct nsim_bus_dev *nsim_bus_dev);
+ int nsim_drv_port_add(struct nsim_bus_dev *nsim_bus_dev,
+-		      enum nsim_dev_port_type type,
+-		      unsigned int port_index);
++		      enum nsim_dev_port_type type, unsigned int port_index,
++		      u8 perm_addr[ETH_ALEN]);
+ int nsim_drv_port_del(struct nsim_bus_dev *nsim_bus_dev,
+ 		      enum nsim_dev_port_type type,
+ 		      unsigned int port_index);
