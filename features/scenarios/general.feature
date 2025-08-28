@@ -1949,6 +1949,13 @@ Feature: nmcli - general
     @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
+    * Commentary
+      """
+      Skip on affected glib2
+      https://issues.redhat.com/browse/RHEL-109766
+      """
+    * Skip if next step fails:
+    * "glib2-2.56.4-166.el8_10" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
     * Cleanup device "brX"
     * Create NM config file with content
@@ -2004,6 +2011,13 @@ Feature: nmcli - general
     @logging_info_only @allow_veth_connections
     @stable_mem_consumption2
     Scenario: NM - general - stable mem consumption - var 2
+    * Commentary
+      """
+      Skip on affected glib2
+      https://issues.redhat.com/browse/RHEL-109766
+      """
+    * Skip if next step fails:
+    * "glib2-2.56.4-166.el8_10" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
     * Create NM config file with content
       """
