@@ -255,11 +255,12 @@ def connect_wifi_device_w_options(context, network, options):
     assert r != 1, "nmcli device wifi connect ... timed out (180s)"
 
 
+@step('Note MAC address output for device "{device}" via ethtool as "{index}"')
 @step('Note MAC address output for device "{device}" via ethtool')
-def note_mac_address(context, device):
+def note_mac_address(context, device, index="noted_value"):
     if not hasattr(context, "noted"):
         context.noted = {}
-    context.noted["noted-value"] = context.command_output(
+    context.noted[index] = context.command_output(
         "ethtool -P %s |grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'" % device
     ).strip()
 
