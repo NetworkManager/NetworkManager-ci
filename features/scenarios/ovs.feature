@@ -2080,6 +2080,45 @@ Feature: nmcli - ovs
     Then "ovsbridge0" is not visible with command "ovs-vsctl show" in "10" seconds
 
 
+    @RHEL-93876
+    @ver/rhel/9/7+=1.54.0.2
+    @ver/rhel/10/1+=1.54.0.2
+    @ver+=1.55.3
+    @openvswitch
+    @nmcli_activate_children
+    Scenario: nmcli - openvswitch - reactivate via autoconnect-ports
+    * Cleanup connection "ovs-br0-br"
+    * Cleanup connection "ovs-bond0-port"
+    * Cleanup connection "dummy1"
+    * Cleanup connection "dummy2"
+    * Write file "/tmp/ovs_bond_in_bridge.yaml" with content
+"""
+interfaces:
+- name: ovs-br0
+  type: ovs-bridge
+  state: up
+  bridge:
+    port:
+    - name: ovs-bond0
+      link-aggregation:
+        mode: balance-slb
+        port:
+        - name: dummy1
+        - name: dummy2
+- name: dummy1
+  type: dummy
+  state: up
+- name: dummy2
+  type: dummy
+  state: up
+"""
+    * Execute "nmstatectl apply /tmp/ovs_bond_in_bridge.yaml --no-verify"
+    Then "Bridge [\"]?ovs-br0[\"]?" is visible with command "ovs-vsctl show" in "5" seconds
+    Then "Port [\"]?ovs-bond0[\"]?" is visible with command "ovs-vsctl show"
+    Then "Interface [\"]?dummy1[\"]?" is visible with command "ovs-vsctl show"
+    Then "Interface [\"]?dummy2[\"]?" is visible with command "ovs-vsctl show"
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

@@ -2214,6 +2214,9 @@ testmapper:
         feature: ovs
     - nmcli_remove_openvswitch_bridge_on_delete:
         feature: ovs
+    - nmcli_activate_children:
+        feature: ovs
+        tags: gate
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
