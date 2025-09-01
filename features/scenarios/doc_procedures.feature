@@ -680,7 +680,7 @@ Feature: nmcli - procedures in documentation
     Then "unmanaged:eth11" is visible with command "nmcli -g state,device device status"
     Then "disconnected:eth12" is visible with command "nmcli -g state,device device status"
     Then "disconnected:eth13" is visible with command "nmcli -g state,device device status"
-    * Note MAC address output for device "eth12" via ip command as "mac_eth12"
+    * Note MAC address output for device "eth12" via ethtool as "mac_eth12"
     * Create NM config file "99-unmanage-doc.conf" with content and "reload" NM
       """
       [keyfile]
