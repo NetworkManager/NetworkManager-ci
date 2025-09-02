@@ -1,5 +1,4 @@
-# pylint: disable=function-redefined,no-name-in-module
-# type: ignore[no-redef]
+# pylint: disable=unused-argument,line-too-long
 import glob
 import json
 import operator
@@ -8,16 +7,15 @@ import pexpect
 import re
 import requests
 import shlex
-import time
-from behave import step
 import subprocess
-
+import time
+from behave import step  # pylint: disable=no-name-in-module
 import nmci
 
 
 @step('Autocomplete "{cmd}" in bash and execute')
 def autocomplete_command(context, cmd):
-    bash = context.pexpect_spawn("bash")
+    bash = nmci.pexpect.pexpect_spawn("bash")
     bash.send(cmd)
     bash.send("\t")
     time.sleep(1)
@@ -30,20 +28,14 @@ def autocomplete_command(context, cmd):
 def check_same_noted_values(context, i1, i2):
     assert (
         context.noted[i1].strip() == context.noted[i2].strip()
-    ), "Noted values: %s != %s !" % (
-        context.noted[i1].strip(),
-        context.noted[i2].strip(),
-    )
+    ), f"Noted values: {context.noted[i1].strip()} != {context.noted[i2].strip()} !"
 
 
 @step('Check noted values "{i1}" and "{i2}" are not the same')
-def check_same_noted_values_equals(context, i1, i2):
+def check_different_noted_values(context, i1, i2):
     assert (
         context.noted[i1].strip() != context.noted[i2].strip()
-    ), "Noted values: %s == %s !" % (
-        context.noted[i1].strip(),
-        context.noted[i2].strip(),
-    )
+    ), f"Noted values: {context.noted[i1].strip()} == {context.noted[i2].strip()} !"
 
 
 @step('Check noted value "{i2}" difference from "{i1}" is "{operator_kw}" "{dif}"')
@@ -64,10 +56,15 @@ def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
     ), f'Noted value "{context.noted[index]}" is not within range: "{r_min}"-"{r_max}"'
 
 
+# ===================================================================
+# COMMAND EXECUTION
+# ===================================================================
+
+
 @step('Execute "{command}"')
 def execute_command(context, command):
     command = nmci.misc.str_replace_dict(command, context.noted)
-    context.process.run_stdout(
+    nmci.process.run_stdout(
         command,
         shell=True,
         ignore_returncode=False,
@@ -114,12 +111,12 @@ def execute_reproducer(context, rname, options="", number=1):
 
 @step('Execute "{command}" without waiting for process to finish')
 def execute_command_nowait(context, command):
-    context.pexpect_service(command, shell=True)
+    nmci.pexpect.pexpect_service(command, shell=True)
 
 
 @step('Execute "{command}" without output redirect')
 def execute_command_noout(context, command):
-    context.run(command, stdout=None, stderr=None)
+    nmci.process.run(command, stdout=None, stderr=None)
 
 
 @step('Execute "{command}" for "{number}" times')
@@ -128,15 +125,17 @@ def execute_multiple_times(context, command, number):
 
     i = 0
     while i < int(number):
-        context.command_code(command)
+        nmci.process.run(command, shell=True)
         curr_nm_pid = nmci.nmutil.nm_pid()
         assert (
             curr_nm_pid == orig_nm_pid
-        ), "NM crashed as original pid was %s but now is %s" % (
-            orig_nm_pid,
-            curr_nm_pid,
-        )
+        ), f"NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}"
         i += 1
+
+
+# ===================================================================
+# PROCESS MANAGEMENT
+# ===================================================================
 
 
 @step('Terminate "{process}"')
@@ -144,13 +143,13 @@ def execute_multiple_times(context, command, number):
 @step('Terminate all processes named "{process}"')
 @step('Terminate all processes named "{process}" with signal "{signal}"')
 def pkill_process(context, process, signal="TERM"):
-    pids = " ".join(context.command_output(f"pgrep {process}").split("\n"))
-    context.process.run_stdout(f"/usr/bin/kill -{signal} {pids}")
+    pids = " ".join(nmci.process.run_stdout(f"pgrep {process}").split("\n"))
+    nmci.process.run_stdout(f"/usr/bin/kill -{signal} {pids}")
     ticks = 25  # 5 seconds
     while ticks > 0:
         # This works for multiple pids, because kill would return 0
         # if it could signal *any* of the pids
-        if context.command_code(f"/usr/bin/kill -0 {pids}") == 1:
+        if nmci.process.run(f"/usr/bin/kill -0 {pids}").returncode == 1:
             return True
         ticks = ticks - 1
         time.sleep(0.2)
@@ -159,13 +158,13 @@ def pkill_process(context, process, signal="TERM"):
 
 @step('"{command}" fails')
 def wait_for_process(context, command):
-    assert context.command_code(command) != 0
+    assert nmci.process.run(command, shell=True).returncode != 0
     time.sleep(0.1)
 
 
 @step("Restore hostname from the noted value")
 def restore_hostname(context):
-    context.command_code("hostname %s" % context.noted["noted-value"])
+    nmci.process.run(f"hostname {context.noted['noted-value']}", shell=True)
     time.sleep(0.5)
 
 
@@ -174,13 +173,13 @@ def restore_hostname(context):
 def hostname_visible(context, log, seconds=1):
     seconds = int(seconds)
     orig_seconds = seconds
-    cmd = "grep $(hostname -s) '%s'" % log
+    cmd = f"grep $(hostname -s) '{log}'"
     while seconds > 0:
-        if context.command_code(cmd) == 0:
+        if nmci.process.run(cmd, shell=True).returncode == 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
-    raise Exception("Hostname not visible in log in %d seconds" % (orig_seconds))
+    raise Exception(f"Hostname not visible in log in {orig_seconds} seconds")
 
 
 @step('Hostname is not visible in log "{log}"')
@@ -188,15 +187,18 @@ def hostname_visible(context, log, seconds=1):
 def hostname_not_visible(context, log, seconds=1):
     seconds = int(seconds)
     orig_seconds = seconds
-    cmd = "grep $(hostname -s) '%s'" % log
+    cmd = f"grep $(hostname -s) '{log}'"
     while seconds > 0:
-        if context.command_code(cmd) != 0:
+        if nmci.process.run(cmd, shell=True).returncode != 0:
             return True
         seconds = seconds - 1
         time.sleep(1)
-    raise Exception(
-        "Hostname visible in log after %d seconds" % (orig_seconds - seconds)
-    )
+    raise Exception(f"Hostname visible in log after {orig_seconds - seconds} seconds")
+
+
+# ===================================================================
+# NAMESERVER AND DOMAIN MANAGEMENT
+# ===================================================================
 
 
 @step('Nameserver "{server}" is set')
@@ -206,7 +208,12 @@ def hostname_not_visible(context, log, seconds=1):
 @step('DNS option "{server}" is set')
 @step('DNS option "{server}" is set in "{seconds}" seconds')
 def get_nameserver_or_domain(context, server, seconds=1):
-    if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
+    if (
+        nmci.process.run(
+            "systemctl is-active systemd-resolved.service -q", shell=True
+        ).returncode
+        == 0
+    ):
         # We have systemd-resolvd running
         cmd = "resolvectl dns; resolvectl domain"
     else:
@@ -221,7 +228,12 @@ def get_nameserver_or_domain(context, server, seconds=1):
 @step('DNS option "{server}" is not set')
 @step('DNS option "{server}" is not set in "{seconds}" seconds')
 def get_nameserver_or_domain_not(context, server, seconds=1):
-    if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
+    if (
+        nmci.process.run(
+            "systemctl is-active systemd-resolved.service -q", shell=True
+        ).returncode
+        == 0
+    ):
         # We have systemd-resolvd running
         cmd = "systemd-resolve --status |grep -A 100 Link"
     else:
@@ -229,15 +241,17 @@ def get_nameserver_or_domain_not(context, server, seconds=1):
     return check_pattern_command(context, cmd, server, seconds, check_type="not")
 
 
+# ===================================================================
+# NOTED VALUES AND PATTERN MATCHING
+# ===================================================================
+
+
 @step('Noted value contains "{pattern}"')
 @step('Noted value "{index}" contains "{pattern}"')
 def noted_value_contains(context, pattern, index="noted-value"):
     assert (
         re.search(pattern, context.noted[index]) is not None
-    ), "Noted value '%s' does not match the pattern '%s'!" % (
-        context.noted[index],
-        pattern,
-    )
+    ), f"Noted value '{context.noted[index]}' does not match the pattern '{pattern}'!"
 
 
 @step('Noted value does not contain "{pattern}"')
@@ -245,7 +259,7 @@ def noted_value_contains(context, pattern, index="noted-value"):
 def noted_value_does_not_contain(context, pattern, index="noted-value"):
     assert (
         re.search(pattern, context.noted[index]) is None
-    ), "Noted value '%s' does match the pattern '%s'!" % (context.noted[index], pattern)
+    ), f"Noted value '{context.noted[index]}' does match the pattern '{pattern}'!"
 
 
 @step('Note the output of "{command}"')
@@ -275,6 +289,11 @@ def note_the_output_lines_as(context, command, index="noted-value", pattern=None
         "Noted", f"[{index}] counted {len(out)} lines ({out})", fail_only=True
     )
     context.noted[index] = str(len(out))
+
+
+# ===================================================================
+# PATTERN AND COMMAND CHECKING UTILITIES
+# ===================================================================
 
 
 def check_pattern_command(
@@ -524,7 +543,7 @@ def pattern_visible_reproducer(context, pattern, rname, options="", seconds=2):
 @step(
     '"{pattern}" is not visible with reproducer "{rname}" with options "{options}" in "{seconds}" seconds'
 )
-def pattern_visible_reproducer(context, pattern, rname, options="", seconds=2):
+def pattern_not_visible_reproducer(context, pattern, rname, options="", seconds=2):
     command = get_reproducer_command(rname, options)
     return check_pattern_command(context, command, pattern, seconds, check_type="not")
 
@@ -638,14 +657,14 @@ def lines_visible_command(
 
 
 @step('"{pattern}" is visible with command "{command}" for full "{seconds}" seconds')
-def check_pattern_visible_with_command_fortime(context, pattern, command, seconds):
+def pattern_visible_with_command_fortime(context, pattern, command, seconds):
     return check_pattern_command(context, command, pattern, seconds, check_type="full")
 
 
 @step(
     '"{pattern}" is not visible with command "{command}" for full "{seconds}" seconds'
 )
-def check_pattern_not_visible_with_command_fortime(context, pattern, command, seconds):
+def pattern_not_visible_with_command_fortime(context, pattern, command, seconds):
     return check_pattern_command(
         context, command, pattern, seconds, check_type="not_full"
     )
@@ -655,7 +674,7 @@ def check_pattern_not_visible_with_command_fortime(context, pattern, command, se
 @step(
     'Noted value "{index}" is visible with command "{command}" for full "{seconds}" seconds'
 )
-def check_pattern_visible_with_command_fortime(
+def noted_value_visible_with_command_fortime(
     context, command, seconds, index="noted_value"
 ):
     return check_pattern_command(
@@ -669,7 +688,7 @@ def check_pattern_visible_with_command_fortime(
 @step(
     'Noted value "{index}" is not visible with command "{command}" for full "{seconds}" seconds'
 )
-def check_pattern_not_visible_with_command_fortime(
+def noted_value_not_visible_with_command_fortime(
     context, command, seconds, index="noted_value"
 ):
     return check_pattern_command(
@@ -678,8 +697,8 @@ def check_pattern_not_visible_with_command_fortime(
 
 
 @step('"{pattern}" is visible with tab after "{command}"')
-def check_pattern_visible_with_tab_after_command(context, pattern, command):
-    exp = context.pexpect_spawn("/bin/bash")
+def pattern_visible_with_tab_after_command(context, pattern, command):
+    exp = nmci.pexpect.pexpect_spawn("/bin/bash")
     exp.send("bind 'set page-completions Off' ;\n")
     exp.send("bind 'set completion-query-items 0' ;\n")
     exp.send(command)
@@ -690,12 +709,12 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
 
     assert (
         exp.expect([pattern, pexpect.EOF], timeout=5) == 0
-    ), 'pattern %s is not visible with "%s"' % (pattern, command)
+    ), f'pattern {pattern} is not visible with "{command}"'
 
 
 @step('"{pattern}" is not visible with tab after "{command}"')
-def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
-    exp = context.pexpect_spawn("/bin/bash")
+def pattern_not_visible_with_tab_after_command(context, pattern, command):
+    exp = nmci.pexpect.pexpect_spawn("/bin/bash")
     exp.send("bind 'set page-completions Off' ;\n")
     exp.send("bind 'set completion-query-items 0' ;\n")
     exp.send(command)
@@ -706,7 +725,7 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
 
     assert (
         exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT], timeout=5) != 0
-    ), 'pattern %s is visible with "%s"' % (pattern, command)
+    ), f'pattern {pattern} is visible with "{command}"'
 
 
 @step('Run child "{command}"')
@@ -780,7 +799,9 @@ def kill_children(context, signal=9):
 
 @step("Start following journal")
 def start_tailing_journal(context):
-    context.journal = context.pexpect_service("journalctl --follow -o cat", timeout=180)
+    context.journal = nmci.pexpect.pexpect_service(
+        "journalctl --follow -o cat", timeout=180
+    )
     with nmci.util.start_timeout(10) as t:
         while t.loop_sleep(0.2):
             nmci.process.run_stdout("logger nmci_journal_follow")
@@ -803,8 +824,7 @@ def find_in_tailing_journal(context, content, timeout=180):
         == 1
     ):
         raise Exception(
-            'Did not see the "%s" in journal output before timeout ("%s" seconds)'
-            % (content, timeout)
+            f'Did not see the "{content}" in journal output before timeout ("{timeout}" seconds)'
         )
 
 
@@ -817,7 +837,7 @@ def find_not_in_tailing_journal(context, content, timeout=2):
         )
         == 0
     ):
-        raise Exception('"%s" was found in the journal output.' % content)
+        raise Exception(f'"{content}" was found in the journal output.')
 
 
 @step('Start monitoring "{proc}" CPU usage with threshold "{thr}"')
@@ -844,7 +864,7 @@ def wait_for_x_seconds(context, secs):
 
 
 @step('Wait for up to "{secs}" random seconds')
-def wait_for_x_seconds(context, secs):
+def wait_for_random_seconds(context, secs):
     rnd = nmci.util.random_float(3288708979)
     secs = float(secs)
     secs = secs * rnd
@@ -853,14 +873,14 @@ def wait_for_x_seconds(context, secs):
 
 @step('Look for "{content}" in tailed file')
 def find_tailing(context, content):
-    assert context.tail.expect([content, pexpect.TIMEOUT, pexpect.EOF]) != 1, (
-        'Did not see the "%s" in tail output before timeout (180s)' % content
-    )
+    assert (
+        context.tail.expect([content, pexpect.TIMEOUT, pexpect.EOF]) != 1
+    ), f'Did not see the "{content}" in tail output before timeout (180s)'
 
 
 @step('Start tailing file "{archivo}"')
 def start_tailing(context, archivo):
-    context.tail = context.pexpect_service("tail -f %s" % archivo, timeout=180)
+    context.tail = nmci.pexpect.pexpect_service(f"tail -f {archivo}", timeout=180)
     time.sleep(0.3)
 
 
@@ -868,34 +888,34 @@ def start_tailing(context, archivo):
 @step('Ping "{domain}" "{number}" times')
 def ping_domain(context, domain, number=2):
     if number != 2:
-        rc = context.command_code("ping -q -4 -c %s %s" % (number, domain))
+        rc = nmci.process.run(f"ping -q -4 -c {number} {domain}", shell=True).returncode
     else:
-        rc = context.command_code("curl -s %s" % (domain))
+        rc = nmci.process.run(f"curl -s {domain}", shell=True).returncode
     assert rc == 0
 
 
 @step('Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
-    rc = context.command_code("ping -4 -c 2 -I %s %s" % (device, domain))
+    rc = nmci.process.run(f"ping -4 -c 2 -I {device} {domain}", shell=True).returncode
     assert rc == 0
 
 
 @step('Ping6 "{domain}"')
 def ping6_domain(context, domain):
-    rc = context.command_code("ping6 -c 2 %s" % domain)
+    rc = nmci.process.run(f"ping6 -c 2 {domain}", shell=True).returncode
     assert rc == 0
 
 
 @step('Unable to ping "{domain}"')
 def cannot_ping_domain(context, domain):
-    rc = context.command_code("curl %s" % domain)
+    rc = nmci.process.run(f"curl {domain}", shell=True).returncode
     assert rc != 0
 
 
 @step('Unable to ping "{domain}" from "{device}" device')
 def cannot_ping_domain_from_device(context, domain, device):
     assert (
-        context.process.run(
+        nmci.process.run(
             ["ping", "-c", "2", "-I", device, domain], timeout=30
         ).returncode
         != 0
@@ -904,7 +924,7 @@ def cannot_ping_domain_from_device(context, domain, device):
 
 @step('Unable to ping6 "{domain}"')
 def cannot_ping6_domain(context, domain):
-    assert context.process.run(f"ping6 -c 2 {domain}", timeout=30).returncode != 0
+    assert nmci.process.run(f"ping6 -c 2 {domain}", timeout=30).returncode != 0
 
 
 @step('Metered status is "{value}"')
@@ -922,17 +942,27 @@ def check_metered_status(context, value, seconds=None):
 @step('Network trafic "{state}" dropped')
 def network_dropped(context, state):
     if state == "is":
-        assert context.command_code("ping -c 1 -W 1 boston.com") != 0
+        assert nmci.process.run("ping -c 1 -W 1 boston.com", shell=True).returncode != 0
     if state == "is not":
-        assert context.command_code("ping -c 1 -W 1 boston.com") == 0
+        assert nmci.process.run("ping -c 1 -W 1 boston.com", shell=True).returncode == 0
 
 
 @step('Network trafic "{state}" dropped on "{device}"')
 def network_dropped_two(context, state, device):
     if state == "is":
-        assert context.command_code("ping -c 2 -I %s -W 1 8.8.8.8" % device) != 0
+        assert (
+            nmci.process.run(
+                f"ping -c 2 -I {device} -W 1 8.8.8.8", shell=True
+            ).returncode
+            != 0
+        )
     if state == "is not":
-        assert context.command_code("ping -c 2 -I %s -W 1 8.8.8.8" % device) == 0
+        assert (
+            nmci.process.run(
+                f"ping -c 2 -I {device} -W 1 8.8.8.8", shell=True
+            ).returncode
+            == 0
+        )
 
 
 @step("Send lifetime scapy packet")
@@ -975,10 +1005,10 @@ def send_packet(
 @step('Set logging for "{domain}" to "{level}"')
 def set_logging(context, domain, level):
     if level == " ":
-        cli = context.pexpect_spawn("nmcli g l domains %s" % (domain), timeout=60)
+        cli = nmci.pexpect.pexpect_spawn(f"nmcli g l domains {domain}", timeout=60)
     else:
-        cli = context.pexpect_spawn(
-            "nmcli g l level %s domains %s" % (level, domain), timeout=60
+        cli = nmci.pexpect.pexpect_spawn(
+            f"nmcli g l level {level} domains {domain}", timeout=60
         )
 
     r = cli.expect(["Error", "Timeout", pexpect.TIMEOUT, pexpect.EOF])
@@ -1032,7 +1062,7 @@ def check_no_coredump(context, seconds):
                     return
 
     # segfault NM
-    context.process.run_stdout("pkill -SIGSEGV NetworkManager")
+    nmci.process.run_stdout("pkill -SIGSEGV NetworkManager")
 
     # check if coredump is found
     timeout = nmci.util.start_timeout(seconds)
@@ -1121,7 +1151,7 @@ def note_routes_on_device(context, addr_family, ifname, index):
 
 
 @step('Note "{addr_family}" routes on interface "{ifname}" as value "{index}"')
-def note_routes_on_device(context, addr_family, ifname, index):
+def note_routes_on_interface(context, addr_family, ifname, index):
     addr_family = nmci.ip.addr_family_norm(addr_family)
     routes = nmci.ip.route_show(ifname=ifname, addr_family=addr_family)
     routes_list = [f"{r} {routes[r]['metric']}" for r in routes if r != "default"]
@@ -1163,7 +1193,7 @@ def load_nftables(context, ns=None, ruleset=None):
         f"nftables ruleset{f' in namespace {ns}' if ns else ''} before this step:"
     ]
     nft_status.append(nft.cmd("list ruleset")[1])
-    context.process.run(f"{nsprefix}nft -f {file}")
+    nmci.process.run(f"{nsprefix}nft -f {file}")
     nft_status.append(
         f"\nnftables ruleset{f' in namespace {ns}' if ns else ''} after this step:"
     )
