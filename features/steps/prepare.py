@@ -1,8 +1,7 @@
-# pylint: disable=function-redefined
+# pylint: disable=function-redefined,unused-argument,line-too-long
 # type: ignore [no-redef]
 import os
 import re
-import shlex
 import time
 from behave import step  # pylint: disable=no-name-in-module
 
@@ -13,7 +12,7 @@ import nmci
 def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
     xtimeout = nmci.util.start_timeout(timeout)
     while xtimeout.loop_sleep(0.1):
-        s = context.process.nmcli(["connection", "sh", profile])
+        s = nmci.process.nmcli(["connection", "sh", profile])
         try:
             m = re.search(r"^IP4\.ADDRESS\[1\]:\s*(\S+)\s*$", s, re.MULTILINE)
             ip, _, plen = nmci.ip.ipaddr_plen_parse(m.group(1), addr_family="inet")
@@ -47,19 +46,19 @@ def create_policy_based_routing_files(context, profile, dev, table, timeout=5):
 
 @step('Configure dhcp server for subnet "{subnet}" with lease time "{lease}"')
 def config_dhcp(context, subnet, lease):
-    config = []
-    config.append("default-lease-time %d;" % int(lease))
-    config.append("max-lease-time %d;" % (int(lease) * 2))
-    config.append("subnet %s.0 netmask 255.255.255.0 {" % subnet)
-    config.append("range %s.128 %s.250;" % (subnet, subnet))
-    config.append("option routers %s.1;" % subnet)
-    config.append('option domain-name "nodhcp";')
-    config.append("option domain-name-servers %s.1, 8.8.8.8;}" % subnet)
+    config = [
+        f"default-lease-time {int(lease)};",
+        f"max-lease-time {int(lease) * 2};",
+        f"subnet {subnet}.0 netmask 255.255.255.0 {{",
+        f"range {subnet}.128 {subnet}.250;",
+        f"option routers {subnet}.1;",
+        'option domain-name "nodhcp";',
+        f"option domain-name-servers {subnet}.1, 8.8.8.8;}}",
+    ]
 
-    f = open("/tmp/dhcpd.conf", "w")
-    for line in config:
-        f.write(line + "\n")
-    f.close()
+    with open("/tmp/dhcpd.conf", "w") as f:
+        for line in config:
+            f.write(line + "\n")
 
 
 @step(
@@ -96,32 +95,27 @@ def config_dhcpv6_pd(context, mode, lease=None):
     else:
         assert False, "unknown address configuration mode %s" % mode
 
-    context.command_code("cp contrib/ipv6/radvd-pd.conf.in /tmp/radvd-pd.conf")
-    context.command_code("cp contrib/ipv6/dhcpd-pd.conf.in /tmp/dhcpd-pd.conf")
+    nmci.process.run("cp contrib/ipv6/radvd-pd.conf.in /tmp/radvd-pd.conf")
+    nmci.process.run("cp contrib/ipv6/dhcpd-pd.conf.in /tmp/dhcpd-pd.conf")
 
-    context.command_output_err(
-        f"sed -i 's/@ADV_MANAGED@/{adv_managed}/' /tmp/radvd-pd.conf"
-    )
-    context.command_output_err(
-        f"sed -i 's/@ADV_OTHER@/{adv_other}/'   /tmp/radvd-pd.conf"
-    )
-    context.command_output_err(
-        f"sed -i 's%@ADV_PREFIX@%{adv_prefix}%'  /tmp/radvd-pd.conf"
-    )
-    context.command_output_err(
-        f"sed -i 's/@DHCP_RANGE@/{dhcp_range}/'  /tmp/dhcpd-pd.conf"
-    )
-    context.command_output_err(
-        f"sed -i 's/@DHCP_LEASE@/{dhcp_lease}/'  /tmp/dhcpd-pd.conf"
-    )
+    sed_commands = [
+        f"sed -i 's/@ADV_MANAGED@/{adv_managed}/' /tmp/radvd-pd.conf",
+        f"sed -i 's/@ADV_OTHER@/{adv_other}/' /tmp/radvd-pd.conf",
+        f"sed -i 's%@ADV_PREFIX@%{adv_prefix}%' /tmp/radvd-pd.conf",
+        f"sed -i 's/@DHCP_RANGE@/{dhcp_range}/' /tmp/dhcpd-pd.conf",
+        f"sed -i 's/@DHCP_LEASE@/{dhcp_lease}/' /tmp/dhcpd-pd.conf",
+    ]
+
+    for cmd in sed_commands:
+        nmci.process.run(cmd, shell=True)
 
     with open("/tmp/ip6leases.conf", "w") as f:
         pass
 
-    context.pexpect_service(
+    nmci.pexpect.pexpect_service(
         "ip netns exec testX6_ns radvd -n -C /tmp/radvd-pd.conf", shell=True
     )
-    context.pexpect_service(
+    nmci.pexpect.pexpect_service(
         "ip netns exec testX6_ns dhcpd -6 -d -cf /tmp/dhcpd-pd.conf -lf /tmp/ip6leases.conf",
         shell=True,
     )
@@ -138,22 +132,40 @@ def prepare_connection(context):
 
 @step('Prepare "{conf}" config for "{device}" device with "{vfs}" VFs')
 def prepare_sriov_config(context, conf, device, vfs):
-    conf_path = "/etc/NetworkManager/conf.d/" + conf
-    context.command_code("echo '[device-%s]' > %s" % (device, conf_path))
-    context.command_code(
-        "echo 'match-device=interface-name:%s' >> %s" % (device, conf_path)
-    )
-    context.command_code("echo 'sriov-num-vfs=%d' >> %s" % (int(vfs), conf_path))
+    conf_path = f"/etc/NetworkManager/conf.d/{conf}"
+
+    config_lines = [
+        f"[device-{device}]",
+        f"match-device=interface-name:{device}",
+        f"sriov-num-vfs={int(vfs)}",
+    ]
+
+    with open(conf_path, "w") as f:
+        for line in config_lines:
+            f.write(line + "\n")
+
     time.sleep(0.2)
-    context.command_code("systemctl reload NetworkManager")
-    context.execute_steps(
-        f"""
-        * Cleanup execute "echo 0 > /sys/class/net/{device}/device/sriov_numvfs" with timeout "10" seconds and priority "50"
-        * Cleanup execute "rm -rf /etc/NetworkManager/conf.d/{conf}" with priority "60"
-        * Cleanup execute "echo 1 > /sys/class/net/{device}/device/sriov_drivers_autoprobe" with priority "65"
-        * Cleanup execute "systemctl reload NetworkManager" with priority "70"
-        """
-    )
+    nmci.process.run("systemctl reload NetworkManager")
+    cleanup_commands = [
+        (f"echo 0 > /sys/class/net/{device}/device/sriov_numvfs", "50", "10"),
+        (f"rm -rf /etc/NetworkManager/conf.d/{conf}", "60", None),
+        (
+            f"echo 1 > /sys/class/net/{device}/device/sriov_drivers_autoprobe",
+            "65",
+            None,
+        ),
+        ("systemctl reload NetworkManager", "70", None),
+    ]
+
+    for cmd, priority, timeout in cleanup_commands:
+        if timeout:
+            context.execute_steps(
+                f'* Cleanup execute "{cmd}" with timeout "{timeout}" seconds and priority "{priority}"'
+            )
+        else:
+            context.execute_steps(
+                f'* Cleanup execute "{cmd}" with priority "{priority}"'
+            )
 
 
 @step("Prepare PBR documentation procedure")
@@ -174,40 +186,87 @@ def pbr_doc_proc(context):
         * Create "veth" device named "defB" in namespace "provB_ns" with options "peer name defBp"
         * Execute "ip -n provB_ns link set dev defBp netns internet"
         * Create "bridge" device named "br0" in namespace "internet" with options "stp_state 0"
-        * Execute "ip -n internet link set dev defAp master br0"
-        * Execute "ip -n internet link set dev defBp master br0"
-        * Execute "ip -n internet link set dev br0 up"
-        * Execute "ip -n internet link set dev defAp up"
-        * Execute "ip -n internet link set dev defBp up"
-        * Execute "ip -n provA_ns link set dev defA up"
-        * Execute "ip -n provB_ns link set dev defB up"
-        * Execute "ip -n provA_ns addr add 172.20.20.1/24 dev defA"
-        * Execute "ip -n provB_ns addr add 172.20.20.2/24 dev defB"
-        * Execute "ip -n internet addr add 172.20.20.20/24 dev br0"
-        * Execute "ip -n internet route add 203.0.113.0/24 via 172.20.20.1 dev br0"
-        * Execute "ip -n internet route add 198.51.100.0/30 via 172.20.20.1 dev br0"
-        * Execute "ip -n internet route add 10.0.0.0/24 via 172.20.20.2 dev br0"
-        * Execute "ip -n internet route add 192.0.2.0/30 via 172.20.20.2 dev br0"
-        * Execute "ip -n provB_ns route add default via 192.0.2.1"
-        * Execute "ip -n int_work_ns route add default via 10.0.0.1"
-        * Execute "ip -n servers_ns route add default via 203.0.113.1"
-        * Execute "ip -n provA_ns route add default via 198.51.100.1"
-    """
+        """
     )
+
+    # Configure bridge connections in internet namespace
+    bridge_commands = [
+        "ip -n internet link set dev defAp master br0",
+        "ip -n internet link set dev defBp master br0",
+        "ip -n internet link set dev br0 up",
+        "ip -n internet link set dev defAp up",
+        "ip -n internet link set dev defBp up",
+    ]
+
+    # Bring up veth devices in provider namespaces
+    link_up_commands = [
+        "ip -n provA_ns link set dev defA up",
+        "ip -n provB_ns link set dev defB up",
+    ]
+
+    # Configure IP addresses
+    address_commands = [
+        ("provA_ns", "defA", "172.20.20.1/24"),
+        ("provB_ns", "defB", "172.20.20.2/24"),
+        ("internet", "br0", "172.20.20.20/24"),
+    ]
+
+    # Configure internet namespace routes
+    internet_routes = [
+        ("203.0.113.0/24", "172.20.20.1"),
+        ("198.51.100.0/30", "172.20.20.1"),
+        ("10.0.0.0/24", "172.20.20.2"),
+        ("192.0.2.0/30", "172.20.20.2"),
+    ]
+
+    # Configure default routes for each namespace
+    default_routes = [
+        ("provB_ns", "192.0.2.1"),
+        ("int_work_ns", "10.0.0.1"),
+        ("servers_ns", "203.0.113.1"),
+        ("provA_ns", "198.51.100.1"),
+    ]
+
+    # Execute all commands
+    for cmd in bridge_commands + link_up_commands:
+        nmci.process.run(cmd)
+
+    for namespace, device, address in address_commands:
+        nmci.process.run(f"ip -n {namespace} addr add {address} dev {device}")
+
+    for network, via_addr in internet_routes:
+        nmci.process.run(f"ip -n internet route add {network} via {via_addr} dev br0")
+
+    for namespace, gateway in default_routes:
+        nmci.process.run(f"ip -n {namespace} route add default via {gateway}")
 
 
 @step(
     'Prepare pppoe server for user "{user}" with "{passwd}" password and IP "{ip}" authenticated via "{auth}"'
 )
 def prepare_pppoe_server(context, user, passwd, ip, auth):
-    context.command_code(
-        "echo -e 'require-%s\nlogin\nlcp-echo-interval 10\nlcp-echo-failure 2\nms-dns 8.8.8.8\nms-dns 8.8.4.4\nnetmask 255.255.255.0\ndefaultroute\nnoipdefault\nusepeerdns' > /etc/ppp/pppoe-server-options"
-        % auth
-    )
-    context.command_code(
-        "echo '%s * %s %s' > /etc/ppp/%s-secrets" % (user, passwd, ip, auth)
-    )
-    context.command_code("echo '%s-253' > /etc/ppp/allip" % ip)
+    pppoe_options = [
+        f"require-{auth}",
+        "login",
+        "lcp-echo-interval 10",
+        "lcp-echo-failure 2",
+        "ms-dns 8.8.8.8",
+        "ms-dns 8.8.4.4",
+        "netmask 255.255.255.0",
+        "defaultroute",
+        "noipdefault",
+        "usepeerdns",
+    ]
+
+    with open("/etc/ppp/pppoe-server-options", "w") as f:
+        for option in pppoe_options:
+            f.write(option + "\n")
+
+    with open(f"/etc/ppp/{auth}-secrets", "w") as f:
+        f.write(f"{user} * {passwd} {ip}\n")
+
+    with open("/etc/ppp/allip", "w") as f:
+        f.write(f"{ip}-253\n")
 
 
 @step('Prepare veth pairs "{pairs_array}" bridged over "{bridge}"')
@@ -217,7 +276,7 @@ def prepare_veths(context, pairs_array, bridge):
         pairs.append(pair.strip())
 
     context.execute_steps(f'* Create "bridge" device named "{bridge}"')
-    context.command_code("ip link set dev %s up" % bridge)
+    nmci.process.run(f"ip link set dev {bridge} up")
     for pair in pairs:
         nmci.veth.manage_device(pair)
         context.execute_steps(
@@ -228,16 +287,21 @@ def prepare_veths(context, pairs_array, bridge):
             * Cleanup connection "{bridge}"
             """
         )
-        context.command_code("ip link set %sp master %s" % (pair, bridge))
-        context.command_code("ip link set dev %s up" % pair)
-        context.command_code("ip link set dev %sp up" % pair)
+        veth_commands = [
+            f"ip link set {pair}p master {bridge}",
+            f"ip link set dev {pair} up",
+            f"ip link set dev {pair}p up",
+        ]
+
+        for cmd in veth_commands:
+            nmci.process.run(cmd)
 
 
 @step('Start radvd server with config from "{location}"')
 def start_radvd(context, location):
-    context.command_code("rm -rf /etc/radvd.conf")
-    context.command_code("cp %s /etc/radvd.conf" % location)
-    context.command_code("systemctl restart radvd")
+    nmci.process.run("rm -rf /etc/radvd.conf")
+    nmci.process.run(f"cp {location} /etc/radvd.conf")
+    nmci.process.run("systemctl restart radvd")
     time.sleep(2)
 
 
@@ -245,33 +309,25 @@ def start_radvd(context, location):
     "Restart dhcp server on {device} device with {ipv4} ipv4 and {ipv6} ipv6 dhcp address prefix"
 )
 def restart_dhcp_server(context, device, ipv4, ipv6):
-    context.command_code("kill $(cat /tmp/{device}_ns.pid)".format(device=device))
-    context.command_code(
-        "ip netns exec {device}_ns ip addr flush dev {device}_bridge".format(
-            device=device
-        )
+    nmci.process.run(f"kill $(cat /tmp/{device}_ns.pid)", shell=True)
+    nmci.process.run(f"ip netns exec {device}_ns ip addr flush dev {device}_bridge")
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}_bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(
-            device=device, ip=ipv4
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}_bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(
-            device=device, ip=ipv6
-        )
+
+    dnsmasq_cmd = (
+        f"ip netns exec {device}_ns dnsmasq "
+        f"--pid-file=/tmp/{device}_ns.pid "
+        f"--dhcp-leasefile=/tmp/{device}_ns.lease "
+        f"--dhcp-range={ipv4}.10,{ipv4}.15,2m "
+        f"--dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m "
+        f"--enable-ra --interface={device}_bridge "
+        f"--bind-interfaces"
     )
-    context.command_code(
-        "ip netns exec {device}_ns dnsmasq \
-                                        --pid-file=/tmp/{device}_ns.pid \
-                                        --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                        --dhcp-range={ipv4}.10,{ipv4}.15,2m \
-                                        --dhcp-range={ipv6}::100,{ipv6}::fff,slaac,64,2m \
-                                        --enable-ra --interface={device}_bridge \
-                                        --bind-interfaces".format(
-            device=device, ipv4=ipv4, ipv6=ipv6
-        )
-    )
+    nmci.process.run(dnsmasq_cmd)
 
 
 @step('Prepare simulated test "{device}" device using dhcpd')
@@ -289,53 +345,47 @@ def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and options "peer name {device}p"'
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device} netns {pid}".format(
-            device=device, pid=os.getpid()
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link set {device} netns {os.getpid()}"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set lo up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(
-            device=device, ip=ipv4
-        )
-    )
-    context.command_code(
-        "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
-    )
-    context.command_code(
-        "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts"
-    )
-    context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
-    context.command_code("echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
-    context.command_code("echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
-    context.command_code("echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
-    context.command_code("echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
-    context.command_code("echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set lo up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p up")
+    nmci.process.run(f"ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}p")
+
+    hosts_entries = [
+        "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4",
+        "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6",
+        "192.168.99.10 ip-192-168-99-10",
+        "192.168.99.11 ip-192-168-99-11",
+        "192.168.99.12 ip-192-168-99-12",
+        "192.168.99.13 ip-192-168-99-13",
+        "192.168.99.14 ip-192-168-99-14",
+        "192.168.99.15 ip-192-168-99-15",
+    ]
+
+    with open("/etc/hosts", "w") as f:
+        for entry in hosts_entries:
+            f.write(entry + "\n")
 
     config = []
     if server_id is not None:
-        config.append("server-identifier {server_id};".format(server_id=server_id))
-    config.append("max-lease-time 150;")
-    config.append("default-lease-time 120;")
-    config.append("subnet {ip}.0 netmask 255.255.255.0 {{".format(ip=ipv4))
-    config.append("  range {ip}.10 {ip}.15;".format(ip=ipv4))
-    config.append("}}".format(ip=ipv4))
+        config.append(f"server-identifier {server_id};")
+    config.extend(
+        [
+            "max-lease-time 150;",
+            "default-lease-time 120;",
+            f"subnet {ipv4}.0 netmask 255.255.255.0 {{",
+            f"  range {ipv4}.10 {ipv4}.15;",
+            "}",
+        ]
+    )
 
-    f = open("/tmp/dhcpd.conf", "w")
-    for line in config:
-        f.write(line + "\n")
-    f.close()
+    with open("/tmp/dhcpd.conf", "w") as f:
+        for line in config:
+            f.write(line + "\n")
 
-    context.command_code(
-        "ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid"
     )
 
 
@@ -421,64 +471,49 @@ def prepare_simdev(
     context.execute_steps(
         f'* Create "veth" device named "{device}" in namespace "{device}_ns" with ifindex "{ifindex}" and MAC address "{address}" and options "peer name {device}p"'
     )
-    context.command_code(
-        "ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.disable_ipv6=0".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.accept_ra=1".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns sysctl net.ipv6.conf.{device}.autoconf=1".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set lo up".format(device=device)
-    )
+    sysctl_commands = [
+        f"net.ipv6.conf.{device}.disable_ipv6=0",
+        f"net.ipv6.conf.{device}.accept_ra=1",
+        f"net.ipv6.conf.{device}.autoconf=1",
+    ]
+
+    for sysctl_cmd in sysctl_commands:
+        nmci.process.run(f"ip netns exec {device}_ns sysctl {sysctl_cmd}")
+
+    nmci.process.run(f"ip netns exec {device}_ns ip link set lo up")
 
     # This speeds up RA packets heavily
-    context.command_code(
-        "ip netns exec {device}_ns sysctl -w net.ipv6.conf.{device}p.router_solicitation_interval=1000 ".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns sysctl -w net.ipv6.conf.{device}p.router_solicitations=1 ".format(
-            device=device
-        )
-    )
+    ra_sysctl_commands = [
+        f"net.ipv6.conf.{device}p.router_solicitation_interval=1000",
+        f"net.ipv6.conf.{device}p.router_solicitations=1",
+    ]
 
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
-    )
+    for sysctl_cmd in ra_sysctl_commands:
+        nmci.process.run(f"ip netns exec {device}_ns sysctl -w {sysctl_cmd}")
+
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p up")
     if ipv4:
-        context.command_code(
-            "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}p".format(
-                device=device, ip=ipv4
-            )
+        nmci.process.run(
+            f"ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}p"
         )
     if ipv6:
-        context.command_code(
-            "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}p".format(
-                device=device, ip=ipv6
-            )
+        nmci.process.run(
+            f"ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}p"
         )
-    context.command_code(
-        "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
-    )
-    context.command_code(
-        "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts"
-    )
-    context.command_code("echo '192.168.99.10 ip-192-168-99-10' >> /etc/hosts")
-    context.command_code("echo '192.168.99.11 ip-192-168-99-11' >> /etc/hosts")
-    context.command_code("echo '192.168.99.12 ip-192-168-99-12' >> /etc/hosts")
-    context.command_code("echo '192.168.99.13 ip-192-168-99-13' >> /etc/hosts")
-    context.command_code("echo '192.168.99.14 ip-192-168-99-14' >> /etc/hosts")
-    context.command_code("echo '192.168.99.15 ip-192-168-99-15' >> /etc/hosts")
+    hosts_entries = [
+        "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4",
+        "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6",
+        "192.168.99.10 ip-192-168-99-10",
+        "192.168.99.11 ip-192-168-99-11",
+        "192.168.99.12 ip-192-168-99-12",
+        "192.168.99.13 ip-192-168-99-13",
+        "192.168.99.14 ip-192-168-99-14",
+        "192.168.99.15 ip-192-168-99-15",
+    ]
+
+    with open("/etc/hosts", "w") as f:
+        for entry in hosts_entries:
+            f.write(entry + "\n")
 
     if option:
         option = "--dhcp-option-force=" + option
@@ -491,59 +526,53 @@ def prepare_simdev(
     nmci.cleanup.add_file(pid_file)
     nmci.cleanup.add_file(lease_file)
 
-    dnsmasq_command = "ip netns exec {device}_ns dnsmasq \
-                                --interface={device}p \
-                                --bind-interfaces \
-                                --pid-file={pid_file} \
-                                --dhcp-leasefile={lease_file} \
-                                {option} \
-                                {daemon_options}".format(
-        device=device,
-        pid_file=pid_file,
-        lease_file=lease_file,
-        option=option,
-        daemon_options=daemon_options,
+    dnsmasq_command = (
+        f"ip netns exec {device}_ns dnsmasq "
+        f"--interface={device}p "
+        f"--bind-interfaces "
+        f"--pid-file={pid_file} "
+        f"--dhcp-leasefile={lease_file} "
+        f"{option} "
+        f"{daemon_options}"
     )
     if ipv4:
         if ipv4addr:
             dhcprange = f"{ipv4addr},{ipv4addr}"
         else:
             dhcprange = f"{ipv4}.10,{ipv4}.15"
-        dnsmasq_command += " --dhcp-range={dhcprange},{lease_time} ".format(
-            lease_time=lease_time, dhcprange=dhcprange
-        )
+        dnsmasq_command += f" --dhcp-range={dhcprange},{lease_time} "
+
     if ipv6 and lease_time != "infinite":
         if ipv6addr:
             dhcprange = f"{ipv6addr},{ipv6addr}"
         else:
             dhcprange = f"{ipv6}::100,{ipv6}::fff"
-        dnsmasq_command += " --dhcp-range={dhcprange},slaac,64,{lease_time} \
-                             --enable-ra".format(
-            lease_time=lease_time, dhcprange=dhcprange
+        dnsmasq_command += (
+            f" --dhcp-range={dhcprange},slaac,64,{lease_time} --enable-ra"
         )
 
+    result = nmci.process.run(dnsmasq_command, shell=True)
     assert (
-        context.command_code(dnsmasq_command) == 0
-    ), "unable to start dnsmasq using command `{dnsmasq_command}`".format(
-        dnsmasq_command=dnsmasq_command
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device} netns {pid}".format(
-            device=device, pid=os.getpid()
-        )
+        result.returncode == 0
+    ), f"unable to start dnsmasq using command `{dnsmasq_command}`"
+
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link set {device} netns {os.getpid()}"
     )
     if nmci.process.systemctl("status NetworkManager").returncode == 0:
-        timeout = nmci.util.start_timeout(10)
-        while timeout.loop_sleep(0.1):
-            if nmci.nmutil.device_status(name=device):
-                break
-        assert not timeout.expired(), f"Did not see created device '{device}' in 10s."
+        with nmci.util.start_timeout(10) as timeout:
+            while timeout.loop_sleep(0.1):
+                if nmci.nmutil.device_status(name=device):
+                    break
+            assert (
+                not timeout.expired()
+            ), f"Did not see created device '{device}' in 10s."
 
 
 @step(
     'Prepare simulated test "{device}" device with DHCPv4 server on different network'
 )
-def prepare_simdev(context, device):
+def prepare_simdev_different_network(context, device):
     nmci.veth.manage_device(device)
 
     #         +-------testX_ns--------+ +--testX2_ns--+
@@ -559,67 +588,54 @@ def prepare_simdev(context, device):
     context.execute_steps(
         f'* Create "veth" device named "{device}2" with options "peer name {device}2p"'
     )
-    context.command_code(
-        "ip link set {device}p netns {device}_ns".format(device=device)
-    )
-    context.command_code(
-        "ip link set {device}2 netns {device}_ns".format(device=device)
-    )
-    context.command_code(
-        "ip link set {device}2p netns {device}2_ns".format(device=device)
-    )
+
+    link_set_commands = [
+        (f"{device}p", f"{device}_ns"),
+        (f"{device}2", f"{device}_ns"),
+        (f"{device}2p", f"{device}2_ns"),
+    ]
+
+    for link, netns in link_set_commands:
+        nmci.process.run(f"ip link set {link} netns {netns}")
     # Bring up devices
-    context.command_code(
-        "ip netns exec {device}_ns ip link set lo up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}2 up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}2_ns ip link set {device}2p up".format(device=device)
-    )
+    link_up_commands = [
+        (f"{device}_ns", "lo"),
+        (f"{device}_ns", f"{device}p"),
+        (f"{device}_ns", f"{device}2"),
+        (f"{device}2_ns", f"{device}2p"),
+    ]
+
+    for netns, link in link_up_commands:
+        nmci.process.run(f"ip netns exec {netns} ip link set {link} up")
+
     # Set addresses
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add dev {device}p 172.16.0.1/24".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add dev {device}2 10.0.0.2/24".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}2_ns ip addr add dev {device}2p 10.0.0.1/24".format(
-            device=device
-        )
-    )
+    addr_commands = [
+        (f"{device}_ns", f"{device}p", "172.16.0.1/24"),
+        (f"{device}_ns", f"{device}2", "10.0.0.2/24"),
+        (f"{device}2_ns", f"{device}2p", "10.0.0.1/24"),
+    ]
+
+    for netns, link, addr in addr_commands:
+        nmci.process.run(f"ip netns exec {netns} ip addr add dev {link} {addr}")
     # Enable forwarding and DHCP relay in first namespace
-    context.command_code(
-        "ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'"
     )
-    context.command_code(
-        "ip netns exec {device}_ns dhcrelay -4 10.0.0.1 -pf /tmp/dhcrelay.pid".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns dhcrelay -4 10.0.0.1 -pf /tmp/dhcrelay.pid"
     )
+
     # Start DHCP server in second namespace
     # Push a default route and a route to reach the DHCP server
-    context.command_code(
-        "ip netns exec {device}2_ns dnsmasq \
-                                         --pid-file=/tmp/{device}_ns.pid \
-                                         --bind-interfaces -i {device}2p \
-                                         --dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m \
-                                         --dhcp-option=3,172.16.0.50 \
-                                         --dhcp-option=121,10.0.0.0/24,172.16.0.1".format(
-            device=device
-        )
+    dnsmasq_cmd = (
+        f"ip netns exec {device}2_ns dnsmasq "
+        f"--pid-file=/tmp/{device}_ns.pid "
+        f"--bind-interfaces -i {device}2p "
+        f"--dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m "
+        f"--dhcp-option=3,172.16.0.50 "
+        f"--dhcp-option=121,10.0.0.0/24,172.16.0.1"
     )
+    nmci.process.run(dnsmasq_cmd)
 
 
 @step('Prepare simulated test "{device}" device without DHCP')
@@ -657,81 +673,43 @@ def prepare_simdev(context, device):
     context.execute_steps(
         f'* Create "veth" device named "{device}2" with options "peer name {device}2p"'
     )
-    context.command_code(
-        "ip link set {device}p netns {device}_ns".format(device=device)
-    )
-    context.command_code(
-        "ip link set {device}2 netns {device}_ns".format(device=device)
-    )
-    context.command_code(
-        "ip link set {device}2p netns {device}2_ns".format(device=device)
-    )
+    nmci.process.run(f"ip link set {device}p netns {device}_ns")
+    nmci.process.run(f"ip link set {device}2 netns {device}_ns")
+    nmci.process.run(f"ip link set {device}2p netns {device}2_ns")
     # Bring up devices
-    context.command_code(
-        "ip netns exec {device}_ns ip link set lo up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}2 up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}2_ns ip link set {device}2p up".format(device=device)
-    )
+    nmci.process.run(f"ip netns exec {device}_ns ip link set lo up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}2 up")
+    nmci.process.run(f"ip netns exec {device}2_ns ip link set {device}2p up")
     # Set addresses
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add dev {device}p fd01::1/64".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add dev {device}2 fd02::1/64".format(
-            device=device
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}2_ns ip addr add dev {device}2p fd02::2/64".format(
-            device=device
-        )
+    nmci.process.run(f"ip netns exec {device}_ns ip addr add dev {device}p fd01::1/64")
+    nmci.process.run(f"ip netns exec {device}_ns ip addr add dev {device}2 fd02::1/64")
+    nmci.process.run(
+        f"ip netns exec {device}2_ns ip addr add dev {device}2p fd02::2/64"
     )
     # Set MTU
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p mtu 1500".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}2 mtu 1400".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}2_ns ip link set {device}2p mtu 1500".format(
-            device=device
-        )
-    )
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p mtu 1500")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}2 mtu 1400")
+    nmci.process.run(f"ip netns exec {device}2_ns ip link set {device}2p mtu 1500")
     # Set up router (testX_ns)
-    context.command_code(
-        "ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv6/conf/all/forwarding'".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv6/conf/all/forwarding'"
     )
-    context.command_code(
-        "ip netns exec {device}_ns dnsmasq \
+    nmci.process.run(
+        f"ip netns exec {device}_ns dnsmasq \
                                          --no-resolv \
                                          --pid-file=/tmp/{device}_ns.pid \
                                          --bind-interfaces -i {device}p \
                                          --enable-ra \
-                                         --dhcp-range=::1,::400,constructor:{device}p,ra-only,64,15s".format(
-            device=device
-        )
+                                         --dhcp-range=::1,::400,constructor:{device}p,ra-only,64,15s"
     )
     # Add route
-    context.command_code(
-        "ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}2_ns ip route add fd01::/64 via fd02::1 dev {device}2p"
     )
     # Run netcat server to receive some data
-    context.pexpect_service(
-        "ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null".format(device=device),
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null",
         shell=True,
     )
 
@@ -743,57 +721,35 @@ def prepare_simdev_no_carrier(context, device):
     ipv4 = "192.168.99"
     ipv6 = "2620:dead:beaf"
     nmci.ip.netns_add(f"{device}_ns")
-    context.command_code(
-        "ip netns exec {device}_ns ip link add {device} type veth peer name {device}p".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link add {device} type veth peer name {device}p"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set lo up".format(device=device)
+    nmci.process.run(f"ip netns exec {device}_ns ip link set lo up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p up")
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link add name {device}_bridge type bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p up".format(device=device)
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link set {device}p master {device}_bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link add name {device}_bridge type bridge".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip addr add {ipv4}.1/24 dev {device}_bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p master {device}_bridge".format(
-            device=device
-        )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip -6 addr add {ipv6}::1/64 dev {device}_bridge"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip addr add {ip}.1/24 dev {device}_bridge".format(
-            device=device, ip=ipv4
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip -6 addr add {ip}::1/64 dev {device}_bridge".format(
-            device=device, ip=ipv6
-        )
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}_bridge up".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device}p down".format(device=device)
-    )
-    context.command_code(
-        "ip netns exec {device}_ns dnsmasq \
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}_bridge up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p down")
+    nmci.process.run(
+        f"ip netns exec {device}_ns dnsmasq \
                                             --pid-file=/tmp/{device}_ns.pid \
                                             --dhcp-leasefile=/tmp/{device}_ns.lease \
                                             --dhcp-range={ipv4}.10,{ipv4}.15,2m \
                                             --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,2m \
                                             --enable-ra --interface={device}_bridge \
-                                            --bind-interfaces".format(
-            device=device, ipv4=ipv4, ipv6=ipv6
-        )
+                                            --bind-interfaces"
     )
-    context.command_code(
-        "ip netns exec {device}_ns ip link set {device} netns 1".format(device=device)
-    )
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device} netns 1")
 
 
 @step('Prepare simulated test "{device}" device with a bridged peer')
@@ -846,26 +802,20 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
 
 @step('Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
 def start_pppoe_server(context, name, ip, dev):
-    context.command_code("ip link set dev %s up" % dev)
-    context.pexpect_service(
-        "pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s"
-        % (name, name, ip, dev),
+    nmci.process.run(f"ip link set dev {dev} up")
+    nmci.pexpect.pexpect_service(
+        f"pppoe-server -S {name} -C {name} -L {ip} -p /etc/ppp/allip -I {dev}",
         shell=True,
     )
     time.sleep(1)
 
 
 @step('Start pppoe server with "{name}" and IP "{ip}" in namespace "{dev}"')
-def start_pppoe_server(context, name, ip, dev):
-    dev_p = dev + "p"
-    context.execute_steps(
-        """
-            * Prepare simulated test "%s" device"""
-        % dev
-    )
-    context.pexpect_service(
-        "ip netns exec %s_ns pppoe-server -S %s -C %s -L %s -p /etc/ppp/allip -I %s"
-        % (dev, name, name, ip, dev_p),
+def start_pppoe_server_ns(context, name, ip, dev):
+    dev_p = f"{dev}p"
+    context.execute_steps(f'* Prepare simulated test "{dev}" device')
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {dev}_ns pppoe-server -S {name} -C {name} -L {ip} -p /etc/ppp/allip -I {dev_p}",
         shell=True,
     )
     time.sleep(1)
