@@ -257,7 +257,7 @@ def connect_wifi_device_w_options(context, network, options):
 
 @step('Note MAC address output for device "{device}" via ethtool as "{index}"')
 @step('Note MAC address output for device "{device}" via ethtool')
-def note_mac_address(context, device, index="noted_value"):
+def note_mac_address(context, device, index="noted-value"):
     if not hasattr(context, "noted"):
         context.noted = {}
     context.noted[index] = context.command_output(
