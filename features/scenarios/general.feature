@@ -1946,6 +1946,8 @@ Feature: nmcli - general
     @rhbz1433303
     @ver+=1.4.0
     @not_on_aarch64
+    # Needed permissive, because even with additional policy, NM silently exits with code 1
+    @permissive
     @logging_info_only
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
@@ -1977,6 +1979,8 @@ Feature: nmcli - general
     @rhbz1433303
     @ver+=1.4.0
     @not_on_aarch64
+    # Needed permissive, because even with additional policy, NM silently exits with code 1
+    @permissive
     @logging_info_only
     @stable_mem_consumption_massif
     Scenario: NM - general - stable mem consumption using massif
@@ -2007,6 +2011,8 @@ Feature: nmcli - general
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
     @not_on_aarch64
+    # Needed permissive, because even with additional policy, NM silently exits with code 1
+    @permissive
     @no_config_server
     @logging_info_only @allow_veth_connections
     @stable_mem_consumption2
@@ -2041,6 +2047,8 @@ Feature: nmcli - general
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
     @not_on_aarch64
+    # Needed permissive, because even with additional policy, NM silently exits with code 1
+    @permissive
     @no_config_server
     @logging_info_only @allow_veth_connections
     @stable_mem_consumption2_massif
