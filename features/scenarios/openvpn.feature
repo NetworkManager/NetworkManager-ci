@@ -189,6 +189,7 @@
     @RHEL-70160 @RHEL-69901
     @ver+=1.51.6
     @ver/rhel/9/5+=1.48.10.5
+    @ver/rhel/9/4+=1.46.0.34
     @openvpn @openvpn4
     @openvpn_add_routing_rules
     Scenario: nmcli - openvpn - add routing rules

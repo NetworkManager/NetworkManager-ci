@@ -323,6 +323,7 @@
     @ver+=1.16
     @rhelver+=9
     @ver/rhel/9/5+=1.48.10.5
+    @ver/rhel/9/4+=1.46.0.34
     @wireguard
     @wireguard_add_routing_rules
     Scenario: nmcli - vpn - create and activate wireguard connection
