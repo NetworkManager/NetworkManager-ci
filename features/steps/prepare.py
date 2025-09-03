@@ -56,9 +56,7 @@ def config_dhcp(context, subnet, lease):
         f"option domain-name-servers {subnet}.1, 8.8.8.8;}}",
     ]
 
-    with open("/tmp/dhcpd.conf", "w") as f:
-        for line in config:
-            f.write(line + "\n")
+    nmci.util.file_set_content("/tmp/dhcpd.conf", config)
 
 
 @step(
@@ -109,8 +107,7 @@ def config_dhcpv6_pd(context, mode, lease=None):
     for cmd in sed_commands:
         nmci.process.run(cmd, shell=True)
 
-    with open("/tmp/ip6leases.conf", "w") as f:
-        pass
+    nmci.util.file_set_content("/tmp/ip6leases.conf")
 
     nmci.pexpect.pexpect_service(
         "ip netns exec testX6_ns radvd -n -C /tmp/radvd-pd.conf", shell=True
@@ -140,9 +137,7 @@ def prepare_sriov_config(context, conf, device, vfs):
         f"sriov-num-vfs={int(vfs)}",
     ]
 
-    with open(conf_path, "w") as f:
-        for line in config_lines:
-            f.write(line + "\n")
+    nmci.util.file_set_content(conf_path, config_lines)
 
     time.sleep(0.2)
     nmci.process.run("systemctl reload NetworkManager")
@@ -258,15 +253,9 @@ def prepare_pppoe_server(context, user, passwd, ip, auth):
         "usepeerdns",
     ]
 
-    with open("/etc/ppp/pppoe-server-options", "w") as f:
-        for option in pppoe_options:
-            f.write(option + "\n")
-
-    with open(f"/etc/ppp/{auth}-secrets", "w") as f:
-        f.write(f"{user} * {passwd} {ip}\n")
-
-    with open("/etc/ppp/allip", "w") as f:
-        f.write(f"{ip}-253\n")
+    nmci.util.file_set_content("/etc/ppp/pppoe-server-options", pppoe_options)
+    nmci.util.file_set_content(f"/etc/ppp/{auth}-secrets", f"{user} * {passwd} {ip}\n")
+    nmci.util.file_set_content("/etc/ppp/allip", f"{ip}-253\n")
 
 
 @step('Prepare veth pairs "{pairs_array}" bridged over "{bridge}"')
@@ -363,9 +352,7 @@ def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None
         "192.168.99.15 ip-192-168-99-15",
     ]
 
-    with open("/etc/hosts", "w") as f:
-        for entry in hosts_entries:
-            f.write(entry + "\n")
+    nmci.util.file_set_content("/etc/hosts", hosts_entries)
 
     config = []
     if server_id is not None:
@@ -380,9 +367,7 @@ def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None
         ]
     )
 
-    with open("/tmp/dhcpd.conf", "w") as f:
-        for line in config:
-            f.write(line + "\n")
+    nmci.util.file_set_content("/tmp/dhcpd.conf", config)
 
     nmci.process.run(
         f"ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid",
@@ -512,9 +497,7 @@ def prepare_simdev(
         "192.168.99.15 ip-192-168-99-15",
     ]
 
-    with open("/etc/hosts", "w") as f:
-        for entry in hosts_entries:
-            f.write(entry + "\n")
+    nmci.util.file_set_content("/etc/hosts", hosts_entries)
 
     if option:
         option = "--dhcp-option-force=" + option
