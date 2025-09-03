@@ -299,6 +299,34 @@ owe_transition_ssid=\"wpa3-owe-transition\"
 " > $HOSTAPD_CFG.$num_ap
 fi
 
+if ver_gte $hostapd_ver 2.11-2 && (( $rhel_ver >= 9 )); then
+  ((++num_ap))
+  echo "#wpa3eap_pq
+$(hostapd_conf_header)
+ssid=wpa3-eap-pq
+auth_algs=3
+wpa=2
+ieee8021x=1
+eapol_version=1
+ieee80211w=2
+wpa_key_mgmt=WPA-EAP-SUITE-B-192
+eap_reauth_period=3600
+eap_server=1
+use_pae_group_addr=1
+eap_user_file=$EAP_USERS_FILE
+ca_cert=$HOSTAPD_KEYS_PATH/hostapd_pq.ca.pem
+dh_file=$HOSTAPD_KEYS_PATH/hostapd_pq.dh.pem
+server_cert=$HOSTAPD_KEYS_PATH/hostapd_pq.cert.pem
+private_key=$HOSTAPD_KEYS_PATH/hostapd_pq.key.enc.pem
+private_key_passwd=redhat
+rsn_pairwise=GCMP-256
+group_cipher=GCMP-256
+group_mgmt_cipher=BIP-GMAC-256
+tls_flags=[ENABLE-TLSv1.3][DISABLE-TLSv1.0][DISABLE-TLSv1.1][DISABLE-TLSv1.2]
+" > $HOSTAPD_CFG.$num_ap
+fi
+
+
 if ((MANY_AP)); then
   while ((num_ap < MANY_AP)); do
     ((++num_ap))
@@ -336,8 +364,10 @@ function copy_certificates ()
 
     [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
     /bin/cp -rf $CERTS_PATH/client/test_user.*.pem $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user_pq.*.pem $CLIENT_KEYS_PATH
 
     /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
+    /bin/cp -rf $CERTS_PATH/client/test_user_qa.ca.pem /etc/pki/ca-trust/source/anchors
     chown -R test:test $CLIENT_KEYS_PATH
     chcon -R -t home_cert_t $CLIENT_KEYS_PATH/
     chmod -R o= $CLIENT_KEYS_PATH
