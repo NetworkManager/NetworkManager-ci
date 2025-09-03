@@ -385,7 +385,8 @@ def prepare_dhcpd_simdev(context, device, server_id="192.168.99.1", ifindex=None
             f.write(line + "\n")
 
     nmci.process.run(
-        f"ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid"
+        f"ip netns exec {device}_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/{device}_ns.pid",
+        ignore_stderr=True,
     )
 
 
@@ -622,7 +623,8 @@ def prepare_simdev_different_network(context, device):
         f"ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'"
     )
     nmci.process.run(
-        f"ip netns exec {device}_ns dhcrelay -4 10.0.0.1 -pf /tmp/dhcrelay.pid"
+        f"ip netns exec {device}_ns dhcrelay -4 10.0.0.1 -pf /tmp/dhcrelay.pid",
+        ignore_stderr=True,
     )
 
     # Start DHCP server in second namespace
