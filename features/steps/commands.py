@@ -233,12 +233,7 @@ def get_nameserver_or_domain(context, server, seconds=1):
 @step('DNS option "{server}" is not set')
 @step('DNS option "{server}" is not set in "{seconds}" seconds')
 def get_nameserver_or_domain_not(context, server, seconds=1):
-    if (
-        nmci.process.run(
-            "systemctl is-active systemd-resolved.service -q", shell=True
-        ).returncode
-        == 0
-    ):
+    if nmci.process.systemctl("is-active systemd-resolved.service -q").returncode == 0:
         # We have systemd-resolvd running
         cmd = "systemd-resolve --status |grep -A 100 Link"
     else:
@@ -896,18 +891,17 @@ def ping_domain(context, domain, number=2):
         rc = nmci.process.run(
             f"ping -q -4 -c {number} {domain}",
             timeout=30,
-            shell=True,
             ignore_stderr=True,
         ).returncode
     else:
-        rc = nmci.process.run(f"curl -s {domain}", timeout=30, shell=True).returncode
+        rc = nmci.process.run(f"curl -s {domain}", timeout=30).returncode
     assert rc == 0
 
 
 @step('Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
     rc = nmci.process.run(
-        f"ping -4 -c 2 -I {device} {domain}", shell=True, ignore_stderr=True
+        f"ping -4 -c 2 -I {device} {domain}", ignore_stderr=True
     ).returncode
     assert rc == 0
 
@@ -915,16 +909,14 @@ def ping_domain_from_device(context, domain, device):
 @step('Ping6 "{domain}"')
 def ping6_domain(context, domain):
     rc = nmci.process.run(
-        f"ping6 -c 2 {domain}", timeout=30, shell=True, ignore_stderr=True
+        f"ping6 -c 2 {domain}", timeout=30, ignore_stderr=True
     ).returncode
     assert rc == 0
 
 
 @step('Unable to ping "{domain}"')
 def cannot_ping_domain(context, domain):
-    rc = nmci.process.run(
-        f"curl {domain}", timeout=30, shell=True, ignore_stderr=True
-    ).returncode
+    rc = nmci.process.run(f"curl {domain}", timeout=30, ignore_stderr=True).returncode
     assert rc != 0
 
 
@@ -965,27 +957,23 @@ def check_metered_status(context, value, seconds=None):
 @step('Network trafic "{state}" dropped')
 def network_dropped(context, state):
     if state == "is":
-        assert nmci.process.run("ping -c 1 -W 1 boston.com", shell=True).returncode != 0
+        assert (
+            nmci.process.run("ping -c 1 -W 1 boston.com", ignore_stderr=True).returncode
+            != 0
+        )
     if state == "is not":
-        assert nmci.process.run("ping -c 1 -W 1 boston.com", shell=True).returncode == 0
+        assert (
+            nmci.process.run("ping -c 1 -W 1 boston.com", ignore_stderr=True).returncode
+            == 0
+        )
 
 
 @step('Network trafic "{state}" dropped on "{device}"')
 def network_dropped_two(context, state, device):
     if state == "is":
-        assert (
-            nmci.process.run(
-                f"ping -c 2 -I {device} -W 1 8.8.8.8", shell=True
-            ).returncode
-            != 0
-        )
+        assert nmci.process.run(f"ping -c 2 -I {device} -W 1 8.8.8.8").returncode != 0
     if state == "is not":
-        assert (
-            nmci.process.run(
-                f"ping -c 2 -I {device} -W 1 8.8.8.8", shell=True
-            ).returncode
-            == 0
-        )
+        assert nmci.process.run(f"ping -c 2 -I {device} -W 1 8.8.8.8").returncode == 0
 
 
 @step("Send lifetime scapy packet")
