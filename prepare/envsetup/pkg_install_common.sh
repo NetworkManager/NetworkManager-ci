@@ -18,7 +18,7 @@ install_common_packages () {
     K_MAJOR="$(echo $K_VER |awk -F '-' '{print $1}')"
     K_MINOR="$(echo $K_VER |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
     PKGS_INSTALL="$PKGS_INSTALL \
-        bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel ethtool firewalld \
+        audit2allow bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel ethtool firewalld \
         freeradius gcc git hostapd httpd iperf3 iproute-tc iptables iputils iw jq kernel-headers kernel-devel-$K_MAJOR-$K_MINOR \
         libreswan-debuginfo lshw lsof mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 patch podman pptpd pptp psmisc python3-dbus \
         python3-gobject python3-inotify python3-libselinux python3-netaddr python3-pip python3-systemd \

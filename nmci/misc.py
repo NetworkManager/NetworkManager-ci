@@ -1600,5 +1600,28 @@ class _Misc:
             f"After modification contents of: {file}", file, fail_only=True
         )
 
+    def enable_selinux_policy(self, name):
+        """
+        Enable predefined selinux-policy from contrib/selinux-policy/.
+        Policy must be present as already compile .pp or denied .log lines
+        that will be sent to :code:`audit2allow`.
+
+        :param name: Name of the poliy file without extension
+        :type name: str
+        """
+        if not os.path.isfile(f"contrib/selinux-policy/{name}.pp"):
+            assert os.path.isfile(
+                f"contrib/selinux-policy/{name}.log"
+            ), f"policy {name}.(log|pp) not found in contrib/selinux-policy/"
+            nmci.process.run_stdout(
+                f"cat {name}.log | audit2allow -M {name}",
+                cwd="contrib/selinux-policy/",
+                shell=True,
+            )
+        if not nmci.process.run_search_stdout("semodule -l", name):
+            nmci.process.run_stdout(
+                f"semodule -i {name}.pp", cwd="contrib/selinux-policy/", timeout=100
+            )
+
 
 _module = _Misc()

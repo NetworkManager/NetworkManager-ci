@@ -103,6 +103,9 @@ def NM_valgrind_start(context, tool="memcheck"):
             leak_summary = nmci.process.run_stdout(
                 f"vgdb --pid={pid} leak_check summary", ignore_stderr=True
             )
+            assert (
+                "still reachable:" in leak_summary
+            ), f"error getting memory stats from valgrind:\n{leak_summary}"
             still_reachable = int(
                 leak_summary.split("still reachable:")[1]
                 .strip()
@@ -164,9 +167,12 @@ def NM_valgrind_start(context, tool="memcheck"):
 
         context.nm_valgrind_final_check = _final_check
 
-    nm_valgrind_cmd = (
-        f"valgrind --vgdb=yes {tool_cmd} --num-callers=99 NetworkManager --no-daemon"
-    )
+    runcon = ""
+    if not nmci.process.run_search_stdout("getenforce", "Disable"):
+        runcon = "runcon -u system_u -r system_r -t NetworkManager_t -l s0 -- "
+        nmci.misc.enable_selinux_policy("NM_in_valgrind")
+
+    nm_valgrind_cmd = f"{runcon}valgrind --vgdb=yes {tool_cmd} --num-callers=99 -- NetworkManager --no-daemon"
 
     for i in range(2):
         context.nm_valgrind_proc = nmci.pexpect.pexpect_service(

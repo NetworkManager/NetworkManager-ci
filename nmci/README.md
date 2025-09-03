@@ -1266,6 +1266,15 @@ Get distribution name and version.
 * **Return type:**
   tuple of string and list of int
 
+### nmci.misc.enable_selinux_policy(name)
+
+Enable predefined selinux-policy from contrib/selinux-policy/.
+Policy must be present as already compile .pp or denied .log lines
+that will be sent to `audit2allow`.
+
+* **Parameters:**
+  **name** (*str*) – Name of the poliy file without extension
+
 ### nmci.misc.format_NM_journal(log)
 
 Add HTML tags to NM log to color/highlight specific messages (DEBUG/INFO/WARN/ERROR)
