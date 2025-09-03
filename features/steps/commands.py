@@ -96,6 +96,8 @@ def get_reproducer_command(rname, options):
 def execute_reproducer(context, rname, options="", number=1):
     orig_nm_pid = nmci.nmutil.nm_pid()
     argv = get_reproducer_command_v(rname, options)
+    # Emebed reproducer file
+    nmci.embed.embed_file_if_exists(rname, argv[0])
     nm_pid_refresh_count = getattr(context, "nm_pid_refresh_count", 0)
     for i in range(int(number)):
         nmci.process.run_stdout(argv, timeout=180, ignore_stderr=True)
@@ -149,7 +151,10 @@ def pkill_process(context, process, signal="TERM"):
     while ticks > 0:
         # This works for multiple pids, because kill would return 0
         # if it could signal *any* of the pids
-        if nmci.process.run(f"/usr/bin/kill -0 {pids}").returncode == 1:
+        if (
+            nmci.process.run(f"/usr/bin/kill -0 {pids}", ignore_stderr=True).returncode
+            == 1
+        ):
             return True
         ticks = ticks - 1
         time.sleep(0.2)
@@ -888,27 +893,38 @@ def start_tailing(context, archivo):
 @step('Ping "{domain}" "{number}" times')
 def ping_domain(context, domain, number=2):
     if number != 2:
-        rc = nmci.process.run(f"ping -q -4 -c {number} {domain}", shell=True).returncode
+        rc = nmci.process.run(
+            f"ping -q -4 -c {number} {domain}",
+            timeout=30,
+            shell=True,
+            ignore_stderr=True,
+        ).returncode
     else:
-        rc = nmci.process.run(f"curl -s {domain}", shell=True).returncode
+        rc = nmci.process.run(f"curl -s {domain}", timeout=30, shell=True).returncode
     assert rc == 0
 
 
 @step('Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
-    rc = nmci.process.run(f"ping -4 -c 2 -I {device} {domain}", shell=True).returncode
+    rc = nmci.process.run(
+        f"ping -4 -c 2 -I {device} {domain}", shell=True, ignore_stderr=True
+    ).returncode
     assert rc == 0
 
 
 @step('Ping6 "{domain}"')
 def ping6_domain(context, domain):
-    rc = nmci.process.run(f"ping6 -c 2 {domain}", shell=True).returncode
+    rc = nmci.process.run(
+        f"ping6 -c 2 {domain}", timeout=30, shell=True, ignore_stderr=True
+    ).returncode
     assert rc == 0
 
 
 @step('Unable to ping "{domain}"')
 def cannot_ping_domain(context, domain):
-    rc = nmci.process.run(f"curl {domain}", shell=True).returncode
+    rc = nmci.process.run(
+        f"curl {domain}", timeout=30, shell=True, ignore_stderr=True
+    ).returncode
     assert rc != 0
 
 
@@ -916,7 +932,9 @@ def cannot_ping_domain(context, domain):
 def cannot_ping_domain_from_device(context, domain, device):
     assert (
         nmci.process.run(
-            ["ping", "-c", "2", "-I", device, domain], timeout=30
+            ["ping", "-c", "2", "-I", device, domain],
+            timeout=30,
+            ignore_stderr=True,
         ).returncode
         != 0
     )
@@ -924,7 +942,12 @@ def cannot_ping_domain_from_device(context, domain, device):
 
 @step('Unable to ping6 "{domain}"')
 def cannot_ping6_domain(context, domain):
-    assert nmci.process.run(f"ping6 -c 2 {domain}", timeout=30).returncode != 0
+    assert (
+        nmci.process.run(
+            f"ping6 -c 2 {domain}", timeout=30, ignore_stderr=True
+        ).returncode
+        != 0
+    )
 
 
 @step('Metered status is "{value}"')
@@ -1224,7 +1247,7 @@ def flush_nftables(context, ns=None):
 def cleanup_execute(context, command=None, timeout=5, priority=None):
     if command is None:
         command = context.text
-    callbacks = lambda: nmci.process.run_stdout(
+    callbacks = lambda: nmci.process.run(
         command, ignore_stderr=True, shell=True, timeout=timeout
     )
     if priority is not None:
