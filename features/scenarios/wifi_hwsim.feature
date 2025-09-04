@@ -701,7 +701,6 @@ Feature: nmcli - wifi
     Then Execute "echo secret123 | nmcli dev wifi connect wpa3-psk --ask"
 
 
-
     @ver+=1.29 @rhelver+=8 @fedoraver-=0
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_wpa3
@@ -720,7 +719,6 @@ Feature: nmcli - wifi
       """
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
-
 
 
     @rhelver+=10.1
@@ -743,7 +741,6 @@ Feature: nmcli - wifi
       """
     * Wait for "3" seconds
     Then Bring "up" connection "wifi"
-
 
 
     @ver+=1.26 @rhelver+=8 @fedoraver-=0
@@ -1104,7 +1101,6 @@ Feature: nmcli - wifi
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.rate krobot"
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.rate 9999999999"
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless.rate 5500"
-
 
 
     @rhbz1702203

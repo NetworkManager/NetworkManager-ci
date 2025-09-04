@@ -2,14 +2,13 @@
 @not_in_image_mode
 Feature: NM: dracut
 
+
     # Please do use tags as follows:
     # @bugzilla_link (rhbz123456)
     # @version_control (ver+=1.10,rhelver-=8,fedoraver+30,[not_with_]rhel_pkg,[not_with_]fedora_pkg) - see version_control.py
     # @other_tags (see environment.py)
     # @test_name (compiled from scenario name)
     # Scenario:
-
-
     @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le
     @dracut @long
@@ -21,8 +20,6 @@ Feature: NM: dracut
     #########
     # NFSv3 #
     #########
-
-
     @rhbz1710935
     @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
@@ -525,7 +522,6 @@ Feature: NM: dracut
       | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
       | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
       | check  | nfs_server 192.168.50.1                                                |
-
 
 
     @rhbz1961666
@@ -1276,8 +1272,6 @@ Feature: NM: dracut
     #########
     # iSCSI #
     #########
-
-
     @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le @skip_in_centos
     @dracut @long
@@ -1433,8 +1427,6 @@ Feature: NM: dracut
     ##########
     # bridge #
     ##########
-
-
     @rhbz1627820
     @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
@@ -1521,8 +1513,6 @@ Feature: NM: dracut
     #############
     # bond/team #
     #############
-
-
     @rhelver+=8.3 @fedoraver+=38
     @not_on_ppc64le
     @dracut @long
@@ -1610,7 +1600,6 @@ Feature: NM: dracut
     ########
     # VLAN #
     ########
-
     @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25
     @not_on_ppc64le
@@ -1876,8 +1865,6 @@ Feature: NM: dracut
     ##########
     # legacy #
     ##########
-
-
     @rhelver+=8.3 @rhelver-=8.99 @fedoraver-=0
     @x86_64_only @skip_in_centos
     @dracut @long
@@ -1916,8 +1903,6 @@ Feature: NM: dracut
     ############
     # teardown #
     ############
-
-
     @rhelver+=8.3 @fedoraver+=38
     @dracut_teardown
     Scenario: NM - dracut tests cleanup

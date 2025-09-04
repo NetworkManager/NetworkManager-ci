@@ -4,6 +4,7 @@ Feature: Bridge TUI tests
   Background:
   * Prepare virtual terminal environment
 
+
     @ifcfg-rh
     @nmtui_bridge_add_default_bridge
     Scenario: nmtui - bridge - add default bridge
@@ -16,6 +17,7 @@ Feature: Bridge TUI tests
     Then "bridge0:" is visible with command "ip a" in "10" seconds
     Then "bridge0" is visible with command "ip link show type bridge"
     Then "bridge0\s+bridge" is visible with command "nmcli device"
+
 
     @ver+=1.10.2
     @ifcfg-rh
@@ -237,8 +239,6 @@ Feature: Bridge TUI tests
     # Then "eth1\s+ethernet\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
     # Then "eth2\s+ethernet\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     # Then "192.168" is visible with command "ip a s bridge0"
-
-
     @nmtui_bridge_over_ethernet_devices_no_stp
     Scenario: nmtui - bridge - over ethernet devices no stp
     * Prepare new connection of type "Bridge" named "bridge0"

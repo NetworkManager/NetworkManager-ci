@@ -43,8 +43,6 @@ Feature: nmcli - wifi
     # * Execute "nmcli connection up qe-adhoc"
     # Then "qe-adhoc" is visible with command "iw dev  wlan0 info" in "30" seconds
     # Then "type IBSS" is visible with command "iw dev wlan0 info" in "30" seconds
-
-
     @attach_wpa_supplicant_log
     @nmcli_wifi_ap
     Scenario: nmcli - wifi - ap network
@@ -229,7 +227,6 @@ Feature: nmcli - wifi
     Then "\*\s+qe-wpa3-psk" is visible with command "nmcli -f IN-USE,SSID device wifi list"
 
 
-
     @attach_wpa_supplicant_log
     @nmcli_wifi_wpa3_psk_5g
     Scenario: nmcli - wifi-sec - configure and connect WPA2-PSK profile
@@ -377,7 +374,6 @@ Feature: nmcli - wifi
     * Bring "up" connection "qe-wpa3-enterprise"
     Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
     Then "\*\s+qe-wpa3-enterprise" is visible with command "nmcli -f IN-USE,SSID device wifi list"
-
 
 
     @wireless_certs @attach_wpa_supplicant_log

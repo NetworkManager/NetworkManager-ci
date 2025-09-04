@@ -809,6 +809,7 @@
     * Bring "up" connection "con_ipv6"
     When "2" is visible with command "cat /proc/sys/net/ipv6/conf/dummy0/use_tempaddr"
 
+
     @restart_if_needed
     @ver+=1.47.3
     @ipv6_ip6-default_privacy
@@ -1187,7 +1188,6 @@
     * Execute "nmcli con up id con_ipv6" for "50" times
 
 
-
     @ver+=1.10.1
     @skip_in_centos
     @rhelver-=7 @fedoraver-=0 #as we have no initscripts anymore
@@ -1236,9 +1236,9 @@
     And "fe80" is visible with command "ip -6 r |grep testX6" in "45" seconds
     # VVV Route should be exchanged for NM one with metric 1xx
     And "2620:dead:beaf::\/64 dev testX6\s+proto ra\s+metric 1" is visible with command "ip -6 r"
+
+
     # We don't care about the rest
-
-
     @rhbz1988751
     @ver+=1.36.7
     @ver+=1.37.91
@@ -1368,6 +1368,7 @@
     * Bring "up" connection "con_ipv6"
     # extract T1 and T2 and compare they're shorter than a day (86400 s)
     Then Execute "journalctl -u NetworkManager --since -5s --no-pager | grep 'T1 and T2 equal to zero' | tail -n1 | sed -e 's/^.*\(T1=[0-9]\+\)sec, \(T2=[0-9]\+\)sec$/\1\n\2/' | while read LINE; do echo \"is ${LINE:0:2}=${LINE:3} lesser than 86400?\" ; test ${LINE:3} -lt 86400 ; done"
+
 
     @ver+=1.19.2
     @ipv6_describe
@@ -2474,6 +2475,7 @@
     * Execute "ip route replace 5:1::1/128 dev testX6"
     Then Check "inet6" route list on NM device "testX6" matches "1:2:3:4::/64\ 1024  5:1::1/128\ 1024"
 
+
     @rhbz2046293
     @ver+=1.43.3
     @ipv6_prefsrc_route
@@ -2570,6 +2572,7 @@
         """
         On a system with unfixed libndp, NM should be crashed by now
         """
+
 
     @RHEL-45878
     @ver+=1.51

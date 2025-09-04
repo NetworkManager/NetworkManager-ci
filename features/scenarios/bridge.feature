@@ -358,7 +358,6 @@ Feature: nmcli - bridge
     Then "bridge0:.*192.168.*inet6" is visible with command "ip a" in "30" seconds
 
 
-
     @eth4_disconnect
     @bridge_dhcp_config_with_multiple_ethernet_ports
     Scenario: nmcli - bridge - dhcp config with multiple ethernet ports

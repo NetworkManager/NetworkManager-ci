@@ -1525,8 +1525,8 @@
     When "dummy0\s+dummy\s+connected \(externally\)\s+dummy0" is visible with command "nmcli d" in "5" seconds
     Then "BOND.SLAVES:\s+dummy0" is visible with command "nmcli -f bond.slaves dev show bond0"
 
-#FIXME: more tests with arp and conflicts with load balancing can be written
 
+#FIXME: more tests with arp and conflicts with load balancing can be written
     @rhbz1133544 @rhbz1804350
     @bond_dbus_creation
     Scenario: NM - bond - dbus api bond setting
@@ -2616,7 +2616,6 @@
      And "meta pkttype { broadcast, multicast }.*drop" is visible with command "nft list table netdev nm-mlag-nmbond |grep -A 2 drop-bc-mc-eth4"
 
 
-
      @rhbz2107647
      @ver+=1.39.11
      @bond_vlan_filtering_unmanaged_bridge
@@ -2737,7 +2736,6 @@
     * Execute "ip --loop 1 -6 addr flush dev nm-bond ||true"
     Then "tentative" is not visible with command "ip a s nm-bond" in "5" seconds
     Then "bond0" is visible with command "nmcli -g name connection show --active" for full "3" seconds
-
 
 
     @ver/rhel/8/4+=1.30.0.18

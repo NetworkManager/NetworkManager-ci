@@ -6,11 +6,13 @@ Feature: dbus interface
     * Cleanup connection "con_dbus"
     * Execute "python3l contrib/dbus/dbus-set-invalid-dns.py"
 
+
     @ver+=1.45.9
     @dbus_set_invalid_addresses
     Scenario: dbus - reject invalid "addresses" property
     * Cleanup connection "con_dbus"
     * Execute "python3l contrib/dbus/dbus-set-invalid-addresses.py"
+
 
     @ver+=1.45.9
     @dbus_set_invalid_address_data
@@ -18,11 +20,13 @@ Feature: dbus interface
     * Cleanup connection "con_dbus"
     * Execute "python3l contrib/dbus/dbus-set-invalid-address-data.py"
 
+
     @ver+=1.45.9
     @dbus_set_invalid_routes
     Scenario: dbus - reject invalid "routes" property
     * Cleanup connection "con_dbus"
     * Execute "python3l contrib/dbus/dbus-set-invalid-routes.py"
+
 
     @ver+=1.45.9
     @dbus_set_invalid_route_data

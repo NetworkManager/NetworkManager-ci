@@ -478,8 +478,6 @@ Feature: nmcli - ovs
     # And "fe80::" is not visible with command "ip a s iface0"
     # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
     # #And "ovs" is not visible with command "nmcli device"
-
-
     #@rhbz1540218
     #@ver+=1.16.2
     #@openvswitch
@@ -518,8 +516,6 @@ Feature: nmcli - ovs
     # And "fe80::" is not visible with command "ip a s iface0"
     # And "default via 192.168.100.1 dev iface0 proto dhcp metric 800" is not visible with command "ip r"
     # And "ovs" is not visible with command "nmcli device"
-
-
     @rhbz1540218
     @ver+=1.10
     @ver-1.18
@@ -856,7 +852,6 @@ Feature: nmcli - ovs
     And "default via 192.168.100.1 dev iface0 proto dhcp( src 192.168.10[0-3].[0-9]+)? metric 800" is visible with command "ip r"
 
 
-
     @rhbz2029937
     @ver+=1.36.0
     @openvswitch @restart_if_needed
@@ -959,7 +954,6 @@ Feature: nmcli - ovs
     When "GENERAL.HWADDR:\s+00:11:22:33:45:67" is visible with command "nmcli dev show iface0"
     When  "mac\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
     When  "mac_in_use\s+: "00:11:22:33:45:67"" is visible with command "ovs-vsctl list interface"
-
 
 
     @rhelver+=9

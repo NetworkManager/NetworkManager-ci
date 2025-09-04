@@ -281,8 +281,6 @@ Feature: IPv6 TUI tests
     # Then "default via fc05::1:1 dev eth2\s+proto static\s+metric 100" is visible with command "ip -6 route" in "10" seconds
     # Then "fc01::/68 dev eth1\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
     # Then "fc05::/68 dev eth2\s+proto kernel" is visible with command "ip -6 route" in "10" seconds
-
-
     @nmtui_ipv6_routes_set_invalid_route_destination
     Scenario: nmtui - ipv6 - routes - set invalid route - destination
     * Start nmtui
