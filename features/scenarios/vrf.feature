@@ -272,7 +272,6 @@ Feature: nmcli: vrf
     When "broadcast 192.0.2.255 dev eth4 proto kernel scope link src 192.0.2.1" is visible with command "ip r show table 1002"
 
 
-
     @rhbz2094878
     @ver+=1.41.3 @rhelver+=8
     @vrf_various_ports

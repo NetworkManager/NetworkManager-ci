@@ -756,8 +756,6 @@ Feature: nmcli - vlan
     #   """
     #* Execute "nmcli con up vlan1"
     #Then vxlan device "vlan1" check for ports "70, 30, 50"
-
-
     @rhbz1768388
     @ver+=1.22
     @vxlan_libnm_shows_port_numbers

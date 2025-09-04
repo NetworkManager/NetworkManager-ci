@@ -4,6 +4,7 @@ Feature: Bridge TUI tests
   Background:
   * Prepare virtual terminal environment
 
+
     @inf @ifcfg-rh
     @nmtui_inf_create_master_connection
     Scenario: nmtui - inf - create master connection

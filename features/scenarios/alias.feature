@@ -28,6 +28,7 @@
     Then "inet 192.168.0.101" is visible with command "ip a s eth7"
     Then "inet 192.168.0.100" is visible with command "ip a s eth7"
 
+
     @ifcfg-rh
     @alias_ifcfg_add_multiple_aliases
     Scenario: ifcfg - alias - add mutliple aliases

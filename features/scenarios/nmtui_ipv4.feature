@@ -4,6 +4,7 @@ Feature: IPv4 TUI tests
   Background:
   * Prepare virtual terminal environment
 
+
     @ver-1.45.10
     @nmtui_ipv4_addresses_static_no_address
     Scenario: nmtui - ipv4 - addresses - static IPv4 without address

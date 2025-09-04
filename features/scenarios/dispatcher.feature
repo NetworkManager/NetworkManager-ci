@@ -19,6 +19,7 @@ Feature: NM: dispatcher
     Then "pre-up.*\s+up" is not visible with command "cat /tmp/dispatcher.txt"
     Then "pre-up.*\s+up" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
+
     @rhbz982633
     @permissive @disp
     @dispatcher_predown_and_down
@@ -31,12 +32,12 @@ Feature: NM: dispatcher
     Then "pre-down.*\s+down" is not visible with command "cat /tmp/dispatcher.txt"
     Then "pre-down.*\s+down" is visible with command "cat /tmp/dispatcher.txt" in "50" seconds
 
+
 #    @dispatcher_vpn_up
 #    Scenario: NM - dispatcher - vpn-up
 #
 #    @dispatcher_vpn_down
 #    Scenario: NM - dispatcher - vpn-down
-
     @permissive @disp @restore_hostname
     @dispatcher_hostname
     Scenario: NM - dispatcher - hostname
@@ -44,13 +45,12 @@ Feature: NM: dispatcher
     * Execute "nmcli general hostname walderoon"
     Then "hostname" is visible with command "cat /tmp/dispatcher.txt"
 
+
 #    @dispatcher_dhcp4_change
 #    Scenario: NM - dispatcher - dhcp4-change
 #
 #    @dispatcher_dhcp6_change
 #    Scenario: NM - dispatcher - dhcp6-change
-
-
     @rhbz1048345
     @permissive @disp
     @dispatcher_synchronicity
@@ -121,6 +121,7 @@ Feature: NM: dispatcher
     * Add "ethernet" connection named "con_ipv4" for device "testXd" with options "ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
     Then "DHCP4_UNKNOWN_245=aa:bb:cc:dd,DHCP4_PRIVATE_245=aa:bb:cc:dd" is visible with command "cat /tmp/dispatcher.txt" in "5" seconds
+
 
     @rhbz1663253
     @ver+=1.20

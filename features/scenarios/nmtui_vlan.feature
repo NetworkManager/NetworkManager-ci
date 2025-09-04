@@ -4,6 +4,7 @@ Feature: VLAN TUI tests
   Background:
   * Prepare virtual terminal environment
 
+
     @ifcfg-rh
     @nmtui_vlan_add_default_connection
     Scenario: nmtui - vlan - add default connection

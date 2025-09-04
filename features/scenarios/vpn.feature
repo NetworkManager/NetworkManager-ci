@@ -43,32 +43,18 @@
 
 #    @vpn_add_profile_novice_mode
 #    Scenario: nmcli - vpn - novice mode - add default connection
-
-
 #    @vpn_activate_with_stored_credentials
 #    Scenario: nmcli - vpn - activate with stored credentials
-
-
 #    @vpn_activate_asking_for_credentials
 #    Scenario: nmcli - vpn - activate asking for password
-
-
 #    @vpn_deactivate
 #    Scenario: nmcli - vpn - deactivate
-
-
 #    @vpn_delete_active_profile
 #    Scenario: nmcli - vpn - delete active profile
-
-
 #    @vpn_start_on_boot
 #    Scenario: nmcli - vpn - start on boot
-
-
 #    @vpn_start_as_secondary
 #    Scenario: nmcli - vpn - start as secondary
-
-
     @vpn_describe
     Scenario: nmcli - vpn - describe
     * Open editor for a type "vpn"

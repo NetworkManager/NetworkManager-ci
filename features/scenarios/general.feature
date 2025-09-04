@@ -705,7 +705,6 @@ Feature: nmcli - general
 
 
 ## Basically various bug related reproducer tests follow here
-
     @device_connect
     @nmcli_device_connect
     Scenario: nmcli - device - connect
@@ -848,9 +847,9 @@ Feature: nmcli - general
     # Now set it to custom non-localhost value
     * Execute "echo myown.hostname > /etc/hostname"
     Then "myown.hostname" is visible with command "nmcli g hostname" in "5" seconds
+
+
     # Restoring orig. hostname in after_scenario
-
-
     @rhbz1136843
     @nmcli_general_ignore_specified_unamanaged_devices
     Scenario: NM - general - ignore specified unmanaged devices
@@ -2300,6 +2299,7 @@ Feature: nmcli - general
     * Cleanup connection "con_general"
     Then Execute reproducer "repro_1643085.py" with options "con_general eth8"
 
+
     @rhbz1614691
     @ver+=1.12
     @nmcli_monitor_assertion_con_up_down
@@ -3194,6 +3194,7 @@ Feature: nmcli - general
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "25" seconds
     Then Check bond "bond1" state is "up"
 
+
     @rhbz2156684
     @rhbz2180363
     @ver+=1.43.9
@@ -3273,6 +3274,7 @@ Feature: nmcli - general
     * Execute "ip netns exec testA_ns ip link set testAp up"
     # After carrier return, the device autoactivates again.
     Then "GENERAL.STATE:.*(activated|activating)" is visible with command "nmcli connection show c-bond1" in "5" seconds
+
 
     @rhbz2156684
     @rhbz2180363
@@ -3376,6 +3378,7 @@ Feature: nmcli - general
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-bond1" in "10" seconds
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testA"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli connection show c-testB"
+
 
     @rhbz2161915
     @rhelver+=9
@@ -3736,6 +3739,7 @@ Feature: nmcli - general
     Then "match-device=interface-name:custom_run_2" is not visible with command "NetworkManager --print-config"
     Then "match-device=interface-name:custom_run_3" is visible with command "NetworkManager --print-config"
     Then "searches=var.lib.intern.conf" is not visible with command "NetworkManager --print-config"
+
 
     @RHEL-80273
     @ver+=1.53.3

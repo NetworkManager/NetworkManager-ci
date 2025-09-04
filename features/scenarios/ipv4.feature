@@ -584,7 +584,6 @@ Feature: nmcli: ipv4
     Then "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
 
 
-
     @rhbz1436531
     @ver+=1.10
     @flush_300
@@ -710,7 +709,6 @@ Feature: nmcli: ipv4
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 300      " is not visible with command "ip route"
 
 
-
     @ipv4_route_set_device_route
     Scenario: nmcli - ipv4 - routes - set device route
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
@@ -806,14 +804,12 @@ Feature: nmcli: ipv4
     Then Nameserver "192.168.100.1" is not set
 
 
-
     @ipv4_dns_manual_when_method_auto
     Scenario: nmcli - ipv4 - dns - method auto + dns
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.dns '8.8.8.8, 8.8.4.4'"
     Then Nameserver "8.8.8.8" is set in "10" seconds
     Then Nameserver "8.8.4.4" is set
     Then Nameserver "192.168.100.1" is set in "5" seconds
-
 
 
     @ipv4_dns_manual_when_ignore_auto_dns
@@ -1288,6 +1284,7 @@ Feature: nmcli: ipv4
           """
     Then "169.254" is visible with command "ip a s eth3" in "10" seconds
 
+
     @ver+=1.51.1
     @ipv4_link-local_fallback_static
     Scenario: nmcli - ipv4 - link-local=fallback
@@ -1307,6 +1304,7 @@ Feature: nmcli: ipv4
     When "10.1.1.1" is visible with command "ip a s dummy0" in "10" seconds
     Then "169.254" is not visible with command "ip a s dummy0" in "10" seconds
 
+
     @ver+=1.51.1
     @ipv4_link-local_fallback_dhcp
     Scenario: nmcli - ipv4 - link-local=fallback + dhcp
@@ -1324,6 +1322,7 @@ Feature: nmcli: ipv4
     Then "169.254" is visible with command "ip a s testX4" in "130" seconds
     * Execute "ip netns exec testX4_ns kill -SIGCONT $(cat /tmp/testX4_ns.pid)"
     Then "169.254" is not visible with command "ip a s testX4" in "10" seconds
+
 
     @ver+=1.11.3 @rhelver+=8
     @tcpdump
@@ -2038,7 +2037,6 @@ Feature: nmcli: ipv4
     Then Check "=== \[may-fail\] ===\s+\[NM property description\]\s+If TRUE, allow overall network configuration to proceed even if the configuration specified by this property times out.  Note that at least one IP configuration must succeed or overall network configuration will still fail.  For example, in IPv6-only networks, setting this property to TRUE on the NMSettingIP4Config allows the overall network configuration to succeed if IPv4 configuration fails but IPv6 configuration completes successfully." are present in describe output for object "may-fail"
 
 
-
     @ver+=1.51.3
     @ipv4_describe
     Scenario: nmcli - ipv4 - describe
@@ -2240,6 +2238,7 @@ Feature: nmcli: ipv4
       """
       ipv4.dhcp-hostname=test
       """
+
 
     @rhbz1573780
     @ver+=1.12
@@ -2529,7 +2528,6 @@ Feature: nmcli: ipv4
     Then "10.0.0.0/9 via 192.168.99.2" is visible with command "ip route show dev testX4"
     Then "20.1.0.0/16 via 192.168.99.3" is visible with command "ip route show dev testX4"
     Then "ms_classless_static_routes = 10.0.0.0/9 192.168.99.2 20.1.0.0/16 192.168.99.3" is visible with command "nmcli connection show con_ipv4"
-
 
 
     @dhcp_option_domain_search
@@ -2908,6 +2906,7 @@ Feature: nmcli: ipv4
     Then "10:42:1::5" is visible with command "ip -6 addr show dev testX4"
     Then "10.43.1.3" is visible with command "ip -4 route show dev testX4"
     Then "10:43:1::3" is visible with command "ip -6 route show dev testX4"
+
 
     ### MTPCP notes:
     # * NM behaviour is well described in man page:

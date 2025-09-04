@@ -274,7 +274,6 @@ Feature: nmcli - dns
     Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
 
 
-
     @rhbz2015460
     @ver+=1.12
     @dns_systemd_resolved
@@ -295,7 +294,6 @@ Feature: nmcli - dns
 ##########################################
 # DEFAULT DNS TESTS
 ##########################################
-
     @rhbz2218448
     @ver+=1.36.9
     @ver+=1.38.7
@@ -616,7 +614,6 @@ Feature: nmcli - dns
 ##########################################
 # DNSMASQ TESTS
 ##########################################
-
     @rhbz1512966
     @ver+=1.11.3
     @dns_dnsmasq
@@ -863,10 +860,10 @@ Feature: nmcli - dns
     Then "edns0" is visible with command "grep options /etc/resolv.conf"
     Then "trust-ad" is visible with command "grep options /etc/resolv.conf"
 
+
 ##########################################
 # DNSMASQ RESTART/KILL TESTS
 ##########################################
-
     @ver+=1.15.1
     @dns_dnsmasq @restore_resolvconf
     @dns_dnsmasq_kill
@@ -912,11 +909,10 @@ Feature: nmcli - dns
     * Restart NM
     Then "dnsmasq" is not visible with command "pgrep dnsmasq -laf | grep -v '--dhcp-range'"
 
+
 ##########################################
 # SYSTEMD-DNSCONFD TESTS
 ##########################################
-
-
     @RHEL-67917 @RHEL-80307
     @ver+=1.51.90
     @ver-=1.53.1
@@ -1019,11 +1015,9 @@ Feature: nmcli - dns
     Then device "eth2" has DNS server "172.16.1.53"
     Then device "eth2" has DNS domain "con_dns.domain"
 
+
     # Failing as #RHEL-81709
     # Then device "eth2" does not have DNS domain "."
-
-
-
     @RHEL-67917
     @ver+=1.51.90
     @dns_dnsconfd
@@ -1070,8 +1064,6 @@ Feature: nmcli - dns
 ##########################################
 # OTHER TESTS
 ##########################################
-
-
     @rhbz1676635
     @ver+=1.17.3
     @ver-1.40.16.4

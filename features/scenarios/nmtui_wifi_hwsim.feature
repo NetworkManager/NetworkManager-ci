@@ -48,7 +48,6 @@ Feature: WIFI TUI tests
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
 
-
     @rhelver-=7 @fedoraver-32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_connect_to_wpa1psk_network
@@ -570,8 +569,6 @@ Feature: WIFI TUI tests
     #* Confirm the connection settings
     #Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
     #Then "SSID: wep" is visible with command "iw dev wlan0 link" in "30" seconds
-
-
 #### Note TUI doesn't support enterprise and dynamic wep yet, tests will be added when support done. ####
     @fedoraver+=32 @rhelver-=8
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log

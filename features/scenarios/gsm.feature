@@ -157,8 +157,6 @@ Feature: nmcli: gsm
     #  * Bring "up" connection "gsm"
     # Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
     #  * Ping "8.8.8.8" "7" times
-
-
     @ver+=1.2.0
     @gsm
     @gsm_load_from_file

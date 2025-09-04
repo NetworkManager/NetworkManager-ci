@@ -173,6 +173,7 @@ Feature: nmcli - procedures in documentation
     Scenario: teardown wifi setup
     * Execute "echo 'this is skipped'"
 
+
     @ver+=1.14
     @iptunnel_ipip_doc_procedure
     Scenario: nmcli - docs - Configuring an IPIP tunnel using nmcli to encapsulate IPv4 traffic in IPv4 packets
@@ -307,6 +308,7 @@ Feature: nmcli - procedures in documentation
      Then "192.0.2.1:51820" is visible with command "wg show wg1"
       And "inet 192.0.2.2/24 brd 192.0.2.255 scope global noprefixroute wg1" is visible with command "ip address show wg1"
       And "inet6 2001:db8:1::2/32 scope global noprefixroute" is visible with command "ip address show wg1"
+
 
     @rhelver+=9
     @wireguard @nmtui

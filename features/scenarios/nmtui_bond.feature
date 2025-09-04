@@ -4,6 +4,7 @@ Feature: Bond TUI tests
   Background:
   * Prepare virtual terminal environment
 
+
     @rhbz1715720
     @ver+=1.18.4
     @ifcfg-rh
@@ -323,8 +324,6 @@ Feature: Bond TUI tests
     # * Set "Device" field to "bond0"
     # * Set "Mode" dropdown to "Active Backup"
     # Then Cannot confirm the connection settings
-
-
     #bz1142864
     @nmtui_bond_change_mode_ac_to_rr
     Scenario: nmtui - bond - mode - change from active backup to round robin

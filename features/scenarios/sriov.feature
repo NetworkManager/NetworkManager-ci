@@ -178,7 +178,6 @@
 
 
     ################# Test set with VF driver and device ######################################
-
     @rhbz1555013
     @ver+=1.14.0
     @sriov_con_drv_add_VF
@@ -339,8 +338,6 @@
     # * Bring "up" connection "sriov_port2"
     # Then "802.1AD.*vlan 100, p 2" is visible with command "cat /tmp/tcpdump.log" in "20" seconds
     # * Execute "pkill tcpdump"
-
-
     @rhbz1555013
     @ver+=1.14.0
     @sriov_con_drv_add_VF_trust_on
@@ -453,7 +450,6 @@
     Then "work\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
 
 
-
     @rhbz1555013
     @ver+=1.14.0
     @sriov_con_drv_bond
@@ -495,7 +491,6 @@
 
 
     ################# Test set WITHOUT VF driver (just inder PF device) ######################################
-
     @rhbz1555013
     @ver+=1.14.0 @rhelver+=8
     @sriov_con_add_VF
@@ -599,10 +594,7 @@
     Then "spoof checking on" is visible with command "ip link show dev sriov_device |grep 'vf 0'"
 
 
-
     ################# Other ######################################
-
-
     @rhbz2150831 @rhbz2038050
     @ver+=1.40.2
     @ver+=1.41.6

@@ -219,7 +219,6 @@
     Then "172.29.100.0/24 [^\n]*dev libreswan1" is not visible with command "ip route" in "10" seconds
 
 
-
     @rhbz1348901
     @rhelver-=8.4
     @fedoraver-=0
@@ -286,8 +285,6 @@
     # Then "IP4.ADDRESS[^\n]*11.12.13.15/24" is visible with command "nmcli d show libreswan1"
     # Then "VPN.GATEWAY:[^\n]*11.12.13.14" is visible with command "nmcli c show libreswan"
     # Then Ping "10.16.40.254"
-
-
     #this is somehow broken in 7.2 in libreswan not in NM
     @ver+=1.0.8 @rhelver+=8
     @libreswan @ikev2

@@ -181,7 +181,6 @@ Feature: nmcli: connection
      Then "con_con2" is visible with command "nmcli -f NAME con show"
 
 
-
     @ver+=1.18.0
     @connection_set_uuid_error
     Scenario: nmcli - connection - set uuid
@@ -237,8 +236,6 @@ Feature: nmcli: connection
     # Then autoconnect warning is shown
     # * Enter in editor
     # * Quit editor
-
-
     @restart_if_needed
     @connection_autoconnect_no
     Scenario: nmcli - connection - set autoconnect off
@@ -532,8 +529,6 @@ Feature: nmcli: connection
     # NM_METERED_NO         = 2,
     # NM_METERED_GUESS_YES  = 3,
     # NM_METERED_GUESS_NO   = 4,
-
-
     @rhbz1200452
     @eth0
     @connection_metered_manual_yes
@@ -960,6 +955,7 @@ Feature: nmcli: connection
      And "eth8" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth9" is visible with command "nmcli device | grep ethernet | grep con_con"
      And "eth10" is visible with command "nmcli device | grep ethernet | grep con_con"
+
 
     @rhbz2039734
     @rhbz2150000

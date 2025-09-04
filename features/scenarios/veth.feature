@@ -83,8 +83,6 @@ Feature: nmcli: veth
     # @veth_change_peer
     # @veth_in_bridge
     # @veth_in_bond
-
-
     @rhbz1901523 @rhbz1915284 @rhbz2105956
     @ver+=1.39.9
     @restart_if_needed

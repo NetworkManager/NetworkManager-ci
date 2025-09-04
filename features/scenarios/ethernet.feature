@@ -31,7 +31,6 @@ Feature: nmcli - ethernet
     Then Noted value is visible with command "nmcli con show"
 
 
-
     @ethernet_create_default_connection
     Scenario: nmcli - ethernet - create default connection
     * Add "ethernet" connection named "ethernet" for device "eth1"
@@ -848,8 +847,6 @@ Feature: nmcli - ethernet
     ## Start it again
     #* Execute "sleep 30 && kill -SIGCONT -F /tmp/hostapd.pid"
     #Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ethernet" in "180" seconds
-
-
     @rhbz1456362
     @ver+=1.8.0
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
