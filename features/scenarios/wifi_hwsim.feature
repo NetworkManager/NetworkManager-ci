@@ -722,6 +722,30 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+
+    @rhelver+=10.1
+    @fedoraver+=43
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @simwifi_tls_wpa3_pq
+    Scenario: nmcli - simwifi - connect to TLS with PQ certs
+    Given "wpa3-pq-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa3-pq-eap"
+    * Modify connection "wifi" changing options
+      """
+      802-11-wireless-security.key-mgmt wpa-eap-suite-b-192
+      802-1x.eap tls
+      802-1x.identity test
+      802-1x.ca-cert /etc/pki/nm-ci-certs/test_user_pq.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-certs/test_user_pq.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-certs/test_user_pq.key.enc.pem
+      802-1x.private-key-password redhat
+      802-1x.phase1-auth-flags tls-1-3-enable,tls-1-2-disable,tls-1-1-disable,tls-1-0-disable
+      """
+    * Wait for "3" seconds
+    Then Bring "up" connection "wifi"
+
+
+
     @ver+=1.26 @rhelver+=8 @fedoraver-=0
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_owe_connect
@@ -1100,7 +1124,7 @@ Feature: nmcli - wifi
     And "Error" is not visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk maximumasciiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
     And "Error" is not visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk 1234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B"
     # Invalid inputs
-    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk short12" 
+    Then "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk short12"
     And "Error" is visible with command "nmcli connection modify wifi0 802-11-wireless-security.psk G234A678B01F1234A678B01F1234A678B01F1234A678B01F1234A678B01F123B"
 
 

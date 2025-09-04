@@ -2765,6 +2765,9 @@ testmapper:
     - simwifi_tls_wpa3:
         feature: wifi_hwsim
         tags: wpa_supplicant hostapd gate
+    - simwifi_tls_wpa3_pq:
+        feature: wifi_hwsim
+        tags: wpa_supplicant hostapd gate
     - simwifi_owe_connect:
         feature: wifi_hwsim
         tags: hostapd
