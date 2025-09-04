@@ -299,11 +299,11 @@ owe_transition_ssid=\"wpa3-owe-transition\"
 " > $HOSTAPD_CFG.$num_ap
 fi
 
-if ver_gte $hostapd_ver 2.11-2 && (( $rhel_ver >= 9 )); then
+if ver_gte $hostapd_ver 2.11-2 && (( $rhel_ver >= 10 )); then
   ((++num_ap))
-  echo "#wpa3eap_pq
+  echo "#wpa3_pq_eap
 $(hostapd_conf_header)
-ssid=wpa3-eap-pq
+ssid=wpa3-pq-eap
 auth_algs=3
 wpa=2
 ieee8021x=1
