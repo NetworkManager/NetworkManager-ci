@@ -2826,6 +2826,9 @@
     @ver/rhel/8/8+=1.40.12
     @bond_expose_dhcp_client_identifier
     Scenario: bond - expose DHCP client-id
+    * Cleanup file "/tmp/bond_ifindex"
+    * Cleanup file "/tmp/bond_dbus_path"
+    * Cleanup file "/tmp/dhcp4_config_path"
     * Add "bond" connection named "bond0" for device "nm-bond" with options "ipv4.method auto ipv6.method disabled"
     * Add "ethernet" connection named "bond0.0" for device "eth10" with options "master bond0"
     * Bring "up" connection "bond0.0"
@@ -2847,11 +2850,14 @@
           * last, we need seds along the way to extract only the values we want
         """
     Then "dhcp_client_identifier" is visible with command "nmcli -t -f DHCP4.OPTION d show nm-bond"
-    Then "dhcp_client_identifier" is visible with command "cat /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')"
-    Then "dhcp_client_identifier" is visible with command "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp4Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP4Config Options"
-    * Note the output of "nmcli -t -f DHCP4.OPTION d show nm-bond | sed -n 's/.*dhcp_client_identifier = //p'" as value "client_id_nmcli"
-    * Note the output of "sed -n 's/.*dhcp_client_identifier=//p' /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')" as value "client_id_run"
-    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp4Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP4Config Options | sed -e 's/.*dhcp_client_identifier" s "\([^"]*\).*$/\1/'" as value "client_id_dbus"
+    * Execute "ip -o l show nm-bond | cut -d: -f1 > /tmp/bond_ifindex"
+    Then "dhcp_client_identifier" is visible with command "cat /run/NetworkManager/devices/$(cat /tmp/bond_ifindex)"
+    * Execute "nmcli -g DBUS-PATH,DEVICE device | grep nm-bond | cut -d: -f1 > /tmp/bond_dbus_path"
+    * Execute "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/bond_dbus_path) org.freedesktop.NetworkManager.Device Dhcp4Config | awk '{print $2}' | tr -d '\"' > /tmp/dhcp4_config_path"
+    Then "dhcp_client_identifier" is visible with command "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp4_config_path) org.freedesktop.NetworkManager.DHCP4Config Options"
+    * Note the output of "nmcli -t -f DHCP4.OPTION d show nm-bond | grep dhcp_client_identifier | cut -d= -f2" as value "client_id_nmcli"
+    * Note the output of "grep dhcp_client_identifier /run/NetworkManager/devices/$(cat /tmp/bond_ifindex) | cut -d= -f2" as value "client_id_run"
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp4_config_path) org.freedesktop.NetworkManager.DHCP4Config Options | grep dhcp_client_identifier | sed 's/.*\"dhcp_client_identifier\" s \"\([^\"]*\)\".*/\1/'" as value "client_id_dbus"
     Then Check noted values "client_id_nmcli" and "client_id_run" are the same
     Then Check noted values "client_id_nmcli" and "client_id_dbus" are the same
 
@@ -2862,6 +2868,9 @@
     @ver/rhel/8/8+=1.40.12
     @bond_expose_dhcp6_client_id
     Scenario: bond - expose DHCP DUID
+    * Cleanup file "/tmp/bond_ifindex"
+    * Cleanup file "/tmp/bond_dbus_path"
+    * Cleanup file "/tmp/dhcp6_config_path"
     * Add "bond" connection named "bond0" for device "nm-bond" with options "ipv4.method disabled ipv6.method auto"
     * Prepare simulated test "eth11" device
     * Add "ethernet" connection named "bond0.0" for device "eth11" with options "master bond0"
@@ -2884,11 +2893,14 @@
           * last, we need seds along the way to extract only the values we want
         """
     Then "dhcp6_client_id" is visible with command "nmcli -t -f DHCP6.OPTION d show nm-bond"
-    Then "dhcp6_client_id" is visible with command "cat /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')"
-    Then "dhcp6_client_id" is visible with command "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options"
-    * Note the output of "nmcli -t -f DHCP6.OPTION d show nm-bond | sed -n 's/.*dhcp6_client_id = //p'" as value "duid_nmcli"
-    * Note the output of "sed -n 's/.*dhcp6_client_id=//p' /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')" as value "duid_run"
-    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options | sed -e 's/.*dhcp6_client_id" s "\([^"]*\).*$/\1/'" as value "duid_dbus"
+    * Execute "ip -o l show nm-bond | cut -d: -f1 > /tmp/bond_ifindex"
+    Then "dhcp6_client_id" is visible with command "cat /run/NetworkManager/devices/$(cat /tmp/bond_ifindex)"
+    * Execute "nmcli -g DBUS-PATH,DEVICE device | grep nm-bond | cut -d: -f1 > /tmp/bond_dbus_path"
+    * Execute "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/bond_dbus_path) org.freedesktop.NetworkManager.Device Dhcp6Config | awk '{print $2}' | tr -d '\"' > /tmp/dhcp6_config_path"
+    Then "dhcp6_client_id" is visible with command "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp6_config_path) org.freedesktop.NetworkManager.DHCP6Config Options"
+    * Note the output of "nmcli -t -f DHCP6.OPTION d show nm-bond | grep dhcp6_client_id | cut -d= -f2" as value "duid_nmcli"
+    * Note the output of "grep dhcp6_client_id /run/NetworkManager/devices/$(cat /tmp/bond_ifindex) | cut -d= -f2" as value "duid_run"
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp6_config_path) org.freedesktop.NetworkManager.DHCP6Config Options | grep dhcp6_client_id | sed 's/.*\"dhcp6_client_id\" s \"\([^\"]*\)\".*/\1/'" as value "duid_dbus"
     Then Check noted values "duid_nmcli" and "duid_run" are the same
     Then Check noted values "duid_nmcli" and "duid_dbus" are the same
 
@@ -2900,6 +2912,9 @@
     @ver+=1.40.15
     @bond_expose_iaid
     Scenario: bond - expose DHCP IAID
+    * Cleanup file "/tmp/bond_ifindex"
+    * Cleanup file "/tmp/bond_dbus_path"
+    * Cleanup file "/tmp/dhcp6_config_path"
     * Add "bond" connection named "bond0" for device "nm-bond" with options "ipv4.method disabled ipv6.method auto"
     * Prepare simulated test "eth11" device
     * Add "ethernet" connection named "bond0.0" for device "eth11" with options "master bond0"
@@ -2922,11 +2937,14 @@
           * last, we need seds along the way to extract only the values we want
         """
     Then "iaid" is visible with command "nmcli -t -f DHCP6.OPTION d show nm-bond"
-    Then "iaid" is visible with command "cat /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')"
-    Then "iaid" is visible with command "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options"
-    * Note the output of "nmcli -t -f DHCP6.OPTION d show nm-bond | sed -n 's/.*iaid = //p'" as value "iaid_nmcli"
-    * Note the output of "sed -n 's/.*iaid=//p' /run/NetworkManager/devices/$(ip -o l show nm-bond | sed -e 's/:.*$//')" as value "iaid_run"
-    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g DBUS-PATH,DEVICE device | sed -n 's/:nm-bond//p') org.freedesktop.NetworkManager.Device Dhcp6Config | sed -e 's/.*"\([^"]*\)".*/\1/') org.freedesktop.NetworkManager.DHCP6Config Options | sed -e 's/.*iaid" s "\([^"]*\).*$/\1/'" as value "iaid_dbus"
+    * Execute "ip -o l show nm-bond | cut -d: -f1 > /tmp/bond_ifindex"
+    Then "iaid" is visible with command "cat /run/NetworkManager/devices/$(cat /tmp/bond_ifindex)"
+    * Execute "nmcli -g DBUS-PATH,DEVICE device | grep nm-bond | cut -d: -f1 > /tmp/bond_dbus_path"
+    * Execute "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/bond_dbus_path) org.freedesktop.NetworkManager.Device Dhcp6Config | awk '{print $2}' | tr -d '\"' > /tmp/dhcp6_config_path"
+    Then "iaid" is visible with command "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp6_config_path) org.freedesktop.NetworkManager.DHCP6Config Options"
+    * Note the output of "nmcli -t -f DHCP6.OPTION d show nm-bond | grep iaid | cut -d= -f2" as value "iaid_nmcli"
+    * Note the output of "grep iaid /run/NetworkManager/devices/$(cat /tmp/bond_ifindex) | cut -d= -f2" as value "iaid_run"
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(cat /tmp/dhcp6_config_path) org.freedesktop.NetworkManager.DHCP6Config Options | grep iaid | sed 's/.*\"iaid\" s \"\([^\"]*\)\".*/\1/'" as value "iaid_dbus"
     Then Check noted values "iaid_nmcli" and "iaid_run" are the same
     Then Check noted values "iaid_nmcli" and "iaid_dbus" are the same
 
