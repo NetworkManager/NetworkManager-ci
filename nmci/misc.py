@@ -1600,7 +1600,7 @@ class _Misc:
             f"After modification contents of: {file}", file, fail_only=True
         )
 
-    def enable_selinux_policy(self, name):
+    def enable_selinux_policy(self, name, revert=True):
         """
         Enable predefined selinux-policy from contrib/selinux-policy/.
         Policy must be present as already compile .pp or denied .log lines
@@ -1608,6 +1608,8 @@ class _Misc:
 
         :param name: Name of the poliy file without extension
         :type name: str
+        :param revert: Whether policy should be unloaded after the test
+        :type revert: bool
         """
         if not os.path.isfile(f"contrib/selinux-policy/{name}.pp"):
             assert os.path.isfile(
@@ -1621,6 +1623,18 @@ class _Misc:
         if not nmci.process.run_search_stdout("semodule -l", name):
             nmci.process.run_stdout(
                 f"semodule -i {name}.pp", cwd="contrib/selinux-policy/", timeout=100
+            )
+
+        if revert:
+            nmci.cleanup.add_callback(
+                lambda: nmci.process.run(
+                    f"semodule -r {name}",
+                    ignore_stderr=True,
+                    ignore_returncode=True,
+                    timeout=100,
+                ),
+                name=f"remove-selinux-policy-{name}",
+                priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_RESTART,
             )
 
 

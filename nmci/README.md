@@ -1266,14 +1266,15 @@ Get distribution name and version.
 * **Return type:**
   tuple of string and list of int
 
-### nmci.misc.enable_selinux_policy(name)
+### nmci.misc.enable_selinux_policy(name, revert=True)
 
 Enable predefined selinux-policy from contrib/selinux-policy/.
 Policy must be present as already compile .pp or denied .log lines
 that will be sent to `audit2allow`.
 
 * **Parameters:**
-  **name** (*str*) – Name of the poliy file without extension
+  * **name** (*str*) – Name of the poliy file without extension
+  * **revert** (*bool*) – Whether policy should be unloaded after the test
 
 ### nmci.misc.format_NM_journal(log)
 
