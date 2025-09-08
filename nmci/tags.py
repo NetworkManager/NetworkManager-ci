@@ -1754,7 +1754,10 @@ def firewall_bs(context, scenario):
     context.process.systemctl("stop firewalld")
     time.sleep(5)
     context.process.systemctl("start firewalld")
-    nmci.process.run("firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp")
+    nmci.process.run_stdout(
+        "firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp",
+        ignore_stderr=True,
+    )
     # can fail in @sriov_con_drv_add_VF_firewalld
     context.process.nmcli_force("con modify testeth0 connection.zone public")
     # Add a sleep here to prevent firewalld to hang
