@@ -767,3 +767,27 @@
     Then "3" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
     * Bring "down" connection "sriov_controller"
     Then "0" is visible with command "cat /sys/class/net/sriov_device/device/sriov_numvfs"
+
+
+    @RHEL-95884
+    @ver+=1.55.3
+    @sriov_reapply_vf
+    Scenario: nmcli - sriov - reapply VF setting
+    * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"
+
+    * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options
+        """
+        sriov.total-vfs 5
+        sriov.vfs "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=false trust=true, 4
+        """
+    * Commentary
+        """
+        Modify just VF 4 of sriov-controller by changing spoof-check and trust values
+        Reapply.
+        """
+    When " connected" is visible with command "nmcli  device |grep sriov_device"
+    When "spoof checking off, link-state auto, trust on" is visible with command "ip -d link show sriov_device |grep 'vf 4'"
+    * Modify connection "sriov_controller" changing options "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=true trust=false, 4"
+    Then "Error.*" is not visible with command "nmcli device reapply sriov_device" in "1" seconds
+    Then "spoof checking on, link-state auto, trust off" is visible with command "ip -d link show sriov_device |grep 'vf 4'"
+
