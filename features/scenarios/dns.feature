@@ -1350,20 +1350,20 @@ Feature: nmcli - dns
     Scenario: NM - dns global options
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222,debug autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222 debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222 debug" is set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content
       """
       [global-dns]
       options=timeout:666
       """
     * Restart NM
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
     * Bring "down" connection "con_dns"
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
 
 
     @ver+=1.55.4
@@ -1372,102 +1372,102 @@ Feature: nmcli - dns
     Scenario: NM - dns global options
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222,debug autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222 debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222 debug" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 1 options as 1 timeout:333"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
     * Bring "down" connection "con_dns"
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns]
       options=timeout:666
       """
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
 
 
     @dns_global_search
     Scenario: NM - dns global search
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222 ipv4.dns-search example.org autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then Domain "example.org" is set in "5" seconds
+    Then DNS option "timeout:222" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 0 domains a{sv} 0"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then Domain "example3.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Bring "down" connection "con_dns"
-    Then "search .*example3.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Domain "example3.org" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns]
       searches=example2.org
       """
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
 
 
     @dns_global_search_options
     Scenario: NM - dns global search and options
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222,debug ipv4.dns-search example.org autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222 debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then Domain "example.org" is set in "5" seconds
+    Then DNS option "timeout:222 debug" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 1 timeout:333 domains a{sv} 0"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
+    Then Domain "example3.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Bring "down" connection "con_dns"
-    Then "search .*example3.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Domain "example3.org" is set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns]
       options=timeout:666
       searches=example2.org
       """
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:666" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options .*debug" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
+    Then DNS option "timeout:666" is set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
 
 
     @ver+=1.55.4
@@ -1476,25 +1476,25 @@ Feature: nmcli - dns
     Scenario: NM - dns global domain-*
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222 ipv4.dns-search example.org autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222" is set in "5" seconds
+    Then Domain "example.org" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 3 searches as 0 options as 0 domains a{sv} 1 * a{sv} 1 servers as 1 192.168.100.7"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.7" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.7" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns-domain-*]
       servers=192.168.100.6
       """
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.6" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.6" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
 
 
     @ver+=1.55.4
@@ -1503,16 +1503,16 @@ Feature: nmcli - dns
     Scenario: NM - dns global split domain
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222 ipv4.dns-search example.org autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222" is set in "5" seconds
+    Then Domain "example.org" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 3 searches as 0 options as 0 domains a{sv} 2 * a{sv} 1 servers as 1 192.168.100.8 example.org a{sv} 1 servers as 1 192.168.100.9"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.8" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.9" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.8" is set in "5" seconds
+    Then Nameserver "192.168.100.9" is not set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns-domain-*]
@@ -1523,13 +1523,13 @@ Feature: nmcli - dns
       servers=192.168.100.7
       """
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.6" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.7" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.8" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.9" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.6" is set in "5" seconds
+    Then Nameserver "192.168.100.7" is not set in "5" seconds
+    Then Nameserver "192.168.100.8" is not set in "5" seconds
+    Then Nameserver "192.168.100.9" is not set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
 
 
     @ver+=1.55.4
@@ -1538,17 +1538,17 @@ Feature: nmcli - dns
     Scenario: NM - dns global config, set domain search and option
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222 ipv4.dns-search example.org autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222" is set in "5" seconds
+    Then Domain "example.org" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 1 timeout:333 domains a{sv} 1 * a{sv} 1 servers as 1 192.168.100.7"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.7" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.7" is set in "5" seconds
+    Then Domain "example3.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns]
@@ -1559,15 +1559,15 @@ Feature: nmcli - dns
       servers=192.168.100.6
       """
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.6" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.7" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.6" is set in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
+    Then DNS option "debug" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Nameserver "192.168.100.7" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
+    Then DNS option "timeout:333" is not set in "5" seconds
 
 
     @RHEL-92314 @RHEL-92020 @RHEL-92313 @RHEL-97261
@@ -1615,15 +1615,15 @@ Feature: nmcli - dns
     Scenario: NM - dns global options via dbus
     * Add "ethernet" connection named "con_dns" for device "eth2" with options "ipv4.dns 192.168.100.5 ipv4.dns-options timeout:222,debug autoconnect no"
     * Bring "up" connection "con_dns"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222 debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222 debug" is set in "5" seconds
     * Set global DNS config via dbus to "a{sv} 1 options as 1 timeout:333"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
     * Restart NM
     * Check that global DNS config is "a{sv} 3 "searches" as 0 "options" as 1 "timeout:333" "domains" a{sv} 0"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:333" is set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
       """
       [global-dns]
@@ -1634,17 +1634,17 @@ Feature: nmcli - dns
       servers=192.168.100.6
       """
     * Check that global DNS config is "a{sv} 3 "searches" as 1 "example2.org" "options" as 1 "debug" "domains" a{sv} 1 "*" a{sv} 1 "servers" as 1 "192.168.100.6""
-    Then "server 192.168.100.6" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example2.org" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "search .*example3.org" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.5" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "server 192.168.100.7" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222" is not visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:333" is not visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.6" is set in "5" seconds
+    Then Domain "example2.org" is set in "5" seconds
+    Then Domain "example.org" is not set in "5" seconds
+    Then Domain "example3.org" is not set in "5" seconds
+    Then DNS option "debug" is set in "5" seconds
+    Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then Nameserver "192.168.100.7" is not set in "5" seconds
+    Then DNS option "timeout:222" is not set in "5" seconds
+    Then DNS option "timeout:333" is not set in "5" seconds
     * Execute "rm -f /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
     * Reload NM
     * Check that global DNS config is "a{sv} 0"
-    Then "server 192.168.100.5" is visible with command "cat /etc/resolv.conf" in "5" seconds
-    Then "options timeout:222 debug" is visible with command "cat /etc/resolv.conf" in "5" seconds
+    Then Nameserver "192.168.100.5" is set in "5" seconds
+    Then DNS option "timeout:222 debug" is set in "5" seconds
