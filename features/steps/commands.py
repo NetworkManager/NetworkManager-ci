@@ -203,6 +203,8 @@ def hostname_not_visible(context, log, seconds=1):
 @step('Nameserver "{server}" is set in "{seconds}" seconds')
 @step('Domain "{server}" is set')
 @step('Domain "{server}" is set in "{seconds}" seconds')
+@step('DNS option "{server}" is set')
+@step('DNS option "{server}" is set in "{seconds}" seconds')
 def get_nameserver_or_domain(context, server, seconds=1):
     if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
         # We have systemd-resolvd running
@@ -216,6 +218,8 @@ def get_nameserver_or_domain(context, server, seconds=1):
 @step('Nameserver "{server}" is not set in "{seconds}" seconds')
 @step('Domain "{server}" is not set')
 @step('Domain "{server}" is not set in "{seconds}" seconds')
+@step('DNS option "{server}" is not set')
+@step('DNS option "{server}" is not set in "{seconds}" seconds')
 def get_nameserver_or_domain_not(context, server, seconds=1):
     if context.command_code("systemctl is-active systemd-resolved.service -q") == 0:
         # We have systemd-resolvd running
