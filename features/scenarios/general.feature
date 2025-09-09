@@ -1923,7 +1923,7 @@ Feature: nmcli - general
 
 
     # Skip on unmaintained RHEL8 and F40
-    @rhelver+=9
+    @rhelver+=9.4
     @fedoraver+=41
     # Latest nmstate dropped support for NM<=1.40
     # https://issues.redhat.com/browse/RHEL-1595
