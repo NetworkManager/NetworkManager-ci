@@ -778,7 +778,7 @@
     * Add "ethernet" connection named "sriov_controller" for device "sriov_device" with options
         """
         sriov.total-vfs 5
-        sriov.vfs "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=false trust=true, 4
+        sriov.vfs "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=false trust=true, 4"
         """
     * Commentary
         """
