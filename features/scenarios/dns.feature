@@ -1374,7 +1374,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222 debug" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 1 options as 1 timeout:333"
+    * Set global DNS config via dbus to "no" domains, "no" searches, "timeout:333" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:333" is set in "5" seconds
     Then DNS option "debug" is not set in "5" seconds
@@ -1404,7 +1404,7 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then Domain "example.org" is set in "5" seconds
     Then DNS option "timeout:222" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 0 domains a{sv} 0"
+    * Set global DNS config via dbus to "no" domains, "example3.org" searches, "no" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then Domain "example3.org" is set in "5" seconds
     Then Domain "example.org" is not set in "5" seconds
@@ -1441,7 +1441,7 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then Domain "example.org" is set in "5" seconds
     Then DNS option "timeout:222 debug" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 1 timeout:333 domains a{sv} 0"
+    * Set global DNS config via dbus to "no" domains, "example3.org" searches, "timeout:333" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:333" is set in "5" seconds
     Then Domain "example3.org" is set in "5" seconds
@@ -1483,7 +1483,7 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222" is set in "5" seconds
     Then Domain "example.org" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 3 searches as 0 options as 0 domains a{sv} 1 * a{sv} 1 servers as 1 192.168.100.7"
+    * Set global DNS config via dbus to "*:192.168.100.7" domains, "no" searches, "no" options
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.7" is set in "5" seconds
     Then Nameserver "192.168.100.5" is not set in "5" seconds
@@ -1510,7 +1510,7 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222" is set in "5" seconds
     Then Domain "example.org" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 3 searches as 0 options as 0 domains a{sv} 2 * a{sv} 1 servers as 1 192.168.100.8 example.org a{sv} 1 servers as 1 192.168.100.9"
+    * Set global DNS config via dbus to "*:192.168.100.8; example.org:192.168.100.9" domains, "no" searches, "no" options
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.8" is set in "5" seconds
     Then Nameserver "192.168.100.9" is not set in "5" seconds
@@ -1545,7 +1545,7 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222" is set in "5" seconds
     Then Domain "example.org" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 3 searches as 1 example3.org options as 1 timeout:333 domains a{sv} 1 * a{sv} 1 servers as 1 192.168.100.7"
+    * Set global DNS config via dbus to "*:192.168.100.7" domains, "example3.org" searches, "timeout:333" options
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.7" is set in "5" seconds
     Then Domain "example3.org" is set in "5" seconds
@@ -1621,11 +1621,11 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222 debug" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 1 options as 1 timeout:333"
+    * Set global DNS config via dbus to "no" domains, "no" searches, "timeout:333" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:333" is set in "5" seconds
     * Restart NM
-    * Check that global DNS config is "a{sv} 3 "searches" as 0 "options" as 1 "timeout:333" "domains" a{sv} 0"
+    * Check that global DNS config is "no" domains, "no" searches, "timeout:333" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:333" is set in "5" seconds
     * Create NM config file "95-nmci-resolv.conf" with content and "reload" NM
@@ -1637,7 +1637,7 @@ Feature: nmcli - dns
       [global-dns-domain-*]
       servers=192.168.100.6
       """
-    * Check that global DNS config is "a{sv} 3 "searches" as 1 "example2.org" "options" as 1 "debug" "domains" a{sv} 1 "*" a{sv} 1 "servers" as 1 "192.168.100.6""
+    * Check that global DNS config is "*:192.168.100.6" domains, "example2.org" searches, "debug" options
     Then Nameserver "192.168.100.6" is set in "5" seconds
     Then Domain "example2.org" is set in "5" seconds
     Then Domain "example.org" is not set in "5" seconds
@@ -1647,8 +1647,9 @@ Feature: nmcli - dns
     Then Nameserver "192.168.100.7" is not set in "5" seconds
     Then DNS option "timeout:222" is not set in "5" seconds
     Then DNS option "timeout:333" is not set in "5" seconds
+    Then Fail setting global DNS config via dbus
     * Execute "rm -f /etc/NetworkManager/conf.d/95-nmci-resolv.conf"
     * Reload NM
-    * Check that global DNS config is "a{sv} 0"
+    * Check that global DNS config is "no" domains, "no" searches, "no" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222 debug" is set in "5" seconds

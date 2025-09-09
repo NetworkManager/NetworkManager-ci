@@ -349,5 +349,60 @@ class _DBus:
 
         return result
 
+    def set_property(
+        self,
+        bus_name,
+        object_path,
+        interface_name,
+        property_name,
+        value,
+        flags=None,
+        timeout_msec=None,
+        bus_type=None,
+        cancellable=None,
+    ):
+        """Set property of given object
+
+        :param bus_name: name of the bus
+        :type bus_name: str
+        :param object_path: path of the object
+        :type object_path: str
+        :param interface_name: name of the bus interface
+        :type interface_name: str
+        :param property_name: name of the property to get
+        :type property_name: str
+        :param value: value to be set
+        :type value: Glib.Variant
+        :param flags: flags, defaults to Gio.DBusCallFlags.NONE
+        :type flags: Gio.DBusCallFlags, optional
+        :param timeout_msec: timeout for given call, defaults to None
+        :type timeout_msec: int, optional
+        :param bus_type: type of bus, defaults to None
+        :type bus_type: Gio.BusType, optional
+        :param cancellable: cancellable object, defaults to None
+        :type cancellable: Gio.Cancellable, optional
+        """
+
+        GLib = nmci.util.GLib
+
+        variant = GLib.Variant.new_tuple(
+            GLib.Variant.new_string(interface_name),
+            GLib.Variant.new_string(property_name),
+            value,
+        )
+
+        self.call(
+            bus_name=bus_name,
+            object_path=object_path,
+            interface_name="org.freedesktop.DBus.Properties",
+            method_name="Set",
+            parameters=variant,
+            reply_type="()",
+            flags=flags,
+            timeout_msec=timeout_msec,
+            bus_type=bus_type,
+            cancellable=cancellable,
+        )
+
 
 _module = _DBus()

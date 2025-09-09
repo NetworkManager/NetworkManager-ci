@@ -526,6 +526,21 @@ which case default_prefix will be prepended.
 * **Return type:**
   str
 
+### nmci.dbus.set_property(bus_name, object_path, interface_name, property_name, value, flags=None, timeout_msec=None, bus_type=None, cancellable=None)
+
+Set property of given object
+
+* **Parameters:**
+  * **bus_name** (*str*) – name of the bus
+  * **object_path** (*str*) – path of the object
+  * **interface_name** (*str*) – name of the bus interface
+  * **property_name** (*str*) – name of the property to get
+  * **value** (*Glib.Variant*) – value to be set
+  * **flags** (*Gio.DBusCallFlags**,* *optional*) – flags, defaults to Gio.DBusCallFlags.NONE
+  * **timeout_msec** (*int**,* *optional*) – timeout for given call, defaults to None
+  * **bus_type** (*Gio.BusType**,* *optional*) – type of bus, defaults to None
+  * **cancellable** (*Gio.Cancellable**,* *optional*) – cancellable object, defaults to None
+
 # embed
 
 ### *class* nmci.embed.Embed(fail_only=False, combine_tag=None)

@@ -403,7 +403,7 @@ def compare_values(keyword, value1, value2):
     }
 
     assert keyword in func_mapper, (
-        f'Invalid operator keyword: "{keyword}",' " supported operators are:\n     "
+        f'Invalid operator keyword: "{keyword}", supported operators are:\n     '
     ) + "\n     ".join(func_mapper.keys())
 
     return func_mapper[keyword](value1, value2)
@@ -450,14 +450,14 @@ def check_lines_command(
 
     assert condition2 is None, (
         f"""Command "{command}" {pattern_text} did not return """
-        f""" "{condition1['op']}" "{condition1['n_lines']}" """
-        f""" and "{condition2['op']}" "{condition2['n_lines']}" lines, """
+        f""" "{condition1["op"]}" "{condition1["n_lines"]}" """
+        f""" and "{condition2["op"]}" "{condition2["n_lines"]}" lines, """
         f"""but "{len(out)}", output was:\n"""
     ) + "\n".join(out)
 
     assert False, (
         f"""Command "{command}" {pattern_text} did not return """
-        f""" "{condition1['op']}" "{condition1['n_lines']}" lines, but "{len(out)}", output was:\n"""
+        f""" "{condition1["op"]}" "{condition1["n_lines"]}" lines, but "{len(out)}", output was:\n"""
     ) + "\n".join(out)
 
 
@@ -1558,8 +1558,8 @@ def ignore_avc(context, pattern, timeout=15):
         nmci.embed.embed_exception("No AVC matched")
 
 
-@step('Set global DNS config via dbus to "{value}"')
-def dbus_global_dns_set(context, value):
+@step('Set global DNS config via busctl to "{value}"')
+def busctl_global_dns_set(context, value):
     cmd = [
         "busctl",
         "set-property",
@@ -1570,13 +1570,85 @@ def dbus_global_dns_set(context, value):
     ]
     nmci.cleanup.add_callback(
         lambda: nmci.process.run([*cmd, "a{sv}", "0"]),
-        name="reset-global-config-via-dbus",
+        name="reset-dns-global-config-via-busctl",
         # we need to call this once, even if the step is executed multiple times
         unique_tag="GLOBAL_DNS_RESET",
         # do cleanup after NM is restarted after config drop
         priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_RESTART + 1,
     )
     nmci.process.run([*cmd, *value.split()])
+
+
+@step(
+    'Set global DNS config via dbus to "{domains}" domains, "{searches}" searches, "{options}" options'
+)
+def dbus_global_dns_set(context, domains, searches, options):
+    Variant = nmci.util.GLib.Variant
+    value = {}
+    if searches.lower().startswith("no"):
+        value["searches"] = Variant("as", [])
+    else:
+        searches = [s.strip() for s in searches.split(",")]
+        value["searches"] = Variant("as", searches)
+    if options.lower().startswith("no"):
+        value["options"] = Variant("as", [])
+    else:
+        options = [o.strip() for o in options.split(",")]
+        value["options"] = Variant("as", options)
+    if domains.lower().startswith("no"):
+        value["domains"] = Variant("a{sv}", {})
+    else:
+        domains = domains.split(";")
+        domains = [dom.split(":") for dom in domains]
+        domains = [
+            (dom.strip(), [s.strip() for s in srvs.split(",")])
+            for (dom, srvs) in domains
+        ]
+        value["domains"] = Variant(
+            "a{sv}",
+            {
+                dom: Variant("a{sv}", {"servers": Variant("as", srvs)})
+                for (dom, srvs) in domains
+            },
+        )
+    value = Variant.new_variant(Variant("a{sv}", value))
+
+    nmci.cleanup.add_callback(
+        lambda: nmci.dbus.set_property(
+            "org.freedesktop.NetworkManager",
+            "/org/freedesktop/NetworkManager",
+            "org.freedesktop.NetworkManager",
+            "GlobalDnsConfiguration",
+            nmci.util.GLib.Variant.new_variant(Variant("a{sv}", {})),
+        ),
+        name="reset-dns-global-config-via-dbus",
+        # we need to call this once, even if the step is executed multiple times
+        unique_tag="GLOBAL_DNS_RESET",
+        # do cleanup after NM is restarted after config drop
+        priority=nmci.cleanup.Cleanup.PRIORITY_NM_SERVICE_RESTART + 1,
+    )
+
+    nmci.dbus.set_property(
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+        value,
+    )
+
+
+@step("Fail setting global DNS config via dbus")
+def fail_dbus_global_dns_set(context):
+    failed = False
+    try:
+        dbus_global_dns_set(context, "no", "no", "no")
+    except nmci.util.GLib.GError as e:
+        if "already set" in e.message:
+            nmci.embed.embed_exception("Expected error")
+            failed = True
+        else:
+            raise e
+    assert failed, "Did not fail to set dbus property"
 
 
 @step('Check that global DNS config is "{config}"')
@@ -1593,3 +1665,54 @@ def dbus_global_dns_get(context, config):
     assert (
         config == running_config
     ), f"Global DNS config mismatch, running != expected: `{running_config}` != `{config}`"
+
+
+@step(
+    'Check that global DNS config is "{domains}" domains, "{searches}" searches, "{options}" options'
+)
+def dbus_global_dns_get(context, domains, searches, options):
+    c = nmci.dbus.get_property(
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+    )
+    value = {}
+    Variant = nmci.util.GLib.Variant
+    unset = True
+    if searches.lower().startswith("no"):
+        value["searches"] = Variant("as", [])
+    else:
+        unset = False
+        searches = [s.strip() for s in searches.split(",")]
+        value["searches"] = Variant("as", searches)
+    if options.lower().startswith("no"):
+        value["options"] = Variant("as", [])
+    else:
+        unset = False
+        options = [o.strip() for o in options.split(",")]
+        value["options"] = Variant("as", options)
+    if domains.lower().startswith("no"):
+        value["domains"] = Variant("a{sv}", {})
+    else:
+        unset = False
+        domains = domains.split(";")
+        domains = [dom.split(":") for dom in domains]
+        domains = [
+            (dom.strip(), [s.strip() for s in srvs.split(",")])
+            for (dom, srvs) in domains
+        ]
+        value["domains"] = Variant(
+            "a{sv}",
+            {
+                dom: Variant("a{sv}", {"servers": Variant("as", srvs)})
+                for (dom, srvs) in domains
+            },
+        )
+    # If none options is set, compile empty dictionary to Variant
+    if unset:
+        value = {}
+    value = Variant("a{sv}", value)
+    assert (
+        c == value
+    ), f"Running global DNS config and expected config differ: {c} != {value}"
