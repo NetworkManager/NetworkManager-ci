@@ -2039,11 +2039,11 @@ def wireless_certs_bs(context, scenario):
     context.process.run_stdout("mkdir -p /tmp/certs")
     if not os.path.isfile("/tmp/certs/eaptest_ca_cert.pem"):
         context.process.run_stdout(
-            "wget --tries=5 http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/ca.pem -q -O /tmp/certs/eaptest_ca_cert.pem"
+            "wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/ca.pem -q -O /tmp/certs/eaptest_ca_cert.pem"
         )
     if not os.path.isfile("/tmp/certs/client.pem"):
         context.process.run_stdout(
-            "wget --tries=5 http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/client.pem -q -O /tmp/certs/client.pem"
+            "wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2http://hpe-dl380pgen9-02.wlan.rhts.eng.bos.redhat.com/client.pem -q -O /tmp/certs/client.pem"
         )
 
 

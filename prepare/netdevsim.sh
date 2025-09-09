@@ -52,7 +52,7 @@ function setup () {
     if ! test -f /tmp/netdevsim_installed; then
         # Install srpm (first try manualy cached file in /root)
         rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm || \
-        wget --tries=5 $URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
+        wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2$URL/$MAJOR/$MINOR/src/kernel-$MAJOR-$MINOR.src.rpm \
             --no-check-certificate -O /root/kernel-$MAJOR-$MINOR.src.rpm && \
           rpm -i /root/kernel-$MAJOR-$MINOR.src.rpm
         [ -f /root/rpmbuild/SOURCES/$LINUX.tar.xz ] || \
