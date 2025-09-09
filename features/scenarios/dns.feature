@@ -1617,7 +1617,7 @@ Feature: nmcli - dns
     * Bring "up" connection "con_dns"
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:222 debug" is set in "5" seconds
-    * Set global DNS config via dbus to "a{sv} 1 options as 1 timeout:333"
+    * Set global DNS config via dbus to "no" domains, "no" searches, "timeout:333" options
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:333" is set in "5" seconds
     * Restart NM

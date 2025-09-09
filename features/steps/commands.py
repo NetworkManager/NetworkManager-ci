@@ -28,21 +28,23 @@ def autocomplete_command(context, cmd):
 
 @step('Check noted values "{i1}" and "{i2}" are the same')
 def check_same_noted_values(context, i1, i2):
-    assert (
-        context.noted[i1].strip() == context.noted[i2].strip()
-    ), "Noted values: %s != %s !" % (
-        context.noted[i1].strip(),
-        context.noted[i2].strip(),
+    assert context.noted[i1].strip() == context.noted[i2].strip(), (
+        "Noted values: %s != %s !"
+        % (
+            context.noted[i1].strip(),
+            context.noted[i2].strip(),
+        )
     )
 
 
 @step('Check noted values "{i1}" and "{i2}" are not the same')
 def check_same_noted_values_equals(context, i1, i2):
-    assert (
-        context.noted[i1].strip() != context.noted[i2].strip()
-    ), "Noted values: %s == %s !" % (
-        context.noted[i1].strip(),
-        context.noted[i2].strip(),
+    assert context.noted[i1].strip() != context.noted[i2].strip(), (
+        "Noted values: %s == %s !"
+        % (
+            context.noted[i1].strip(),
+            context.noted[i2].strip(),
+        )
     )
 
 
@@ -59,9 +61,9 @@ def check_dif_in_values_temp(context, i1, i2, operator_kw, dif):
 @step('Check noted value is within "{r_min}" to "{r_max}" range')
 @step('Check noted value "{index}" is within "{r_min}" to "{r_max}" range')
 def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
-    assert (
-        int(r_min) <= int(context.noted[index]) <= int(r_max)
-    ), f'Noted value "{context.noted[index]}" is not within range: "{r_min}"-"{r_max}"'
+    assert int(r_min) <= int(context.noted[index]) <= int(r_max), (
+        f'Noted value "{context.noted[index]}" is not within range: "{r_min}"-"{r_max}"'
+    )
 
 
 @step('Execute "{command}"')
@@ -79,9 +81,9 @@ def execute_command(context, command):
 
 def get_reproducer_command_v(rname, options):
     cmd = nmci.util.base_dir("contrib/reproducers", rname)
-    assert os.access(
-        cmd, os.X_OK
-    ), f'Reproducer "{rname}" not found in "./contrib/reproducers/"'
+    assert os.access(cmd, os.X_OK), (
+        f'Reproducer "{rname}" not found in "./contrib/reproducers/"'
+    )
     args = [cmd]
     if options:
         args += list(shlex.split(options))
@@ -104,9 +106,9 @@ def execute_reproducer(context, rname, options="", number=1):
         nmci.process.run_stdout(argv, timeout=180, ignore_stderr=True)
         if nm_pid_refresh_count < 1:
             curr_nm_pid = nmci.nmutil.nm_pid()
-            assert (
-                curr_nm_pid == orig_nm_pid
-            ), f"NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}"
+            assert curr_nm_pid == orig_nm_pid, (
+                f"NM crashed as original pid was {orig_nm_pid} but now is {curr_nm_pid}"
+            )
         # log mem after each repro exec in stable_mem tests
         if hasattr(context, "nm_valgrind_proc"):
             nmci.nmutil.nm_size_kb()
@@ -130,11 +132,12 @@ def execute_multiple_times(context, command, number):
     while i < int(number):
         context.command_code(command)
         curr_nm_pid = nmci.nmutil.nm_pid()
-        assert (
-            curr_nm_pid == orig_nm_pid
-        ), "NM crashed as original pid was %s but now is %s" % (
-            orig_nm_pid,
-            curr_nm_pid,
+        assert curr_nm_pid == orig_nm_pid, (
+            "NM crashed as original pid was %s but now is %s"
+            % (
+                orig_nm_pid,
+                curr_nm_pid,
+            )
         )
         i += 1
 
@@ -232,20 +235,22 @@ def get_nameserver_or_domain_not(context, server, seconds=1):
 @step('Noted value contains "{pattern}"')
 @step('Noted value "{index}" contains "{pattern}"')
 def noted_value_contains(context, pattern, index="noted-value"):
-    assert (
-        re.search(pattern, context.noted[index]) is not None
-    ), "Noted value '%s' does not match the pattern '%s'!" % (
-        context.noted[index],
-        pattern,
+    assert re.search(pattern, context.noted[index]) is not None, (
+        "Noted value '%s' does not match the pattern '%s'!"
+        % (
+            context.noted[index],
+            pattern,
+        )
     )
 
 
 @step('Noted value does not contain "{pattern}"')
 @step('Noted value "{index}" does not contain "{pattern}"')
 def noted_value_does_not_contain(context, pattern, index="noted-value"):
-    assert (
-        re.search(pattern, context.noted[index]) is None
-    ), "Noted value '%s' does match the pattern '%s'!" % (context.noted[index], pattern)
+    assert re.search(pattern, context.noted[index]) is None, (
+        "Noted value '%s' does match the pattern '%s'!"
+        % (context.noted[index], pattern)
+    )
 
 
 @step('Note the output of "{command}"')
@@ -375,21 +380,21 @@ def check_pattern_command(
             if ret != 0:
                 return True
         elif check_type == "full":
-            assert (
-                ret == 0
-            ), f'Pattern "{pattern}" disappeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
+            assert ret == 0, (
+                f'Pattern "{pattern}" disappeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
+            )
         elif check_type == "not_full":
-            assert (
-                ret != 0
-            ), f'Pattern "{pattern}" appeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
+            assert ret != 0, (
+                f'Pattern "{pattern}" appeared after {nmci.misc.format_duration(xtimeout.elapsed_time())} seconds, output was:\n{stdout}'
+            )
     if check_type == "default":
-        assert (
-            False
-        ), f'Did not see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
+        assert False, (
+            f'Did not see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
+        )
     elif check_type == "not":
-        assert (
-            False
-        ), f'Did still see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
+        assert False, (
+            f'Did still see the pattern "{pattern}" in {nmci.misc.format_duration(seconds)} seconds, output was:\n{stdout}'
+        )
 
 
 def compare_values(keyword, value1, value2):
@@ -403,7 +408,7 @@ def compare_values(keyword, value1, value2):
     }
 
     assert keyword in func_mapper, (
-        f'Invalid operator keyword: "{keyword}",' " supported operators are:\n     "
+        f'Invalid operator keyword: "{keyword}", supported operators are:\n     '
     ) + "\n     ".join(func_mapper.keys())
 
     return func_mapper[keyword](value1, value2)
@@ -450,14 +455,14 @@ def check_lines_command(
 
     assert condition2 is None, (
         f"""Command "{command}" {pattern_text} did not return """
-        f""" "{condition1['op']}" "{condition1['n_lines']}" """
-        f""" and "{condition2['op']}" "{condition2['n_lines']}" lines, """
+        f""" "{condition1["op"]}" "{condition1["n_lines"]}" """
+        f""" and "{condition2["op"]}" "{condition2["n_lines"]}" lines, """
         f"""but "{len(out)}", output was:\n"""
     ) + "\n".join(out)
 
     assert False, (
         f"""Command "{command}" {pattern_text} did not return """
-        f""" "{condition1['op']}" "{condition1['n_lines']}" lines, but "{len(out)}", output was:\n"""
+        f""" "{condition1["op"]}" "{condition1["n_lines"]}" lines, but "{len(out)}", output was:\n"""
     ) + "\n".join(out)
 
 
@@ -688,9 +693,9 @@ def check_pattern_visible_with_tab_after_command(context, pattern, command):
     exp.sendcontrol("i")
     exp.sendeof()
 
-    assert (
-        exp.expect([pattern, pexpect.EOF], timeout=5) == 0
-    ), 'pattern %s is not visible with "%s"' % (pattern, command)
+    assert exp.expect([pattern, pexpect.EOF], timeout=5) == 0, (
+        'pattern %s is not visible with "%s"' % (pattern, command)
+    )
 
 
 @step('"{pattern}" is not visible with tab after "{command}"')
@@ -704,9 +709,9 @@ def check_pattern_not_visible_with_tab_after_command(context, pattern, command):
     exp.sendcontrol("i")
     exp.sendeof()
 
-    assert (
-        exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT], timeout=5) != 0
-    ), 'pattern %s is visible with "%s"' % (pattern, command)
+    assert exp.expect([pattern, pexpect.EOF, pexpect.TIMEOUT], timeout=5) != 0, (
+        'pattern %s is visible with "%s"' % (pattern, command)
+    )
 
 
 @step('Run child "{command}"')
@@ -736,12 +741,12 @@ def expect_children(context, pattern, seconds, proc_action=None):
         r = proc.expect(
             [pattern, nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=seconds
         )
-        assert (
-            r != 1
-        ), f"Child {proc.name} exited without '{pattern}' in output:\n{proc.before}"
-        assert (
-            r != 2
-        ), f"Child {proc.name} did not output '{pattern}' within {seconds}s:\n{proc.before}"
+        assert r != 1, (
+            f"Child {proc.name} exited without '{pattern}' in output:\n{proc.before}"
+        )
+        assert r != 2, (
+            f"Child {proc.name} did not output '{pattern}' within {seconds}s:\n{proc.before}"
+        )
         if proc_action is not None:
             proc_action(proc)
 
@@ -755,9 +760,9 @@ def not_expect_children(context, pattern, seconds):
         r = proc.expect(
             [pattern, nmci.pexpect.EOF, nmci.pexpect.TIMEOUT], timeout=seconds
         )
-        assert (
-            r != 0
-        ), f"Child {proc.name} has '{pattern}' in output:\n{proc.before}{proc.after}"
+        assert r != 0, (
+            f"Child {proc.name} has '{pattern}' in output:\n{proc.before}{proc.after}"
+        )
 
 
 @step('Expect "{pattern}" in children in "{seconds}" seconds and kill')
@@ -1325,9 +1330,9 @@ def copr_repo_check(context):
     context.copr_baseurl = nmci.process.run_stdout(
         ["python3", "contrib/dnf/repo_url.py", repo_name]
     ).strip()
-    assert (
-        context.copr_baseurl
-    ), f"Failed to set baseurl, `repo.remote_location` reurned '{context.copr_baseurl}'"
+    assert context.copr_baseurl, (
+        f"Failed to set baseurl, `repo.remote_location` reurned '{context.copr_baseurl}'"
+    )
 
 
 @step("Check last copr build is successful")
@@ -1350,12 +1355,12 @@ def check_last_copr_build(context):
         if resp.status_code == 200:
             break
 
-    assert (
-        resp.status_code == 200
-    ), f"Unable to retrieve backend log: {resp.status_code} {backend_url}."
-    assert (
-        "Worker failed build" not in resp.text
-    ), f"Latest copr build in {context.copr_baseurl} is failed."
+    assert resp.status_code == 200, (
+        f"Unable to retrieve backend log: {resp.status_code} {backend_url}."
+    )
+    assert "Worker failed build" not in resp.text, (
+        f"Latest copr build in {context.copr_baseurl} is failed."
+    )
 
 
 @step("Skip if next step fails:")
@@ -1579,6 +1584,48 @@ def dbus_global_dns_set(context, value):
     nmci.process.run([*cmd, *value.split()])
 
 
+@step(
+    'Set global DNS config via dbus to "{domains}" domains, "{searches}" searches, "{options}" options'
+)
+def dbus_global_dns_set(context, domains, searches, options):
+    value = {}
+    if domains.lower().startswith("no"):
+        domains = None
+    else:
+        domains = domains.split(";")
+        domains = [dom.split(":") for dom in domains]
+        domains = [
+            (dom.strip(), [s.strip() for s in srvs.split(",")])
+            for (dom, srvs) in domains
+        ]
+        value["domains"] = nmci.util.GLib.Variant.new(
+            "a{sv}",
+            {
+                dom: nmci.util.GLib.Variant("a{s}", srvs)
+                for (dom, srvs) in domains.items()
+            },
+        )
+    if searches.lower().startswith("no"):
+        searches = None
+    else:
+        searches = [s.strip() for s in searches.split(",")]
+        value["searches"] = nmci.util.GLib.Variant("a{s}", searches)
+    if options.lower().startswith("no"):
+        options = None
+    else:
+        options = [o.strip() for o in options.split(",")]
+        value["options"] = nmci.util.GLib.Variant("as", options)
+    value = nmci.util.GLib.Variant("a{sv}", value)
+    print(value)
+    nmci.dbus.set_property(
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+        value,
+    )
+
+
 @step('Check that global DNS config is "{config}"')
 def dbus_global_dns_get(context, config):
     cmd = [
@@ -1590,6 +1637,20 @@ def dbus_global_dns_get(context, config):
         "GlobalDnsConfiguration",
     ]
     running_config = nmci.process.run_stdout(cmd).strip()
-    assert (
-        config == running_config
-    ), f"Global DNS config mismatch, running != expected: `{running_config}` != `{config}`"
+    assert config == running_config, (
+        f"Global DNS config mismatch, running != expected: `{running_config}` != `{config}`"
+    )
+
+
+@step(
+    'Check that global DNS config is "{domains}" domains, "{searches}" searches, "{options}" options'
+)
+def dbus_global_dns_get(context, config):
+    c = nmci.dbus.get_property(
+        "org.freedesktop.NetworkManager",
+        "/org/freedesktop/NetworkManager",
+        "org.freedesktop.NetworkManager",
+        "GlobalDnsConfiguration",
+    )
+
+    print(c)
