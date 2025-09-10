@@ -75,7 +75,15 @@ beaker-hardware:
             hostname: wifi6-ml5-vm5%%
       NetworkManager-infiniband:
         - x86_64:
-            hostname: rdma-qe-4%%
+            hostname: |
+              rdma-perf-08.rdma.lab.eng.rdu2.redhat.com
+              rdma-perf-09.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-40.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-41.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-42.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-43.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-32.rdma.lab.eng.rdu2.redhat.com
+              rdma-qe-33.rdma.lab.eng.rdu2.redhat.com
 
       NetworkManager-gsm:
         - x86_64:
