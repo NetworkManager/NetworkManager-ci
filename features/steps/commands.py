@@ -1278,7 +1278,7 @@ def run_nmstate(context, log_file):
             # TODO: what to do here?
             pass
         nmci.process.run_stdout(
-            f"wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2$(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
+            f"wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2 $(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
             ignore_stderr=True,
             shell=True,
             timeout=30,
