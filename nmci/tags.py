@@ -3022,3 +3022,30 @@ def copy_ifcfg_bs(context, scenario):
 
 
 _register_tag("copy_ifcfg", copy_ifcfg_bs, None)
+
+
+def sriov_netdevsim_setup_bs(context, scenario):
+    # Load netdevsim module and create device
+    context.process.run("modprobe -r netdevsim", ignore_stderr=True)
+    context.process.run_stdout("modprobe netdevsim")
+    context.process.run_stdout("echo 1 > /sys/bus/netdevsim/new_device", shell=True)
+    time.sleep(1)
+
+    # Rename eth11 to sriov_device (if vethsetup is done, netdevsim device is eth11)
+    if context.process.run_code("ip link show eth11") == 0:
+        context.process.run_stdout("ip link set dev eth11 name sriov_device")
+
+
+def sriov_netdevsim_setup_as(context, scenario):
+    # Clean up sriov_numvfs
+    if context.process.run_code("ip link show sriov_device") == 0:
+        context.process.run("echo 0 > /sys/class/net/sriov_device/device/sriov_numvfs",
+                          shell=True, ignore_stderr=True)
+
+    # Remove netdevsim module
+    context.process.run("modprobe -r netdevsim", ignore_stderr=True)
+
+    time.sleep(1)
+
+
+_register_tag("sriov_netdevsim_setup", sriov_netdevsim_setup_bs, sriov_netdevsim_setup_as)

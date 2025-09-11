@@ -3795,6 +3795,26 @@ testmapper:
         feature: sriov
     - sriov_reapply_vf:
         feature: sriov
+    - sriov_hwsim_con_drv_add_maxVFs:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_set_VF_to_0:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_bond:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_add_VF_firewalld:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_add_VF_spoof:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_add_VF_vlan:
+        feature: sriov_hwsim
+    - sriov_hwsim_con_drv_add_VF_mtu:
+        feature: sriov_hwsim
+    - sriov_hwsim_preserve_on_down:
+        feature: sriov_hwsim
+    - sriov_hwsim_dont_disable_on_acitvation_fail:
+        feature: sriov_hwsim
+    - sriov_hwsim_reapply_vf:
+        feature: sriov_hwsim
     - add_dpdk_port:
         feature: ovs
     - add_dpdk_port_n_rxq:
