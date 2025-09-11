@@ -2576,7 +2576,13 @@
     @eth0
     @ipv6_add_dns_routes
     Scenario: NM - ipv6 - add DNS routes
-    * Add "ethernet" connection named "con2" for device "eth2" with options
+    * Prepare simulated test "testX1" device with "192.168.101" ipv4 and "none" ipv6 dhcp address prefix
+    * Prepare simulated test "testX2" device with "192.168.102" ipv4 and "none" ipv6 dhcp address prefix
+    * Execute "ip -n testX1_ns a add fe80::100/64 dev testX1p"
+    * Execute "ip -n testX1_ns a add fe80::200/64 dev testX1p"
+    * Execute "ip -n testX2_ns a add fe80::100/64 dev testX2p"
+    * Execute "ip -n testX2_ns a add fe80::200/64 dev testX2p"
+    * Add "ethernet" connection named "con2" for device "testX1" with options
           """
           connection.autoconnect no
           ipv6.method manual
@@ -2585,7 +2591,7 @@
           ipv6.dns cafe::1
           ipv4.method disabled
           """
-    * Add "ethernet" connection named "con3" for device "eth3" with options
+    * Add "ethernet" connection named "con3" for device "testX2" with options
           """
           connection.autoconnect no
           ipv6.method manual
@@ -2597,7 +2603,7 @@
 
     * Commentary
     """
-    Without 'routed-dns' the name server on eth3 is reached via eth2
+    Without 'routed-dns' the name server on testX2 is reached via testX1
     """
     * Bring "up" connection "con2"
     * Bring "up" connection "con3"
@@ -2605,9 +2611,8 @@
     """
     We see some strange failures here and there, adding few ip -6 commands for debugging
     """
-    * Execute "echo ADDR; ip -6 addr; echo ROUTES; ip -6 route; echo ALL ROUTES; ip -6 route show table all; echo RULES; ip -6 rule"
-    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
-    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
+    Then "via fe80::100 dev testX1" is visible with command "ip route get cafe::1"
+    Then "via fe80::100 dev testX1" is visible with command "ip route get cafe::2"
 
     * Commentary
     """
@@ -2617,8 +2622,8 @@
     * Modify connection "con3" changing options "ipv6.routed-dns yes"
     * Bring "up" connection "con2"
     * Bring "up" connection "con3"
-    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::1"
-    Then "via fe80::200 dev eth3" is visible with command "ip route get cafe::2"
+    Then "via fe80::100 dev testX1" is visible with command "ip route get cafe::1"
+    Then "via fe80::200 dev testX2" is visible with command "ip route get cafe::2"
 
     Then "fwmark 0x4e55 lookup 20053" is visible with command "ip -6 rule show prio 20053"
     Then "2" is visible with command "ip -6 route show table 20053 | wc -l"
@@ -2627,10 +2632,10 @@
     """
     Check that live reapply works
     """
-    * Execute "nmcli device modify eth3 ipv6.routed-dns no"
-    Then "via fe80::100 dev eth2" is visible with command "ip route get cafe::2"
-    * Execute "nmcli device modify eth3 ipv6.routed-dns yes"
-    Then "via fe80::200 dev eth3" is visible with command "ip route get cafe::2"
+    * Execute "nmcli device modify testX2 ipv6.routed-dns no"
+    Then "via fe80::100 dev testX1" is visible with command "ip route get cafe::2"
+    * Execute "nmcli device modify testX2 ipv6.routed-dns yes"
+    Then "via fe80::200 dev testX2" is visible with command "ip route get cafe::2"
 
     * Commentary
     """
