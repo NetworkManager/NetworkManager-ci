@@ -1360,10 +1360,11 @@ Feature: nmcli - dns
     * Restart NM
     Then Nameserver "192.168.100.5" is set in "5" seconds
     Then DNS option "timeout:666" is set in "5" seconds
-    Then DNS option "debug" is not set in "5" seconds
+    Then DNS option "debug" is set in "5" seconds
     * Bring "down" connection "con_dns"
     Then DNS option "timeout:666" is set in "5" seconds
     Then Nameserver "192.168.100.5" is not set in "5" seconds
+    Then DNS option "debug" is not set in "5" seconds
 
 
     @ver+=1.55.4
