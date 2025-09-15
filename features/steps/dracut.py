@@ -18,10 +18,12 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
     t = nmci.util.start_timeout(timeout=timeout / 2)
     now_booted = False
     last_before = None
+    failed_output = None
     message_check_timeout = 30
     messages = [
         "== BOOT ==",
         "== PASS ==",
+        "\[FAIL\]",
         "== FAIL ==",
         "== DEBUG SHELL ==",
         pexpect.TIMEOUT,
@@ -47,10 +49,14 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
             # check every second if boot finished
             message_check_timeout = 1
         elif message == 2:
+            failed_output = True
+        elif message == 3:
             context.dracut_vm_state = "FAIL"
+            if failed_output == True:
+                context.dracut_fail_msg = boot_log_proc.before
             # check every second if boot finished
             message_check_timeout = 1
-        elif message == 3:
+        elif message == 4:
             # debug shell, create pipefile for stdin, redirect by lines
             debug_shell(proc)
         if first_half and now_booted:
@@ -247,6 +253,7 @@ def dracut_run(context):
     )
 
     context.dracut_vm_state = "NOBOOT"
+    context.dracut_fail_msg = None
     proc = context.pexpect_spawn(
         os.getcwd() + "/contrib/dracut/run-qemu",
         [
@@ -275,6 +282,9 @@ def dracut_run(context):
     # assert (
     #    rc == 0
     # ), f"Test run FAILED, VM returncode: {rc}, VM result: {context.dracut_vm_state}"
+    assert (
+        context.dracut_fail_msg is None
+    ), f"Test FAILED, VM result: {context.dracut_vm_state}:\n{context.dracut_fail_msg}"
     assert (
         "PASS" in context.dracut_vm_state
     ), f"Test FAILED, VM result: {context.dracut_vm_state}"
