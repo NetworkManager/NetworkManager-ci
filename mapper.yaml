@@ -1645,6 +1645,8 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_dhcp_vendor_class:
         feature: dracut
+    - dracut_NM_NFS_root_dhcp_client_id:
+        feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_mtu:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac:

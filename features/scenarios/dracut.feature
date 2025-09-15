@@ -206,6 +206,43 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.2                                                    |
 
 
+    @rhbz1872299
+    @ver+=1.55.4
+    @rhelver+=8.3 @fedoraver+=38
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
+    @dracut_NM_NFS_root_dhcp_client_id
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs rd.net.dhcp.client-id
+    * Run dracut test
+      | Param  | Value                                                              |
+      | kernel | root=dhcp ro rd.net.dhcp.client-id=eth0:@RedHat                    |
+      | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00 |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                       |
+      | check  | nmcli_con_active eth0 eth0                                         |
+      | check  | nmcli_con_prop eth0 ipv4.method auto                               |
+      | check  | nmcli_con_prop eth0 ipv4.dhcp-client-id 00:52:65:64:48:61:74       |
+      | check  | nmcli_con_prop eth0 IP4.ADDRESS 192.168.50.104/24 10               |
+      | check  | nmcli_con_prop eth0 IP4.GATEWAY 192.168.50.1                       |
+      | check  | nmcli_con_prop eth0 IP4.ROUTE *192.168.50.0/24*                    |
+      | check  | nmcli_con_prop eth0 IP4.DNS 192.168.50.1                           |
+      | check  | nmcli_con_prop eth0 IP4.DOMAIN cl04.nfs.redhat.com                 |
+      | check  | nmcli_con_prop eth0 ipv6.method auto                               |
+      | check  | nmcli_con_prop eth0 IP6.ADDRESS *deaf:beef::1:10/128* 10           |
+      | check  | nmcli_con_prop eth0 IP6.ROUTE *deaf:beef::/64*                     |
+      | check  | nmcli_con_prop eth0 IP6.DNS deaf:beef::1 10                        |
+      | check  | wait_for_ip4_renew 192.168.50.104/24 eth0                          |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                        |
+      | check  | dns_search *'nfs.redhat.com'*                                      |
+      | check  | dns_search *'nfs6.redhat.com'*                                     |
+      | check  | nmcli_con_num 1                                                    |
+      | check  | no_ifcfg                                                           |
+      | check  | ip4_route_unique "default via 192.168.50.1"                        |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                        |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"           |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                |
+      | check  | nfs_server 192.168.50.2                                            |
+
+
     @rhelver+=8.3 @fedoraver+=38
     @ver+=1.25.0
     @not_on_ppc64le @skip_in_centos
