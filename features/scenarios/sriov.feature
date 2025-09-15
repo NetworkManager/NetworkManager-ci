@@ -789,7 +789,7 @@
         """
     When " connected" is visible with command "nmcli  device |grep sriov_device" in "15" seconds
     When "spoof checking off, link-state auto, trust on" is visible with command "ip -d link show sriov_device |grep 'vf 3'"
-    * Modify connection "sriov_controller" changing options "sriov.vfs "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=true trust=false, 4"
+    * Modify connection "sriov_controller" changing options "sriov.vfs "0 spoof-check=false trust=true vlans=72, 1 spoof-check=false trust=true vlans=73, 2, 3 spoof-check=true trust=false, 4""
     Then "Error.*" is not visible with command "nmcli device reapply sriov_device" in "1" seconds
     When " connected" is visible with command "nmcli  device |grep sriov_device" in "15" seconds
     Then "spoof checking on, link-state auto, trust off" is visible with command "ip -d link show sriov_device |grep 'vf 3'"
