@@ -92,7 +92,14 @@ beaker-hardware:
 
       NetworkManager-dcb:
         - x86_64:
-            hostname: dell-per740-79.%%
+            hostname: |
+              dell-per740-12.rhts.eng.pek2.redhat.com
+              dell-per740-69.rhts.eng.pek2.redhat.com
+              dell-per740-70.rhts.eng.pek2.redhat.com
+              dell-per740-79.rhts.eng.pek2.redhat.com
+              dell-per740-80.rhts.eng.pek2.redhat.com
+              dell-per740-81.rhts.eng.pek2.redhat.com
+
             kernel-options: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
             kernel-options-post: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt mlx5_core.vf_names=eth
 
