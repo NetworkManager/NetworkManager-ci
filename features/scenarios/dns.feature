@@ -1343,7 +1343,7 @@ Feature: nmcli - dns
     @ver+=1.43.0
     @ver+=1.42.0
     @ver+=1.41.91
-    @ver-1.55
+    @ver-=1.54.0
     @ver/rhel/9/2+=1.42.2.20
     @dns_default
     @dns_global_options
@@ -1368,6 +1368,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_options
     Scenario: NM - dns global options
@@ -1397,6 +1398,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_search
     Scenario: NM - dns global search
@@ -1434,6 +1436,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_search_options
     Scenario: NM - dns global search and options
@@ -1476,6 +1479,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_domains_all
     Scenario: NM - dns global domain-*
@@ -1503,6 +1507,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_domain_split
     Scenario: NM - dns global split domain
@@ -1538,6 +1543,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_domain_search_option
     Scenario: NM - dns global config, set domain search and option
@@ -1615,6 +1621,7 @@ Feature: nmcli - dns
 
 
     @ver+=1.55.4
+    @ver+=1.54.1
     @dns_default
     @dns_global_dbus
     Scenario: NM - dns global options via dbus
