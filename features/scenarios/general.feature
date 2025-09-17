@@ -499,11 +499,21 @@ Feature: nmcli - general
     * Bring "up" connection "testeth0"
 
 
+    @ver-=1.55.4
     @networking_on
     @general_state_asleep
     Scenario: nmcli - general - state asleep
     * Execute "nmcli networking off"
     Then "asleep" is visible with command "nmcli -t -f STATE general"
+    * Execute "nmcli networking on"
+
+
+    @ver+=1.55.5
+    @networking_on
+    @general_state_networking_off
+    Scenario: nmcli - general - state asleep
+    * Execute "nmcli networking off"
+    Then "network off" is visible with command "nmcli -t -f STATE general"
     * Execute "nmcli networking on"
 
 
