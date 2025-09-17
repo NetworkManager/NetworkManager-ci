@@ -93,6 +93,7 @@ pull_hostname_from_dhcp
 general_state_connected
 general_state_disconnected
 general_state_asleep
+general_state_networking_off
 general_state_running
 general_state_not_running
 general_networking_on_off

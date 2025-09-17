@@ -1797,6 +1797,9 @@ testmapper:
     - general_state_asleep:
         feature: general
         tags: gate
+    - general_state_networking_off:
+        feature: general
+        tags: gate
     - general_state_running:
         feature: general
         tags: gate
