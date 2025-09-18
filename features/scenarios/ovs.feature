@@ -2081,8 +2081,8 @@ Feature: nmcli - ovs
 
 
     @RHEL-93876
-    @ver/rhel/9/7+=1.54.0.2
-    @ver/rhel/10/1+=1.54.0.2
+    @ver/rhel/9/8+=1.54.1
+    @ver/rhel/10/2+=1.55.4
     @ver+=1.55.3
     @openvswitch
     @nmcli_activate_children
