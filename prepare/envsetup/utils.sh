@@ -46,6 +46,7 @@ install_behave_pytest () {
   # install sphinx to build nmci documentation
   python3l -m pip install --prefix /usr/ sphinx==8.2.1 || touch /tmp/nm_skip_nmci_doc
   python3l -m pip install sphinx-markdown-builder==0.6.5 || touch /tmp/nm_skip_nmci_doc
+  python3l -m pip install jinja2
 }
 
 
