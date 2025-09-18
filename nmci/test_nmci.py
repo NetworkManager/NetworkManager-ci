@@ -2124,6 +2124,120 @@ def test_nmci_doc():
         warnings.warn(w, UserWarning)
 
 
+def generate_tests(mapper):
+    # Simplified version, we allways suppose entry is dict, as feature must be defined
+    # in NetworkManager-ci mapper.yaml, we don't care at some other options/cases
+    default_test_timeout = mapper["component"].get("test-timeout", "10m")
+    default_run_command = mapper["component"]["test-run"]
+    section = mapper["testmapper"]["default"]
+    full_entries = []
+    # The first test should always be "pass" from "general" feature,
+    # if not, we start ordering from 1000 - not a big deal
+    last_feature = "general"
+    feature_count = 0
+    feature_increment = 1000
+    test_count = 0
+    for entry in section:
+        instance = {}
+        instance["timeout"] = default_test_timeout
+        instance["testname"] = list(entry.keys())[0]
+        instance["dir"] = "."
+        if "arches-exclude" in entry[instance["testname"]]:
+            instance["arches-exclude"] = entry[instance["testname"]]["arches-exclude"]
+        if "dir" in entry[instance["testname"]]:
+            instance["dir"] = entry[instance["testname"]]["dir"]
+        if "feature" in entry[instance["testname"]]:
+            instance["feature"] = entry[instance["testname"]]["feature"]
+            if instance["feature"] != last_feature:
+                feature_count += 1
+                test_count = 0
+            last_feature = instance["feature"]
+        if "tags" in entry[instance["testname"]]:
+            instance["tags"] = entry[instance["testname"]]["tags"].split()
+        if "run" in entry[instance["testname"]]:
+            instance["run"] = entry[instance["testname"]]["run"]
+        else:
+            instance["run"] = default_run_command
+        if "$testname" in instance["run"]:
+            instance["run"] = instance["run"].replace("$testname", instance["testname"])
+        else:
+            instance["run"] = instance["run"] % instance["testname"]
+        if "timeout" in entry[instance["testname"]]:
+            instance["timeout"] = entry[instance["testname"]]["timeout"]
+        instance["order"] = feature_count * feature_increment + test_count
+        test_count += 1
+        full_entries.append(instance)
+
+    mapper["testmapper"] = full_entries
+    return mapper
+
+
+def generate_fmf(mapper, template_file, output_file):
+    import jinja2
+
+    packages = mapper["dependencies"]["packages"]
+    if "wget" not in packages:
+        packages.append("wget")
+    if "git-core" not in packages:
+        packages.append("git-core")
+    testmapper = mapper["testmapper"]
+    component = mapper["component"]["name"]
+
+    if not os.path.isdir(".tmp"):
+        os.mkdir(".tmp")
+
+    # backup git file
+    with open(".tmp/main.fmf-git", "wb") as f:
+        subprocess.run(["git", "show", "HEAD:main.fmf"], stdout=f)
+
+    # backup current file
+    shutil.copy("main.fmf", ".tmp/main.fmf")
+
+    # Load template
+    with open(template_file, "r") as f:
+        template = jinja2.Template(f.read())
+
+    # Render template with data
+    fmf_data = template.render(
+        packages=packages,
+        tasks=[],
+        testmapper=testmapper,
+        component=component,
+        mapper=mapper,
+    )
+
+    # Write to file
+    with open(output_file, "w") as f:
+        f.write(fmf_data)
+
+
+def test_main_fmf():
+    # Minimal dependencies are listed in .gitlab-ci.yml file
+    # Required python modules for this tests are:
+    #  python3 -m pip install --prefix /usr/ sphinx==7.2.6 sphinx-markdown-builder==0.6.5
+
+    if os.environ.get("NMCI_NO_FMF") == "1" or os.path.isfile("/tmp/nm_skip_fmf"):
+        pytest.skip(
+            "skip generating main.fmf with sphinx-build (NMCI_NO_FMF=1 or /tmp/nm_skip_fmf)"
+        )
+
+    mapper_obj = nmci.misc.get_mapper_obj()
+    mapper_obj = generate_tests(mapper_obj)
+    generate_fmf(mapper_obj, "./fmf_template.j2", "./main.fmf")
+
+    diff = subprocess.run(
+        ["git", "diff", "--no-color", "--no-index", ".tmp/main.fmf", "main.fmf"],
+        stdout=subprocess.PIPE,
+    ).stdout.decode("utf-8")
+
+    assert filecmp.cmp(
+        "main.fmf", ".tmp/main.fmf"
+    ), f"Outdated main.fmf was rebuilt. Commit it before pushing!\n{diff}"
+    if not filecmp.cmp("main.fmf", ".tmp/main.fmf-git"):
+        w = "\nmain.fmf is current but not committed. Commit it before pushing!\n"
+        warnings.warn(w, UserWarning)
+
+
 # This test should always run as last. Keep it at the bottom
 # of the file.
 def test_black_code_fromatting():
