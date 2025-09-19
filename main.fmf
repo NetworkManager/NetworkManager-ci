@@ -29,6 +29,8 @@
           - bash prepare/envsetup.sh setup first_test_setup
     execute:
         how: tmt
+    report:
+        how: html
 
     /gate:
         discover:
