@@ -2083,7 +2083,8 @@ Feature: nmcli - ovs
     @RHEL-93876
     @ver/rhel/9/8+=1.54.1
     @ver/rhel/10/2+=1.55.4
-    @ver+=1.55.3
+    @ver+=1.54.1
+    @ver+=1.55.4
     @openvswitch
     @nmcli_activate_children
     Scenario: nmcli - openvswitch - reactivate via autoconnect-ports
