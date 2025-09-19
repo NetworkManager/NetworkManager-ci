@@ -17,18 +17,20 @@
          - radvd
          - wget
          - git-core
-      - name: tmt_prepare
+         - iproute
+         - NetworkManager
+      - name: vethsetup
         how: shell
         script:
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/initial_setup.sh
-          - bash ./initial_setup.sh
+          - bash prepare/vethsetup.sh check
+      - name: envsetup
+        how: shell
+        script:
+          - bash prepare/envsetup.sh setup first_test_setup
     execute:
         how: tmt
-    finish:
-        how: shell
-        script: 
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/finish-reserve.sh
-          - bash finish-reserve.sh
+    report:
+        how: html
 
     /gate:
         discover:

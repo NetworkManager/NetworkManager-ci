@@ -53,6 +53,14 @@ report_result() {
             timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
         fi
     fi
+    # If we are in testing farm
+    if env | grep -q TMT_; then
+        mkdir -p $TMT_PLAN_DATA/reports
+        timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
+        if [ -s "$NMTEST_REPORT" ]; then
+            cp "$NMTEST_REPORT" "$TMT_PLAN_DATA/reports"
+        fi
+    fi
     cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
     echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
     echo "------------ Test result: $RESULT ------------"
