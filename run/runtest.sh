@@ -43,7 +43,7 @@ report_result() {
     # If RESULT is unset, process was killed by watchdog (or CTRL-c)
     [ -z $RESULT ] && RESULT=FAIL
     # If we have running harness.py then upload logs
-    if ps aux | grep -v grep | grep -q harness.py; then
+    if ps aux | grep -v grep | grep -q harness.py || env | grep -q TMT_; then
         # check for empty file: -s means nonempty
         if [ -s "$NMTEST_REPORT" ]; then
             timeout 1m rstrnt-report-result -o "$NMTEST_REPORT" "$NMTEST" "$RESULT"
