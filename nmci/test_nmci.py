@@ -2176,10 +2176,9 @@ def generate_fmf(mapper, template_file, output_file):
     import jinja2
 
     packages = mapper["dependencies"]["packages"]
-    if "wget" not in packages:
-        packages.append("wget")
-    if "git-core" not in packages:
-        packages.append("git-core")
+    for pkg in ["wget", "git-core", "iproute", "NetworkManager"]:
+        if pkg not in packages:
+            packages.append(pkg)
     testmapper = mapper["testmapper"]
     component = mapper["component"]["name"]
 
