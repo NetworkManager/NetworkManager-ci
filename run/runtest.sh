@@ -53,6 +53,19 @@ report_result() {
             timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
         fi
     fi
+    # If we are in testing farm
+    if env | grep -q TMT_; then
+        mkdir -p $TMT_PLAN_DATA/reports
+        timeout 1m rstrnt-report-result -o "" "$NMTEST" "$RESULT"
+        # add FAIL_ prefix in case of fail
+        dst="$NMTEST_REPORT_NAME_PASS"
+        if [ "$RESULT" == FAIL ]; then
+            dst="$NMTEST_REPORT_NAME_FAIL"
+        fi
+        if [ -s "$NMTEST_REPORT" ]; then
+            cp "$NMTEST_REPORT" "$TMT_PLAN_DATA/reports/$dst"
+        fi
+    fi
     cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
     echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
     echo "------------ Test result: $RESULT ------------"
@@ -307,6 +320,8 @@ fi
 export COLUMNS="1024"
 
 NMTEST_REPORT="/tmp/report_$NMTEST.html"
+NMTEST_REPORT_NAME_PASS="report_$NMTEST.html"
+NMTEST_REPORT_NAME_FAIL="FAIL_report_$NMTEST.html"
 
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 

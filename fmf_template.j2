@@ -14,11 +14,14 @@
          - {{ package }}
         {%- endfor %}
     {%- endif %}
-      - name: tmt_prepare
+      - name: vethsetup
         how: shell
         script:
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/initial_setup.sh
-          - bash ./initial_setup.sh
+          - bash prepare/vethsetup.sh check
+      - name: envsetup
+        how: shell
+        script:
+          - bash prepare/envsetup.sh setup first_test_setup
     {%- for task in tasks %}
       - name: {{ task['name'].split('/')[-1] }}
         how: shell
@@ -32,11 +35,8 @@
     {%- endfor %}
     execute:
         how: tmt
-    finish:
-        how: shell
-        script: 
-          - wget --no-check-certificate https://gitlab.cee.redhat.com/desktopqe/desktop-ci/-/raw/master/fmftmt/finish-reserve.sh
-          - bash finish-reserve.sh
+    report:
+        how: html
 
     /all:
         discover:
