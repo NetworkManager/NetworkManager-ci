@@ -17,6 +17,7 @@
          - radvd
          - wget
          - git-core
+         - iproute
          - NetworkManager
       - name: vethsetup
         how: shell
