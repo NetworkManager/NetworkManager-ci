@@ -2180,6 +2180,8 @@ def generate_fmf(mapper, template_file, output_file):
         packages.append("wget")
     if "git-core" not in packages:
         packages.append("git-core")
+    if "NetworkManager" not in packages:
+        packages.append("NetworkManager")
     testmapper = mapper["testmapper"]
     component = mapper["component"]["name"]
 
