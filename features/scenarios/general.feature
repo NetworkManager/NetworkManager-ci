@@ -1957,7 +1957,7 @@ Feature: nmcli - general
       https://issues.redhat.com/browse/RHEL-109766
       """
     * Skip if next step fails:
-    * "glib2-2.56.4-166.el8_10" is not visible with command "rpm -q glib2"
+    * "glib2-2.56.4-16[67].el8_10" is not visible with command "rpm -q glib2"
     * Skip if next step fails:
     * "glib2-2.56.4-162.el8_8" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
@@ -2025,7 +2025,7 @@ Feature: nmcli - general
       https://issues.redhat.com/browse/RHEL-109766
       """
     * Skip if next step fails:
-    * "glib2-2.56.4-166.el8_10" is not visible with command "rpm -q glib2"
+    * "glib2-2.56.4-16[67].el8_10" is not visible with command "rpm -q glib2"
     * Skip if next step fails:
     * "glib2-2.56.4-162.el8_8" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
