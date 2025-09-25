@@ -437,8 +437,6 @@ Feature: nmcli - procedures in documentation
             802-1x.auth-timeout 75
             connection.auth-retries 5
             """
-    # Just in case a bit of time to settle
-    * Wait for "1" seconds
     When Bring "up" connection "test1-ttls"
     Then Check if "test1-ttls" is active connection
     * Disconnect device "test1"
@@ -464,7 +462,6 @@ Feature: nmcli - procedures in documentation
             802-1x.auth-timeout 75
             connection.auth-retries 5
             """
-    * Wait for "1" seconds
     When Bring "up" connection "test1-tls"
     Then Check if "test1-tls" is active connection
     * Disconnect device "test1"

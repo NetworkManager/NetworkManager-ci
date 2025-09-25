@@ -303,14 +303,12 @@ Feature: WIFI TUI tests
     * Set "Device" field to "wlan0"
     * Set "SSID" field to "open"
     * Confirm the connection settings
-    * Wait for "2" seconds
-    * "wifi1" is visible with command "nmcli connection"
+    * "wifi1" is visible with command "nmcli connection" in "2" seconds
     * "wifi1" is visible with command "nmcli device" in "20" seconds
     * Select connection "wifi1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for "3" seconds
-    Then "wifi1" is not visible with command "nmcli connection"
+    Then "wifi1" is not visible with command "nmcli connection" in "2" seconds
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
 
@@ -332,8 +330,7 @@ Feature: WIFI TUI tests
     * Select connection "wifi1" in the list
     * Choose to "<Delete>" a connection
     * Press "Delete" button in the dialog
-    * Wait for "3" seconds
-    Then "wifi1" is not visible with command "nmcli connection"
+    Then "wifi1" is not visible with command "nmcli connection" in "2" seconds
     Then "wifi1" is not visible with command "nmcli device"
     Then "inet 10." is not visible with command "ip a s wlan0"
 
@@ -447,8 +444,7 @@ Feature: WIFI TUI tests
     * Set "SSID" field to "open"
     * Set "Cloned MAC address" field to "f0:de:aa:fb:bb:cc"
     * Confirm the connection settings
-    * Wait for "5" seconds
-    Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s wlan0"
+    Then "ether f0:de:aa:fb:bb:cc" is visible with command "ip a s wlan0" in "5" seconds
 
 
     @fedoraver+=32

@@ -35,6 +35,11 @@ def add_new_connection(
     options = nmci.misc.str_replace_dict(options, context.noted)
 
     nmci.process.nmcli(f"connection add type {typ} {conn_name} {iface} {options}")
+    nmci.process.nmcli(f"connection show {name}")
+    # This seems to be pretty crucial for 8021x, vpns, wifis
+    from time import sleep
+
+    sleep(0.1)
 
 
 @step('Add "{count}" "{typ}" connections named "{name}" for devices "{ifname}"')

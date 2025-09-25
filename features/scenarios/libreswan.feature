@@ -637,7 +637,6 @@
       vpn.data 'authby = secret, dpdaction = restart, dpddelay = 1, dpdtimeout = 60, ikev2 = insist, ipsec-interface = 10, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
       vpn.secrets 'pskvalue = <noted:PSK>'
       """
-    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "10.0.1.[^\n]*/32" is visible with command "ip a s ipsec10"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
