@@ -23,7 +23,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
     messages = [
         "== BOOT ==",
         "== PASS ==",
-        "\[FAIL\]",
+        "\\[FAIL\\]",
         "== FAIL ==",
         "== DEBUG SHELL ==",
         pexpect.TIMEOUT,
