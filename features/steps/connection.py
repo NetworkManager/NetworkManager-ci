@@ -5,8 +5,6 @@ from behave import step
 import nmci
 
 
-@step('Add "{typ}" connection with options')
-@step('Add "{typ}" connection with options "{options}"')
 @step('Add "{typ}" connection named "{name}"')
 @step('Add "{typ}" connection named "{name}" with options')
 @step('Add "{typ}" connection named "{name}" with options "{options}"')
