@@ -772,7 +772,7 @@
     @RHEL-95884
     @RHEL-113954
     @ver/rhel/9/4+=1.46.0.35
-    @ver+=1.54.1
+    @ver+=1.54.2
     @ver+=1.55.4
     @sriov_reapply_vf
     Scenario: nmcli - sriov - reapply VF setting
