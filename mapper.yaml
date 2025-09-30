@@ -2324,6 +2324,8 @@ testmapper:
     - libreswan_ikev2_right_cert:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_leftsendcert_reimport:
+        feature: libreswan
     #NEW tests based on nmstate infra
     - libreswan_ikev2_ipv4_leftcert:
         feature: libreswan
