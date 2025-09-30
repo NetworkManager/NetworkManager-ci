@@ -250,11 +250,17 @@ Feature: nmcli - bridge
     Then "/etc/NetworkManager/system-connections/br15.nmconnection" is file in "10" seconds
     * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
     Then "/etc/NetworkManager/system-connections/eth4.80.nmconnection" is file in "10" seconds
-    * Add "bridge-slave" connection with options "ifname eth4.80 autoconnect no master br15"
+    * Add "bridge-slave" connection named "bridge-slave-eth4.80" with options
+        """
+        ifname eth4.80
+        autoconnect no
+        master br15
+        """
     Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
       """
-      connection.master=br15
+      connection.controller=br15
       """
+
 
 
     @RHEL-52597
@@ -267,8 +273,13 @@ Feature: nmcli - bridge
     Then "/etc/NetworkManager/system-connections/br15.nmconnection" is file in "10" seconds
     * Add "vlan" connection named "eth4.80" with options "dev eth4 id 80"
     Then "/etc/NetworkManager/system-connections/eth4.80.nmconnection" is file in "10" seconds
-    * Add "bridge-slave" connection with options "ifname eth4.80 autoconnect no master br15"
-    Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
+    * Add "bridge-slave" connection named "bridge-port-eth4.80" with options
+        """
+        ifname eth4.80
+        autoconnect no
+        master br15
+        """
+    Then Check keyfile "/etc/NetworkManager/system-connections/bridge-port-eth4.80.nmconnection" has options
       """
       connection.controller=br15
       """
@@ -314,7 +325,12 @@ Feature: nmcli - bridge
     * Cleanup connection "bridge-slave-eth4"
     * Cleanup device "eth4"
     * Add "bridge" connection named "br10" for device "br10" with options "bridge.stp off"
-    * Add "bridge-slave" connection with options "ifname eth4 autoconnect no master br10"
+    * Add "bridge-slave" connection named "bridge-slave-eth4" with options
+        """
+        ifname eth4
+        autoconnect no
+        master br10
+        """
     * Open editor for connection "br10"
     * Set a property named "ipv4.method" to "manual" in editor
     * Set a property named "ipv4.addresses" to "192.168.1.19/24" in editor
