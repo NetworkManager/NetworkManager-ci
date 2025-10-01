@@ -258,7 +258,7 @@ Feature: nmcli - bridge
         """
     Then Check keyfile "/etc/NetworkManager/system-connections/bridge-slave-eth4.80.nmconnection" has options
       """
-      connection.controller=br15
+      connection.master=br15
       """
 
 
