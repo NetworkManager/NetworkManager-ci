@@ -471,6 +471,71 @@ Feature: nmcli: connection
      When "con_con2" is visible with command "nmcli con show --active" in "5" seconds
 
 
+    @connection_autoconnect_lower_uuid
+    Scenario: nmcli - connection - activation order by UUID when priority and timestamp are same
+    * Create keyfile "/etc/NetworkManager/system-connections/con_uuid1.nmconnection"
+      """
+      [connection]
+      id=con_uuid1
+      uuid=21f9fcd2-34cd-4a4a-8389-4846d67fccd1
+      type=ethernet
+      interface-name=eth6
+
+      [ethernet]
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=default
+      method=auto
+
+      [proxy]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/con_uuid2.nmconnection"
+      """
+      [connection]
+      id=con_uuid2
+      uuid=11f9fcd2-34cd-4a4a-8389-4846d67fccd1
+      type=ethernet
+      interface-name=eth6
+
+      [ethernet]
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=default
+      method=auto
+
+      [proxy]
+      """
+    * Create keyfile "/etc/NetworkManager/system-connections/con_uuid3.nmconnection"
+      """
+      [connection]
+      id=con_uuid3
+      uuid=a1f9fcd2-34cd-4a4a-8389-4846d67fccd1
+      type=ethernet
+      interface-name=eth6
+
+      [ethernet]
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=default
+      method=auto
+
+      [proxy]
+      """
+    * Reload connections
+     Then "con_uuid2" is visible with command "nmcli con show --active" in "5" seconds
+     Then "con_uuid1" is not visible with command "nmcli con show --active" in "5" seconds
+     Then "con_uuid3" is not visible with command "nmcli con show --active" in "5" seconds
+
+
     @connection_readonly_timestamp
     Scenario: nmcli - connection - readonly timestamp
      * Add "ethernet" connection named "con_con" for device "eth6"
@@ -1072,10 +1137,10 @@ Feature: nmcli: connection
           match.interface-name 'testX*'
           """
     Then Expect "testX1: connection failed" in children in "15" seconds
-   
+
     # This covers https://bugzilla.redhat.com/show_bug.cgi?id=2039734
     Then Expect "testX1: connection failed" in children in "15" seconds
-   
+
     # This covers https://bugzilla.redhat.com/show_bug.cgi?id=2150000
     # Do not remove even when other bug is fixed!
     Then Expect "testX1: disconnected" in children in "15" seconds

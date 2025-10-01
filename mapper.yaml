@@ -2537,6 +2537,8 @@ testmapper:
         feature: connection
     - connection_timestamp_on_restart_activation:
         feature: connection
+    - connection_autoconnect_lower_uuid:
+        feature: connection
     - connection_readonly_timestamp:
         feature: connection
     - connection_readonly_yes:
