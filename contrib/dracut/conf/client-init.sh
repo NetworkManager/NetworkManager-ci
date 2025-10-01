@@ -17,6 +17,9 @@ core_pattern_setup
 
 mount_list
 
+echo "== hostnamectl =="
+hostnamectl || true
+
 echo "== checking services =="
 for service in dbus NetworkManager; do
     for i in {1..15}; do
