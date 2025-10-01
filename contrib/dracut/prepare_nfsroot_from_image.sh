@@ -103,12 +103,16 @@ mount $part -o ro,noatime,norecovery,nouuid $TESTDIR/qcow || \
     mount $part -o ro,noatime,norecovery $TESTDIR/qcow
 
 # Fedora Cloud image contains / in /root dir
-[ -d $TESTDIR/qcow/root/etc ] && mount -o bind /var/dracut_test/qcow/root/ /var/dracut_test/qcow/
+root=""
+[ -d $TESTDIR/qcow/root/etc ] && root=root/
 
-[ -d $TESTDIR/qcow/etc ] || { echo "Mount failed, etc/ directory not found" ; exit 1; }
+[ -d $TESTDIR/qcow/${root}etc ] || { echo "Mount failed, etc/ directory not found" ; exit 1; }
 
 mkdir -p $initdir
-rsync -a $TESTDIR/qcow/ $initdir || echo "WARNING! rsync to nfsroot failed!"
+rsync -a $TESTDIR/qcow/$root $initdir || echo "WARNING! rsync to nfsroot failed!"
+
+# Fedora Cloud image contains /var separately
+[ -n "$root" ] && [ -d $TESTDIR/qcow/var ] && ( rsync -a $TESTDIR/qcow/var/ $initdir/var/ || echo "WARNING! rsync if /var to nfsroot failed!"; )
 
 # umount twice, there might be also bind
 umount $TESTDIR/qcow
