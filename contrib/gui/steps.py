@@ -581,7 +581,7 @@ def prepare_libreswan(context, mode="aggressive"):
 
 
 @step('Prepare simulated gsm | named "{modem}"')
-def prepare_gsm(context, modem="modemu"):
+def prepare_gsm(context, modem="smd0"):
     init_command_embeds(context)
     context.sandbox.add_after_scenario_hook(
         lambda context: context.embed(

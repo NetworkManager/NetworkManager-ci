@@ -12,7 +12,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_create_assisted_connection
     Scenario: nmcli - gsm_sim - create an assisted connection
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Open wizard for adding new connection
     * Expect "Connection type"
     * Submit "gsm" in editor
@@ -31,12 +31,12 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_create_default_connection
     Scenario: nmcli - gsm_sim - create a connection
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
-     And "172.31.82.2 peer 172.31.82.1" is visible with command "ip addr show $(nmcli -g general.ip-iface device show modemu)"
+     And "172.31.82.2 peer 172.31.82.1" is visible with command "ip addr show $(nmcli -g general.ip-iface device show smd0)"
      And Nameserver "172.16.1.1" is set
      * Ignore possible AVC "ModemManager"
 
@@ -45,7 +45,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_disconnect
     Scenario: nmcli - gsm_sim - disconnect
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
      * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
@@ -60,7 +60,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_mtu
     Scenario: nmcli - gsm_sim - mtu
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
@@ -70,7 +70,7 @@ Feature: nmcli: gsm
     * Wait for "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"
     * Wait for "2" seconds
-    * Run child "sh prepare/gsm_sim.sh modemu"
+    * Run child "sh prepare/gsm_sim.sh smd0"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
@@ -84,7 +84,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_route_metric
     Scenario: nmcli - gsm_sim - route metric
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "default" is visible with command "ip r |grep 700" in "60" seconds
@@ -94,7 +94,7 @@ Feature: nmcli: gsm
     * Wait for "2" seconds
     * Execute "sh prepare/gsm_sim.sh teardown"
     * Wait for "2" seconds
-    * Run child "sh prepare/gsm_sim.sh modemu"
+    * Run child "sh prepare/gsm_sim.sh smd0"
     When "gsm" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
@@ -107,7 +107,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_load_from_file
     Scenario: nmcli - gsm_sim - load connection from file
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Append "[connection]" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "id=gsm" to file "/etc/NetworkManager/system-connections/gsm"
      * Append "uuid=12345678-abcd-eeee-ffff-098106543210" to file "/etc/NetworkManager/system-connections/gsm"
@@ -132,7 +132,7 @@ Feature: nmcli: gsm
     @permissive @gsm_sim
     @gsm_sim_profile_with_serials
     Scenario: nmcli - gsm_sim - serial
-    Given "modemu" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
      * Add "gsm" connection named "gsm" for device "\*" with options
            """
            autoconnect no

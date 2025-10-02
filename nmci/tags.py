@@ -200,7 +200,7 @@ def gsm_sim_bs(context, scenario):
     context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
 
     # run as service
-    context.pexpect_service("prepare/gsm_sim.sh modemu")
+    context.pexpect_service("prepare/gsm_sim.sh smd0")
 
 
 def gsm_sim_as(context, scenario):
