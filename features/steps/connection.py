@@ -133,14 +133,19 @@ def open_slave_connection(context, master, device, name):
 @step('Bring "{action}" connection "{name}"')
 @step('Bring "{action}" connection "{name}" for "{device}" device')
 def start_stop_connection(context, name, action, device=""):
+    wait = ""
     if action == "down":
         if name not in nmci.process.nmcli("connection show --active"):
             print("Warning: Connection is down no need to down it again")
             return
+        # This is workaround for ModemManager-1.24+
+        # https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/issues/1018
+        if name == "gsm":
+            wait = "--wait 60"
     if device:
         device = f"ifname {device}"
 
-    nmci.process.nmcli(f"connection {action} id {name} {device}", timeout=180)
+    nmci.process.nmcli(f"{wait} connection {action} id {name} {device}", timeout=180)
 
 
 @step('Bring "{action}" connection "{name}" ignoring error')
