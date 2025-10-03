@@ -1,6 +1,6 @@
 # Some URL shorteners
 KOJI="https://kojipkgs.fedoraproject.org/packages"
-BREW="http://download.eng.bos.redhat.com/brewroot/vol"
+BREW="http://download.devel.redhat.com/brewroot/vol"
 FEDP="https://vbenes.fedorapeople.org/NM"
 CBSC="https://cbs.centos.org/kojifiles/packages"
 KHUB="https://kojihub.stream.centos.org/kojifiles/packages"

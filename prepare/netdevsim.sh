@@ -22,7 +22,7 @@ function setup () {
         PATCH="0001-netdevsim-fix-channels.patch 0001-netdevsim-fix-ring.patch"
     elif grep "release 8" /etc/redhat-release; then
         PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
-        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/kernel"
+        URL="http://download.devel.redhat.com/brewroot/vol/rhel-8/packages/kernel"
         if grep -F --regexp="release 8."{0..4}" " /etc/redhat-release; then
             PATCH="0001-netdevsim-add-coal-ring-channels.patch"
         elif grep -F --regexp="release 8."{5..6}" " /etc/redhat-release; then
@@ -32,7 +32,7 @@ function setup () {
         fi
     elif grep -e "release 9" /etc/redhat-release; then
         PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
-        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-9/packages/kernel"
+        URL="http://download.devel.redhat.com/brewroot/vol/rhel-9/packages/kernel"
         if grep -F --regexp="release 9.0 " /etc/redhat-release; then
             PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-add-channels.patch"
         elif grep "CentOS" /etc/redhat-release; then
@@ -41,7 +41,7 @@ function setup () {
         LINUX=linux-$MAJOR-${MINOR%.el9}
     elif grep "release 10" /etc/redhat-release; then
         PATCH="0001-netdevsim-fix-ring.patch 0001-netdevsim-fix-channels.patch"
-        URL="http://download.eng.bos.redhat.com/brewroot/vol/rhel-10/packages/kernel"
+        URL="http://download.devel.redhat.com/brewroot/vol/rhel-10/packages/kernel"
         if grep "CentOS" /etc/redhat-release; then
             URL="https://kojihub.stream.centos.org/kojifiles/packages/kernel/"
         fi

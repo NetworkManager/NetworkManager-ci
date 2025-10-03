@@ -1,6 +1,6 @@
 [OVS-RHEL10]
 name=ovs-rhel10
-baseurl=http://download.eng.bos.redhat.com/rhel-10/nightly/FDP/latest-FDP-10-RHEL-10/compose/Server/$basearch/os/
+baseurl=http://download.devel.redhat.com/rhel-10/nightly/FDP/latest-FDP-10-RHEL-10/compose/Server/$basearch/os/
 enable=1
 skip_if_unavailable=1
 gpgcheck=0
