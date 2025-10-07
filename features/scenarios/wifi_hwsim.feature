@@ -299,6 +299,50 @@ Feature: nmcli - wifi
     Then Bring "up" connection "wifi"
 
 
+    @ver+=1.55.90
+    @ver+=1.54.2.2
+    @simwifi
+    @simwifi_tls_user_permissions
+    Scenario: nmcli - simwifi - check that user has access to certificates
+    Given "wpa2-eap" is visible with command "nmcli -f SSID device wifi list" in "60" seconds
+    * Add "wifi" connection named "wifi" for device "wlan0" with options "autoconnect no ssid wpa2-eap"
+    * Modify connection "wifi" changing options
+      """
+      802-11-wireless-security.key-mgmt wpa-eap
+      802-1x.eap tls
+      802-1x.identity test
+      802-1x.ca-cert /etc/pki/nm-ci-root-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+      802-1x.private-key-password redhat
+      connection.permissions user:test
+      """
+    Then "nmcli con up id wifi" fails
+    * Modify connection "wifi" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-root-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id wifi" fails
+    * Modify connection "wifi" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-root-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id wifi" fails
+        * Modify connection "wifi" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-root-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-root-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-root-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id wifi" fails
+    * Modify connection "wifi" changing options "connection.permissions ''"
+    Then Bring "up" connection "wifi"
+
+
     @ver+=1.10 @fedoraver+=31
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_tls_bad_private_key_password

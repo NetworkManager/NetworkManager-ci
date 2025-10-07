@@ -30,6 +30,7 @@ discover:
         - /tests/8021x_tls_pkcs11_pw_in_uri_flag_nr
         - /tests/8021x_with_credentials
         - /tests/8021x_tls
+        - /tests/8021x_tls_user_permissions
         - /tests/8021x_tls_bad_private_key_password
         - /tests/8021x_tls_aes256_private_key
         - /tests/8021x_tls_no_private_key_password
