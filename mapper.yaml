@@ -2364,6 +2364,8 @@ testmapper:
         feature: libreswan
     - libreswan_add_routing_rules:
         feature: libreswan
+    - libreswan_nm_auto_defaults:
+        feature: libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:

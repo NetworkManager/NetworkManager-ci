@@ -911,3 +911,115 @@ method=auto
     Then "16383:\s+from all lookup 127 proto static" is not visible with command "ip rule"
     Then "16600:\s+from all lookup 200 proto static" is not visible with command "ip -6 rule"
     And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
+
+
+    @RHEL-56551
+    @rhelver+=9.7
+    @rhelver+=10.1
+    @fedoraver+=43
+    @vpn
+    @libreswan_nm_auto_defaults
+    Scenario: nmcli - libreswan - check nm-libreswan defaults
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
+    * Commentary
+        """
+        We do not have nm-auto-defaults in vpn.data so NM-libreswan adds it's own defaults
+        Checking that some of them were added (rightsubnet=0.0.0.0/0, etc) are present
+        """
+
+    * Add "vpn" connection named "vpn" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'right=1.2.3.4,
+                rightid=@server,
+                rightrsasigkey=server-key,
+                left=1.2.3.5,
+                leftid=@client,
+                leftrsasigkey=client-key,
+                leftcert=client-cert,
+                ike=aes256-sha1;modp1536,
+                esp=aes256-sha1'
+	"""
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
+    * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    When "rightsubnet=0.0.0.0/0" is visible with command "cat /tmp/vpn.swan"
+    When "ikelifetime=24h" is visible with command "cat /tmp/vpn.swan"
+    When "rekey=yes" is visible with command "cat /tmp/vpn.swan"
+    * Delete connection "vpn"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
+    Then Check noted values "vpn1" and "vpn2" are not the same
+    Then "rightsubnet\s+=\s+0.0.0.0/0" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+    Then "ikelifetime\s+=\s+24h" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+    Then "rekey\s+=\s+yes" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+
+    * Delete connection "vpn"
+    * Commentary
+        """
+        Setting nm-auto-defaults to no and ensuring just the same values are exported/imported
+        """
+    * Add "vpn" connection named "vpn" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'right=1.2.3.4,
+                rightid=@server,
+                rightrsasigkey=server-key,
+                left=1.2.3.5,
+                leftid=@client,
+                leftrsasigkey=client-key,
+                leftcert=client-cert,
+                ike=aes256-sha1;modp1536,
+                esp=aes256-sha1,
+                nm-auto-defaults=no'
+        """
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn3"
+    * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    * Delete connection "vpn"
+    * Commentary
+        """
+        Here is a bug RHEL-119641 so we need to workaround it
+        Also a bug RHEL-119653 so another workaround
+        """
+    * Execute "echo ' nm-auto-defaults=no' >> /tmp/vpn.swan"
+    * Execute "echo ' esp=aes256-sha1' >> /tmp/vpn.swan"
+
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn4"
+    Then Check noted values "vpn3" and "vpn4" are the same
+
+    * Delete connection "vpn"
+    * Commentary
+        """
+        Setting nm-auto-defaults=yes and ensuring just the same values as in first case
+        """
+    * Add "vpn" connection named "vpn" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'right=1.2.3.4,
+                rightid=@server,
+                rightrsasigkey=server-key,
+                left=1.2.3.5,
+                leftid=@client,
+                leftrsasigkey=client-key,
+                leftcert=client-cert,
+                ike=aes256-sha1;modp1536,
+                esp=aes256-sha1,
+                nm-auto-defaults=yes'
+        """
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn5"
+    * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    When "rightsubnet=0.0.0.0/0" is visible with command "cat /tmp/vpn.swan"
+    When "ikelifetime=24h" is visible with command "cat /tmp/vpn.swan"
+    When "rekey=yes" is visible with command "cat /tmp/vpn.swan"
+    * Delete connection "vpn"
+    * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
+    * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn6"
+    Then Check noted values "vpn5" and "vpn6" are not the same
+    Then Check noted values "vpn6" and "vpn2" are the same
+    Then "rightsubnet\s+=\s+0.0.0.0/0" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+    Then "ikelifetime\s+=\s+24h" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+    Then "rekey\s+=\s+yes" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+
