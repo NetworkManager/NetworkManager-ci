@@ -913,7 +913,7 @@ method=auto
     And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
 
 
-    @RHEL-56551
+    @RHEL-56551 @RHEL-118819
     @rhelver+=9.7
     @rhelver+=10.1
     @fedoraver+=43
@@ -939,13 +939,15 @@ method=auto
                 leftrsasigkey=client-key,
                 leftcert=client-cert,
                 ike=aes256-sha1;modp1536,
-                esp=aes256-sha1'
+                esp=aes256-sha1,
+                rightca=My-VPN-CA'
 	"""
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     When "rightsubnet=0.0.0.0/0" is visible with command "cat /tmp/vpn.swan"
     When "ikelifetime=24h" is visible with command "cat /tmp/vpn.swan"
     When "rekey=yes" is visible with command "cat /tmp/vpn.swan"
+    When "rightca=\"My-VPN-CA\"" is visible with command "cat /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
@@ -953,6 +955,7 @@ method=auto
     Then "rightsubnet\s+=\s+0.0.0.0/0" is visible with command "nmcli con show vpn |grep 'vpn.data'"
     Then "ikelifetime\s+=\s+24h" is visible with command "nmcli con show vpn |grep 'vpn.data'"
     Then "rekey\s+=\s+yes" is visible with command "nmcli con show vpn |grep 'vpn.data'"
+    Then "rightca\s+=\s+My-VPN-CA" is visible with command "nmcli con show vpn |grep 'vpn.data'"
 
     * Delete connection "vpn"
     * Commentary
@@ -1007,6 +1010,7 @@ method=auto
                 leftcert=client-cert,
                 ike=aes256-sha1;modp1536,
                 esp=aes256-sha1,
+                rightca=My-VPN-CA,
                 nm-auto-defaults=yes'
         """
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn5"
