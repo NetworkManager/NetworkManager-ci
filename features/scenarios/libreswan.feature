@@ -405,13 +405,13 @@
 
 
     @rhbz1633174
-    # This is for NM-libreswan >= 1.2.26
+    # This is for NM-libreswan >= 1.2.27
     #@rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
     @rhelver+=10.1 @fedoraver+=43
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.26"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
     * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
@@ -474,12 +474,11 @@
 
 
     @rhbz1557035
-    #@rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
-    @rhelver+=10.1 @fedoraver+=43
+    @rhelver+=9.8 @rhelver+=10.1 @fedoraver+=43
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.26"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
@@ -497,12 +496,11 @@
 
 
     @RHEL-110771
-    # We need libreswan 1.2.26 and newer
     @rhelver+=9.8 @rhelver+=10.2 @fedoraver+=43
     @vpn
     @libreswan_leftsendcert_reimport
     Scenario: nmcli - libreswan - check leftsendcert
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.26"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
