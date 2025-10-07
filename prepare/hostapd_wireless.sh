@@ -5,6 +5,7 @@ HOSTAPD_CFG="/etc/hostapd/wireless.conf"
 EAP_USERS_FILE="/etc/hostapd/hostapd.eap_user"
 HOSTAPD_KEYS_PATH="/etc/hostapd/ssl"
 CLIENT_KEYS_PATH="/etc/pki/nm-ci-certs"
+CLIENT_KEYS_PATH_ROOT_ONLY="/etc/pki/nm-ci-root-certs/"
 
 function get_phy() {
     ifname=$1
@@ -363,14 +364,20 @@ function copy_certificates ()
     /bin/cp -rf $CERTS_PATH/server/hostapd* $HOSTAPD_KEYS_PATH
 
     [ -d $CLIENT_KEYS_PATH ] || mkdir -p $CLIENT_KEYS_PATH
+    [ -d $CLIENT_KEYS_PATH_ROOT_ONLY ] || ( mkdir -p $CLIENT_KEYS_PATH_ROOT_ONLY; chmod 700 $CLIENT_KEYS_PATH_ROOT_ONLY )
     /bin/cp -rf $CERTS_PATH/client/test_user.*.pem $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user.*.pem $CLIENT_KEYS_PATH_ROOT_ONLY
     /bin/cp -rf $CERTS_PATH/client/test_user_pq.*.pem $CLIENT_KEYS_PATH
+    /bin/cp -rf $CERTS_PATH/client/test_user_pq.*.pem $CLIENT_KEYS_PATH_ROOT_ONLY
 
     /bin/cp -rf $CERTS_PATH/client/test_user.ca.pem /etc/pki/ca-trust/source/anchors
     /bin/cp -rf $CERTS_PATH/client/test_user_qa.ca.pem /etc/pki/ca-trust/source/anchors
     chown -R test:test $CLIENT_KEYS_PATH
     chcon -R -t home_cert_t $CLIENT_KEYS_PATH/
     chmod -R o= $CLIENT_KEYS_PATH
+    chown -R root:root $CLIENT_KEYS_PATH_ROOT_ONLY
+    chcon -R -t home_cert_t $CLIENT_KEYS_PATH_ROOT_ONLY/
+    chmod -R o= $CLIENT_KEYS_PATH_ROOT_ONLY
     update-ca-trust extract
 }
 

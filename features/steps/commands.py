@@ -163,7 +163,7 @@ def pkill_process(context, process, signal="TERM"):
 
 @step('"{command}" fails')
 def wait_for_process(context, command):
-    assert nmci.process.run(command, shell=True).returncode != 0
+    assert nmci.process.run(command, ignore_stderr=True, shell=True).returncode != 0
     time.sleep(0.1)
 
 
