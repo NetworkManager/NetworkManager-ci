@@ -517,6 +517,49 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
+    @ver+=1.55.90
+    @ver+=1.54.2.2
+    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_tls_user_permissions
+    Scenario: nmcli - ethernet - check that user has access to certificates
+    * Add "ethernet" connection named "con_eth" with options "autoconnect no"
+    * Modify connection "con_eth" changing options
+      """
+      ifname test8X
+      802-1x.eap tls
+      802-1x.identity test
+      802-1x.ca-cert /etc/pki/nm-ci-root-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+      802-1x.private-key-password redhat
+      connection.permissions user:test
+      """
+    Then "nmcli con up id con_eth" fails
+    * Modify connection "con_eth" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-root-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id con_eth" fails
+    * Modify connection "con_eth" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-root-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id con_eth" fails
+        * Modify connection "con_eth" changing options
+      """
+      802-1x.ca-cert /etc/pki/nm-ci-root-certs/test_user.ca.pem
+      802-1x.client-cert /etc/pki/nm-ci-root-certs/test_user.cert.pem
+      802-1x.private-key /etc/pki/nm-ci-root-certs/test_user.key.enc.pem
+      """
+    Then "nmcli con up id con_eth" fails
+    * Modify connection "con_eth" changing options "connection.permissions ''"
+    Then Bring "up" connection "con_eth"
+
+
     @rhbz1623798
     @ver+=1.12
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
