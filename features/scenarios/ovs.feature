@@ -2080,6 +2080,66 @@ Feature: nmcli - ovs
     Then "ovsbridge0" is not visible with command "ovs-vsctl show" in "10" seconds
 
 
+    @RHEL-120176
+    @ver+=1.55.5
+    @openvswitch
+    @nmcli_openvswitch_keep_external_ports
+    Scenario: nmcli - openvswitch - keep externally added ports
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "connection.controller ovsbridge0"
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          connection.controller port0
+          ipv4.method manual
+          ipv4.address 172.25.10.1/24
+          """
+    * Execute "ovs-vsctl add-port ovsbridge0 test-port -- set interface test-port type=internal"
+    * Add "ovs-bridge" connection named "ovs-bridge1" for device "ovsbridge1"
+    * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "connection.controller ovsbridge1"
+    * Add "ovs-interface" connection named "ovs-iface1" for device "iface1" with options
+          """
+          connection.controller port1
+          ipv4.method manual
+          ipv4.address 172.25.10.2/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface1" in "40" seconds
+    Then "ovsbridge0" is visible with command "ovs-vsctl show"
+     And "ovsbridge1" is visible with command "ovs-vsctl show"
+     And "test-port" is visible with command "ovs-vsctl show"
+    * Commentary
+        """
+        Check that the external port is not affected by doing down, up or delete on the other bridge.
+        """
+    When Bring "down" connection "ovs-iface1"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+    When Bring "up" connection "ovs-iface1"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+    When Delete connection "ovs-bridge1"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+    * Commentary
+        """
+        Check that the external port is not affected by doing down, up or delete on other port of
+        the same bridge. Note that we need at least 2 nm-owned ports and interfaces, because when
+        removing the last nm-owned one the entire bridge is removed.
+        """
+    * Add "ovs-port" connection named "ovs-port0-2" for device "port0-2" with options "connection.controller ovsbridge0"
+    * Add "ovs-interface" connection named "ovs-iface0-2" for device "iface0-2" with options
+          """
+          connection.controller port0-2
+          ipv4.method manual
+          ipv4.address 172.25.10.3/24
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0-2" in "40" seconds
+    When Bring "down" connection "ovs-iface0"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+    When Bring "up" connection "ovs-iface0"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+    When Delete connection "ovs-iface0"
+     And Delete connection "ovs-port0"
+    Then "test-port" is visible with command "ovs-vsctl show" in "5" seconds
+
+
     @RHEL-93876
     @ver/rhel/9/8+=1.54.1
     @ver/rhel/10/2+=1.55.4
