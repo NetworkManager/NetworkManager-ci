@@ -2235,6 +2235,8 @@ testmapper:
         feature: ovs
     - nmcli_remove_openvswitch_bridge_on_delete:
         feature: ovs
+    - nmcli_openvswitch_keep_external_ports:
+        feature: ovs
     - nmcli_activate_children:
         feature: ovs
         tags: gate
