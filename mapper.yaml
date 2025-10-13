@@ -87,7 +87,7 @@ beaker-hardware:
 
       NetworkManager-gsm:
         - x86_64:
-            hostname: hp-z400-tpb-c-04.%%
+            hostname: gsm1-ml5.tpb.lab.eng.brq.redhat.com
             kernel-options: biosdevname=0 net.ifnames=0
 
       NetworkManager-dcb:
