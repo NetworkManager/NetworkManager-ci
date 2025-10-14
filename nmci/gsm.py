@@ -41,13 +41,23 @@ def reinitialize_devices():
     """
     if nmci.process.systemctl("is-active ModemManager").returncode != 0:
         nmci.process.systemctl("restart ModemManager")
-        timer = 40
-        while "gsm" not in nmci.process.nmcli("device"):
+
+    # This is basic check that we have both expected modems
+    timer = 40
+    while True:
+        devices = nmci.process.nmcli("device")
+        if "cdc-wdm0" in devices and "cdc-wdm1" in devices:
+            print("2 modems found.. done")
+            break
+        else:
             time.sleep(1)
             timer -= 1
             if timer == 0:
                 break
-    if "gsm" not in nmci.process.nmcli("device"):
+
+    # Do some resets if we do not have them in 40s
+    devices = nmci.process.nmcli("device")
+    if "cdc-wdm0" not in devices or "cdc-wdm1" not in devices:
         print("reinitialize devices")
         reset_usb_devices()
         nmci.process.run_stdout(
@@ -60,11 +70,15 @@ def reinitialize_devices():
         )
         nmci.process.systemctl("restart ModemManager")
         timer = 80
-        while "gsm" not in nmci.process.nmcli("device"):
-            time.sleep(1)
-            timer -= 1
-            if timer == 0:
-                assert False, "Cannot initialize modem"
+        while True:
+            devices = nmci.process.nmcli("device")
+            if "cdc_wdm0" in devices and "cdc-wdm1" in devices:
+                break
+            else:
+                time.sleep(1)
+                timer -= 1
+                if timer == 0:
+                    assert False, "Cannot initialize modem"
         time.sleep(60)
     return True
 

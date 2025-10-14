@@ -372,8 +372,9 @@ def gsm_bs(context, scenario):
     scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):
-        context.process.run_stdout("sh prepare/initialize_modem.sh", timeout=580)
+        nmci.gsm.reinitialize_devices()
 
+    print ("bringing down testeth0")
     context.process.nmcli_force("con down testeth0")
 
 
