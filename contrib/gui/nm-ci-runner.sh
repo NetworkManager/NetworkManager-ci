@@ -16,8 +16,10 @@ if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
         if [ "$(arch)" != "s390x" ]; then
+          mount -o remount,rw lazy /usr
           bash contrib/utils/koji_links.sh NetworkManager-openvpn $(rpm -q NetworkManager-openvpn --qf '%{VERSION} %{RELEASE}') | xargs $dnf -y install
-          dnf -y install NetworkManager-libreswan-gnome
+          $dnf -y install NetworkManager-libreswan-gnome
+          mount -o remount,ro lazy /usr
         fi
         python3 -m pip install proxy.py
         systemctl restart NetworkManager
