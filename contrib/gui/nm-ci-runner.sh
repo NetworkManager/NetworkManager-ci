@@ -2,7 +2,8 @@
 set -e
 
 dnf=dnf
-grep -q ostree /proc/cmdline && dnf="dnf --transient"
+image_mode=false
+grep -q ostree /proc/cmdline && dnf="dnf --transient" && image_mode=true
 
 NM_CI_DIR=$1
 cd $NM_CI_DIR
@@ -16,10 +17,10 @@ if [ "$cmd" == "install" ]; then
     if ! [ -f /tmp/network_pkgs_installed ]; then
         set -x
         if [ "$(arch)" != "s390x" ]; then
-          mount -o remount,rw lazy /usr
+          $image_mode && mount -o remount,rw lazy /usr || true
           bash contrib/utils/koji_links.sh NetworkManager-openvpn $(rpm -q NetworkManager-openvpn --qf '%{VERSION} %{RELEASE}') | xargs $dnf -y install
           $dnf -y install NetworkManager-libreswan-gnome
-          mount -o remount,ro lazy /usr
+          $image_mode && mount -o remount,ro lazy /usr || true
         fi
         python3 -m pip install proxy.py
         systemctl restart NetworkManager
