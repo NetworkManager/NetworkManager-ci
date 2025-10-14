@@ -208,7 +208,6 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "default" is visible with command "ip r |grep 700"
-    * Modify connection "gsm" changing options "ipv4.dns 10.38.5.26"
     * Bring "up" connection "gsm"
     Then "full" is visible with command "nmcli g" in "80" seconds
      And Ping "nix.cz" "7" times
