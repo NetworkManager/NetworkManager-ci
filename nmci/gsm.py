@@ -72,7 +72,7 @@ def reinitialize_devices():
         timer = 80
         while True:
             devices = nmci.process.nmcli("device")
-            if "cdc_wdm0" in devices and "cdc-wdm1" in devices:
+            if "cdc-wdm0" in devices and "cdc-wdm1" in devices:
                 break
             else:
                 time.sleep(1)

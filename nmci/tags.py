@@ -374,7 +374,7 @@ def gsm_bs(context, scenario):
     if not os.path.isfile("/tmp/usb_hub"):
         nmci.gsm.reinitialize_devices()
 
-    print ("bringing down testeth0")
+    print("bringing down testeth0")
     context.process.nmcli_force("con down testeth0")
 
 
