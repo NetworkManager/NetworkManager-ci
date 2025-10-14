@@ -16,16 +16,29 @@ Feature: nmcli: gsm
     # * Execute "echo 'This should not be reached' && false"
 
     @gsm
-    @gsm_create_default_connection
+    @gsm_create_default_connection_mbim
     Scenario: nmcli - gsm - create a connection
-    * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
+    * Note the output of "nmcli | grep -B1 mbim | grep -o '"[^"]*"' | tr -d '"'" as value "mbim"
+    * Add "gsm" connection named "gsm" for device "<noted:mbim>" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
     * Wait for "10" seconds
-
      And "default" is visible with command "ip r |grep 700"
-     And Ping "8.8.8.8" "7" times
+     And Ping "nix.cz" "7" times
+
+
+    @gsm
+    @gsm_create_default_connection_qmi
+    Scenario: nmcli - gsm - create a connection
+    * Note the output of "nmcli | grep -B1 qmi | grep -o '"[^"]*"' | tr -d '"'" as value "qmi"
+    * Add "gsm" connection named "gsm" for device "<noted:qmi>" with options "autoconnect no apn internet"
+    * Bring "up" connection "gsm"
+    Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    # Workaround
+    * Wait for "10" seconds
+     And "default" is visible with command "ip r |grep 700"
+     And Ping "nix.cz" "7" times
 
 
     @ver+=1.39.7
