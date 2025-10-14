@@ -24,6 +24,7 @@ def add_new_connection(
 
     iface = ""
     if ifname is not None:
+        ifname = nmci.misc.str_replace_dict(ifname, getattr(context, "noted", {}))
         if cleanup:
             nmci.cleanup.add_iface(ifname)
         iface = f"ifname {ifname}"
