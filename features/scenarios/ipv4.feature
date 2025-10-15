@@ -3704,6 +3704,10 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
     Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
     Then " 0% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
+    * Bring "down" connection "veth0"
+    * Bring "down" connection "veth1"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "5" seconds
+     And "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "5" seconds
 
 
     @RHEL-60237
@@ -3743,6 +3747,11 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
     Then "100% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
     Then "100% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
+    # On connection down forwarding must be "1" because we set the default forwarding like that:
+    * Bring "down" connection "veth0"
+    * Bring "down" connection "veth1"
+    Then "1" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "5" seconds
+     And "1" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "5" seconds
 
 
     @RHEL-60237
@@ -3785,6 +3794,10 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec ns0 ip route add default via 192.168.0.10"
     * Execute "ip netns exec ns1 ip route add default via 192.168.1.10"
     Then " 0% packet loss" is visible with command "ip netns exec ns0 ping -c 1 192.168.1.20" in "20" seconds
+    * Bring "down" connection "veth0"
+    * Bring "down" connection "veth1"
+    Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "5" seconds
+     And "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "5" seconds
 
 
     @RHEL-60237
