@@ -34,6 +34,9 @@ install_common_packages () {
     # Install various NM dependencies
     PKGS_REMOVE="$PKGS_REMOVE NetworkManager-config-connectivity-fedora NetworkManager-config-connectivity-redhat"
 
+    # Prevent NM-dispatcher AVCs caused by this script
+    PKGS_REMOVE="$PKGS_REMOVE console-login-helper-messages*"
+
     # Update fallback versions of vpn plugins to repo RPMs (if provided)
     PKGS_UPGRADE="$PKGS_UPGRADE pptpd pptp"
     PKGS_UPGRADE="$PKGS_UPGRADE vpnc vpnc-script"
