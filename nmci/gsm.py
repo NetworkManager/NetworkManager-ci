@@ -43,7 +43,7 @@ def reinitialize_devices():
         nmci.process.systemctl("restart ModemManager")
 
     # This is basic check that we have both expected modems
-    timer = 40
+    timer = 80
     while True:
         devices = nmci.process.nmcli("device")
         if "cdc-wdm0" in devices and "cdc-wdm1" in devices:
@@ -79,7 +79,39 @@ def reinitialize_devices():
                 timer -= 1
                 if timer == 0:
                     assert False, "Cannot initialize modem"
-        time.sleep(60)
+        time.sleep(10)
+
+    if timer not in [int(80), int(40)]:
+        # We need to get the modem to work
+        # Some modems have problems after the installation or powerup
+        print("running simple-connect and disconnect")
+        for i in range(10):
+            if (
+                nmci.process.run_code(
+                    "mmcli -m 0 --simple-connect='apn=internet'",
+                    ignore_stderr=True,
+                    timeout=40,
+                )
+                == 0
+            ):
+                break
+            if i < 9:
+                time.sleep(2)
+        nmci.process.run_stdout("mmcli -m 0 --simple-disconnect", ignore_stderr=True)
+        for i in range(10):
+            if (
+                nmci.process.run_code(
+                    "mmcli -m 1 --simple-connect='apn=internet'",
+                    ignore_stderr=True,
+                    timeout=40,
+                )
+                == 0
+            ):
+                break
+            if i < 9:
+                time.sleep(2)
+
+        nmci.process.run_stdout("mmcli -m 1 --simple-disconnect", ignore_stderr=True)
     return True
 
 

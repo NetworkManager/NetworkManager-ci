@@ -364,6 +364,9 @@ _register_tag("captive_portal", captive_portal_bs, captive_portal_as)
 
 
 def gsm_bs(context, scenario):
+    if context.process.systemctl("is-active ModemManager").returncode != 0:
+        context.process.systemctl("restart ModemManager")
+
     context.process.run("mmcli -G debug")
     context.process.nmcli("general logging level DEBUG domains ALL")
     # Extract modem's identification and keep it in a global variable for further use.

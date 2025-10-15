@@ -3592,10 +3592,6 @@ testmapper:
 
 
   NetworkManager-gsm:
-    - gsm_create_default_connection_mbim:
-        timeout: 60m
-        feature: gsm
-        tags: jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
     - gsm_create_default_connection_qmi:
         timeout: 60m
         feature: gsm
@@ -3628,6 +3624,11 @@ testmapper:
         timeout: 60m
         feature: gsm
         tags: jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
+    - gsm_create_default_connection_mbim:
+        timeout: 60m
+        feature: gsm
+        tags: jimtcl libmbim libqmi libqrtr-glib ModemManager usb_modeswitch-data usb_modeswitch mobile-broadband-provider-info
+
     # - gsm_hub:
     #     timeout: 60m
     #     # We do not want to tun these test by default
