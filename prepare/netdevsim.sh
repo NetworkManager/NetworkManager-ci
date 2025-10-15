@@ -89,12 +89,13 @@ function setup () {
         fi
 
         cd $DRIVER
+        grep -q ostree /proc/cmdline | mount -o remount,rw lazy /usr || true
         # If we cannot build exit 1
         make -C /lib/modules/$K_VER/build M=$PWD ARCH=$ARCH || \
           { echo "Unable to build module"; exit 1; }
         make -C /lib/modules/$K_VER/build M=$PWD modules_install || \
           { echo "Unable to install module"; exit 1; }
-
+        grep -q ostree /proc/cmdline | mount -o remount,rw lazy /usr || true
         # We are all OK installing deps
         touch /tmp/netdevsim_installed
     fi
