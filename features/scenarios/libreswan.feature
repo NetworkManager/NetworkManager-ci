@@ -405,13 +405,12 @@
 
 
     @rhbz1633174
-    # This is for NM-libreswan >= 1.2.27
-    #@rhelver+=9.7 @rhelver+=10.1 @fedoraver+=43
-    @rhelver+=10.1 @fedoraver+=43
+    # This is for NM-libreswan >= 1.2.27-2
+    @rhelver+=9.8 @rhelver+=10.1 @fedoraver+=43
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
     * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
@@ -420,15 +419,10 @@
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export libreswan | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Commentary
-    """
-    This is a bug, `esp` is exported as phase2alg, and that is ignored at the import.
-    """
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
+
     * Bring "down" connection "libreswan"
     * Delete connection "libreswan"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
-    # add required options, which are not exported
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -438,15 +432,10 @@
     """
     * Execute "nmcli connection export libreswan | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Commentary
-    """
-    This is a bug, `esp` is exported as phase2alg, and that is ignored at the import.
-    """
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
+
     * Bring "down" connection "libreswan"
     * Delete connection "libreswan"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
-    # add required options, which are not exported
     * Note the output of "nmcli -t -f vpn.data connection show libreswan | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn3"
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -478,7 +467,7 @@
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
@@ -488,7 +477,6 @@
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn2"
@@ -500,7 +488,7 @@
     @vpn
     @libreswan_leftsendcert_reimport
     Scenario: nmcli - libreswan - check leftsendcert
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
@@ -510,7 +498,6 @@
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn1"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
     When "leftsendcert=always" is visible with command "cat /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
@@ -522,7 +509,6 @@
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn3"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
     When "leftsendcert=sendifasked" is visible with command "cat /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
@@ -534,7 +520,6 @@
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn5"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
     * Execute "sed -i 's/\"//g' /tmp/vpn.swan"
-    * Execute "sed -i 's/phase2alg/esp/g' /tmp/vpn.swan"
     When "leftsendcert=disabled" is visible with command "cat /tmp/vpn.swan"
     * Delete connection "vpn"
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
@@ -913,14 +898,14 @@ method=auto
     And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
 
 
-    @RHEL-56551 @RHEL-118819
+    @RHEL-56551 @RHEL-118819 @RHEL-119641 @RHEL-119653
     @rhelver+=9.7
     @rhelver+=10.1
     @fedoraver+=43
     @vpn
     @libreswan_nm_auto_defaults
     Scenario: nmcli - libreswan - check nm-libreswan defaults
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
     * Commentary
         """
         We do not have nm-auto-defaults in vpn.data so NM-libreswan adds it's own defaults
@@ -979,15 +964,8 @@ method=auto
         """
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn3"
     * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    When "# nm-auto-defaults=no" is visible with command "cat /tmp/vpn.swan"
     * Delete connection "vpn"
-    * Commentary
-        """
-        Here is a bug RHEL-119641 so we need to workaround it
-        Also a bug RHEL-119653 so another workaround
-        """
-    * Execute "echo ' nm-auto-defaults=no' >> /tmp/vpn.swan"
-    * Execute "echo ' esp=aes256-sha1' >> /tmp/vpn.swan"
-
     * Execute "nmcli con import file /tmp/vpn.swan type libreswan"
     * Note the output of "nmcli -t -f vpn.data connection show vpn | sed -e 's/vpn.data:\s*//' | sed -e 's/\s*,\s*/\n/g' | sort" as value "vpn4"
     Then Check noted values "vpn3" and "vpn4" are the same
