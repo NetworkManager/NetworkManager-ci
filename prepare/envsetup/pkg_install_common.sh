@@ -9,7 +9,7 @@ install_common_packages () {
     # Dnf more deps
 
     # If running kernel is found in installed kernels, use it
-    if rpm -q kernel | grep -F $(uname -r); then
+    if rpm -q kernel | grep -q -F $(uname -r); then
         K_VER=$(uname -r)
     else
     # If not, we are probably building image, so let's use the installed one
@@ -17,9 +17,12 @@ install_common_packages () {
     fi
     K_MAJOR="$(echo $K_VER |awk -F '-' '{print $1}')"
     K_MINOR="$(echo $K_VER |awk -F '-' '{print $2}'| rev| cut -d. -f2-  |rev)"
+    links_scr=koji_links.sh
+    grep -q "Red Hat Enterprise Linux" /etc/redhat-release && links_scr=brew_links.sh
+    K_DEVEL="$(contrib/utils/$links_scr kernel $K_MAJOR $K_MINOR | grep kernel-devel-$K_MAJOR)"
     PKGS_INSTALL="$PKGS_INSTALL \
-        audit2allow bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel ethtool firewalld \
-        freeradius gcc git hostapd httpd iperf3 iproute-tc iptables iputils iw jq kernel-headers kernel-devel-$K_MAJOR-$K_MINOR \
+        audit2allow bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel \
+        ethtool firewalld freeradius gcc git hostapd httpd iperf3 iproute-tc iptables iputils iw jq kernel-headers $K_DEVEL \
         libreswan-debuginfo lshw lsof mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 patch podman pptpd pptp psmisc python3-dbus \
         python3-gobject python3-inotify python3-libselinux python3-netaddr python3-pip python3-systemd \
         rsync s390utils-base tcpdump telnet traceroute tuned valgrind valgrind-gdb wget wireshark-cli wpa_supplicant yasm ipcalc"
