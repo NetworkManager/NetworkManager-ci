@@ -210,3 +210,28 @@
     Then "16383:\s+from all lookup 127 proto static" is not visible with command "ip rule"
     Then "16600:\s+from all lookup 200 proto static" is not visible with command "ip -6 rule"
     And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
+
+
+    @rhbz1641742
+    @ver+=1.55.90
+    @ver+=1.54.2.2
+    @permissive
+    @openvpn @openvpn4
+    @openvpn_cert_permissions
+    Scenario: nmcli - openvpn - check for certificat permissions
+    * Copy openvpn certs to "/root/" owned by "root"
+    * Copy openvpn certs to "/home/test/" owned by "test"
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Modify connection "openvpn" changing options "connection.permissions user:test"
+    * Use certificate "/root/sample-keys/client.crt" with key "/home/test/sample-keys/client.key" and authority "/home/test/sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * "sudo -u root nmcli c up id openvpn" fails
+    * Use certificate "/home/test/sample-keys/client.crt" with key "/root/sample-keys/client.key" and authority "/home/test/sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * "sudo -u root nmcli c up id openvpn" fails
+    * Use certificate "/home/test/sample-keys/client.crt" with key "/home/test/sample-keys/client.key" and authority "/root/sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * "sudo -u root nmcli c up id openvpn" fails
+    * Use certificate "/home/test/sample-keys/client.crt" with key "/home/test/sample-keys/client.key" and authority "/home/test/sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
+    * Execute "sudo -u root nmcli c up id openvpn"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
+    Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn |grep -v fe80::"
+     And "default" is visible with command "ip r |grep ^default | grep -v eth0"

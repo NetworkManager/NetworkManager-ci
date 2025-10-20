@@ -2491,6 +2491,8 @@ testmapper:
         feature: openvpn
     - openvpn_add_routing_rules:
         feature: openvpn
+    - openvpn_cert_permissions:
+        feature: openvpn
     - vpnc_add_profile:
         feature: vpnc
         tags: gate
