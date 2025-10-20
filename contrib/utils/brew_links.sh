@@ -53,6 +53,7 @@ if [[ $0 == *"brew"* ]]; then
 
     if (($release >= 7 && $release <= 10)); then
         url_base="http://download.devel.redhat.com/brewroot/vol/rhel-$release/packages"
+        url_base_build="http://download.devel.redhat.com/brewroot/packages"
 	provider=brew
     else
         echo "Unsupported distro: $(cat /etc/redhat-release)"
@@ -126,6 +127,10 @@ else
     fi
     ver="$ver2"
 fi
+
+# Switch brew link to all builds regardless rhel version (non-gated builds are not there yet)
+echo "$url_base" | grep -q brew && url_base="$url_base_build"
+
 build=$3
 if [ -z "$build" ]; then
     if $interactive; then
