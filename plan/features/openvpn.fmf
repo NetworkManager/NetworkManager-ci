@@ -13,3 +13,4 @@ discover:
         - /tests/openvpn_2fa
         - /tests/openvpn_2fa_save_password
         - /tests/openvpn_add_routing_rules
+        - /tests/openvpn_cert_permissions

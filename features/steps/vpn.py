@@ -18,13 +18,19 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
 )
 def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
     cert_path = nmci.util.base_dir("contrib/openvpn/")
+    if not cert.startswith("/"):
+        cert = cert_path + cert
+    if not key.startswith("/"):
+        key = cert_path + key
+    if not ca_file.startswith("/"):
+        ca_file = cert_path + ca_file
 
     vpn_data = {
         "tunnel-mtu": "1400",
-        "key": cert_path + key,
+        "key": key,
         "connection-type": "tls",
-        "ca": cert_path + ca_file,
-        "cert": cert_path + cert,
+        "ca": ca_file,
+        "cert": cert,
         "remote": gateway,
         "cert-pass-flags": "0",
     }
@@ -32,6 +38,22 @@ def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
     vpn_data_str = f"vpn.data '{nmci.misc.format_dict(vpn_data)}'"
 
     nmci.process.nmcli(f"con modify {name} {vpn_data_str}")
+
+
+@step('Copy openvpn certs to "{dir}" owned by "{user}"')
+def openvpn_certs_copy_chown(context, dir, user):
+    cert_path = nmci.util.base_dir("contrib/openvpn/sample-keys/")
+    nmci.cleanup.add_callback(
+        lambda: nmci.process.run(
+            f"rm -rf {dir}/sample-keys/", ignore_returncode=True, ignore_stderr=True
+        ),
+        f"remove-ovpn-certs-{dir}-{user}",
+    )
+    # use /usr/bin/cp to prevent interactive alias of cp
+    nmci.process.run(f"/usr/bin/cp -f -r {cert_path} {dir}")
+    nmci.process.run(f"chcon -R -t home_cert_t {dir}/sample-keys/")
+    nmci.process.run(f"ls -lZ {dir}/sample-keys/")
+    nmci.process.run(f"chown -R {user}:{user} {dir}/sample-keys/")
 
 
 @step(
