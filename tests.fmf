@@ -5535,6 +5535,9 @@ link:
     order+: 28011
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5083
+/openvpn_cert_permissions:
+    id: a1c2309b-80f7-5db9-98e4-bd629f37402d
+    order+: 28012
 /vpnc_add_profile:
     tag: ['gate']
     id: 2db97311-de02-5858-a112-894b8f75aa1c
