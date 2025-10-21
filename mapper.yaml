@@ -2286,6 +2286,7 @@ testmapper:
         feature: pptp
     - libreswan_ikev1_aggressive:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev1_main:
         feature: libreswan
         tags: NetworkManager-libreswan
@@ -2294,31 +2295,43 @@ testmapper:
         tags: NetworkManager-libreswan
     - libreswan_ikev2_require_id_on_cert_subject:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_add_profile_wrong_password:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_terminate:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_delete_active_profile:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_dns:
         feature: libreswan
         tags: NetworkManager-libreswan
     - libreswan_start_as_secondary:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_connection_renewal:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_provides_and_obsoletes:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_autocompletion:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_activate_asking_for_password:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_activate_asking_for_password_with_delay:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_activate_asking_for_password_and_secret:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_reimport:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_reimport_ikev2:
         feature: libreswan
         tags: NetworkManager-libreswan
@@ -2329,6 +2342,7 @@ testmapper:
         tags: gate NetworkManager-libreswan
     - libreswan_leftsendcert_reimport:
         feature: libreswan
+        tags: NetworkManager-libreswan
     #NEW tests based on nmstate infra
     - libreswan_ikev2_ipv4_leftcert:
         feature: libreswan
@@ -2341,8 +2355,10 @@ testmapper:
         tags: gate NetworkManager-libreswan
     - libreswan_ikev2_ipv4_leftcert_var2:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2_interface:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2_dpd_interface:
         feature: libreswan
         tags: gate NetworkManager-libreswan
@@ -2363,12 +2379,16 @@ testmapper:
         tags: gate NetworkManager-libreswan
     - libreswan_wrong_data:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_wrong_data_var2:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_add_routing_rules:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_nm_auto_defaults:
         feature: libreswan
+        tags: NetworkManager-libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:
