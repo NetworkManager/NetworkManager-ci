@@ -410,7 +410,17 @@
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version         | distro   |
+      | 1.2.27-3.el9    | rhel9.8  |
+      | 1.2.27-1.el9_7  | rhel9.7  |
+      | 1.2.27-1.el9_6  | rhel9.6  |
+      | 1.2.27-1.el9_4  | rhel9.4  |
+      | 1.2.27-3.el9    | c9s      |
+      | 1.2.27-3.el10   | c10s     |
+      | 1.2.27-3.el10   | rhel10.2 |
+      | 1.2.27-1.el10_1 | rhel10.1 |
+      | 1.2.27-1.el10_0 | rhel10.0 |
     * Add "vpn" connection named "libreswan" for device "\*" with options "autoconnect no vpn-type libreswan"
     * Use certificate "LibreswanClient" for gateway "11.12.13.14" on Libreswan connection "libreswan"
     * Bring "up" connection "libreswan"
@@ -467,7 +477,18 @@
     @vpn
     @libreswan_configurable_options_reimport
     Scenario: nmcli - libreswan - check libreswan options in vpn.data
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version         | distro   |
+      | 1.2.27-3.el9    | rhel9.8  |
+      | 1.2.27-1.el9_7  | rhel9.7  |
+      | 1.2.27-1.el9_6  | rhel9.6  |
+      | 1.2.27-1.el9_4  | rhel9.4  |
+      | 1.2.27-3.el9    | c9s      |
+      | 1.2.27-3.el10   | c10s     |
+      | 1.2.27-3.el10   | rhel10.2 |
+      | 1.2.27-1.el10_1 | rhel10.1 |
+      | 1.2.27-1.el10_0 | rhel10.0 |
+
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
@@ -488,7 +509,17 @@
     @vpn
     @libreswan_leftsendcert_reimport
     Scenario: nmcli - libreswan - check leftsendcert
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version         | distro   |
+      | 1.2.27-3.el9    | rhel9.8  |
+      | 1.2.27-1.el9_7  | rhel9.7  |
+      | 1.2.27-1.el9_6  | rhel9.6  |
+      | 1.2.27-1.el9_4  | rhel9.4  |
+      | 1.2.27-3.el9    | c9s      |
+      | 1.2.27-3.el10   | c10s     |
+      | 1.2.27-3.el10   | rhel10.2 |
+      | 1.2.27-1.el10_1 | rhel10.1 |
+      | 1.2.27-1.el10_0 | rhel10.0 |
     * Add "vpn" connection named "vpn" for device "\*" with options
           """
           autoconnect no
@@ -905,7 +936,17 @@ method=auto
     @vpn
     @libreswan_nm_auto_defaults
     Scenario: nmcli - libreswan - check nm-libreswan defaults
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.27-2"
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | version         | distro   |
+      | 1.2.27-3.el9    | rhel9.8  |
+      | 1.2.27-1.el9_7  | rhel9.7  |
+      | 1.2.27-1.el9_6  | rhel9.6  |
+      | 1.2.27-1.el9_4  | rhel9.4  |
+      | 1.2.27-3.el9    | c9s      |
+      | 1.2.27-3.el10   | c10s     |
+      | 1.2.27-3.el10   | rhel10.2 |
+      | 1.2.27-1.el10_1 | rhel10.1 |
+      | 1.2.27-1.el10_0 | rhel10.0 |
     * Commentary
         """
         We do not have nm-auto-defaults in vpn.data so NM-libreswan adds it's own defaults
