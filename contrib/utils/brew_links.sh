@@ -119,6 +119,8 @@ if [ -z "$ver" ]; then
         ver=$(get_latest $url_base/$package/)
     fi
 else
+    # Switch brew link to all builds regardless rhel version (non-gated builds are not there yet)
+    echo "$url_base" | grep -q brew && url_base="$url_base_build"
     ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
     if [ -z "$ver2" ]; then
        url_base="https://kojipkgs.fedoraproject.org/packages"
