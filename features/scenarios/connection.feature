@@ -628,6 +628,7 @@ Feature: nmcli: connection
 
 
      @long
+     @rhelver-10
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
      * Add "ethernet" connection named "con_con" for device "testXc"
@@ -660,6 +661,55 @@ Feature: nmcli: connection
      * Check "contrib|nmci|README|prepare|run" are shown for object "team.config"
      * Check "contrib|nmci|README|prepare|run" are shown for object "team-port.config"
      * Quit editor
+     * Add "wifi" connection named "con-wifi" for device "wifi" with options "autoconnect off ssid con-wifi"
+     * Open editor for connection "con-wifi"
+     * Check "adhoc|ap|infrastructure" are shown for object "wifi.mode"
+     * Check "a|bg" are shown for object "wifi.band"
+     * Check "ieee8021x|none|wpa-eap|wpa-psk\s+" are shown for object "wifi-sec.key-mgmt"
+     * Check "leap|open|shared" are shown for object "wifi-sec.auth-alg"
+     * Check "rsn|wpa" are shown for object "wifi-sec.proto"
+     * Check "ccmp|tkip" are shown for object "wifi-sec.pairwise"
+     * Check "ccmp|tkip|wep104|wep40" are shown for object "wifi-sec.group"
+     * Quit editor
+     * Add "infiniband" connection named "con_con2" for device "mlx4_ib1"
+     * Open editor for connection "con_con2"
+     * Check "connected|datagram" are shown for object "infiniband.transport-mode"
+     * Quit editor
+
+
+     @long
+     @rhelver+=10
+     @display_allowed_values
+     Scenario: nmcli - connection - showing allowed values
+     * Add "ethernet" connection named "con_con" for device "testXc"
+     * Open editor for connection "con_con"
+     * Check "fast|leap|md5|peap|pwd|sim|tls|ttls" are shown for object "802-1x.eap"
+     * Check "0|1" are shown for object "802-1x.phase1-peapver"
+     * Check "0|1" are shown for object "802-1x.phase1-peaplabel"
+     * Check "0|1|2|3" are shown for object "802-1x.phase1-fast-provisioning"
+     * Check "chap|gtc|md5|mschap|mschapv2|otp|pap|tls" are shown for object "802-1x.phase2-auth"
+     * Check "gtc|md5|mschapv2|otp|tls" are shown for object "802-1x.phase2-autheap"
+     * Check "fabric|vn2vn" are shown for object "dcb.app-fcoe-mode"
+     * Check "auto|disabled|link-local|manual|shared" are shown for object "ipv4.method"
+     * Check "auto|dhcp|ignore|link-local|manual|shared" are shown for object "ipv6.method"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.ca-cert"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.ca-path"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.private-key"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.phase2-ca-cert"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.phase2-ca-path"
+     * Check "contrib|nmci|README|prepare|run" are shown for object "802-1x.phase2-private-key"
+     * Check "broadcast_mode|ctcprot|ipato_add4|ipato_invert6|layer2|protocol|rxip_add6|vipa_add6|buffer_count|fake_broadcast|ipato_add6|isolation|portname|route4|sniffer|canonical_macaddr|inter|ipato_enable|lancmd_timeout|portno|route6|total|checksumming|inter_jumbo|ipato_invert4|large_send|priority_queueing|rxip_add4|vipa_add4" are shown for object "ethernet.s390-options"
+     * Check "ctc|lcs|qeth" are shown for object "ethernet.s390-nettype"
+     * Check "bond|bridge|team" are shown for object "connection.slave-type"
+     * Quit editor
+     * Add "bond" connection named "con-bond" for device "con-bond0"
+     * Open editor for connection "con-bond"
+     * Check "ad_select|arp_ip_target|downdelay|lacp_rate|mode|primary_reselect|updelay|xmit_hash_policy|arp_interval|arp_validate|fail_over_mac|miimon|primary|resend_igmp|use_carrier|" are shown for object "bond.options"
+     * Quit editor
+     * Commentary
+      """
+      team section was removed as team support was removed in RHEL10.
+      """
      * Add "wifi" connection named "con-wifi" for device "wifi" with options "autoconnect off ssid con-wifi"
      * Open editor for connection "con-wifi"
      * Check "adhoc|ap|infrastructure" are shown for object "wifi.mode"
