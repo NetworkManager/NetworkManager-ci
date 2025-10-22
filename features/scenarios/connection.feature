@@ -80,6 +80,46 @@ Feature: nmcli: connection
     Then "error" is not visible with command "nmcli -f DEVICE nm"
 
 
+    @RHEL-93829
+    @ver+=1.55.5
+    @connection_wimax_disabled
+    Scenario: nmcli - connection - wimax type is disabled
+    * Cleanup connection "con_wimax"
+    Then "WiMAX is no longer supported" is visible with command "nmcli c add type wimax con-name con_wimax nsp 00:99:88:77:66:55"
+    And "con_wimax" is not visible with command "nmcli c"
+
+
+    @RHEL-93829
+    @rhelver+=10
+    @ver+=1.55.5
+    @connection_team_disabled_rhel10
+    Scenario: nmcli - connection - team type is disabled on rhel10
+    * Cleanup connection "con_team"
+    Then "team support is disabled in this build" is visible with command "nmcli c add type team con-name con_team"
+    And "con_team" is not visible with command "nmcli c"
+    * Create keyfile "team-nm-team.nmconnection"
+      """
+      [connection]
+      id=team-nm-team
+      uuid=3f467789-004b-4d32-a7a9-32c508126ab4
+      type=team
+      interface-name=nm-team
+
+      [team]
+
+      [ipv4]
+      method=auto
+
+      [ipv6]
+      addr-gen-mode=default
+      method=auto
+
+      [proxy]
+      """
+    * Reload connections
+    Then "team-nm-team" is not visible with command "nmcli c"
+
+
     @connection_delete_while_editing
     Scenario: nmcli - connection - delete opened connection
      * Add "ethernet" connection named "con_con" for device "eth5"

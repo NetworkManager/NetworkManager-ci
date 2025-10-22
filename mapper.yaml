@@ -2487,6 +2487,10 @@ testmapper:
         feature: connection
     - connection_no_error:
         feature: connection
+    - connection_wimax_disabled:
+        feature: connection
+    - connection_team_disabled_rhel10:
+        feature: connection
     - connection_secondaries_restricted_to_vpn:
         feature: connection
     - connection_double_delete:
