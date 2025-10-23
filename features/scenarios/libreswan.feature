@@ -382,7 +382,7 @@
 
     @rhbz1633174
     # This is for NM-libreswan <= 1.2.24
-    @ver+=1.14.0 @rhelver+=8 @fedoraver-=42
+    @ver+=1.14.0 @rhelver+=8 @rhelver-9.4 @fedoraver-=42
     @libreswan @ikev2
     @libreswan_reimport_ikev2
     Scenario: nmcli - libreswan - reimport exported IKEv2 connection
