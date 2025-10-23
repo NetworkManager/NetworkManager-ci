@@ -97,7 +97,7 @@ Feature: nmcli: connection
     * Cleanup connection "con_team"
     Then "team support is disabled in this build" is visible with command "nmcli c add type team con-name con_team"
     And "con_team" is not visible with command "nmcli c"
-    * Create keyfile "team-nm-team.nmconnection"
+    * Create keyfile "/etc/NetworkManager/system-connections/team-nm-team.nmconnection"
       """
       [connection]
       id=team-nm-team
