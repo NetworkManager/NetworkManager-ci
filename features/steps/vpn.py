@@ -56,13 +56,17 @@ def set_libreswan_connection(
 ):
 
     username_option = "leftxauthusername"
-    libver = int(
-        nmci.process.run_stdout(
-            "rpm -q libreswan | grep -o [0-9]* | head -n1", shell=True
+    libver = [
+        int(x)
+        for x in nmci.process.run_stdout(
+            "rpm -q libreswan | grep -o [0-9]*", shell=True
         )
-    )
+        .strip()
+        .split("\n")
+    ]
+
     if context.rh_release_num[0] != 8:
-        if libver >= 4:
+        if libver[0] >= 4:
             username_option = "leftusername"
 
     vpn_data = {"right": gateway}
@@ -88,9 +92,18 @@ def set_libreswan_connection(
             "leftid": leftid,
         }
 
-    if libver >= 5:
-        vpn_data["ike"] = "AES_CBC"
-        vpn_data["esp"] = "AES_GCM"
+    if libver[0] >= 5:
+        if libver <= [5, 2, 1000]:
+            vpn_data["nm-auto-defaults"] = "no"
+            vpn_data["left"] = "%defaultroute"
+            vpn_data["leftmodecfgclient"] = "yes"
+            vpn_data["rightmodecfgserver"] = "yes"
+            vpn_data["modecfgpull"] = "yes"
+            vpn_data["rekey"] = "yes"
+            vpn_data["rightsubnet"] = "0.0.0.0/0"
+        else:
+            vpn_data["ike"] = "AES_CBC"
+            vpn_data["esp"] = "AES_GCM"
 
     if group != "Main":
         vpn_data["leftid"] = group
