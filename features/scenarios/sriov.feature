@@ -771,9 +771,13 @@
 
     @RHEL-95884
     @RHEL-113954
-    @ver/rhel/9/4+=1.46.0.35
     @ver+=1.54.2
     @ver+=1.55.4
+    @ver/rhel/9/4+=1.46.0.35
+    @ver/rhel/9/6+=1.52.0.9
+    @ver/rhel/9/7+=1.54.0.3
+    @ver/rhel/10/0+=1.52.0.8
+    @ver/rhel/10/1+=1.54.0.2
     @sriov_reapply_vf
     Scenario: nmcli - sriov - reapply VF setting
     * Cleanup execute "sleep 8" with timeout "10" seconds and priority "100"

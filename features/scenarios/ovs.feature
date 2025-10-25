@@ -2082,6 +2082,10 @@ Feature: nmcli - ovs
 
     @RHEL-120176
     @ver+=1.55.5
+    @ver/rhel/9/6+=1.52.0.9
+    @ver/rhel/9/7+=1.54.0.3
+    @ver/rhel/10/0+=1.52.0.8
+    @ver/rhel/10/1+=1.54.0.2
     @openvswitch
     @nmcli_openvswitch_keep_external_ports
     Scenario: nmcli - openvswitch - keep externally added ports
