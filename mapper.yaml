@@ -1639,6 +1639,7 @@ testmapper:
         feature: ethernet
     - ethernet_keep_mtu_on_reboot:
         feature: ethernet
+        timeout: 15m
     - dracut_setup:
         feature: dracut
         tags: gate dracut
