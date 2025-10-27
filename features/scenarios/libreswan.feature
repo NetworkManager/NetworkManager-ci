@@ -102,7 +102,7 @@
     Setting rightid to string without 'CN=' will force libreswan to match subject directly
     and require-id-on-certificate should work properly now.
     """
-    * Modify connection "libreswan" changing options "+vpn.data 'rightid=invalid_id, require-id-on-certificate=yes'"
+    * Modify connection "libreswan" changing options "+vpn.data 'rightid=@invalid_id, require-id-on-certificate=yes'"
     Then Fail up connection "libreswan" in "10" seconds
     # Con might be down or up, if down already, down fails
     * Execute "nmcli con down id libreswan 2>&1 || true"
