@@ -65,6 +65,15 @@ def set_libreswan_connection(
         .split("\n")
     ]
 
+    NM_libver = [
+        int(x)
+        for x in nmci.process.run_stdout(
+            "rpm -q NetworkManager-libreswan | grep -o [0-9]*", shell=True
+        )
+        .strip()
+        .split("\n")
+    ]
+
     if context.rh_release_num[0] != 8:
         if libver[0] >= 4:
             username_option = "leftusername"
@@ -93,7 +102,7 @@ def set_libreswan_connection(
         }
 
     if libver[0] >= 5:
-        if libver <= [5, 2, 1000]:
+        if NM_libver >= [1, 2, 27] and libver <= [5, 2, 1000]:
             vpn_data["nm-auto-defaults"] = "no"
             vpn_data["left"] = "%defaultroute"
             vpn_data["leftmodecfgclient"] = "yes"
