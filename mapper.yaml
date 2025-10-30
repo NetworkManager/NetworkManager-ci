@@ -3645,6 +3645,8 @@ testmapper:
         feature: nmtui_wifi_hwsim
     - hsr_with_prp_protocol:
         feature: hsr
+    - hsr_interlink:
+        feature: hsr
     - dbus_set_invalid_dns:
         feature: dbus
     - dbus_set_invalid_addresses:
