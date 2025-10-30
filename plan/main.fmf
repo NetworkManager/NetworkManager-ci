@@ -1,0 +1,32 @@
+summary:
+    Desktop tests for NetworkManager
+discover:
+    how: fmf
+provision:
+    how: local
+prepare:
+    - name: packages
+      how: install
+      package:
+        - chkconfig
+        - dnsmasq
+        - tcpdump
+        - chrony
+        - bash-completion
+        - radvd
+        - wget
+        - git-core
+        - iproute
+        - NetworkManager
+    - name: vethsetup
+      how: shell
+      script:
+        - bash prepare/vethsetup.sh check
+    - name: envsetup
+      how: shell
+      script:
+        - bash prepare/envsetup.sh setup first_test_setup
+execute:
+    how: tmt
+report:
+    how: html

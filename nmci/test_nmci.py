@@ -2175,65 +2175,54 @@ def generate_tests(mapper):
 def generate_fmf(mapper, template_file, output_file):
     import jinja2
 
-    packages = mapper["dependencies"]["packages"]
-    for pkg in ["wget", "git-core", "iproute", "NetworkManager"]:
-        if pkg not in packages:
-            packages.append(pkg)
     testmapper = mapper["testmapper"]
-    component = mapper["component"]["name"]
 
     if not os.path.isdir(".tmp"):
         os.mkdir(".tmp")
 
     # backup git file
-    with open(".tmp/main.fmf-git", "wb") as f:
-        subprocess.run(["git", "show", "HEAD:main.fmf"], stdout=f)
+    with open(".tmp/tests.fmf-git", "wb") as f:
+        subprocess.run(["git", "show", "HEAD:tests.fmf"], stdout=f)
 
     # backup current file
-    shutil.copy("main.fmf", ".tmp/main.fmf")
+    shutil.copy("tests.fmf", ".tmp/tests.fmf")
 
     # Load template
     with open(template_file, "r") as f:
         template = jinja2.Template(f.read())
 
     # Render template with data
-    fmf_data = template.render(
-        packages=packages,
-        tasks=[],
-        testmapper=testmapper,
-        component=component,
-        mapper=mapper,
-    )
+    fmf_data = template.render(testmapper=testmapper, mapper=mapper)
 
     # Write to file
     with open(output_file, "w") as f:
         f.write(fmf_data)
 
 
-def test_main_fmf():
+def test_fmf():
     # Minimal dependencies are listed in .gitlab-ci.yml file
     # Required python modules for this tests are:
     #  python3 -m pip install --prefix /usr/ sphinx==7.2.6 sphinx-markdown-builder==0.6.5
 
     if os.environ.get("NMCI_NO_FMF") == "1" or os.path.isfile("/tmp/nm_skip_fmf"):
         pytest.skip(
-            "skip generating main.fmf with sphinx-build (NMCI_NO_FMF=1 or /tmp/nm_skip_fmf)"
+            "skip generating tests.fmf with sphinx-build (NMCI_NO_FMF=1 or /tmp/nm_skip_fmf)"
         )
 
     mapper_obj = nmci.misc.get_mapper_obj()
     mapper_obj = generate_tests(mapper_obj)
-    generate_fmf(mapper_obj, "./fmf_template.j2", "./main.fmf")
+    generate_fmf(mapper_obj, "./fmf_template.j2", "./tests.fmf")
 
     diff = subprocess.run(
-        ["git", "diff", "--no-color", "--no-index", ".tmp/main.fmf", "main.fmf"],
+        ["git", "diff", "--no-color", "--no-index", ".tmp/tests.fmf", "tests.fmf"],
         stdout=subprocess.PIPE,
     ).stdout.decode("utf-8")
 
     assert filecmp.cmp(
-        "main.fmf", ".tmp/main.fmf"
-    ), f"Outdated main.fmf was rebuilt. Commit it before pushing!\n{diff}"
-    if not filecmp.cmp("main.fmf", ".tmp/main.fmf-git"):
-        w = "\nmain.fmf is current but not committed. Commit it before pushing!\n"
+        "tests.fmf", ".tmp/tests.fmf"
+    ), f"Outdated tests.fmf was rebuilt. Commit it before pushing!\n{diff}"
+    if not filecmp.cmp("tests.fmf", ".tmp/tests.fmf-git"):
+        w = "\ntests.fmf is current but not committed. Commit it before pushing!\n"
         warnings.warn(w, UserWarning)
 
 
