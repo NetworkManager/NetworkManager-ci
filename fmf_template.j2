@@ -1,22 +1,20 @@
+test: {{ mapper.default_test_run }}
+duration: {{ mapper.default_test_timeout }}
+tty: true
+order: 200
 {% for test in testmapper %}
-/{{ test['testname'] }}:
-    test: {{ test['run'] }}
-    {%- if test['dir'] != '.' %}
-    path: /{{ test['dir'] }}
+/{{ test.testname }}:
+    {%- if test.run %}
+    test: /{{ test.run }}
     {%- endif %}
-    {%- if test['tags'] %}
-    tag: {{ test['tags'] }}
+    {%- if test.dir != '.' %}
+    path: /{{ test.dir }}
     {%- endif %}
-    {%- if test['package-deps'] %}
-    require: {{ test['package-deps'] }}
+    {%- if test.tags %}
+    tag: {{ test.tags }}
     {%- endif %}
-    environment:
-        TEST: NetworkManager_{{ "%06d"|format(test['order']) }}_{{ test['testname'] }}
-    order: {{ test['order'] }}
-    {%- if mapper.default_test_timeout == test['timeout'] %}
-    duration: {{ mapper.default_test_timeout }}
-    {%- else %}
-    duration: {{ test['timeout'] }}
+    order+: {{ test.order }}
+    {%- if test.timeout %}
+    duration: {{ test.timeout }}
     {%- endif %}
-    tty: true
 {% endfor %}

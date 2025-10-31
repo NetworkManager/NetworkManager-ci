@@ -17,6 +17,7 @@ component:
         arches:
           - x86_64
   test-run: run/runtest.sh $testname
+  test-timeout: 10m
   covers:
       - jimtcl
       - libmbim

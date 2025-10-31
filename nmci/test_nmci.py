@@ -2128,7 +2128,13 @@ def generate_tests(mapper):
     # Simplified version, we allways suppose entry is dict, as feature must be defined
     # in NetworkManager-ci mapper.yaml, we don't care at some other options/cases
     default_test_timeout = mapper["component"].get("test-timeout", "10m")
-    default_run_command = mapper["component"]["test-run"]
+    mapper["default_test_timeout"] = default_test_timeout
+    default_test_run = (
+        mapper["component"]
+        .get("test-run", "./run/runtest.sh $testname")
+        .replace("$testname", "${TMT_TEST_NAME##*/}")
+    )
+    mapper["default_test_run"] = default_test_run
     section = mapper["testmapper"]["default"]
     full_entries = []
     # The first test should always be "pass" from "general" feature,
@@ -2139,7 +2145,6 @@ def generate_tests(mapper):
     test_count = 0
     for entry in section:
         instance = {}
-        instance["timeout"] = default_test_timeout
         instance["testname"] = list(entry.keys())[0]
         instance["dir"] = "."
         if "arches-exclude" in entry[instance["testname"]]:
@@ -2156,12 +2161,12 @@ def generate_tests(mapper):
             instance["tags"] = entry[instance["testname"]]["tags"].split()
         if "run" in entry[instance["testname"]]:
             instance["run"] = entry[instance["testname"]]["run"]
-        else:
-            instance["run"] = default_run_command
-        if "$testname" in instance["run"]:
-            instance["run"] = instance["run"].replace("$testname", instance["testname"])
-        else:
-            instance["run"] = instance["run"] % instance["testname"]
+            if "$testname" in instance["run"]:
+                instance["run"] = instance["run"].replace(
+                    "$testname", instance["testname"]
+                )
+            else:
+                instance["run"] = instance["run"] % instance["testname"]
         if "timeout" in entry[instance["testname"]]:
             instance["timeout"] = entry[instance["testname"]]["timeout"]
         instance["order"] = feature_count * feature_increment + test_count

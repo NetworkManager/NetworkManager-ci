@@ -18,6 +18,18 @@ start_logger() {
     set -x
 }
 
+# Helper function to increment test number in testsing farm,
+# return "0" for manual testing to overwrite last test report.
+test_num() {
+    if env | grep -q "TMT_"; then
+        num=$(cat /tmp/nmci_test_num 2> /dev/null)
+        printf "%04d" $((num++))
+        echo "$num" > /tmp/nmci_test_num
+    else
+        echo "0"
+    fi
+}
+
 wait_for_process_finish() {
     # do not log this, continue logging before exit and return
     set +x
@@ -295,7 +307,7 @@ TS=$(get_timestamp)
 # set TEST variable for version_control script
 if [ -z "$TEST" ]; then
     echo "setting test name to NetworkManager_Test0_$TAG"
-    NMTEST="NetworkManager-ci_Test0_$TAG"
+    NMTEST="NetworkManager-ci_Test$(test_num)_$TAG"
 elif ! [ "$TEST" == "sanity-tests" ]; then
     NMTEST="$TEST"
 fi
