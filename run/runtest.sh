@@ -332,8 +332,9 @@ fi
 export COLUMNS="1024"
 
 NMTEST_REPORT="/tmp/report_$NMTEST.html"
-NMTEST_REPORT_NAME_PASS="report_$NMTEST.html"
-NMTEST_REPORT_NAME_FAIL="FAIL_report_$NMTEST.html"
+# Used in testing-farm, shorten as much as possible to avoid ellipsis in http dir listing
+NMTEST_REPORT_NAME_PASS="${NMTEST#NetworkManager-ci_Test}.html"
+NMTEST_REPORT_NAME_FAIL="FAIL_${NMTEST_REPORT_NAME_PASS}"
 
 LOG_CURSOR=$(journalctl --lines=0 --show-cursor |awk '/^-- cursor:/ {print "--after-cursor="$NF; exit}')
 
