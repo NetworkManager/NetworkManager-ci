@@ -76,6 +76,7 @@ report_result() {
         fi
         if [ -s "$NMTEST_REPORT" ]; then
             cp "$NMTEST_REPORT" "$TMT_PLAN_DATA/reports/$dst"
+            cp "$NMTEST_REPORT" "$TMT_TEST_DATA/$dst"
         fi
     fi
     cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
