@@ -1,5 +1,5 @@
 summary:
-    Desktop tests for NetworkManager
+    Tests for NetworkManager
 discover:
     how: fmf
 provision:

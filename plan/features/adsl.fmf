@@ -1,0 +1,5 @@
+discover:
+    how: fmf
+    test:
+        - /tests/add_adsl_connection_novice_mode
+        - /tests/add_adsl_connection

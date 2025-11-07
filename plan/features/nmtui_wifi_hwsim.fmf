@@ -1,0 +1,36 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_simwifi_see_all_networks
+        - /tests/nmtui_simwifi_connect_to_open_network
+        - /tests/nmtui_simwifi_connect_to_wpa1psk_network
+        - /tests/nmtui_simwifi_connect_to_wpa2psk_network
+        - /tests/nmtui_simwifi_connect_to_wpa3psk_network
+        - /tests/nmtui_simwifi_add_default_connection_open_network
+        - /tests/nmtui_simwifi_fixed_device_present
+        - /tests/nmtui_simwifi_fixed_device_invalid
+        - /tests/nmtui_simwifi_autoconnect_off
+        - /tests/nmtui_simwifi_activate_wo_autoconnect
+        - /tests/nmtui_simwifi_activate_with_autoconnect
+        - /tests/nmtui_simwifi_delete_connection_up
+        - /tests/nmtui_simwifi_delete_connection_down
+        - /tests/nmtui_simwifi_adhoc_network
+        - /tests/nmtui_simwifi_ap
+        - /tests/nmtui_simwifi_wrong_ssid
+        - /tests/nmtui_simwifi_no_ssid
+        - /tests/nmtui_simwifi_set_existing_bssid
+        - /tests/nmtui_simwifi_set_nonexisting_bssid
+        - /tests/nmtui_simwifi_bogus_bssid
+        - /tests/nmtui_simwifi_mac_spoofing
+        - /tests/nmtui_simwifi_connect_to_wep_hexkey_network
+        - /tests/nmtui_simwifi_connect_to_wep_asciikey_network
+        - /tests/nmtui_simwifi_wep_hexkey_connection
+        - /tests/nmtui_simwifi_wep_ascii_connection
+        - /tests/nmtui_simwifi_bogus_spoofing_address
+        - /tests/nmtui_simwifi_mtu
+        - /tests/nmtui_simwifi_wpa1_connection
+        - /tests/nmtui_simwifi_wpa2_connection
+        - /tests/nmtui_simwifi_wpa3_connection
+        - /tests/nmtui_simwifi_show_password
+        - /tests/nmtui_simwifi_connect_to_network_after_dismissal
+        - /tests/nmtui_simwifi_teardown

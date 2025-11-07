@@ -1,4 +1,4 @@
 discover:
     how: fmf
-    filter: tag:libndp
+    filter: tag:libmbim
 

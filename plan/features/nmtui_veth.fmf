@@ -1,0 +1,13 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_veth_create_default_connection
+        - /tests/nmtui_veth_activate_connection_wo_autoconnect
+        - /tests/nmtui_veth_deactivate_connection
+        - /tests/nmtui_veth_delete_connection_down
+        - /tests/nmtui_veth_delete_connection_up
+        - /tests/nmtui_veth_set_mtu
+        - /tests/nmtui_veth_cloned_mac
+        - /tests/nmtui_veth_static_ipv4
+        - /tests/nmtui_veth_static_ipv6
+        - /tests/nmtui_veth_static_combined

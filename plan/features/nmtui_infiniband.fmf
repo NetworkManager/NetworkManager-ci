@@ -1,0 +1,10 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_inf_create_master_connection
+        - /tests/nmtui_inf_create_port_connection
+        - /tests/nmtui_inf_add_connection_wo_autoconnect
+        - /tests/nmtui_inf_delete_connection
+        - /tests/nmtui_inf_set_mtu
+        - /tests/nmtui_inf_datagram_mode
+        - /tests/nmtui_inf_connected_mode

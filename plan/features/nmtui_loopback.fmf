@@ -1,0 +1,10 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_loopback_modify_generated
+        - /tests/nmtui_loopback_static_ipv4
+        - /tests/nmtui_loopback_static_ipv6
+        - /tests/nmtui_loopback_static_combined
+        - /tests/nmtui_loopback_delete_connection_down
+        - /tests/nmtui_loopback_delete_connection_up
+        - /tests/nmtui_loopback_set_mtu

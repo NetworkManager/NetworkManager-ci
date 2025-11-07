@@ -1,0 +1,19 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_team_add_default_team
+        - /tests/nmtui_team_add_connection_wo_autoconnect
+        - /tests/nmtui_team_activate_wo_autoconnect
+        - /tests/nmtui_team_activate_with_autoconnect
+        - /tests/nmtui_team_deactivate_connection
+        - /tests/nmtui_team_delete_connection_up
+        - /tests/nmtui_team_delete_connection_down
+        - /tests/nmtui_team_add_many_slaves
+        - /tests/nmtui_team_over_ethernet_devices
+        - /tests/nmtui_team_delete_slaves_after_deleting_profile
+        - /tests/nmtui_team_infiniband_slaves
+        - /tests/nmtui_team_slaves_non_auto
+        - /tests/nmtui_team_boot_with_team_and_one_slave_auto
+        - /tests/nmtui_team_json_set_loadbalance_mode
+        - /tests/nmtui_team_json_set_broadcast_mode
+        - /tests/nmtui_team_json_set_invalid_mode

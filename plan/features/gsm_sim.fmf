@@ -1,0 +1,10 @@
+discover:
+    how: fmf
+    test:
+        - /tests/gsm_sim_create_default_connection
+        - /tests/gsm_sim_disconnect
+        - /tests/gsm_sim_mtu
+        - /tests/gsm_sim_route_metric
+        - /tests/gsm_sim_load_from_file
+        - /tests/gsm_sim_profile_with_serials
+        - /tests/gsm_sim_create_assisted_connection

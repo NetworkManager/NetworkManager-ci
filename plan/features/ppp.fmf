@@ -1,0 +1,9 @@
+discover:
+    how: fmf
+    test:
+        - /tests/update_firewall_zone_upon_reconnect
+        - /tests/pppoe_and_ethernet_together
+        - /tests/connect_to_pppoe_via_pap
+        - /tests/connect_to_pppoe_via_chap
+        - /tests/disconnect_from_pppoe
+        - /tests/pppoe_over_vlan

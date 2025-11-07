@@ -1,0 +1,13 @@
+discover:
+    how: fmf
+    test:
+        - /tests/loopback_modify_iface_address
+        - /tests/loopback_invalid_profile_options
+        - /tests/loopback_dns_dnsmasq_default
+        - /tests/loopback_set_route_with_options
+        - /tests/loopback_add_connection
+        - /tests/loopback_multi_connect
+        - /tests/loopback_set_iface_as_ovs_port
+        - /tests/loopback_set_iface_as_bond_port
+        - /tests/loopback_match_renamed_iface
+        - /tests/loopback_multiple_profiles

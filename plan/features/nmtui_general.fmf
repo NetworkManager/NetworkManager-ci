@@ -1,0 +1,16 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_general_exit_nmtui
+        - /tests/nmtui_general_open_edit_menu
+        - /tests/nmtui_general_open_activation_menu
+        - /tests/nmtui_general_open_hostname_dialog
+        - /tests/nmtui_general_display_proper_hostname
+        - /tests/nmtui_general_set_new_hostname
+        - /tests/nmtui_general_active_connections_display
+        - /tests/nmtui_general_realtime_refresh_edit_screen
+        - /tests/nmtui_general_realtime_refresh_activate_screen_wo_autoconnect
+        - /tests/nmtui_general_realtime_refresh_activate_screen
+        - /tests/nmtui_dsl_create_default_connection
+        - /tests/nmtui_general_show_orphaned_slaves
+        - /tests/nmtui_general_activate_screen_no_connections

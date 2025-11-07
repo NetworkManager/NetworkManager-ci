@@ -1,0 +1,17 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_ethernet_create_default_connection
+        - /tests/nmtui_ethernet_create_device_bound_connection
+        - /tests/nmtui_ethernet_create_connection_wo_autoconnect
+        - /tests/nmtui_ethernet_activate_connection
+        - /tests/nmtui_ethernet_activate_connection_specific_device
+        - /tests/nmtui_ethernet_deactivate_connection
+        - /tests/nmtui_ethernet_delete_connection_down
+        - /tests/nmtui_ethernet_delete_connection_up
+        - /tests/nmtui_ethernet_set_mtu
+        - /tests/nmtui_ethernet_mac_spoofing
+        - /tests/nmtui_ethernet_mac_removal
+        - /tests/nmtui_ethernet_static_ipv4
+        - /tests/nmtui_ethernet_static_ipv6
+        - /tests/nmtui_ethernet_static_combined

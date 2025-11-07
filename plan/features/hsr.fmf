@@ -1,0 +1,4 @@
+discover:
+    how: fmf
+    test:
+        - /tests/hsr_with_prp_protocol

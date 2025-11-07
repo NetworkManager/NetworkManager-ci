@@ -2185,7 +2185,7 @@ def generate_fmf(mapper, template_file, output_file):
     if not os.path.isdir(".tmp"):
         os.mkdir(".tmp")
 
-    # backup git file
+    # backup git file - check only tests.fmf
     with open(".tmp/tests.fmf-git", "wb") as f:
         subprocess.run(["git", "show", "HEAD:tests.fmf"], stdout=f)
 
@@ -2202,6 +2202,23 @@ def generate_fmf(mapper, template_file, output_file):
     # Write to file
     with open(output_file, "w") as f:
         f.write(fmf_data)
+
+    # Create feature plans
+    features = set([test["feature"] for test in testmapper])
+    for feature in features:
+        with open(f"plan/features/{feature}.fmf", "w") as ff:
+            ff.writelines(["discover:\n", "    how: fmf\n", "    test:\n"])
+            tests = [test for test in testmapper if test["feature"] == feature]
+            for test in tests:
+                ff.write(f"        - /tests/{test['testname']}\n")
+
+    # Create plans for tags
+    tags = set([tag for test in testmapper if "tags" in test for tag in test["tags"]])
+    for tag in tags:
+        with open(f"plan/{tag}.fmf", "w") as tf:
+            tf.writelines(
+                ["discover:\n", "    how: fmf\n", f"    filter: tag:{tag}\n\n"]
+            )
 
 
 def test_fmf():

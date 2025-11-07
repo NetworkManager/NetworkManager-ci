@@ -1,0 +1,9 @@
+discover:
+    how: fmf
+    test:
+        - /tests/vrf_one_address_two_devices
+        - /tests/vrf_bring_down_connections
+        - /tests/vrf_delete_connections
+        - /tests/vrf_restart_persistence
+        - /tests/vrf_check_local_routes
+        - /tests/vrf_various_ports

@@ -1,0 +1,18 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_vlan_add_default_connection
+        - /tests/nmtui_vlan_set_device
+        - /tests/nmtui_vlan_missing_parent
+        - /tests/nmtui_vlan_set_parent_as_device
+        - /tests/nmtui_vlan_set_non_existant_parent
+        - /tests/nmtui_vlan_autocompletion
+        - /tests/nmtui_vlan_invalid_ids
+        - /tests/nmtui_vlan_delete_connection_down
+        - /tests/nmtui_vlan_delete_connection_activating
+        - /tests/nmtui_vlan_delete_connection_up
+        - /tests/nmtui_vlan_create_no_autoconnect
+        - /tests/nmtui_vlan_activate_connection
+        - /tests/nmtui_vlan_deactivate_connection_wo_autoconnect
+        - /tests/nmtui_vlan_deactivate_connection_with_autoconnect
+        - /tests/nmtui_vlan_change_id

@@ -1,0 +1,14 @@
+discover:
+    how: fmf
+    test:
+        - /tests/set_fq_codel_queue
+        - /tests/set_pfifo_fast_queue
+        - /tests/remove_root_value
+        - /tests/do_not_touch_external_tc
+        - /tests/override_externally_set_one
+        - /tests/honor_empty_tc
+        - /tests/set_tbf_qdiscs
+        - /tests/set_sqf_qdiscs
+        - /tests/tc_morrir_traffic
+        - /tests/tc_morrir_traffic_clsact
+        - /tests/tc_device_filter_management

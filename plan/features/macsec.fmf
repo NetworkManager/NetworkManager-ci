@@ -1,0 +1,10 @@
+discover:
+    how: fmf
+    test:
+        - /tests/macsec_psk
+        - /tests/macsec_reboot
+        - /tests/macsec_vlan_reboot
+        - /tests/macsec_set_mtu_from_parent
+        - /tests/macsec_send-sci_by_default
+        - /tests/macsec_managed_macsec_from_unmanaged_parent
+        - /tests/macsec_offload

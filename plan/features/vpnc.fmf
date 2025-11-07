@@ -1,0 +1,5 @@
+discover:
+    how: fmf
+    test:
+        - /tests/vpnc_add_profile
+        - /tests/vpnc_terminate

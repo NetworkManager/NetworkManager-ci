@@ -1,0 +1,9 @@
+discover:
+    how: fmf
+    test:
+        - /tests/alias_ifcfg_add_single_alias
+        - /tests/alias_ifcfg_add_multiple_aliases
+        - /tests/alias_ifcfg_remove_single_alias
+        - /tests/alias_ifcfg_connection_restart
+        - /tests/alias_ifcfg_remove_all_aliases
+        - /tests/alias_ifcfg_reboot

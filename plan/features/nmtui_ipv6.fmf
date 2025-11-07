@@ -1,0 +1,34 @@
+discover:
+    how: fmf
+    test:
+        - /tests/nmtui_ipv6_addresses_static_no_address
+        - /tests/nmtui_ipv6_addresses_static_no_mask
+        - /tests/nmtui_ipv6_addresses_static_with_mask
+        - /tests/nmtui_ipv6_addresses_auto_with_manual
+        - /tests/nmtui_ipv6_addresses_IP_slash_invalid_netmask
+        - /tests/nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual
+        - /tests/nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual
+        - /tests/nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto
+        - /tests/nmtui_ipv6_addresses_delete_ip_and_back_to_auto
+        - /tests/nmtui_ipv6_routes_set_basic_route
+        - /tests/nmtui_ipv6_routes_remove_basic_route
+        - /tests/nmtui_ipv6_routes_set_device_route
+        - /tests/nmtui_ipv6_routes_several_default_routes_metrics
+        - /tests/nmtui_ipv6_routes_set_invalid_route_destination
+        - /tests/nmtui_ipv6_routes_set_invalid_route_hop
+        - /tests/nmtui_ipv6_dns_method_static_+_IP_+_dns
+        - /tests/nmtui_ipv6_dns_method_auto_+_dns
+        - /tests/nmtui_ipv6_dns_add_dns_when_one_already_set
+        - /tests/nmtui_ipv6_dns_method_auto_then_delete_all_dns
+        - /tests/nmtui_ipv6_dns_search_add_dns_search
+        - /tests/nmtui_ipv6_dns_search_remove_dns_search
+        - /tests/nmtui_ipv6_method_link_local
+        - /tests/nmtui_ipv6_may_connection_required
+        - /tests/nmtui_ipv6_may_connection_not_required
+        - /tests/nmtui_ipv6_method_ignore
+        - /tests/nmtui_ipv6_never_default_unset
+        - /tests/nmtui_ipv6_never_default_set
+        - /tests/nmtui_ipv6_invalid_address
+        - /tests/nmtui_ipv6_invalid_gateway
+        - /tests/nmtui_ipv6_invalid_dns
+        - /tests/nmtui_ipv6_addresses_can_add_after_removing_invalid

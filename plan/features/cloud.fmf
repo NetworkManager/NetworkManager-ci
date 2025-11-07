@@ -1,0 +1,16 @@
+discover:
+    how: fmf
+    test:
+        - /tests/cloud_aliyun_basic
+        - /tests/cloud_azure_basic
+        - /tests/cloud_azure_primary_address_race
+        - /tests/cloud_ec2_basic
+        - /tests/cloud_gcp_basic
+        - /tests/cloud_oci_basic_vm
+        - /tests/cloud_oci_vm_vnic
+        - /tests/cloud_oci_basic_baremetal
+        - /tests/cloud_oci_baremetal_with_vlan
+        - /tests/cloud_no_provider_warning
+        - /tests/cloud_setup_keep_secondary_ips
+        - /tests/cloud_ec2_race_with_3_interfaces
+        - /tests/nm_cloud_setup_burst_limit

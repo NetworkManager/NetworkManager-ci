@@ -1,0 +1,15 @@
+discover:
+    how: fmf
+    test:
+        - /tests/vpn_describe
+        - /tests/multiple_vpn_connections
+        - /tests/vpn_list_args
+        - /tests/iptunnel_create_modify
+        - /tests/iptunnel_restart
+        - /tests/iptunnel_ip6gre_create_device
+        - /tests/iptunnel_ip6gre_create_device_with_eui64
+        - /tests/wireguard_activate_connection
+        - /tests/wireguard_add_routing_rules
+        - /tests/wireguard_honor_prefix_routes
+        - /tests/wireguard_nmcli
+        - /tests/wireguard_allowedIP

@@ -1,0 +1,8 @@
+discover:
+    how: fmf
+    test:
+        - /tests/add_default_tap_device
+        - /tests/add_default_tun_device
+        - /tests/remove_default_tuntap
+        - /tests/preserve_master_and_ip_settings
+        - /tests/tuntap_device_kernel_properties

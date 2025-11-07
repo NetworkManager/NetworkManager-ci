@@ -1,0 +1,9 @@
+discover:
+    how: fmf
+    test:
+        - /tests/veth_profile_add
+        - /tests/veth_profile_remove
+        - /tests/veth_profile_remove_in_cycle
+        - /tests/veth_device_remove
+        - /tests/veth_device_remove_return
+        - /tests/veth_profile_restart_persistnce

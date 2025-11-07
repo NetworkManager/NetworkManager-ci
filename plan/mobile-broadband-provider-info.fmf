@@ -1,0 +1,4 @@
+discover:
+    how: fmf
+    filter: tag:mobile-broadband-provider-info
+

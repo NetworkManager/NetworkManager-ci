@@ -1,0 +1,6 @@
+discover:
+    how: fmf
+    test:
+        - /tests/pptp_add_profile
+        - /tests/pptp_passwd_file
+        - /tests/pptp_terminate

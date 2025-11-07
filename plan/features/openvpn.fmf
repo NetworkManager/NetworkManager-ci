@@ -1,0 +1,15 @@
+discover:
+    how: fmf
+    test:
+        - /tests/openvpn_ipv4
+        - /tests/openvpn_ipv4_neverdefault
+        - /tests/openvpn_ipv6
+        - /tests/openvpn_ipv6_neverdefault
+        - /tests/openvpn_set_mtu
+        - /tests/openvpn_set_firewall_zone
+        - /tests/openvpn_terminate
+        - /tests/openvpn_delete_active_connection
+        - /tests/openvpn_persist
+        - /tests/openvpn_2fa
+        - /tests/openvpn_2fa_save_password
+        - /tests/openvpn_add_routing_rules

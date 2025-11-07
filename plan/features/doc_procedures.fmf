@@ -1,0 +1,34 @@
+discover:
+    how: fmf
+    test:
+        - /tests/policy_based_routing_doc_procedure
+        - /tests/simwifi_peap_mschapv2_doc_procedure
+        - /tests/simwifi_hotspot_doc_procedure
+        - /tests/simwifi_hotspot_sae_doc_procedure
+        - /tests/nmcli_simwifi_teardown_doc
+        - /tests/iptunnel_ipip_doc_procedure
+        - /tests/iptunnel_gre_doc_procedure
+        - /tests/iptunnel_gretap_doc_procedure
+        - /tests/qdisc_doc_procedure
+        - /tests/macsec_doc_procedure
+        - /tests/wireguard_nmcli_doc_procedure
+        - /tests/wireguard_nmtui_doc_procedure
+        - /tests/vxlan_doc_procedure
+        - /tests/8021x_hostapd_freeradius_doc_procedure
+        - /tests/doc_set_gateway_on_existing_profile
+        - /tests/doc_set_gateway_nmstate
+        - /tests/doc_set_gateway_multiple
+        - /tests/doc_set_gateway_multiple_with_metric
+        - /tests/doc_set_gateway_ignore
+        - /tests/doc_unmanage_interface_permanent
+        - /tests/doc_unmanage_interface_temporary
+        - /tests/doc_nmcli_route_all_options
+        - /tests/doc_nmcli_offline_connection_add
+        - /tests/doc_keyfile_connection_add
+        - /tests/doc_set_mtu_9000
+        - /tests/doc_split_dns_dnsmasq
+        - /tests/doc_split_dns_resolved
+        - /tests/doc_transmit_queue_length
+        - /tests/doc_firewalld_zones_via_keyfile
+        - /tests/doc_firewalld_zones_via_ifcfg
+        - /tests/doc_unmanaged_reason

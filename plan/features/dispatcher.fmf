@@ -1,0 +1,19 @@
+discover:
+    how: fmf
+    test:
+        - /tests/dispatcher_preup_and_up
+        - /tests/dispatcher_predown_and_down
+        - /tests/dispatcher_hostname
+        - /tests/dispatcher_synchronicity
+        - /tests/dispatcher_synchronicity_with_predown
+        - /tests/dispatcher_serialization
+        - /tests/dispatcher_dhcp4_change_on_renewal
+        - /tests/dispatcher_private_dhcp_option_dhclient
+        - /tests/dispatcher_private_dhcp_option_internal
+        - /tests/dispatcher_usr_lib_dir
+        - /tests/dispatcher_restart
+        - /tests/dispatcher_interface_stuck_in_check_ip_state
+        - /tests/dispatcher_track_dns_changes
+        - /tests/dispatcher_device_handler_dummy
+        - /tests/dispatcher_device_handler_dummy_in_bond
+        - /tests/dispatcher_device_handler_geneve

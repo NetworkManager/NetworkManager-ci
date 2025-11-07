@@ -1,0 +1,9 @@
+discover:
+    how: fmf
+    test:
+        - /tests/strongswan_add_profile
+        - /tests/strongswan_connection_renewal
+        - /tests/strongswan_terminate
+        - /tests/strongswan_delete_active_profile
+        - /tests/strongswan_dns
+        - /tests/strongswan_start_as_secondary

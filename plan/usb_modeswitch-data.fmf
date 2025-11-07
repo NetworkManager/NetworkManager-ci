@@ -1,0 +1,4 @@
+discover:
+    how: fmf
+    filter: tag:usb_modeswitch-data
+

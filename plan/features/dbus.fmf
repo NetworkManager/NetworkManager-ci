@@ -1,0 +1,8 @@
+discover:
+    how: fmf
+    test:
+        - /tests/dbus_set_invalid_dns
+        - /tests/dbus_set_invalid_addresses
+        - /tests/dbus_set_invalid_address_data
+        - /tests/dbus_set_invalid_routes
+        - /tests/dbus_set_invalid_route_data
