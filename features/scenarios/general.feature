@@ -1969,7 +1969,7 @@ Feature: nmcli - general
     * Skip if next step fails:
     * "glib2-2.56.4-16[67].el8_10" is not visible with command "rpm -q glib2"
     * Skip if next step fails:
-    * "glib2-2.56.4-162.el8_8" is not visible with command "rpm -q glib2"
+    * "glib2-2.56.4-16[23].el8_8" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
     * Cleanup device "brX"
     * Create NM config file with content
@@ -2037,7 +2037,7 @@ Feature: nmcli - general
     * Skip if next step fails:
     * "glib2-2.56.4-16[67].el8_10" is not visible with command "rpm -q glib2"
     * Skip if next step fails:
-    * "glib2-2.56.4-162.el8_8" is not visible with command "rpm -q glib2"
+    * "glib2-2.56.4-16[23].el8_8" is not visible with command "rpm -q glib2"
     * Cleanup device "eth0"
     * Create NM config file with content
       """
