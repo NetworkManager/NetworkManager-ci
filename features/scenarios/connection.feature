@@ -1537,8 +1537,9 @@ Feature: nmcli: connection
     This is reported bug against selinux-policy.
     https://issues.redhat.com/browse/RHEL-83529
     Remove the following check once it starts failing.
-    """
+    No longer needed, commented out.
     * Ignore possible AVC "ping.*NetworkManager"
+    """
 
 
     @RHEL-21160
@@ -1563,8 +1564,9 @@ Feature: nmcli: connection
     This is reported bug against selinux-policy.
     https://issues.redhat.com/browse/RHEL-83529
     Remove the following check once it starts failing.
-    """
+    No longer needed, commented out.
     * Ignore possible AVC "ping.*NetworkManager"
+    """
 
 
     @RHEL-21160
@@ -1591,8 +1593,9 @@ Feature: nmcli: connection
     This is reported bug against selinux-policy.
     https://issues.redhat.com/browse/RHEL-83529
     Remove the following check once it starts failing.
-    """
+    No longer needed, commented out.
     * Ignore possible AVC "ping.*NetworkManager"
+    """
 
 
     @RHEL-58397
