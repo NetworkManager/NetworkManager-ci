@@ -194,6 +194,7 @@ discover:
         - /tests/nmcli_port_arguments_order
         - /tests/nmcli_port_with_ip_disabled
         - /tests/nmcli_port_type_guess
+        - /tests/NM_ebpf_in_journal
         - /tests/nmcli_general_multiword_autocompletion
         - /tests/nmcli_device_reapply
         - /tests/crashing_NM_binary

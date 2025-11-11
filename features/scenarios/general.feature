@@ -3823,3 +3823,11 @@ Feature: nmcli - general
     * Cleanup namespace "ns1"
     * Cleanup device "veth0"
     * Execute reproducer "repro_rhel89914.sh"
+
+
+    @ver+=1.55.5
+    @NM_ebpf_in_journal
+    Scenario: NM - general - check ebpf is enabled
+    * Start following journal
+    * Add "ethernet" connection named "eth3" for device "eth3"
+    * "probe created with ebpf enabled" is visible in journal
