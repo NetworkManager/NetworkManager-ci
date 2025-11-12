@@ -13,6 +13,7 @@ order: 200
     {%- if test.tags %}
     tag: {{ test.tags }}
     {%- endif %}
+    id: {{ test.id }}
     order+: {{ test.order }}
     {%- if test.timeout %}
     duration: {{ test.timeout }}

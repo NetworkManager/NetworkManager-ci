@@ -2125,6 +2125,8 @@ def test_nmci_doc():
 
 
 def generate_tests(mapper):
+    import uuid
+
     # Simplified version, we allways suppose entry is dict, as feature must be defined
     # in NetworkManager-ci mapper.yaml, we don't care at some other options/cases
     default_test_timeout = mapper["component"].get("test-timeout", "10m")
@@ -2169,6 +2171,9 @@ def generate_tests(mapper):
                 instance["run"] = instance["run"] % instance["testname"]
         if "timeout" in entry[instance["testname"]]:
             instance["timeout"] = entry[instance["testname"]]["timeout"]
+        instance["id"] = uuid.uuid5(
+            uuid.NAMESPACE_URL, "NetworkManager-ci/" + instance["testname"]
+        )
         instance["order"] = feature_count * feature_increment + test_count
         test_count += 1
         full_entries.append(instance)
