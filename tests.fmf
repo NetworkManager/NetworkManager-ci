@@ -2,6 +2,7 @@ test: run/runtest.sh ${TMT_TEST_NAME##*/}
 duration: 10m
 tty: true
 order: 200
+component: NetworkManager
 
 /pass:
     tag: ['gate', 'jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info', 'libndp', 'hostapd', 'wpa_supplicant', 'libnl3', 'dracut', 'NetworkManager-libreswan']

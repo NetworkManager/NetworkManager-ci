@@ -2,6 +2,7 @@ test: {{ mapper.default_test_run }}
 duration: {{ mapper.default_test_timeout }}
 tty: true
 order: 200
+component: NetworkManager
 {% for test in testmapper %}
 /{{ test.testname }}:
     {%- if test.run %}
