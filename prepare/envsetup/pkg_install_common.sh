@@ -8,6 +8,13 @@ install_common_packages () {
 
     # Dnf more deps
 
+    # Add the libreswan-next repo to test upstream if we are with main NM packages
+    if grep -r -q NetworkManager-main-debug /etc/yum.repos.d/ || \
+       grep -q Rawhide /etc/redhat-release; then
+        dnf -y copr enable networkmanager/NetworkManager-libreswan-next
+        PKGS_UPGRADE="$PKGS_UPGRADE NetworkManager-libreswan"
+    fi
+
     # If running kernel is found in installed kernels, use it
     if rpm -q kernel | grep -q -F $(uname -r); then
         K_VER=$(uname -r)
