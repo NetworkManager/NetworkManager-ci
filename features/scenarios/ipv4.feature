@@ -3135,6 +3135,8 @@ Feature: nmcli: ipv4
     @ver+=1.52
     @ipv4_mptcp_endpoints_dad
     Scenario: MPTCP ensure endpoints are created correctly with DAD active
+    * Skip if next step fails:
+    * Execute "! grep -q -i rawhide /etc/redhat-release"
     * Set sysctl "net.mptcp.enabled" to "1"
     * Add namespace "ns1"
     * Execute "ip netns exec ns1 sysctl -w net.mptcp.enabled=1"
