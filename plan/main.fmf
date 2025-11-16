@@ -29,4 +29,22 @@ prepare:
 execute:
     how: tmt
 report:
-    how: html
+- how: html
+- how: polarion
+  when: polarion == yes, true, 1
+  upload: true
+  project-id: RHELKNET
+  arch: $arch_polarion # notice only in here, x86_64 shoulde be written as x8664 if you want it works
+  assignee: fpokryvk
+  build: $@{nvr} # 2.2.35-2.el9
+  compose-id: $compose # RHEL-9.5.0-20240903.5 # usable but warning
+  description: NetworkManager $@{distro} $stage $@{arch}
+  # file:
+  # fips:
+  include-output-log: true
+  # logs: $logurl
+  planned-in: $planin # 9_6_ga
+  platform: $@{distro}
+  pool-team: rhel-sst-network-management
+  title: NetworkManager $@{distro} $stage $@{arch}
+  use-facts: true
