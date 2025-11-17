@@ -29,7 +29,6 @@ prepare:
 execute:
     how: tmt
 report:
-- how: html
 - how: polarion
   when: polarion == yes, true, 1
   upload: true
