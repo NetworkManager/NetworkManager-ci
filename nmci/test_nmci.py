@@ -2144,6 +2144,7 @@ def generate_tests(mapper):
     feature_count = 0
     feature_increment = 1000
     test_count = 0
+    subcomponents = mapper["testmapper"].keys()
     for testmapper, section in mapper["testmapper"].items():
         for entry in section:
             instance = {}
@@ -2184,6 +2185,7 @@ def generate_tests(mapper):
             full_entries.append(instance)
 
     mapper["testmapper"] = full_entries
+    mapper["subcomponents"] = subcomponents
     return mapper
 
 
@@ -2228,6 +2230,19 @@ def generate_fmf(mapper, template_file, output_file):
         with open(f"plan/{tag}.fmf", "w") as tf:
             tf.writelines(
                 ["discover:\n", "    how: fmf\n", f"    filter: tag:{tag}\n\n"]
+            )
+
+    # Create subcomponents plans
+    for component in mapper["subcomponents"]:
+        if component == "default":
+            continue
+        with open(f"plan/{component}.fmf", "w") as tf:
+            tf.writelines(
+                [
+                    "discover:\n",
+                    "    how: fmf\n",
+                    f"    filter: name:/tests/{component}/.*\n\n",
+                ]
             )
 
 
