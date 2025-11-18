@@ -1,0 +1,35 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-dcb/sriov_enable
+        - /tests/NetworkManager-dcb/sriov_enable_with_deployed_profile
+        - /tests/NetworkManager-dcb/sriov_disable
+        - /tests/NetworkManager-dcb/sriov_connect
+        - /tests/NetworkManager-dcb/sriov_autoconnect
+        - /tests/NetworkManager-dcb/sriov_set_mtu
+        - /tests/NetworkManager-dcb/sriov_connect_externally
+        - /tests/NetworkManager-dcb/sriov_reboot_persistence
+        - /tests/NetworkManager-dcb/sriov_con_drv_bond_with_config
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_maxVFs
+        - /tests/NetworkManager-dcb/sriov_con_drv_set_VF_to_0
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_mac_and_trust
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_mtu
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_vlan
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_trust_on
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_trust_off
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_spoof_off
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_spoof
+        - /tests/NetworkManager-dcb/sriov_con_drv_add_VF_firewalld
+        - /tests/NetworkManager-dcb/sriov_con_drv_bond
+        - /tests/NetworkManager-dcb/sriov_con_add_VF
+        - /tests/NetworkManager-dcb/sriov_con_add_VF_mac_and_trust
+        - /tests/NetworkManager-dcb/sriov_con_set_VF_to_0
+        - /tests/NetworkManager-dcb/sriov_con_add_VF_vlan
+        - /tests/NetworkManager-dcb/sriov_con_add_VF_trust_off
+        - /tests/NetworkManager-dcb/sriov_con_add_VF_spoof_off
+        - /tests/NetworkManager-dcb/sriov_con_add_VF_spoof
+        - /tests/NetworkManager-dcb/sriov_nmstate_many_vfs
+        - /tests/NetworkManager-dcb/sriov_dont_disable_on_acitvation_fail
+        - /tests/NetworkManager-dcb/sriov_preserve_on_down
+        - /tests/NetworkManager-dcb/sriov_reapply_vf

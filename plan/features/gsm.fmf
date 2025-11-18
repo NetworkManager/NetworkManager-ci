@@ -1,0 +1,12 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-gsm/gsm_create_default_connection_qmi
+        - /tests/NetworkManager-gsm/gsm_disconnect
+        - /tests/NetworkManager-gsm/gsm_create_one_minute_ping
+        - /tests/NetworkManager-gsm/gsm_mtu
+        - /tests/NetworkManager-gsm/gsm_route_metric
+        - /tests/NetworkManager-gsm/gsm_connectivity_check
+        - /tests/NetworkManager-gsm/gsm_load_from_file
+        - /tests/NetworkManager-gsm/gsm_create_assisted_connection
+        - /tests/NetworkManager-gsm/gsm_create_default_connection_mbim
