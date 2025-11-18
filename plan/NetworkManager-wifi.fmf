@@ -1,0 +1,4 @@
+discover:
+    how: fmf
+    filter: name:/tests/NetworkManager-wifi/.*
+
