@@ -533,6 +533,7 @@ Feature: nmcli - general
 
 
     @ver-=1.55.4
+    @ver-=1.54.1
     @networking_on
     @general_state_asleep
     Scenario: nmcli - general - state asleep
@@ -542,6 +543,7 @@ Feature: nmcli - general
 
 
     @ver+=1.55.5
+    @ver+=1.54.2
     @networking_on
     @general_state_networking_off
     Scenario: nmcli - general - state asleep
@@ -3468,6 +3470,7 @@ Feature: nmcli - general
 
     @rhelver+=9
     @ver-=1.55.4
+    @ver-=1.54.1
     @dbusmock_unittests
     Scenario: Execute dbusmock unittests
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
