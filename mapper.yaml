@@ -3779,15 +3779,15 @@ testmapper:
 
   NetworkManager-dcb:
     - nmcli_ethernet_wol_from_file_to_default:
-        feature: ethernet
+        feature: dcb_ethernet
     - nmcli_ethernet_wol_from_file:
-        feature: ethernet
+        feature: dcb_ethernet
     - nmcli_ethernet_wol_disable:
-        feature: ethernet
+        feature: dcb_ethernet
     - nmcli_ethernet_wol_enable_magic:
-        feature: ethernet
+        feature: dcb_ethernet
     - nmcli_ethernet_wol_default:
-        feature: ethernet
+        feature: dcb_ethernet
     - dcb_enable_connection:
         feature: dcb
     - dcb_disable_connection:
@@ -3861,17 +3861,17 @@ testmapper:
     - sriov_reapply_vf:
         feature: sriov
     - add_dpdk_port:
-        feature: ovs
+        feature: dcb_ovs
     - add_dpdk_port_n_rxq:
-        feature: ovs
+        feature: dcb_ovs
     - add_dpdk_port_n_rxq_txq_desc:
-        feature: ovs
+        feature: dcb_ovs
     - add_dpdk_bond_sriov:
-        feature: ovs
+        feature: dcb_ovs
     - add_dpdk_port_with_mtu:
-        feature: ovs
+        feature: dcb_ovs
     - add_dpdk_port_lsc_interrupt:
-        feature: ovs
+        feature: dcb_ovs
     - dpdk_teardown:
-        feature: ovs
+        feature: dcb_ovs
 

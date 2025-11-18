@@ -1,0 +1,7 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-dcb/dcb_enable_connection
+        - /tests/NetworkManager-dcb/dcb_disable_connection
+        - /tests/NetworkManager-dcb/dcb_enable_after_reboot
+        - /tests/NetworkManager-dcb/dcb_error_shown

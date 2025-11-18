@@ -1,0 +1,30 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_peap_mschapv2
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_tls_2_4g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_tls_5g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_ttls_mschapv2
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_peap_mschapv2
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_tls_2_4g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_tls_5g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_ttls_mschapv2
+        - /tests/NetworkManager-wifi/nmcli_wifi_infrastructure_mode_setting
+        - /tests/NetworkManager-wifi/nmcli_wifi_ap
+        - /tests/NetworkManager-wifi/nmcli_wifi_mac_spoofing
+        - /tests/NetworkManager-wifi/nmcli_wifi_disable_radio
+        - /tests/NetworkManager-wifi/nmcli_wifi_enable_radio
+        - /tests/NetworkManager-wifi/nmcli_wifi_set_mtu
+        - /tests/NetworkManager-wifi/nmcli_wifi_seen_bssids
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2hidden_psk
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_psk_2_4g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa2_psk_5g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_psk_2_4g
+        - /tests/NetworkManager-wifi/nmcli_wifi_wpa3_psk_5g
+        - /tests/NetworkManager-wifi/nmcli_wifi_6e_wpa3_tls
+        - /tests/NetworkManager-wifi/nmcli_wifi_pairwise_ccmp
+        - /tests/NetworkManager-wifi/nmcli_wifi_unmatching_pairwise
+        - /tests/NetworkManager-wifi/nmcli_wifi_group_ccmp
+        - /tests/NetworkManager-wifi/nmcli_wifi_unmatching_group
+        - /tests/NetworkManager-wifi/nmcli_wifi_add_certificate_as_blob_saved
+        - /tests/NetworkManager-wifi/nmcli_wifi_indicate_wifi_band_caps

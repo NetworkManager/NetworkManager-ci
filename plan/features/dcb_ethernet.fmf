@@ -1,0 +1,8 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-dcb/nmcli_ethernet_wol_from_file_to_default
+        - /tests/NetworkManager-dcb/nmcli_ethernet_wol_from_file
+        - /tests/NetworkManager-dcb/nmcli_ethernet_wol_disable
+        - /tests/NetworkManager-dcb/nmcli_ethernet_wol_enable_magic
+        - /tests/NetworkManager-dcb/nmcli_ethernet_wol_default

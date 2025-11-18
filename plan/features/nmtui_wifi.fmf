@@ -1,0 +1,12 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-wifi/nmtui_wifi_see_all_networks
+        - /tests/NetworkManager-wifi/nmtui_wifi_connect_to_wpa2psk_network
+        - /tests/NetworkManager-wifi/nmtui_wifi_connect_to_wpa3psk_network
+        - /tests/NetworkManager-wifi/nmtui_wifi_ap
+        - /tests/NetworkManager-wifi/nmtui_wifi_wpa2
+        - /tests/NetworkManager-wifi/nmtui_wifi_wpa3
+        - /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_tls
+        - /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_peap_mschapv2
+        - /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_ttls_mschapv2

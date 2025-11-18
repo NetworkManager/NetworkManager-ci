@@ -1,0 +1,18 @@
+discover:
+    how: fmf
+    test:
+        - /tests/NetworkManager-infiniband/inf_create_connection
+        - /tests/NetworkManager-infiniband/inf_create_connection_novice_mode
+        - /tests/NetworkManager-infiniband/inf_disable_connection
+        - /tests/NetworkManager-infiniband/inf_create_port_connection
+        - /tests/NetworkManager-infiniband/inf_create_port_novice_mode
+        - /tests/NetworkManager-infiniband/inf_disable_port
+        - /tests/NetworkManager-infiniband/inf_enable_after_reboot
+        - /tests/NetworkManager-infiniband/inf_internal_dhcp
+        - /tests/NetworkManager-infiniband/inf_master_in_bond
+        - /tests/NetworkManager-infiniband/inf_master_in_bond_restart_persistence
+        - /tests/NetworkManager-infiniband/inf_down_before_mode_change
+        - /tests/NetworkManager-infiniband/inf_send_correct_client_id
+        - /tests/NetworkManager-infiniband/inf_mtu
+        - /tests/NetworkManager-infiniband/inf_keyfile_pkey_via_single_digit
+        - /tests/NetworkManager-infiniband/inf_reload

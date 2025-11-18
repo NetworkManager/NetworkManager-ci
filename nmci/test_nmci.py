@@ -2137,7 +2137,6 @@ def generate_tests(mapper):
         .replace("$testname", "${TMT_TEST_NAME##*/}")
     )
     mapper["default_test_run"] = default_test_run
-    section = mapper["testmapper"]["default"]
     full_entries = []
     # The first test should always be "pass" from "general" feature,
     # if not, we start ordering from 1000 - not a big deal
@@ -2145,38 +2144,44 @@ def generate_tests(mapper):
     feature_count = 0
     feature_increment = 1000
     test_count = 0
-    for entry in section:
-        instance = {}
-        instance["testname"] = list(entry.keys())[0]
-        instance["dir"] = "."
-        if "arches-exclude" in entry[instance["testname"]]:
-            instance["arches-exclude"] = entry[instance["testname"]]["arches-exclude"]
-        if "dir" in entry[instance["testname"]]:
-            instance["dir"] = entry[instance["testname"]]["dir"]
-        if "feature" in entry[instance["testname"]]:
-            instance["feature"] = entry[instance["testname"]]["feature"]
-            if instance["feature"] != last_feature:
-                feature_count += 1
-                test_count = 0
-            last_feature = instance["feature"]
-        if "tags" in entry[instance["testname"]]:
-            instance["tags"] = entry[instance["testname"]]["tags"].split()
-        if "run" in entry[instance["testname"]]:
-            instance["run"] = entry[instance["testname"]]["run"]
-            if "$testname" in instance["run"]:
-                instance["run"] = instance["run"].replace(
-                    "$testname", instance["testname"]
-                )
-            else:
-                instance["run"] = instance["run"] % instance["testname"]
-        if "timeout" in entry[instance["testname"]]:
-            instance["timeout"] = entry[instance["testname"]]["timeout"]
-        instance["id"] = uuid.uuid5(
-            uuid.NAMESPACE_URL, "NetworkManager-ci/" + instance["testname"]
-        )
-        instance["order"] = feature_count * feature_increment + test_count
-        test_count += 1
-        full_entries.append(instance)
+    for testmapper, section in mapper["testmapper"].items():
+        for entry in section:
+            instance = {}
+            instance["testname"] = list(entry.keys())[0]
+            instance["dir"] = "."
+            if "arches-exclude" in entry[instance["testname"]]:
+                instance["arches-exclude"] = entry[instance["testname"]][
+                    "arches-exclude"
+                ]
+            if "dir" in entry[instance["testname"]]:
+                instance["dir"] = entry[instance["testname"]]["dir"]
+            if "feature" in entry[instance["testname"]]:
+                instance["feature"] = entry[instance["testname"]]["feature"]
+                if instance["feature"] != last_feature:
+                    feature_count += 1
+                    test_count = 0
+                last_feature = instance["feature"]
+            if "tags" in entry[instance["testname"]]:
+                instance["tags"] = entry[instance["testname"]]["tags"].split()
+            if "run" in entry[instance["testname"]]:
+                instance["run"] = entry[instance["testname"]]["run"]
+                if "$testname" in instance["run"]:
+                    instance["run"] = instance["run"].replace(
+                        "$testname", instance["testname"]
+                    )
+                else:
+                    instance["run"] = instance["run"] % instance["testname"]
+            if "timeout" in entry[instance["testname"]]:
+                instance["timeout"] = entry[instance["testname"]]["timeout"]
+            instance["id"] = uuid.uuid5(
+                uuid.NAMESPACE_URL, "NetworkManager-ci/" + instance["testname"]
+            )
+            # update testname, append subcomponent if not "default"
+            test_prefix = "" if testmapper == "default" else testmapper + "/"
+            instance["testname"] = test_prefix + list(entry.keys())[0]
+            instance["order"] = feature_count * feature_increment + test_count
+            test_count += 1
+            full_entries.append(instance)
 
     mapper["testmapper"] = full_entries
     return mapper
