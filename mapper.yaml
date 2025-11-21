@@ -84,7 +84,6 @@ beaker-hardware:
               rdma-qe-42.rdma.lab.eng.rdu2.redhat.com
               rdma-qe-43.rdma.lab.eng.rdu2.redhat.com
               rdma-qe-32.rdma.lab.eng.rdu2.redhat.com
-              rdma-qe-33.rdma.lab.eng.rdu2.redhat.com
 
       NetworkManager-gsm:
         - x86_64:
