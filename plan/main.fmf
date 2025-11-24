@@ -29,10 +29,11 @@ prepare:
 execute:
     how: tmt
 report:
+- how: html
 - how: polarion
   when: polarion == yes, true, 1
   upload: true
-  project-id: RHELKNET
+  project-id: RHELNST
   arch: $arch_polarion # notice only in here, x86_64 shoulde be written as x8664 if you want it works
   assignee: fpokryvk
   build: $@{nvr} # 2.2.35-2.el9
