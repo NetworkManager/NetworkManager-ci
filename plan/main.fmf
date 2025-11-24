@@ -6,6 +6,7 @@ provision:
     how: local
 prepare:
     - name: packages
+      when: deployment-mode != image
       how: install
       package:
         - chkconfig
