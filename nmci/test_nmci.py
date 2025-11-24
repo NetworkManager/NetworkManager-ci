@@ -2157,7 +2157,11 @@ def generate_tests(mapper):
             if "dir" in entry[instance["testname"]]:
                 instance["dir"] = entry[instance["testname"]]["dir"]
             if "feature" in entry[instance["testname"]]:
-                instance["feature"] = entry[instance["testname"]]["feature"]
+                feature = entry[instance["testname"]]["feature"]
+                if testmapper != "default" and feature in "ovs|ethernet":
+                    prefix = testmapper.replace("NetworkManager-", "")
+                    feature = f"{prefix}_{feature}"
+                instance["feature"] = feature
                 if instance["feature"] != last_feature:
                     feature_count += 1
                     test_count = 0
