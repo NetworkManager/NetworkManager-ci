@@ -3,6 +3,8 @@ duration: 10m
 tty: true
 order: 200
 component: NetworkManager
+link:
+    - verifies: https://polarion.engineering.redhat.com/polarion/#/project/RHELNST/workitem?id=RHELNST-5601
 
 /pass:
     tag: ['gate', 'jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info', 'libndp', 'hostapd', 'wpa_supplicant', 'libnl3', 'dracut', 'NetworkManager-libreswan']
