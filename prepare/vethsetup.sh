@@ -197,6 +197,11 @@ function setup_veth_env ()
         ip addr flush dev orig-$DEV
     done
 
+    # Rename potential eth0 residude from some modem not visible in "nmcli d"
+    if ip link | grep -q " eth0:"; then
+        ip link set eth0 name orig-eth0
+    fi
+
     # Now move temp0 to eth0 and modify testeth0
     ip link set temp0 name eth0
     ip link set eth0 up
