@@ -151,6 +151,7 @@ discover:
         - /tests/ipv4_mptcp_flags_0x20
         - /tests/ipv4_mptcp_flags_0x40
         - /tests/ipv4_mptcp_flags_0x80
+        - /tests/ipv4_mptcp_flags_0x100
         - /tests/ipv4_mptcp_reapply_change_flag
         - /tests/ipv4_mptcp_remove_endpoints
         - /tests/ipv4_mptcp_endpoints_dad

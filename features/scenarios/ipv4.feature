@@ -3094,6 +3094,27 @@ Feature: nmcli: ipv4
     Then "exactly" "2" lines with pattern "fullmesh" are visible with command "ip mptcp endpoint show"
 
 
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/merge_requests/2314
+    # Check that the "laminar" flag is supported and is added by default
+    @tcpdump
+    @ver+=1.57
+    @dump_status_verbose
+    @ipv4_mptcp_flags_0x100
+    Scenario: MPTCP with flag laminar
+    * Prepare simulated MPTCP setup with "2" veths named "veth"
+    * Set sysctl "net.mptcp.enabled" to "1"
+    * Set ip mptcp limits to "subflow 2 add_addr_accepted 2"
+    # Check both the default value and an explicit one
+    * Add "ethernet" connection named "veth0" for device "veth0" with options "ipv4.method static ipv4.addresses 192.168.80.10/24 ipv4.gateway 192.168.80.1"
+    * Add "ethernet" connection named "veth1" for device "veth1" with options "ipv4.method static ipv4.addresses 192.168.81.10/24 ipv4.gateway 192.168.81.1 connection.mptcp-flags laminar ipv6.method disabled"
+    * Bring "up" connection "veth0"
+    * Bring "up" connection "veth1"
+    * Execute "mptcpize run ncat -c 'echo hello world!' 192.168.80.1 9006"
+    Then "hello world!" is visible with command "cat /tmp/nmci-mptcp-ncat.log"
+    # iproute2 might not support "laminar" yet. In that case, it reports the new flag as "rawflags"
+    Then "exactly" "2" lines with pattern "(laminar|rawflags 20)" are visible with command "ip mptcp endpoint show"
+
+
     @rhbz2120471
     @ver+=1.41.3
     @dump_status_verbose

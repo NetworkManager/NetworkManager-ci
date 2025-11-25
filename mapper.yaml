@@ -1260,6 +1260,8 @@ testmapper:
         feature: ipv4
     - ipv4_mptcp_flags_0x80:
         feature: ipv4
+    - ipv4_mptcp_flags_0x100:
+        feature: ipv4
     - ipv4_mptcp_reapply_change_flag:
         feature: ipv4
     - ipv4_mptcp_remove_endpoints:
