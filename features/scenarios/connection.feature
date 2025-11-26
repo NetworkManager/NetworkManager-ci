@@ -744,6 +744,7 @@ Feature: nmcli: connection
 
      @long
      @rhelver+=10
+     @fedoraver-
      @display_allowed_values
      Scenario: nmcli - connection - showing allowed values
      * Add "ethernet" connection named "con_con" for device "testXc"
