@@ -5,6 +5,7 @@ if [ "$1" == "-h"  -o "$1" == "--help" ]; then
 
 USAGE: $0 [PACKAGE [VERSION [BUILD [ARCH]]]     print links of RPM packages
        $0 {base url}                            print links of RPM packages from given url
+       $0 -n NVR / --nvr NVR                    print links for given NVR
        $0 -i / --interactive                    enter interactive mode
        $0 -h / --help                           print this help
 
@@ -42,6 +43,10 @@ get_latest() {
     get_all $1 | sort -V | tail -n 1
 }
 
+has_arch() {
+    echo $1 | grep -q -F -e "x86_64" -e "aarch64" -e "ppc64le" -e "s390x" -e "noarch"
+}
+
 if [ -z "$RH_RELEASE" ]; then
     RH_RELEASE="$(grep -o 'release [0-9.]*' /etc/redhat-release | sed 's/release //g')"
     release="$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //g')"
@@ -75,6 +80,21 @@ if [ "$1" == "-i"  -o "$1" == "--interactive" ]; then
     echo Interactive mode
     echo
     shift 1
+fi
+
+if [ "$1" == "-n"  -o "$1" == "--nvr" ]; then
+    shift 1
+    NVR=$1
+    shift 1
+    R=${NVR##*-}
+    NV=${NVR%-*}
+    V=${NV##*-}
+    N=${NV%-*}
+    if has_arch $R; then
+        A=${R##*.}
+        R=${R%.*}
+    fi
+    set $N $V $R $A
 fi
 
 if [[ "$1" == "https://"* || "$1" == "http://"* ]]; then
