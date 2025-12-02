@@ -19,6 +19,12 @@ prepare:
         - git-core
         - iproute
         - NetworkManager
+    - name: install NetworkManager by NVR
+      when: nvr != ""
+      how: shell
+      script:
+        - bash contrib/utils/brew_links.sh -n $@{nvr} | xargs dnf -y install
+        - systemctl restart NetworkManager
     - name: vethsetup
       how: shell
       script:
