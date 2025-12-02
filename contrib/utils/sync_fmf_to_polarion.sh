@@ -23,7 +23,7 @@ fi
 
 # Get list of tests to export - either from git changes or retry failed ones
 if [ -n "$since" ]; then
-    tests="$(git log -p "$since" $since.. -- tests.fmf | grep '^+' | grep -o '/.*:' | sed s/:// | sort | uniq)"
+    tests="$(git log -p $since.. -- tests.fmf | grep '^+' | grep -o '/.*:' | sed s/:// | sort | uniq)"
 elif [ -n "$failed" ]; then
     tests="$(cat .tmp/polarion_failed_tests)"
     echo -n > .tmp/polarion_failed_tests
