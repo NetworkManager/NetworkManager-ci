@@ -2184,7 +2184,11 @@ def generate_tests(mapper, tests):
             # update testname, append subcomponent if not "default"
             test_prefix = "" if testmapper == "default" else testmapper + "/"
             instance["testname"] = test_prefix + list(entry.keys())[0]
-            instance["link"] = tests["/" + instance["testname"]].get("link", [])
+            test_link = None
+            test_fmf = tests.get("/" + instance["testname"])
+            if test_fmf:
+                test_link = test_fmf.get("link")
+            instance["link"] = test_link
             instance["order"] = feature_count * feature_increment + test_count
             test_count += 1
             full_entries.append(instance)

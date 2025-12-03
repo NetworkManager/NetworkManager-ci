@@ -24,7 +24,7 @@ if PolarionWorkItem:
             try:
                 qr = PolarionWorkItem.query(entries["id"], fields=["work_item_id"])
                 polarion_id = qr[0].work_item_id
-                url = f"https://polarion.engineering.redhat.com/polarion/#/project/RHELNST/workitem?id={polarion_id}"
+                url = f"https://polarion.example.org/polarion/#/project/RHELNST/workitem?id={polarion_id}"
                 entries["link"] = [{"implements": url}]
                 print(f"Linked {testname} to {url}")
             except Exception as e:
