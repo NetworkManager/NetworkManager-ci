@@ -2124,7 +2124,7 @@ def test_nmci_doc():
         warnings.warn(w, UserWarning)
 
 
-def generate_tests(mapper):
+def generate_tests(mapper, tests):
     import uuid
 
     # Simplified version, we allways suppose entry is dict, as feature must be defined
@@ -2184,6 +2184,7 @@ def generate_tests(mapper):
             # update testname, append subcomponent if not "default"
             test_prefix = "" if testmapper == "default" else testmapper + "/"
             instance["testname"] = test_prefix + list(entry.keys())[0]
+            instance["link"] = tests["/" + instance["testname"]].get("link", [])
             instance["order"] = feature_count * feature_increment + test_count
             test_count += 1
             full_entries.append(instance)
@@ -2260,8 +2261,13 @@ def test_fmf():
             "skip generating tests.fmf with sphinx-build (NMCI_NO_FMF=1 or /tmp/nm_skip_fmf)"
         )
 
+    import yaml
+
+    with open("tests.fmf", "r") as t_fmf:
+        tests_fmf = yaml.load(t_fmf, Loader=yaml.SafeLoader)
+
     mapper_obj = nmci.misc.get_mapper_obj()
-    mapper_obj = generate_tests(mapper_obj)
+    mapper_obj = generate_tests(mapper_obj, tests_fmf)
     generate_fmf(mapper_obj, "./fmf_template.j2", "./tests.fmf")
 
     diff = subprocess.run(
