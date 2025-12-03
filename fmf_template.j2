@@ -5,7 +5,8 @@ order: 200
 component: NetworkManager
 link:
     - verifies: https://polarion.engineering.redhat.com/polarion/#/project/RHELNST/workitem?id=RHELNST-5601
-{% for test in testmapper %}
+
+{%- for test in testmapper %}
 /{{ test.testname }}:
     {%- if test.run %}
     test: /{{ test.run }}
@@ -21,4 +22,10 @@ link:
     {%- if test.timeout %}
     duration: {{ test.timeout }}
     {%- endif %}
-{% endfor %}
+    {%- if test.link %}
+    link:
+      {%- for link in test.link %}
+      - implements: {{ link.implements }}
+      {%- endfor %}
+    {%- endif %}
+{%- endfor %}
