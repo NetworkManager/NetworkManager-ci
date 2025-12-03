@@ -34,3 +34,14 @@ for test in $tests; do
     date >> .tmp/polarion_sync_log
     tmt test export --how polarion --project-id RHELNST --create --bugzilla --no-duplicate --ignore-git-validation /tests$test$ >> .tmp/polarion_sync_log || echo $test >> .tmp/polarion_failed_tests
 done
+
+# Check for missing links and commit changes
+./update_tests_fmf.py
+
+diff="$(git diff tests.fmf)"
+if [ -n "$diff" ]; then
+    git add tests.fmf
+    git commit -m "fmf: update polarion links" --author "NetworkManager-ci <$USER+nmcibot@redhat.com>"
+    # push, and reset in case of fail and try luck next time
+    git push || git reset origin/main -- tests.fmf
+fi
