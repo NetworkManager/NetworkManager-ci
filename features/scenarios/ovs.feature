@@ -2081,6 +2081,7 @@ Feature: nmcli - ovs
 
 
     @RHEL-120176
+    @ver+=1.54.2
     @ver+=1.55.5
     @ver/rhel/9/6+=1.52.0.9
     @ver/rhel/9/7+=1.54.0.3
