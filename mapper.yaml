@@ -117,6 +117,8 @@ setup: |
     file=/tmp/FAIL_NetworkManager-ci-unit_tests.log
   fi
   rstrnt-report-result -o $file "NetworkManager-ci unit tests" $result
+  ./contrib/utils/polarion_metadata.py > /tmp/polarion_metadata.json
+  rhts-submit-log -l /tmp/polarion_metadata.json
 
 cleanup:
 
