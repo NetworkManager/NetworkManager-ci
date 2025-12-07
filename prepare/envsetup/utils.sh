@@ -21,6 +21,15 @@ fix_python3_link() {
     fi
 }
 
+get_rhel_compose() {
+    for file in /etc/yum.repos.d/repofile.repo /etc/yum.repos.d/beaker-BaseOS.repo; do
+        if [ -f "$file" ]; then
+            grep -F -e baseurl= -e BaseOS "$file" 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
+            return
+        fi
+    done
+    grep DISTRO= /etc/motd | grep -o "RHEL-[^/]*"
+}
 
 install_behave_pytest () {
   # this is for gitlab-ci.yml script to work

@@ -120,18 +120,6 @@ array_contains() {
     return 1
 }
 
-get_rhel_compose() {
-    for file in /etc/yum.repos.d/repofile.repo /etc/yum.repos.d/beaker-BaseOS.repo; do
-        if [ -f "$file" ]; then
-            grep -F -e baseurl= -e BaseOS "$file" 2>/dev/null | grep -o "RHEL-[^/]*" | tail -n 1
-            return
-        fi
-    done
-    grep DISTRO= /etc/motd | grep -o "RHEL-[^/]*"
-}
-
-export -f get_rhel_compose
-
 get_timestamp() {
     if [ -f /tmp/nm_tests_timestamp ]; then
       cat /tmp/nm_tests_timestamp
@@ -295,6 +283,7 @@ function gsm_hub_test() {
 
 # if $1 starts with @, cut it away
 TAG="${1#@}"
+[ -z "$TAG" ] && exit 1
 
 start_logger
 
@@ -331,6 +320,7 @@ if [ $conf_rc != 0 ]; then
 fi
 
 export COLUMNS="1024"
+export -f get_rhel_compose
 
 NMTEST_REPORT="/tmp/report_$NMTEST.html"
 # Used in testing-farm, shorten as much as possible to avoid ellipsis in http dir listing
