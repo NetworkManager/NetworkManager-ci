@@ -39,6 +39,8 @@ elif [ "$ID" == fedora ]; then
     [[ "$VERSION" == *"Rawhide"* ]] && VERSION_ID=rawhide && VERSION_ID2=Rawhide
     # get compose from repo
     COMP=$(grep baseurl -r /etc/yum.repos.d/ | grep -o Fedora-$VERSION_ID2-[^/]* | head -n1)
+    # At some systems, rawhide keyword is not in version, so if number search fails, use rawhide
+    [ -z "$COMP" ] && VERSION_ID=rawhide && VERSION_ID2=Rawhide && COMP=$(grep baseurl -r /etc/yum.repos.d/ | grep -o Fedora-$VERSION_ID2-[^/]* | head -n1)
     link=https://kojipkgs.fedoraproject.org/compose/$VERSION_ID/$COMP/compose/Cloud/$(arch)/images/
     img="$(get_all "$link" | grep -e "Base-Generic" -e "Base-$VERSION_ID" | grep "qcow2" )"
     # or set to latest if not recognized
