@@ -93,11 +93,8 @@ def setup_openvpn(context, tags):
         conf += [
             "tun-ipv6",
             "push tun-ipv6",
-            "ifconfig-ipv6 2001:db8:666:dead::1/64 2001:db8:666:dead::1",
-            'push "ifconfig-ipv6 2001:db8:666:dead::2/64 2001:db8:666:dead::1"',
-            # Not working for newer Fedoras (rhbz1909741)
-            # 'ifconfig-ipv6-pool 2001:db8:666:dead::/64',
-            'push "route-ipv6 2001:db8:666:dead::/64 2001:db8:666:dead::1"',
+            "server-ipv6 2001:db8:666:dead::/64",
+            'push "route-ipv6 2001:db8:666:dead::/64"',
         ]
     if "oath" in tags:
         context.ovpn_key = nmci.process.run_stdout(

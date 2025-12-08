@@ -20,8 +20,7 @@
     #Then "vpn.service-type:\s+org.freedesktop.NetworkManager.libreswan" is visible with command "nmcli connection show vpn"
 
 
-    @rhbz1912423
-    @rhelver+=8 @ver+=1.32.4
+    @rhelver+=9
     @openvpn @openvpn6 @libreswan @ikev2
     @multiple_vpn_connections
     Scenario: nmcli - vpn - multiple connections
@@ -38,7 +37,8 @@
     Then "IP4.ADDRESS.*11.12.13.*/24" is visible with command "nmcli d show libreswan1"
     Then "IP4.GATEWAY:.*11.12.13.14" is visible with command "nmcli d show libreswan1"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS.*2001:db8:666:dead::.*/64" is visible with command "nmcli c show openvpn"
+     And "IP6.ADDRESS.*fe80::" is visible with command "nmcli c show openvpn"
 
 
 #    @vpn_add_profile_novice_mode

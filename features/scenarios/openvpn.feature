@@ -37,7 +37,7 @@
      And "default" is not visible with command "ip r |grep ^default | grep -v eth0"
 
 
-    @ver+=1.0.8
+    @rhelver+=9
     @openvpn @openvpn6
     @openvpn_ipv6
     Scenario: nmcli - openvpn - add and connect IPv6 connection
@@ -45,13 +45,13 @@
     * Use certificate "sample-keys/client.crt" with key "sample-keys/client.key" and authority "sample-keys/ca.crt" for gateway "127.0.0.1" on OpenVPN connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS.*2001:db8:666:dead::.*/64" is visible with command "nmcli c show openvpn"
+     And "IP6.ADDRESS.*fe80::" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
      And "default dev tun" is visible with command "ip -6 r s default | grep -v eth0" in "40" seconds
 
 
-    @rhbz1505886
-    @ver+=1.0.8
+    @rhelver+=9 
     @delete_testeth0 @openvpn @openvpn6 @eth10_disconnect
     @openvpn_ipv6_neverdefault
     Scenario: nmcli - openvpn - add neverdefault IPv6 connection
@@ -62,7 +62,8 @@
     * Bring "down" connection "openvpn"
     * Bring "up" connection "openvpn"
     Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn"
-    Then "IP6.ADDRESS.*2001:db8:666:dead::2/64" is visible with command "nmcli c show openvpn"
+    Then "IP6.ADDRESS.*2001:db8:666:dead::.*/64" is visible with command "nmcli c show openvpn"
+     And "IP6.ADDRESS.*fe80::" is visible with command "nmcli c show openvpn"
     Then "IP4.ADDRESS" is not visible with command "nmcli c show openvpn"
      And "default" is not visible with command "ip -6 r s default | grep -v eth10"
 
