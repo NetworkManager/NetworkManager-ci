@@ -15,7 +15,10 @@ KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
 def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
-    t = nmci.util.start_timeout(timeout=timeout / 2)
+    # The system must boot up in 3/4 of the timeout.
+    # The second half is called with remaining timeout of first 3/4 + 1/4 of the timeout
+    timeout = (timeout * 3) / 4 if first_half else timeout
+    t = nmci.util.start_timeout(timeout=timeout)
     now_booted = False
     last_before = None
     failed_output = None
@@ -69,11 +72,16 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
 
     if first_half:
         if not now_booted:
-            print(
-                f"VM did not start the testsuite in half of the timeout ({timeout/2}s)"
-            )
+            print(f"VM did not start the testsuite in the timeout ({timeout}s)")
             return False
-        return handle_timeout(context, proc, timeout, boot_log_proc, first_half=False)
+        # here timoeut/3 equals 1/4 of the original timeout, because timeout is 3/4 of original timeout.
+        return handle_timeout(
+            context,
+            proc,
+            t.remaining_time() + timeout / 3,
+            boot_log_proc,
+            first_half=False,
+        )
     else:
         return False
 
