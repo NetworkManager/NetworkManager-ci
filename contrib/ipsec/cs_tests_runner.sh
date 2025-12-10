@@ -215,7 +215,8 @@ setup_containers() {
             wget
 
         log "Starting NetworkManager in $container"
-        podman exec "$container" systemctl enable --now NetworkManager
+        podman exec "$container" systemctl enable NetworkManager
+        podman exec "$container" systemctl start NetworkManager
     done
 }
 
