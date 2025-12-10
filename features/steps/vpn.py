@@ -224,3 +224,71 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=0):
         assert (
             ret == 0
         ), f"Got an Error while connecting to network {vpn}\n{cli.after}{cli.buffer}"
+
+
+@step('Setup cs-tests IPsec environment')
+def setup_cs_tests_environment(context):
+    """Setup containers and environment for cs- IPsec tests"""
+    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
+    command = f"{runner_path} setup"
+    result = nmci.process.run(command, timeout=300)
+
+    if result.returncode != 0:
+        raise Exception(f"Failed to setup cs-tests environment: {result.stderr}")
+
+    # Store that we have setup the environment for cleanup
+    if not hasattr(context, 'cs_tests_setup'):
+        context.cs_tests_setup = True
+
+
+@step('Update NetworkManager in cs-tests containers')
+def update_nm_in_cs_tests_containers(context):
+    """Update NetworkManager in containers to match host version"""
+    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
+    command = f"{runner_path} update-nm"
+    result = nmci.process.run(command, timeout=180)
+
+    if result.returncode != 0:
+        raise Exception(f"Failed to update NetworkManager in cs-tests containers: {result.stderr}")
+
+
+@step('Run cs-test "{test_name}"')
+def run_cs_test(context, test_name):
+    """Run a specific cs- IPsec test"""
+    if not test_name.startswith('cs-'):
+        raise ValueError(f"Test name must start with 'cs-': {test_name}")
+
+    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
+    command = f"{runner_path} test {test_name}"
+    result = nmci.process.run(command, timeout=120)
+
+    if result.returncode != 0:
+        raise Exception(f"cs-test {test_name} failed: {result.stderr}")
+
+
+@step('List available cs-tests')
+def list_cs_tests(context):
+    """List available cs- IPsec tests"""
+    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
+    command = f"{runner_path} list"
+    result = nmci.process.run(command)
+
+    if result.returncode != 0:
+        raise Exception(f"Failed to list cs-tests: {result.stderr}")
+
+    print(result.stdout)
+
+
+@step('Cleanup cs-tests IPsec environment')
+def cleanup_cs_tests_environment(context):
+    """Cleanup containers and environment for cs- IPsec tests"""
+    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
+    command = f"{runner_path} cleanup"
+    result = nmci.process.run(command, timeout=60)
+
+    if result.returncode != 0:
+        # Log warning but don't fail the test for cleanup issues
+        print(f"Warning: Failed to cleanup cs-tests environment: {result.stderr}")
+
+    if hasattr(context, 'cs_tests_setup'):
+        delattr(context, 'cs_tests_setup')

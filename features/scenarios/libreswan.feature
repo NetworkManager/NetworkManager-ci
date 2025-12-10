@@ -1026,3 +1026,27 @@ method=auto
     Then "ikelifetime\s+=\s+24h" is visible with command "nmcli con show vpn |grep 'vpn.data'"
     Then "rekey\s+=\s+yes" is visible with command "nmcli con show vpn |grep 'vpn.data'"
 
+
+    @ver+=1.55.90
+    @libreswan_cs_host4
+    Scenario: libreswan - cs-host4 - host to host IPsec connection
+    * Setup cs-tests IPsec environment
+    * Update NetworkManager in cs-tests containers
+    * Run cs-test "cs-host4"
+
+
+    @ver+=1.55.90
+    @libreswan_cs_subnet4
+    Scenario: libreswan - cs-subnet4 - subnet to subnet IPsec connection
+    * Setup cs-tests IPsec environment
+    * Update NetworkManager in cs-tests containers
+    * Run cs-test "cs-subnet4"
+
+
+    @ver+=1.55.90
+    @libreswan_cs_subnet6_routed
+    Scenario: libreswan - cs-subnet6-routed - IPv6 subnet to subnet with routing
+    * Setup cs-tests IPsec environment
+    * Update NetworkManager in cs-tests containers
+    * Run cs-test "cs-subnet6-routed"
+
