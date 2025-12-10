@@ -22,31 +22,31 @@ SCRIPTS_DIR="$WORK_DIR/scripts"
 HOSTA_CONTAINER="hosta.example.org"
 HOSTB_CONTAINER="hostb.example.org"
 
-# Detect container image based on host distribution
+# Detect container image based on host distribution (systemd-enabled)
 get_container_image() {
+    # Use nmstate test environment containers which have systemd properly configured
     if [[ -f /etc/fedora-release ]]; then
         local fedora_version
         fedora_version=$(grep -o 'release [0-9]*' /etc/fedora-release | sed 's/release //')
         if [[ "$fedora_version" == "Rawhide" ]] || [[ "$fedora_version" -ge 44 ]]; then
-            echo "registry.fedoraproject.org/fedora:latest"
+            echo "quay.io/nmstate/test-env:libreswan-srv-fedora"
         else
-            echo "quay.io/centos/centos:stream10"
+            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
         fi
     elif [[ -f /etc/redhat-release ]]; then
-        # For RHEL/CentOS, always use CentOS Stream containers (public repo)
+        # For RHEL/CentOS, use nmstate test environment containers
         local version
         version=$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //')
         if [[ "$version" == "9" ]]; then
-            echo "quay.io/centos/centos:stream9"
+            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
         elif [[ "$version" == "10" ]]; then
-            echo "quay.io/centos/centos:stream10"
+            echo "quay.io/nmstate/test-env:libreswan-srv-c10s"
         else
-            # Default to stream10 for newer versions
-            echo "quay.io/centos/centos:stream10"
+            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
         fi
     else
         # Default fallback
-        echo "quay.io/centos/centos:stream10"
+        echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
     fi
 }
 
@@ -176,7 +176,7 @@ setup_containers() {
     local container_image
     container_image=$(get_container_image)
 
-    # Start containers
+    # Start containers with systemd (nmstate test-env containers have systemd configured)
     log "Starting host A container"
     podman run -d --name "$HOSTA_CONTAINER" \
         --hostname "$HOSTA_CONTAINER" \
@@ -186,8 +186,7 @@ setup_containers() {
         --privileged \
         --tmpfs /run \
         --tmpfs /tmp \
-        "$container_image" \
-        sleep infinity
+        "$container_image"
 
     log "Starting host B container"
     podman run -d --name "$HOSTB_CONTAINER" \
@@ -198,25 +197,19 @@ setup_containers() {
         --privileged \
         --tmpfs /run \
         --tmpfs /tmp \
-        "$container_image" \
-        sleep infinity
+        "$container_image"
 
-    # Basic setup in both containers
+    # Wait for containers to start and systemd to initialize
+    sleep 5
+    
+    # Basic setup in both containers (nmstate test-env containers already have required packages)
     for container in "$HOSTA_CONTAINER" "$HOSTB_CONTAINER"; do
-        log "Setting up basic packages in $container"
-        podman exec "$container" dnf install -y \
-            NetworkManager \
-            libreswan \
-            iproute \
-            iputils \
-            systemd \
-            procps-ng \
-            vim \
-            wget
-
         log "Starting NetworkManager in $container"
         podman exec "$container" systemctl enable NetworkManager
         podman exec "$container" systemctl start NetworkManager
+        
+        # Install additional packages if needed
+        podman exec "$container" dnf install -y wget || true
     done
 }
 

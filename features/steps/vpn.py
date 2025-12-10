@@ -279,16 +279,3 @@ def list_cs_tests(context):
     print(result.stdout)
 
 
-@step('Cleanup cs-tests IPsec environment')
-def cleanup_cs_tests_environment(context):
-    """Cleanup containers and environment for cs- IPsec tests"""
-    runner_path = nmci.util.base_dir("contrib/ipsec/cs_tests_runner.sh")
-    command = f"{runner_path} cleanup"
-    result = nmci.process.run(command, timeout=60)
-
-    if result.returncode != 0:
-        # Log warning but don't fail the test for cleanup issues
-        print(f"Warning: Failed to cleanup cs-tests environment: {result.stderr}")
-
-    if hasattr(context, 'cs_tests_setup'):
-        delattr(context, 'cs_tests_setup')
