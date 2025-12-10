@@ -24,29 +24,29 @@ HOSTB_CONTAINER="hostb.example.org"
 
 # Detect container image based on host distribution (systemd-enabled)
 get_container_image() {
-    # Use nmstate test environment containers which have systemd properly configured
+    # Use nmstate development containers for NetworkManager testing
     if [[ -f /etc/fedora-release ]]; then
         local fedora_version
         fedora_version=$(grep -o 'release [0-9]*' /etc/fedora-release | sed 's/release //')
-        if [[ "$fedora_version" == "Rawhide" ]] || [[ "$fedora_version" -ge 44 ]]; then
-            echo "quay.io/nmstate/test-env:libreswan-srv-fedora"
+        if [[ "$fedora_version" == "Rawhide" ]]; then
+            echo "quay.io/nmstate/fed-nmstate-dev:rawhide"
         else
-            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
+            echo "quay.io/nmstate/fed-nmstate-dev:latest"
         fi
     elif [[ -f /etc/redhat-release ]]; then
-        # For RHEL/CentOS, use nmstate test environment containers
+        # For RHEL/CentOS, use nmstate development containers
         local version
         version=$(grep -o 'release [0-9]*' /etc/redhat-release | sed 's/release //')
         if [[ "$version" == "9" ]]; then
-            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
+            echo "quay.io/nmstate/c9s-nmstate-dev"
         elif [[ "$version" == "10" ]]; then
-            echo "quay.io/nmstate/test-env:libreswan-srv-c10s"
+            echo "quay.io/nmstate/c10s-nmstate-dev"
         else
-            echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
+            echo "quay.io/nmstate/c9s-nmstate-dev"
         fi
     else
         # Default fallback
-        echo "quay.io/nmstate/test-env:libreswan-srv-c9s"
+        echo "quay.io/nmstate/c10s-nmstate-dev"
     fi
 }
 
