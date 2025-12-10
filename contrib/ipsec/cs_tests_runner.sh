@@ -18,6 +18,12 @@ WORK_DIR="/tmp/cs_ipsec_tests"
 SCRIPTS_REPO="https://github.com/bengal/scripts.git"
 SCRIPTS_DIR="$WORK_DIR/scripts"
 
+# Setup logging to file
+LOG_FILE="/tmp/cs_ipsec_tests.log"
+exec > >(tee "$LOG_FILE") 2>&1
+echo "=== CS-Tests IPsec Runner Log ==="
+echo "Log file: $LOG_FILE"
+
 # Container names
 HOSTA_CONTAINER="hosta.example.org"
 HOSTB_CONTAINER="hostb.example.org"
@@ -51,11 +57,25 @@ get_container_image() {
 }
 
 log() {
-    echo "[$(date '+%H:%M:%S')] $*" >&2
+    echo "$*"
+}
+
+# Enhanced logging function that logs command execution
+run_cmd() {
+    local cmd="$*"
+    log "COMMAND: $cmd"
+    if "$@"; then
+        log "SUCCESS: $cmd"
+        return 0
+    else
+        local ret=$?
+        log "FAILED: $cmd (exit code: $ret)"
+        return $ret
+    fi
 }
 
 error() {
-    echo "[$(date '+%H:%M:%S')] ERROR: $*" >&2
+    echo "ERROR: $*" >&2
     exit 1
 }
 
