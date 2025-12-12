@@ -267,11 +267,27 @@ update_nm_in_containers() {
         grep -v debug | grep -v devel)
     log "NetworkManager URLs found: $(echo "$nm_urls" | wc -l) packages"
     
+    # Get NetworkManager-libreswan version from host
+    local libreswan_version
+    libreswan_version=$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' NetworkManager-libreswan 2>/dev/null)
+    log "Host NetworkManager-libreswan version: $libreswan_version"
+    
+    # Parse libreswan version-release
+    local libreswan_ver libreswan_rel
+    if [[ "$libreswan_version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(.+)$ ]]; then
+        libreswan_ver="${BASH_REMATCH[1]}"
+        libreswan_rel="${BASH_REMATCH[2]}"
+        log "Parsed libreswan version: $libreswan_ver, release: $libreswan_rel"
+    else
+        log "WARNING: Could not parse libreswan version, using latest"
+        libreswan_ver=""
+        libreswan_rel=""
+    fi
+    
     # Download NetworkManager-libreswan packages using koji_links
     log "Getting NetworkManager-libreswan packages"
-    log "Running: $SCRIPT_DIR/../utils/koji_links.sh NetworkManager-libreswan ${release:+$release}"
     local libreswan_urls
-    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan ${release:+"$release"} | 
+    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan ${libreswan_ver:+"$libreswan_ver"} ${libreswan_rel:+"$libreswan_rel"} | 
         grep -v debug | grep -v devel | grep -v gnome)
     log "NetworkManager-libreswan URLs found: $(echo "$libreswan_urls" | wc -l) packages"
 
