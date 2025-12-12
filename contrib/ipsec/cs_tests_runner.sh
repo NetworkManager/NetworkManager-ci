@@ -360,9 +360,11 @@ update_nm_in_containers() {
             log "Successfully installed packages in $container"
         fi
 
-        # Enable and start NetworkManager after package installation
-        log "Starting NetworkManager in $container after package installation"
+        # Enable and restart NetworkManager after package installation
+        log "Restarting NetworkManager in $container after package installation"
+        podman exec "$container" systemctl daemon-reload
         podman exec "$container" systemctl enable NetworkManager
+        podman exec "$container" systemctl stop NetworkManager || true
         podman exec "$container" systemctl start NetworkManager
 
         # Verify versions
