@@ -269,6 +269,7 @@ update_nm_in_containers() {
     
     # Download NetworkManager-libreswan packages using koji_links
     log "Getting NetworkManager-libreswan packages"
+    log "Running: $SCRIPT_DIR/../utils/koji_links.sh NetworkManager-libreswan ${release:+$release}"
     local libreswan_urls
     libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan ${release:+"$release"} | 
         grep -v debug | grep -v devel | grep -v gnome)
