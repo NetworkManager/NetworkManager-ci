@@ -271,10 +271,11 @@ update_nm_in_containers() {
             rpm_name=$(basename "$package")
             local local_path="$download_dir/$rpm_name"
             log "Downloading NetworkManager: $rpm_name"
-            wget -O "$local_path" "$package" || {
+            wget -q -O "$local_path" "$package" || {
                 log "WARNING: Failed to download $package"
                 continue
             }
+            log "Downloaded: $rpm_name"
             local_packages+=("$local_path")
         fi
     done
@@ -286,10 +287,11 @@ update_nm_in_containers() {
             rpm_name=$(basename "$package")
             local local_path="$download_dir/$rpm_name"
             log "Downloading NetworkManager-libreswan: $rpm_name"
-            wget -O "$local_path" "$package" || {
+            wget -q -O "$local_path" "$package" || {
                 log "WARNING: Failed to download $package"
                 continue
             }
+            log "Downloaded: $rpm_name"
             local_packages+=("$local_path")
         fi
     done
@@ -319,14 +321,13 @@ update_nm_in_containers() {
 
         # Install all packages at once (handles upgrade/downgrade/dependencies)
         if [[ ${#container_files[@]} -gt 0 ]]; then
-            log "Installing all NetworkManager packages together in $container"
+            log "Installing ${#container_files[@]} NetworkManager packages in $container"
+            log "Packages: $(basename -a "${container_files[@]}" | tr '\n' ' ')"
             podman exec "$container" rpm -U --force "${container_files[@]}" || {
-                log "WARNING: RPM install failed, trying with dnf"
-                podman exec "$container" dnf install -y --allowerasing "${container_files[@]}" || {
-                    log "ERROR: Failed to install packages in $container"
-                    continue
-                }
+                log "ERROR: Failed to install packages in $container"
+                continue
             }
+            log "Successfully installed packages in $container"
         fi
 
         # Enable and start NetworkManager after package installation
