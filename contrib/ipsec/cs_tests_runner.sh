@@ -246,16 +246,19 @@ update_nm_in_containers() {
     mkdir -p "$download_dir"
     log "Downloading packages to $download_dir"
 
-    # Download NetworkManager packages using koji_links
-    log "Getting NetworkManager packages for version $nm_version"
+    # Download minimal NetworkManager packages using koji_links
+    log "Getting minimal NetworkManager packages for version $nm_version"
     local nm_urls
-    nm_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager "$nm_version" 2>/dev/null | grep -v debuginfo | grep -v devel)
+    nm_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager "$nm_version" 2>/dev/null | 
+        grep -E "(NetworkManager-libnm-|NetworkManager-[0-9]|NetworkManager-ovs-)" | 
+        grep -v debug | grep -v devel)
     log "NetworkManager URLs found: $(echo "$nm_urls" | wc -l) packages"
     
     # Download NetworkManager-libreswan packages using koji_links
     log "Getting NetworkManager-libreswan packages"
     local libreswan_urls
-    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan 2>/dev/null | grep -v debuginfo | grep -v devel)
+    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan 2>/dev/null | 
+        grep -v debug | grep -v devel | grep -v gnome)
     log "NetworkManager-libreswan URLs found: $(echo "$libreswan_urls" | wc -l) packages"
 
     # Download all packages to local directory first
