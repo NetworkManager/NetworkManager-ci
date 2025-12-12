@@ -115,7 +115,7 @@ clone_scripts_repo() {
 get_nm_version() {
     local nm_version
     nm_version=$(NetworkManager --version)
-    log "Host NetworkManager version: $nm_version"
+    log "Host NetworkManager version: $nm_version" >&2
     echo "$nm_version"
 }
 
