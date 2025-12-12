@@ -228,8 +228,27 @@ setup_containers() {
     # Wait for containers to start and systemd to initialize
     sleep 5
     
-    # Basic setup in both containers (nmstate test-env containers already have required packages)
+    # Download hostname package on host if needed
+    local hostname_rpm="/tmp/hostname.rpm"
+    if ! command -v hostname >/dev/null 2>&1 || ! rpm -q hostname >/dev/null 2>&1; then
+        log "Downloading hostname package on host"
+        dnf download --downloadonly --downloaddir /tmp hostname 2>/dev/null || {
+            log "Warning: Failed to download hostname package"
+        }
+        hostname_rpm=$(find /tmp -name "hostname-*.rpm" 2>/dev/null | head -n1)
+    fi
+    
+    # Install hostname package and basic setup in both containers
     for container in "$HOSTA_CONTAINER" "$HOSTB_CONTAINER"; do
+        if [[ -f "$hostname_rpm" ]]; then
+            log "Installing hostname package in $container"
+            podman cp "$hostname_rpm" "$container:/tmp/"
+            local rpm_name
+            rpm_name=$(basename "$hostname_rpm")
+            podman exec "$container" rpm -i "/tmp/$rpm_name" || {
+                log "Warning: Failed to install hostname package in $container"
+            }
+        fi
         log "Container $container is ready and setup complete"
     done
 }
