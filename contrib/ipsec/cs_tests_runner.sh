@@ -248,8 +248,21 @@ update_nm_in_containers() {
 
     # Download minimal NetworkManager packages using koji_links
     log "Getting minimal NetworkManager packages for version $nm_version"
+    
+    # Parse version-release (e.g., "1.55.90-1.el10" -> "1.55.90" "1.el10")
+    local version release
+    if [[ "$nm_version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(.+)$ ]]; then
+        version="${BASH_REMATCH[1]}"
+        release="${BASH_REMATCH[2]}"
+        log "Parsed version: $version, release: $release"
+    else
+        version="$nm_version"
+        release=""
+        log "Using version as-is: $version"
+    fi
+    
     local nm_urls
-    nm_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager "$nm_version" 2>/dev/null | 
+    nm_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager "$version" ${release:+"$release"} | 
         grep -E "(NetworkManager-libnm-|NetworkManager-[0-9]|NetworkManager-ovs-)" | 
         grep -v debug | grep -v devel)
     log "NetworkManager URLs found: $(echo "$nm_urls" | wc -l) packages"
@@ -257,7 +270,7 @@ update_nm_in_containers() {
     # Download NetworkManager-libreswan packages using koji_links
     log "Getting NetworkManager-libreswan packages"
     local libreswan_urls
-    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan 2>/dev/null | 
+    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan ${release:+"$release"} | 
         grep -v debug | grep -v devel | grep -v gnome)
     log "NetworkManager-libreswan URLs found: $(echo "$libreswan_urls" | wc -l) packages"
 
