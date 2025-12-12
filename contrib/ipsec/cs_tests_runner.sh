@@ -18,8 +18,8 @@ WORK_DIR="/tmp/cs_ipsec_tests"
 SCRIPTS_REPO="https://github.com/bengal/scripts.git"
 SCRIPTS_DIR="$WORK_DIR/scripts"
 
-# Setup logging to file
-LOG_FILE="/tmp/cs_ipsec_tests.log"
+# Setup logging
+LOG_FILE="${LOG_FILE:-/tmp/cs_ipsec_tests.log}"
 exec > >(tee "$LOG_FILE") 2>&1
 echo "=== CS-Tests IPsec Runner Log ==="
 echo "Log file: $LOG_FILE"
@@ -93,16 +93,22 @@ setup_work_dir() {
     cd "$WORK_DIR"
 }
 
-# Clone bengal's scripts repository
+# Clone bengal's scripts repository on host
 clone_scripts_repo() {
-    log "Cloning bengal/scripts repository"
+    log "Cloning bengal/scripts repository on host"
     if [[ -d "$SCRIPTS_DIR" ]]; then
         log "Scripts directory already exists, pulling latest changes"
         cd "$SCRIPTS_DIR"
-        git pull
+        git pull 2>/dev/null || {
+            log "Warning: git pull failed, using existing scripts"
+        }
     else
-        git clone "$SCRIPTS_REPO" "$SCRIPTS_DIR"
+        git clone "$SCRIPTS_REPO" "$SCRIPTS_DIR" 2>/dev/null || {
+            log "ERROR: Failed to clone scripts repository"
+            return 1
+        }
     fi
+    log "Scripts repository ready on host"
 }
 
 # Get current NetworkManager version from host
@@ -224,12 +230,7 @@ setup_containers() {
     
     # Basic setup in both containers (nmstate test-env containers already have required packages)
     for container in "$HOSTA_CONTAINER" "$HOSTB_CONTAINER"; do
-        log "Starting NetworkManager in $container"
-        podman exec "$container" systemctl enable NetworkManager
-        podman exec "$container" systemctl start NetworkManager
-        
-        # Install additional packages if needed
-        podman exec "$container" dnf install -y wget || true
+        log "Container $container is ready and setup complete"
     done
 }
 
@@ -240,54 +241,109 @@ update_nm_in_containers() {
 
     log "Updating NetworkManager in containers to version $nm_version"
 
-    # Get package URLs
-    local package_urls
-    package_urls=$(get_nm_package_urls "$nm_version")
+    # Create download directory
+    local download_dir="/tmp/nm-builds-cs"
+    mkdir -p "$download_dir"
+    log "Downloading packages to $download_dir"
 
-    if [[ -z "$package_urls" ]]; then
-        log "Warning: Could not get package URLs for NetworkManager $nm_version, using default packages"
-        return 0
+    # Download NetworkManager packages using koji_links
+    log "Getting NetworkManager packages for version $nm_version"
+    local nm_urls
+    nm_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager "$nm_version" 2>/dev/null | grep -v debuginfo | grep -v devel)
+    log "NetworkManager URLs found: $(echo "$nm_urls" | wc -l) packages"
+    
+    # Download NetworkManager-libreswan packages using koji_links
+    log "Getting NetworkManager-libreswan packages"
+    local libreswan_urls
+    libreswan_urls=$("$SCRIPT_DIR/../utils/koji_links.sh" NetworkManager-libreswan 2>/dev/null | grep -v debuginfo | grep -v devel)
+    log "NetworkManager-libreswan URLs found: $(echo "$libreswan_urls" | wc -l) packages"
+
+    # Download all packages to local directory first
+    local local_packages=()
+    
+    # Download NetworkManager packages
+    for package in $nm_urls; do
+        if [[ "$package" =~ ^https?:// ]]; then
+            local rpm_name
+            rpm_name=$(basename "$package")
+            local local_path="$download_dir/$rpm_name"
+            log "Downloading NetworkManager: $rpm_name"
+            wget -O "$local_path" "$package" || {
+                log "WARNING: Failed to download $package"
+                continue
+            }
+            local_packages+=("$local_path")
+        fi
+    done
+    
+    # Download NetworkManager-libreswan packages
+    for package in $libreswan_urls; do
+        if [[ "$package" =~ ^https?:// ]]; then
+            local rpm_name
+            rpm_name=$(basename "$package")
+            local local_path="$download_dir/$rpm_name"
+            log "Downloading NetworkManager-libreswan: $rpm_name"
+            wget -O "$local_path" "$package" || {
+                log "WARNING: Failed to download $package"
+                continue
+            }
+            local_packages+=("$local_path")
+        fi
+    done
+
+    if [[ ${#local_packages[@]} -eq 0 ]]; then
+        log "WARNING: No packages downloaded successfully"
+        log "NetworkManager URLs were: $nm_urls"
+        log "NetworkManager-libreswan URLs were: $libreswan_urls"
+        return 1
     fi
+    
+    log "Successfully downloaded ${#local_packages[@]} packages to $download_dir"
 
+    # Now copy packages to containers and install
     for container in "$HOSTA_CONTAINER" "$HOSTB_CONTAINER"; do
-        log "Updating NetworkManager in $container"
+        log "Updating NetworkManager and NetworkManager-libreswan in $container"
 
-        # Prepare all packages for installation
-        local temp_files=()
-
-        for package in $package_urls; do
-            if [[ "$package" =~ ^https?:// ]]; then
-                # Remote URL - download to temp
-                local rpm_name
-                rpm_name=$(basename "$package")
-                log "Downloading $rpm_name"
-                podman exec "$container" wget -O "/tmp/$rpm_name" "$package"
-                temp_files+=("/tmp/$rpm_name")
-            elif [[ -f "$package" ]]; then
-                # Local file - copy to container
-                local rpm_name
-                rpm_name=$(basename "$package")
-                log "Copying $rpm_name to container"
-                podman cp "$package" "$container:/tmp/$rpm_name"
-                temp_files+=("/tmp/$rpm_name")
-            else
-                log "Warning: Package not found: $package"
-            fi
+        # Copy all packages to container
+        local container_files=()
+        for local_pkg in "${local_packages[@]}"; do
+            local rpm_name
+            rpm_name=$(basename "$local_pkg")
+            log "Copying $rpm_name to $container"
+            podman cp "$local_pkg" "$container:/tmp/$rpm_name"
+            container_files+=("/tmp/$rpm_name")
         done
 
         # Install all packages at once (handles upgrade/downgrade/dependencies)
-        if [[ ${#temp_files[@]} -gt 0 ]]; then
+        if [[ ${#container_files[@]} -gt 0 ]]; then
             log "Installing all NetworkManager packages together in $container"
-            podman exec "$container" dnf install -y --allowerasing "${temp_files[@]}"
+            podman exec "$container" rpm -U --force "${container_files[@]}" || {
+                log "WARNING: RPM install failed, trying with dnf"
+                podman exec "$container" dnf install -y --allowerasing "${container_files[@]}" || {
+                    log "ERROR: Failed to install packages in $container"
+                    continue
+                }
+            }
         fi
 
-        # Restart NetworkManager
-        podman exec "$container" systemctl restart NetworkManager
+        # Enable and start NetworkManager after package installation
+        log "Starting NetworkManager in $container after package installation"
+        podman exec "$container" systemctl enable NetworkManager
+        podman exec "$container" systemctl start NetworkManager
 
-        # Verify version
+        # Verify versions
         local container_version
-        container_version=$(podman exec "$container" NetworkManager --version)
+        container_version=$(podman exec "$container" NetworkManager --version 2>/dev/null) || {
+            log "ERROR: Cannot get NetworkManager version in $container"
+            continue
+        }
         log "NetworkManager version in $container: $container_version"
+        
+        local libreswan_version
+        libreswan_version=$(podman exec "$container" rpm -q NetworkManager-libreswan 2>/dev/null) || {
+            log "WARNING: NetworkManager-libreswan not installed in $container"
+        }
+        log "NetworkManager-libreswan in $container: $libreswan_version"
     done
 }
 
@@ -413,24 +469,31 @@ run_cs_test() {
 cleanup_test_env() {
     log "Cleaning up test environment"
 
-    # Stop and remove containers
+    # Force kill and remove containers
     for container in "$HOSTA_CONTAINER" "$HOSTB_CONTAINER"; do
         if podman container exists "$container" 2>/dev/null; then
-            log "Removing container $container"
-            podman rm -f "$container"
+            log "Killing and removing container $container"
+            podman kill "$container" 2>/dev/null || true
+            podman rm -f "$container" 2>/dev/null || true
         fi
     done
 
     # Remove custom network
     if podman network exists cs-ipsec-test 2>/dev/null; then
         log "Removing custom network"
-        podman network rm cs-ipsec-test
+        podman network rm cs-ipsec-test 2>/dev/null || true
     fi
 
     # Remove work directory
     if [[ -d "$WORK_DIR" ]]; then
         log "Removing work directory"
         rm -rf "$WORK_DIR"
+    fi
+    
+    # Remove download directory
+    if [[ -d "/tmp/nm-builds-cs" ]]; then
+        log "Removing download directory /tmp/nm-builds-cs"
+        rm -rf "/tmp/nm-builds-cs"
     fi
 }
 
@@ -442,6 +505,8 @@ main() {
         "setup")
             log "Setting up cs-tests environment"
             check_root
+            # Clean up any existing containers/networks first
+            cleanup_test_env 2>/dev/null || true
             setup_work_dir
             clone_scripts_repo
             setup_containers

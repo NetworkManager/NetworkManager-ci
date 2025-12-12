@@ -234,7 +234,12 @@ def setup_cs_tests_environment(context):
     result = nmci.process.run(command, timeout=300)
 
     if result.returncode != 0:
-        raise Exception(f"Failed to setup cs-tests environment: {result.stderr}")
+        error_msg = f"Failed to setup cs-tests environment (exit code {result.returncode})"
+        if result.stderr:
+            error_msg += f": {result.stderr}"
+        if result.stdout:
+            error_msg += f"\nSTDOUT: {result.stdout}"
+        raise Exception(error_msg)
 
     # Store that we have setup the environment for cleanup
     if not hasattr(context, 'cs_tests_setup'):
