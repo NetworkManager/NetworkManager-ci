@@ -26,6 +26,9 @@ link:
     order+: 3
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4027
+/delete_me:
+    id: 71d3ae0e-6e3f-5dcb-aaf4-cf5e579e520a
+    order+: 4
 /bond_add_default_bond:
     tag: ['gate']
     id: aac81afb-310c-5a4d-a3b4-67fcd7a058fe
