@@ -212,12 +212,13 @@ if [ -z "$ver" ]; then
         fi
         ver=$(get_latest $url_base/$package/)
     fi
-else
+# avoid searching for $url_base/kernel - koji might not respond in time.
+elif [ "$package" != kernel ]; then
     # Version was specified - find matching version in repository
     # For brew, switch to url_base_build to access all builds (not just gated ones)
     echo "$url_base" | grep -q brew && url_base="$url_base_build"
     ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
-    if [ -z "$ver2" ]; then
+    if [ -z "$ver2" ] && [ "$provider" != koji ]; then
        # Fallback to koji if version not found
        url_base="https://kojipkgs.fedoraproject.org/packages"
        provider=koji
