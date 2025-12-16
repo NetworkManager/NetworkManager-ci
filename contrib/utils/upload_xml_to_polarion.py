@@ -72,6 +72,7 @@ if xunit_xml.tag == "testsuite":
     xunit_xml = testsutes
 
 polarion_metadata = json.loads(polarion_metadata_str)
+polarion_metadata["polarion-custom-logs"] = xunit_url_base
 props = ET.Element("properties")
 for p_name, p_val in polarion_metadata.items():
     prop = ET.Element("property", attrib={"name": p_name, "value": p_val})
@@ -87,4 +88,4 @@ if not POLARION_IMPORT_URL:
     print(updated_xml_bytes)
     sys.exit(1)
 
-requests.post(POLARION_IMPORT_URL, files=xml_file, auth=auth)
+requests.post(POLARION_IMPORT_URL, files=xml_file, auth=auth, verify=False)
