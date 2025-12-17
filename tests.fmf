@@ -3385,6 +3385,8 @@ link:
 /8021x_tls_user_permissions:
     id: 3b8279f9-f147-53f4-aeb9-e105ddb81a91
     order+: 13006
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8877
 /8021x_tls_bad_private_key_password:
     id: acdcd180-a546-5f93-b959-4a632e48e7fd
     order+: 13007
@@ -6266,6 +6268,8 @@ link:
 /simwifi_tls_user_permissions:
     id: f47d3834-0950-5693-8f51-5c95108e0b82
     order+: 41021
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8878
 /simwifi_tls_bad_private_key_password:
     id: 5492c731-606f-556c-8c2c-0ffab3708028
     order+: 41022
