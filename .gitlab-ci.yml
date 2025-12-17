@@ -37,6 +37,8 @@ UnitTests:
     reports:
       junit:
         - report.xml
+    paths:
+        - report.xml
 
 TestResults:
   image: registry.fedoraproject.org/fedora
@@ -68,6 +70,7 @@ TestResults:
       junit:
         - report.xml
     paths:
+        - report.xml
         - rpms/*.rpm
     expire_in: 1 week
 
