@@ -12,6 +12,15 @@ POLARION_IMPORT_URL = os.environ.get("POLARION_IMPORT_URL")
 POLARION_USER = os.environ.get("POLARION_USER")
 POLARION_PASSWORD = os.environ.get("POLARION_PASSWORD")
 
+TEST_CYCLES = {
+    "CTC1": "Comprehensive Test Cycle 1",
+    "CTC2": "Comprehensive Test Cycle 2",
+    "CUT": "Components Upgrade Testing",
+    "0day": "0 Day Testing",
+    "RCB": "RC Baseline Test Cycle",
+    "RCQC": "RC Compose Qualification",
+}
+
 auth = None
 if POLARION_USER and POLARION_PASSWORD:
     auth = requests.auth.HTTPBasicAuth(POLARION_USER, POLARION_PASSWORD)
@@ -21,6 +30,15 @@ with open("tests.fmf", "r") as t_fmf:
 
 xunit_url = sys.argv[1]
 xunit_url_base = sys.argv[1].rsplit("/", 1)[0]
+
+
+test_cycle = None
+if len(sys.argv) > 2:
+    test_cycle_short = sys.argv[2]
+    if test_cycle_short not in TEST_CYCLES:
+        print(f"Unknown test cycle {test_cycle_short}, must be one of {list(TEST_CYCLES.keys())}")
+        exit(1)
+    test_cycle = TEST_CYCLES.get(test_cycle_short)
 
 req = requests.get(xunit_url, verify=False)
 if req.status_code != 200:
@@ -73,6 +91,13 @@ if xunit_xml.tag == "testsuite":
 
 polarion_metadata = json.loads(polarion_metadata_str)
 polarion_metadata["polarion-custom-logs"] = xunit_url_base
+if test_cycle:
+    polarion_metadata["polarion-custom-testcycle"] = test_cycle
+    polarion_metadata["polarion-custom-description"] = polarion_metadata["polarion-custom-description"].replace("general", test_cycle_short)
+    polarion_metadata["polarion-custom-title"] = polarion_metadata["polarion-custom-title"].replace("general", test_cycle_short)
+
+polarion_metadata["polarion-custom-component"] = "NetworkManager,NetworkManager-libreswan" if "gsm" not in xunit_url_base else "ModemManager,libqmi,libqrtr-glib,libmbim"
+
 props = ET.Element("properties")
 for p_name, p_val in polarion_metadata.items():
     prop = ET.Element("property", attrib={"name": p_name, "value": p_val})

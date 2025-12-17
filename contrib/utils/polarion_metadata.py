@@ -40,6 +40,23 @@ hostname = (
     .strip()
 )
 
+selinux_state = (
+    subprocess.run(
+        "getenforce",
+        stdout=subprocess.PIPE,
+        check=False,
+    )
+    .stdout.decode("utf-8", errors="ignore")
+    .strip()
+)
+
+if selinux_state == "Disabled":
+    selinux_mode = "Permissive"
+
+else:
+    selinux_mode = selinux_state
+    selinux_state = "Enabled"
+
 mode = "package"
 
 if subprocess.call("grep -q ostre /proc/cmdline", shell=True) == 0:
@@ -54,12 +71,15 @@ props_dic = {
     "polarion-custom-plannedin": plan,
     "polarion-custom-platform": distro,
     "polarion-custom-poolteam": "rhel-sst-network-management",
+    "polarion-custom-assignedteam": "rhel-net-mgmt",
     "polarion-custom-hostname": hostname,
+    "polarion-custom-selinuxstate": selinux_state,
+    "polarion-custom-selinuxmode": selinux_mode,
+    "polarion-custom-deploymentMode": mode,
     "polarion-project-id": "RHELNST",
     "polarion-user-id": "fpokryvk",
     "polarion-testrun-title": f"NetworkManager {distro} general {arch}",
     "polarion-project-span-ids": "RHELNST,RHELNST",
-    "polarion-custom-deploymentMode": mode,
 }
 
 print(json.dumps(props_dic))

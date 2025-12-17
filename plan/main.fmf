@@ -53,5 +53,6 @@ report:
   planned-in: $planin # 9_6_ga
   platform: $@{distro}
   pool-team: rhel-sst-network-management
+  assigned-team: rhel-net-mgmt
   title: NetworkManager $@{distro} $stage $@{arch}
   use-facts: true
