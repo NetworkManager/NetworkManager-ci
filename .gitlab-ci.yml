@@ -29,7 +29,7 @@ UnitTests:
       python3 run/gitlab-pipelines/fix_pytest_xml.py report.xml
       if [ $rc != 0 ]; then
         # send commit SHA so pipeline will remain unresolved
-        python3 run/centos-ci/gitlab_mr_discuss.py "$CI_SERVER_URL/$CI_PROJECT_PATH/pipelines/$CI_PIPELINE_ID" "Commit: $CI_COMMIT_SHA" "UnitTests failed\!"
+        python3 run/centos-ci/gitlab_mr_discuss.py "$CI_SERVER_URL/$CI_PROJECT_PATH/pipelines/$CI_PIPELINE_ID/test_report?job_name=UnitTests" "Commit: $CI_COMMIT_SHA" "UnitTests failed\!"
       fi
       exit $rc
   artifacts:
