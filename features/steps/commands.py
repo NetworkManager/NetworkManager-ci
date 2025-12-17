@@ -1304,7 +1304,7 @@ def run_nmstate(context, log_file):
         == 0
     ):
         copr = nmci.process.dnf(
-            "copr list | grep networkmanager/NetworkManager | awk -F 'org/' '{print $2}'",
+            "copr list | grep networkmanager/NetworkManager | grep -v libreswan | awk -F 'org/' '{print $2}'",
             shell=True,
             ignore_stderr=True,
             ignore_returncode=True,
