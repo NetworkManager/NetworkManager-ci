@@ -40,10 +40,30 @@ hostname = (
     .strip()
 )
 
-mode = "package"
+sestatus = (
+    subprocess.run(
+        "sestatus",
+        stdout=subprocess.PIPE,
+        check=False,
+    )
+    .stdout.decode("utf-8", errors="ignore")
+    .strip()
+    .split("\n")
+)
+
+selinux_state = "disabled"
+selinux_mode = "permissive"
+
+for line in sestatus:
+    if line.startswith("SELinux status:"):
+        selinux_state = line.split(" ")[-1]
+    if line.startswith("Current mode:"):
+        selinux_mode = line.split(" ")[-1]
+
+deployment_mode = "package"
 
 if subprocess.call("grep -q ostre /proc/cmdline", shell=True) == 0:
-    mode = "image"
+    deployment_mode = "image"
 
 props_dic = {
     "polarion-custom-arch": arch_p,
@@ -53,13 +73,16 @@ props_dic = {
     "polarion-custom-description": f"NetworkManager {distro} general {arch}",
     "polarion-custom-plannedin": plan,
     "polarion-custom-platform": distro,
-    "polarion-custom-poolteam": "rhel-sst-network-management",
+    "polarion-custom-poolteam": "rhel-net-mgmt",
     "polarion-custom-hostname": hostname,
+    "polarion-custom-selinux_state": selinux_state,
+    "polarion-custom-selinux_mode": selinux_mode,
+    "polarion-custom-selinux_policy": "targeted",  # default
+    "polarion-custom-deploymentMode": deployment_mode,
     "polarion-project-id": "RHELNST",
     "polarion-user-id": "fpokryvk",
     "polarion-testrun-title": f"NetworkManager {distro} general {arch}",
     "polarion-project-span-ids": "RHELNST,RHELNST",
-    "polarion-custom-deploymentMode": mode,
 }
 
 print(json.dumps(props_dic))
