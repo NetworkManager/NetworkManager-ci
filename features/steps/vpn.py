@@ -224,3 +224,161 @@ def connect_to_vpn(context, vpn, password, secret=None, time_out=0):
         assert (
             ret == 0
         ), f"Got an Error while connecting to network {vpn}\n{cli.after}{cli.buffer}"
+
+
+@step('Download NM-libreswan package to "{target_dir}"')
+def download_nm_libreswan_package(context, target_dir):
+    """
+    Download NetworkManager-libreswan package to specified directory.
+
+    Tries two methods in order:
+    1. Use dnf download with exact package version
+    2. Fallback to koji_links.sh script for downloading from koji
+
+    Args:
+        target_dir: Directory where package should be downloaded
+    """
+    # Create target directory if not exists
+    nmci.process.run(f"mkdir -p {target_dir}", shell=True)
+
+    # 1. Try dnf download first
+    libreswan_version = nmci.process.run_stdout(
+        "rpm -q NetworkManager-libreswan 2>/dev/null || echo 'not-installed'",
+        shell=True,
+    ).strip()
+    if libreswan_version != "not-installed":
+        print("Using dnf download for NetworkManager-libreswan package")
+        # Remove architecture suffix for dnf download
+        pkg_name = (
+            libreswan_version.rsplit(".", 1)[0]
+            if "." in libreswan_version
+            else libreswan_version
+        )
+        exitcode = nmci.process.run_code(
+            f"cd {target_dir} && dnf download --exclude='*.src' {pkg_name}",
+            shell=True,
+            ignore_returncode=True,
+            ignore_stderr=True,
+        )
+        if exitcode == 0:
+            return
+
+        print("dnf download failed, switching to koji_links")
+
+    # 2. Fallback to koji_links.sh using NetworkManager-libreswan version
+    distro_info = nmci.process.run_stdout("cat /etc/os-release", shell=True)
+    is_fedora = "Fedora" in distro_info
+    script_name = "koji_links.sh" if is_fedora else "brew_links.sh"
+
+    # Get NetworkManager-libreswan version info (package is guaranteed to be installed)
+    nm_libreswan_info = nmci.process.run_stdout(
+        "rpm -q NetworkManager-libreswan --queryformat '%{VERSION} %{RELEASE}'",
+        shell=True,
+    ).strip()
+    version, release = nm_libreswan_info.split()
+
+    script_path = nmci.util.base_dir(f"contrib/utils/{script_name}")
+    download_urls = nmci.process.run_stdout(
+        f"{script_path} NetworkManager-libreswan {version} {release}",
+        shell=True,
+        timeout=15,
+        ignore_returncode=True,
+        ignore_stderr=True,
+    ).strip()
+    for url in download_urls.split("\n"):
+        if (
+            "NetworkManager-libreswan" in url
+            and f"NetworkManager-libreswan-{version}-" in url
+            and not url.endswith(".src.rpm")
+        ):
+            nmci.process.run(
+                f"wget -q --no-clobber -P {target_dir} {url}",
+                shell=True,
+                ignore_returncode=True,
+            )
+            break
+
+
+@step('Setup the same distro type container with rpms from "{rpm_dir}"')
+def run_container_setup(context, rpm_dir):
+    """
+    Set up containerized IPsec test environment with custom RPM packages.
+
+    Determines the appropriate container distribution based on the host system
+    and runs the setup script with the specified RPM directory for package installation.
+
+    Supports RHEL (uses CentOS Stream), Fedora, and fallback to CentOS Stream 9.
+
+    Args:
+        rpm_dir: Directory containing RPM packages to install in containers
+    """
+    # Determine distribution based on system
+    distro_info = nmci.process.run_stdout("cat /etc/os-release", shell=True)
+
+    if "Red Hat Enterprise Linux" in distro_info or "rhel" in distro_info:
+        # Extract RHEL version number
+        import re
+
+        match = re.search(r'VERSION_ID="?(\d+)', distro_info)
+        if match:
+            version = int(match.group(1))
+            if version >= 10:
+                distro = "centos:stream10"
+            else:
+                distro = "centos:stream9"
+        else:
+            distro = "centos:stream9"  # fallback
+    elif "Fedora" in distro_info:
+        if "Rawhide" in distro_info:
+            distro = "fedora:rawhide"
+        else:
+            # Extract Fedora version number
+            import re
+
+            match = re.search(r"VERSION_ID=(\d+)", distro_info)
+            if match:
+                distro = f"fedora:{match.group(1)}"
+            else:
+                distro = "fedora:rawhide"  # fallback
+    else:
+        distro = "centos:stream9"  # fallback
+
+    print(f"Using distribution: {distro}")
+
+    # Run setup script
+    setup_script = nmci.util.base_dir("contrib/ipsec_both_ends/setup.sh")
+    setup_dir = nmci.util.base_dir("contrib/ipsec_both_ends")
+    cmd = f"cd {setup_dir} && ./setup.sh --distro {distro} --rpm-dir {rpm_dir}"
+
+    print(f"Running: {cmd}")
+    nmci.process.run(cmd, shell=True, timeout=600, ignore_stderr=True)  # 10 min timeout
+
+
+@step('Run test "{test_name}"')
+def run_ipsec_test(context, test_name):
+    """
+    Execute IPsec test in the containerized environment.
+
+    Runs the specified test script and verifies successful completion
+    by checking for exit code 0.
+
+    Args:
+        test_name: Name of the test to run (e.g., 'cs-host4', 'cs-subnet6-routed')
+
+    Raises:
+        AssertionError: If test fails (non-zero exit code)
+    """
+    test_dir = nmci.util.base_dir("contrib/ipsec_both_ends")
+    cmd = f"cd {test_dir} && ./test.sh {test_name}"
+    expected_output = f"Test '{test_name}' succeeded"
+
+    print(f"Running: {cmd}")
+    result = nmci.process.run(cmd, shell=True, timeout=300, ignore_stderr=True)
+
+    if result.returncode != 0:
+        raise AssertionError(f"Test failed: exit={result.returncode}")
+
+    if expected_output not in result.stdout:
+        raise AssertionError(
+            f"Test failed: expected '{expected_output}' not found in output"
+        )
