@@ -3154,7 +3154,6 @@ Feature: nmcli: ipv4
 
     @RHEL-78752
     @ver+=1.52
-    @fedoraver-
     @ipv4_mptcp_endpoints_dad
     Scenario: MPTCP ensure endpoints are created correctly with DAD active
     * Set sysctl "net.mptcp.enabled" to "1"
