@@ -93,9 +93,9 @@ Feature: nmcli - general
 
     @general_check_version
     Scenario: nmcli - general - check version
-    * Note the output of "rpm -q --queryformat '%{VERSION}' NetworkManager" as value "1"
-    * Note the output of "nmcli -t -f VERSION general" as value "2"
-    Then Check noted values "1" and "2" are the same
+    * Note the output of "rpm -q --queryformat '%{VERSION}' NetworkManager" as value "rpm_ver"
+    * Note the output of "nmcli -t -f VERSION general" as value "nmcli_ver"
+    Then Execute "test $(echo '<noted:rpm_ver>' | sed 's/~/-/') = '<noted:nmcli_ver>'"
 
 
     @remove_fedora_connection_checker

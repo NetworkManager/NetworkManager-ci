@@ -315,11 +315,17 @@ class _Misc:
             version_base = version
 
         m = re.match(
-            r"^([0-9]+\.[0-9]+\.[0-9]+([-.][0-9]+(\.[0-9]+)*)?)([-.].+)??$",
+            r"^([0-9]+\.[0-9]+(\.[0-9]+(~dev)?|[~\-]rc[0-9]+)([-.][0-9]+(\.[0-9]+)*)?)([-.].+)??$",
             version_base,
         )
         if m:
-            v = [int(x) for x in m.group(1).replace("-", ".").split(".")]
+            v = m.group(1).replace("-", ".").replace("~", ".").split(".")
+            if v[2].startswith("rc"):
+                v[1] = int(v[1]) - 1
+                v[2] = int(v[2][2:]) + 89  # rc1 = 90
+            if len(v) > 3 and v[3] == "dev":
+                del v[3]
+            v = [int(x) for x in v]
             if len(v) < 4:
                 stream = "unknown"
             elif v[3] > 1000:
