@@ -2398,6 +2398,15 @@ testmapper:
     - libreswan_nm_auto_defaults:
         feature: libreswan
         tags: NetworkManager-libreswan
+    - both_side_NM_libreswan_cs_host4:
+        feature: libreswan
+        tags: NetworkManager-libreswan
+    - both_side_NM_libreswan_cs_subnet4:
+        feature: libreswan
+        tags: NetworkManager-libreswan
+    - both_side_NM_libreswan_cs_subnet6_routed:
+        feature: libreswan
+        tags: NetworkManager-libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:

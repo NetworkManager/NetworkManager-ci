@@ -1026,3 +1026,37 @@ method=auto
     Then "ikelifetime\s+=\s+24h" is visible with command "nmcli con show vpn |grep 'vpn.data'"
     Then "rekey\s+=\s+yes" is visible with command "nmcli con show vpn |grep 'vpn.data'"
 
+
+    @rhelver+=9
+    @both_side_NM_libreswan_cs_host4
+    Scenario: nmcli - libreswan - test host-to-host connection with NetworkManager on both ends
+    * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
+    * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
+    * Download NM-libreswan package to "/tmp/nm-packages/"
+    * Setup the same distro type container with rpms from "/tmp/nm-packages/"
+    Then Run test "cs-host4"
+
+
+    @rhelver+=9
+    @both_side_NM_libreswan_cs_subnet4
+    Scenario: nmcli - libreswan - test subnet-to-subnet IPv4 connection with NetworkManager on both ends
+    * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
+    * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
+    * Download NM-libreswan package to "/tmp/nm-packages/"
+    * Setup the same distro type container with rpms from "/tmp/nm-packages/"
+    Then Run test "cs-subnet4"
+
+
+    # IPv6 XFRM interface support requires libreswan 5.3+ (broken in 4.15-8.el9)
+    @rhelver+=10
+    @both_side_NM_libreswan_cs_subnet6_routed
+    Scenario: nmcli - libreswan - test subnet-to-subnet IPv6 routed connection with NetworkManager on both ends
+    * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
+    * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
+    * Download NM-libreswan package to "/tmp/nm-packages/"
+    * Setup the same distro type container with rpms from "/tmp/nm-packages/"
+    Then Run test "cs-subnet6-routed"
+

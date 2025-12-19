@@ -36,4 +36,7 @@ discover:
         - /tests/libreswan_wrong_data_var2
         - /tests/libreswan_add_routing_rules
         - /tests/libreswan_nm_auto_defaults
+        - /tests/both_side_NM_libreswan_cs_host4
+        - /tests/both_side_NM_libreswan_cs_subnet4
+        - /tests/both_side_NM_libreswan_cs_subnet6_routed
         - /tests/vpn_keep_username_from_data

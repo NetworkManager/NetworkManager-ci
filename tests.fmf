@@ -5344,6 +5344,18 @@ link:
     order+: 22034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5044
+/both_side_NM_libreswan_cs_host4:
+    tag: ['NetworkManager-libreswan']
+    id: 25a518df-78e6-5852-b437-a4603e7b9e02
+    order+: 22035
+/both_side_NM_libreswan_cs_subnet4:
+    tag: ['NetworkManager-libreswan']
+    id: 479a375b-f3a1-5253-a72e-c8b271d91f24
+    order+: 22036
+/both_side_NM_libreswan_cs_subnet6_routed:
+    tag: ['NetworkManager-libreswan']
+    id: bb22da7d-d047-501c-82c2-83ef990809b7
+    order+: 22037
 /strongswan_add_profile:
     id: ba58fad8-126f-5264-a369-073525489c1c
     order+: 23000
