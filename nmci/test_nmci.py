@@ -662,6 +662,10 @@ def test_misc_nm_version_parse():
     _assert("1.31.2-28040.11545c0ca0.el8", "upstream", [1, 31, 2, 28040])
     _assert("1.36.0-9.19.rh1000000.1.el8", "rhel-8", [1, 36, 0, 9, 19])
     _assert("1.36.0-10009.19.rh1000000.1.el8", "upstream", [1, 36, 0, 10009, 19])
+    _assert("1.57.3~dev-123456.mr123.abdcef1234", "upstream", [1, 57, 3, 123456])
+    _assert("1.56~rc3-123456.mr123.abdcef1234", "upstream", [1, 55, 92, 123456])
+    _assert("1.57.3~dev-1.fc43", "fedora-43", [1, 57, 3, 1])
+    _assert("1.56~rc3-1.2.el10_2", "rhel-10-2", [1, 55, 92, 1, 2])
 
 
 def test_misc_test_version_tag_parse_ver():
