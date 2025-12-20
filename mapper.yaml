@@ -2371,6 +2371,9 @@ testmapper:
     - libreswan_ikev2_dpd_interface:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_leftprotoport_rightprotoport:
+        feature: libreswan
+        tags: gate NetworkManager-libreswan
     - libreswan_ikev2_ipv4_p2p_cert:
         feature: libreswan
         tags: gate NetworkManager-libreswan

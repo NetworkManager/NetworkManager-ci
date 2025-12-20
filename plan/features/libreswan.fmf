@@ -27,6 +27,7 @@ discover:
         - /tests/libreswan_ikev2_ipv4_leftcert_var2
         - /tests/libreswan_ikev2_interface
         - /tests/libreswan_ikev2_dpd_interface
+        - /tests/libreswan_ikev2_leftprotoport_rightprotoport
         - /tests/libreswan_ikev2_ipv4_p2p_cert
         - /tests/libreswan_ikev2_ipv4_leftsubnet
         - /tests/libreswan_ikev2_ipv6_p2p_cert

@@ -26,7 +26,8 @@ if env == "site_site":
     IpsecTestEnv.start_ipsec_srv_site_to_site()
 if env == "host_site":
     IpsecTestEnv.start_ipsec_srv_host_to_site()
-
+if env == "icmp":
+    IpsecTestEnv.start_ipsec_srv_cert_gw_icmp()
 
 IpsecTestEnv.load_both_srv_cli_keys()
 
