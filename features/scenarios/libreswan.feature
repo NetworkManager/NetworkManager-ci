@@ -732,6 +732,37 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @libreswan_ikev2_leftprotoport_rightprotoport
+    Scenario: libreswan - ikev2 - leftprotoport - rightprotoport
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
+    * Prepare nmstate libreswan server for "icmp" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist,
+                left = <noted:CLI_ADDR_V4>,
+                leftcert = <noted:CLI_KEY_ID>,
+                leftid = %fromcert,
+                leftmodecfgclient = true,
+                right = <noted:SRV_ADDR_V4>,
+                rightid = %fromcert,
+                rightsubnet = 0.0.0.0/0,
+                leftprotoport = icmp,
+                rightprotoport = icmp,
+                nm-auto-defaults=no'
+      """
+    * Bring "up" connection "libreswan"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
+
+
     @fedoraver+=41
     @ver+=1.46
     @ver/rhel/9/4+=1.46.0.10
