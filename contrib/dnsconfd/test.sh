@@ -24,7 +24,7 @@ pushd $DNSCONFD_DIR
         if [ "$DNSCONFD_VER" == "1.7.3" ]; then
             skip_test_on_arch /tmp/dnsconfd/tests/dhcp/main.fmf s390x
 	fi
-        git checkout tags/$DNSCONFD_VER
+        git checkout 66bacb7b884b5718f6c61feb7ced847b2c3aee88
     fi
 
     # Include a missing NM logs in Cleanup phase into all tests if not present
