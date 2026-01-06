@@ -51,7 +51,7 @@ def openvpn_certs_copy_chown(context, dir, user):
     )
     # use /usr/bin/cp to prevent interactive alias of cp
     nmci.process.run(f"/usr/bin/cp -f -r {cert_path} {dir}")
-    nmci.process.run(f"chcon -R -t home_cert_t {dir}/sample-keys/")
+    nmci.process.run(f"chcon -R system_u:object_r:home_cert_t:s0 {dir}/sample-keys/")
     nmci.process.run(f"ls -lZ {dir}/sample-keys/")
     nmci.process.run(f"chown -R {user}:{user} {dir}/sample-keys/")
 
