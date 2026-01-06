@@ -5294,6 +5294,8 @@ link:
     tag: ['gate', 'NetworkManager-libreswan']
     id: 8494e322-5c31-5233-b456-7820b86100de
     order+: 22026
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8894
 /libreswan_ikev2_ipv4_p2p_cert:
     tag: ['gate', 'NetworkManager-libreswan']
     id: b0079485-1123-58c1-9d8f-9dafa503bd3b
