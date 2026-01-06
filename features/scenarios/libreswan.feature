@@ -573,6 +573,7 @@
       vpn.data 'authby = secret, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
       vpn.secrets 'pskvalue = <noted:PSK>'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -595,6 +596,7 @@
       vpn-type libreswan
       vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, leftrsasigkey = <noted:CLI_RSA>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, rightrsasigkey = <noted:SRV_RSA>'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -615,6 +617,7 @@
       vpn-type libreswan
       vpn.data 'ikelifetime = 24h, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, salifetime = 24h'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -635,6 +638,7 @@
       vpn-type libreswan
       vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = %fromcert'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -658,6 +662,7 @@
       vpn.secrets 'pskvalue = <noted:PSK>'
       """
     * Execute "nmcli con show libreswan --show-secrets"
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "10.0.1.[^\n]*/32" is visible with command "ip a s ipsec9"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -680,6 +685,7 @@
       vpn.data 'authby = secret, dpdaction = restart, dpddelay = 1, dpdtimeout = 60, ikev2 = insist, ipsec-interface = 10, left = <noted:CLI_ADDR_V4>, leftid = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>'
       vpn.secrets 'pskvalue = <noted:PSK>'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "10.0.1.[^\n]*/32" is visible with command "ip a s ipsec10"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -703,6 +709,7 @@
       vpn-type libreswan
       vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, rightsubnet = <noted:SRV_ADDR_V4>/32'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
@@ -724,6 +731,7 @@
       vpn-type libreswan
       vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftmodecfgclient = no, leftsubnet = <noted:CLI_SUBNET_V4>, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V4>'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
@@ -752,6 +760,7 @@
                 rightprotoport = icmp,
                 nm-auto-defaults=no'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
@@ -775,6 +784,7 @@
       vpn-type libreswan
       vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftcert = <noted:CLI_KEY_ID>, leftid = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V6>, rightid = <noted:SRV_KEY_ID>, rightsubnet = <noted:SRV_ADDR_V6>/128'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP6.ADDRESS[^\n]*2001:db8:a::2/64" is visible with command "nmcli d show $(echo $CLI_NIC)"
@@ -795,6 +805,7 @@
       vpn-type libreswan
       vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftid = %fromcert, leftcert = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V6>'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
     Then "IP6.ADDRESS[^\n]*2001:db8:a::2/64" is visible with command "nmcli d show $(echo $CLI_NIC)"
@@ -821,6 +832,7 @@
       vpn-type libreswan
       vpn.data 'ikelifetime = 24h, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, salifetime = 24h, require-id-on-certificate = yes'
       """
+    * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
