@@ -1,0 +1,10 @@
+discover:
+    how: fmf
+    test:
+        - /tests/clat_ethernet
+        - /tests/clat_ethernet_plen64
+        - /tests/clat_vlan
+        - /tests/clat_multiple_instances
+        - /tests/clat_disabled
+        - /tests/clat_auto_no_opt108
+        - /tests/clat_auto_ipv4_manual

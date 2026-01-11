@@ -3659,6 +3659,20 @@ testmapper:
         feature: dbus
     - dbus_set_invalid_route_data:
         feature: dbus
+    - clat_ethernet:
+        feature: clat
+    - clat_ethernet_plen64:
+        feature: clat
+    - clat_vlan:
+        feature: clat
+    - clat_multiple_instances:
+        feature: clat
+    - clat_disabled:
+        feature: clat
+    - clat_auto_no_opt108:
+        feature: clat
+    - clat_auto_ipv4_manual:
+        feature: clat
     # Please leave test as the last one as it sanitizes the network properly
     - crashing_NM_binary:
         feature: general

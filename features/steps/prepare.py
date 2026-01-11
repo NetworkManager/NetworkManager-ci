@@ -319,6 +319,236 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
     nmci.process.run(dnsmasq_cmd)
 
 
+@step('Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}"')
+@step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and option 108 "{option108}"'
+)
+@step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and IPv6 prefix "{prefix}"'
+)
+@step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" over VLAN "{vlan}"'
+)
+def clat_prepare(
+    context, device, pref64, vlan=None, prefix="2002:aaaa::", option108="on"
+):
+    #####################################################################
+    #                                                         [init ns] #
+    #       IPv6-mostly network                                         #
+    #           ${D}                                                    #
+    #             ^                                                     #
+    # ------------|---------------------------------------------------- #
+    #             v                                           [${D}_ns] #
+    #           ${D}p                                                   #
+    #      2002:aaaa::1/64  <---->  nat64  <---->  1.0.0.1/24           #
+    #          (radvd)             (tayga)           ${D}2              #
+    #       (dhcps, opt.108)                           ^                #
+    # -------------------------------------------------|--------------- #
+    #                                                  v     [${D}_ns2] #
+    #       IPv4 internet                            ${D}3              #
+    #                                              1.0.0.2/24           #
+    #                               dummy1                              #
+    #                            20.0.0.1/24                            #
+    #                       (web server, UDP server)                    #
+    #####################################################################
+
+    # set up veth1 in ns1
+    nmci.veth.manage_device(device)
+
+    nmci.ip.netns_add(f"{device}_ns")
+
+    if vlan is None:
+        context.execute_steps(
+            f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
+        )
+    else:
+        context.execute_steps(
+            f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p_base"'
+        )
+        nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p_base up")
+        nmci.process.run(
+            f"ip netns exec {device}_ns ip link add link {device}p_base name {device}p type vlan id {vlan}"
+        )
+
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip link set {device} netns {os.getpid()}"
+    )
+    nmci.process.run(f"ip netns exec {device}_ns ip link set lo up")
+    nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p up")
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip addr add 172.25.42.1/24 dev {device}p"
+    )
+    nmci.process.run(
+        f"ip netns exec {device}_ns ip addr add {prefix}1/64 dev {device}p"
+    )
+
+    if option108 == "on":
+        arg_opt108 = "--dhcp-option=108,720"
+    else:
+        arg_opt108 = ""
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns dnsmasq --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
+    )
+
+    nmci.ip.netns_add(f"{device}_ns2")
+    context.execute_steps(
+        f'* Create "veth" device named "{device}2" in namespace "{device}_ns" with options "peer name {device}3 netns {device}_ns2"'
+    )
+
+    nmci.process.run(f"ip -n {device}_ns link set {device}2 up")
+    nmci.process.run(f"ip -n {device}_ns addr add dev {device}2 1.0.0.1/24")
+    nmci.process.run(f"ip -n {device}_ns route add default via 1.0.0.2 dev {device}2")
+
+    nmci.process.run(f"ip -n {device}_ns2 link set {device}3 up")
+    nmci.process.run(f"ip -n {device}_ns2 addr add dev {device}3 1.0.0.2/24")
+
+    # Configure radvd
+    radvd_conf = f"/tmp/radvd-clat-{device}.conf"
+    nmci.process.run(
+        f"ip netns exec {device}_ns sysctl -w net.ipv6.conf.all.forwarding=1"
+    )
+    nmci.process.run(f"cp contrib/clat/radvd.conf {radvd_conf}")
+    nmci.process.run(f"sed -i s|__INTERFACE__|{device}p| {radvd_conf}")
+    nmci.process.run(f"sed -i s|__PREFIX__|{prefix}| {radvd_conf}")
+    nmci.process.run(f"sed -i s|__PREF64__|{pref64}| {radvd_conf}")
+    nmci.process.run(f"radvd --configtest --config {radvd_conf}", ignore_stderr=True)
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns radvd --nodaemon --config {radvd_conf} --pidfile /run/radvd/radvd-{device}.pid",
+    )
+
+    # Configure tayga
+    tayga_conf = f"/tmp/tayga-clat-{device}.conf"
+    nmci.process.run(f"ip netns exec {device}_ns sysctl -w net.ipv4.ip_forward=1")
+    nmci.process.run(f"cp contrib/clat/tayga.conf {tayga_conf}")
+    nmci.process.run(f"sed -i s|__PREF64__|{pref64}| {tayga_conf}")
+    nmci.process.run(f"rm -f /var/lib/tayga/nat64/dynamic.map")
+    nmci.process.run(f"ip netns exec {device}_ns tayga --config {tayga_conf} --mktun")
+    nmci.process.run(f"ip -n {device}_ns link set nat64 up")
+    nmci.process.run(f"ip -n {device}_ns route add 1.0.0.144/28 dev nat64")
+    nmci.process.run(f"ip -n {device}_ns route add {pref64} dev nat64")
+    nmci.process.run(
+        f"ip netns exec {device}_ns iptables -t nat -A POSTROUTING -o nat64 -j MASQUERADE"
+    )
+    nmci.process.run(
+        f"ip netns exec {device}_ns iptables -t nat -A POSTROUTING -s 1.0.0.144/28 -j MASQUERADE"
+    )
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns tayga --nodetach --config {tayga_conf}",
+    )
+
+
+@step('Start servers in the CLAT environment for device "{device}"')
+@step(
+    'Start servers in the CLAT environment for device "{device}" on address "{address}"'
+)
+def clat_start_servers(context, device, address="20.0.0.1"):
+    nmci.process.run(f"ip -n {device}_ns2 link add dummy1 type dummy")
+    nmci.process.run(f"ip -n {device}_ns2 link set dummy1 up")
+    nmci.process.run(f"ip -n {device}_ns2 addr add dev dummy1 {address}/24")
+
+    # Create a file to serve via HTTP with some known content
+    data_dir = "/tmp/clat-data"
+    data_file = "/letters.txt"
+    size = 1024 * 1024
+    if not os.path.exists(data_dir):
+        os.mkdir(data_dir)
+    if not os.path.exists(data_dir + data_file):
+        with open(data_dir + data_file, "w") as f:
+            content = ("abcdefghijklmnopqrstuvwxyz" * (size // 26 + 1))[:size]
+            f.write(content)
+
+    # Run servers
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns2 python -m http.server --bind {address} 8080 --directory {data_dir}"
+    )
+    nmci.pexpect.pexpect_service(
+        "ip netns exec {}_ns2 socat UDP4-LISTEN:9999,fork,bind={} SYSTEM:'echo \"${{SOCAT_PEERADDR}}\"'".format(
+            device, address
+        )
+    )
+
+
+@step('Verify the CLAT connection over device "{device}"')
+def clat_verify(context, device):
+    context.execute_steps(
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name clat_ingress"'
+    )
+    context.execute_steps(
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name clat_egress"'
+    )
+    context.execute_steps(
+        f'* Check "ipv4" address list "192.0.0.5/32" on device "{device}"'
+    )
+    context.execute_steps(
+        f'* "20.0.0.1 via inet6 fe80::.* dev {device} src 192.0.0.5" is visible with command "ip route get 20.0.0.1"'
+    )
+
+    # ping
+    context.execute_steps(f'* Execute "ping -c4 20.0.0.1"')
+
+    # HTTP traffic
+    context.execute_steps(
+        f'* "b63ba06de0e8a9626d5bcf27e93bf32d" is visible with command "curl -s http://20.0.0.1:8080/letters.txt | md5sum"'
+    )
+
+    # UDP traffic
+    context.execute_steps(
+        f'* "1.0.0.1" is visible with command "echo test | socat - UDP4-DATAGRAM:20.0.0.1:9999"'
+    )
+
+    # Check the translation of time-exceeded ICMP error
+    context.execute_steps(
+        f'* "From 172.25.42.1 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 3 -c 1 20.0.0.1"'
+    )
+
+    # Check the translation of time-exceeded ICMP error when the src IPv6 is a native address
+    # See Internet-Draft draft-ietf-v6ops-icmpext-xlat-v6only-source-01
+    # "Using Dummy IPv4 Address and Node Identification Extensions for IP/ICMP translators (XLATs)"
+    context.execute_steps(
+        f'* "From 192.0.0.8 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 1 -c 1 20.0.0.1"'
+    )
+
+    # Check the translation of destination-unreachable ICMP error
+    context.execute_steps(f'* Execute "rm -f /tmp/tshark.log"')
+    context.execute_steps(f'* Run child "tshark -l -n -i {device} > /tmp/tshark.log"')
+    context.execute_steps(f'* Run child "tshark -i {device} -w /tmp/tshark.pcap"')
+    context.execute_steps(
+        f'* "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds"'
+    )
+    context.execute_steps(
+        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
+    )
+    context.execute_steps(
+        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
+    )
+    context.execute_steps(
+        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
+    )
+    context.execute_steps(
+        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
+    )
+    context.execute_steps(
+        f'* "20.0.0.1.*192.0.0.5.*ICMP 75.*Destination unreachable.*Port unreachable" is visible with command "cat /tmp/tshark.log" in "20" seconds'
+    )
+
+
+@step(
+    'Verify the CLAT connection over non-default device "{device}" with CLAT address "{clat_address}" and server "{server}"'
+)
+def clat_verify_nondefault(context, device, clat_address, server):
+    context.execute_steps(
+        f'* Check "ipv4" address list "{clat_address}/32" on device "{device}"'
+    )
+    context.execute_steps(
+        f'* "{server} via inet6 fe80::.* dev {device} src {clat_address}" is visible with command "ip route get {server} dev {device}"'
+    )
+    context.execute_steps(f'* Execute "ping -I {device} -c4 {server}"')
+    context.execute_steps(f'* Execute "curl --interface {device} http://{server}:8080"')
+    context.execute_steps(
+        f'* "1.0.0.1" is visible with command "echo test | socat - UDP4-DATAGRAM:{server}:9999,so-bindtodevice={device}"'
+    )
+
+
 @step('Prepare simulated test "{device}" device using dhcpd')
 @step(
     'Prepare simulated test "{device}" device using dhcpd and server identifier "{server_id}"'

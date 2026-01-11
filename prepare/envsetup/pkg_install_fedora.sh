@@ -14,6 +14,9 @@ install_fedora_packages () {
         ModemManager bzip2 gdb python3-libnmstate \
         rp-pppoe tcpreplay tmt usb_modeswitch usbutils wireguard-tools"
 
+    # For CLAT
+    PKGS_INSTALL="$PKGS_INSTALL tayga bpftool socat"
+
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
         openvpn ipsec-tools strongswan strongswan-charon-nm"
