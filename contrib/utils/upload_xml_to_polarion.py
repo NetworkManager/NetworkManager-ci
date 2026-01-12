@@ -136,10 +136,23 @@ if test_cycle:
 # merge additional options and polarion metadata
 polarion_metadata = {**polarion_metadata, **additional_options}
 
+
+# Based on subcomponent, compute polarion components:
+# +--------------------+--------------------+
+# | subcomponent       | polarion component |
+# +--------------------+--------------------+
+# | NetworkManager     | NM,NM-libreswan    |
+# | NetworkManager-gsm | NM,MM,lib*         |
+# | NetworkManager-*   | NM                 |
+# +--------------------+--------------------+
 polarion_metadata["polarion-custom-component"] = (
     "NetworkManager,NetworkManager-libreswan"
-    if "gsm" not in subcomponent
-    else "ModemManager,libqmi,libqrtr-glib,libmbim"
+    if subcomponent == "NetworkManager"
+    else (
+        "NetworkManager"
+        if "gsm" not in subcomponent
+        else "NetworkManager,ModemManager,libqmi,libqrtr-glib,libmbim"
+    )
 )
 
 props = ET.Element("properties")
