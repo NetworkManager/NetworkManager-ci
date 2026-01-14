@@ -3673,6 +3673,10 @@ testmapper:
         feature: clat
     - clat_auto_ipv4_manual:
         feature: clat
+    - clat_mtu_ra:
+        feature: clat
+    - clat_mtu_static:
+        feature: clat
     # Please leave test as the last one as it sanitizes the network properly
     - crashing_NM_binary:
         feature: general

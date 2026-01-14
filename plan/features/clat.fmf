@@ -8,3 +8,5 @@ discover:
         - /tests/clat_disabled
         - /tests/clat_auto_no_opt108
         - /tests/clat_auto_ipv4_manual
+        - /tests/clat_mtu_ra
+        - /tests/clat_mtu_static

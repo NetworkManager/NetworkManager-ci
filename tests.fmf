@@ -8318,6 +8318,12 @@ link:
 /clat_auto_ipv4_manual:
     id: 91d12fcc-94fe-57e5-b748-f31533a3cca6
     order+: 60006
+/clat_mtu_ra:
+    id: 5d8b0641-d70b-5626-b276-7931c087c13d
+    order+: 60007
+/clat_mtu_static:
+    id: 72a1fcbf-b28a-5f07-9175-42081c9ccc7f
+    order+: 60008
 /crashing_NM_binary:
     id: a0bf631b-e83e-5b16-ba9c-af4f215e5611
     order+: 61000

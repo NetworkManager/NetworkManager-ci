@@ -122,7 +122,7 @@ Feature: nmcli: clat
     Scenario: nmcli - clat - CLAT without option 108
     # The network provides a NAT64 prefix, but the DHCPv4 server doesn't send option 108.
     # NM has CLAT "auto", and it should be stay disabled since there is native IPv4 connectivity.
-    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/64" and option 108 "off"
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and option 108 "off"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
           ipv6.clat auto
@@ -139,7 +139,7 @@ Feature: nmcli: clat
     @clat_auto_ipv4_manual
     Scenario: nmcli - clat - CLAT with IPv4 manual configuration
     # NM has CLAT "auto", and it should stay disabled since there is native IPv4 connectivity
-    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/64"
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
           ipv6.clat auto
@@ -151,3 +151,42 @@ Feature: nmcli: clat
     * Bring "up" connection "testX-clat"
     Then Check "ipv4" address list "172.25.42.113/24" on device "testX" in "10" seconds
     Then Check "ipv6" address list "/2002:aaaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
+
+
+    @ver+=1.57.1
+    @rhelver-=0
+    @delete_testeth0
+    @clat_mtu_ra
+    Scenario: nmcli - clat - CLAT with custom MTU from RA
+    # The IPv4 default route MTU should be the IPv6 MTU advertised by the router minus 28
+    # (due to the conversion of the IPv4 header into IPv6)
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and IPv6 MTU "1300"
+    * Start servers in the CLAT environment for device "testX"
+    * Add "ethernet" connection named "testX-clat" for device "testX" with options
+          """
+          ipv6.clat yes
+          autoconnect no
+          """
+    * Bring "up" connection "testX-clat"
+    Then "mtu 1272" is visible with command "ip -4 route list default dev testX"
+    * Verify the CLAT connection over device "testX"
+
+
+    @ver+=1.57.1
+    @rhelver-=0
+    @delete_testeth0
+    @clat_mtu_static
+    Scenario: nmcli - clat - CLAT with custom MTU
+    # The IPv4 default route MTU should be the static IPv6 MTU from the connection minus 28
+    # (due to the conversion of the IPv4 header into IPv6)
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96"
+    * Start servers in the CLAT environment for device "testX"
+    * Add "ethernet" connection named "testX-clat" for device "testX" with options
+          """
+          ipv6.clat yes
+          ipv6.mtu 1430
+          autoconnect no
+          """
+    * Bring "up" connection "testX-clat"
+    Then "mtu 1402" is visible with command "ip -4 route list default dev testX"
+    * Verify the CLAT connection over device "testX"

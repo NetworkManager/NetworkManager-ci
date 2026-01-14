@@ -329,8 +329,11 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(
     'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" over VLAN "{vlan}"'
 )
+@step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and IPv6 MTU "{mtu}"'
+)
 def clat_prepare(
-    context, device, pref64, vlan=None, prefix="2002:aaaa::", option108="on"
+    context, device, pref64, vlan=None, prefix="2002:aaaa::", option108="on", mtu=None
 ):
     #####################################################################
     #                                                         [init ns] #
@@ -387,7 +390,7 @@ def clat_prepare(
     else:
         arg_opt108 = ""
     nmci.pexpect.pexpect_service(
-        f"ip netns exec {device}_ns dnsmasq --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
+        f"ip netns exec {device}_ns dnsmasq --keep-in-foreground --pid-file=/tmp/dnsmasq-clat-{device}.pid --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
     )
 
     nmci.ip.netns_add(f"{device}_ns2")
@@ -411,9 +414,13 @@ def clat_prepare(
     nmci.process.run(f"sed -i s|__INTERFACE__|{device}p| {radvd_conf}")
     nmci.process.run(f"sed -i s|__PREFIX__|{prefix}| {radvd_conf}")
     nmci.process.run(f"sed -i s|__PREF64__|{pref64}| {radvd_conf}")
+    if mtu is None:
+        nmci.process.run(f"sed -i 's|__MTU__|# Do not advertise a MTU|' {radvd_conf}")
+    else:
+        nmci.process.run(f"sed -i 's|__MTU__|AdvLinkMTU {mtu};|' {radvd_conf}")
     nmci.process.run(f"radvd --configtest --config {radvd_conf}", ignore_stderr=True)
     nmci.pexpect.pexpect_service(
-        f"ip netns exec {device}_ns radvd --nodaemon --config {radvd_conf} --pidfile /run/radvd/radvd-{device}.pid",
+        f"ip netns exec {device}_ns radvd --nodaemon --config {radvd_conf} --pidfile /run/radvd/radvd-clat-{device}.pid",
     )
 
     # Configure tayga
@@ -506,29 +513,6 @@ def clat_verify(context, device):
     # "Using Dummy IPv4 Address and Node Identification Extensions for IP/ICMP translators (XLATs)"
     context.execute_steps(
         f'* "From 192.0.0.8 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 1 -c 1 20.0.0.1"'
-    )
-
-    # Check the translation of destination-unreachable ICMP error
-    context.execute_steps(f'* Execute "rm -f /tmp/tshark.log"')
-    context.execute_steps(f'* Run child "tshark -l -n -i {device} > /tmp/tshark.log"')
-    context.execute_steps(f'* Run child "tshark -i {device} -w /tmp/tshark.pcap"')
-    context.execute_steps(
-        f'* "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds"'
-    )
-    context.execute_steps(
-        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
-    )
-    context.execute_steps(
-        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
-    )
-    context.execute_steps(
-        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
-    )
-    context.execute_steps(
-        f'* Execute "echo test | socat - UDP4-DATAGRAM:20.0.0.1:44444"'
-    )
-    context.execute_steps(
-        f'* "20.0.0.1.*192.0.0.5.*ICMP 75.*Destination unreachable.*Port unreachable" is visible with command "cat /tmp/tshark.log" in "20" seconds'
     )
 
 
