@@ -133,10 +133,6 @@ if test_cycle:
         .replace("NetworkManager", subcomponent)
     )
 
-# merge additional options and polarion metadata
-polarion_metadata = {**polarion_metadata, **additional_options}
-
-
 # Based on subcomponent, compute polarion components:
 # +--------------------+--------------------+
 # | subcomponent       | polarion component |
@@ -154,6 +150,9 @@ polarion_metadata["polarion-custom-component"] = (
         else "NetworkManager,ModemManager,libqmi,libqrtr-glib,libmbim"
     )
 )
+
+# merge additional options and polarion metadata
+polarion_metadata = {**polarion_metadata, **additional_options}
 
 props = ET.Element("properties")
 for p_name, p_val in polarion_metadata.items():
