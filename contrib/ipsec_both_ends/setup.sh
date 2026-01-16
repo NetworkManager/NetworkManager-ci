@@ -207,15 +207,14 @@ podman exec "$cr" systemctl stop systemd-firstboot.service
 sleep 2
 
 echo " * Setting up IPv6..."
+podman exec "$c1" sh -c 'printf "[logging]\ndomains=ALL,VPN_PLUGIN:trace\n" > /etc/NetworkManager/conf.d/50-logging.conf'
+podman exec "$c1" systemctl restart NetworkManager
 
 podman exec "$c1" nmcli connection delete eth0
 podman exec "$c1" nmcli connection add type ethernet ifname eth0 con-name eth0 \
        ip4 172.16.1.10/24 gw4 172.16.1.15 \
        ip6 fd01::10/64 gw6 fd01::15
 podman exec "$c1" nmcli connection up eth0
-
-podman exec "$c1" sh -c 'printf "[logging]\ndomains=ALL,VPN_PLUGIN:trace\n" > /etc/NetworkManager/conf.d/50-logging.conf'
-podman exec "$c1" systemctl restart NetworkManager
 
 podman exec "$c2" sh -c 'printf "[logging]\ndomains=ALL,VPN_PLUGIN:trace\n" > /etc/NetworkManager/conf.d/50-logging.conf'
 podman exec "$c2" systemctl restart NetworkManager
