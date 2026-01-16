@@ -319,6 +319,13 @@ get_centos_pkg_release() {
     echo $VER
 }
 
+build_srpm() {
+    rpm -q rpm-build || dnf -y install rpm-build
+    rpm -ivh $2
+    dnf -y build-dep /root/rpmbuild/SPECS/$1.spec
+    rpmbuild -bb /root/rpmbuild/SPECS/$1.spec
+}
+
 deploy_ssh_keys () {
     if ! test -d /root/.ssh; then
         mkdir /root/.ssh/
