@@ -17,7 +17,7 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testX"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -33,7 +33,7 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testX"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -57,7 +57,7 @@ Feature: nmcli: clat
           """
           vlan.parent testX
           vlan.id 42
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Bring "up" connection "testX-base"
@@ -78,17 +78,17 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testZ" on address "40.0.0.1"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Add "ethernet" connection named "testY-clat" for device "testY" with options
           """
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Add "ethernet" connection named "testZ-clat" for device "testZ" with options
           """
-          ipv6.clat yes
+          ipv4.clat auto
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -107,7 +107,7 @@ Feature: nmcli: clat
     * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and IPv6 prefix "2002:aaaa::"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat no
+          ipv4.clat no
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -125,7 +125,7 @@ Feature: nmcli: clat
     * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and option 108 "off"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat auto
+          ipv4.clat auto
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -142,7 +142,7 @@ Feature: nmcli: clat
     * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat auto
+          ipv4.clat force
           ipv4.method manual
           ipv4.addresses 172.25.42.113/24
           ipv4.gateway 172.25.42.1
@@ -164,7 +164,7 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testX"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat yes
+          ipv4.clat force
           autoconnect no
           """
     * Bring "up" connection "testX-clat"
@@ -183,7 +183,7 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testX"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
-          ipv6.clat yes
+          ipv4.clat force
           ipv6.mtu 1430
           autoconnect no
           """
