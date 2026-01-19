@@ -8247,69 +8247,69 @@ link:
     order+: 60000
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5591
+/NetworkManager-gsm/gsm_create_default_connection_mbim:
+    tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
+    id: 7fdb2112-e060-5fb4-a2e1-bad7138ee12c
+    order+: 61000
+    duration: 60m
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5733
 /NetworkManager-gsm/gsm_create_default_connection_qmi:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: d485da7c-5291-5d5d-b2d5-55bfdc3a25db
-    order+: 61000
+    order+: 61001
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5725
 /NetworkManager-gsm/gsm_disconnect:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 228895d7-2d68-5d64-afd5-c96a5a1911f3
-    order+: 61001
+    order+: 61002
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5726
 /NetworkManager-gsm/gsm_create_one_minute_ping:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: e184cafe-c113-51b7-8c67-167e81e68928
-    order+: 61002
+    order+: 61003
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5727
 /NetworkManager-gsm/gsm_mtu:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: bb01be4f-8438-5583-b034-93058ee5eb8b
-    order+: 61003
+    order+: 61004
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5728
 /NetworkManager-gsm/gsm_route_metric:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 471f9f1b-52b1-5054-93ef-27641b65b9a3
-    order+: 61004
+    order+: 61005
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5729
 /NetworkManager-gsm/gsm_connectivity_check:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 0d2fb945-fd1a-5932-b5d9-71e052b839ae
-    order+: 61005
+    order+: 61006
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5730
 /NetworkManager-gsm/gsm_load_from_file:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: dc28d8ee-f4e6-541d-b45a-c8df878093a3
-    order+: 61006
+    order+: 61007
     duration: 60m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5731
 /NetworkManager-gsm/gsm_create_assisted_connection:
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 1a80800d-8279-54c4-ba74-6f00aab54afe
-    order+: 61007
-    duration: 60m
-    link:
-      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5732
-/NetworkManager-gsm/gsm_create_default_connection_mbim:
-    tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
-    id: 7fdb2112-e060-5fb4-a2e1-bad7138ee12c
     order+: 61008
     duration: 60m
     link:
-      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5733
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5732
 /NetworkManager-wifi/nmcli_wifi_wpa2_peap_mschapv2:
     id: bafa861c-20ae-56cc-94f3-3013d87a8db6
     order+: 62000

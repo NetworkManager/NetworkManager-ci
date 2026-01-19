@@ -40,9 +40,11 @@ def reinitialize_devices():
     Reinitialize GSM devices
     """
     if nmci.process.systemctl("is-active ModemManager").returncode != 0:
+        print("starting ModemManager service")
         nmci.process.systemctl("restart ModemManager")
 
     # This is basic check that we have both expected modems
+    print("waiting for 2 modems for 80s")
     timer = 80
     while True:
         devices = nmci.process.nmcli("device")
@@ -81,37 +83,37 @@ def reinitialize_devices():
                     assert False, "Cannot initialize modem"
         time.sleep(10)
 
-    if timer not in [int(80), int(40)]:
-        # We need to get the modem to work
-        # Some modems have problems after the installation or powerup
-        print("running simple-connect and disconnect")
-        for i in range(10):
-            if (
-                nmci.process.run_code(
-                    "mmcli -m 0 --simple-connect='apn=internet'",
-                    ignore_stderr=True,
-                    timeout=40,
-                )
-                == 0
-            ):
-                break
-            if i < 9:
-                time.sleep(2)
-        nmci.process.run_stdout("mmcli -m 0 --simple-disconnect", ignore_stderr=True)
-        for i in range(10):
-            if (
-                nmci.process.run_code(
-                    "mmcli -m 1 --simple-connect='apn=internet'",
-                    ignore_stderr=True,
-                    timeout=40,
-                )
-                == 0
-            ):
-                break
-            if i < 9:
-                time.sleep(2)
+    # if timer not in [int(80), int(40)]:
+    #     # We need to get the modem to work
+    #     # Some modems have problems after the installation or powerup
+    #     print("running simple-connect and disconnect")
+    #     for i in range(10):
+    #         if (
+    #             nmci.process.run_code(
+    #                 "mmcli -m 0 --simple-connect='apn=internet'",
+    #                 ignore_stderr=True,
+    #                 timeout=40,
+    #             )
+    #             == 0
+    #         ):
+    #             break
+    #         if i < 9:
+    #             time.sleep(2)
+    #     nmci.process.run_stdout("mmcli -m 0 --simple-disconnect", ignore_stderr=True)
+    #     for i in range(10):
+    #         if (
+    #             nmci.process.run_code(
+    #                 "mmcli -m 1 --simple-connect='apn=internet'",
+    #                 ignore_stderr=True,
+    #                 timeout=40,
+    #             )
+    #             == 0
+    #         ):
+    #             break
+    #         if i < 9:
+    #             time.sleep(2)
 
-        nmci.process.run_stdout("mmcli -m 1 --simple-disconnect", ignore_stderr=True)
+    #     nmci.process.run_code("mmcli -m 1 --simple-disconnect", ignore_stderr=True)
     return True
 
 
