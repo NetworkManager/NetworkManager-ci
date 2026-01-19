@@ -740,6 +740,7 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @fedoraver+=43
     @libreswan_ikev2_leftprotoport_rightprotoport
     Scenario: libreswan - ikev2 - leftprotoport - rightprotoport
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
@@ -1071,6 +1072,7 @@ method=auto
 
 
     @rhelver+=9
+    @fedoraver+=43
     @both_side_NM_libreswan_cs_host4
     Scenario: nmcli - libreswan - test host-to-host connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
@@ -1082,6 +1084,7 @@ method=auto
 
 
     @rhelver+=9
+    @fedoraver+=43
     @both_side_NM_libreswan_cs_subnet4
     Scenario: nmcli - libreswan - test subnet-to-subnet IPv4 connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
@@ -1094,6 +1097,7 @@ method=auto
 
     # IPv6 XFRM interface support requires libreswan 5.3+ (broken in 4.15-8.el9)
     @rhelver+=10
+    @fedoraver+=43
     @both_side_NM_libreswan_cs_subnet6_routed
     Scenario: nmcli - libreswan - test subnet-to-subnet IPv6 routed connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
