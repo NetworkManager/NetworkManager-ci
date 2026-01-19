@@ -1589,7 +1589,34 @@ def expect_avc(context, pattern, timeout=15):
 
 @step('Ignore possible AVC "{pattern}"')
 @step('Ignore possible AVC "{pattern}" in "{timeout}" seconds')
-def ignore_avc(context, pattern, timeout=15):
+@step('Ignore possible AVC "{pattern}" on "{distro}"')
+def ignore_avc(context, pattern, timeout=15, distro=None):
+    if distro is not None:
+        if distro.startswith("rhel"):
+            if "Enterprise Linux" not in context.rh_release:
+                return
+            d_ver = [int(x) for x in distro.replace("rhel", "").split(".")]
+            d_equal = [x for x, y in zip(d_ver, context.rh_release_num) if x == y]
+            # apply when matched prefix is longer or equal
+            if len(d_ver) > len(d_equal):
+                return
+        elif distro.startswith("c"):
+            if "CentOS Stream" not in context.rh_release:
+                return
+            d_ver = int(
+                distro.replace("centos", "")
+                .replace("c", "")
+                .replace("stream", "")
+                .replace("s", "")
+            )
+            if d_ver != context.rh_release_num[0]:
+                return
+        elif distro in ["fedora", "rawhide"]:
+            if "Fedora" not in context.rh_release:
+                return
+        else:
+            assert False, f"Unsupported distribution: {distro}."
+
     context.ignore_avcs = getattr(context, "ignore_avcs", [])
     context.ignore_avcs.append(pattern)
     timeout = float(timeout)
