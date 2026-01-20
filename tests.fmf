@@ -5368,6 +5368,10 @@ link:
     order+: 22038
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8881
+/libreswan_private_connection:
+    tag: ['NetworkManager-libreswan']
+    id: 68a7b61d-f8bc-5efe-9bee-ceb487f0e19b
+    order+: 22039
 /strongswan_add_profile:
     id: ba58fad8-126f-5264-a369-073525489c1c
     order+: 23000

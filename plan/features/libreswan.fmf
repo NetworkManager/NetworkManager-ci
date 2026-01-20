@@ -40,4 +40,5 @@ discover:
         - /tests/both_side_NM_libreswan_cs_host4
         - /tests/both_side_NM_libreswan_cs_subnet4
         - /tests/both_side_NM_libreswan_cs_subnet6_routed
+        - /tests/libreswan_private_connection
         - /tests/vpn_keep_username_from_data

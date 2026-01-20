@@ -1107,3 +1107,42 @@ method=auto
     * Setup the same distro type container with rpms from "/tmp/nm-packages/"
     Then Run test "cs-subnet6-routed"
 
+
+    @rhbz1641742
+    @ver+=1.55.90
+    @ver+=1.54.2.2
+    @libreswan_private_connection
+    Scenario: libreswan - ikev2 - ipv4 - private user connection
+    * Allow user "test" in polkit
+    * Prepare nmstate libreswan server for "cert" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      connection.permissions user:test
+      vpn-type libreswan
+      vpn.data 'ikelifetime = 24h, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, right = <noted:SRV_ADDR_V4>, rightid = <noted:SRV_KEY_ID>, salifetime = 24h'
+      """
+    * Wait for "1" seconds
+    * Execute "sudo -u root nmcli c up id libreswan"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
+    * Bring "down" connection "libreswan"
+    * Wait for "1" seconds
+    * Execute "sudo -u test nmcli c up id libreswan"
+    Then "192.0.2.2/24" is visible with command "ip a s $(echo $CLI_NIC)"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli c show libreswan"
+    Then "IP4.ADDRESS[^\n]*10.0.1.[^\n]*/32" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP4.ADDRESS[^\n]*192.0.2.2/24" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm state"
+    Then "src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm state"
+    * Bring "down" connection "libreswan"
+    * Modify connection "libreswan" changing options "connection.permissions user:root"
+    Then "sudo -u test nmcli con up id libreswan" fails

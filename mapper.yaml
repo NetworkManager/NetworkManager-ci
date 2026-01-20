@@ -2410,6 +2410,9 @@ testmapper:
     - both_side_NM_libreswan_cs_subnet6_routed:
         feature: libreswan
         tags: NetworkManager-libreswan
+    - libreswan_private_connection:
+        feature: libreswan
+        tags: NetworkManager-libreswan
     - strongswan_add_profile:
         feature: strongswan
     - strongswan_connection_renewal:
