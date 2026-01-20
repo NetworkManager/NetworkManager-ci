@@ -1784,3 +1784,19 @@ def dbus_global_dns_get(context, domains, searches, options):
     assert (
         c == value
     ), f"Running global DNS config and expected config differ: {c} != {value}"
+
+
+@step('Allow user "{user}" in polkit')
+def allow_user_polkit(context, user):
+    conf = f"""
+  polkit.addRule(function(action, subject) {{
+    if (action.id.indexOf("org.freedesktop.NetworkManager.") == 0 && subject.user == "{user}") {{
+      return polkit.Result.YES;
+    }}
+  }});
+"""
+    polkit_rule_file = (
+        f"/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager-{user}.rules"
+    )
+    nmci.cleanup.add_file(polkit_rule_file, name=f"polkit-rule-file-for-{user}")
+    nmci.util.file_set_content(polkit_rule_file, conf)
