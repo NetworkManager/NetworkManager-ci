@@ -31,6 +31,20 @@ Feature: Ethernet TUI tests
     Then "eth1\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
 
 
+    @ver+=1.57.1
+    @nmtui_ethernet_select_device
+    Scenario: nmtui - ethernet - create device bound connection using select button
+    * Start nmtui
+    * Choose to "Edit a connection" from main screen
+    * Choose to "<Add>" a connection
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "ethernet"
+    * Set "Device" field to "eth5" using select button
+    * Confirm the connection settings
+    Then "inet 192" is visible with command "ip a s eth5" in "60" seconds
+    Then "eth5\s+ethernet\s+connected\s+ethernet" is visible with command "nmcli device"
+
+
     @nmtui_ethernet_create_connection_wo_autoconnect
     Scenario: nmtui - ethernet - create connection without autoconnect
     * Start nmtui

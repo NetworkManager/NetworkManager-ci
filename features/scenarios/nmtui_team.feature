@@ -18,6 +18,16 @@ Feature: Team TUI tests
     Then "team0\s+team" is visible with command "nmcli device"
 
 
+    @ver+=1.57.1
+    @rhelver-=9
+    @nmtui_team_no_select_device
+    Scenario: nmtui - team - don't show select button
+    * Prepare new connection of type "Team" named "team0"
+    * Set "Device" field to "team0"
+    Then "Device.*Select\.\.\." is not visible on screen
+    * Confirm the connection settings
+
+
     @rhelver-=9
     @nmtui_team_add_connection_wo_autoconnect
     Scenario: nmtui - team - add connnection without autoconnect
@@ -210,6 +220,23 @@ Feature: Team TUI tests
     Then "eth1\s+ethernet\s+connected\s+team-slave-eth1" is visible with command "nmcli device"
     Then "eth2\s+ethernet\s+connected\s+team-slave-eth2" is visible with command "nmcli device"
     Then "192.168" is visible with command "ip a s team0"
+
+
+    @ver+=1.57.1
+    @rhelver-=9
+    @nmtui_team_port_select_device
+    Scenario: nmtui - team - add team port using select button
+    * Prepare new connection of type "Team" named "team0"
+    * Set "Device" field to "team0"
+    * Choose to "<Add>" a slave
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "team-slave-eth5"
+    * Set "Device" field to "eth5" using select button
+    * Confirm the slave settings
+    * Confirm the connection settings
+    Then "team0\s+team\s+connected" is visible with command "nmcli device" in "60" seconds
+    Then Team "team0" is up
+    Then "eth5\s+ethernet\s+connected\s+team-slave-eth5" is visible with command "nmcli device"
 
 
     @rhbz1131574

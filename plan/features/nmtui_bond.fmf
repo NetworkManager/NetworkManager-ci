@@ -2,6 +2,7 @@ discover:
     how: fmf
     test:
         - /tests/nmtui_bond_add_default_bond
+        - /tests/nmtui_bond_no_select_device
         - /tests/nmtui_bond_add_custom_bond_mii
         - /tests/nmtui_bond_add_custom_bond_arp
         - /tests/nmtui_bond_add_connection_wo_autoconnect
@@ -11,6 +12,7 @@ discover:
         - /tests/nmtui_bond_delete_connection_up
         - /tests/nmtui_bond_delete_connection_down
         - /tests/nmtui_bond_add_one_slave
+        - /tests/nmtui_bond_port_select_device
         - /tests/nmtui_bond_add_many_slaves
         - /tests/nmtui_bond_over_ethernet_devices
         - /tests/nmtui_bond_infiniband_slaves

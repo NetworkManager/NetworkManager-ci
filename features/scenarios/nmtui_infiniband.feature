@@ -18,6 +18,23 @@ Feature: Bridge TUI tests
     Then "infiniband0\s+.*infiniband" is visible with command "nmcli connection"
 
 
+    # @ver+=1.57.1
+    # @inf @ifcfg-rh
+    # @nmtui_infiniband_select_device
+    # Scenario: nmtui - infiniband - create device bound connection using select button
+    # * Start nmtui
+    # * Choose to "Edit a connection" from main screen
+    # * Choose to "<Add>" a connection
+    # * Choose the connection type "InfiniBand"
+    # * Set "Profile name" field to "infiniband0"
+    # * Set "Device" field to "inf0" using select button
+    # * Confirm the connection settings
+    # Then Check ifcfg-name file created for connection "infiniband0"
+    # Then "TYPE=InfiniBand" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-infiniband0"
+    # Then "DEVICE=inf0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-infiniband0"
+    # Then "infiniband0\s+.*infiniband" is visible with command "nmcli connection"
+
+
     @inf @ifcfg-rh
     @nmtui_inf_create_port_connection
     Scenario: nmtui - inf - create port connection

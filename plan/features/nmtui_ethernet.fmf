@@ -3,6 +3,7 @@ discover:
     test:
         - /tests/nmtui_ethernet_create_default_connection
         - /tests/nmtui_ethernet_create_device_bound_connection
+        - /tests/nmtui_ethernet_select_device
         - /tests/nmtui_ethernet_create_connection_wo_autoconnect
         - /tests/nmtui_ethernet_activate_connection
         - /tests/nmtui_ethernet_activate_connection_specific_device

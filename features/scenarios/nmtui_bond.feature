@@ -21,6 +21,13 @@ Feature: Bond TUI tests
     Then Check bond "bond0" in proc
     Then "bond0\s+bond" is visible with command "nmcli device"
 
+    @ver+=1.57.1
+    @nmtui_bond_no_select_device
+    Scenario: nmtui - bond - don't show select button
+    * Prepare new connection of type "Bond" named "bond0"
+    * Set "Device" field to "bond0"
+    Then "Device.*Select\.\.\." is not visible on screen
+    * Confirm the connection settings
 
     @nmtui_bond_add_custom_bond_mii
     Scenario: nmtui - bond - add custom bond with MII monitoring
@@ -162,6 +169,21 @@ Feature: Bond TUI tests
     Then Check bond "bond0" link state is "up"
      And "Slave Interface: eth1" is visible with command "cat /proc/net/bonding/bond0"
      And "MASTER=bond0" is visible with command "cat /etc/sysconfig/network-scripts/ifcfg-bond-slave-eth1"
+
+
+    @ver+=1.57.1
+    @nmtui_bond_port_select_device
+    Scenario: nmtui - bond - add bond port using select button
+    * Prepare new connection of type "Bond" named "bond0"
+    * Set "Device" field to "bond0"
+    * Choose to "<Add>" a slave
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "bond-slave-eth5"
+    * Set "Device" field to "eth5" using select button
+    * Confirm the slave settings
+    * Confirm the connection settings
+    Then Check bond "bond0" link state is "up"
+    Then "Slave Interface: eth5" is visible with command "cat /proc/net/bonding/bond0"
 
 
     @nmtui_bond_add_many_slaves

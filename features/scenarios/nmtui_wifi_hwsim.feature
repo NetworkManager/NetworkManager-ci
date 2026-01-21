@@ -182,6 +182,16 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
+    @fedoraver+=32
+    @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
+    @nmtui_simwifi_select_device
+    Scenario: nmtui - wifi_hwsim - select device button
+    * Prepare new connection of type "Wi-Fi" named "wifi"
+    * Set "Device" field to "wlan0" using select button
+    * Set "SSID" field to "open"
+    * Confirm the connection settings
+    Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
+
 
     @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log

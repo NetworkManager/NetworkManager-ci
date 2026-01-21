@@ -17,6 +17,14 @@ Feature: Bridge TUI tests
     Then "bridge0" is visible with command "ip link show type bridge"
     Then "bridge0\s+bridge" is visible with command "nmcli device"
 
+    @ver+=1.57.1
+    @nmtui_bridge_no_select_device
+    Scenario: nmtui - bridge - don't show select button
+    * Prepare new connection of type "Bridge" named "bridge0"
+    * Set "Device" field to "bridge0"
+    Then "Device.*Select\.\.\." is not visible on screen
+    * Confirm the connection settings
+
     @ver+=1.10.2
     @ifcfg-rh
     @nmtui_bridge_add_custom_bridge
@@ -213,6 +221,21 @@ Feature: Bridge TUI tests
     Then "eth1\s+ethernet\s+connected\s+bridge-slave-eth1" is visible with command "nmcli device"
     Then "eth2\s+ethernet\s+connected\s+bridge-slave-eth2" is visible with command "nmcli device"
     Then "192.168" is visible with command "ip a s bridge0"
+
+
+    @ver+=1.57.1
+    @nmtui_bridge_port_select_device
+    Scenario: nmtui - bridge - add bridge port using select button
+    * Prepare new connection of type "Bridge" named "bridge0"
+    * Set "Device" field to "bridge0"
+    * Choose to "<Add>" a slave
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "bridge-slave-eth5"
+    * Set "Device" field to "eth5" using select button
+    * Confirm the slave settings
+    * Confirm the connection settings
+    Then "bridge0\s+bridge\s+connected" is visible with command "nmcli device" in "60" seconds
+    Then "eth5\s+ethernet\s+connected\s+bridge-slave-eth5" is visible with command "nmcli device"
 
 
     # @nmtui_bridge_over_ethernet_devices_no_stp

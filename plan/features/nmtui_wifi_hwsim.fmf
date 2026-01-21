@@ -8,6 +8,7 @@ discover:
         - /tests/nmtui_simwifi_connect_to_wpa3psk_network
         - /tests/nmtui_simwifi_add_default_connection_open_network
         - /tests/nmtui_simwifi_fixed_device_present
+        - /tests/nmtui_simwifi_select_device
         - /tests/nmtui_simwifi_fixed_device_invalid
         - /tests/nmtui_simwifi_autoconnect_off
         - /tests/nmtui_simwifi_activate_wo_autoconnect

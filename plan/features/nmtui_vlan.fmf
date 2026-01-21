@@ -2,6 +2,7 @@ discover:
     how: fmf
     test:
         - /tests/nmtui_vlan_add_default_connection
+        - /tests/nmtui_vlan_no_select_device
         - /tests/nmtui_vlan_set_device
         - /tests/nmtui_vlan_missing_parent
         - /tests/nmtui_vlan_set_parent_as_device

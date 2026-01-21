@@ -18,6 +18,15 @@ Feature: VLAN TUI tests
     Then "eth1.99\s+vlan" is visible with command "nmcli device"
 
 
+    @ver+=1.57.1
+    @nmtui_vlan_no_select_device
+    Scenario: nmtui - vlan - don't show select button
+    * Prepare new connection of type "VLAN" named "vlan"
+    * Set "Device" field to "eth1.99"
+    Then "Device.*Select\.\.\." is not visible on screen
+    * Confirm the connection settings
+
+
     @nmtui_vlan_set_device
     Scenario: nmtui - vlan - set device
     * Prepare new connection of type "VLAN" named "vlan"

@@ -469,6 +469,32 @@ def set_specific_field_to(context, field, value):
         nmci.cleanup.add_iface(value)
 
 
+@step('Set "{field}" field to "{value}" using select button')
+def set_specific_field_to_using_select_button(context, field, value):
+    if value == "<noted>":
+        value = context.noted["noted-value"]
+        print(f"setting '{field}' to '{value}'")
+    assert (
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{field}.*")
+        is not None
+    ), ("Could not go to option '%s' on screen!" % field)
+
+    context.tui.send(keys["TAB"])
+    context.tui.send(keys["ENTER"])
+
+    assert (
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{value}.*")
+        is not None
+    ), ("Could not go to option '%s' on screen!" % value)
+
+    context.tui.send(keys["ENTER"])
+
+    if "Profile name" in field:
+        nmci.cleanup.add_connection(value)
+    elif "Device" in field:
+        nmci.cleanup.add_iface(value)
+
+
 @step('Empty the field "{field}"')
 def empty_specific_field(context, field):
     assert (

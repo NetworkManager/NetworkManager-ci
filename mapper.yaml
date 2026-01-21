@@ -3186,6 +3186,8 @@ testmapper:
         feature: nmtui_ethernet
     - nmtui_ethernet_create_device_bound_connection:
         feature: nmtui_ethernet
+    - nmtui_ethernet_select_device:
+        feature: nmtui_ethernet
     - nmtui_ethernet_create_connection_wo_autoconnect:
         feature: nmtui_ethernet
     - nmtui_ethernet_activate_connection:
@@ -3400,6 +3402,8 @@ testmapper:
         feature: nmtui_loopback
     - nmtui_vlan_add_default_connection:
         feature: nmtui_vlan
+    - nmtui_vlan_no_select_device:
+        feature: nmtui_vlan
     - nmtui_vlan_set_device:
         feature: nmtui_vlan
     - nmtui_vlan_missing_parent:
@@ -3434,6 +3438,8 @@ testmapper:
         tags: gate
     - nmtui_bridge_add_default_bridge:
         feature: nmtui_bridge
+    - nmtui_bridge_no_select_device:
+        feature: nmtui_bridge
     - nmtui_bridge_add_custom_bridge:
         feature: nmtui_bridge
     - nmtui_bridge_add_connection_wo_autoconnect:
@@ -3452,6 +3458,8 @@ testmapper:
         feature: nmtui_bridge
     - nmtui_bridge_over_ethernet_devices:
         feature: nmtui_bridge
+    - nmtui_bridge_port_select_device:
+        feature: nmtui_bridge
     - nmtui_bridge_over_ethernet_devices_no_stp:
         feature: nmtui_bridge
     - nmtui_bridge_over_vlans:
@@ -3465,6 +3473,8 @@ testmapper:
     - nmtui_bridge_over_ethernet_and_vlan:
         feature: nmtui_bridge
     - nmtui_bond_add_default_bond:
+        feature: nmtui_bond
+    - nmtui_bond_no_select_device:
         feature: nmtui_bond
     - nmtui_bond_add_custom_bond_mii:
         feature: nmtui_bond
@@ -3483,6 +3493,8 @@ testmapper:
     - nmtui_bond_delete_connection_down:
         feature: nmtui_bond
     - nmtui_bond_add_one_slave:
+        feature: nmtui_bond
+    - nmtui_bond_port_select_device:
         feature: nmtui_bond
     - nmtui_bond_add_many_slaves:
         feature: nmtui_bond
@@ -3511,6 +3523,8 @@ testmapper:
         feature: nmtui_bond
     - nmtui_team_add_default_team:
         feature: nmtui_team
+    - nmtui_team_no_select_device:
+        feature: nmtui_team
     - nmtui_team_add_connection_wo_autoconnect:
         feature: nmtui_team
     - nmtui_team_activate_wo_autoconnect:
@@ -3526,6 +3540,8 @@ testmapper:
     - nmtui_team_add_many_slaves:
         feature: nmtui_team
     - nmtui_team_over_ethernet_devices:
+        feature: nmtui_team
+    - nmtui_team_port_select_device:
         feature: nmtui_team
     - nmtui_team_delete_slaves_after_deleting_profile:
         feature: nmtui_team
@@ -3545,6 +3561,8 @@ testmapper:
         feature: nmtui_team
     - nmtui_inf_create_master_connection:
         feature: nmtui_infiniband
+#    - nmtui_infiniband_select_device:
+#        feature: nmtui_infiniband
     - nmtui_inf_create_port_connection:
         feature: nmtui_infiniband
     - nmtui_inf_add_connection_wo_autoconnect:
@@ -3570,6 +3588,8 @@ testmapper:
     - nmtui_simwifi_add_default_connection_open_network:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_fixed_device_present:
+        feature: nmtui_wifi_hwsim
+    - nmtui_simwifi_select_device:
         feature: nmtui_wifi_hwsim
     - nmtui_simwifi_fixed_device_invalid:
         feature: nmtui_wifi_hwsim
