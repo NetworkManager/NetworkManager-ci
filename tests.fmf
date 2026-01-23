@@ -7166,6 +7166,8 @@ link:
 /nmtui_ethernet_select_device:
     id: 6964a314-d4e3-5051-94c0-ccd3969c9f91
     order+: 47002
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8899
 /nmtui_ethernet_create_connection_wo_autoconnect:
     id: dbb1d57e-2622-5700-b2b4-2ac1d75c7bda
     order+: 47003
@@ -7674,6 +7676,8 @@ link:
 /nmtui_vlan_no_select_device:
     id: 74478d46-de80-5155-af17-7a2ad4a7d7b3
     order+: 52001
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8903
 /nmtui_vlan_set_device:
     id: eec178f2-3f03-5a0a-bc85-ac5a7844d367
     order+: 52002
@@ -7756,6 +7760,8 @@ link:
 /nmtui_bridge_no_select_device:
     id: 68c5a06b-5df8-5e2d-97f9-7c43ecc2cd4d
     order+: 53001
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8897
 /nmtui_bridge_add_custom_bridge:
     id: 04799334-adc7-5cd8-aa32-93b3426bc2c3
     order+: 53002
@@ -7804,6 +7810,8 @@ link:
 /nmtui_bridge_port_select_device:
     id: 7cf71404-08a5-5478-ad35-f58ed47aba6d
     order+: 53011
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8898
 /nmtui_bridge_over_ethernet_devices_no_stp:
     id: 65e01108-3383-5d4d-807d-a5e3bd0172f6
     order+: 53012
@@ -7839,6 +7847,8 @@ link:
 /nmtui_bond_no_select_device:
     id: e90df7ee-2167-50c2-b718-651ad94ddb18
     order+: 54001
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8895
 /nmtui_bond_add_custom_bond_mii:
     id: cbf4a5cb-ad8f-5712-b381-a9d8734f0291
     order+: 54002
@@ -7887,6 +7897,8 @@ link:
 /nmtui_bond_port_select_device:
     id: 933cc51d-1dd3-521d-9ab4-0543da0a80cf
     order+: 54011
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8896
 /nmtui_bond_add_many_slaves:
     id: 577d2a7e-09b9-5852-baf8-cf042fc65b3a
     order+: 54012
@@ -7956,6 +7968,8 @@ link:
 /nmtui_team_no_select_device:
     id: 9068672b-6a12-5f38-a9d9-d05ebc7c8d65
     order+: 55001
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8901
 /nmtui_team_add_connection_wo_autoconnect:
     id: 91604dfd-5883-5edb-a1cd-0f85954c05c0
     order+: 55002
@@ -7999,6 +8013,8 @@ link:
 /nmtui_team_port_select_device:
     id: 45bafe7b-6b16-577c-bc04-4402623bb674
     order+: 55010
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8902
 /nmtui_team_delete_slaves_after_deleting_profile:
     tag: ['gate']
     id: 92a1dc89-cc59-55ac-afea-4e55465233e3
@@ -8109,6 +8125,8 @@ link:
 /nmtui_simwifi_select_device:
     id: 56ae3e5f-577b-5dff-94b2-494d652691dc
     order+: 57007
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8900
 /nmtui_simwifi_fixed_device_invalid:
     id: efc17d20-1790-59a5-a90d-7ac23e07e1cd
     order+: 57008
