@@ -182,6 +182,8 @@ Feature: WIFI TUI tests
     * Confirm the connection settings
     Then "inet 10." is visible with command "ip a s wlan0" in "30" seconds
 
+
+    @ver+=1.57.1
     @fedoraver+=32
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @nmtui_simwifi_select_device
