@@ -16,7 +16,11 @@ try:
     from systemd import journal  # type: ignore [import]
 except ModuleNotFoundError:
     # Match executiion as `pytest` or `python -m pytest`
-    if "pytest" in sys.argv[0] or "pytest" in sys.argv:
+    if (
+        "pytest" in sys.argv[0]
+        or "pytest" in sys.argv
+        or sys.version.startswith("3.6.")
+    ):
         warnings.warn(
             "ModuleNotFoundError: systemd.journal module is missing", UserWarning
         )
