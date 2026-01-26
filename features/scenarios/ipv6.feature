@@ -1572,7 +1572,7 @@
     * Execute "ip l set testX6 up"
     * Bring "up" connection "ethernet0"
     * Execute "sleep 1"
-    * Execute "dd if=/dev/zero bs=1M count=10 | nc fd02::2 9000"
+    * Execute "dd if=/dev/zero bs=1M count=10 | ncat fd02::2 9000"
     Then "mtu 1400" is visible with command "ip route get fd02::2" for full "40" seconds
 
 

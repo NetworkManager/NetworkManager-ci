@@ -694,7 +694,7 @@ def prepare_simdev(context, device):
     )
     # Run netcat server to receive some data
     nmci.pexpect.pexpect_service(
-        f"ip netns exec {device}2_ns nc -6 -l -p 9000 > /dev/null",
+        f"ip netns exec {device}2_ns ncat -6 -l -p 9000 > /dev/null",
         shell=True,
     )
 
