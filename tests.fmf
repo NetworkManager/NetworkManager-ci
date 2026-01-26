@@ -8262,6 +8262,12 @@ link:
     order+: 58000
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5585
+/hsr_interlink:
+    id: db5d6919-157d-5ce4-924f-0bf146ffeaea
+    order+: 58001
+/hsr_proto_version:
+    id: 03419c94-7900-5665-8581-f95cacc47c29
+    order+: 58002
 /dbus_set_invalid_dns:
     id: 655be250-b270-5654-befa-add25cc03c22
     order+: 59000

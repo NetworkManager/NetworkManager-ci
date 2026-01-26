@@ -2,3 +2,5 @@ discover:
     how: fmf
     test:
         - /tests/hsr_with_prp_protocol
+        - /tests/hsr_interlink
+        - /tests/hsr_proto_version
