@@ -482,8 +482,9 @@ def set_specific_field_to_using_select_button(context, field, value):
     context.tui.send(keys["TAB"])
     context.tui.send(keys["ENTER"])
 
+    # search for ` value ` to full word match.
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{value}.*")
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".* {value} .*")
         is not None
     ), ("Could not go to option '%s' on screen!" % value)
 
