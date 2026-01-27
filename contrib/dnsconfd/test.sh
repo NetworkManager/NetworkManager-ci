@@ -52,7 +52,7 @@ mkdir $TARGET_DIR
 # Download packages to /tmp/rpms where nmci.fmf plan pulls them
 
 # Do we have copr?
-if rpm -q NetworkManager |grep copr; then
+if rpm -q NetworkManager |grep -E 'copr || dev'; then
     dnf download --disablerepo=* --enablerepo=*copr* \
         NetworkManager NetworkManager-libnm \
         --destdir $TARGET_DIR \
