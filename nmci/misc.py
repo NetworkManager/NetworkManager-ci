@@ -14,7 +14,7 @@ from subprocess import TimeoutExpired
 
 try:
     from systemd import journal  # type: ignore [import]
-except ModuleNotFoundError:
+except:  # pylint: disable=W0702,E722
     # Match executiion as `pytest` or `python -m pytest`
     if (
         "pytest" in sys.argv[0]
