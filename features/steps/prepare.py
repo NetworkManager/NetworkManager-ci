@@ -343,15 +343,15 @@ def clat_prepare(
     # ------------|---------------------------------------------------- #
     #             v                                           [${D}_ns] #
     #           ${D}p                                                   #
-    #      2002:aaaa::1/64  <---->  nat64  <---->  1.0.0.1/24           #
+    #      2002:aaaa::1/64  <---->  nat64  <---->  198.51.100.1/24           #
     #          (radvd)             (tayga)           ${D}2              #
     #       (dhcps, opt.108)                           ^                #
     # -------------------------------------------------|--------------- #
     #                                                  v     [${D}_ns2] #
     #       IPv4 internet                            ${D}3              #
-    #                                              1.0.0.2/24           #
+    #                                              198.51.100.2/24           #
     #                               dummy1                              #
-    #                            20.0.0.1/24                            #
+    #                            203.0.113.1/24                         #
     #                       (web server, UDP server)                    #
     #####################################################################
 
@@ -399,11 +399,13 @@ def clat_prepare(
     )
 
     nmci.process.run(f"ip -n {device}_ns link set {device}2 up")
-    nmci.process.run(f"ip -n {device}_ns addr add dev {device}2 1.0.0.1/24")
-    nmci.process.run(f"ip -n {device}_ns route add default via 1.0.0.2 dev {device}2")
+    nmci.process.run(f"ip -n {device}_ns addr add dev {device}2 198.51.100.1/24")
+    nmci.process.run(
+        f"ip -n {device}_ns route add default via 198.51.100.2 dev {device}2"
+    )
 
     nmci.process.run(f"ip -n {device}_ns2 link set {device}3 up")
-    nmci.process.run(f"ip -n {device}_ns2 addr add dev {device}3 1.0.0.2/24")
+    nmci.process.run(f"ip -n {device}_ns2 addr add dev {device}3 198.51.100.2/24")
 
     # Configure radvd
     radvd_conf = f"/tmp/radvd-clat-{device}.conf"
@@ -431,13 +433,13 @@ def clat_prepare(
     nmci.process.run(f"rm -f /var/lib/tayga/nat64/dynamic.map")
     nmci.process.run(f"ip netns exec {device}_ns tayga --config {tayga_conf} --mktun")
     nmci.process.run(f"ip -n {device}_ns link set nat64 up")
-    nmci.process.run(f"ip -n {device}_ns route add 1.0.0.144/28 dev nat64")
+    nmci.process.run(f"ip -n {device}_ns route add 198.51.100.144/28 dev nat64")
     nmci.process.run(f"ip -n {device}_ns route add {pref64} dev nat64")
     nmci.process.run(
         f"ip netns exec {device}_ns iptables -t nat -A POSTROUTING -o nat64 -j MASQUERADE"
     )
     nmci.process.run(
-        f"ip netns exec {device}_ns iptables -t nat -A POSTROUTING -s 1.0.0.144/28 -j MASQUERADE"
+        f"ip netns exec {device}_ns iptables -t nat -A POSTROUTING -s 198.51.100.144/28 -j MASQUERADE"
     )
     nmci.pexpect.pexpect_service(
         f"ip netns exec {device}_ns tayga --nodetach --config {tayga_conf}",
@@ -448,7 +450,7 @@ def clat_prepare(
 @step(
     'Start servers in the CLAT environment for device "{device}" on address "{address}"'
 )
-def clat_start_servers(context, device, address="20.0.0.1"):
+def clat_start_servers(context, device, address="203.0.113.1"):
     nmci.process.run(f"ip -n {device}_ns2 link add dummy1 type dummy")
     nmci.process.run(f"ip -n {device}_ns2 link set dummy1 up")
     nmci.process.run(f"ip -n {device}_ns2 addr add dev dummy1 {address}/24")
@@ -487,32 +489,32 @@ def clat_verify(context, device):
         f'* Check "ipv4" address list "192.0.0.5/32" on device "{device}"'
     )
     context.execute_steps(
-        f'* "20.0.0.1 via inet6 fe80::.* dev {device} src 192.0.0.5" is visible with command "ip route get 20.0.0.1"'
+        f'* "203.0.113.1 via inet6 fe80::.* dev {device} src 192.0.0.5" is visible with command "ip route get 203.0.113.1"'
     )
 
     # ping
-    context.execute_steps(f'* Execute "ping -c4 20.0.0.1"')
+    context.execute_steps(f'* Execute "ping -c4 203.0.113.1"')
 
     # HTTP traffic
     context.execute_steps(
-        f'* "b63ba06de0e8a9626d5bcf27e93bf32d" is visible with command "curl -s http://20.0.0.1:8080/letters.txt | md5sum"'
+        f'* "b63ba06de0e8a9626d5bcf27e93bf32d" is visible with command "curl -s http://203.0.113.1:8080/letters.txt | md5sum"'
     )
 
     # UDP traffic
     context.execute_steps(
-        f'* "1.0.0.1" is visible with command "echo test | socat - UDP4-DATAGRAM:20.0.0.1:9999"'
+        f'* "198.51.100.1" is visible with command "echo test | socat - UDP4-DATAGRAM:203.0.113.1:9999"'
     )
 
     # Check the translation of time-exceeded ICMP error
     context.execute_steps(
-        f'* "From 172.25.42.1 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 3 -c 1 20.0.0.1"'
+        f'* "From 172.25.42.1 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 3 -c 1 203.0.113.1"'
     )
 
     # Check the translation of time-exceeded ICMP error when the src IPv6 is a native address
     # See Internet-Draft draft-ietf-v6ops-icmpext-xlat-v6only-source-01
     # "Using Dummy IPv4 Address and Node Identification Extensions for IP/ICMP translators (XLATs)"
     context.execute_steps(
-        f'* "From 192.0.0.8 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 1 -c 1 20.0.0.1"'
+        f'* "From 192.0.0.8 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 1 -c 1 203.0.113.1"'
     )
 
 
@@ -529,7 +531,7 @@ def clat_verify_nondefault(context, device, clat_address, server):
     context.execute_steps(f'* Execute "ping -I {device} -c4 {server}"')
     context.execute_steps(f'* Execute "curl --interface {device} http://{server}:8080"')
     context.execute_steps(
-        f'* "1.0.0.1" is visible with command "echo test | socat - UDP4-DATAGRAM:{server}:9999,so-bindtodevice={device}"'
+        f'* "198.51.100.1" is visible with command "echo test | socat - UDP4-DATAGRAM:{server}:9999,so-bindtodevice={device}"'
     )
 
 

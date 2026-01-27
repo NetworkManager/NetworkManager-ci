@@ -78,9 +78,9 @@ Feature: nmcli: clat
     * Prepare a CLAT environment on device "testX" with NAT64 prefix "2001:db8::/32" and IPv6 prefix "2002:aaaa::"
     * Prepare a CLAT environment on device "testY" with NAT64 prefix "2001:db9:100::/40" and IPv6 prefix "2002:bbbb::"
     * Prepare a CLAT environment on device "testZ" with NAT64 prefix "2001:dba:111::/48" and IPv6 prefix "2002:cccc::"
-    * Start servers in the CLAT environment for device "testX" on address "20.0.0.1"
-    * Start servers in the CLAT environment for device "testY" on address "30.0.0.1"
-    * Start servers in the CLAT environment for device "testZ" on address "40.0.0.1"
+    * Start servers in the CLAT environment for device "testX" on address "203.0.113.1"
+    * Start servers in the CLAT environment for device "testY" on address "203.0.113.2"
+    * Start servers in the CLAT environment for device "testZ" on address "203.0.113.3"
     # the default route is on testX. With rp_filter enabled, it would be impossible to check
     # connectivity on other interfaces
     * Execute "echo 2 > /proc/sys/net/ipv4/conf/testY/rp_filter"
@@ -104,8 +104,8 @@ Feature: nmcli: clat
     * Bring "up" connection "testY-clat"
     * Bring "up" connection "testZ-clat"
     * Verify the CLAT connection over device "testX"
-    * Verify the CLAT connection over non-default device "testY" with CLAT address "192.0.0.6" and server "30.0.0.1"
-    * Verify the CLAT connection over non-default device "testZ" with CLAT address "192.0.0.7" and server "40.0.0.1"
+    * Verify the CLAT connection over non-default device "testY" with CLAT address "192.0.0.6" and server "203.0.113.2"
+    * Verify the CLAT connection over non-default device "testZ" with CLAT address "192.0.0.7" and server "203.0.113.3"
     * Ignore possible AVC "bpf"
 
 
