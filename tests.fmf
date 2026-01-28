@@ -8300,30 +8300,48 @@ link:
 /clat_ethernet:
     id: b27339bc-58ea-5ae3-a269-ab7e6618fb73
     order+: 60000
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8933
 /clat_ethernet_plen64:
     id: 26ac33a2-e8d8-5b00-8569-02d474f750ef
     order+: 60001
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8934
 /clat_vlan:
     id: 8f6d6987-057d-5d65-85c4-5611b6f66c27
     order+: 60002
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8938
 /clat_multiple_instances:
     id: 2fbf31c4-4a6d-57a6-b1b7-963e7364401b
     order+: 60003
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8937
 /clat_disabled:
     id: f12a66bc-b9d9-5c5c-a338-d34b191485d7
     order+: 60004
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8932
 /clat_auto_no_opt108:
     id: 3be51773-d381-59f6-ab47-26faefb9296e
     order+: 60005
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8931
 /clat_auto_ipv4_manual:
     id: 91d12fcc-94fe-57e5-b748-f31533a3cca6
     order+: 60006
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8930
 /clat_mtu_ra:
     id: 5d8b0641-d70b-5626-b276-7931c087c13d
     order+: 60007
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8935
 /clat_mtu_static:
     id: 72a1fcbf-b28a-5f07-9175-42081c9ccc7f
     order+: 60008
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8936
 /crashing_NM_binary:
     id: a0bf631b-e83e-5b16-ba9c-af4f215e5611
     order+: 61000
