@@ -2,11 +2,13 @@
 
 function teardown() {
     ip l del ipip1
+    ip l del geneve1
     ip l del gre1
     ip l del ip6gre1
     ip l del veth0
     ip netns del iptunnel
     nmcli connection delete iptunnel-veth ipip1 gre1
+    modprobe -r geneve
     modprobe -r ip_gre
     modprobe -r ipip
     modprobe -r ip6_gre
@@ -36,6 +38,10 @@ function setup() {
     ip -n iptunnel tunnel add ip6gre2 mode ip6gre remote fe80:feed::b00f local fe80:feed::beef dev veth1
     ip -n iptunnel link set ip6gre2 up
     ip -n iptunnel -6 address add dev ip6gre2 fe80:deaf::beef/64
+    # prepare tunnels in namespace - geneve
+    ip -n iptunnel link add geneve2 type geneve id 1234 remote 172.25.16.1
+    ip -n iptunnel link set geneve2 up
+    ip -n iptunnel address add dev geneve2 172.25.88.2/24
 
     # prepare nmcli
     nmcli connection add type ethernet ifname veth0 con-name iptunnel-veth ip4 172.25.16.1/24 ip6 fe80:feed::b00f/64

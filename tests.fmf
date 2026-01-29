@@ -5435,40 +5435,43 @@ link:
     order+: 26002
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5056
+/iptunnel_geneve_create_device:
+    id: 25db439f-edbc-559e-b95f-e24f138163d1
+    order+: 26003
 /iptunnel_ip6gre_create_device:
     id: d96a677d-38ae-5bf8-9e0e-889767895edf
-    order+: 26003
+    order+: 26004
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5057
 /iptunnel_ip6gre_create_device_with_eui64:
     id: 0a6bae0a-1777-5219-b885-610dfe291cd2
-    order+: 26004
+    order+: 26005
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5058
 /wireguard_activate_connection:
     id: 15795fca-9e0d-5433-a65d-e57163a0344a
-    order+: 26005
+    order+: 26006
     duration: 20m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5059
 /wireguard_add_routing_rules:
     id: 5d068ca5-95d8-5ab3-a1d0-84d3e18648d2
-    order+: 26006
+    order+: 26007
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5060
 /wireguard_honor_prefix_routes:
     id: 09ae32d9-cb03-578f-b30d-3d8e19fe2574
-    order+: 26007
+    order+: 26008
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5061
 /wireguard_nmcli:
     id: a30b3278-c062-5322-a80f-d01a6d89195e
-    order+: 26008
+    order+: 26009
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5062
 /wireguard_allowedIP:
     id: 502026d6-44f9-5adc-9651-70f4b9f34dcb
-    order+: 26009
+    order+: 26010
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5064
 /macsec_psk:

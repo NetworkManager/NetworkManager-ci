@@ -6,6 +6,7 @@ discover:
         - /tests/vpn_list_args
         - /tests/iptunnel_create_modify
         - /tests/iptunnel_restart
+        - /tests/iptunnel_geneve_create_device
         - /tests/iptunnel_ip6gre_create_device
         - /tests/iptunnel_ip6gre_create_device_with_eui64
         - /tests/wireguard_activate_connection

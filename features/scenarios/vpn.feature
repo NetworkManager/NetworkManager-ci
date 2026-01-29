@@ -148,6 +148,21 @@
     Then Bring "down" connection "gre1"
     Then Bring "down" connection "ipip1"
 
+    @ver+=1.57
+    @iptunnel
+    @iptunnel_geneve_create_device
+    Scenario: nmcli - vpn - create GENEVE tunnel with device
+    * Add "geneve" connection named "geneve1" for device "geneve1" with options
+          """
+          geneve.id 1234
+          geneve.remote 172.25.16.2
+          ipv4.method manual
+          ipv4.addresses 172.25.88.1/24
+          """
+    * Bring "up" connection "geneve1"
+    * Wait for "2" seconds
+    Then Ping "172.25.88.2" "2" times
+
 
     @rhbz1704308
     @ver+=1.14
