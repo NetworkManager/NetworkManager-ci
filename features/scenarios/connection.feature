@@ -91,6 +91,7 @@ Feature: nmcli: connection
 
     @RHEL-93829
     @rhelver+=10
+    @fedoraver-
     @ver+=1.55.5
     @connection_team_disabled_rhel10
     Scenario: nmcli - connection - team type is disabled on rhel10
