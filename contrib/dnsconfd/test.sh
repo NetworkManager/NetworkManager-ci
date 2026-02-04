@@ -30,7 +30,7 @@ pushd $DNSCONFD_DIR
     # Include a missing NM logs in Cleanup phase into all tests if not present
     for file in $DNSCONFD_DIR/tests/*/test.sh; do
         line='        rlRun "podman exec $dnsconfd_cid journalctl -u NetworkManager" 0 "Saving NM logs"'
-        if ! grep -q "Saving NM logs" $file; then 
+        if ! grep -q "Saving NM logs" $file; then
 	    echo "Adding NM logs to $file" && sed -i "/rlPhaseStartCleanup/a\\$line" $file
 	fi
     done
@@ -52,7 +52,7 @@ mkdir $TARGET_DIR
 # Download packages to /tmp/rpms where nmci.fmf plan pulls them
 
 # Do we have copr?
-if rpm -q NetworkManager |grep -E 'copr || dev'; then
+if rpm -q NetworkManager |grep -E 'copr|dev'; then
     dnf download --disablerepo=* --enablerepo=*copr* \
         NetworkManager NetworkManager-libnm \
         --destdir $TARGET_DIR \
@@ -76,7 +76,7 @@ for RPM_DIR in "${RPM_DIRS[@]}"; do
 done
 
 # Do we still have empty /tmp/rpms? We are on stock packages
-if [ -z "$(ls -A /tmp/rpms)" ]; then
+if [ -z "$(ls -A $TARGET_DIR)" ]; then
     dnf download NetworkManager NetworkManager-libnm \
         --destdir $TARGET_DIR
 fi
