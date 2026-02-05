@@ -3,11 +3,15 @@
 import json
 import re
 import subprocess
+from pathlib import Path
+
+pkg = "NetworkManager"
+
+if "network-manager-applet" in str(Path(__file__).resolve()):
+    pkg = "network-manager-applet"
 
 nvra = (
-    subprocess.run(
-        "rpm -q NetworkManager", stdout=subprocess.PIPE, check=False, shell=True
-    )
+    subprocess.run(f"rpm -q {pkg}", stdout=subprocess.PIPE, check=False, shell=True)
     .stdout.decode("utf-8", errors="ignore")
     .strip()
 )
