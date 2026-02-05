@@ -40,9 +40,20 @@ TEST_CYCLES = {
 auth = None
 if POLARION_USER and POLARION_PASSWORD:
     auth = requests.auth.HTTPBasicAuth(POLARION_USER, POLARION_PASSWORD)
-
-with open("tests.fmf", "r") as t_fmf:
-    tests_fmf = yaml.load(t_fmf, Loader=yaml.SafeLoader)
+if os.path.isfile("tests.fmf"):
+    with open("tests.fmf", "r") as t_fmf:
+        tests_fmf = yaml.load(t_fmf, Loader=yaml.SafeLoader)
+elif os.path.isfile("main.fmf"):
+    with open("main.fmf", "r") as m_fmf:
+        main_fmf = yaml.load(m_fmf, Loader=yaml.SafeLoader)
+        if "/tests" in main_fmf:
+            tests_fmf = main_fmf["/tests"]
+        elif "/test" in main_fmf:
+            tests_fmf = main_fmf["/test"]
+        else:
+            raise Exception("Unable to find /tests in main.fmf or tests.fmf file.")
+else:
+    raise Exception("No main.fmf or tests.fmf found.")
 
 xunit_url = sys.argv[1]
 xunit_url_base = sys.argv[1].rsplit("/", 1)[0]
@@ -51,6 +62,9 @@ if subcomponent:
     subcomponent = subcomponent.group(0)
 if not subcomponent or "default" in subcomponent or "veth" in subcomponent:
     subcomponent = "NetworkManager"
+# do this at last
+if "network-manager-applet" in xunit_url_base:
+    subcomponent = "network-manager-applet"
 
 additional_options = [x.split("=", 1) for x in sys.argv[2:]]
 additional_options = dict(
@@ -140,16 +154,20 @@ if test_cycle:
 # | NetworkManager     | NM,NM-libreswan    |
 # | NetworkManager-gsm | NM,MM,lib*         |
 # | NetworkManager-*   | NM                 |
+# | n-m-applet         | n-m-applet,libnma  |
 # +--------------------+--------------------+
-polarion_metadata["polarion-custom-component"] = (
-    "NetworkManager,NetworkManager-libreswan"
-    if subcomponent == "NetworkManager"
-    else (
-        "NetworkManager"
-        if "gsm" not in subcomponent
-        else "NetworkManager,ModemManager,libqmi,libqrtr-glib,libmbim"
+if subcomponent == "NetworkManager":
+    polarion_metadata["polarion-custom-component"] = (
+        "NetworkManager,NetworkManager-libreswan"
     )
-)
+elif subcomponent == "NetworkManager-gsm":
+    polarion_metadata["polarion-custom-component"] = (
+        "NetworkManager,ModemManager,libqmi,libqrtr-glib,libmbim"
+    )
+elif subcomponent == "network-manager-applet":
+    polarion_metadata["polarion-custom-component"] = "network-manager-applet,libnma"
+else:
+    polarion_metadata["polarion-custom-component"] = "NetworkManager"
 
 # merge additional options and polarion metadata
 polarion_metadata = {**polarion_metadata, **additional_options}
