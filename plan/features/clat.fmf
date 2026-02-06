@@ -10,3 +10,4 @@ discover:
         - /tests/clat_auto_ipv4_manual
         - /tests/clat_mtu_ra
         - /tests/clat_mtu_static
+        - /tests/clat_layer3

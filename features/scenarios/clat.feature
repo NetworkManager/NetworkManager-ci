@@ -214,3 +214,32 @@ Feature: nmcli: clat
     Then "mtu 1402" is visible with command "ip -4 route list default dev testX"
     * Verify the CLAT connection over device "testX"
     * Ignore possible AVC "bpf"
+
+
+    @ver+=1.57.1
+    @rhelver+=10
+    @permissive
+    @delete_testeth0
+    @clat_layer3
+    Scenario: nmcli - clat - CLAT on Layer3 device
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" over IP6GRE tunnel with endpoints "fd42::1" and "fd42::2"
+    * Start servers in the CLAT environment for device "testX"
+    * Add "ethernet" connection named "testX-base" for device "testX" with options
+          """
+          ipv4.method disabled
+          ipv6.method manual
+          ipv6.addresses fd42::1/64
+          autoconnect no
+          """
+    * Add "ip-tunnel" connection named "testX-ip6gre-clat" for device "ip6gre1" with options
+          """
+          ip-tunnel.mode ip6gre
+          ip-tunnel.local fd42::1
+          ip-tunnel.remote fd42::2
+          ipv4.clat auto
+          autoconnect no
+          """
+    * Bring "up" connection "testX-base"
+    * Bring "up" connection "testX-ip6gre-clat"
+    * Verify the CLAT connection over device "ip6gre1"
+    * Ignore possible AVC "bpf"

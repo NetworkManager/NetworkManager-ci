@@ -330,10 +330,21 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
     'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" over VLAN "{vlan}"'
 )
 @step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" over IP6GRE tunnel with endpoints "{local}" and "{remote}"'
+)
+@step(
     'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and IPv6 MTU "{mtu}"'
 )
 def clat_prepare(
-    context, device, pref64, vlan=None, prefix="2002:aaaa::", option108="on", mtu=None
+    context,
+    device,
+    pref64,
+    vlan=None,
+    prefix="2002:aaaa::",
+    option108="on",
+    mtu=None,
+    local=None,
+    remote=None,
 ):
     #####################################################################
     #                                                         [init ns] #
@@ -360,17 +371,27 @@ def clat_prepare(
 
     nmci.ip.netns_add(f"{device}_ns")
 
-    if vlan is None:
-        context.execute_steps(
-            f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
-        )
-    else:
+    if vlan:
         context.execute_steps(
             f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p_base"'
         )
         nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p_base up")
         nmci.process.run(
             f"ip netns exec {device}_ns ip link add link {device}p_base name {device}p type vlan id {vlan}"
+        )
+    elif remote and local:
+        # create IP6gre tunnel over veth pair to test CLAT on L3-device
+        context.execute_steps(
+            f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p_base"'
+        )
+        nmci.process.run(f"ip -n {device}_ns link set {device}p_base up")
+        nmci.process.run(f"ip -n {device}_ns addr add dev {device}p_base {remote}/64")
+        nmci.process.run(
+            f"ip -n {device}_ns link add name {device}p type ip6gre local {remote} remote {local}"
+        )
+    else:
+        context.execute_steps(
+            f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name {device}p"'
         )
 
     nmci.process.run(
@@ -385,13 +406,14 @@ def clat_prepare(
         f"ip netns exec {device}_ns ip addr add {prefix}1/64 dev {device}p"
     )
 
-    if option108 == "on":
-        arg_opt108 = "--dhcp-option=108,720"
-    else:
-        arg_opt108 = ""
-    nmci.pexpect.pexpect_service(
-        f"ip netns exec {device}_ns dnsmasq --keep-in-foreground --pid-file=/tmp/dnsmasq-clat-{device}.pid --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
-    )
+    if local is None:
+        if option108 == "on":
+            arg_opt108 = "--dhcp-option=108,720"
+        else:
+            arg_opt108 = ""
+        nmci.pexpect.pexpect_service(
+            f"ip netns exec {device}_ns dnsmasq --keep-in-foreground --pid-file=/tmp/dnsmasq-clat-{device}.pid --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
+        )
 
     nmci.ip.netns_add(f"{device}_ns2")
     context.execute_steps(
@@ -480,10 +502,10 @@ def clat_start_servers(context, device, address="203.0.113.1"):
 @step('Verify the CLAT connection over device "{device}"')
 def clat_verify(context, device):
     context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_ingress"'
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_ingress_eth || bpftool prog list name nm_clat_egress_rawip"'
     )
     context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_egress"'
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_egress_eth || bpftool prog list name nm_clat_egress_rawip"'
     )
     context.execute_steps(
         f'* Check "ipv4" address list "192.0.0.5/32" on device "{device}"'
