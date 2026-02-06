@@ -480,10 +480,10 @@ def clat_start_servers(context, device, address="203.0.113.1"):
 @step('Verify the CLAT connection over device "{device}"')
 def clat_verify(context, device):
     context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name clat_ingress"'
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_ingress"'
     )
     context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name clat_egress"'
+        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_egress"'
     )
     context.execute_steps(
         f'* Check "ipv4" address list "192.0.0.5/32" on device "{device}"'
