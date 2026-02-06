@@ -39,6 +39,10 @@ Feature: nmcli: clat
           """
     * Bring "up" connection "testX-clat"
     * Verify the CLAT connection over device "testX"
+    Then "clat inet4 192.0.0.5 inet6 2002:aaaa::.* pref64 2001:db8:122:344::/64" is visible with command "nmcli"
+    Then "IP4.CLAT-ADDRESS:.*192.0.0.5" is visible with command "nmcli connection show testX-clat"
+    Then "IP6.CLAT-ADDRESS:.*2002:aaaa::.*" is visible with command "nmcli connection show testX-clat"
+    Then "IP6.CLAT-PREF64:.*2001:db8:122:344::/64" is visible with command "nmcli connection show testX-clat"
     * Ignore possible AVC "bpf"
 
 
