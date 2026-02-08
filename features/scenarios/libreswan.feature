@@ -1118,6 +1118,11 @@ method=auto
     @libreswan_private_connection
     Scenario: libreswan - ikev2 - ipv4 - private user connection
     * Allow user "test" in polkit
+    * Commentary
+      """
+      Keep some process on the backround, otherwise rhel9.8 fails (connection activates but gets down when sudo session ends).
+      """
+    * Run child "sudo -u test sleep 100"
     * Prepare nmstate libreswan server for "cert" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
