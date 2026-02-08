@@ -1111,6 +1111,10 @@ method=auto
     @rhbz1641742
     @ver+=1.55.90
     @ver+=1.54.2.2
+    @fedoraver+=44
+    # This requires NetworkManagerl-libreswan with patched capability file.
+    @rhelver+=9.8
+    @rhelver+=10.2
     @libreswan_private_connection
     Scenario: libreswan - ikev2 - ipv4 - private user connection
     * Allow user "test" in polkit

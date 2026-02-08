@@ -215,6 +215,9 @@
     @rhbz1641742
     @ver+=1.55.90
     @ver+=1.54.2.2
+    # NetworkManager-openvpn from epel-10.2+ is required
+    @rhelver+=10.2
+    @fedoraver+=44
     @permissive
     @openvpn @openvpn4
     @openvpn_cert_permissions
