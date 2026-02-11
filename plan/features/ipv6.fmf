@@ -126,3 +126,5 @@ discover:
         - /tests/ipv6_routes_not_reachable
         - /tests/ipv6_unreachable_gateway_warning
         - /tests/ipv6_prefix_delegation_managed_pd_only
+        - /tests/ipv6_multiple_default_routes_nexthop
+        - /tests/ipv6_multiple_default_routes_nexthop_pref
