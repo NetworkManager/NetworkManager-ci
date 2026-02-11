@@ -124,3 +124,4 @@ discover:
         - /tests/ipv6_do_not_touch_ipv6_disabled_on_reapply
         - /tests/ipv6_routes_not_reachable
         - /tests/ipv6_unreachable_gateway_warning
+        - /tests/ipv6_multiple_default_routes_no_ecmp
