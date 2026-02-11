@@ -2714,3 +2714,27 @@
     * Cleanup connection "con_ipv6"
     Then "Warning:.*gateways are not directly reachable.*fd02::1" is visible with command "nmcli con add type ethernet con-name con_ipv6 ifname eth3 ipv6.method manual ipv6.addresses fd01::10/64 ipv6.gateway fd02::1 ipv4.method disabled"
     Then "default via fd02::1 dev eth3" is visible with command "ip -6 route" in "15" seconds
+
+
+    @ver+=1.59.1
+    @eth0
+    @ipv6_multiple_default_routes_no_ecmp
+    Scenario: NM - ipv6 - multiple IPv6 default routes are not merged into an ECMP one
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1789
+    * Prepare device "testX6" with "4" IPv6 routers
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "Exactly" "4" lines with pattern "fd01:aaa.:" are visible with command "ip a s testX6" in "20" seconds
+    Then "fd01:aaa1" is visible with command "ip a s testX6"
+    Then "fd01:aaa2" is visible with command "ip a s testX6"
+    Then "fd01:aaa3" is visible with command "ip a s testX6"
+    Then "fd01:aaa4" is visible with command "ip a s testX6"
+    Then "Exactly" "4" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1004 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
