@@ -1023,6 +1023,88 @@ def prepare_bridged(context, device, bropts="", namespaces=None):
         nmci.process.run_stdout(f"ip -n {device}_ns l set {ns} up")
 
 
+@step('Prepare device "{device}" with "{num}" IPv6 routers')
+def prepare_ipv6_routers(context, device, num):
+    """
+    Creates a topology with multiple IPv6 routers sending RAs.
+
+    For num=2:
+
+                      {device}
+                        |
+      +-----------------|------------------+
+      |                 |  [{device}_ns]   |
+      |                 p0                 |
+      |                 v                  |
+      |           +-----------+            |
+      |           |    br0    |            |
+      |           +-----------+            |
+      |             ^       ^              |
+      |            p1       p2             |
+      +-------------|---+---|---------- ---+
+      |[{device}_ns1]   |   |[{device}_ns2]|
+      |             |   |   |              |
+      |           rtr1  |  rtr2            |
+      |     fd01:aaa1::1| fd01:aaa2::1     |
+      |       (radvd)   |   (radvd)        |
+    """
+    num = int(num)
+    nmci.veth.manage_device(device)
+
+    # Create main namespace with bridge
+    nmci.ip.netns_add(f"{device}_ns")
+    context.execute_steps(
+        f'* Create "veth" device named "{device}" in namespace "{device}_ns" with options "peer name p0"'
+    )
+    nmci.process.run_stdout(f"ip -n {device}_ns l set {device} netns {os.getpid()}")
+    nmci.process.run_stdout(f"ip -n {device}_ns l add br0 type bridge")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set p0 master br0")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set p0 up")
+    nmci.process.run_stdout(f"ip -n {device}_ns l set br0 up")
+
+    # Create router namespaces with radvd
+    for i in range(1, num + 1):
+        ns = f"{device}_ns{i}"
+        nmci.ip.netns_add(ns)
+        nmci.process.run_stdout(
+            f"ip -n {device}_ns l add p{i} type veth peer name rtr{i} netns {ns}"
+        )
+        nmci.process.run_stdout(f"ip -n {device}_ns l set p{i} master br0")
+        nmci.process.run_stdout(f"ip -n {device}_ns l set p{i} up")
+        # Disable automatic link-local address generation so that
+        # the router has a predictable link-local address.
+        nmci.process.run(
+            f"ip netns exec {ns} sysctl -w net.ipv6.conf.rtr{i}.addr_gen_mode=1"
+        )
+        nmci.process.run_stdout(f"ip -n {ns} l set rtr{i} up")
+        ll_iid = 0x1000 + i
+        nmci.process.run_stdout(f"ip -n {ns} addr add fe80::{ll_iid:x}/64 dev rtr{i}")
+        nmci.process.run_stdout(f"ip -n {ns} addr add fd01:aaa{i}::1/64 dev rtr{i}")
+        # Enable IPv6 forwarding
+        nmci.process.run(f"ip netns exec {ns} sysctl -w net.ipv6.conf.all.forwarding=1")
+        # Write radvd config and start radvd
+        radvd_conf = f"/tmp/radvd-{device}-rtr{i}.conf"
+        nmci.util.file_set_content(
+            radvd_conf,
+            f"interface rtr{i}\n"
+            f"{{\n"
+            f"    AdvSendAdvert on;\n"
+            f"    MinRtrAdvInterval 3;\n"
+            f"    MaxRtrAdvInterval 10;\n"
+            f"    prefix fd01:aaa{i}::/64 {{\n"
+            f"        AdvOnLink on;\n"
+            f"        AdvAutonomous on;\n"
+            f"    }};\n"
+            f"}};\n",
+        )
+        nmci.process.run(
+            f"radvd --configtest --config {radvd_conf}", ignore_stderr=True
+        )
+        nmci.pexpect.pexpect_service(
+            f"ip netns exec {ns} radvd --nodaemon --config {radvd_conf} --pidfile /run/radvd/radvd-{device}-rtr{i}.pid",
+        )
+
+
 @step('Start pppoe server with "{name}" and IP "{ip}" on device "{dev}"')
 def start_pppoe_server(context, name, ip, dev):
     nmci.process.run(f"ip link set dev {dev} up")

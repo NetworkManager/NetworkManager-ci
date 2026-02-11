@@ -928,6 +928,8 @@ testmapper:
         feature: ipv6
     - ipv6_do_not_touch_ipv6_disabled_on_reapply:
         feature: ipv6
+    - ipv6_multiple_default_routes_no_ecmp:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate

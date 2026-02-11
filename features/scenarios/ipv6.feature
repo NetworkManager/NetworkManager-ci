@@ -2666,3 +2666,26 @@
     * Execute "nmcli device reapply eth10"
     Then "Deleted fe80" is not visible with command "cat /tmp/ip_monitor.log" in "2" seconds
     Then "Deleted default via fe80" is not visible with command "cat /tmp/ip_monitor.log"
+
+
+    @eth0
+    @ver+=1.57.1
+    @ipv6_multiple_default_routes_no_ecmp
+    Scenario: NM - ipv6 - multiple IPv6 default routes are not merged into an ECMP one
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1789
+    * Prepare device "testX6" with "4" IPv6 routers
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "fd01:aaa1" is visible with command "ip a s testX6"
+    Then "fd01:aaa2" is visible with command "ip a s testX6"
+    Then "fd01:aaa3" is visible with command "ip a s testX6"
+    Then "fd01:aaa4" is visible with command "ip a s testX6"
+    Then "Exactly" "4" lines with pattern "default" are visible with command "ip -6 route show default"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1004 dev testX6 proto ra metric 100" is visible with command "ip -6 r"

@@ -121,3 +121,4 @@ discover:
         - /tests/ipv6_ndp_ipv6_route_information_buffer_overflow
         - /tests/ipv6_add_dns_routes
         - /tests/ipv6_do_not_touch_ipv6_disabled_on_reapply
+        - /tests/ipv6_multiple_default_routes_no_ecmp

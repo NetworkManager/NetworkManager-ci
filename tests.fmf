@@ -1924,6 +1924,9 @@ link:
     order+: 6119
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4392
+/ipv6_multiple_default_routes_no_ecmp:
+    id: a19b5d21-9315-54f4-aad5-61d98a19f143
+    order+: 6120
 /nmcli_general_correct_profile_activated_after_restart:
     tag: ['gate']
     id: 9c2b60db-da9c-5a7d-8398-2f746ab231e5
