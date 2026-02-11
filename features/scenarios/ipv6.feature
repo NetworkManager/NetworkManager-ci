@@ -2811,3 +2811,97 @@
     * Cleanup connection "con_ipv6"
     Then "Warning:.*gateways are not directly reachable.*fd02::1" is visible with command "nmcli con add type ethernet con-name con_ipv6 ifname eth3 ipv6.method manual ipv6.addresses fd01::10/64 ipv6.gateway fd02::1 ipv4.method disabled"
     Then "default via fd02::1 dev eth3" is visible with command "ip -6 route" in "15" seconds
+
+
+    @ver+=1.59.1
+    @eth0
+    @ipv6_multiple_default_routes_nexthop
+    Scenario: NM - ipv6 - multiple IPv6 default routes are not merged into an ECMP one
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1789
+    * Prepare device "testX6" with "4" IPv6 routers and "medium" preference
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "Exactly" "4" lines with pattern "fd01:aaa.:" are visible with command "ip a s testX6" in "20" seconds
+    Then "fd01:aaa1" is visible with command "ip a s testX6"
+    Then "fd01:aaa2" is visible with command "ip a s testX6"
+    Then "fd01:aaa3" is visible with command "ip a s testX6"
+    Then "fd01:aaa4" is visible with command "ip a s testX6"
+    Then "Exactly" "4" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1004 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1001 | grep -oP 'nhid \K[0-9]+'" as value "nhid_1"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1002 | grep -oP 'nhid \K[0-9]+'" as value "nhid_2"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1003 | grep -oP 'nhid \K[0-9]+'" as value "nhid_3"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1004 | grep -oP 'nhid \K[0-9]+'" as value "nhid_4"
+    # Check that the high bit is set
+    * Execute "[ <noted:nhid_1> -gt 2147483647 ]"
+    * Execute "[ <noted:nhid_2> -gt 2147483647 ]"
+    * Execute "[ <noted:nhid_3> -gt 2147483647 ]"
+    * Execute "[ <noted:nhid_4> -gt 2147483647 ]"
+    * Restart NM
+    Then "Exactly" "4" lines with pattern "fd01:aaa.:" are visible with command "ip a s testX6" in "20" seconds
+    Then "fd01:aaa1" is visible with command "ip a s testX6"
+    Then "fd01:aaa2" is visible with command "ip a s testX6"
+    Then "fd01:aaa3" is visible with command "ip a s testX6"
+    Then "fd01:aaa4" is visible with command "ip a s testX6"
+    Then "Exactly" "4" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1004 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    # Check that the nhids are stable
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1001 | grep -oP 'nhid \K[0-9]+'" as value "nhid_1a"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1002 | grep -oP 'nhid \K[0-9]+'" as value "nhid_2a"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1003 | grep -oP 'nhid \K[0-9]+'" as value "nhid_3a"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1004 | grep -oP 'nhid \K[0-9]+'" as value "nhid_4a"
+    Then Check noted values "nhid_1" and "nhid_1a" are the same
+    Then Check noted values "nhid_2" and "nhid_2a" are the same
+    Then Check noted values "nhid_3" and "nhid_3a" are the same
+    Then Check noted values "nhid_4" and "nhid_4a" are the same
+    # Check connectivity
+    Then Ping6 "fd01:aaa1::1"
+    Then Ping6 "fd01:aaa2::1"
+    Then Ping6 "fd01:aaa3::1"
+    Then Ping6 "fd01:aaa4::1"
+
+
+    @ver+=1.59.1
+    @eth0
+    @ipv6_multiple_default_routes_nexthop_pref
+    Scenario: NM - ipv6 - multiple IPv6 default routes with different preferences are not merged into an ECMP one
+    * Prepare device "testX6" with "3" IPv6 routers
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          connection.autoconnect no
+          ipv4.method disabled
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "Exactly" "3" lines with pattern "fd01:aaa.:" are visible with command "ip a s testX6" in "20" seconds
+    Then "fd01:aaa1" is visible with command "ip a s testX6"
+    Then "fd01:aaa2" is visible with command "ip a s testX6"
+    Then "fd01:aaa3" is visible with command "ip a s testX6"
+    Then "Exactly" "3" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100 pref low" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100 pref high" is visible with command "ip -6 r"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1001 | grep -oP 'nhid \K[0-9]+'" as value "nhid1"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1002 | grep -oP 'nhid \K[0-9]+'" as value "nhid2"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1003 | grep -oP 'nhid \K[0-9]+'" as value "nhid3"
+    # Create a collision with an existing nexthop id
+    * Stop NM
+    * Execute "ip nexthop del id <noted:nhid1>"
+    * Execute "ip nexthop add id <noted:nhid1> dev testX6"
+    * Start NM
+    Then "Exactly" "3" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra metric 100 pref low" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100 pref medium" is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100 pref high" is visible with command "ip -6 r"
+    * Note the output of "ip -6 route show default dev testX6 via fe80::1001 | grep -oP 'nhid \K[0-9]+'" as value "nhid1a"
+    Then Check noted values "nhid1" and "nhid1a" are not the same

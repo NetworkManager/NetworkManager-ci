@@ -1959,6 +1959,12 @@ link:
 /ipv6_prefix_delegation_managed_pd_only:
     id: 743d8479-8408-5477-8577-bae3d3440eba
     order+: 6124
+/ipv6_multiple_default_routes_nexthop:
+    id: bbb89986-7964-58fb-b99c-e4e0d264fbfc
+    order+: 6125
+/ipv6_multiple_default_routes_nexthop_pref:
+    id: 087a0595-6413-5ac2-a3bc-bb6410524119
+    order+: 6126
 /nmcli_general_correct_profile_activated_after_restart:
     tag: ['gate']
     id: 9c2b60db-da9c-5a7d-8398-2f746ab231e5

@@ -950,6 +950,10 @@ testmapper:
         feature: ipv6
     - ipv6_prefix_delegation_managed_pd_only:
         feature: ipv6
+    - ipv6_multiple_default_routes_nexthop:
+        feature: ipv6
+    - ipv6_multiple_default_routes_nexthop_pref:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
