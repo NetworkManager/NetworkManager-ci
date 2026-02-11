@@ -140,6 +140,20 @@ Did you forgot to restart after install?\033[0m\n'
     fi
 }
 
+warn() {
+    echo -e '\n\033[0;31mWARNING!!!\033[0m\n'
+    echo "$@"
+}
+
+pkgdiff_check() {
+    rpm -qa > /tmp/installed_rpms
+    python3l -m pip freeze > /tmp/installed_pips
+    [ -f /tmp/installed_rpms_before ] && diff /tmp/installed_rpms /tmp/installed_rpms_before > /tmp/installed_rpms_diff || warn "rpm diff: $(cat /tmp/installed_rpms_diff)"
+    [ -f /tmp/installed_pips_before ] && diff /tmp/installed_pips /tmp/installed_pips_before > /tmp/installed_pips_diff || warn "pip diff: $(cat /tmp/installed_pips_diff)"
+    cp /tmp/installed_rpms /tmp/installed_rpms_before
+    cp /tmp/installed_pips /tmp/installed_pips_before
+}
+
 version_control() {
     local out
     local rc
@@ -384,3 +398,4 @@ if [ "$RESULT" = "FAIL" -a ! -s "$NMTEST_REPORT" ]; then
 fi
 
 running_NM_version_check
+pkgdiff_check
