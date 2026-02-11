@@ -5372,6 +5372,8 @@ link:
     tag: ['NetworkManager-libreswan']
     id: 68a7b61d-f8bc-5efe-9bee-ceb487f0e19b
     order+: 22039
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9145
 /strongswan_add_profile:
     id: ba58fad8-126f-5264-a369-073525489c1c
     order+: 23000
@@ -5568,6 +5570,8 @@ link:
 /openvpn_cert_permissions:
     id: a1c2309b-80f7-5db9-98e4-bd629f37402d
     order+: 28012
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9146
 /vpnc_add_profile:
     tag: ['gate']
     id: 2db97311-de02-5858-a112-894b8f75aa1c
