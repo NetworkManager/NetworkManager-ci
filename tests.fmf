@@ -8345,6 +8345,8 @@ link:
 /clat_layer3:
     id: dd62253d-c497-5519-8d29-5792021709ac
     order+: 60009
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9144
 /crashing_NM_binary:
     id: a0bf631b-e83e-5b16-ba9c-af4f215e5611
     order+: 61000
