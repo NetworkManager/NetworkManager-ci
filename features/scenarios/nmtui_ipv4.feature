@@ -695,3 +695,20 @@ Feature: IPv4 TUI tests
     Then In "Addresses" property add "192.168.1.5"
     Then Confirm the connection settings
     Then "inet 192.168.1.5" is visible with command "ip a s eth1" in "10" seconds
+
+
+    @RHEL-126543
+    @ver+=1.57.2
+    @nmtui_ipv4_unreachable_gateway_warning
+    Scenario: nmtui - ipv4 - warning for unreachable gateway
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Manual"
+    * Come in "IPv4 CONFIGURATION" category
+    * In "Addresses" property add "192.168.1.5/24"
+    * Set "Gateway" field to "10.0.0.1"
+    * Confirm the connection settings
+    Then ".*Warning:.*gateways are not directly reachable.*10.0.0.1.*" is visible on screen
+    * Press "ENTER" key
+    Then "inet 192.168.1.5/24" is visible with command "ip a s eth1" in "10" seconds
+    Then "default via 10.0.0.1 dev eth1" is visible with command "ip route" in "5" seconds

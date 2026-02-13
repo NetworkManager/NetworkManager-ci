@@ -619,3 +619,21 @@ Feature: IPv6 TUI tests
     Then In "Addresses" property add "dead::beef"
     Then Confirm the connection settings
     Then "inet6 dead::beef" is visible with command "ip -6 a s eth1" in "10" seconds
+
+
+    @RHEL-126543
+    @ver+=1.57.2
+    @nmtui_ipv6_unreachable_gateway_warning
+    Scenario: nmtui - ipv6 - warning for unreachable gateway
+    * Prepare new connection of type "Ethernet" named "ethernet"
+    * Set "Device" field to "eth1"
+    * Set "IPv4 CONFIGURATION" category to "Disabled"
+    * Set "IPv6 CONFIGURATION" category to "Manual"
+    * Come in "IPv6 CONFIGURATION" category
+    * In "Addresses" property add "fd01::10/64"
+    * Set "Gateway" field to "fd02::1"
+    * Confirm the connection settings
+    Then ".*Warning:.*gateways are not directly reachable.*fd02::1.*" is visible on screen
+    * Press "ENTER" key
+    Then "inet6 fd01::10/64" is visible with command "ip -6 a s eth1" in "10" seconds
+    Then "default via fd02::1 dev eth1" is visible with command "ip -6 route" in "5" seconds
