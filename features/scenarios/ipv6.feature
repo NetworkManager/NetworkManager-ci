@@ -2666,3 +2666,12 @@
     * Execute "nmcli device reapply eth10"
     Then "Deleted fe80" is not visible with command "cat /tmp/ip_monitor.log" in "2" seconds
     Then "Deleted default via fe80" is not visible with command "cat /tmp/ip_monitor.log"
+
+
+    @RHEL-126543
+    @ver+=1.57.2
+    @ipv6_unreachable_gateway_warning
+    Scenario: nmcli - ipv6 - warning for unreachable gateway
+    * Cleanup connection "con_ipv6"
+    Then "Warning:.*gateways are not directly reachable.*fd02::1" is visible with command "nmcli con add type ethernet con-name con_ipv6 ifname eth3 ipv6.method manual ipv6.addresses fd01::10/64 ipv6.gateway fd02::1 ipv4.method disabled"
+    Then "default via fd02::1 dev eth3" is visible with command "ip -6 route" in "15" seconds

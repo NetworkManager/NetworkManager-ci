@@ -32,3 +32,4 @@ discover:
         - /tests/nmtui_ipv6_invalid_gateway
         - /tests/nmtui_ipv6_invalid_dns
         - /tests/nmtui_ipv6_addresses_can_add_after_removing_invalid
+        - /tests/nmtui_ipv6_unreachable_gateway_warning

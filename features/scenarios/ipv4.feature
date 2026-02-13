@@ -3869,3 +3869,12 @@ Feature: nmcli: ipv4
     Then "100% packet loss" is visible with command "ip netns exec ns1 ping -c 1 192.168.0.20" in "20" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth0/forwarding" in "10" seconds
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "10" seconds
+
+
+    @RHEL-126543
+    @ver+=1.57.2
+    @ipv4_unreachable_gateway_warning
+    Scenario: nmcli - ipv4 - warning for unreachable gateway
+    * Cleanup connection "con_ipv4"
+    Then "Warning:.*gateways are not directly reachable.*10.0.0.1" is visible with command "nmcli con add type ethernet con-name con_ipv4 ifname eth3 ipv4.method manual ipv4.addresses 192.168.1.5/24 ipv4.gateway 10.0.0.1"
+    Then "default via 10.0.0.1 dev eth3" is visible with command "ip route" in "15" seconds

@@ -1924,6 +1924,9 @@ link:
     order+: 6119
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4392
+/ipv6_unreachable_gateway_warning:
+    id: a86fd281-ffbe-5282-9781-c76e969a78cc
+    order+: 6120
 /nmcli_general_correct_profile_activated_after_restart:
     tag: ['gate']
     id: 9c2b60db-da9c-5a7d-8398-2f746ab231e5
@@ -2837,6 +2840,9 @@ link:
     order+: 8173
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4568
+/ipv4_unreachable_gateway_warning:
+    id: d5bec33e-d868-5b77-a8fb-411e541836b3
+    order+: 8174
 /vlan_add_default_device:
     id: 55440b3c-f555-5ec7-aa69-76335c327daf
     order+: 9000
@@ -7488,6 +7494,9 @@ link:
     order+: 49035
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5440
+/nmtui_ipv4_unreachable_gateway_warning:
+    id: 55e0c267-3539-5613-9b26-5f895c8bb884
+    order+: 49036
 /nmtui_ipv6_addresses_static_no_address:
     id: 687afa12-ab14-5f91-9756-48b9c2695e1a
     order+: 50000
@@ -7649,6 +7658,9 @@ link:
     order+: 50030
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5469
+/nmtui_ipv6_unreachable_gateway_warning:
+    id: c11f9e52-d332-5b60-be4e-4c07bb5d0087
+    order+: 50031
 /nmtui_loopback_modify_generated:
     id: bf949cb2-ffa7-5db0-9346-22e83dbde327
     order+: 51000

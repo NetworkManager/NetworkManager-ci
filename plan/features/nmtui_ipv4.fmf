@@ -37,3 +37,4 @@ discover:
         - /tests/nmtui_ipv4_invalid_dns
         - /tests/nmtui_ipv4_addresses_can_add_after_removing_invalid
         - /tests/nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
+        - /tests/nmtui_ipv4_unreachable_gateway_warning

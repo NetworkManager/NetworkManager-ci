@@ -928,6 +928,8 @@ testmapper:
         feature: ipv6
     - ipv6_do_not_touch_ipv6_disabled_on_reapply:
         feature: ipv6
+    - ipv6_unreachable_gateway_warning:
+        feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
         feature: general
         tags: gate
@@ -1309,6 +1311,8 @@ testmapper:
     - ipv4_shared_connection_with_sysctl_default_forwarding_disabled:
         feature: ipv4
     - ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled:
+        feature: ipv4
+    - ipv4_unreachable_gateway_warning:
         feature: ipv4
     - vlan_add_default_device:
         feature: vlan
@@ -3325,6 +3329,8 @@ testmapper:
         feature: nmtui_ipv4
     - nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form:
         feature: nmtui_ipv4
+    - nmtui_ipv4_unreachable_gateway_warning:
+        feature: nmtui_ipv4
     - nmtui_ipv6_addresses_static_no_address:
         feature: nmtui_ipv6
     - nmtui_ipv6_addresses_static_no_mask:
@@ -3392,6 +3398,8 @@ testmapper:
     - nmtui_ipv6_invalid_dns:
         feature: nmtui_ipv6
     - nmtui_ipv6_addresses_can_add_after_removing_invalid:
+        feature: nmtui_ipv6
+    - nmtui_ipv6_unreachable_gateway_warning:
         feature: nmtui_ipv6
     - nmtui_loopback_modify_generated:
         feature: nmtui_loopback
