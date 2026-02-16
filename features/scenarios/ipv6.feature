@@ -331,21 +331,21 @@
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300" in "5" seconds
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "eth10" is not visible with command "ip -6 r |grep -v fe80"
     * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
     When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
     * Bring "up" connection "con_ipv6"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
     Then "2004::3 dev eth10 metric 1024" is not visible with command "ip -6 r show table 300"
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show table 300"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show table 300"
      And "eth10" is not visible with command "ip -6 r |grep -v fe80"
 
 
@@ -359,20 +359,20 @@
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
     * Execute "ip -6 route add table 300 2004::3/128 dev eth10"
     When "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
      And "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
     * Execute "nmcli device reapply eth10"
     When "connected" is visible with command "nmcli -g state,device device |grep eth10$" in "20" seconds
     Then "2620.* dev eth10 proto kernel metric 1" is visible with command "ip -6 r show |grep -v eth0" in "20" seconds
      And "2004::3 dev eth10 metric 1024" is visible with command "ip -6 r show table 300"
      And "2620.*\/64 dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
      And "fe80::\/64 dev eth10 proto kernel metric 1" is visible with command "ip -6 r show"
-     And "default via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
+     And "default (nhid [0-9]+ )?via fe80.* dev eth10 proto ra metric 1" is visible with command "ip -6 r show |grep -v eth0"
 
 
     @ipv6_correct_slaac_setting
@@ -651,10 +651,10 @@
     * Doc: "Configuring NetworkManager to avoid using a specific profile to provide a default gateway"
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.never-default yes"
      * Bring "up" connection "testeth10"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
+    When "default (nhid [0-9]+ )?via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
-    When "default via " is not visible with command "ip -6 route |grep eth10" in "45" seconds
-    Then "default via " is not visible with command "ip -6 route |grep eth10" for full "45" seconds
+    When "default (nhid [0-9]+ )?via " is not visible with command "ip -6 route |grep eth10" in "45" seconds
+    Then "default (nhid [0-9]+ )?via " is not visible with command "ip -6 route |grep eth10" for full "45" seconds
 
 
     @eth10_disconnect
@@ -663,10 +663,10 @@
     * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.never-default yes"
     * Modify connection "con_ipv6" changing options "ipv6.never-default ''"
      * Bring "up" connection "testeth10"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
+    When "default (nhid [0-9]+ )?via " is visible with command "ip -6 route |grep eth10" in "45" seconds
      * Bring "up" connection "con_ipv6"
-    When "default via " is visible with command "ip -6 route |grep eth10" in "45" seconds
-    Then "default via " is visible with command "ip -6 route |grep eth10" for full "45" seconds
+    When "default (nhid [0-9]+ )?via " is visible with command "ip -6 route |grep eth10" in "45" seconds
+    Then "default (nhid [0-9]+ )?via " is visible with command "ip -6 route |grep eth10" for full "45" seconds
 
 
     @not_under_internal_DHCP @tshark
