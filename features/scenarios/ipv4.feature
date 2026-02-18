@@ -198,7 +198,7 @@ Feature: nmcli: ipv4
           ipv4.method static
           ipv4.addresses 192.168.1.10/24
           ipv4.gateway 192.168.4.1
-          ipv4.routes '192.168.2.0/24 192.168.1.11 2'
+          ipv4.routes '192.168.2.0/24 192.168.1.11 2, 192.168.4.1/32'
           ipv4.route-metric 22
           """
     * Add "ethernet" connection named "con_ipv4_2" for device "eth3" with options
@@ -206,7 +206,7 @@ Feature: nmcli: ipv4
           ipv4.method static
           ipv4.addresses 192.168.3.10/24
           ipv4.gateway 192.168.4.1
-          ipv4.routes '192.168.5.0/24 192.168.3.11 1'
+          ipv4.routes '192.168.5.0/24 192.168.3.11 1, 192.168.4.1/32'
           ipv4.route-metric 21
           """
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "5" seconds
@@ -224,11 +224,10 @@ Feature: nmcli: ipv4
           """
           ipv4.method static
           ipv4.addresses 192.168.1.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.1.1
           ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
           """
     Then "192.168.1.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "5" seconds
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100"
 
 
@@ -240,7 +239,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method static
           ipv4.addresses 192.168.1.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.1.1
           """
     When "192.168.1.10/24" is visible with command "ip a s eth3" in "5" seconds
     * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'"
@@ -257,7 +256,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method static
           ipv4.addresses 192.168.1.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.1.1
           ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
           """
     When "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
@@ -276,7 +275,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
           """
           ipv4.method static
-          ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100'
+          ipv4.routes '192.168.5.0/24 192.168.1.10 1 table=100, 192.168.1.10/32'
           """
     When "192.168.5.0/24 via 192.168.1.10 dev eth3" is visible with command "ip route list table 100" in "5" seconds
     * Bring "down" connection "con_ipv4"
@@ -328,23 +327,22 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '
             192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600,
-            0.0.0.0/0 192.168.4.1 mtu=1600,
+            0.0.0.0/0 192.168.3.1 mtu=1600,
             192.168.6.0/24 type=blackhole
             '
           """
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
-    And "default via 192.168.4.1 dev eth3 proto static metric 256 mtu 1600" is visible with command "ip r"
-    And "default via 192.168.4.1 dev eth3 proto static metric 256" is visible with command "ip r"
+    And "default via 192.168.3.1 dev eth3 proto static metric 256 mtu 1600" is visible with command "ip r"
+    And "default via 192.168.3.1 dev eth3 proto static metric 256" is visible with command "ip r"
     And "blackhole 192.168.6.0/24 proto static scope link metric 256" is visible with command "ip r"
     * Modify connection "con_ipv4" changing options "ipv4.routes '192.168.7.0/24 type=prohibit, 192.168.8.0/24 type=unreachable'"
-    * Modify connection "con_ipv4" changing options "+ipv4.routes '1.1.1.1/24 192.168.4.1 advmss=1440 quickack=1 rto_min=100'"
+    * Modify connection "con_ipv4" changing options "+ipv4.routes '1.1.1.1/24 192.168.3.1 advmss=1440 quickack=1 rto_min=100'"
     * Bring "up" connection "con_ipv4"
     Then "unreachable 192.168.8.0/24 proto static scope link metric 256" is visible with command "ip r"
     And "prohibit 192.168.7.0/24 proto static scope link metric 256" is visible with command "ip r"
@@ -358,13 +356,12 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'
           """
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
 
@@ -376,13 +373,12 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5, 192.168.5.0/24 192.168.3.12 weight=10'
           """
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth3 weight 5" is visible with command "ip route"
@@ -397,13 +393,12 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5, 192.168.5.0/24 192.168.3.12 weight=10'
           """
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth3 weight 5" is visible with command "ip route"
@@ -420,13 +415,12 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5, 192.168.5.0/24 192.168.3.12 weight=10'
           """
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24\s+proto static\s+metric 256" is visible with command "ip route"
     Then "nexthop via 192.168.3.12 dev eth3 weight 10" is visible with command "ip route"
     Then "nexthop via 192.168.3.11 dev eth3 weight 5" is visible with command "ip route"
@@ -474,7 +468,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.12 weight=10'
           """
@@ -482,7 +476,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.20/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.11 weight=5'
           """
@@ -501,7 +495,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.5.0/24 192.168.3.12 weight=10, 192.168.5.0/24 192.168.3.11 weight=5'
           """
@@ -529,13 +523,12 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.122.3 src=192.168.3.10'
           """
-    When "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    When "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
      And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
      And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      * Note the number of lines with pattern "eth0" of "ip r" as value "2"
@@ -552,7 +545,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '192.168.122.3 src=192.168.3.10'
           """
@@ -560,9 +553,8 @@ Feature: nmcli: ipv4
     * Execute "ip addr flush dev eth3"
     * Execute "rm -rf /var/run/NetworkManager"
     * Start NM
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
      And "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-     And "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
      And "192.168.122.3 dev eth3\s+proto static\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
      And "default" is visible with command "ip r |grep eth0"
      And "192.168.122.3/32 src=192.168.3.10" is visible with command "nmcli -g ipv4.routes connection show con_ipv4"
@@ -576,7 +568,7 @@ Feature: nmcli: ipv4
           """
           ipv4.method static
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.routes '192.168.5.0/24 192.168.3.11'
           """
     When "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
@@ -685,7 +677,7 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.method static
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.routes '192.168.5.0/24 192.168.3.11 200'
           """
     * Add "ethernet" connection named "con_ipv42" for device "eth2" with options
@@ -693,20 +685,18 @@ Feature: nmcli: ipv4
           ipv4.may-fail no
           ipv4.method static
           ipv4.addresses 192.168.1.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.1.1
           ipv4.routes '192.168.2.0/24 192.168.1.11 300'
           """
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
     * Modify connection "con_ipv4" changing options "ipv4.routes ''"
     * Bring "up" connection "con_ipv4"
     * Bring "up" connection "con_ipv42"
-    Then "default via 192.168.4.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
-    Then "default via 192.168.4.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.3.1 dev eth3\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
+    Then "default via 192.168.1.1 dev eth2\s+proto static\s+metric 1" is visible with command "ip route" in "5" seconds
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route"
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 200" is not visible with command "ip route"
     Then "192.168.3.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.3.10" is visible with command "ip route"
-    Then "192.168.4.1 dev eth3\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
-    Then "192.168.4.1 dev eth2\s+proto static\s+scope link\s+metric 1" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev eth3\s+proto static\s+metric 300      " is not visible with command "ip route"
 
 
@@ -781,7 +771,7 @@ Feature: nmcli: ipv4
     Scenario: nmcli - ipv4 - routes - set unreachable route
     # Since version 1.11.3 NM automatically adds a device route to the
     # route gateway when it is not directly reachable
-    * Add "ethernet" connection named "con_ipv4" for device "eth3" with options
+    * Add "ethernet" connection ignoring warnings named "con_ipv4" for device "eth3" with options
           """
           ipv4.method static
           ipv4.addresses 192.168.122.2/24

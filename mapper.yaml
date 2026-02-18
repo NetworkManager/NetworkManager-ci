@@ -928,6 +928,8 @@ testmapper:
         feature: ipv6
     - ipv6_do_not_touch_ipv6_disabled_on_reapply:
         feature: ipv6
+    - ipv6_routes_not_reachable:
+        feature: ipv6
     - ipv6_unreachable_gateway_warning:
         feature: ipv6
     - nmcli_general_correct_profile_activated_after_restart:
