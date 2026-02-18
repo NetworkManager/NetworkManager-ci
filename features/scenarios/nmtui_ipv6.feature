@@ -217,7 +217,7 @@ Feature: IPv6 TUI tests
     * Set "IPv6 CONFIGURATION" category to "Manual"
     * Come in "IPv6 CONFIGURATION" category
     * In "Addresses" property add "2001::1/126"
-    * Set "Gateway" field to "4000::1"
+    * Set "Gateway" field to "2001::3"
     * Add ip route "1010::1/128 :: 110"
     * Add ip route "3030::1/128 2001::2 111"
     * Confirm the connection settings

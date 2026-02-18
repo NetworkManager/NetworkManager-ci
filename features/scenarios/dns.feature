@@ -331,7 +331,7 @@ Feature: nmcli - dns
           """
           -- ipv4.method manual
           ipv4.addresses 192.168.1.2/24
-          ipv4.gateway 172.16.1.2
+          ipv4.gateway 192.168.1.254
           ipv4.dns 2.3.4.1
           ipv4.dns-priority 300
           """
@@ -339,7 +339,7 @@ Feature: nmcli - dns
           """
           -- ipv4.method manual
           ipv4.addresses 192.168.2.2/24
-          ipv4.gateway 172.16.1.2
+          ipv4.gateway 192.168.2.254
           ipv4.dns 1.2.3.4
           ipv4.dns-priority 200
           """

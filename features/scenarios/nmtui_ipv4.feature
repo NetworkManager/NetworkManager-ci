@@ -200,6 +200,7 @@ Feature: IPv4 TUI tests
     * In "Addresses" property add "192.168.3.10/24"
     * Set "Gateway" field to "192.168.4.1"
     * Add ip route "192.168.5.0/24 192.168.3.11 1"
+    * Add ip route "192.168.4.1/32 0.0.0.0 100"
     * Confirm the connection settings
     * Choose to "<Add>" a connection
     * Choose the connection type "Ethernet"
@@ -210,6 +211,7 @@ Feature: IPv4 TUI tests
     * In "Addresses" property add "192.168.1.10/24"
     * Set "Gateway" field to "192.168.4.1"
     * Add ip route "192.168.2.0/24 192.168.1.11 2"
+    * Add ip route "192.168.4.1/32 0.0.0.0 100"
     * Confirm the connection settings
     Then "192.168.1.0/24 dev eth2\s+proto kernel\s+scope link\s+src 192.168.1.10" is visible with command "ip route" in "10" seconds
     Then "192.168.2.0/24 via 192.168.1.11 dev eth2\s+proto static\s+metric 2" is visible with command "ip route"
@@ -225,7 +227,7 @@ Feature: IPv4 TUI tests
     * Set "IPv4 CONFIGURATION" category to "Manual"
     * Come in "IPv4 CONFIGURATION" category
     * In "Addresses" property add "192.168.3.10/24"
-    * Set "Gateway" field to "192.168.4.1"
+    * Set "Gateway" field to "192.168.3.1"
     * Add ip route "192.168.5.0/24 192.168.3.11 1"
     * Confirm the connection settings
     * Choose to "<Add>" a connection
@@ -235,7 +237,7 @@ Feature: IPv4 TUI tests
     * Set "IPv4 CONFIGURATION" category to "Manual"
     * Come in "IPv4 CONFIGURATION" category
     * In "Addresses" property add "192.168.1.10/24"
-    * Set "Gateway" field to "192.168.4.1"
+    * Set "Gateway" field to "192.168.1.1"
     * Add ip route "192.168.2.0/24 192.168.1.11 2"
     * Confirm the connection settings
     * Select connection "ethernet1" in the list
@@ -351,6 +353,7 @@ Feature: IPv4 TUI tests
 
 
     @ver+=1.11.3
+    @ver-1.57.2
     @nmtui_ipv4_routes_set_unreachable_route
     Scenario: nmtui - ipv4 - routes - set unreachable route
     # Since version 1.11.3 NM automatically adds a device route to the

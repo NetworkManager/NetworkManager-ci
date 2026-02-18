@@ -578,7 +578,7 @@ Feature: nmcli - vlan
           mtu 1500
           ipv4.method manual
           ipv4.addresses 192.168.168.16/24
-          ipv4.gateway 192.168.103.1
+          ipv4.gateway 192.168.168.1
           ipv6.method manual
           ipv6.addresses 2168::16/64
           ipv4.dns 8.8.8.8

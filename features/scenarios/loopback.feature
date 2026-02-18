@@ -87,21 +87,20 @@ Feature: nmcli: loopback
           autoconnect no
           ipv4.method manual
           ipv4.addresses 192.168.3.10/24
-          ipv4.gateway 192.168.4.1
+          ipv4.gateway 192.168.3.1
           ipv4.route-metric 256
           ipv4.routes '
             192.168.5.0/24 192.168.3.11 1024 cwnd=14 lock-mtu=true mtu=1600,
-            0.0.0.0/0 192.168.4.1 mtu=1600,
+            0.0.0.0/0 192.168.3.1 mtu=1600,
             192.168.6.0/24 type=blackhole
             '
           """
     * Bring "up" connection "conn_loopback"
-    Then "default via 192.168.4.1 dev lo\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
+    Then "default via 192.168.3.1 dev lo\s+proto static\s+metric 256" is visible with command "ip route" in "20" seconds
     Then "192.168.3.0/24 dev lo\s+proto kernel\s+scope link\s+src 192.168.3.10\s+metric 256" is visible with command "ip route"
-    Then "192.168.4.1 dev lo\s+proto static\s+scope link\s+metric 256" is visible with command "ip route"
     Then "192.168.5.0/24 via 192.168.3.11 dev lo\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 14" is visible with command "ip route"
-    And "default via 192.168.4.1 dev lo proto static metric 256 mtu 1600" is visible with command "ip r"
-    And "default via 192.168.4.1 dev lo proto static metric 256" is visible with command "ip r"
+    And "default via 192.168.3.1 dev lo proto static metric 256 mtu 1600" is visible with command "ip r"
+    And "default via 192.168.3.1 dev lo proto static metric 256" is visible with command "ip r"
     And "blackhole 192.168.6.0/24 proto static scope link metric 256" is visible with command "ip r"
 
 

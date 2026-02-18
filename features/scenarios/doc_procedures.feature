@@ -552,7 +552,7 @@ Feature: nmcli - procedures in documentation
             ipv4.method manual
             ipv4.addresses "192.0.2.5/24"
             ipv6.method manual
-            ipv6.addresses "2001:db8:1::6"
+            ipv6.addresses "2001:db8:1::6/64"
             """
     * Modify connection "con_doc" changing options "ipv4.gateway "192.0.2.1""
     * Modify connection "con_doc" changing options "ipv6.gateway "2001:db8:1::1""
