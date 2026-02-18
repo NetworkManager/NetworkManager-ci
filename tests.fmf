@@ -1924,9 +1924,12 @@ link:
     order+: 6119
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4392
+/ipv6_routes_not_reachable:
+    id: 8d3ff43b-5ef8-5420-9fc4-c2606cbcacf9
+    order+: 6120
 /ipv6_unreachable_gateway_warning:
     id: a86fd281-ffbe-5282-9781-c76e969a78cc
-    order+: 6120
+    order+: 6121
 /nmcli_general_correct_profile_activated_after_restart:
     tag: ['gate']
     id: 9c2b60db-da9c-5a7d-8398-2f746ab231e5

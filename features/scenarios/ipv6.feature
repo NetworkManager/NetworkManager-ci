@@ -240,12 +240,11 @@
           ipv6.method manual
           ipv6.addresses 2000::2/126
           ipv6.route-metric 258
-          ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2001:1::1, 1020::1/128 type=blackhole'
+          ipv6.routes '1010::1/128 2000::1 1024 cwnd=15 lock-mtu=true mtu=1600, ::/0 2000::3, 1020::1/128 type=blackhole'
           """
     Then "1010::1 via 2000::1 dev eth3\s+proto static\s+metric 1024\s+mtu lock 1600 cwnd 15" is visible with command "ip -6 route" in "45" seconds
     Then "2000::/126 dev eth3\s+proto kernel\s+metric 258" is visible with command "ip -6 route"
-    Then "2001:1::1 dev eth3\s+proto static" is visible with command "ip -6 route"
-    And "default via 2001:1::1 dev eth3" is visible with command "ip -6 route"
+    And "default via 2000::3 dev eth3" is visible with command "ip -6 route"
     And "blackhole 1020::1 dev lo proto static metric 258.*pref medium" is visible with command "ip -6 r"
     * Modify connection "con_ipv6" changing options "ipv6.routes '1030::1/128 type=prohibit, 1040::1/128 type=unreachable'"
     * Bring "up" connection "con_ipv6"
@@ -290,10 +289,10 @@
            """
            ipv6.method static
            ipv6.addresses 2001::1/126
-           ipv6.gateway 4000::1
+           ipv6.gateway 2001::3
            ipv6.routes '1010::1/128 :: 3, 3030::1/128 2001::2 2'
            """
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
+    Then "default via 2001::3 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "3030::1 via 2001::2 dev eth3\s+proto static\s+metric 2" is visible with command "ip -6 route"
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 1" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric 3" is visible with command "ip -6 route"
@@ -448,15 +447,15 @@
     @eth0
     @ver+=1.9.2
     @ipv6_routes_without_gw
-    Scenario: nmcli - ipv6 - routes - set invalid route - missing gw
+    Scenario: nmcli - ipv6 - routes - set route with missing gateway
      * Add "ethernet" connection named "con_ipv6" for device "eth3" with options
            """
            ipv6.method static
            ipv6.addresses 2001::1/126
-           ipv6.gateway 4000::1
+           ipv6.gateway 2001::3
            ipv6.routes 1010::1/128
            """
-    Then "default via 4000::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
+    Then "default via 2001::3 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route" in "45" seconds
     Then "2001::/126 dev eth3\s+proto kernel\s+metric 10" is visible with command "ip -6 route"
     Then "1010::1 dev eth3\s+proto static\s+metric" is visible with command "ip -6 route"
 
@@ -489,7 +488,7 @@
            ipv4.may-fail no
            ipv6.method static
            ipv6.addresses 2001::1/126
-           ipv6.gateway 4000::1
+           ipv6.gateway 2001::3
            ipv6.dns '4000::1, 5000::1'
            """
     Then Nameserver "4000::1" is set in "45" seconds
@@ -2666,6 +2665,26 @@
     * Execute "nmcli device reapply eth10"
     Then "Deleted fe80" is not visible with command "cat /tmp/ip_monitor.log" in "2" seconds
     Then "Deleted default via fe80" is not visible with command "cat /tmp/ip_monitor.log"
+
+
+    @ver+=1.11.3
+    @ipv6_routes_not_reachable
+    # Since version 1.11.3 NM automatically adds a device route to the
+    # route gateway when it is not directly reachable. Since version 1.57.2
+    # this configuration is deprecated and nmcli emits a warning. The warning
+    # is verified in a different test.
+    Scenario: nmcli - ipv6 - routes - set route with options
+    * Add "ethernet" connection ignoring warnings named "con_ipv6" for device "eth3" with options
+          """
+          ipv4.method disabled
+          ipv6.method manual
+          ipv6.addresses 2000::2/126
+          ipv6.gateway 4000::1
+          """
+    Then "\(connected\)" is visible with command "nmcli device show eth3" in "5" seconds
+    And "default via 4000::1 dev eth3" is visible with command "ip -6 route"
+    And "4000::1 dev eth3\s+proto static" is visible with command "ip -6 route"
+    And "2000::/126 dev eth3\s+" is visible with command "ip -6 route"
 
 
     @RHEL-126543
