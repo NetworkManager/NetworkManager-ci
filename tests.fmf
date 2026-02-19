@@ -5438,6 +5438,8 @@ link:
 /iptunnel_geneve_create_device:
     id: 25db439f-edbc-559e-b95f-e24f138163d1
     order+: 26003
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9147
 /iptunnel_ip6gre_create_device:
     id: d96a677d-38ae-5bf8-9e0e-889767895edf
     order+: 26004
