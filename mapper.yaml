@@ -88,7 +88,7 @@ beaker-hardware:
       NetworkManager-gsm:
         - x86_64:
             hostname: gsm1-ml5.tpb.lab.eng.brq.redhat.com
-            kernel-options: net.ifnames=0 ip=eth0:dhcp
+            kernel-options: net.ifnames=0 ip=a0-ad-9f-b7-e8-80:dhcp
             kernel-options-post: net.ifnames=0
 
       NetworkManager-dcb:
