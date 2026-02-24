@@ -212,6 +212,25 @@
     And "default" is not visible with command "ip r show table 127 |grep ^default | grep -v eth0"
 
 
+    @ver+=1.57.3
+    @permissive
+    @openvpn @openvpn4 @openvpn_passwd
+    @openvpn_notsaved_secret_no_modify_system
+    Scenario: nmcli - openvpn - users without modify.system permission can activate a system VPN that doesn't require stored secrets
+    * Add "openvpn" VPN connection named "openvpn" for device "\*"
+    * Copy openvpn certs to "/root/" owned by "root"
+    * Modify connection "openvpn" changing options
+      """
+      +vpn.data ca=/root/sample-keys/ca.crt,remote=127.0.0.1,connection-type=password,username=trest@redhat,password-flags=2,tunnel-mtu=1400
+      """
+    * Allow user "test" in polkit without modify.system
+    * Run child "sudo -u test sleep 10000"
+    * Spawn "sudo -u test nmcli -a con up openvpn" command
+    * Expect "Password"
+    * Submit "secret"
+    Then "VPN.VPN-STATE:.*VPN connected" is visible with command "nmcli c show openvpn" in "10" seconds
+
+
     @rhbz1641742
     @ver+=1.55.90
     @ver+=1.54.2.2

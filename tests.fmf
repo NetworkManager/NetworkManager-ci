@@ -5577,6 +5577,9 @@ link:
     order+: 28012
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9146
+/openvpn_notsaved_secret_no_modify_system:
+    id: e36a7c2a-9281-55f3-8291-fbc0ff5605d5
+    order+: 28013
 /vpnc_add_profile:
     tag: ['gate']
     id: 2db97311-de02-5858-a112-894b8f75aa1c

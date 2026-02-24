@@ -2498,6 +2498,8 @@ testmapper:
         feature: openvpn
     - openvpn_cert_permissions:
         feature: openvpn
+    - openvpn_notsaved_secret_no_modify_system:
+        feature: openvpn
     - vpnc_add_profile:
         feature: vpnc
         tags: gate
