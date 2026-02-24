@@ -10,6 +10,8 @@ import shutil
 import commands
 import nmci
 
+INTERN_CONF = "/var/lib/NetworkManager/NetworkManager-intern.conf"
+
 
 @step('Write file "{path}" with content')
 def fill_file_with_content(context, path):
@@ -287,6 +289,34 @@ def check_keyfile(context, file):
             file,
             f_content,
         )
+
+
+def format_noted_mac_for_intern_section(context):
+    mac_norm = nmci.ip.mac_norm(context.noted["noted-value"])
+    return mac_norm.replace(":", "-").upper()
+
+
+@step('Intern config for device "{device}" has "{key}" set to "{value}"')
+def check_intern_conf_device(context, device, key, value):
+    """
+    Note: need to capture mac address of device with "Note MAC address output for ..."
+    scenario
+    """
+    cp = configparser.ConfigParser()
+    assert INTERN_CONF in cp.read(INTERN_CONF), f"Cannot read {INTERN_CONF}"
+    mac = format_noted_mac_for_intern_section(context)
+    section_device_name = f".intern.device-{device}"
+    section_mac = f".intern.device-{mac}"
+    match_mac = cp.has_section(section_mac)
+    match_name = cp.has_section(section_device_name)
+    assert (
+        match_mac or match_name
+    ), f"Section [{section_mac}] or [{section_device_name}] not found in {INTERN_CONF}"
+    assert (
+        match_mac != match_name
+    ), f"Expected either device section with device name [{section_mac}] or [{section_device_name}], but found both"
+    actual = cp.get(section_mac, key) if match_mac else cp.get(section_device_name, key)
+    assert actual == value, f"Expected {key}={value}, got {key}={actual}"
 
 
 @step("Update the noted keyfile")
