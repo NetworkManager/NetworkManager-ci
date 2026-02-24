@@ -4201,75 +4201,87 @@ link:
     order+: 15065
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4827
+/nmcli_general_set_device_unmanaged_persist:
+    id: 995494a5-af31-53c6-a35e-bdae4da48bd1
+    order+: 15066
+/nmcli_general_set_device_managed_persist:
+    id: 8d17718c-6332-556b-847a-8c22fb03f40a
+    order+: 15067
+/nmcli_general_set_device_admin_up_persist:
+    id: e3e13ad2-ed6c-5aaa-ad8a-5dbf83b39ee9
+    order+: 15068
+/nmcli_general_set_device_admin_down_persist:
+    id: a54ccc5c-5050-56e1-8dcf-24da79e501bc
+    order+: 15069
 /nmcli_general_keyfile_tailing_whitespace:
     id: 9da28f96-ef7f-5e10-9465-a893b1afba54
-    order+: 15066
+    order+: 15070
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4828
 /nmcli_general_keep_slave_device_unmanaged:
     id: 74eac7a7-0e8e-5e2f-8a39-490a855c0e20
-    order+: 15067
+    order+: 15071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4829
 /no_error_when_firewald_restarted:
     id: bdba1c9c-2562-51a8-a106-a858c15a0cfd
-    order+: 15068
+    order+: 15072
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4830
 /show_zones_after_firewalld_install:
     id: dee7a4cb-9239-5c63-85f1-2a6eadee2573
-    order+: 15069
+    order+: 15073
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4831
 /nmcli_general_DHCP_HOSTNAME_profile_pickup:
     id: 55cb9b10-f148-5ac8-9cd1-57dec7c4681e
-    order+: 15070
+    order+: 15074
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4832
 /match_connections_when_no_var_run_exists:
     tag: ['gate']
     id: 7c050f7d-9ee6-523e-80ba-0c7a66979ddf
-    order+: 15071
+    order+: 15075
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4833
 /match_connections_with_pci_address:
     id: f0aef3b8-a97a-593a-8a10-a0da9e8c8c71
-    order+: 15072
+    order+: 15076
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4834
 /match_connections_via_kernel_option:
     id: 541b86f0-fac2-5825-bb20-b628956be94d
-    order+: 15073
+    order+: 15077
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4835
 /no_assumed_wired_connections:
     id: 724e9dfa-9fb9-53d2-b4df-64cec928fd61
-    order+: 15074
+    order+: 15078
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4836
 /no_assumed_wired_connections_var2:
     id: a603d9c0-7c76-5903-8ba4-09666fe8fdb3
-    order+: 15075
+    order+: 15079
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4837
 /keyfile_respect_externally_set_mtu:
     id: ee7c7e8b-1c5f-52ed-991b-1cfcd938d11b
-    order+: 15076
+    order+: 15080
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4838
 /wpa_supplicant_not_started:
     id: a4949251-2a92-574d-a414-8436b4cdde0e
-    order+: 15077
+    order+: 15081
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4839
 /nmcli_general_dbus_set_gateway:
     id: 72ce8e84-b769-5201-8a53-b9846a53f0ca
-    order+: 15078
+    order+: 15082
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4840
 /preserve_failed_assumed_connections:
     id: a6e01dbc-e129-5dd7-9aad-17d87f432d80
-    order+: 15079
+    order+: 15083
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4841
 /connection_objects_autocompletion:

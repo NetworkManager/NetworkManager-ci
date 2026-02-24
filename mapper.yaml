@@ -1904,6 +1904,14 @@ testmapper:
     - nmcli_general_set_device_back_to_managed:
         feature: general
         tags: gate
+    - nmcli_general_set_device_unmanaged_persist:
+        feature: general
+    - nmcli_general_set_device_managed_persist:
+        feature: general
+    - nmcli_general_set_device_admin_up_persist:
+        feature: general
+    - nmcli_general_set_device_admin_down_persist:
+        feature: general
     - nmcli_general_keyfile_tailing_whitespace:
         feature: general
     - nmcli_general_keep_slave_device_unmanaged:
