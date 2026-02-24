@@ -75,6 +75,10 @@ discover:
         - /tests/nmcli_general_ignore_specified_unamanaged_devices
         - /tests/nmcli_general_set_device_unmanaged
         - /tests/nmcli_general_set_device_back_to_managed
+        - /tests/nmcli_general_set_device_unmanaged_persist
+        - /tests/nmcli_general_set_device_managed_persist
+        - /tests/nmcli_general_set_device_admin_up_persist
+        - /tests/nmcli_general_set_device_admin_down_persist
         - /tests/nmcli_general_keyfile_tailing_whitespace
         - /tests/nmcli_general_keep_slave_device_unmanaged
         - /tests/no_error_when_firewald_restarted
