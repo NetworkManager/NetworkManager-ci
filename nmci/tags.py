@@ -1391,6 +1391,7 @@ def openvpn_as(context, scenario):
 _register_tag("openvpn", openvpn_bs, openvpn_as)
 _register_tag("openvpn4")
 _register_tag("openvpn6")
+_register_tag("openvpn_passwd")
 _register_tag("oath")
 
 

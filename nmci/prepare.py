@@ -96,6 +96,12 @@ def setup_openvpn(context, tags):
             "server-ipv6 2001:db8:666:dead::/64",
             'push "route-ipv6 2001:db8:666:dead::/64"',
         ]
+    if "openvpn_passwd" in tags:
+        conf += [
+            "script-security 2",
+            f"auth-user-pass-verify {samples}/oath.sh via-file",
+            "verify-client-cert none",
+        ]
     if "oath" in tags:
         context.ovpn_key = nmci.process.run_stdout(
             "head -10 /dev/urandom | sha256sum | cut -b 1-30", shell=True
