@@ -1800,3 +1800,21 @@ def allow_user_polkit(context, user):
     )
     nmci.cleanup.add_file(polkit_rule_file, name=f"polkit-rule-file-for-{user}")
     nmci.util.file_set_content(polkit_rule_file, conf)
+
+
+@step('Allow user "{user}" in polkit without modify.system')
+def allow_user_polkit_no_modify_system(context, user):
+    conf = f"""
+  polkit.addRule(function(action, subject) {{
+    if (action.id.indexOf("org.freedesktop.NetworkManager.") == 0
+        && action.id != "org.freedesktop.NetworkManager.settings.modify.system"
+        && subject.user == "{user}") {{
+      return polkit.Result.YES;
+    }}
+  }});
+"""
+    polkit_rule_file = (
+        f"/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager-{user}.rules"
+    )
+    nmci.cleanup.add_file(polkit_rule_file, name=f"polkit-rule-file-for-{user}")
+    nmci.util.file_set_content(polkit_rule_file, conf)
