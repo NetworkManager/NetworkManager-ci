@@ -73,9 +73,14 @@ def log_tui_screen(context, screen, caption="TUI"):
 
 
 # update the screen
-def feed_stream(stream):
+def feed_stream(context):
+    import pyte
+
     if os.path.isfile(OUTPUT):
-        stream.feed(open(OUTPUT, "r").read().encode("utf-8"))
+        context.screen.reset()
+        context.stream = pyte.ByteStream()
+        context.stream.attach(context.screen)
+        context.stream.feed(open(OUTPUT, "rb").read())
 
 
 def init_screen():
@@ -89,7 +94,7 @@ def init_screen():
 
 def go_until_pattern_matches_line(context, key, pattern, limit=50):
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     screens = []
     for i in range(0, limit):
         screens.append(f"go_until_pattern_matches_line #{i}")
@@ -102,7 +107,7 @@ def go_until_pattern_matches_line(context, key, pattern, limit=50):
         else:
             context.tui.send(key)
             time.sleep(0.3)
-            feed_stream(context.stream)
+            feed_stream(context)
     log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
@@ -112,7 +117,7 @@ def go_until_pattern_matches_aftercursor_text(
 ):
     pre_c = 0
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     if include_precursor_char is True:
         pre_c = -1
     screens = []
@@ -126,7 +131,7 @@ def go_until_pattern_matches_aftercursor_text(
         else:
             context.tui.send(key)
             time.sleep(0.3)
-            feed_stream(context.stream)
+            feed_stream(context)
     log_tui_screen(context, screens, "TUI DEBUG")
     return None
 
@@ -135,7 +140,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
     patterns = list(patterns)  # make local copy
     context.tui.send(keys["UPARROW"] * limit)
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     screens = []
     for i in range(0, limit):
         screens.append(f"search_all_patterns_in_list #{i}")
@@ -151,7 +156,7 @@ def search_all_patterns_in_list(context, patterns, limit=50):
             break
         context.tui.send(keys["DOWNARROW"])
         time.sleep(0.3)
-        feed_stream(context.stream)
+        feed_stream(context)
     if patterns:
         log_tui_screen(context, screens, "TUI DEBUG")
     return patterns
@@ -343,7 +348,7 @@ def choose_connection_action(context, action):
 def confirm_route_screen(context):
     context.tui.send(keys["DOWNARROW"] * 64)
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     match = re.match(
         r"^<OK>.*",
         context.screen.display[context.screen.cursor.y][context.screen.cursor.x - 1 :],
@@ -358,7 +363,7 @@ def confirm_route_screen(context):
 def confirm_slave_screen(context):
     context.tui.send(keys["DOWNARROW"] * 64)
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     match = re.match(
         r"^<OK>.*",
         context.screen.display[context.screen.cursor.y][context.screen.cursor.x - 1 :],
@@ -374,7 +379,7 @@ def confirm_connection_screen(context):
     context.tui.send(keys["RIGHTARROW"] * 3)
     context.tui.send(keys["DOWNARROW"] * 64)
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     match = re.match(
         r"^<OK>.*",
         context.screen.display[context.screen.cursor.y][context.screen.cursor.x - 1 :],
@@ -383,20 +388,20 @@ def confirm_connection_screen(context):
     assert match is not None, "Could not get to the <OK> button! (In form? Segfault?)"
     context.tui.send(keys["ENTER"])
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     for line in context.screen.display:
         print(line)
         if "<Add>" in line:
             break
         else:
-            feed_stream(context.stream)
+            feed_stream(context)
 
 
 @step("Cannot confirm the connection settings")
 def cannot_confirm_connection_screen(context):
     context.tui.send(keys["DOWNARROW"] * 64)
     time.sleep(0.2)
-    feed_stream(context.stream)
+    feed_stream(context)
     match = re.match(
         r"^<Cancel>.*",
         context.screen.display[context.screen.cursor.y][context.screen.cursor.x - 1 :],
@@ -418,7 +423,7 @@ def pattern_on_screen(context, pattern, seconds=1):
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is not None:
             break
-        feed_stream(context.stream)
+        feed_stream(context)
         time.sleep(1)
     assert match is not None, "Could not see pattern '%s' on screen:\n\n%s" % (
         pattern,
@@ -437,7 +442,7 @@ def pattern_not_on_screen(context, pattern, seconds=1):
         match = re.match(pattern, screen, re.UNICODE | re.DOTALL)
         if match is None:
             break
-        feed_stream(context.stream)
+        feed_stream(context)
         time.sleep(1)
     assert match is None, "The pattern is visible '%s' on screen:\n\n%s" % (
         pattern,
