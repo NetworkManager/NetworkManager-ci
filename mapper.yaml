@@ -1904,6 +1904,8 @@ testmapper:
     - nmcli_general_set_device_back_to_managed:
         feature: general
         tags: gate
+    - nmcli_general_set_device_reset_managed:
+        feature: general
     - nmcli_general_set_device_unmanaged_persist:
         feature: general
     - nmcli_general_set_device_unmanaged_persist_only:
@@ -1911,6 +1913,10 @@ testmapper:
     - nmcli_general_set_device_managed_persist:
         feature: general
     - nmcli_general_set_device_managed_persist_only:
+        feature: general
+    - nmcli_general_set_device_reset_managed_persist:
+        feature: general
+    - nmcli_general_set_device_reset_managed_persist_only:
         feature: general
     - nmcli_general_set_device_managed_up_persist:
         feature: general
