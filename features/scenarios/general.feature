@@ -939,84 +939,73 @@ Feature: nmcli - general
     @manage_eth8 @eth8_disconnect @restart_if_needed
     @nmcli_general_set_device_unmanaged_persist
     Scenario: NM - general - set device to unmanaged state
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Bring "up" connection "con_general"
     * Execute "nmcli device set eth8 managed --permanent no"
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is visible with command "nmcli device show eth8"
-     And "fe80" is visible with command "ip a s eth8"
+    Then "state UP" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is visible with command "nmcli device show eth8" in "3" seconds
      And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
-     And Intern config for device "eth8" has "managed" set to "0"
-    * Restart NM
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
-     And "192" is visible with command "ip a s eth8"
-     And "192" is visible with command "ip r |grep eth8"
-     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+    # NM restart is not enough because the saved state might affect. Better reboot.
+    * Reboot
+    Then "unmanaged" is visible with command "nmcli device show eth8"
 
     @ver+=1.57
-    @eth8_disconnect @restart_if_needed
+    @unmanage_eth @restart_if_needed
     @nmcli_general_set_device_managed_persist
     Scenario: NM - general - set device to managed state
-    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
-    * Bring "up" connection "con_general"
-    * Note MAC address output for device "eth8" via ip command
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect yes"
+    * Execute "ip link set up eth8"
     * Execute "nmcli device set eth8 managed --permanent yes"
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is not visible with command "nmcli device show eth8"
-     And "fe80" is visible with command "ip a s eth8"
+    Then "state UP" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
      And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
-     And Intern config for device "eth8" has "managed" set to "1"
-    * Restart NM
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is not visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
-     And "192" is visible with command "ip a s eth8"
+    * Reboot
+    Then "state UP" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
+     And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
-     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+     And "fe80" is visible with command "ip a s eth8"
 
     @ver+=1.57
-    @eth8_disconnect @restart_if_needed
-    @nmcli_general_set_device_admin_up_persist
-    Scenario: NM - general - set device to admin up managed state
-    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
-    * Bring "up" connection "con_general"
-    * Note MAC address output for device "eth8" via ip command
+    @unmanage_eth @restart_if_needed
+    @nmcli_general_set_device_managed_up_persist
+    Scenario: NM - general - set device managed up state
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect yes"
     * Execute "ip link set eth8 down"
     * Execute "nmcli device set eth8 managed --permanent up"
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is not visible with command "nmcli device show eth8"
-     And "fe80" is visible with command "ip a s eth8"
+    Then "state UP" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
      And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
-     And Intern config for device "eth8" has "managed" set to "1"
-    * Restart NM
-     And "state UP" is visible with command "ip a s eth8"
-     And "unmanaged" is not visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
-     And "192" is visible with command "ip a s eth8"
+    * Reboot
+    Then "state UP" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
+     And "192" is visible with command "ip a s eth8" in "10" seconds
      And "192" is visible with command "ip r |grep eth8"
-     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+     And "fe80" is visible with command "ip a s eth8"
 
     @ver+=1.57
     @manage_eth8 @eth8_disconnect @restart_if_needed
-    @nmcli_general_set_device_admin_down_persist
-    Scenario: NM - general - set device to admin down managed state
+    @nmcli_general_set_device_unmanaged_down_persist
+    Scenario: NM - general - set device to managed down state
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Bring "up" connection "con_general"
-    * Note MAC address output for device "eth8" via ip command
     * Execute "ip link set eth8 up"
     * Execute "nmcli device set eth8 managed --permanent down"
-     And "state DOWN" is visible with command "ip a s eth8"
-     And "unmanaged" is visible with command "nmcli device show eth8"
-     And Intern config for device "eth8" has "managed" set to "0"
-    * Restart NM
-     And "state DOWN" is visible with command "ip a s eth8"
-     And "unmanaged" is visible with command "nmcli device show eth8"
-     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+    Then "state DOWN" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is visible with command "nmcli device show eth8" in "3" seconds
+    * Reboot
+    Then "state DOWN" is visible with command "ip a s eth8" in "3" seconds
+     And "unmanaged" is visible with command "nmcli device show eth8" in "3" seconds
 
     @nmcli_general_keyfile_tailing_whitespace
     Scenario: nmcli - general - keyfile tailing whitespace ignored

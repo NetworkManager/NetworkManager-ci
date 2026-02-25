@@ -1908,9 +1908,9 @@ testmapper:
         feature: general
     - nmcli_general_set_device_managed_persist:
         feature: general
-    - nmcli_general_set_device_admin_up_persist:
+    - nmcli_general_set_device_managed_up_persist:
         feature: general
-    - nmcli_general_set_device_admin_down_persist:
+    - nmcli_general_set_device_unmanaged_down_persist:
         feature: general
     - nmcli_general_keyfile_tailing_whitespace:
         feature: general
