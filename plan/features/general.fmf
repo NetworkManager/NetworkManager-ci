@@ -75,10 +75,13 @@ discover:
         - /tests/nmcli_general_ignore_specified_unamanaged_devices
         - /tests/nmcli_general_set_device_unmanaged
         - /tests/nmcli_general_set_device_back_to_managed
+        - /tests/nmcli_general_set_device_reset_managed
         - /tests/nmcli_general_set_device_unmanaged_persist
         - /tests/nmcli_general_set_device_unmanaged_persist_only
         - /tests/nmcli_general_set_device_managed_persist
         - /tests/nmcli_general_set_device_managed_persist_only
+        - /tests/nmcli_general_set_device_reset_managed_persist
+        - /tests/nmcli_general_set_device_reset_managed_persist_only
         - /tests/nmcli_general_set_device_managed_up_persist
         - /tests/nmcli_general_set_device_unmanaged_down_persist
         - /tests/nmcli_general_set_device_managed_up_down_persist_only
