@@ -1906,11 +1906,17 @@ testmapper:
         tags: gate
     - nmcli_general_set_device_unmanaged_persist:
         feature: general
+    - nmcli_general_set_device_unmanaged_persist_only:
+        feature: general
     - nmcli_general_set_device_managed_persist:
+        feature: general
+    - nmcli_general_set_device_managed_persist_only:
         feature: general
     - nmcli_general_set_device_managed_up_persist:
         feature: general
     - nmcli_general_set_device_unmanaged_down_persist:
+        feature: general
+    - nmcli_general_set_device_managed_up_down_persist_only:
         feature: general
     - nmcli_general_keyfile_tailing_whitespace:
         feature: general
