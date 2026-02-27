@@ -2507,11 +2507,27 @@ Feature: nmcli: ipv4
     Then "valid_lft 14[0-9]" is visible with command "ip -4 addr show dev testX4" in "140" seconds
 
 
+    @ver-1.57.3
     @dhcp_option_classless_routes
     Scenario: DHCPv4 classless routes option parsing
     * Prepare simulated test "testX4" device with dhcp option "option:classless-static-route,10.0.0.0/8,192.168.99.3,20.1.0.0/16,192.168.99.4,30.1.1.0/28,192.168.99.5"
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
     * Bring "up" connection "con_ipv4"
+    Then "default via 192.168.99.1" is visible with command "ip route show dev testX4"
+    Then "10.0.0.0/8 via 192.168.99.3" is visible with command "ip route show dev testX4"
+    Then "20.1.0.0/16 via 192.168.99.4" is visible with command "ip route show dev testX4"
+    Then "30.1.1.0/28 via 192.168.99.5" is visible with command "ip route show dev testX4"
+
+
+    @ver+=1.57.3
+    @dhcp_option_classless_routes
+    Scenario: DHCPv4 classless routes option parsing
+    * Prepare simulated test "testX4" device with dhcp option "option:classless-static-route,10.0.0.0/8,192.168.99.3,20.1.0.0/16,192.168.99.4,30.1.1.0/28,192.168.99.5"
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
+    * Bring "up" connection "con_ipv4"
+    # RFC 3442: If the DHCP server returns both a Classless Static Routes option and
+    # a Router option, the DHCP client MUST ignore the Router option.
+    Then "default via 192.168.99.1" is not visible with command "ip route show dev testX4"
     Then "10.0.0.0/8 via 192.168.99.3" is visible with command "ip route show dev testX4"
     Then "20.1.0.0/16 via 192.168.99.4" is visible with command "ip route show dev testX4"
     Then "30.1.1.0/28 via 192.168.99.5" is visible with command "ip route show dev testX4"
