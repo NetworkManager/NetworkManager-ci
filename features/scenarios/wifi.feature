@@ -346,6 +346,7 @@ Feature: nmcli - wifi
           802-1x.ca-cert file:///tmp/certs/eaptest_ca_cert.pem
           802-1x.phase2-autheap mschapv2
           802-1x.password testing123
+          802-11-wireless.band a
           """
     * Bring "up" connection "qe-wpa3-enterprise"
     Then "qe-wpa3-enterprise" is visible with command "iw dev wlan0 link"
