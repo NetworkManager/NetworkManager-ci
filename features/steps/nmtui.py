@@ -80,7 +80,7 @@ def feed_stream(context):
         context.screen.reset()
         context.stream = pyte.ByteStream()
         context.stream.attach(context.screen)
-        context.stream.feed(open(OUTPUT, "rb").read())
+        context.stream.feed(nmci.util.file_get_content_simple(OUTPUT, as_bytes=True))
 
 
 def init_screen():
@@ -195,9 +195,7 @@ def check_process_running(context):
 
 @step("Nmtui process is not running")
 def check_process_not_running(context):
-    assert context.tui.isalive() is False, (
-        "NMTUI (pid:%s) is still up!" % context.tui.pid
-    )
+    assert context.tui.isalive() is False, f"NMTUI (pid:{context.tui.pid}) is still up!"
 
 
 @step('Press "{key}" key')
@@ -214,9 +212,9 @@ def come_back_to_top(context):
 @step("Screen is empty")
 def screen_is_empty(context):
     for line in context.screen.display:
-        assert re.match("^\\s*$", line) is not None, (
-            'Screen not empty on this line:"%s"' % line
-        )
+        assert (
+            re.match("^\\s*$", line) is not None
+        ), f'Screen not empty on this line:"{line}"'
 
 
 @step('Prepare new connection of type "{typ}" named "{name}"')
@@ -224,11 +222,10 @@ def prep_conn_abstract(context, typ, name):
     if not getattr(context, "tui", None):
         context.execute_steps("* Start nmtui")
     context.execute_steps(
-        '''* Choose to "Edit a connection" from main screen
+        f'''* Choose to "Edit a connection" from main screen
                               * Choose to "<Add>" a connection
-                              * Choose the connection type "%s"
-                              * Set "Profile name" field to "%s"'''
-        % (typ, name)
+                              * Choose the connection type "{typ}"
+                              * Set "Profile name" field to "{name}"'''
     )
 
 
@@ -236,9 +233,9 @@ def prep_conn_abstract(context, typ, name):
 def choose_main_option(context, option):
     context.execute_steps("""* Come back to the top of editor""")
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], r".*%s.*" % option)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], rf".*{option}.*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % option)
+    ), f"Could not go to option '{option}' on screen!"
     context.tui.send(keys["ENTER"])
     time.sleep(0.2)
 
@@ -246,9 +243,9 @@ def choose_main_option(context, option):
 @step('Choose the connection type "{typ}"')
 def select_con_type(context, typ):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], r".*%s.*" % typ)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], rf".*{typ}.*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % typ)
+    ), f"Could not go to option '{typ}' on screen!"
     assert (
         go_until_pattern_matches_aftercursor_text(context, keys["TAB"], r"^<Create>.*$")
         is not None
@@ -260,7 +257,7 @@ def select_con_type(context, typ):
 def press_dialog_button(context, button):
     assert (
         go_until_pattern_matches_aftercursor_text(
-            context, keys["TAB"], r"^ +%s.*$" % button
+            context, keys["TAB"], rf"^ +{button}.*$"
         )
         is not None
     ), "Could not go to action '<Create>' on screen!"
@@ -273,7 +270,7 @@ def press_dialog_button(context, button):
 def press_password_dialog_button(context, button):
     assert (
         go_until_pattern_matches_aftercursor_text(
-            context, keys["TAB"], r"^%s.*$" % button
+            context, keys["TAB"], rf"^{button}.*$"
         )
         is not None
     ), "Could not go to action '<Create>' on screen!"
@@ -288,20 +285,18 @@ def select_con_in_list(context, con_name):
         context.tui.send(keys["LEFTARROW"] * 8)
         context.tui.send(keys["UPARROW"] * 16)
     if not go_until_pattern_matches_line(
-        context, keys["DOWNARROW"], r".*%s.*" % con_name
+        context, keys["DOWNARROW"], rf".*{con_name}.*"
     ):
         assert (
-            go_until_pattern_matches_line(
-                context, keys["UPARROW"], r".*%s.*" % con_name
-            )
+            go_until_pattern_matches_line(context, keys["UPARROW"], rf".*{con_name}.*")
             is not None
-        ), ("Could not go to connection '%s' on screen!" % con_name)
+        ), f"Could not go to connection '{con_name}' on screen!"
 
 
 @step('Connections "{con_names}" are in the list')
 def all_cons_in_list(context, con_names):
     patterns = search_all_patterns_in_list(
-        context, [r".*%s.*" % name for name in con_names.split(",")]
+        context, [rf".*{name}.*" for name in con_names.split(",")]
     )
     assert len(patterns) == 0, "The following list items were not found: " + str(
         patterns
@@ -317,8 +312,10 @@ def back_to_con_list(context):
 @step("Come back to main screen")
 def back_to_main(context):
     current_nm_version = "".join(
-        context.command_output(
-            """NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'"""
+        nmci.process.run_stdout(
+            """NetworkManager -V |awk 'BEGIN { FS = "." }; {printf "%03d%03d%03d", $1, $2, $3}'""",
+            shell=True,
+            ignore_stderr=True,
         ).split("-")[0]
     )
     context.tui.send(keys["ESCAPE"])
@@ -334,11 +331,9 @@ def back_to_main(context):
 @step('Choose to "{action}" a connection')
 def choose_connection_action(context, action):
     assert (
-        go_until_pattern_matches_aftercursor_text(
-            context, keys["TAB"], r"%s.*" % action
-        )
+        go_until_pattern_matches_aftercursor_text(context, keys["TAB"], rf"{action}.*")
         is not None
-    ), ("Could not go to action '%s' on screen!" % action)
+    ), f"Could not go to action '{action}' on screen!"
     time.sleep(0.1)
     context.tui.send(keys["ENTER"])
     time.sleep(0.5)
@@ -409,7 +404,7 @@ def cannot_confirm_connection_screen(context):
     )
     assert (
         match is not None
-    ), "<OK> button is likely not greyed got: %s at the last line" % match.group(1)
+    ), f"<OK> button is likely not greyed got: {match.group(1)} at the last line"
 
 
 @step('"{pattern}" is visible on screen')
@@ -425,10 +420,9 @@ def pattern_on_screen(context, pattern, seconds=1):
             break
         feed_stream(context)
         time.sleep(1)
-    assert match is not None, "Could not see pattern '%s' on screen:\n\n%s" % (
-        pattern,
-        screen,
-    )
+    assert (
+        match is not None
+    ), f"Could not see pattern '{pattern}' on screen:\n\n{screen}"
 
 
 @step('"{pattern}" is not visible on screen')
@@ -444,10 +438,7 @@ def pattern_not_on_screen(context, pattern, seconds=1):
             break
         feed_stream(context)
         time.sleep(1)
-    assert match is None, "The pattern is visible '%s' on screen:\n\n%s" % (
-        pattern,
-        screen,
-    )
+    assert match is None, f"The pattern is visible '{pattern}' on screen:\n\n{screen}"
 
 
 @step('Set current field to "{value}"')
@@ -463,9 +454,9 @@ def set_specific_field_to(context, field, value):
         value = context.noted["noted-value"]
         print(f"setting '{field}' to '{value}'")
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], ".*%s.*" % field)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{field}.*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % field)
+    ), f"Could not go to option '{field}' on screen!"
     context.tui.send(keys["BACKSPACE"] * 100)
     context.tui.send(value)
     if "Profile name" in field:
@@ -482,7 +473,7 @@ def set_specific_field_to_using_select_button(context, field, value):
     assert (
         go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{field}.*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % field)
+    ), f"Could not go to option '{field}' on screen!"
 
     context.tui.send(keys["TAB"])
     context.tui.send(keys["ENTER"])
@@ -491,7 +482,7 @@ def set_specific_field_to_using_select_button(context, field, value):
     assert (
         go_until_pattern_matches_line(context, keys["DOWNARROW"], f".* {value} .*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % value)
+    ), f"Could not go to option '{value}' on screen!"
 
     context.tui.send(keys["ENTER"])
 
@@ -504,18 +495,18 @@ def set_specific_field_to_using_select_button(context, field, value):
 @step('Empty the field "{field}"')
 def empty_specific_field(context, field):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], ".*%s.*" % field)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f".*{field}.*")
         is not None
-    ), ("Could not go to option '%s' on screen!" % field)
+    ), f"Could not go to option '{field}' on screen!"
     context.tui.send(keys["BACKSPACE"] * 100)
 
 
 @step('In "{prop}" property add "{value}"')
 def add_in_property(context, prop, value):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], "^.*%s <Add.*" % prop)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f"^.*{prop} <Add.*")
         is not None
-    ), ("Could not find '%s' property!" % prop)
+    ), f"Could not find '{prop}' property!"
     context.tui.send(" ")
     context.tui.send(value)
 
@@ -588,9 +579,9 @@ def remove_routes(context):
 @step('Remove all "{prop}" property items')
 def remove_items(context, prop):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], "^.*%s.*" % prop)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f"^.*{prop}.*")
         is not None
-    ), ("Could not find '%s' property!" % prop)
+    ), f"Could not find '{prop}' property!"
     while (
         go_until_pattern_matches_aftercursor_text(
             context, keys["DOWNARROW"], "^<Remove.*", limit=2
@@ -604,15 +595,13 @@ def remove_items(context, prop):
 @step('Come in "{category}" category')
 def come_in_category(context, category):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], "^.*%s.*" % category)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f"^.*{category}.*")
         is not None
-    ), ("Could not go to category '%s' on screen!" % category)
+    ), f"Could not go to category '{category}' on screen!"
     match = go_until_pattern_matches_aftercursor_text(
         context, keys["DOWNARROW"], "^(<Hide>|<Show>).*"
     )
-    assert match is not None, (
-        "Could not go to hide/show for the category %s " % category
-    )
+    assert match is not None, f"Could not go to hide/show for the category {category} "
     if match.group(1) == "<Show>":
         context.tui.send(" ")
 
@@ -620,36 +609,34 @@ def come_in_category(context, category):
 @step('Set "{category}" category to "{setting}"')
 def set_category(context, category, setting):
     assert (
-        go_until_pattern_matches_line(context, keys["DOWNARROW"], "^.*%s.*" % category)
+        go_until_pattern_matches_line(context, keys["DOWNARROW"], f"^.*{category}.*")
         is not None
-    ), ("Could not go to category '%s' on screen!" % category)
+    ), f"Could not go to category '{category}' on screen!"
     context.tui.send(" ")
     context.tui.send(keys["UPARROW"] * 16)
     match = go_until_pattern_matches_aftercursor_text(
-        context, keys["DOWNARROW"], "^\\s*%s\\s*.*" % setting
+        context, keys["DOWNARROW"], f"^\\s*{setting}\\s*.*"
     )
-    assert match is not None, "Could not find setting %s for the category %s " % (
-        setting,
-        category,
-    )
+    assert (
+        match is not None
+    ), f"Could not find setting {setting} for the category {category} "
     context.tui.send("\r\n")
 
 
 @step('Set "{dropdown}" dropdown to "{setting}"')
 def set_dropdown(context, dropdown, setting):
     assert (
-        go_until_pattern_matches_line(context, keys["TAB"], "^.*\\s+%s.*" % dropdown)
+        go_until_pattern_matches_line(context, keys["TAB"], f"^.*\\s+{dropdown}.*")
         is not None
-    ), ("Could not go to dropdown '%s' on screen!" % dropdown)
+    ), f"Could not go to dropdown '{dropdown}' on screen!"
     context.tui.send(" ")
     context.tui.send(keys["UPARROW"] * 16)
     match = go_until_pattern_matches_aftercursor_text(
-        context, keys["DOWNARROW"], "^\\s*%s\\s*.*" % setting
+        context, keys["DOWNARROW"], f"^\\s*{setting}\\s*.*"
     )
-    assert match is not None, "Could not find setting %s for the dropdown %s " % (
-        setting,
-        dropdown,
-    )
+    assert (
+        match is not None
+    ), f"Could not find setting {setting} for the dropdown {dropdown} "
     context.tui.send("\r\n")
 
 
@@ -657,9 +644,9 @@ def set_dropdown(context, dropdown, setting):
 @step('Ensure "{toggle}" is {n} checked')
 def ensure_toggle_is_checked(context, toggle, n=None):
     match = go_until_pattern_matches_line(
-        context, keys["DOWNARROW"], r"^.*(\[.\])\s+%s.*" % toggle
+        context, keys["DOWNARROW"], rf"^.*(\[.\])\s+{toggle}.*"
     )
-    assert match is not None, "Could not go to toggle '%s' on screen!" % toggle
+    assert match is not None, f"Could not go to toggle '{toggle}' on screen!"
     if match.group(1) == "[ ]" and n is None:
         context.tui.send(" ")
     elif match.group(1) == "[X]" and n is not None:

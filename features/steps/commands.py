@@ -1063,14 +1063,14 @@ def check_NM_mem_consumption(context, i1, operator_kw, dif, seconds):
 def check_no_coredump(context, seconds):
     # check core limit is unlimited (soft and hard)
     # if it is not the case, the check_coredump may fail, and we do not have cores!
-    with open(f"/proc/{context.nm_pid}/limits") as limits_f:
-        for limit in limits_f.readlines():
-            if "max core file size" in limit.lower():
-                # there should be 2 "unlimited" columns
-                if "unlimited" not in limit.replace("unlimited", "", 1):
-                    nmci.embed.embed_data("Core Limits", limit)
-                    # exit cleanly, test is marked @xfail
-                    return
+    limits_content = nmci.util.file_get_content_simple(f"/proc/{context.nm_pid}/limits")
+    for limit in limits_content.splitlines():
+        if "max core file size" in limit.lower():
+            # there should be 2 "unlimited" columns
+            if "unlimited" not in limit.replace("unlimited", "", 1):
+                nmci.embed.embed_data("Core Limits", limit)
+                # exit cleanly, test is marked @xfail
+                return
 
     # segfault NM
     nmci.process.run_stdout("pkill -SIGSEGV NetworkManager")
@@ -1198,8 +1198,7 @@ def load_nftables(context, ns=None, ruleset=None):
 
     # why doesn't nmci/process.py handle stdin?
     file = "/tmp/nmci-nft-ruleset-to-load"
-    with open(file, "w") as f:
-        f.write(ruleset)
+    nmci.util.file_set_content(file, ruleset)
     nft_status = [
         f"nftables ruleset{f' in namespace {ns}' if ns else ''} before this step:"
     ]
@@ -1287,12 +1286,14 @@ def run_nmstate(context, log_file):
     if rpm_dir:
         cmd += rpm_dir
     elif os.path.exists("/etc/yum.repos.d/nm-copr.repo"):
-        with open("/etc/yum.repos.d/nm-copr.repo", "r") as repo:
-            for line in repo.readlines():
-                if line.startswith("baseurl"):
-                    copr = line.split("/")[-4] + "/" + line.split("/")[-3]
-                    cmd += f" --copr {copr}"
-                    break
+        repo_content = nmci.util.file_get_content_simple(
+            "/etc/yum.repos.d/nm-copr.repo"
+        )
+        for line in repo_content.splitlines():
+            if line.startswith("baseurl"):
+                copr = line.split("/")[-4] + "/" + line.split("/")[-3]
+                cmd += f" --copr {copr}"
+                break
     elif (
         nmci.process.dnf(
             "copr list | grep networkmanager/NetworkManager",
@@ -1561,8 +1562,7 @@ def image_mode_toggle(context, action):
         mode = "rw"
     else:
         assert False, f"unrecognized action: {action}"
-    with open("/proc/cmdline") as f:
-        image_mode = "ostree" in f.read()
+    image_mode = "ostree" in nmci.util.file_get_content_simple("/proc/cmdline")
     if image_mode:
         # register cleanup to unlock and lock image during after scenario, set unique-tag to string to execute it only once
         nmci.cleanup.add_callback(

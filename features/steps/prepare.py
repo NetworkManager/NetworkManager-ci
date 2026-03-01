@@ -5,6 +5,7 @@ import re
 import time
 from behave import step  # pylint: disable=no-name-in-module
 
+import commands
 import nmci
 
 
@@ -91,7 +92,7 @@ def config_dhcpv6_pd(context, mode, lease=None):
         adv_managed = "on"
         dhcp_range = "range6 fc01::1000 fc01::ffff;"
     else:
-        assert False, "unknown address configuration mode %s" % mode
+        assert False, f"unknown address configuration mode {mode}"
 
     nmci.process.run("cp contrib/ipv6/radvd-pd.conf.in /tmp/radvd-pd.conf")
     nmci.process.run("cp contrib/ipv6/dhcpd-pd.conf.in /tmp/dhcpd-pd.conf")
@@ -452,7 +453,7 @@ def clat_prepare(
     nmci.process.run(f"ip netns exec {device}_ns sysctl -w net.ipv4.ip_forward=1")
     nmci.process.run(f"cp contrib/clat/tayga.conf {tayga_conf}")
     nmci.process.run(f"sed -i s|__PREF64__|{pref64}| {tayga_conf}")
-    nmci.process.run(f"rm -f /var/lib/tayga/nat64/dynamic.map")
+    nmci.process.run("rm -f /var/lib/tayga/nat64/dynamic.map")
     nmci.process.run(f"ip netns exec {device}_ns tayga --config {tayga_conf} --mktun")
     nmci.process.run(f"ip -n {device}_ns link set nat64 up")
     nmci.process.run(f"ip -n {device}_ns route add 198.51.100.144/28 dev nat64")
@@ -484,59 +485,84 @@ def clat_start_servers(context, device, address="203.0.113.1"):
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
     if not os.path.exists(data_dir + data_file):
-        with open(data_dir + data_file, "w") as f:
-            content = ("abcdefghijklmnopqrstuvwxyz" * (size // 26 + 1))[:size]
-            f.write(content)
+        content = ("abcdefghijklmnopqrstuvwxyz" * (size // 26 + 1))[:size]
+        nmci.util.file_set_content(data_dir + data_file, content)
 
     # Run servers
     nmci.pexpect.pexpect_service(
         f"ip netns exec {device}_ns2 python -m http.server --bind {address} 8080 --directory {data_dir}"
     )
     nmci.pexpect.pexpect_service(
-        "ip netns exec {}_ns2 socat UDP4-LISTEN:9999,fork,bind={} SYSTEM:'echo \"${{SOCAT_PEERADDR}}\"'".format(
-            device, address
-        )
+        f"ip netns exec {device}_ns2 socat UDP4-LISTEN:9999,fork,bind={address} SYSTEM:'echo \"${{SOCAT_PEERADDR}}\"'"
     )
 
 
 @step('Verify the CLAT connection over device "{device}"')
 def clat_verify(context, device):
-    context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_ingress_eth || bpftool prog list name nm_clat_egress_rawip"'
+    commands.check_pattern_command(
+        context,
+        "bpftool prog list name nm_clat_ingress_eth || bpftool prog list name nm_clat_egress_rawip",
+        "pids NetworkManager",
+        seconds=2,
     )
-    context.execute_steps(
-        f'* "pids NetworkManager" is visible with command "bpftool prog list name nm_clat_egress_eth || bpftool prog list name nm_clat_egress_rawip"'
+    commands.check_pattern_command(
+        context,
+        "bpftool prog list name nm_clat_egress_eth || bpftool prog list name nm_clat_egress_rawip",
+        "pids NetworkManager",
+        seconds=2,
     )
     context.execute_steps(
         f'* Check "ipv4" address list "192.0.0.5/32" on device "{device}"'
     )
-    context.execute_steps(
-        f'* "203.0.113.1 via inet6 fe80::.* dev {device} src 192.0.0.5" is visible with command "ip route get 203.0.113.1"'
+    commands.check_pattern_command(
+        context,
+        "ip route get 203.0.113.1",
+        f"203.0.113.1 via inet6 fe80::.* dev {device} src 192.0.0.5",
+        seconds=2,
     )
 
     # ping
-    context.execute_steps(f'* Execute "ping -c4 203.0.113.1"')
+    nmci.process.run_stdout(
+        "ping -c4 203.0.113.1",
+        shell=True,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        as_bytes=True,
+        timeout=None,
+    )
 
     # HTTP traffic
-    context.execute_steps(
-        f'* "b63ba06de0e8a9626d5bcf27e93bf32d" is visible with command "curl -s http://203.0.113.1:8080/letters.txt | md5sum"'
+    commands.check_pattern_command(
+        context,
+        "curl -s http://203.0.113.1:8080/letters.txt | md5sum",
+        "b63ba06de0e8a9626d5bcf27e93bf32d",
+        seconds=2,
     )
 
     # UDP traffic
-    context.execute_steps(
-        f'* "198.51.100.1" is visible with command "echo test | socat - UDP4-DATAGRAM:203.0.113.1:9999"'
+    commands.check_pattern_command(
+        context,
+        "echo test | socat - UDP4-DATAGRAM:203.0.113.1:9999",
+        "198.51.100.1",
+        seconds=2,
     )
 
     # Check the translation of time-exceeded ICMP error
-    context.execute_steps(
-        f'* "From 172.25.42.1 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 3 -c 1 203.0.113.1"'
+    commands.check_pattern_command(
+        context,
+        "ping -t 3 -c 1 203.0.113.1",
+        "From 172.25.42.1 icmp_seq=1 Time to live exceeded",
+        seconds=2,
     )
 
     # Check the translation of time-exceeded ICMP error when the src IPv6 is a native address
     # See Internet-Draft draft-ietf-v6ops-icmpext-xlat-v6only-source-01
     # "Using Dummy IPv4 Address and Node Identification Extensions for IP/ICMP translators (XLATs)"
-    context.execute_steps(
-        f'* "From 192.0.0.8 icmp_seq=1 Time to live exceeded" is visible with command "ping -t 1 -c 1 203.0.113.1"'
+    commands.check_pattern_command(
+        context,
+        "ping -t 1 -c 1 203.0.113.1",
+        "From 192.0.0.8 icmp_seq=1 Time to live exceeded",
+        seconds=2,
     )
 
 
@@ -547,13 +573,33 @@ def clat_verify_nondefault(context, device, clat_address, server):
     context.execute_steps(
         f'* Check "ipv4" address list "{clat_address}/32" on device "{device}"'
     )
-    context.execute_steps(
-        f'* "{server} via inet6 fe80::.* dev {device} src {clat_address}" is visible with command "ip route get {server} dev {device}"'
+    commands.check_pattern_command(
+        context,
+        f"ip route get {server} dev {device}",
+        f"{server} via inet6 fe80::.* dev {device} src {clat_address}",
+        seconds=2,
     )
-    context.execute_steps(f'* Execute "ping -I {device} -c4 {server}"')
-    context.execute_steps(f'* Execute "curl --interface {device} http://{server}:8080"')
-    context.execute_steps(
-        f'* "198.51.100.1" is visible with command "echo test | socat - UDP4-DATAGRAM:{server}:9999,so-bindtodevice={device}"'
+    nmci.process.run_stdout(
+        f"ping -I {device} -c4 {server}",
+        shell=True,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        as_bytes=True,
+        timeout=None,
+    )
+    nmci.process.run_stdout(
+        f"curl --interface {device} http://{server}:8080",
+        shell=True,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        as_bytes=True,
+        timeout=None,
+    )
+    commands.check_pattern_command(
+        context,
+        f"echo test | socat - UDP4-DATAGRAM:{server}:9999,so-bindtodevice={device}",
+        "198.51.100.1",
+        seconds=2,
     )
 
 
@@ -1049,9 +1095,9 @@ def start_pppoe_server_ns(context, name, ip, dev):
 def setup_macsec_psk(context, cak, ckn, vid=None):
     nmci.veth.manage_device("macsec_veth")
     nmci.process.run("modprobe macsec")
-    nmci.ip.netns_add(f"macsec_ns")
+    nmci.ip.netns_add("macsec_ns")
     context.execute_steps(
-        f'* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"'
+        '* Create "veth" device named "macsec_veth" with options "peer name macsec_vethp"'
     )
     nmci.ip.link_set("macsec_vethp", netns="macsec_ns")
     nmci.ip.link_set("macsec_veth", up=True)
@@ -1107,10 +1153,13 @@ def setup_macsec_psk(context, cak, ckn, vid=None):
 
 @step("Set default DCB options")
 def set_default_dcb(context):
-    context.execute_steps(
-        """
-    * Execute "nmcli con modify dcb dcb.app-fcoe-flags 7 dcb.app-fcoe-priority 7 dcb.app-fcoe-mode vn2vn dcb.app-iscsi-flags 7 dcb.app-iscsi-priority 6 dcb.app-fip-flags 7 dcb.app-fip-priority 2  dcb.priority-flow-control-flags 7 dcb.priority-flow-control 1,0,0,1,1,0,1,0 dcb.priority-group-flags 7 dcb.priority-group-id 0,0,0,0,1,1,1,1 dcb.priority-group-bandwidth 13,13,13,13,12,12,12,12 dcb.priority-bandwidth 100,100,100,100,100,100,100,100 dcb.priority-traffic-class 7,6,5,4,3,2,1,0"
-    """
+    nmci.process.run_stdout(
+        "nmcli con modify dcb dcb.app-fcoe-flags 7 dcb.app-fcoe-priority 7 dcb.app-fcoe-mode vn2vn dcb.app-iscsi-flags 7 dcb.app-iscsi-priority 6 dcb.app-fip-flags 7 dcb.app-fip-priority 2  dcb.priority-flow-control-flags 7 dcb.priority-flow-control 1,0,0,1,1,0,1,0 dcb.priority-group-flags 7 dcb.priority-group-id 0,0,0,0,1,1,1,1 dcb.priority-group-bandwidth 13,13,13,13,12,12,12,12 dcb.priority-bandwidth 100,100,100,100,100,100,100,100 dcb.priority-traffic-class 7,6,5,4,3,2,1,0",
+        shell=True,
+        ignore_returncode=False,
+        ignore_stderr=True,
+        as_bytes=True,
+        timeout=None,
     )
 
 
@@ -1398,7 +1447,9 @@ def libreswan_ng_setup(context, ipsec_type):
         except:
             pass
         context.ipsec_proc.expect(nmci.pexpect.EOF)
-        context.execute_steps('* "hosta_nic" is not visible with command "ip a s"')
+        commands.check_pattern_command(
+            context, "ip a s", "hosta_nic", seconds=2, check_type="not"
+        )
 
     nmci.cleanup.add_callback(_libreswan_ng_teardown, "teardown-libreswan")
 
@@ -1414,8 +1465,8 @@ def libreswan_ng_setup(context, ipsec_type):
     import yaml
 
     # Load data from YAML
-    with open("/tmp/ipsec_config.yaml", "r") as f:
-        data = yaml.safe_load(f) or {}  # Ensure data is a dictionary
+    yaml_content = nmci.util.file_get_content_simple("/tmp/ipsec_config.yaml")
+    data = yaml.safe_load(yaml_content) or {}  # Ensure data is a dictionary
 
     # Update os.environ with YAML variables
     for key, value in data.items():

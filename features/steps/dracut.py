@@ -185,10 +185,10 @@ def prepare_dracut(context, checks):
         shell=True,
         cwd="contrib/dracut",
     )
-    with open(os.environ["TESTDIR"] + "/client_check/client_check.sh", "w") as f:
-        f.write("client_check() {\n")
-        f.write("\n".join(checks))
-        f.write("}\n")
+    content = "client_check() {\n" + "\n".join(checks) + "}\n"
+    nmci.util.file_set_content(
+        os.environ["TESTDIR"] + "/client_check/client_check.sh", content
+    )
     nmci.process.run(
         "sync; sync; sync; umount $TESTDIR/client_check.img; "
         "umount $TESTDIR/client_log.img; sync; sync; sync; ",
