@@ -14,11 +14,11 @@ from nmci.util import NM
 
 @step('{action} all "{what}" devices')
 def do_device_stuff(context, action, what):
-    nmci.process.run_code(
-        f"for dev in $(nmcli device status | grep '{what}' | awk {{'print $1'}}); do nmcli device {action} $dev; done",
-        shell=True,
-        ignore_stderr=True,
+    cmd = (
+        f"for dev in $(nmcli device status | grep '{what}'"
+        f" | awk {{'print $1'}}); do nmcli device {action} $dev; done"
     )
+    nmci.process.run_code(cmd, shell=True, ignore_stderr=True)
 
 
 @step('Add a secondary address to device "{device}" within the same subnet')
@@ -48,12 +48,11 @@ def dns_check(dns_plugin, device, kind, arg, has):
     while attempt < 8:
         try:
             info = nmci.misc.get_dns_info(dns_plugin, ifname=device)
+            path = "/tmp/final.json"
             old = (
-                nmci.util.file_get_content_simple("/tmp/final.json")
-                if os.path.isfile("/tmp/final.json")
-                else ""
+                nmci.util.file_get_content_simple(path) if os.path.isfile(path) else ""
             )
-            nmci.util.file_set_content("/tmp/final.json", old + json.dumps(info))
+            nmci.util.file_set_content(path, old + json.dumps(info))
             assert info["default_route"] is not None or dns_plugin == "systemd-resolved"
 
             if kind == "dns":
@@ -272,23 +271,23 @@ def note_mac_address(context, device, index="noted-value"):
 @step('Note MAC address output for device "{device}" via ip command as "{index}"')
 @step('Note MAC address output for device "{device}" via ip command')
 def note_mac_address_ip(context, device, index=None):
-    if (
-        nmci.process.run_code(
-            f"ip a s {device} |grep -q ether", shell=True, ignore_stderr=True
-        )
-        == 0
-    ):
+    rc = nmci.process.run_code(
+        f"ip a s {device} |grep -q ether",
+        shell=True,
+        ignore_stderr=True,
+    )
+    if rc == 0:
         mac = nmci.process.run_stdout(
             f"ip link show {device} | grep 'link/ether' | awk '{{print $2}}'",
             shell=True,
             ignore_stderr=True,
         ).strip()
-    if (
-        nmci.process.run_code(
-            f"ip a s {device} |grep -q infiniband", shell=True, ignore_stderr=True
-        )
-        == 0
-    ):
+    rc = nmci.process.run_code(
+        f"ip a s {device} |grep -q infiniband",
+        shell=True,
+        ignore_stderr=True,
+    )
+    if rc == 0:
         ip_out = nmci.process.run_stdout(
             f"ip link show {device} | grep 'link/inf' | awk '{{print $2}}'",
             shell=True,
@@ -733,10 +732,14 @@ def force_renew_ipv6(context, device):
         ignore_stderr=True,
     ).strip()
     nmci.process.run_code(
-        f"ip -6 addr flush dev {device}", shell=True, ignore_stderr=True
+        f"ip -6 addr flush dev {device}",
+        shell=True,
+        ignore_stderr=True,
     )
     nmci.process.run_code(
-        f"ip addr add {mac} dev {device}", shell=True, ignore_stderr=True
+        f"ip addr add {mac} dev {device}",
+        shell=True,
+        ignore_stderr=True,
     )
 
 
@@ -749,13 +752,16 @@ def correct_lifetime(context, typ, valid_lft, pref_lft, device):
     if typ == "IPv4":
         inet = "inet"
 
-    valid_cmd = f"ip a s '{device}' |grep -A 1 -w '{inet}'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{{print $2}}'"
-    pref_cmd = f"ip a s '{device}' |grep -A 1 -w '{inet}'| grep -A 1 -w 'scope global' |grep valid_lft |awk '{{print $4}}'"
+    lft_cmd = (
+        f"ip a s '{device}' |grep -A 1 -w '{inet}'"
+        " | grep -A 1 -w 'scope global' |grep valid_lft"
+    )
+    valid_cmd = f"{lft_cmd} |awk '{{print $2}}'"
+    pref_cmd = f"{lft_cmd} |awk '{{print $4}}'"
 
-    valid = nmci.process.run_stdout(valid_cmd, shell=True, ignore_stderr=True).split()[
-        0
-    ]
-    pref = nmci.process.run_stdout(pref_cmd, shell=True, ignore_stderr=True).split()[0]
+    run = lambda cmd: nmci.process.run_stdout(cmd, shell=True, ignore_stderr=True)
+    valid = run(valid_cmd).split()[0]
+    pref = run(pref_cmd).split()[0]
 
     valid = valid.strip()
     valid = valid.replace("sec", "")
@@ -790,12 +796,12 @@ def check_ipv6_connectivity_on_assumal(context, profile, device):
     )
     ping = context.pexpect_spawn(f"ping6 {address} -i 0.2 -c 50")
     time.sleep(1)
-    assert (
-        nmci.process.run_code(
-            "systemctl start NetworkManager.service", shell=True, ignore_stderr=True
-        )
-        == 0
+    rc = nmci.process.run_code(
+        "systemctl start NetworkManager.service",
+        shell=True,
+        ignore_stderr=True,
     )
+    assert rc == 0
     time.sleep(12)
     r = ping.expect(["0% packet loss", pexpect.EOF, pexpect.TIMEOUT])
     assert r == 0, "Had packet loss on pinging the address!"
@@ -866,11 +872,12 @@ def get_routes_count(context, device=None, ip_version=4):
         device = f"dev {device}"
     else:
         device = ""
-    return len(
-        nmci.process.run_stdout(
-            f"ip -{ip_version} route show {device}", shell=True, ignore_stderr=True
-        ).split("\n")
+    out = nmci.process.run_stdout(
+        f"ip -{ip_version} route show {device}",
+        shell=True,
+        ignore_stderr=True,
     )
+    return len(out.split("\n"))
 
 
 @step(

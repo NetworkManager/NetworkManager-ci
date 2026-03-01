@@ -70,10 +70,8 @@ def create_udev_file(context, fname):
 def append_to_file(context, name, line=None):
     if line is None:
         line = context.text if context.text is not None else " "
-    old_content = (
-        nmci.util.file_get_content_simple(name) if os.path.isfile(name) else ""
-    )
-    nmci.util.file_set_content(name, old_content + line + "\n")
+    old = nmci.util.file_get_content_simple(name) if os.path.isfile(name) else ""
+    nmci.util.file_set_content(name, old + line + "\n")
 
 
 @step('Replace "{substring}" with "{replacement}" in file "{path}"')
@@ -86,10 +84,8 @@ def replace_substring(context, substring, replacement, path):
 @step('Append "{line}" to ifcfg file "{name}"')
 def append_to_ifcfg(context, line, name):
     path = f"/etc/sysconfig/network-scripts/ifcfg-{name}"
-    old_content = (
-        nmci.util.file_get_content_simple(path) if os.path.isfile(path) else ""
-    )
-    nmci.util.file_set_content(path, old_content + line + "\n")
+    old = nmci.util.file_get_content_simple(path) if os.path.isfile(path) else ""
+    nmci.util.file_set_content(path, old + line + "\n")
     nmci.cleanup.add_iface(name)
     nmci.cleanup.add_connection(name)
 

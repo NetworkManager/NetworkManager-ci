@@ -113,12 +113,12 @@ def check_saved_in_editor(context):
 
 @step('Delete connection "{name}" and hit Enter')
 def delete_connection_with_enter(context, name):
-    assert (
-        nmci.process.run_code(
-            f"nmcli connection delete id {name}", shell=True, ignore_stderr=True
-        )
-        == 0
+    rc = nmci.process.run_code(
+        f"nmcli connection delete id {name}",
+        shell=True,
+        ignore_stderr=True,
     )
+    assert rc == 0
     time.sleep(5)
     context.prompt.send("\n")
     time.sleep(2)
