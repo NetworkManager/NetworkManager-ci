@@ -132,7 +132,6 @@ Feature: nmcli - general
     @ver/rhel/8+=1.40.16.1
     @ver+=1.42.2
     @restore_hostname @eth0
-    @kill_dnsmasq_ip6
     @pull_hostname_from_dns_static_ipv6
     Scenario: nmcli - general - pull hostname from DNS (static IPv6 address)
     * Prepare simulated test "testG" device without DHCP
@@ -140,7 +139,7 @@ Feature: nmcli - general
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Wait for "1" seconds
-    * Run child "ip netns exec testG_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --bind-interfaces --interface testGp --host-record=client42,fd42::42" without shell
+    * Start dnsmasq for "ip6" in namespace "testG_ns" with options "--bind-interfaces --interface testGp --host-record=client42,fd42::42"
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -161,7 +160,6 @@ Feature: nmcli - general
     @ver/rhel/8+=1.40.16.1
     @ver+=1.42.2
     @restore_hostname @eth0
-    @kill_dnsmasq_ip6
     @pull_hostname_from_dns_dynamic_ipv6
     Scenario: nmcli - general - pull hostname from DNS (dynamic IPv6 address)
     * Prepare simulated test "testG" device without DHCP
@@ -169,7 +167,7 @@ Feature: nmcli - general
     * Execute "hostnamectl set-hostname """
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Wait for "1" seconds
-    * Run child "ip netns exec testG_ns dnsmasq --log-facility=/tmp/dnsmasq_ip6.log --pid-file=/tmp/dnsmasq_ip6.pid --conf-file=/dev/null --no-hosts --bind-interfaces --interface testGp --dhcp-range=fd01::100,fd01::200 --enable-ra --dhcp-host 00:11:22:33:44:55,client001122334455" without shell
+    * Start dnsmasq for "ip6" in namespace "testG_ns" with options "--bind-interfaces --interface testGp --dhcp-range=fd01::100,fd01::200 --enable-ra --dhcp-host 00:11:22:33:44:55,client001122334455"
     * Add "ethernet" connection named "con_general" for device "testG" with options
           """
           autoconnect no
@@ -3235,7 +3233,7 @@ Feature: nmcli - general
     * Execute "hostnamectl set-hostname --transient localhost.localdomain"
     * Prepare simulated test "testX6" device without DHCP
     * Execute "ip -n testX6_ns addr add dev testX6p fd01::1/64"
-    * Run child "ip netns exec testX6_ns dnsmasq --bind-interfaces --interface testX6p --pid-file=/tmp/testX6_ns.pid  --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93" without shell
+    * Start dnsmasq for "testX6_ns" in namespace "testX6_ns" with options "--bind-interfaces --interface testX6p --host-record=deprecated1,fd01::91 --host-record=validhostname,fd01::92 --host-record=deprecated2,fd01::93"
     * Run child "ip netns exec testX6_ns radvd -n -C contrib/ipv6/radvd3.conf" without shell
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """

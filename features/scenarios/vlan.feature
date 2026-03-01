@@ -47,7 +47,7 @@ Feature: nmcli - vlan
 
     @rhbz1378418
     @ver+=1.4.0
-    @kill_dnsmasq_vlan @restart_if_needed
+    @restart_if_needed
     @vlan_ipv4_ipv6_restart_persistence
     Scenario: NM - vlan - ipv4 and ipv6 restart persistence
     * Prepare veth pairs "test1" bridged over "vethbr"
@@ -62,7 +62,7 @@ Feature: nmcli - vlan
           ipv6.addresses 1::1/64
           """
     When "inet 10.1.0.1" is visible with command "ip a s vethbr.100" in "5" seconds
-    * Run child "dnsmasq --log-facility=/tmp/dnsmasq_vlan.log --dhcp-range=10.1.0.10,10.1.0.100,2m --pid-file=/tmp/dnsmasq_vlan.pid --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces" without shell
+    * Start dnsmasq for "vlan" with options "--dhcp-range=10.1.0.10,10.1.0.100,2m --dhcp-range=1::100,1::fff,slaac,64,2m --enable-ra --interface=vethbr.100 --bind-interfaces"
     * Add "vlan" connection named "tc2" with options "dev test1 id 100"
     When "inet 10.1.0" is visible with command "ip a s test1.100" in "15" seconds
      And "inet6 1::" is visible with command "ip a s test1.100" in "15" seconds

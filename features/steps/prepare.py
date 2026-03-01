@@ -310,6 +310,7 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 
     dnsmasq_cmd = (
         f"ip netns exec {device}_ns dnsmasq "
+        f"--keep-in-foreground "
         f"--pid-file=/tmp/{device}_ns.pid "
         f"--dhcp-leasefile=/tmp/{device}_ns.lease "
         f"--dhcp-range={ipv4}.10,{ipv4}.15,2m "
@@ -317,7 +318,7 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
         f"--enable-ra --interface={device}_bridge "
         f"--bind-interfaces"
     )
-    nmci.process.run(dnsmasq_cmd)
+    nmci.pexpect.pexpect_service(dnsmasq_cmd, shell=True, label=f"dnsmasq_{device}")
 
 
 @step('Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}"')
@@ -412,8 +413,19 @@ def clat_prepare(
             arg_opt108 = "--dhcp-option=108,720"
         else:
             arg_opt108 = ""
+        clat_label = f"clat_{device}"
+        log_file = f"/tmp/dnsmasq_{clat_label}.log"
+        pid_file = f"/tmp/dnsmasq_{clat_label}.pid"
+        clat_cmd = (
+            f"ip netns exec {device}_ns dnsmasq --keep-in-foreground"
+            f" --log-facility={log_file}"
+            f" --pid-file={pid_file}"
+            f" --conf-file=/dev/null --no-hosts"
+            f" --bind-interfaces --interface {device}p"
+            f" --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
+        )
         nmci.pexpect.pexpect_service(
-            f"ip netns exec {device}_ns dnsmasq --keep-in-foreground --pid-file=/tmp/dnsmasq-clat-{device}.pid --no-hosts --conf-file=/dev/null --bind-interfaces --interface {device}p --dhcp-range=172.25.42.100,172.25.42.200,60 {arg_opt108}"
+            clat_cmd, shell=True, label=f"dnsmasq_{clat_label}"
         )
 
     nmci.ip.netns_add(f"{device}_ns2")
@@ -790,6 +802,7 @@ def prepare_simdev(
 
     dnsmasq_command = (
         f"ip netns exec {device}_ns dnsmasq "
+        f"--keep-in-foreground "
         f"--interface={device}p "
         f"--bind-interfaces "
         f"--pid-file={pid_file} "
@@ -813,10 +826,7 @@ def prepare_simdev(
             f" --dhcp-range={dhcprange},slaac,64,{lease_time} --enable-ra"
         )
 
-    result = nmci.process.run(dnsmasq_command, shell=True)
-    assert (
-        result.returncode == 0
-    ), f"unable to start dnsmasq using command `{dnsmasq_command}`"
+    nmci.pexpect.pexpect_service(dnsmasq_command, shell=True, label=f"dnsmasq_{device}")
 
     nmci.process.run(
         f"ip netns exec {device}_ns ip link set {device} netns {os.getpid()}"
@@ -892,13 +902,16 @@ def prepare_simdev_different_network(context, device):
     # Push a default route and a route to reach the DHCP server
     dnsmasq_cmd = (
         f"ip netns exec {device}2_ns dnsmasq "
+        f"--keep-in-foreground "
         f"--pid-file=/tmp/{device}_ns.pid "
         f"--bind-interfaces -i {device}2p "
         f"--dhcp-range=172.16.0.100,172.16.0.200,255.255.255.0,1m "
         f"--dhcp-option=3,172.16.0.50 "
         f"--dhcp-option=121,10.0.0.0/24,172.16.0.1"
     )
-    nmci.process.run(dnsmasq_cmd)
+    nmci.pexpect.pexpect_service(
+        dnsmasq_cmd, shell=True, label=f"dnsmasq_{device}_relay"
+    )
 
 
 @step('Prepare simulated test "{device}" device without DHCP')
@@ -958,13 +971,16 @@ def prepare_simdev(context, device):
     nmci.process.run(
         f"ip netns exec {device}_ns sh -c 'echo 1 > /proc/sys/net/ipv6/conf/all/forwarding'"
     )
-    nmci.process.run(
-        f"ip netns exec {device}_ns dnsmasq \
-                                         --no-resolv \
-                                         --pid-file=/tmp/{device}_ns.pid \
-                                         --bind-interfaces -i {device}p \
-                                         --enable-ra \
-                                         --dhcp-range=::1,::400,constructor:{device}p,ra-only,64,15s"
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns dnsmasq"
+        f" --keep-in-foreground"
+        f" --no-resolv"
+        f" --pid-file=/tmp/{device}_ns.pid"
+        f" --bind-interfaces -i {device}p"
+        f" --enable-ra"
+        f" --dhcp-range=::1,::400,constructor:{device}p,ra-only,64,15s",
+        shell=True,
+        label=f"dnsmasq_{device}_ra",
     )
     # Add route
     nmci.process.run(
@@ -1003,14 +1019,17 @@ def prepare_simdev_no_carrier(context, device):
     )
     nmci.process.run(f"ip netns exec {device}_ns ip link set {device}_bridge up")
     nmci.process.run(f"ip netns exec {device}_ns ip link set {device}p down")
-    nmci.process.run(
-        f"ip netns exec {device}_ns dnsmasq \
-                                            --pid-file=/tmp/{device}_ns.pid \
-                                            --dhcp-leasefile=/tmp/{device}_ns.lease \
-                                            --dhcp-range={ipv4}.10,{ipv4}.15,2m \
-                                            --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,2m \
-                                            --enable-ra --interface={device}_bridge \
-                                            --bind-interfaces"
+    nmci.pexpect.pexpect_service(
+        f"ip netns exec {device}_ns dnsmasq"
+        f" --keep-in-foreground"
+        f" --pid-file=/tmp/{device}_ns.pid"
+        f" --dhcp-leasefile=/tmp/{device}_ns.lease"
+        f" --dhcp-range={ipv4}.10,{ipv4}.15,2m"
+        f" --dhcp-range={ipv6}::100,{ipv6}::1ff,slaac,64,2m"
+        f" --enable-ra --interface={device}_bridge"
+        f" --bind-interfaces",
+        shell=True,
+        label=f"dnsmasq_{device}_bridge",
     )
     nmci.process.run(f"ip netns exec {device}_ns ip link set {device} netns 1")
 
@@ -1136,12 +1155,15 @@ def setup_macsec_psk(context, cak, ckn, vid=None):
     nmci.ip.address_add(
         "2001:db8:1::fffe/32", "macsec0", addr_family="6", namespace="macsec_ns"
     )
-    nmci.process.run(
-        "ip netns exec macsec_ns dnsmasq \
-                                         --pid-file=/tmp/dnsmasq_ms.pid \
-                                         --dhcp-range=172.16.10.10,172.16.10.254,60m  \
-                                         --interface=macsec0 \
-                                         --bind-interfaces"
+    nmci.pexpect.pexpect_service(
+        "ip netns exec macsec_ns dnsmasq"
+        " --keep-in-foreground"
+        " --pid-file=/tmp/dnsmasq_ms.pid"
+        " --dhcp-range=172.16.10.10,172.16.10.254,60m"
+        " --interface=macsec0"
+        " --bind-interfaces",
+        shell=True,
+        label="dnsmasq_macsec",
     )
 
 

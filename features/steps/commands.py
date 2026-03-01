@@ -728,6 +728,69 @@ def pattern_not_visible_with_tab_after_command(context, pattern, command):
     ), f'pattern {pattern} is visible with "{command}"'
 
 
+def kill_dnsmasq(label):
+    """Kill a running dnsmasq pexpect_service by label.
+
+    :param label: identifier used when starting (e.g. "ip4", "testX4")
+    """
+    svc_label = f"dnsmasq_{label}"
+    for svc in nmci.pexpect.pexpect_service_find_all(
+        label=svc_label, running_only=True
+    ):
+        svc.proc.kill(15)
+        svc.proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=10)
+
+
+@step('Kill dnsmasq for "{label}"')
+def kill_dnsmasq_step(context, label):
+    kill_dnsmasq(label)
+
+
+def start_dnsmasq(label, namespace=None, options=""):
+    """Start dnsmasq as a foreground pexpect_service with automatic cleanup.
+
+    :param label: identifier for log/pid files (e.g. "ip4", "ip6", "vlan")
+    :param namespace: network namespace to run in (e.g. "testX_ns"), or None
+    :param options: extra dnsmasq arguments (e.g. "--dhcp-range=...")
+    """
+    svc_label = f"dnsmasq_{label}"
+    log_file = f"/tmp/{svc_label}.log"
+    pid_file = f"/tmp/{svc_label}.pid"
+
+    kill_dnsmasq(label)
+
+    cmd = (
+        f"dnsmasq --keep-in-foreground"
+        f" --log-facility={log_file}"
+        f" --pid-file={pid_file}"
+        f" --conf-file=/dev/null"
+        f" --no-hosts"
+    )
+    if options:
+        cmd += f" {options}"
+
+    if namespace:
+        cmd = f"ip netns exec {namespace} {cmd}"
+
+    nmci.pexpect.pexpect_service(cmd, shell=True, label=svc_label)
+
+    nmci.cleanup.add_callback(
+        callback=lambda: nmci.embed.embed_file_if_exists(
+            f"{svc_label}.log", log_file, fail_only=True
+        ),
+        name=f"{svc_label}_log_embed",
+    )
+    nmci.cleanup.add_file(log_file)
+    nmci.cleanup.add_file(pid_file)
+
+
+@step('Start dnsmasq for "{label}" with options "{options}"')
+@step('Start dnsmasq for "{label}" in namespace "{namespace}" with options "{options}"')
+def start_dnsmasq_step(context, label, options, namespace=None):
+    options = nmci.misc.str_replace_dict(options, context.noted)
+    start_dnsmasq(label, namespace=namespace, options=options)
+
+
 @step('Run child "{command}"')
 def run_child_process(context, command):
     command = nmci.misc.str_replace_dict(command, context.noted)

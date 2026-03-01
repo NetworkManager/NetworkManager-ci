@@ -2520,7 +2520,6 @@ _register_tag("mtu", None, mtu_as)
 
 def macsec_as(context, scenario):
     context.process.run_stdout("pkill -F /tmp/wpa_supplicant_ms.pid")
-    context.process.run_stdout("pkill -F /tmp/dnsmasq_ms.pid")
 
 
 _register_tag("macsec", None, macsec_as)
@@ -2531,65 +2530,6 @@ def dhcpd_as(context, scenario):
 
 
 _register_tag("dhcpd", None, dhcpd_as)
-
-
-def kill_dnsmasq_from_pid_file(pid_file):
-    def finished(pid):
-        try:
-            os.kill(pid, 0)
-        except OSError:
-            # process with this PID doesn't exist (any more)
-            return True
-        return False
-
-    def try_kill(pid, signal):
-        try:
-            os.kill(pid, signal)
-        except ProcessLookupError:
-            pass
-
-    if os.path.isfile(pid_file):
-        try:
-            pid = int(nmci.util.file_get_content_simple(pid_file))
-        except FileNotFoundError:
-            return
-        try_kill(pid, 15)
-        time.sleep(0.2)
-        for i in range(5):
-            if finished(pid):
-                return
-            time.sleep(1)
-        try_kill(pid, 9)
-
-
-def kill_dnsmasq_vlan_as(context, scenario):
-    log_file = "/tmp/dnsmasq_vlan.log"
-    if nmci.embed.embed_file_if_exists("dnsmasq_vlan.log", log_file, fail_only=True):
-        os.remove(log_file)
-    kill_dnsmasq_from_pid_file("/tmp/dnsmasq_vlan.pid")
-
-
-_register_tag("kill_dnsmasq_vlan", None, kill_dnsmasq_vlan_as)
-
-
-def kill_dnsmasq_ip4_as(context, scenario):
-    log_file = "/tmp/dnsmasq_ip4.log"
-    if nmci.embed.embed_file_if_exists("dnsmasq_ip4.log", log_file, fail_only=True):
-        os.remove(log_file)
-    kill_dnsmasq_from_pid_file("/tmp/dnsmasq_ip4.pid")
-
-
-_register_tag("kill_dnsmasq_ip4", None, kill_dnsmasq_ip4_as)
-
-
-def kill_dnsmasq_ip6_as(context, scenario):
-    log_file = "/tmp/dnsmasq_ip6.log"
-    if nmci.embed.embed_file_if_exists("dnsmasq_ip6.log", log_file, fail_only=True):
-        os.remove(log_file)
-    kill_dnsmasq_from_pid_file("/tmp/dnsmasq_ip6.pid")
-
-
-_register_tag("kill_dnsmasq_ip6", None, kill_dnsmasq_ip6_as)
 
 
 def kill_dhcrelay_as(context, scenario):

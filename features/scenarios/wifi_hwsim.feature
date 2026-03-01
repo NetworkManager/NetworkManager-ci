@@ -917,7 +917,7 @@ Feature: nmcli - wifi
     * Execute "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect <noted:wifi_peer> pbc auth go_intent=14"
     When "p2p-wlan1-0" is visible with command "ls /sys/class/net/" in "10" seconds
     * Execute "ip addr add 192.168.10.1/24 dev p2p-wlan1-0"
-    * Run child "dnsmasq -k -i p2p-wlan1-0 --dhcp-range=192.168.10.100,192.168.10.200"
+    * Start dnsmasq for "wifi_p2p" with options "-i p2p-wlan1-0 --dhcp-range=192.168.10.100,192.168.10.200"
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
 
 

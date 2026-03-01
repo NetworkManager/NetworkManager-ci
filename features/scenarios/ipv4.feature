@@ -1626,7 +1626,6 @@ Feature: nmcli: ipv4
     Then "eth3:connected:con_ipv4" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
-    @kill_dnsmasq_ip4
     @set_mtu_from_DHCP
     Scenario: NM - ipv4 - set dhcp received MTU
     * Create "veth" device named "test1" with options "peer name test1p"
@@ -1643,7 +1642,7 @@ Feature: nmcli: ipv4
     * Add "ethernet" connection named "tc2" for device "test2"
     * Bring "up" connection "tc1"
     When "test1:connected:tc1" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "10" seconds
-    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq_ip4.log --pid-file=/tmp/dnsmasq_ip4.pid --conf-file --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800 &"
+    * Start dnsmasq for "ip4" with options "--bind-interfaces --except-interface=lo --clear-on-reload --strict-order --listen-address=192.168.99.1 --dhcp-range=192.168.99.10,192.168.99.254,60m --dhcp-option=option:router,192.168.99.1 --dhcp-lease-max=50 --dhcp-option-force=26,1800"
     * Bring "up" connection "tc2"
     Then "mtu 1800" is visible with command "ip a s test2"
 
@@ -1878,7 +1877,7 @@ Feature: nmcli: ipv4
 
     @rhbz1713380
     @ver+=1.39
-    @kill_dnsmasq_ip4 @tshark
+    @tshark
     @ipv4_send_dhcpdecline_on_ip_conflict
     Scenario: NM - ipv4 - with ipv4.dad-timeout > 0, perform DAD and send DHCPDECLINE after duplicate detection
     * Add "ethernet" connection named "test" for device "dad" with options "autoconnect no ipv4.dhcp-client-id AB ipv4.dad-timeout 10"
@@ -1902,7 +1901,7 @@ Feature: nmcli: ipv4
     * Execute "ip netns exec dad_ns nft list ruleset"
     # note MAC of dad interface
     * Execute "ip l show dev dad | tr '\n' ' ' | sed -e 's/.*link\/ether \([^[:space:]]\+\).*/\1/' > /tmp/dad-mac"
-    * Run child "ip netns exec dhcp_ns dnsmasq --log-facility=/tmp/dnsmasq_ip4.log --pid-file=/tmp/dnsmasq_ip4.pid --listen-address=192.168.123.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.123.50,192.168.123.250,2m --dhcp-host=id:AB,192.168.123.40" without shell
+    * Start dnsmasq for "ip4" in namespace "dhcp_ns" with options "--listen-address=192.168.123.1 --dhcp-range=192.168.123.50,192.168.123.250,2m --dhcp-host=id:AB,192.168.123.40"
     # Verify that ARP reply is received on DAD request
     * "Unicast reply from 192.168.123.40" is visible with command "arping -D -I dad 192.168.123.40"
     * Run child "tshark -n -l -i dad 'arp or port 67 or port 68' > /tmp/tshark.log"
@@ -1964,14 +1963,14 @@ Feature: nmcli: ipv4
 
     @rhbz1404148
     @ver+=1.10
-    @kill_dnsmasq_ip4
     @ipv4_method_shared_with_already_running_dnsmasq
     Scenario: nmcli - ipv4 - method shared when dnsmasq does run
     * Note the output of "pidof NetworkManager" as value "1"
     * Prepare veth pairs "test1,test2" bridged over "vethbr"
     * Execute "ip addr add 10.42.0.1/24 dev test1"
     * Execute "ip link set up dev test1"
-    * Execute "/usr/sbin/dnsmasq --log-facility=/tmp/dnsmasq_ip4.log --log-dhcp --log-queries --conf-file=/dev/null --no-hosts --keep-in-foreground --bind-interfaces --except-interface=lo --clear-on-reload --pid-file=/tmp/dnsmasq_ip4.pid & sleep 2"
+    * Start dnsmasq for "ip4" with options "--log-dhcp --log-queries --bind-interfaces --except-interface=lo --clear-on-reload"
+    * Wait for "2" seconds
     * Add "ethernet" connection named "tc1" for device "test1" with options
           """
           autoconnect no
@@ -2671,18 +2670,18 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - NetworkManager configures wrong, spurious "local" route for IP address after DHCP address change
     * Prepare simulated test "testX4" device without DHCP
     * Execute "ip -n testX4_ns addr add dev testX4p 192.168.99.1/24"
-    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.30,192.168.99.39,2m" without shell
+    * Start dnsmasq for "testX4_1" in namespace "testX4_ns" with options "--listen-address=192.168.99.1 --dhcp-range=192.168.99.30,192.168.99.39,2m"
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     * Bring "up" connection "con_ipv4"
-    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
+    * Kill dnsmasq for "testX4_1"
     * Execute "ip l set testX4 down"
-    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.40,192.168.99.49,2m" without shell
+    * Start dnsmasq for "testX4_2" in namespace "testX4_ns" with options "--listen-address=192.168.99.1 --dhcp-range=192.168.99.40,192.168.99.49,2m"
     * Execute "ip l set testX4 up"
     When "192.168.99.4" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
     Then "192.168.99.3" is not visible with command "ip -4 r show table all dev testX4 scope link"
-    * Execute "pkill -F /tmp/testX4_ns.pid; sleep 1"
+    * Kill dnsmasq for "testX4_2"
     * Execute "ip l set testX4 down"
-    * Run child "ip netns exec testX4_ns dnsmasq --pid-file=/tmp/testX4_ns.pid --listen-address=192.168.99.1 --conf-file=/dev/null --no-hosts --dhcp-range=192.168.99.50,192.168.99.59,2m" without shell
+    * Start dnsmasq for "testX4_3" in namespace "testX4_ns" with options "--listen-address=192.168.99.1 --dhcp-range=192.168.99.50,192.168.99.59,2m"
     * Execute "ip l set testX4 up"
     When "192.168.99.5" is visible with command "ip -4 r show table all dev testX4 scope link" in "60" seconds
     Then "192.168.99.[34]" is not visible with command "ip -4 r show table all dev testX4 scope link"
@@ -3305,7 +3304,7 @@ Feature: nmcli: ipv4
     * Wait for "5" seconds
     * Execute "kill `cat /tmp/testX_ns.pid`"
     * Wait for "1" seconds
-    * Run child "ip netns exec testX_ns dnsmasq --pid-file=/tmp/testX_ns.pid --dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,8.8.8.8 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping --log-dhcp --conf-file=/dev/null --dhcp-leasefile=/tmp/testX_ns.lease --dhcp-range=192.0.2.10,192.0.2.15,2m"
+    * Start dnsmasq for "testX_reapply" in namespace "testX_ns" with options "--dhcp-host=testX,192.0.2.15 --dhcp-option=option:dns-server,8.8.8.8 --dhcp-option=option:domain-name,example.com --dhcp-option=option:ntp-server,192.0.2.1 --clear-on-reload --interface=testXp --enable-ra --no-ping --log-dhcp --dhcp-leasefile=/tmp/testX_ns.lease --dhcp-range=192.0.2.10,192.0.2.15,2m"
     Then Nameserver "8.8.8.8" is set in "120" seconds
 
 
@@ -3396,7 +3395,7 @@ Feature: nmcli: ipv4
     Scenario: NM - ipv4 - renew lease after DHCP restart
     * Prepare simulated test "testX" device without DHCP
     * Execute "ip -n testX_ns addr add dev testXp 172.25.10.1/24"
-    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
+    * Start dnsmasq for "testX_1" in namespace "testX_ns" with options "--bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
     * Add "ethernet" connection named "con_ipv4" for device "testX" with options
           """
           ipv4.method auto
@@ -3405,9 +3404,9 @@ Feature: nmcli: ipv4
           """
     * Bring "up" connection "con_ipv4"
     Then "172.*" is visible with command "nmcli -g IP4.ADDRESS device show testX" in "20" seconds
-    * Kill children with signal "15"
+    * Kill dnsmasq for "testX_1"
     Then "172.*" is not visible with command "nmcli -g IP4.ADDRESS device show testX" in "180" seconds
-    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
+    * Start dnsmasq for "testX_2" in namespace "testX_ns" with options "--bind-interfaces --interface testXp -d --dhcp-range=172.25.10.100,172.25.10.200,60"
     Then "172.*" is visible with command "nmcli -g IP4.ADDRESS device show testX" in "20" seconds
 
 
@@ -3505,7 +3504,7 @@ Feature: nmcli: ipv4
       option is enabled on both sides
       """
     * Execute "ip -n testX_ns addr add dev testXp 172.25.10.1/24"
-    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60 --dhcp-option=108,8i"
+    * Start dnsmasq for "testX_1" in namespace "testX_ns" with options "--bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60 --dhcp-option=108,8i"
     * Add "ethernet" connection named "con_general" for device "testX" with options
           """
           autoconnect no
@@ -3520,8 +3519,8 @@ Feature: nmcli: ipv4
       """
       Now disable the option on server side and check that the interface gets the IPv4 address
       """
-    * Kill children with signal "15"
-    * Run child "ip netns exec testX_ns dnsmasq --bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60"
+    * Kill dnsmasq for "testX_1"
+    * Start dnsmasq for "testX_2" in namespace "testX_ns" with options "--bind-interfaces --interface testXp -d --port 0 --dhcp-range=172.25.10.100,172.25.10.200,60"
     Then "inet 172.25" is visible with command "ip addr show dev testX" in "15" seconds
 
 
