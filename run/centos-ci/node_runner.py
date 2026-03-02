@@ -991,7 +991,7 @@ class Runner:
         logging.debug(
             f"tests distributed to {len(self.tests)} machines: {[len(x) for x in self.tests]}"
         )
-        machines_num = len(self.tests)
+        machines_num = 1
 
         self.session_id, node = self._get_nodes(machines_num)
 
