@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 # TODO convert this to argument
-MACHINES_NUM = 2
+MACHINES_NUM = 1
 MACHINES_MIN_THRESHOLD = 1000
 
 
@@ -991,7 +991,7 @@ class Runner:
         logging.debug(
             f"tests distributed to {len(self.tests)} machines: {[len(x) for x in self.tests]}"
         )
-        machines_num = 1
+        machines_num = len(self.tests)
 
         self.session_id, node = self._get_nodes(machines_num)
 
