@@ -426,7 +426,7 @@ class Mapper:
         self.m_thresh = MACHINES_MIN_THRESHOLD
 
     def _parse_features_string(self, features):
-        if "best" in features:
+        if features == "best":
             features = None
             if self.gitlab is not None:
                 features = [
