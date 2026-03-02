@@ -1120,6 +1120,15 @@ def prepare_iptunnel_doc(context, mode):
     if mode == "gretap":
         bridge = True
 
+    # cleanup kernel modules to avoid stale tunnel interfaces
+    nmci.cleanup.add_callback(
+        callback=[
+            lambda mod=mod: nmci.process.run(f"modprobe -r {mod}", ignore_stderr=True)
+            for mod in ["ipip", "ip_gre", "gre", "ip_tunnel"]
+        ],
+        name="cleanup-iptunnel-modules",
+    )
+
     # prepare Network A (range 192.0.2.1/2) and Network B in namespace (range 172.16.0.1/24)
     context.execute_steps('* Prepare simulated test "netA" device without DHCP')
     context.execute_steps('* Prepare simulated test "netB" device without DHCP')
