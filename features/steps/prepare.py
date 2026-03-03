@@ -525,9 +525,7 @@ def clat_verify(context, device):
     nmci.process.run_stdout(
         "ping -c4 203.0.113.1",
         shell=True,
-        ignore_returncode=False,
         ignore_stderr=True,
-        as_bytes=True,
         timeout=None,
     )
 
@@ -582,17 +580,13 @@ def clat_verify_nondefault(context, device, clat_address, server):
     nmci.process.run_stdout(
         f"ping -I {device} -c4 {server}",
         shell=True,
-        ignore_returncode=False,
         ignore_stderr=True,
-        as_bytes=True,
         timeout=None,
     )
     nmci.process.run_stdout(
         f"curl --interface {device} http://{server}:8080",
         shell=True,
-        ignore_returncode=False,
         ignore_stderr=True,
-        as_bytes=True,
         timeout=None,
     )
     commands.check_pattern_command(
@@ -1154,11 +1148,19 @@ def setup_macsec_psk(context, cak, ckn, vid=None):
 @step("Set default DCB options")
 def set_default_dcb(context):
     nmci.process.run_stdout(
-        "nmcli con modify dcb dcb.app-fcoe-flags 7 dcb.app-fcoe-priority 7 dcb.app-fcoe-mode vn2vn dcb.app-iscsi-flags 7 dcb.app-iscsi-priority 6 dcb.app-fip-flags 7 dcb.app-fip-priority 2  dcb.priority-flow-control-flags 7 dcb.priority-flow-control 1,0,0,1,1,0,1,0 dcb.priority-group-flags 7 dcb.priority-group-id 0,0,0,0,1,1,1,1 dcb.priority-group-bandwidth 13,13,13,13,12,12,12,12 dcb.priority-bandwidth 100,100,100,100,100,100,100,100 dcb.priority-traffic-class 7,6,5,4,3,2,1,0",
+        "nmcli con modify dcb"
+        " dcb.app-fcoe-flags 7 dcb.app-fcoe-priority 7 dcb.app-fcoe-mode vn2vn"
+        " dcb.app-iscsi-flags 7 dcb.app-iscsi-priority 6"
+        " dcb.app-fip-flags 7 dcb.app-fip-priority 2"
+        " dcb.priority-flow-control-flags 7"
+        " dcb.priority-flow-control 1,0,0,1,1,0,1,0"
+        " dcb.priority-group-flags 7"
+        " dcb.priority-group-id 0,0,0,0,1,1,1,1"
+        " dcb.priority-group-bandwidth 13,13,13,13,12,12,12,12"
+        " dcb.priority-bandwidth 100,100,100,100,100,100,100,100"
+        " dcb.priority-traffic-class 7,6,5,4,3,2,1,0",
         shell=True,
-        ignore_returncode=False,
         ignore_stderr=True,
-        as_bytes=True,
         timeout=None,
     )
 
@@ -1310,7 +1312,7 @@ def mptcp(context, num, veth, typ="subflow"):
     if len(rp_filter_keys) > 0:
         rp_filters = [f"{k} = 0" for k in rp_filter_keys.split("\n")]
 
-        pexpect_cmd = " ".join([*run_in_ns, "sysctl", f"-p-"])
+        pexpect_cmd = " ".join([*run_in_ns, "sysctl", "-p-"])
         sysctl_p = nmci.pexpect.pexpect_spawn(pexpect_cmd, check=True)
         for f in rp_filters:
             sysctl_p.sendline(f)
