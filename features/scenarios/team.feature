@@ -546,7 +546,7 @@
      * Append "BOOTPROTO=none" to ifcfg file "team0"
      * Append "IPADDR=192.168.23.11" to ifcfg file "team0"
      * Append "NETMASK=255.255.255.0" to ifcfg file "team0"
-     * Append "TEAM_CONFIG='{\"runner\": {\"name\": \"activebackup\"}, \"link_wach\": {\"name\": \"ethtool\"}}'" to ifcfg file "team0"
+     * Append "TEAM_CONFIG='{"runner": {"name": "activebackup"}, "link_wach": {"name": "ethtool"}}'" to ifcfg file "team0"
      * Execute "nmcli con reload"
      * Bring "up" connection "team0"
      * Bring "up" connection "team0.1"

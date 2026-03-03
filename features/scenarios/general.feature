@@ -3283,7 +3283,7 @@ Feature: nmcli - general
       host myhost {
             hardware ethernet 00:11:22:33:44:55;
             fixed-address 172.25.1.150;
-            option host-name \"name1.test-dhcp-this-one-here-is-a-very-very-long-domain.example.com\";
+            option host-name "name1.test-dhcp-this-one-here-is-a-very-very-long-domain.example.com";
       }
       """
     * Execute "ip netns exec testX4_ns dhcpd -4 -cf /tmp/dhcpd.conf -pf /tmp/testX4_ns.pid"

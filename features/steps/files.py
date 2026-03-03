@@ -70,8 +70,10 @@ def create_udev_file(context, fname):
 def append_to_file(context, name, line=None):
     if line is None:
         line = context.text if context.text is not None else " "
-    cmd = 'echo "%s" >> %s' % (line, name)
-    context.command_code(cmd)
+    old_content = (
+        nmci.util.file_get_content_simple(name) if os.path.isfile(name) else ""
+    )
+    nmci.util.file_set_content(name, old_content + line + "\n")
 
 
 @step('Replace "{substring}" with "{replacement}" in file "{path}"')
@@ -83,17 +85,20 @@ def replace_substring(context, substring, replacement, path):
 
 @step('Append "{line}" to ifcfg file "{name}"')
 def append_to_ifcfg(context, line, name):
-    cmd = 'echo "%s" >> /etc/sysconfig/network-scripts/ifcfg-%s' % (line, name)
-    context.command_code(cmd)
+    path = f"/etc/sysconfig/network-scripts/ifcfg-{name}"
+    old_content = (
+        nmci.util.file_get_content_simple(path) if os.path.isfile(path) else ""
+    )
+    nmci.util.file_set_content(path, old_content + line + "\n")
     nmci.cleanup.add_iface(name)
     nmci.cleanup.add_connection(name)
 
 
 @step('Check file "{file1}" is contained in file "{file2}"')
 def check_file_is_contained(context, file1, file2):
-    with open(file1) as f1_lines:
-        with open(file2) as f2_lines:
-            diff = set(f1_lines).difference(f2_lines)
+    f1_content = nmci.util.file_get_content_simple(file1).splitlines(keepends=True)
+    f2_content = nmci.util.file_get_content_simple(file2).splitlines(keepends=True)
+    diff = set(f1_content).difference(f2_content)
     assert not len(
         diff
     ), f"Following lines in '{file1}' are not in '{file2}':\n" + "".join(diff)
@@ -113,10 +118,8 @@ def check_file_is_identical(context, file1, file2):
 
 @step('ifcfg-"{con_name}" file does not exist')
 def ifcfg_doesnt_exist(context, con_name):
-    cat = context.pexpect_spawn(
-        "cat /etc/sysconfig/network-scripts/ifcfg-%s" % con_name
-    )
-    assert cat.expect("No such file") == 0, "Ifcfg-%s exists!" % con_name
+    cat = context.pexpect_spawn(f"cat /etc/sysconfig/network-scripts/ifcfg-{con_name}")
+    assert cat.expect("No such file") == 0, f"Ifcfg-{con_name} exists!"
 
 
 @step('"{filename}" is file')
@@ -126,15 +129,15 @@ def is_file(context, filename, seconds=5):
         if os.path.isfile(filename):
             return
         time.sleep(1)
-    ls = context.command_output('ls -la "%s"' % filename)
-    assert os.path.isfile(filename), '"%s" is not a file:\n%s' % (filename, ls)
+    ls = nmci.process.run_stdout(f'ls -la "{filename}"', shell=True, ignore_stderr=True)
+    assert os.path.isfile(filename), f'"{filename}" is not a file:\n{ls}'
 
 
 @step('Path "{path}" does not exist')
 def no_path(context, path):
     if os.path.exists(path):
         time.sleep(3)
-        assert not os.path.exists(path), '"%s" is valid path' % path
+        assert not os.path.exists(path), f'"{path}" is valid path'
 
 
 @step('"{filename}" is symlink')
@@ -142,17 +145,13 @@ def no_path(context, path):
 def is_symlink(context, filename, destination=None):
     if "<noted_value>" in filename:
         filename = filename.replace("<noted_value>", context.noted["noted-value"])
-    assert os.path.islink(filename), '"%s" is not a symlink' % filename
+    assert os.path.islink(filename), f'"{filename}" is not a symlink'
     realpath = os.path.realpath(filename)
     if destination is None:
         return True
     assert (
         realpath == destination
-    ), 'symlink "%s" has destination "%s" instead of "%s"' % (
-        filename,
-        realpath,
-        destination,
-    )
+    ), f'symlink "{filename}" has destination "{realpath}" instead of "{destination}"'
 
 
 @step('Remove file "{filename}" if exists')
@@ -169,24 +168,21 @@ def remove_symlink(context, filename):
 
 @step("Create symlink {source} with destination {destination}")
 def create_symlink(context, source, destination):
-    cmd = 'ln -s "%s" "%s"' % (destination, source)
-    context.command_code(cmd)
+    os.symlink(destination, source)
 
 
 @step("Check ifcfg-name file created with noted connection name")
 def check_ifcfg_exists(context):
-    command = (
-        "cat /etc/sysconfig/network-scripts/ifcfg-%s" % context.noted["noted-value"]
-    )
-    pattern = "NAME=%s" % context.noted["noted-value"]
+    command = f"cat /etc/sysconfig/network-scripts/ifcfg-{context.noted['noted-value']}"
+    pattern = f"NAME={context.noted['noted-value']}"
     return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
 @step('Check ifcfg-name file created for connection "{con_name}"')
 def check_ifcfg_exists_given_device(context, con_name):
     context.additional_sleep(1)
-    command = "cat /etc/sysconfig/network-scripts/ifcfg-%s" % con_name
-    pattern = "NAME=%s" % con_name
+    command = f"cat /etc/sysconfig/network-scripts/ifcfg-{con_name}"
+    pattern = f"NAME={con_name}"
     return commands.check_pattern_command(context, command, pattern, seconds=2)
 
 
@@ -196,11 +192,10 @@ def check_ifcfg_exists_given_device(context, con_name):
 @step('Write dispatcher "{path}" file')
 def write_dispatcher_file(context, path, params=None, source=None):
     if not path.startswith("/"):
-        path = "/etc/NetworkManager/dispatcher.d/%s" % path
+        path = f"/etc/NetworkManager/dispatcher.d/{path}"
     image_mode = False
     if path.startswith("/usr/"):
-        with open("/proc/cmdline") as f:
-            p_cmdline = f.read()
+        p_cmdline = nmci.util.file_get_content_simple("/proc/cmdline")
         image_mode = "ostree" in p_cmdline
         if image_mode:
             nmci.process.run_stdout("mount -o remount,rw lazy /usr")
@@ -229,11 +224,11 @@ def write_dispatcher_file(context, path, params=None, source=None):
 
     if source is None:
         nmci.util.file_set_content("/tmp/dispatcher.txt", "")
-        with open(path, "w") as f:
-            f.write("#!/bin/bash\n")
-            if params:
-                f.write(params)
-            f.write("\necho $2 >> /tmp/dispatcher.txt\n")
+        content = "#!/bin/bash\n"
+        if params:
+            content += params
+        content += "\necho $2 >> /tmp/dispatcher.txt\n"
+        nmci.util.file_set_content(path, content)
     else:
         shutil.copyfile(f"{nmci.util.BASE_DIR}/contrib/dispatcher/{source}", path)
 
@@ -244,49 +239,46 @@ def write_dispatcher_file(context, path, params=None, source=None):
 
 @step("Reset /etc/hosts")
 def reset_hosts(context):
-    cmd = "echo '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' > /etc/hosts"
-    context.command_code(cmd)
-    cmd = "echo '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' >> /etc/hosts"
-    context.command_code(cmd)
+    nmci.util.file_set_content(
+        "/etc/hosts",
+        "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n"
+        "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6\n",
+    )
 
 
 @step('Check solicitation for "{dev}" in "{file}"')
 def check_solicitation(context, dev, file):
     # file = '/tmp/solicitation.txt'
     # dev = 'enp0s25'
-    cmd = "ip a s %s |grep ff:ff|awk {'print $2'}" % dev
+    cmd = f"ip a s {dev} |grep ff:ff|awk {{'print $2'}}"
     mac = ""
-    for line in context.command_output(cmd).split("\n"):
+    for line in nmci.process.run_stdout(cmd, shell=True, ignore_stderr=True).split(
+        "\n"
+    ):
         if line.find(":") != -1:
             mac = line.strip()
 
     mac_last_4bits = mac.split(":")[-2] + mac.split(":")[-1]
-    dump = open(file, "r")
+    dump_content = nmci.util.file_get_content_simple(file).splitlines(keepends=True)
 
-    assert mac_last_4bits not in dump.readlines(), (
-        "Route solicitation from %s was found in tshark dump" % mac
-    )
+    assert (
+        mac_last_4bits not in dump_content
+    ), f"Route solicitation from {mac} was found in tshark dump"
 
 
 @step('Check keyfile "{file}" has options')
 def check_keyfile(context, file):
     cp = configparser.ConfigParser()
-    with open(file, "r") as f:
-        f_content = f.read()
-    assert file in cp.read(file), "File '%s' is not valid config file:\n%s" % (
-        file,
-        f_content,
-    )
+    f_content = nmci.util.file_get_content_simple(file)
+    assert file in cp.read(
+        file
+    ), f"File '{file}' is not valid config file:\n{f_content}"
     for line in context.text.split("\n"):
         opt, value = line.split("=")
         opt = opt.split(".")
         value = value.strip()
         cfg_val = cp.get(*opt)
-        assert cfg_val == value, "'%s' not found in file '%s'\n%s" % (
-            line,
-            file,
-            f_content,
-        )
+        assert cfg_val == value, f"'{line}' not found in file '{file}'\n{f_content}"
 
 
 @step("Update the noted keyfile")
@@ -306,15 +298,11 @@ def step_update_keyfile(context, file=None, note="noted-value"):
 
 @step('Check ifcfg-file "{file}" has options')
 def check_ifcfg(context, file):
-    assert os.path.isfile(file), "File '%s' does not exist" % file
-    with open(file) as f:
-        cfg = [opt.strip() for opt in f.readlines()]
+    assert os.path.isfile(file), f"File '{file}' does not exist"
+    cfg = [opt.strip() for opt in nmci.util.file_get_content_simple(file).splitlines()]
     for line in context.text.split("\n"):
-        assert line in cfg, "'%s' not found in file '%s':\n%s" % (
-            line,
-            file,
-            "\n".join(cfg),
-        )
+        cfg_str = "\n".join(cfg)
+        assert line in cfg, f"'{line}' not found in file '{file}':\n{cfg_str}"
 
 
 @step('Create ifcfg-file "{file}"')
@@ -329,11 +317,9 @@ def create_network_profile_file(context, file):
     content = context.text
     if os.path.isfile(content):
         nmci.embed.embed_file_if_exists(file, content)
-        with open(content) as f:
-            content = f.read()
+        content = nmci.util.file_get_content_simple(content)
 
-    with open(file, "w") as f:
-        f.write(content)
+    nmci.util.file_set_content(file, content)
     assert (
         nmci.process.run_code(["chmod", "600", file]) == 0
     ), f"Unable to set permissions on '{file}'"
