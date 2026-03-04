@@ -81,8 +81,8 @@ class Machine:
             [
                 "-o UserKnownHostsFile=/dev/null",
                 "-o StrictHostKeyChecking=no",
-                "-o ServerAliveInterval=120",
-                "-o ServerAliveCountMax=10",
+                "-o ServerAliveInterval=10",
+                "-o ServerAliveCountMax=240",
             ]
         )
 
@@ -211,6 +211,12 @@ class Machine:
 
     def _setup(self):
         self._wait_for_machine()
+        self.ssh(
+            "sed -i"
+            " -e \\'s/^#*ClientAliveInterval.*/ClientAliveInterval 10/\\'"
+            " -e \\'s/^#*ClientAliveCountMax.*/ClientAliveCountMax 240/\\'"
+            " /etc/ssh/sshd_config"
+        )
         self._update()
         self.ssh(f"mkdir -p {self.results_internal}")
         release = self.release_num
