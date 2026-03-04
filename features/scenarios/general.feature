@@ -2014,6 +2014,20 @@ Feature: nmcli - general
     Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
 
 
+    @ver+=1.57.3
+    @manage_eth8 @checkpoint_remove
+    @snapshot_rollback_managed_persist
+    Scenario: NM - general - snapshot and rollback persistent managed
+    * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
+    * Snapshot "create" for "eth8" with timeout "10"
+    * Execute "nmcli device set eth8 managed --permanent off"
+    When "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
+    * Wait for "15" seconds
+    Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+    * Reboot
+    Then "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
+
+
     @rhbz1369716
     @ver+=1.8.0
     @checkpoint_remove

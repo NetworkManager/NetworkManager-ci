@@ -123,6 +123,7 @@ discover:
         - /tests/snapshot_timeout_rollback_all_devices
         - /tests/snapshot_rollback_unmanaged
         - /tests/snapshot_rollback_managed
+        - /tests/snapshot_rollback_managed_persist
         - /tests/snapshot_rollback_soft_device
         - /tests/snapshot_rollback_sriov
         - /tests/snapshot_deleted_soft_device_dbus_link

@@ -2015,6 +2015,8 @@ testmapper:
         feature: general
     - snapshot_rollback_managed:
         feature: general
+    - snapshot_rollback_managed_persist:
+        feature: general
     - snapshot_rollback_soft_device:
         feature: general
         tags: gate
