@@ -942,12 +942,12 @@ Feature: nmcli - dns
 
     * Bring "up" connection "con_dns"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
-    Then Ping "meet"
-    Then Ping "nix.cz"
+    Then "meet.* has address" is visible with command "host -t A meet" in "10" seconds
+    Then "nix.cz.* has address" is visible with command "host -t A nix.cz" in "10" seconds
     * Execute "nmcli device reapply eth0"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
-    Then Ping "meet"
-    Then Ping "nix.cz"
+    Then "meet.* has address" is visible with command "host -t A meet" in "10" seconds
+    Then "nix.cz.* has address" is visible with command "host -t A nix.cz" in "10" seconds
 
 
     @RHEL-67917 @RHEL-80307 @RHEL-83175
@@ -985,12 +985,12 @@ Feature: nmcli - dns
     * Execute "systemctl stop dnsconfd"
     * Bring "up" connection "con_dns"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
-    Then Ping "meet"
-    Then Ping "nix.cz"
+    Then "meet.* has address" is visible with command "host -t A meet" in "10" seconds
+    Then "nix.cz.* has address" is visible with command "host -t A nix.cz" in "10" seconds
     * Execute "nmcli device reapply eth0"
     Then "connected" is visible with command "nmcli -g GENERAL.STATE device show eth0"
-    Then Ping "meet"
-    Then Ping "nix.cz"
+    Then "meet.* has address" is visible with command "host -t A meet" in "10" seconds
+    Then "nix.cz.* has address" is visible with command "host -t A nix.cz" in "10" seconds
 
 
     @RHEL-67917
