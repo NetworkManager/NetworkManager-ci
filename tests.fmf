@@ -4204,33 +4204,53 @@ link:
 /nmcli_general_set_device_reset_managed:
     id: 41831a13-0cf6-5491-af4a-bb9dbf15d7b9
     order+: 15066
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9170
 /nmcli_general_set_device_unmanaged_persist:
     id: 995494a5-af31-53c6-a35e-bdae4da48bd1
     order+: 15067
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9174
 /nmcli_general_set_device_unmanaged_persist_only:
     id: 7e7894a6-dfd0-52ac-abf7-d5943fd9055b
     order+: 15068
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9175
 /nmcli_general_set_device_managed_persist:
     id: 8d17718c-6332-556b-847a-8c22fb03f40a
     order+: 15069
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9166
 /nmcli_general_set_device_managed_persist_only:
     id: a3aaddab-a3d5-5f96-9e71-e4137b20693b
     order+: 15070
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9167
 /nmcli_general_set_device_reset_managed_persist:
     id: 5e3ec797-48cd-53e3-b6ad-a1e2b6034fbd
     order+: 15071
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9171
 /nmcli_general_set_device_reset_managed_persist_only:
     id: 97dfdd49-d26a-5e30-9179-41a723c536e4
     order+: 15072
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9172
 /nmcli_general_set_device_managed_up_persist:
     id: a106861a-fcb5-569d-8eb1-827f2b727970
     order+: 15073
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9169
 /nmcli_general_set_device_unmanaged_down_persist:
     id: 42244f0e-e861-5676-854d-ac75f0104021
     order+: 15074
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9173
 /nmcli_general_set_device_managed_up_down_persist_only:
     id: 81dceebc-4506-5d3c-bff1-01ff04632c0a
     order+: 15075
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9168
 /nmcli_general_keyfile_tailing_whitespace:
     id: 9da28f96-ef7f-5e10-9465-a893b1afba54
     order+: 15076
@@ -4443,6 +4463,8 @@ link:
 /snapshot_rollback_managed_persist:
     id: b605a08e-8f99-5654-82d9-6e032edaad72
     order+: 17024
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9176
 /snapshot_rollback_soft_device:
     tag: ['gate']
     id: a8f565ad-a4b0-550b-9bfc-5f418db6b6e0
