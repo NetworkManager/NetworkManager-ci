@@ -3706,6 +3706,8 @@ testmapper:
         feature: clat
     - clat_ethernet_plen64:
         feature: clat
+    - clat_ula_prefix:
+        feature: clat
     - clat_vlan:
         feature: clat
     - clat_multiple_instances:
