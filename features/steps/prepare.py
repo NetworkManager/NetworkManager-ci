@@ -427,6 +427,14 @@ def clat_prepare(
         nmci.pexpect.pexpect_service(
             clat_cmd, shell=True, label=f"dnsmasq_{clat_label}"
         )
+        nmci.cleanup.add_callback(
+            callback=lambda: nmci.embed.embed_file_if_exists(
+                f"dnsmasq_{clat_label}.log", log_file, fail_only=True
+            ),
+            name=f"dnsmasq_{clat_label}_log_embed",
+        )
+        nmci.cleanup.add_file(log_file)
+        nmci.cleanup.add_file(pid_file)
 
     nmci.ip.netns_add(f"{device}_ns2")
     context.execute_steps(
