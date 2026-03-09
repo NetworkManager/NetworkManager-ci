@@ -39,9 +39,9 @@ Feature: nmcli: clat
           """
     * Bring "up" connection "testX-clat"
     * Verify the CLAT connection over device "testX"
-    Then "clat inet4 192.0.0.5 inet6 2002:aaaa::.* pref64 2001:db8:122:344::/64" is visible with command "nmcli"
+    Then "clat inet4 192.0.0.5 inet6 3fff:0aaa::.* pref64 2001:db8:122:344::/64" is visible with command "nmcli"
     Then "IP4.CLAT-ADDRESS:.*192.0.0.5" is visible with command "nmcli connection show testX-clat"
-    Then "IP6.CLAT-ADDRESS:.*2002:aaaa::.*" is visible with command "nmcli connection show testX-clat"
+    Then "IP6.CLAT-ADDRESS:.*3fff:0aaa::.*" is visible with command "nmcli connection show testX-clat"
     Then "IP6.CLAT-PREF64:.*2001:db8:122:344::/64" is visible with command "nmcli connection show testX-clat"
     * Ignore possible AVC "bpf"
 
@@ -79,9 +79,9 @@ Feature: nmcli: clat
     @delete_testeth0
     @clat_multiple_instances
     Scenario: nmcli - clat - CLAT on multiple interfaces
-    * Prepare a CLAT environment on device "testX" with NAT64 prefix "2001:db8::/32" and IPv6 prefix "2002:aaaa::"
-    * Prepare a CLAT environment on device "testY" with NAT64 prefix "2001:db9:100::/40" and IPv6 prefix "2002:bbbb::"
-    * Prepare a CLAT environment on device "testZ" with NAT64 prefix "2001:dba:111::/48" and IPv6 prefix "2002:cccc::"
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "2001:db8::/32" and IPv6 prefix "3fff:0aaa::"
+    * Prepare a CLAT environment on device "testY" with NAT64 prefix "2001:db9:100::/40" and IPv6 prefix "3fff:0bbb::"
+    * Prepare a CLAT environment on device "testZ" with NAT64 prefix "2001:dba:111::/48" and IPv6 prefix "3fff:0ccc::"
     * Start servers in the CLAT environment for device "testX" on address "203.0.113.1"
     * Start servers in the CLAT environment for device "testY" on address "203.0.113.2"
     * Start servers in the CLAT environment for device "testZ" on address "203.0.113.3"
@@ -119,7 +119,7 @@ Feature: nmcli: clat
     @delete_testeth0
     @clat_disabled
     Scenario: nmcli - clat - CLAT disabled in the connection
-    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and IPv6 prefix "2002:aaaa::"
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and IPv6 prefix "3fff:0aaa::"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
           ipv4.clat no
@@ -127,7 +127,7 @@ Feature: nmcli: clat
           """
     * Bring "up" connection "testX-clat"
     Then Check "ipv4" address list "/172.25.42.[0-9]+/24$" on device "testX" in "10" seconds
-    Then Check "ipv6" address list "/2002:aaaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
+    Then Check "ipv6" address list "/3fff:0aaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
     * Ignore possible AVC "bpf"
 
 
@@ -147,7 +147,7 @@ Feature: nmcli: clat
           """
     * Bring "up" connection "testX-clat"
     Then Check "ipv4" address list "/172.25.42.[0-9]+/24$" on device "testX" in "10" seconds
-    Then Check "ipv6" address list "/2002:aaaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
+    Then Check "ipv6" address list "/3fff:0aaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
     * Ignore possible AVC "bpf"
 
 
@@ -169,7 +169,7 @@ Feature: nmcli: clat
           """
     * Bring "up" connection "testX-clat"
     Then Check "ipv4" address list "172.25.42.113/24" on device "testX" in "10" seconds
-    Then Check "ipv6" address list "/2002:aaaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
+    Then Check "ipv6" address list "/3fff:0aaa::[0-9a-f:]+/64 /fe80::[0-9a-f:]+/64" on device "testX" in "10" seconds
     * Ignore possible AVC "bpf"
 
 
