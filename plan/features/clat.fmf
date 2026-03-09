@@ -3,6 +3,7 @@ discover:
     test:
         - /tests/clat_ethernet
         - /tests/clat_ethernet_plen64
+        - /tests/clat_ula_prefix
         - /tests/clat_vlan
         - /tests/clat_multiple_instances
         - /tests/clat_disabled

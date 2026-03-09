@@ -8398,44 +8398,47 @@ link:
     order+: 60001
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8934
+/clat_ula_prefix:
+    id: 351d4df6-8240-50db-b3ec-f69305c6a96f
+    order+: 60002
 /clat_vlan:
     id: 8f6d6987-057d-5d65-85c4-5611b6f66c27
-    order+: 60002
+    order+: 60003
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8938
 /clat_multiple_instances:
     id: 2fbf31c4-4a6d-57a6-b1b7-963e7364401b
-    order+: 60003
+    order+: 60004
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8937
 /clat_disabled:
     id: f12a66bc-b9d9-5c5c-a338-d34b191485d7
-    order+: 60004
+    order+: 60005
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8932
 /clat_auto_no_opt108:
     id: 3be51773-d381-59f6-ab47-26faefb9296e
-    order+: 60005
+    order+: 60006
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8931
 /clat_auto_ipv4_manual:
     id: 91d12fcc-94fe-57e5-b748-f31533a3cca6
-    order+: 60006
+    order+: 60007
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8930
 /clat_mtu_ra:
     id: 5d8b0641-d70b-5626-b276-7931c087c13d
-    order+: 60007
+    order+: 60008
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8935
 /clat_mtu_static:
     id: 72a1fcbf-b28a-5f07-9175-42081c9ccc7f
-    order+: 60008
+    order+: 60009
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8936
 /clat_layer3:
     id: dd62253d-c497-5519-8d29-5792021709ac
-    order+: 60009
+    order+: 60010
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9144
 /crashing_NM_binary:

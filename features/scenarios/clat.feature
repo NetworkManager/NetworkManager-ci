@@ -50,6 +50,25 @@ Feature: nmcli: clat
     @rhelver+=10
     @permissive
     @delete_testeth0
+    @clat_ula_prefix
+    Scenario: nmcli - clat - CLAT selects GUA prefix when ULA is also present
+    * Prepare a CLAT environment on device "testX" with NAT64 prefix "64:ff9b::/96" and additional prefix "fd7e:b14c::"
+    * Start servers in the CLAT environment for device "testX"
+    * Add "ethernet" connection named "testX-clat" for device "testX" with options
+          """
+          ipv4.clat auto
+          autoconnect no
+          """
+    * Bring "up" connection "testX-clat"
+    Then "clat inet4 192.0.0.5 inet6 3fff:aaa::.* pref64 64:ff9b::/96" is visible with command "nmcli"
+    * Verify the CLAT connection over device "testX"
+    * Ignore possible AVC "bpf"
+
+
+    @ver+=1.57.1
+    @rhelver+=10
+    @permissive
+    @delete_testeth0
     @clat_vlan
     Scenario: nmcli - clat - CLAT on VLAN interface
     * Prepare a CLAT environment on device "testX" with NAT64 prefix "2001:db8:122:300::/56" over VLAN "42"

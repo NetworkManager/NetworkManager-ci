@@ -337,6 +337,9 @@ def restart_dhcp_server(context, device, ipv4, ipv6):
 @step(
     'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and IPv6 MTU "{mtu}"'
 )
+@step(
+    'Prepare a CLAT environment on device "{device}" with NAT64 prefix "{pref64}" and additional prefix "{extra_prefix}"'
+)
 def clat_prepare(
     context,
     device,
@@ -347,6 +350,7 @@ def clat_prepare(
     mtu=None,
     local=None,
     remote=None,
+    extra_prefix=None,
 ):
     #####################################################################
     #                                                         [init ns] #
@@ -408,6 +412,11 @@ def clat_prepare(
         f"ip netns exec {device}_ns ip addr add {prefix}1/64 dev {device}p"
     )
 
+    if extra_prefix:
+        nmci.process.run(
+            f"ip netns exec {device}_ns ip addr add {extra_prefix}1/64 dev {device}p"
+        )
+
     if local is None:
         if option108 == "on":
             arg_opt108 = "--dhcp-option=108,720"
@@ -459,6 +468,16 @@ def clat_prepare(
     nmci.process.run(f"sed -i s|__INTERFACE__|{device}p| {radvd_conf}")
     nmci.process.run(f"sed -i s|__PREFIX__|{prefix}| {radvd_conf}")
     nmci.process.run(f"sed -i s|__PREF64__|{pref64}| {radvd_conf}")
+    if extra_prefix:
+        extra_block = (
+            r"prefix __EXTRA__/64 {\n"
+            r"        AdvOnLink on;\n"
+            r"        AdvAutonomous on;\n"
+            r"    };"
+        ).replace("__EXTRA__", extra_prefix)
+        nmci.process.run(f"sed -i 's|__EXTRA_PREFIXES__|{extra_block}|' {radvd_conf}")
+    else:
+        nmci.process.run(f"sed -i '/__EXTRA_PREFIXES__/d' {radvd_conf}")
     if mtu is None:
         nmci.process.run(f"sed -i 's|__MTU__|# Do not advertise a MTU|' {radvd_conf}")
     else:
