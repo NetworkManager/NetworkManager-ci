@@ -194,7 +194,13 @@ function setup_veth_env ()
         # And set it unmanaged
         nmcli device disconnect orig-$DEV
         nmcli device set orig-$DEV managed off
-        ip addr flush dev orig-$DEV
+        if hostname | grep -q wifi; then
+            # On wifi machines, keep connectivity on service device for SSH/jumphost.
+            # Run dhclient as systemd service so "pkill dhclient" won't kill it.
+            systemd-run --unit=dhclient-orig-${DEV} -- dhclient -d orig-$DEV
+        else
+            ip addr flush dev orig-$DEV
+        fi
     done
 
     # Rename potential eth0 residude from some modem not visible in "nmcli d"
