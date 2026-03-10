@@ -1244,6 +1244,9 @@
      Then Check bond "nm-bond" link state is "up"
 
 
+    @ver-1.54.1
+    @ver/rhel/9/7-1.54.0.4
+    @ver/rhel/10/1-1.54.0.3
     @bond_mode_active_backup
     Scenario: nmcli - bond - options - mode set to active backup
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1256,6 +1259,28 @@
      * Bring "up" connection "bond0"
      Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
      Then Check bond "nm-bond" link state is "up"
+
+
+    @RHEL-130855
+    @ver+=1.54.1
+    @ver/rhel/9/7+=1.54.0.4
+    @ver/rhel/10/1+=1.54.0.3
+    @bond_mode_active_backup
+    Scenario: nmcli - bond - options - mode set to active backup
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Modify connection "bond0" changing options "bond.options mode=1"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+     # Verify lacp_active is not wrongly set during reapply on non-802.3ad mode
+     * Start following journal
+     * Execute "nmcli device reapply nm-bond"
+     Then "failed to set bonding attribute 'lacp_active'" is not visible in journal
 
 
     @rhbz1856640 @rhbz1876577 @rhbz1933292
