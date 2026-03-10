@@ -1650,6 +1650,18 @@ def expect_avc(context, pattern, timeout=15):
     nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
 
 
+@step('Dont expect AVC "{pattern}"')
+@step('Dont expect AVC "{pattern}" in "{timeout}" seconds')
+def dont_expect_avc(context, pattern, timeout=15):
+    avcs = []
+    timeout = float(timeout)
+    try:
+        avcs = nmci.misc.get_avcs(re.compile(pattern), timeout=timeout)
+    except AssertionError:
+        pass
+    assert not avcs, f"some AVCs found:\n{avcs}"
+
+
 @step('Ignore possible AVC "{pattern}"')
 @step('Ignore possible AVC "{pattern}" in "{timeout}" seconds')
 @step('Ignore possible AVC "{pattern}" on "{distro}"')

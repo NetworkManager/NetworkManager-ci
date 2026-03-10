@@ -4055,3 +4055,22 @@ Feature: nmcli - general
     * Start following journal
     * Add "ethernet" connection named "eth3" for device "eth3"
     * "probe created with ebpf enabled" is visible in journal
+
+    @ver+=1.57
+    @print_config_no_avc_error
+    Scenario: NM - general - check that there is no avc error with print-config
+    * Cleanup file "/etc/systemd/system/test-nm.service"
+    * Write file "/etc/systemd/system/test-nm.service" with content
+      """
+      [Unit]
+      Description=Test NM
+      [Service]
+      Type=oneshot
+      ExecStart=NetworkManager --print-config
+      [Install]
+      WantedBy=multi-user.target
+      """
+    * Execute "systemctl daemon-reload"
+    * Cleanup execute "systemctl daemon-reload"
+    * Execute "systemctl start test-nm.service"
+    Then Dont expect AVC "NetworkManager.*denied.*\\{ write \\}.*admin_home_t.*tclass=dir" in "10" seconds
