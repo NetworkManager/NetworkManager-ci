@@ -54,6 +54,7 @@ discover:
         - /tests/preserve_8021x_certs_ethernet
         - /tests/preserve_8021x_leap_con
         - /tests/8021x_ca_path_with_ifcfg_plugin
+        - /tests/8021x_reauth_bridge
         - /tests/8021x_teardown_eth
         - /tests/ethtool_features_connection
         - /tests/ethtool_features_fixed_connection

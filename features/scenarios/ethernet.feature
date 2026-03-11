@@ -1014,7 +1014,44 @@ Feature: nmcli - ethernet
     Then "activated" is visible with command "nmcli -g general.state con show id con_ethernet" in "10" seconds
 
 
-    # all tests with @8021x tag should go before this one
+    @RHEL-121153
+    @ver+=1.57.3
+    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_reauth_bridge
+    Scenario: nmcli - ethernet - 8021x re-auth after bridge enslavement
+    # Create a bridge that test8X will be enslaved to after 802.1x auth
+    * Add "bridge" connection named "br8021x" for device "br8021x" with options
+          """
+          autoconnect no
+          ipv4.method disabled
+          ipv6.method disabled
+          bridge.stp no
+          bridge.group-forward-mask 8
+          """
+    # Create 802.1x ethernet connection as bridge slave (sets BridgeIfname)
+    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no master br8021x"
+    * Modify connection "con_ethernet" changing options "802-1x.eap tls 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem"
+    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
+    * Modify connection "con_ethernet" changing options "802-1x.identity test"
+    * Modify connection "con_ethernet" changing options "802-1x.private-key-password redhat 802-1x.private-key-password-flags 0"
+    # Start following hostapd log, bring up the bridge and slave
+    * Run child "journalctl -f -u nm-hostapd -o cat"
+    * Bring "up" connection "br8021x"
+    * Bring "up" connection "con_ethernet"
+    # Verify initial 802.1x authentication succeeds
+    Then Expect "CTRL-EVENT-EAP-SUCCESS" in children in "10" seconds
+    * Expect "test8Y: STA .* 802.1X: authenticated" in children in "60" seconds
+    # test8X is now authenticated and enslaved to br8021x
+    # Wait for re-auth - with BridgeIfname set, wpa_supplicant uses ETH_P_ALL
+    # instead of ETH_P_PAE, so re-auth works even on a bridge member
+    * Kill children
+    * Execute "sleep 5"
+    * Run child "journalctl -f -u nm-hostapd -o cat -n 0"
+    * Expect "test8Y: STA .* 802.1X: authenticated" in children in "120" seconds
+    * Kill children
+
+
+    # all tests with @8021x or @8021x_nobridge tag should go before this one
     @8021x_teardown
     @8021x_teardown_eth
     Scenario: just remove 802.1-x set up
