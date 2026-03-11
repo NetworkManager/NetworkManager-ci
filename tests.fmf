@@ -3535,75 +3535,79 @@ link:
     order+: 13029
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4695
+/8021x_reauth_bridge:
+    tag: ['hostapd']
+    id: 856fcada-816d-5b3c-a454-74e562222129
+    order+: 13030
 /8021x_teardown_eth:
     tag: ['gate', 'wpa_supplicant', 'hostapd']
     id: 796f393c-4eaf-5e83-abd8-aaa7f4659b2f
-    order+: 13030
+    order+: 13031
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4696
 /ethtool_features_connection:
     id: 4dd46671-c37e-56c4-81bd-75eb4940f4b8
-    order+: 13031
+    order+: 13032
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4697
 /ethtool_features_fixed_connection:
     id: 3351c613-77d6-556d-a987-67a087b833d4
-    order+: 13032
+    order+: 13033
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4698
 /ethtool_features_ring:
     id: a117d553-9e90-534e-93d3-01a43d28edff
-    order+: 13033
+    order+: 13034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4699
 /ethtool_features_channels:
     id: 5bc14a0f-f568-5061-b66d-d018b576a26a
-    order+: 13034
+    order+: 13035
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4700
 /ethtool_features_coal:
     id: 71d4984d-e31b-592a-8b46-f02aadac0bff
-    order+: 13035
+    order+: 13036
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4701
 /ethtool_features_fec:
     id: 4a1ef748-2c26-5ba1-9800-4a887774b269
-    order+: 13036
+    order+: 13037
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4702
 /ethernet_accept_all_mac_addresses_external_device:
     id: b74b22a5-d55a-53a0-967d-1cc2652c19e8
-    order+: 13037
+    order+: 13038
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4703
 /ethtool_features_pause:
     id: 140b0dea-7645-526c-b83c-93e049225716
-    order+: 13038
+    order+: 13039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4704
 /ethernet_s390_options_with_subchannels:
     id: 849dce94-d849-518a-aa0f-0634ddf68131
-    order+: 13039
+    order+: 13040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4705
 /ethernet_s390_options_without_subchannels:
     id: ab2071df-c7a6-50e2-8679-13c05583c22b
-    order+: 13040
+    order+: 13041
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4706
 /ethernet_keyfiles_dont_write_empty_mac_address_blacklist:
     id: 912bc3aa-6f1f-577f-a258-8be901077606
-    order+: 13041
+    order+: 13042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4707
 /ethtool_multiple_options_in_profile_file:
     id: 632de1e4-00af-5db1-9908-594312b0860e
-    order+: 13042
+    order+: 13043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4708
 /ethernet_keep_mtu_on_reboot:
     id: fe8f7c99-9180-5530-a500-34c754bccfd1
-    order+: 13043
+    order+: 13044
     duration: 15m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4709

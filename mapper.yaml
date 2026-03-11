@@ -1621,6 +1621,9 @@ testmapper:
     - 8021x_ca_path_with_ifcfg_plugin:
         feature: ethernet
         tags: hostapd
+    - 8021x_reauth_bridge:
+        feature: ethernet
+        tags: hostapd
     - 8021x_teardown_eth:
         feature: ethernet
         tags: gate wpa_supplicant hostapd
