@@ -4882,6 +4882,8 @@ link:
 /print_config_no_avc_error:
     id: d56226b1-821d-5dbc-bdbf-480f8027e96f
     order+: 17107
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9177
 /openvswitch_capability:
     id: 9aaf1c25-92f3-532a-9638-e883cb1ca809
     order+: 18000
