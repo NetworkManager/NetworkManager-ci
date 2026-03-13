@@ -561,6 +561,8 @@ Feature: nmcli - procedures in documentation
     Then "default via 2001:db8:1::1 dev eth10 proto static metric 10.* pref medium" is visible with command "ip -6 route" in "20" seconds
 
 
+    # nmstate deletes testeth1, restore it after the test
+    @add_testeth1
     @doc_set_gateway_nmstate
     Scenario: nmstate - doc - set gateway to existing profile
     * Doc: "Setting the default gateway on an existing connection using nmstatectl"
