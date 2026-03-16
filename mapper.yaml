@@ -57,8 +57,7 @@ dependencies:
 
 beaker-hardware:
   - x86_64:
-      group: desktopqe-nm
-      kernel-options: biosdevname=0 net.ifnames=0
+      group: wifi-brq-untrusted
   - aarch64:
       hostname: ampere-mtsnow-altramax-%%.khw%%
   - ppc64le:
