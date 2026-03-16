@@ -659,12 +659,15 @@ Feature: nmcli: ipv4
     @ver+=1.10
     @ipv4_restore_default_route_externally
     Scenario: nmcli - ipv4 - routes - restore externally
+    # Restore original testeth0's default route as it might be crippled
+    * Cleanup execute "nmcli con up testeth0"
+    * Cleanup execute "while ip r|grep -q default; do ip r del default; done"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "ipv4.may-fail no"
     When "connected" is visible with command "nmcli -g state,device device |grep eth3$" in "20" seconds
      And "default" is visible with command "ip r |grep eth3"
     * Execute "ip route delete default dev eth3"
     When "default" is not visible with command "ip r |grep eth3"
-    * Execute "ip route add default via 192.168.100.1 metric 1"
+    * Execute "ip route add default dev eth3 via 192.168.100.1 metric 1"
     Then "default" is visible with command "ip r |grep eth3"
 
 
