@@ -3539,6 +3539,8 @@ link:
     tag: ['hostapd']
     id: 856fcada-816d-5b3c-a454-74e562222129
     order+: 13030
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9184
 /8021x_teardown_eth:
     tag: ['gate', 'wpa_supplicant', 'hostapd']
     id: 796f393c-4eaf-5e83-abd8-aaa7f4659b2f
