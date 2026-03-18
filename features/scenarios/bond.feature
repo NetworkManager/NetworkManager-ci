@@ -1247,6 +1247,9 @@
     @ver-1.54.1
     @ver/rhel/9/7-1.54.0.4
     @ver/rhel/10/1-1.54.0.3
+    @ver/rhel/9/4-1.46.0.38
+    @ver/rhel/9/6-1.52.0.10
+    @ver/rhel/10/0-1.52.0.9
     @bond_mode_active_backup
     Scenario: nmcli - bond - options - mode set to active backup
      * Add "bond" connection named "bond0" for device "nm-bond" with options
@@ -1262,9 +1265,15 @@
 
 
     @RHEL-130855
+    @RHEL-154241
+    @RHEL-154246
+    @RHEL-154242
     @ver+=1.54.1
     @ver/rhel/9/7+=1.54.0.4
     @ver/rhel/10/1+=1.54.0.3
+    @ver/rhel/9/4+=1.46.0.38
+    @ver/rhel/9/6+=1.52.0.10
+    @ver/rhel/10/0+=1.52.0.9
     @bond_mode_active_backup
     Scenario: nmcli - bond - options - mode set to active backup
      * Add "bond" connection named "bond0" for device "nm-bond" with options
