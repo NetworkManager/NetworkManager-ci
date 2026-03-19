@@ -1,43 +1,474 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
   <head>
     <meta charset="utf-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS/1XnUkFSehSEaYkk3IfjmgGKZDkitFP" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
-      .btn-outline-danger {background-color:rgba(220, 53, 69, 0.3);}
-      .btn-outline-dark {background-color:rgba(33, 37, 41, 0.3);}
-      .btn-outline-success {background-color:rgba(25, 135, 84, 0.3);}
-      .btn-outline-primary {background-color:rgba(13, 110, 253, 0.3);}
-      .bg-warning-semi {background-color:#ffedb8;}
-      .badge.text-danger:hover {filter:brightness(75%) sepia(60%) hue-rotate(-50deg);}
-      a.badge {text-decoration:none;}
-      .btn .badge {top:0;}
-      .sort {cursor:pointer;}
-      .left-panel {width:19em;}
-      .right-panel {width:19em; flex:1 0 auto;}
+      :root {
+        --nm-accent: #2c6fbb;
+        --nm-accent-light: #e8f0fc;
+        --nm-bg: #f5f7fa;
+        --nm-card-bg: #ffffff;
+        --nm-card-border: #e2e6ea;
+        --nm-section-bg: #f0f3f7;
+        --nm-text: #1a1e24;
+        --nm-text-muted: #6b7685;
+        --nm-success: #1a8754;
+        --nm-success-soft: #d1f5e0;
+        --nm-danger: #c53030;
+        --nm-danger-soft: #fde8e8;
+        --nm-warning-soft: #fef3cd;
+        --nm-dark: #495057;
+        --nm-dark-soft: #d0d4d9;
+        --nm-running: #2c6fbb;
+        --nm-running-soft: #e8f0fc;
+        --nm-radius: 0.5rem;
+        --nm-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        --nm-shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+      }
+      [data-bs-theme="dark"] {
+        --nm-accent: #5b9bd5;
+        --nm-accent-light: #1e2d40;
+        --nm-bg: #15191e;
+        --nm-card-bg: #1c2128;
+        --nm-card-border: #2d333b;
+        --nm-section-bg: #22272e;
+        --nm-text: #cdd9e5;
+        --nm-text-muted: #768390;
+        --nm-success: #3fb950;
+        --nm-success-soft: #1a2e1f;
+        --nm-danger: #f47067;
+        --nm-danger-soft: #3d1c1c;
+        --nm-warning-soft: #3d3119;
+        --nm-dark: #adbac7;
+        --nm-dark-soft: #3a424c;
+        --nm-running: #5b9bd5;
+        --nm-running-soft: #1e2d40;
+        --nm-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        --nm-shadow-md: 0 4px 6px rgba(0,0,0,0.25);
+      }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        background: var(--nm-bg);
+        color: var(--nm-text);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+      /* --- Header --- */
+      .page-header {
+        background: var(--nm-card-bg);
+        border-bottom: 1px solid var(--nm-card-border);
+        box-shadow: var(--nm-shadow);
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .page-header .title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--nm-text);
+        white-space: nowrap;
+      }
+      .home-link { text-decoration: none; }
+      .home-link:hover { opacity: 0.8; }
+      .page-header img { height: 32px; }
+      [data-bs-theme="dark"] .page-header img { filter: invert(1) hue-rotate(180deg); }
+      /* --- Layout --- */
+      .main-layout {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem 1.5rem 1rem;
+        flex: 1;
+        min-height: 0;
+      }
+      /* Home mode: full-screen grid */
+      .main-layout.home-mode {
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .home-mode .left-panel {
+        display: flex;
+        gap: 3rem;
+        overflow-x: hidden;
+        padding-left: 0.25rem;
+      }
+      .home-column {
+        flex: 0 1 20em;
+        min-width: 0;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .home-mode .right-panel {
+        display: none;
+      }
+      /* Project mode: sidebar + table */
+      .main-layout.project-mode .left-panel {
+        width: 20em;
+        flex-shrink: 0;
+        overflow-y: auto;
+        padding-left: 0.25rem;
+        padding-right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .main-layout.project-mode .right-panel {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-y: auto;
+      }
+      /* --- Sidebar project cards --- */
+      .os-group-label {
+        grid-column: 1 / -1;
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--nm-text-muted);
+        padding: 0.5rem 0.25rem 0.15rem;
+        border-bottom: 1px solid var(--nm-card-border);
+      }
+      .project-card {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--nm-radius);
+        background: var(--nm-card-bg);
+        border: 2px solid var(--nm-card-border);
+        text-decoration: none;
+        color: var(--nm-text);
+        transition: all 0.15s ease;
+        position: relative;
+      }
+      .project-card:hover {
+        box-shadow: var(--nm-shadow-md);
+        border-color: var(--nm-accent);
+        filter: saturate(0.5) brightness(1.05);
+      }
+      .project-card.active {
+        border-color: var(--nm-accent);
+        box-shadow: var(--nm-shadow-md);
+      }
+      .project-card.active::before {
+        background: var(--nm-accent) !important;
+      }
+      .project-card .project-name {
+        font-weight: 600;
+        font-size: 0.78rem;
+        flex: 1;
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .project-card[class*="status-"] { border-color: transparent; }
+      .project-card[class*="status-"]::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: var(--nm-radius);
+        padding: 2px;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .project-card.status-success { background: linear-gradient(to right, var(--nm-success-soft) 0%, transparent 70%); }
+      .project-card.status-success::before { background: linear-gradient(to left, var(--nm-success) 0%, color-mix(in srgb, var(--nm-success) 30%, var(--nm-card-border)) 70%); }
+      .project-card.status-success .project-name { color: var(--nm-success); }
+      .project-card.status-danger { background: linear-gradient(to right, var(--nm-danger-soft) 0%, transparent 70%); }
+      .project-card.status-danger::before { background: linear-gradient(to left, var(--nm-danger) 0%, color-mix(in srgb, var(--nm-danger) 30%, var(--nm-card-border)) 70%); }
+      .project-card.status-danger  .project-name { color: var(--nm-danger); }
+      .project-card.status-dark { background: linear-gradient(to right, var(--nm-dark-soft) 0%, transparent 70%); }
+      .project-card.status-dark::before { background: linear-gradient(to left, var(--nm-dark) 0%, color-mix(in srgb, var(--nm-dark) 30%, var(--nm-card-border)) 70%); }
+      .project-card.status-dark    .project-name { color: var(--nm-dark); }
+      .project-card.status-primary { background: linear-gradient(to right, var(--nm-running-soft) 0%, transparent 70%); }
+      .project-card.status-primary::before { background: linear-gradient(to left, var(--nm-running) 0%, color-mix(in srgb, var(--nm-running) 30%, var(--nm-card-border)) 70%); }
+      .project-card.status-primary .project-name { color: var(--nm-running); }
+      .project-card .health-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .project-card .stat-badges {
+        display: flex;
+        gap: 0;
+        flex-shrink: 0;
+      }
+      .stat-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.25rem;
+        text-decoration: none;
+        line-height: 1.3;
+      }
+      .stat-badge.pass { color: var(--nm-success); background: var(--nm-card-bg); border: 1px solid var(--nm-success); }
+      .stat-badge.fail { color: var(--nm-danger); background: var(--nm-card-bg); border: 1px solid var(--nm-danger); }
+      .stat-badge.fail:hover { filter: brightness(0.9); }
+      .stat-badge.skip { color: var(--nm-text-muted); background: var(--nm-card-bg); border: 1px solid var(--nm-text-muted); }
+.running-indicator {
+        position: absolute;
+        top: 2px;
+        right: -3px;
+        min-width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--nm-card-bg);
+        border: 2px solid #f0ad4e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+      .running-indicator.has-count {
+        min-width: 16px;
+        height: 16px;
+        top: -1px;
+        right: -6px;
+        font-size: 9px;
+        font-weight: 700;
+        color: #f0ad4e;
+        line-height: 1;
+        background: var(--nm-card-bg);
+      }
+      .running-indicator.single {
+        color: var(--nm-card-bg);
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      /* --- Search bar --- */
+      .search-bar {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-top: 3px;
+      }
+      .search-bar .form-select,
+      .search-bar .form-control {
+        border-radius: var(--nm-radius);
+        border: 1px solid var(--nm-card-border);
+        background: var(--nm-card-bg);
+        color: var(--nm-text);
+        font-size: 0.875rem;
+      }
+      .search-bar .form-control:focus {
+        border-color: var(--nm-accent);
+        box-shadow: 0 0 0 3px rgba(44, 111, 187, 0.15);
+      }
+      .search-bar .btn {
+        border-radius: var(--nm-radius);
+        font-size: 0.875rem;
+      }
+      .search-bar .btn-search {
+        background: var(--nm-accent);
+        color: #fff;
+        border: none;
+        padding: 0.375rem 1rem;
+      }
+      .search-bar .btn-search:hover { filter: brightness(1.1); }
+      .search-bar .btn-clear {
+        background: var(--nm-card-bg);
+        border: 1px solid var(--nm-card-border);
+        color: var(--nm-text-muted);
+      }
+      .search-bar .btn-clear:hover { background: var(--nm-danger-soft); color: var(--nm-danger); }
+      /* --- Nav pills --- */
+      .nav-pills-custom {
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+      }
+      .nav-pills-custom .nav-pill {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--nm-text-muted);
+        background: var(--nm-dark-soft);
+        transition: all 0.15s ease;
+        white-space: nowrap;
+      }
+      .nav-pills-custom .nav-pill:hover {
+        color: var(--nm-accent);
+        background: var(--nm-accent-light);
+      }
+      /* --- Table --- */
+      .card-table {
+        background: var(--nm-card-bg);
+        border: 1px solid var(--nm-card-border);
+        border-radius: var(--nm-radius);
+        box-shadow: var(--nm-shadow);
+        overflow-x: auto;
+      }
+      #table {
+        margin: 0;
+        font-size: 0.85rem;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      #table thead th.sticky-head {
+        position: sticky !important;
+        top: 2.4rem;
+        z-index: 2;
+        background: var(--nm-card-bg) !important;
+        border-bottom: 2px solid var(--nm-card-border) !important;
+        box-shadow: none !important;
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--nm-text-muted);
+        padding: 0.5rem 0.75rem;
+        white-space: nowrap;
+      }
+      #table thead th.sticky-section {
+        position: sticky !important;
+        top: 0;
+        z-index: 3;
+        background: var(--nm-section-bg) !important;
+        border-bottom: 1px solid var(--nm-card-border) !important;
+        box-shadow: none !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        color: var(--nm-text);
+      }
+      .sort { cursor: pointer; }
+      .sort:hover { color: var(--nm-accent); }
+      #table tbody td {
+        padding: 0.4rem 0.75rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--nm-card-border);
+        color: var(--nm-text);
+      }
+      #table tbody tr:hover td {
+        background: var(--nm-accent-light);
+      }
+      #table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      /* Status cells */
+      .status-pill {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .status-pill.success { background: var(--nm-success-soft); color: var(--nm-success); }
+      .status-pill.danger { background: var(--nm-danger-soft); color: var(--nm-danger); }
+      .status-pill.dark { background: var(--nm-dark-soft); color: var(--nm-dark); }
+      .status-pill.running { background: var(--nm-running-soft); color: var(--nm-running); }
+      .status-pill.warning { background: var(--nm-warning-soft); color: #856404; }
+      /* Row status (for failures view) */
+      tr.row-danger td:first-child { border-left: 3px solid var(--nm-danger); }
+      /* Test count badges in table */
+      .count-cell { white-space: nowrap; }
+      .count-pass { color: var(--nm-success); font-weight: 600; }
+      .count-fail, #table a.count-fail { color: var(--nm-danger); font-weight: 600; }
+      .count-skip { color: var(--nm-text-muted); }
+      /* Time stats mini-table */
+      .time-stats {
+        font-size: 0.75rem;
+        line-height: 1.1;
+      }
+      .time-stats td { padding: 0 0.3rem 0 0; color: var(--nm-text-muted); }
+      .time-stats th { padding: 0; font-weight: 600; color: var(--nm-text); }
+      /* Links in table */
+      #table a { color: var(--nm-accent); text-decoration: none; }
+      #table a:hover { text-decoration: underline; }
+      /* Dark mode toggle */
+      .theme-toggle {
+        background: none;
+        border: 1px solid var(--nm-card-border);
+        border-radius: var(--nm-radius);
+        padding: 0.25rem 0.5rem;
+        color: var(--nm-text-muted);
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        transition: all 0.15s ease;
+      }
+      .theme-toggle:hover {
+        border-color: var(--nm-accent);
+        color: var(--nm-accent);
+      }
+      /* Scrollbar styling */
+      .left-panel::-webkit-scrollbar,
+      .right-panel::-webkit-scrollbar {
+        width: 6px;
+      }
+      .left-panel::-webkit-scrollbar-thumb,
+      .right-panel::-webkit-scrollbar-thumb {
+        background: var(--nm-card-border);
+        border-radius: 3px;
+      }
+      /* Responsive */
+      @media (max-width: 768px) {
+        .main-layout {
+          flex-direction: column;
+          height: auto;
+          padding: 0.75rem;
+        }
+        .main-layout.project-mode .left-panel {
+          width: 100%;
+          max-height: 200px;
+          border-bottom: 1px solid var(--nm-card-border);
+          padding-bottom: 0.75rem;
+          margin-bottom: 0.5rem;
+          padding-right: 0;
+        }
+        .right-panel { overflow-y: visible; }
+      }
     </style>
     <link rel="icon" href="nm_icon.png">
   </head>
-  <body class="p-3">
-    <div class="h1" style="color:black;" ><img src="nm_logotype_235x75.png" class="m-2" alt="NetworkManager"> CI Results <span id="nav_btns"></span></div>
-    <div class="row">
+  <body>
+    <div class="page-header">
+      <a href="#" class="home-link"><img src="nm_logotype_235x75.png" alt="NetworkManager"></a>
+      <a href="#" class="home-link title">CI Results</a>
+      <span id="nav_btns" class="ms-2"></span>
+      <span class="ms-auto">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
+      </span>
+    </div>
+    <div class="main-layout">
       <div id="projects" class="left-panel">
       </div>
       <div class="right-panel">
-        <span class="input-group mb-1">
-          <select class="form-select w-25 flex-grow-0" id="search_mode">
-            <option value="current" selected>Search in current project</option>
-            <option value="all">Search in all projects</option>
+        <div class="search-bar">
+          <select class="form-select" style="max-width:14rem;" id="search_mode">
+            <option value="current" selected>Current project</option>
+            <option value="all">All projects</option>
           </select>
-          <input id="search" type="search" class="form-control flex-grow-1" placeholder="filter">
-          <a id="x" class="btn btn-outline-secondary"><i class="bi bi-backspace"></i></a>
-          <a id="s" class="btn btn-primary"><i class="bi bi-search"></i> Search</a>
-        </span>
-        <table id="table" class="table table-striped table-sm w-auto">
-        </table>
+          <input id="search" type="search" class="form-control" placeholder="Filter tests...">
+          <button id="x" class="btn btn-clear" title="Clear"><i class="bi bi-x-lg"></i></button>
+          <button id="s" class="btn btn-search"><i class="bi bi-search"></i> Search</button>
+        </div>
+        <div class="card-table">
+          <table id="table" class="table w-auto">
+          </table>
+        </div>
       </div>
     </div>
   </body>
@@ -60,15 +491,63 @@
   var load_all = false;
   var date_fmt_options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'};
 
-
   var nav_buttons = {
-    "Builds": "",
+    "Builds": "all_builds",
     "Failures": "build:",
     "Last failures": "build:-1",
+    "Crashes": "build:;crashes",
     "Tests": "tests:",
     "Tags": "tags",
     "Steps": "steps",
   };
+
+  // --- Column definitions for each view ---
+  // Each entry: [data-sort, title, label, text-align (optional, defaults to "left")]
+  var view_columns = {
+    tests: [
+      ["name", "Name of the test", "Test"],
+      ["num", "Number of passed, failed and skipped runs", "Num"],
+      ["time_avg", "Total running time in seconds", "Time [s]"],
+      ["bs_avg", "Total running time of before_scenario in seconds", "BS [s]"],
+      ["tags_bs_avg", "Running time of before_scenario tags in seconds", "BS Tags [s]"],
+      ["as_avg", "Total running time of after_scenario in seconds", "AS [s]"],
+      ["tags_as_avg", "Running time of after_scenario tags in seconds", "AS Tags [s]"],
+    ],
+    tags: [
+      ["name", "Name of the scenario tag", "Tag"],
+      ["bs_num", "Number of before_scenario executions", "BS Num"],
+      ["as_num", "Number of after_scenario executions", "AS Num"],
+      ["bs_avg", "Time statistics of before_scenario executions in seconds", "BS Time [s]"],
+      ["as_avg", "Time statistics of after_scenario executions in seconds", "AS Time [s]"],
+    ],
+    steps_build: [
+      ["name", "Step template as defined in steps file", "Step decorator"],
+      ["num", "Number of executions", "Num"],
+      ["avg", "Time statistics of executions in seconds", "Time [s]"],
+    ],
+    steps: [
+      ["name", "Step template as defined in steps file", "Step decorator"],
+      ["num", "Number of executions", "Num"],
+      ["num_avg", "Average number of executions per build", "Avg Num"],
+      ["avg", "Time statistics of executions in seconds", "Time [s]"],
+    ],
+    failures: [
+      ["name", "Name of the failing test", "Failure"],
+      ["last", "Number of passing builds until latest failure", "Last", "center"],
+      ["num", "Number of builds with this failure", "Num", "center"],
+      [null, "List of builds with this failure", "Builds"],
+    ],
+    builds: [
+      ["id", "Jenkins build ID", "Build", "center"],
+      ["date", "Start date and time of the build", "Date", "center"],
+      ["duration", "Total duration of the build", "Duration", "right"],
+      ["status", "Status of the build", "Status", "center"],
+      [null, "Number of passed, failed and skipped tests", "Tests", "center"],
+      [null, "Links related with the current build", "Links"],
+    ],
+  };
+
+  // --- Helpers ---
 
   function build_date(build) {
     var time_raw = atob(build.timestamp.__reduce__[1][0]);
@@ -114,6 +593,57 @@
     };
   }
 
+  function format_time_stats(avg, last, min, max, dev) {
+    var tb = $('<table class="time-stats"></table>');
+    $(tb).append('<tr><td>avg:</td><th>'+avg.toFixed(2)+'</th></tr>');
+    if (last !== undefined) {
+      $(tb).append('<tr><td>last:</td><td>'+last.toFixed(2)+'</td></tr>');
+    }
+    $(tb).append('<tr><td>min:</td><td>'+min.toFixed(2)+'</td></tr>');
+    $(tb).append('<tr><td>max:</td><td>'+max.toFixed(2)+'</td></tr>');
+    $(tb).append('<tr><td>&sigma;:</td><td>'+dev.toFixed(2)+'</td></tr>');
+    return tb;
+  }
+
+  function matches_search(name) {
+    return !state.search || name.indexOf(state.search) != -1;
+  }
+
+  // Build the <thead> row from a column definition array
+  function make_header_columns(columns) {
+    var tr = $("<tr></tr>");
+    columns.forEach(function(col) {
+      var sort_attr = col[0];
+      var title = col[1];
+      var label = col[2];
+      var align = col[3] || "left";
+      var th = $('<th class="sticky-head" style="text-align:' + align + '" title="' + title + '">' + label + '</th>');
+      if (sort_attr) {
+        $(th).addClass("sort").attr("data-sort", sort_attr);
+      }
+      $(tr).append(th);
+    });
+    return $("<thead></thead>").append(tr);
+  }
+
+  // Set up the section header row with project name + nav buttons
+  function setup_section_header(project, colspan, suffix) {
+    var tbody = $('#tbody-' + project.id);
+    var thead = $('#thead-' + project.id);
+    var head_line = $('<th colspan="' + colspan + '" class="sticky-section">' + project.os + ": " + project.name + '</th>');
+    if (suffix) {
+      $(head_line).append(suffix);
+    }
+    var btns = get_nav_buttons(project);
+    btns = $(btns).wrap('<span style="float:right"></span>').parent();
+    $(head_line).append($(btns));
+    head_line = $(head_line).wrap("<tr></tr>").parent();
+    $(thead).append(head_line);
+    return tbody;
+  }
+
+  // --- Data processing ---
+
   function process_failures(build) {
     Object.entries(build.failures).forEach(function (failure) {
       if(failure[0] in failure_builds[build.project]) {
@@ -139,122 +669,140 @@
     });
   }
 
+  // --- Determine current view type ---
+
+  function current_view() {
+    if ("tests" in state) return "tests";
+    if ("tags" in state) return "tags";
+    if ("steps" in state && "build" in state) return "steps_build";
+    if ("steps" in state) return "steps";
+    if ("crashes" in state) return "failures";
+    if ("build" in state) return "failures";
+    if ("all_builds" in state) return "builds";
+    if ("project" in state) return "builds";
+    return "home";
+  }
+
+  // Map view type to the cache file suffix
+  var view_cache_suffix = {
+    home: "builds",
+    tests: "tests",
+    tags: "tags",
+    steps: "steps",
+    steps_build: "steps",
+    failures: "builds",
+    builds: "builds",
+  };
+
+  // Map view type to the show_* function name
+  var view_show_fn = {
+    home: null,
+    tests: "show_tests",
+    tags: "show_tags",
+    steps: "show_steps",
+    steps_build: "show_steps",
+    failures: "show_failures",
+    builds: "show_builds",
+  };
+
+  // --- Cache loading and AJAX ---
+
+  function parse_response_data(data, project, view) {
+    data = JSON.parse(data);
+
+    if (view == "tags") {
+      tags[project.project] = [];
+      Object.entries(data["py/tuple"][0]).forEach(function (tag) {
+        tag[1].name = tag[0];
+        tags[project.project].push(tag[1]);
+      });
+      if(state.sort) {
+        tags[project.project].sort(cmp(state.sort, state.reverse));
+      }
+    }
+    else if (view == "steps" || view == "steps_build") {
+      steps[project.project] = [];
+      Object.entries(data["py/tuple"][0]).forEach(function (step) {
+        step[1].name = step[0];
+        steps[project.project].push(step[1]);
+      });
+      if(state.sort) {
+        steps[project.project].sort(cmp(state.sort, state.reverse));
+      }
+    }
+    else if (view == "tests") {
+      tests[project.project] = [];
+      Object.entries(data["py/tuple"][0]).forEach(function (test) {
+        test[1].name = test[0];
+        tests[project.project].push(test[1]);
+      });
+      if (state.sort) {
+        tests[project.project].sort(cmp(state.sort, state.reverse));
+      }
+    }
+    else {
+      data["py/tuple"][0].forEach(function (build) {
+        if(build["py/id"] !== undefined) { return; }
+        build.project = project.project;
+        build.date = build_date(build);
+        build.duration = build_duration(build);
+        builds[project.project].push(build);
+        process_failures(build);
+      });
+      failures[project.project].forEach(function (f) {f.num = f.builds.length;});
+      var build_cmp = cmp("id", 1);
+      if(state.sort && view == "builds") {
+        build_cmp = cmp(state.sort, state.reverse);
+      }
+      builds[project.project].sort(build_cmp);
+      var failure_cmp = cmp("last", -1);
+      if(state.sort && view == "failures") {
+        failure_cmp = cmp(state.sort, state.reverse);
+      }
+      failures[project.project].sort(failure_cmp);
+    }
+    stats[project.project] = data["py/tuple"][1];
+  }
+
   function load_cache() {
+    var view = current_view();
     var projs = projects;
     if ("project" in state && !load_all) {
-      projs = projects.filter(function (p) { return p.project ==state.project; });
+      projs = projects.filter(function (p) { return p.project == state.project; });
     }
-    if(("tests" in state || "tags" in state || "steps" in state) && !("search" in state) && !("project" in state)) {
+    if ((view == "tests" || view == "tags" || view == "steps") && !("search" in state) && !("project" in state)) {
       alert("Please filter out some results first, or browser might crash!");
       return;
     }
-    var table = $('#table')
-    $(table).html("");
-    if("tests" in state) {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the test">Test</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of passed, failed and skipped runs">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="time_avg" title="Total running time in seconds">Time [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg" title="Total running time of before_scenario in seconds">BS [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_bs_avg" title="Running time of before_scenario tags in seconds">BS Tags [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg" title="Total running time of after_scenario in seconds">AS [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="tags_as_avg" title="Running time of after_scenario tags in seconds">AS Tags [s]</th> \
-      </tr> \
-      </thead>'));
-    }
-    else if("tags" in state) {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the scenario tag">Tag</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_num" title="Number of before_scenario executions">BS Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_num" title="Number of after_scenario executions">AS Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="bs_avg" title="Time statistics of before_scenario executions in seconds">BS Time [s]</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="as_avg" title="Time statistics of after_scenario executions in seconds">AS Time [s]</th> \
-      </tr> \
-      </thead>'));
-    }
-    else if("steps" in state && "build" in state) {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Step template as defined in steps file">Step decorator</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of executions">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg" title="Time statistics of executions in seconds">Time [s]</th> \
-      </tr> \
-      </thead>'));
-    }
-    else if("steps" in state) {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Step template as defined in steps file">Step decorator</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num" title="Number of executions">Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="num_avg" title="Average number of executions per build">Avg Num</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="avg" title="Time statistics of executions in seconds">Time [s]</th> \
-      </tr> \
-      </thead>'));
-    }
-    else if("build" in state) {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" data-sort="name" title="Name of the failing test">Failure</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="last" title="Number of passing builds until latest failure">Last</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="num" title="Number of builds with this failure">Num</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" title="List of builds with this failure">Builds</th> \
-      </tr> \
-      </thead>'));
-    }
-    else {
-      $(table).append($('<thead> \
-      <tr> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="id" title="Jenkins build ID">Build</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="date" title="Start date and time of the build">Date</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:right" data-sort="duration" title="Total duration of the build">Duration</th> \
-        <th class="position-sticky sort" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" data-sort="status" title="Status of the build">Status</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:center" title="Number of passed, failed and skipped tests">Tests</th> \
-        <th class="position-sticky" style="top:2rem;background:white;box-shadow: inset 0px -1px;text-align:left" title="Links related with the current build">Links</th> \
-      </tr> \
-      </thead>'));
-    }
-    $(table).find('.sort').on("click", sort_header_click);
-    if(state.reverse == -1) {
-      $(table).find('tr').addClass("dropup");
-    }
-    if(state.sort) {
-      $(table).find('.sort').each(function() {
-        if ($(this).data("sort") == state.sort) {
-          $(this).addClass("dropdown-toggle");
-        }
-        else {
-          $(this).removeClass("dropdown-toggle");
-        }
-      });
-    }
 
+    var table = $('#table');
+    $(table).html("");
+    var show_fn = view_show_fn[view];
+
+    if (show_fn) {
+      $(table).append(make_header_columns(view_columns[view]));
+      $(table).find('.sort').on("click", sort_header_click);
+      if(state.reverse == -1) {
+        $(table).find('tr').addClass("dropup");
+      }
+      if(state.sort) {
+        $(table).find('.sort').each(function() {
+          $(this).toggleClass("dropdown-toggle", $(this).data("sort") == state.sort);
+        });
+      }
+    }
 
     projs.forEach(function(project) {
       if(queue[project.project]) {
         return;
       }
       queue[project.project] = true;
-      $('#' + project.project + " img").hide();
-      $('#' + project.project + " #error").hide();
-      $('#' + project.project + " #loader").show();
+      $('#' + project.project + " .health-icon").hide();
+      $('#' + project.project + " .error-icon").hide();
+      $('#' + project.project + " .loader").show();
       $(table).append('<thead id="thead-' + project.id + '"></thead>');
       $(table).append('<tbody id="tbody-' + project.id + '"></tbody>');
-      var url = "cache/" + project.project + "-";
-      if("tags" in state) {
-        url += "tags";
-      }
-      else if ("tests" in state) {
-        url += "tests";
-      }
-      else if ("steps" in state) {
-        url += "steps";
-      }
-      else {
-        url += "builds";
-      }
-      url += ".json";
+      var url = "cache/" + project.project + "-" + view_cache_suffix[view] + ".json";
 
       $.ajax({
         url: url,
@@ -266,92 +814,29 @@
           if(stats.hasOwnProperty(project.project)) {
             delete stats[project.project];
           }
-          $('#' + project.project).replaceWith(get_project_button(project, "ERROR"));
+          $('#' + project.id).replaceWith(get_project_button(project, "ERROR"));
         },
         success:function (data) {
-          $('#' + project.project + " img").show();
-          $('#' + project.project + " #loader").hide();
+          $('#' + project.project + " .health-icon").show();
+          $('#' + project.project + " .loader").hide();
           builds[project.project] = [];
           failures[project.project] = [];
           failure_builds[project.project] = [];
           stats[project.project] = {};
-          data = JSON.parse(data);
-          if("tags" in state) {
-            tags[project.project] = [];
-            Object.entries(data["py/tuple"][0]).forEach(function (tag) {
-              tag[1].name = tag[0];
-              tags[project.project].push(tag[1]);
-            });
-            if(state.sort) {
-              tags[project.project].sort(cmp(state.sort, state.reverse));
-            }
-          }
-          else if("steps" in state) {
-            steps[project.project] = [];
-            Object.entries(data["py/tuple"][0]).forEach(function (step) {
-              step[1].name = step[0];
-              steps[project.project].push(step[1]);
-            });
-            if(state.sort) {
-              steps[project.project].sort(cmp(state.sort, state.reverse));
-            }
-          }
-          else if ("tests" in state) {
-            tests[project.project] = [];
-            Object.entries(data["py/tuple"][0]).forEach(function (test) {
-              test[1].name = test[0];
-              tests[project.project].push(test[1]);
-            });
-            if (state.sort) {
-              tests[project.project].sort(cmp(state.sort, state.reverse));
-            }
-          }
-          else {
-            data["py/tuple"][0].forEach(function (build) {
-              if(build["py/id"] !== undefined) { return; }
-              build.project = project.project;
-              build.date = build_date(build);
-              build.duration = build_duration(build);
-              builds[project.project].push(build);
-              process_failures(build);
-            });
-            failures[project.project].forEach(function (f) {f.num = f.builds.length;});
-            var build_cmp = cmp("id", 1);
-            if(state.sort && !("build" in state)) {
-              build_cmp = cmp(state.sort, state.reverse);
-            }
-            builds[project.project].sort(build_cmp);
-            var failure_cmp = cmp("last", -1);
-            if(state.sort && ("build" in state)) {
-              failure_cmp = cmp(state.sort, state.reverse);
-            }
-            failures[project.project].sort(failure_cmp);
-          }
-          stats[project.project] = data["py/tuple"][1];
+
+          parse_response_data(data, project, view);
 
           queue[project.project] = false;
           $('#' + project.id).replaceWith(get_project_button(project));
-          if(!("project" in state) || state.project == project.project) {
-            if("tests" in state) {
-              show_tests(project);
-            }
-            else if ("tags" in state) {
-              show_tags(project);
-            }
-            else if ("steps" in state) {
-              show_steps(project);
-            }
-            else if("build" in state) {
-              show_failures(project);
-            }
-            else {
-              show_builds(project);
-            }
+          if(show_fn && (!("project" in state) || state.project == project.project)) {
+            window[show_fn](project);
           }
         }
       });
     });
   }
+
+  // --- URL helpers ---
 
   function custom_project_url(baseURL, qs) {
     var url = "";
@@ -367,57 +852,31 @@
 
   function rebuild(url, failures) {
     if (!failures) {
-      failures="pass";
+      failures = "pass";
     }
-    var distro = "";
-    var branch = "stock";
-    // unfortunatelly, jenkins API blocks JS access, we need simple proxy
-    $.ajax({
-        url: 'jenkins_proxy.cgi?url=' + url + "/api/json",
-        dataType:"json",
-        async: true,
-        success:function (data) {
-          var params = data["actions"][1]["parameters"];
-          var qs= [];
-          for(var i = 0; i<params.length; i++) {
-            if(params[i].name == "RUN_TESTS") {
-              params[i].value = failures;
-            }
-            if(params[i].name == "OS") {
-              distro = params[i].value;
-            }
-            if(params[i].name == "UPSTREAM_REFSPEC_ID" && params[i].value) {
-              branch = params[i].value;
-            }
-            if(params[i].name == "FEATURES" && url.indexOf("centos") != -1) {
-              params[i].value = "tests:" + failures;
-            }
-            if(params[i].name == "VERSION") {
-              params[i].value = "stats - " + distro + " - " + branch;
-            }
-            if(params[i].name == "RESERVE") {
-              params[i].value = "6h";
-            }
-            qs.push(params[i].name + "=" + params[i].value);
-          }
-          qs = qs.join("&");
-          newURL = custom_project_url(url, qs);
-          var w = window.open(newURL, "_blank");
-          w.focus();
-        },
-      });
+    var qs;
+    if (url.indexOf("centos") != -1) {
+      qs = "FEATURES=" + encodeURIComponent("tests:" + failures);
+    }
+    else {
+      qs = "RUN_TESTS=" + encodeURIComponent(failures);
+    }
+    var newURL = custom_project_url(url, qs);
+    window.open(newURL, "_blank");
   }
 
+  // --- View rendering ---
+
+  var status_pill_class = {
+    "ABORTED": "dark",
+    "UNSTABLE": "danger",
+    "FAILURE": "danger",
+    "SUCCESS": "success",
+    "RUNNING": "running",
+  };
+
   function show_builds(project) {
-    var tbody = $('#tbody-' + project.id);
-    var thead = $('#thead-' + project.id);
-    var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-//    $(head_line).append('<span style="float:right"><span class="text-success">1007</span> <span class="text-danger">6</span> <span>5</span></span>');
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append($(head_line));
+    var tbody = setup_section_header(project, 6);
 
     builds[project.project].forEach(function (build) {
       if (state.search) {
@@ -425,30 +884,18 @@
           return;
         }
       }
-      var failure_num = Object.keys(build.failures).length;
       var tr = $("<tr></tr>");
-      var cls = "";
-      if (build.status == "ABORTED" || build.failed) {
-        cls = "table-dark";
-      }
-      else if (build.status == "UNSTABLE" || build.status == "FAILURE") {
-        cls = "table-danger";
-      }
-      else if (build.status == "SUCCESS") {
-        cls = "table-success";
-      }
-      else if (build.status == "RUNNING") {
-        cls = "table-primary";
-      }
+      var pill_cls = build.failed ? "dark" : (status_pill_class[build.status] || "");
+
       $(tr).append($('<td style="text-align:center"><a target="_blank" href="' + build.url + '">' + build.id + "</a></td>"));
       $(tr).append($('<td style="text-align:right">' + build.date.toLocaleDateString("en-US", date_fmt_options) + "</td>"));
       $(tr).append($('<td style="text-align:right">' + format_duration(build.duration) + "</td>"));
-      $(tr).append($('<td style="text-align:center" class="' + cls+ '">' + build.status + "</td>"));
+      $(tr).append($('<td style="text-align:center"><span class="status-pill ' + pill_cls + '">' + build.status + "</span></td>"));
       if(build.status != "RUNNING") {
-        var td=$('<td style="text-align:center"></td>');
-        $(td).append('<span class="text-success">' + build.tests_passed + ' </span>');
-        $(td).append('<a class="text-danger" href="#project:' + project.project + ';build:' + build.id + '">' + build.tests_failed + ' </a>');
-        $(td).append('<span class="text-secondary">' + build.tests_skipped + ' </span>');
+        var td=$('<td class="count-cell" style="text-align:center"></td>');
+        $(td).append('<span class="count-pass">' + build.tests_passed + ' </span>');
+        $(td).append('<a class="count-fail" href="#project:' + project.project + ';build:' + build.id + '">' + build.tests_failed + ' </a>');
+        $(td).append('<span class="count-skip">' + build.tests_skipped + ' </span>');
         $(tr).append(td);
       }
       else {
@@ -465,27 +912,19 @@
         links.push('<a href="#project:' + project.project + ';build:' + build.id + ';steps">Step Stats</a>');
       }
       if(build.description != "--") {
-        if(build.status != "RUNNING") {
-          var descr = $.parseHTML(build.description);
-          $(descr).filter("a").each(function (i) {
-            if ($(this).text() === "Instance") {return false;}
-            if ($(this).text() === "VM Console") {return false;}
-            links.push($(this).prop("outerHTML"));
-          });
-        }
-        else {
-          links.push(build.description);
-        }
+        var descr = $.parseHTML(build.description);
+        $(descr).filter("a").each(function (i) {
+          if ($(this).text() === "Instance") {return false;}
+          if ($(this).text() === "VM Console") {return false;}
+          links.push($(this).prop("outerHTML"));
+        });
       }
-      $(tr).append($('<td>' + links.join(", ") + "</td>"));
+      $(tr).append($('<td>' + links.join(" &middot; ") + "</td>"));
       $(tbody).append(tr);
     });
   }
 
   function show_failures(project) {
-    var tbody = $('#tbody-' + project.id);
-    var thead = $('#thead-' + project.id);
-    var head_line = $('<th colspan="6" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var build_id = state.build;
     if (!isNaN(build_id) && build_id < 0) {
       var max_build = 0;
@@ -494,15 +933,8 @@
       });
       build_id = max_build+build_id - stats[project.project].running + 1;
     }
-    if(build_id) {
-      $(head_line).append($(' <i> #' + build_id + '</i>'));
-    }
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append(head_line);
-
+    var suffix = build_id ? $(' <span style="font-weight:normal;color:var(--nm-text-muted)"> #' + build_id + '</span>') : null;
+    var tbody = setup_section_header(project, 6, suffix);
 
     failures[project.project].forEach(function (failure) {
       if (!isNaN(build_id)) {
@@ -511,20 +943,21 @@
       if(state.no_html) {
         if(!no_html_fail(project.project, failure)) {return; }
       }
-      if (state.search) {
-        if (failure.name.indexOf(state.search) == -1) {
-          return;
-        }
+      if (!matches_search(failure.name)) { return; }
+      if ("crashes" in state) {
+        if (!failure.crash_builds || !failure.crash_builds.length) { return; }
+        var fb = failure_builds[project.project][failure.name];
+        var has_crash = fb.some(function(b) { return failure.crash_builds.indexOf(b) != -1; });
+        if (!has_crash) { return; }
       }
 
       var tr = $("<tr></tr>");
-      var cls = "";
-      if(failure.last == 0) {
-        cls = "table-danger";
+      if (failure.last == 0) {
+        $(tr).addClass("row-danger");
       }
-      var failure_search = '<a class="text-dark" href="#build:;search:'+failure.name+'" title="Search in all projects">'+failure.name+'</a>';
+      var failure_search = '<a href="#build:;search:'+failure.name+'" title="Search in all projects">'+failure.name+'</a>';
       $(tr).append($('<td style="text-align:left">' + failure_search + "</td>"));
-      $(tr).append($('<td style="text-align:center" class="' + cls + '">' + failure.last + "</td>"));
+      $(tr).append($('<td style="text-align:center">' + failure.last + "</td>"));
       $(tr).append($('<td style="text-align:center">' + failure.num + "</td>"));
       $(tr).append($('<td style="text-align:left">' + format_failure_builds(failure, project.project, build_id) + "</td>"));
       $(tbody).append(tr);
@@ -532,28 +965,17 @@
   }
 
   function show_tests(project) {
-    var tbody = $('#tbody-' + project.id);
-    var thead = $('#thead-' + project.id);
-    var head_line = $('<th colspan="7" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append(head_line);
+    var tbody = setup_section_header(project, 7);
 
     tests[project.project].forEach(function (test) {
-      if (state.search) {
-        if (test.name.indexOf(state.search) == -1) {
-          return;
-        }
-      }
+      if (!matches_search(test.name)) { return; }
       var tr = $("<tr></tr>");
       $(tr).append("<td>" + test.name + "</td>")
-      var td = $("<td></td>");
+      var td = $('<td class="count-cell"></td>');
       $(td).append('<strong>'+test.num+': </strong> ')
-      $(td).append('<span class="text-success">' + test.num_pass + ' </span>');
-      $(td).append('<span class="text-danger">' + test.num_fail + ' </span>');
-      $(td).append('<span class="text-secondary">' + test.num_skip + ' </span>');
+      $(td).append('<span class="count-pass">' + test.num_pass + ' </span>');
+      $(td).append('<span class="count-fail">' + test.num_fail + ' </span>');
+      $(td).append('<span class="count-skip">' + test.num_skip + ' </span>');
       $(tr).append(td);
       $(tr).append($("<td></td>").append(format_time_stats(test.time_avg, test.time_last, test.time_min, test.time_max, test.time_dev)));
       $(tr).append($("<td></td>").append(format_time_stats(test.bs_avg, test.bs_last, test.bs_min, test.bs_max, test.bs_dev)));
@@ -565,38 +987,23 @@
   }
 
   function show_tags(project) {
-    var tbody = $('#tbody-' + project.id);
-    var thead = $('#thead-' + project.id);
-    var head_line = $('<th colspan="5" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append(head_line);
+    var tbody = setup_section_header(project, 5);
 
     tags[project.project].forEach(function (tag) {
-      if (state.search) {
-        if (tag.name.indexOf(state.search) == -1) {
-          return;
-        }
-      }
+      if (!matches_search(tag.name)) { return; }
       var tr = $("<tr></tr>");
       $(tr).append("<td>" + tag.name + "</td>")
-      if (tag.bs_num === undefined) {
-        tag.bs_num = 0;
-      }
-      if (tag.as_num === undefined) {
-        tag.as_num = 0;
-      }
-      $(tr).append('<td>'+tag.bs_num+'</td>')
-      $(tr).append('<td>'+tag.as_num+'</td>')
-      if(tag.bs_num) {
+      var bs_num = tag.bs_num || 0;
+      var as_num = tag.as_num || 0;
+      $(tr).append('<td>'+bs_num+'</td>')
+      $(tr).append('<td>'+as_num+'</td>')
+      if(bs_num) {
         $(tr).append($("<td></td>").append(format_time_stats(tag.bs_avg, undefined, tag.bs_min, tag.bs_max, tag.bs_dev)));
       }
       else {
           $(tr).append("<td>&nbsp;</td>");
       }
-      if(tag.as_num) {
+      if(as_num) {
         $(tr).append($("<td></td>").append(format_time_stats(tag.as_avg, undefined, tag.as_min, tag.as_max, tag.as_dev)));
       }
       else {
@@ -607,27 +1014,15 @@
   }
 
   function show_steps(project) {
-    var tbody = $('#tbody-' + project.id);
-    var thead = $('#thead-' + project.id);
-    var head_line = $('<th colspan="4" class="position-sticky" style="top:0;background:white;box-shadow: inset 0px -1px">' + project.os + ": " + project.name + '</th>');
     var build_id = state.build;
     if (build_id == "-1") {
       build_id = steps[project.project].last_build_id;
     }
-    if(build_id) {
-      $(head_line).append($(' <i> #' + build_id + '</i>'));
-    }
-    var btns = get_nav_buttons(project);
-    btns = $(btns).wrap('<span style="float:right"></span>').parent();
-    $(head_line).append($(btns));
-    head_line = $(head_line).wrap("<tr></tr>").parent();
-    $(thead).append(head_line);
+    var suffix = build_id ? $(' <span style="font-weight:normal;color:var(--nm-text-muted)"> #' + build_id + '</span>') : null;
+    var tbody = setup_section_header(project, 4, suffix);
+
     steps[project.project].forEach(function (step) {
-      if (state.search) {
-        if (step.name.indexOf(state.search) == -1) {
-          return;
-        }
-      }
+      if (!matches_search(step.name)) { return; }
       if (build_id) {
         var step_build = step.builds["json://" + build_id];
         if (!step_build) {
@@ -649,18 +1044,6 @@
     });
   }
 
-  function format_time_stats(avg, last, min, max, dev) {
-    var tb = $('<table style="font-size:0.8rem; line-height:0.85rem;"></table>');
-    $(tb).append('<tr><td>avg:</td><th>'+avg.toFixed(2)+'</th></tr>');
-    if (last !== undefined) {
-      $(tb).append('<tr><td>last:</td><td>'+last.toFixed(2)+'</td></tr>');
-    }
-    $(tb).append('<tr><td>min:</td><td>'+min.toFixed(2)+'</td></tr>');
-    $(tb).append('<tr><td>max:</td><td>'+max.toFixed(2)+'</td></tr>');
-    $(tb).append('<tr><td>&sigma;:</td><td>'+dev.toFixed(2)+'</td></tr>');
-    return tb;
-  }
-
   function format_failure_builds(failure, project, filter_build_id) {
     var res = "";
     var fb = failure_builds[project][failure.name];
@@ -672,12 +1055,12 @@
       if (("json://" + build_id) in failure.artifact_urls) {
         res += '<a target="_blank" href="' + failure.artifact_urls["json://" + build_id] + '" ';
         if(failure.crash_builds && failure.crash_builds.indexOf(build_id) != -1) {
-          res += "class=\"text-danger\" ";
+          res += 'style="color:var(--nm-danger)" ';
         }
         res += '>' + build_id + '</a> ';
       }
       else {
-        res += '<span title="No report">' + build_id + "</span> ";
+        res += '<span title="No report" style="color:var(--nm-text-muted)">' + build_id + "</span> ";
       }
       if(build_id == filter_build_id) {
         res += "</strong>"
@@ -686,171 +1069,174 @@
     return res;
   }
 
+  // --- Project buttons and navigation ---
+
+  function status_color(project_stats) {
+    var color_map = {
+      "SUCCESS": "success",
+      "ABORTED": "dark",
+      "FAILURE": "danger",
+      "UNSTABLE": "danger",
+    };
+    return color_map[project_stats.last_status] || "primary";
+  }
+
   function get_project_button(project, status) {
-    var d = $('<div class="d-flex align-items-start"></div>');
+    var d = $('<div></div>');
     $(d).attr("id", project.id);
-    $(d).append('<span id="loader" class="spinner-border spinner-border-sm p-0 m-0" style="display:none; height:24px; min-width:24px;" role="status"></span>');
-    if(project.project in stats) {
-      $(d).append('<img style="height:24px; width:24px" class="p-0 m-0" src="' + health_img[stats[project.project].health] + '"/>');
+
+    var has_stats = project.project in stats;
+    var color = has_stats ? status_color(stats[project.project]) : "primary";
+    var is_active = "project" in state && state.project == project.project;
+
+    var card = $('<a class="project-card status-' + color + (is_active ? ' active' : '') + '"></a>');
+    $(card).attr("href", "#project:"+project.project);
+    $(card).attr("title", project.description);
+
+    // Loader
+    card.append('<span class="loader spinner-border spinner-border-sm" style="display:none; width:20px; height:20px;" role="status"></span>');
+
+    // Health icon or error
+    if(has_stats) {
+      card.append('<img class="health-icon" src="' + health_img[stats[project.project].health] + '"/>');
     }
     else {
-      $(d).append('<div id="error" style="min-width:24px; height:24px;"><i class="ms-1 bi bi-exclamation-triangle-fill text-danger"></i></div>');
-    }
-    var btn = $('<a></a>');
-    var last_stats = "";
-    if(project.project in stats) {
-      last_stats += '<span class="badge p-1 text-success bg-light border border-success">' + stats[project.project].last_pass + '</span>';
-      last_stats += '<a class="badge p-1 text-danger bg-light border border-danger" href="#project:' + project.project + ';build:-1">' + stats[project.project].last_fail + '</a>';
-      last_stats += '<span class="badge p-1 text-secondary bg-light border border-secondary">' + stats[project.project].last_skip + '</span>';
+      card.append('<span class="error-icon"><i class="bi bi-exclamation-triangle-fill" style="color:var(--nm-danger)"></i></span>');
     }
 
-    var color = "primary";
+    // Project name
+    card.append('<span class="project-name">' + project.name + '</span>');
 
-    if(project.project in stats) {
-      var last_status = stats[project.project].last_status;
-      if (last_status == "SUCCESS") {
-        color = "success";
-      }
-      else if (last_status == "ABORTED") {
-        color = "dark";
-      }
-      else if (last_status == "FAILURE" || last_status == "UNSTABLE") {
-        color = "danger";
-      }
+    // Stats badges
+    if(has_stats) {
+      var s = stats[project.project];
+      var badges = '<span class="stat-badges">';
+      badges += '<span class="stat-badge pass">' + s.last_pass + '</span>';
+      badges += '<a class="stat-badge fail" href="#project:' + project.project + ';build:-1">' + s.last_fail + '</a>';
+      badges += '<span class="stat-badge skip">' + s.last_skip + '</span>';
+      badges += '</span>';
+      card.append(badges);
     }
 
-    var running = "";
-    if(project.project in stats) {
-      var margin = "";
-      var num = Math.min(stats[project.project].running, 4);
-      for(var i = 0; i<num; i++) {
-        if(i) {
-          margin = "ms-" + (i+1);
-        }
-        running += '<span title="Running ' + num +'x" class="position-absolute top-0 start-100 translate-middle p-2 ' + margin +
-           ' mt-2 bg-warning-semi border border-'+color+' rounded-circle"><span class="visually-hidden">Running ' + num + 'x</span></span>';
-      }
+    // Running indicator
+    if(has_stats && stats[project.project].running > 0) {
+      var running_count = stats[project.project].running;
+      var cls = running_count > 1 ? 'running-indicator has-count' : 'running-indicator has-count single';
+      var label = running_count > 1 ? running_count : '1';
+      card.append('<span class="' + cls + '" title="Running ' + running_count + 'x">' + label + '</span>');
     }
-    $(btn).attr("href", "#project:"+project.project);
-    $(btn).attr("title", project.description);
-    $(btn).append('<strong class="me-auto">' + project.name + "</strong>" + last_stats + running);
-    var class_attr = "ms-1 w-100 d-flex align-items-center position-relative py-0 px-1 btn btn-sm project-btn";
-    class_attr += " btn-outline-" + color;
-    if("project" in state && state.project == project.project) {
-      class_attr += " active";
-    }
-    $(btn).attr("class", class_attr);
-    $(d).append(btn);
+
+    $(d).append(card);
     return d;
   }
 
   function get_nav_buttons(project) {
-    var btns = $('<div class="btn-group btn-group-toggle" data-toggle="buttons"></div>');
-    var color = "primary";
+    var btns = $('<div class="nav-pills-custom"></div>');
     Object.entries(nav_buttons).forEach(function (button) {
       var proj_url = "";
       if (project) {
         proj_url = "project:" + project.project + ";";
       }
-      $(btns).append('<a class="border-end border-white btn btn-sm btn-primary" href="#' + proj_url + button[1]+'">' + button[0] + '</a>');
+      $(btns).append('<a class="nav-pill" href="#' + proj_url + button[1]+'">' + button[0] + '</a>');
     });
     return btns;
   }
 
   function show_projects() {
     var last_os = "";
-    var act_div = "";
     var proj_div = $("#projects");
     $(proj_div).html("");
-    projects.forEach(function (project) {
-      if(last_os != project.os) {
-        last_os = project.os;
-        $(proj_div).append(act_div);
-        act_div = $('<div></div>');
-        $(act_div).append('<div class="h4 mt-2">'+project.os+'</div>');
-      }
-      $(act_div).append(get_project_button(project));
-    });
-    $(proj_div).append(act_div);
+    if (is_home()) {
+      var col1 = $('<div class="home-column"></div>');
+      var col2 = $('<div class="home-column"></div>');
+      projects.forEach(function (project) {
+        var target = (project.os === "RedHat CI") ? col1 : col2;
+        if(last_os != project.os) {
+          last_os = project.os;
+          target.append('<div class="os-group-label">'+project.os+'</div>');
+        }
+        target.append(get_project_button(project));
+      });
+      $(proj_div).append(col1).append(col2);
+    } else {
+      projects.forEach(function (project) {
+        if(last_os != project.os) {
+          last_os = project.os;
+          $(proj_div).append('<div class="os-group-label">'+project.os+'</div>');
+        }
+        $(proj_div).append(get_project_button(project));
+      });
+    }
+  }
+
+  function is_home() {
+    return current_view() == "home";
   }
 
   function show_state() {
+      var layout = $(".main-layout");
+      if (is_home()) {
+        layout.removeClass("project-mode").addClass("home-mode");
+      } else {
+        layout.removeClass("home-mode").addClass("project-mode");
+      }
       show_projects();
       $("#nav_btns").html(get_nav_buttons());
       load_cache();
       load_all = false;
   }
 
+  // --- Hash / state management ---
+
+  // Declarative mapping from hash fragment prefix to state key and parser
+  var hash_parsers = [
+    { prefix: "project:", key: "project", parse: function(v) { return v; } },
+    { prefix: "build:",   key: "build",   parse: function(v) { return parseInt(v); } },
+    { prefix: "search:",  key: "search",  parse: function(v) { return v; } },
+    { prefix: "tests:",   key: "tests",   parse: function(v) { return v; } },
+    { prefix: "sort:",    key: "sort",    parse: function(v) { return v; } },
+  ];
+  var hash_flags = {
+    "reverse": "reverse",
+    "tags": "tags",
+    "steps": "steps",
+    "preserve_search": "preserve_search",
+    "no_html": "no_html",
+    "crashes": "crashes",
+    "all_builds": "all_builds",
+  };
+
   function hash_split_to_state(hash_split) {
     state = {};
     hash_split.forEach(function(e) {
-      if (e.startsWith("project:")) {
-        state["project"] = e.replace("project:","");
-      }
-      if (e.startsWith("build:")) {
-        state["build"] = parseInt(e.replace("build:",""));
-      }
-      if (e.startsWith("search:")) {
-        var search = e.replace("search:","");
-        state["search"] = search;
-      }
-      if (e.startsWith("tests:")) {
-        state["tests"] = e.replace("tests:","");
-      }
-      if (e.startsWith("sort:")) {
-        state["sort"] = e.replace("sort:","");
-        if (!state.reverse) {
-          state["reverse"] = 1;
+      for (var i = 0; i < hash_parsers.length; i++) {
+        var hp = hash_parsers[i];
+        if (e.startsWith(hp.prefix)) {
+          state[hp.key] = hp.parse(e.slice(hp.prefix.length));
+          if (hp.key == "sort" && !state.reverse) {
+            state.reverse = 1;
+          }
+          return;
         }
       }
-      if (e == "reverse") {
-        state["reverse"] = -1;
-      }
-      if (e == "tags") {
-        state["tags"] = true;
-      }
-      if (e == "steps") {
-        state["steps"] = true;
-      }
-      if (e == "preserve_search") {
-        state["preserve_search"] = true;
-      }
-      if (e == "no_html") {
-        state["no_html"] = true;
+      if (e in hash_flags) {
+        state[hash_flags[e]] = e == "reverse" ? -1 : true;
       }
     });
   }
 
   function state_to_hash() {
-    var hash = "";
-    if("project" in state) {
-      hash += ";project:" + state.project;
-    }
-    if("build" in state) {
-      hash += ";build:" + state.build;
-    }
-    if("search" in state) {
-      hash += ";search:" + state.search;
-    }
-    if("tests" in state) {
-      hash += ";tests:" + state.tests;
-    }
-    if("sort" in state) {
-      hash += ";sort:" + state.sort;
-    }
-    if("reverse" in state && state.reverse == -1) {
-      hash += ";reverse";
-    }
-    if("tags" in state && state.tags) {
-      hash +=";tags";
-    }
-    if("steps" in state && state.steps) {
-      hash +=";steps";
-    }
-    if("preserve_search" in state) {
-        hash += "preserve_search";
-    }
-    return hash.substring(1);
+    var parts = [];
+    if ("project" in state)  parts.push("project:" + state.project);
+    if ("build" in state)    parts.push("build:" + state.build);
+    if ("search" in state)   parts.push("search:" + state.search);
+    if ("tests" in state)    parts.push("tests:" + state.tests);
+    if ("sort" in state)     parts.push("sort:" + state.sort);
+    if (state.reverse == -1) parts.push("reverse");
+    if (state.tags)          parts.push("tags");
+    if (state.steps)         parts.push("steps");
+    if (state.preserve_search) parts.push("preserve_search");
+    return parts.join(";");
   }
 
   function process_hash() {
@@ -905,6 +1291,8 @@
     process_hash();
   });
 
+  // --- Search ---
+
   function do_search() {
     var search_mode = $('#search_mode').val();
     var hash_split = window.location.hash.replace(/^#/, "").split(";").filter(function(word) {
@@ -928,7 +1316,24 @@
     do_search();
   }
 
+  // --- Dark mode ---
+
+  function applyTheme(theme) {
+    $('html').attr('data-bs-theme', theme);
+    localStorage.setItem('nm-theme', theme);
+    $('#theme-toggle i').attr('class', theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars');
+  }
+
   $(document).ready(function() {
+    // Restore theme preference
+    var savedTheme = localStorage.getItem('nm-theme') || 'light';
+    applyTheme(savedTheme);
+
+    $('#theme-toggle').on('click', function() {
+      var current = $('html').attr('data-bs-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
     load_all = true;
     process_hash();
     $("#search").on("change", do_search);
