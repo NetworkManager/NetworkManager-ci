@@ -94,6 +94,12 @@ polarion_metadata_str = req.text
 
 xunit_xml = ET.fromstring(xunit_str)
 
+# Remove skipped tests - Polarion treats them as waiting to be executed
+for ts in xunit_xml.findall(".//testsuite") or [xunit_xml]:
+    for tc in ts.findall("testcase"):
+        if tc.find("skipped") is not None:
+            ts.remove(tc)
+
 for tc in xunit_xml.findall(".//testcase"):
     tc_name = f"/{tc.attrib['name']}"
     tc_link = None
