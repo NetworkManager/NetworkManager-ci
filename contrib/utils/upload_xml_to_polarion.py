@@ -134,17 +134,19 @@ if xunit_xml.tag == "testsuite":
 polarion_metadata = json.loads(polarion_metadata_str)
 polarion_metadata["polarion-custom-logs"] = xunit_url_base
 
-# Use test_cycle in title and description
+# Use test_cycle in title and build description with job details
 if test_cycle:
-    polarion_metadata["polarion-custom-description"] = (
-        polarion_metadata["polarion-custom-description"]
-        .replace("general", test_cycle)
-        .replace("NetworkManager", subcomponent)
-    )
     polarion_metadata["polarion-testrun-title"] = (
         polarion_metadata["polarion-testrun-title"]
         .replace("general", test_cycle)
         .replace("NetworkManager", subcomponent)
+    )
+    description = polarion_metadata.get("polarion-custom-description", "")
+    polarion_metadata["polarion-custom-description"] = (
+        f"Job: {xunit_url_base}"
+        f" | Stage: {subcomponent}"
+        f" | Test Cycle: {TEST_CYCLES.get(test_cycle, test_cycle)}"
+        + (f" | {description}" if description else "")
     )
 
 # Based on subcomponent, compute polarion components:
@@ -168,6 +170,21 @@ elif subcomponent == "network-manager-applet":
     polarion_metadata["polarion-custom-component"] = "network-manager-applet,libnma"
 else:
     polarion_metadata["polarion-custom-component"] = "NetworkManager"
+
+# Filter build NVRs to only include components relevant to this subcomponent
+components = [
+    c.strip()
+    for c in polarion_metadata.get("polarion-custom-component", "").split(",")
+    if c.strip()
+]
+build = polarion_metadata.get("polarion-custom-build", "")
+if build and components:
+    filtered_nvrs = [
+        nvr
+        for nvr in build.split(",")
+        if any(nvr.startswith(c + "-") for c in components)
+    ]
+    polarion_metadata["polarion-custom-build"] = ",".join(filtered_nvrs)
 
 # merge additional options and polarion metadata
 polarion_metadata = {**polarion_metadata, **additional_options}

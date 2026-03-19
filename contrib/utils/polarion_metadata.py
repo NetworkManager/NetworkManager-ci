@@ -69,12 +69,46 @@ deployment_mode = "package"
 if subprocess.call("grep -q ostre /proc/cmdline", shell=True) == 0:
     deployment_mode = "image"
 
+ci_commit = (
+    subprocess.run(
+        "git rev-parse HEAD",
+        stdout=subprocess.PIPE,
+        check=False,
+        shell=True,
+        cwd=str(Path(__file__).resolve().parent.parent.parent),
+    )
+    .stdout.decode("utf-8", errors="ignore")
+    .strip()
+)
+
+component_pkgs = [
+    "NetworkManager-libreswan",
+    "ModemManager",
+    "libqmi",
+    "libqrtr-glib",
+    "libmbim",
+    "network-manager-applet",
+    "libnma",
+]
+
+component_nvrs = {}
+for component in component_pkgs:
+    result = subprocess.run(
+        f"rpm -q {component}",
+        stdout=subprocess.PIPE,
+        check=False,
+        shell=True,
+    )
+    if result.returncode == 0:
+        component_nvra = result.stdout.decode("utf-8", errors="ignore").strip()
+        component_nvrs[component] = component_nvra.rsplit(".", 1)[0]
+
 props_dic = {
     "polarion-custom-arch": arch_p,
     "polarion-custom-assignee": "fpokryvk",
-    "polarion-custom-build": nvr,
+    "polarion-custom-build": ",".join([nvr] + list(component_nvrs.values())),
     "polarion-custom-composeid": compose,
-    "polarion-custom-description": f"NetworkManager {distro} general {arch}",
+    "polarion-custom-description": f"CI commit: {ci_commit}",
     "polarion-custom-plannedin": plan,
     "polarion-custom-platform": distro,
     "polarion-custom-poolteam": "rhel-net-mgmt",
