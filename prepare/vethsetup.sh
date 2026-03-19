@@ -197,7 +197,9 @@ function setup_veth_env ()
         if hostname | grep -q wifi; then
             # On wifi machines, keep connectivity on service device for SSH/jumphost.
             # Run dhclient as systemd service so "pkill dhclient" won't kill it.
-            systemd-run --unit=dhclient-orig-${DEV} -- dhclient -d orig-$DEV
+            # Prevent dhclient from setting hostname (interferes with hostname tests).
+            echo 'supersede host-name "";' > /etc/dhcp/dhclient-orig.conf
+            systemd-run --unit=dhclient-orig-${DEV} -- dhclient -d -cf /etc/dhcp/dhclient-orig.conf orig-$DEV
         else
             ip addr flush dev orig-$DEV
         fi
