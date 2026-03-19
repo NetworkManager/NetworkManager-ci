@@ -1560,6 +1560,7 @@
     @ethernet @netcat
     @ipv6_preserve_cached_routes
     Scenario: NM - ipv6 - preserve cached routes
+    * Set sysctl "net.ipv6.route.gc_interval" to "300"
     * Prepare simulated test "testX6" device for IPv6 PMTU discovery
     * Add "ethernet" connection named "ethernet0" for device "testX6" with options
         """
