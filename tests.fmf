@@ -8417,6 +8417,8 @@ link:
 /clat_ula_prefix:
     id: 351d4df6-8240-50db-b3ec-f69305c6a96f
     order+: 60002
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9248
 /clat_vlan:
     id: 8f6d6987-057d-5d65-85c4-5611b6f66c27
     order+: 60003
