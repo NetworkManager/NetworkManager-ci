@@ -1335,22 +1335,6 @@ def libreswan_bs(context, scenario):
         )
         nmci.nmutil.restart_NM_service()
 
-    # We need libreswan at least of version 3.17, that contains
-    # commit 453167 ("pluto: ignore tentative and failed IPv6 addresses),
-    # otherwise pluto would get very very confused.
-    # That is RHEL 7.4, RHEL 8.0 or newer.
-    swan_ver = context.process.run_stdout("rpm -q --qf '%{version}' libreswan")
-    if (
-        context.process.run_code(
-            f"""rpm --eval '%{{lua:
-            if rpm.vercmp(\"{swan_ver}\", \"3.17\") < 0 then
-                error(\"Libreswan too old\");
-            end }}'"""
-        )
-        != 0
-    ):
-        context.cext.skip("Skipping with old Libreswan")
-
     context.process.run_stdout("/usr/sbin/ipsec --checknss")
     mode = "aggressive"
     if "ikev2" in scenario.tags:

@@ -31,7 +31,7 @@ install_common_packages () {
         audit2allow bash-completion bc bind-utils dbus-x11 dhcp-relay dhcp-server dnsconfd dnsmasq elfutils-libelf-devel \
         ethtool firewalld freeradius gcc git hostapd httpd iperf3 iproute-tc iptables iputils iw jq kernel-headers $K_DEVEL \
         libreswan-debuginfo lshw lsof mptcpd net-tools nmap-ncat nmstate openssl-pkcs11 patch podman pptpd pptp psmisc python3-dbus \
-        python3-gobject python3-inotify python3-libselinux python3-netaddr python3-pip python3-systemd \
+        python3-gobject python3-inotify python3-libselinux python3-netaddr python3-pip python3-systemd libreswan \
         rsync s390utils-base tcpdump telnet traceroute tuned valgrind valgrind-gdb wget wireshark-cli wpa_supplicant yasm ipcalc"
 
     # freeradius cleanup config
