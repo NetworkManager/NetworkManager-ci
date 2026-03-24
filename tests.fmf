@@ -3792,86 +3792,89 @@ link:
     order+: 14034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4744
+/dracut_NM_NFS_root_nfs_fqdn:
+    id: 8eb33329-8f79-58f5-821b-96983bd2ba6e
+    order+: 14035
 /dracut_NM_iSCSI_netroot_dhcp:
     id: 1513c0a4-ecc4-526b-b998-de2987cad8ed
-    order+: 14035
+    order+: 14036
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4745
 /dracut_NM_iSCSI_netroot_dhcp_ip_dhcp:
     id: 68e375b1-dc4e-5c07-b535-cfa55159fd95
-    order+: 14036
+    order+: 14037
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4746
 /dracut_NM_iSCSI_ibft_table:
     tag: ['gate', 'dracut']
     id: 2c6f5b3c-dd13-5b74-bc6c-259d8bada57f
-    order+: 14037
+    order+: 14038
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4747
 /dracut_NM_iSCSI_multiple_targets:
     id: 1ea33792-2b04-54b3-a1ab-3a9986a8965f
-    order+: 14038
+    order+: 14039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4748
 /dracut_NM_bridge_eth0:
     id: f6c2d988-75e6-51e5-8ae6-44f0ec99cda0
-    order+: 14039
+    order+: 14040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4749
 /dracut_NM_bridge_custom_name_2_ifaces:
     id: 4a7bea24-f7c2-53ef-ae59-3729bd7be9e9
-    order+: 14040
+    order+: 14041
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4750
 /dracut_NM_bond_over_2_ifaces_rr:
     id: c60f41ba-ebd2-590b-ab60-5edaddb18318
-    order+: 14041
+    order+: 14042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4751
 /dracut_NM_team_over_2_ifaces:
     id: cf27d31b-0759-599d-b578-dadc549b9452
-    order+: 14042
+    order+: 14043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4752
 /dracut_NM_vlan_over_nic:
     id: e2d3fdef-0a15-5e1d-a8af-e3c4e5b8d4b6
-    order+: 14043
+    order+: 14044
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4753
 /dracut_NM_vlan_multiple_over_nic:
     id: 181a7b87-f4ae-54f1-bb00-04bf74b1b797
-    order+: 14044
+    order+: 14045
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4754
 /dracut_NM_vlan_over_bridge:
     id: 6bd92e40-7685-54d3-bfba-f1645217219a
-    order+: 14045
+    order+: 14046
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4755
 /dracut_NM_vlan_over_bond:
     id: 57f0ce84-5d03-57f2-83a8-d924d7b71d25
-    order+: 14046
+    order+: 14047
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4756
 /dracut_NM_vlan_over_team_no_boot:
     id: 6a23cf91-6466-50c3-b9a4-8d578ef07167
-    order+: 14047
+    order+: 14048
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4757
 /dracut_NM_vlan_over_team:
     id: a71713a0-b280-5874-9ae8-cfd1121035d0
-    order+: 14048
+    order+: 14049
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4758
 /dracut_legacy_iSCSI_ibft_table:
     id: 6bc574bc-aecb-5584-844d-0bbb8cba7514
-    order+: 14049
+    order+: 14050
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4759
 /dracut_teardown:
     tag: ['gate', 'dracut']
     id: c1b6aea9-d02e-54d5-8e25-b72f1a55a68f
-    order+: 14050
+    order+: 14051
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4760
 /nmcli_logging:

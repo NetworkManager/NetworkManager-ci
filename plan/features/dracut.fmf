@@ -36,6 +36,7 @@ discover:
         - /tests/dracut_NM_NFS_root_nfs_ip_dhcp6
         - /tests/dracut_NM_NFS_root_nfs_ip_manual6_gateway_hostname_mac
         - /tests/dracut_NM_NFS_root_nfs_ipv6_disable
+        - /tests/dracut_NM_NFS_root_nfs_fqdn
         - /tests/dracut_NM_iSCSI_netroot_dhcp
         - /tests/dracut_NM_iSCSI_netroot_dhcp_ip_dhcp
         - /tests/dracut_NM_iSCSI_ibft_table

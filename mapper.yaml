@@ -1728,6 +1728,8 @@ testmapper:
         feature: dracut
     - dracut_NM_NFS_root_nfs_ipv6_disable:
         feature: dracut
+    - dracut_NM_NFS_root_nfs_fqdn:
+        feature: dracut
     - dracut_NM_iSCSI_netroot_dhcp:
         feature: dracut
     - dracut_NM_iSCSI_netroot_dhcp_ip_dhcp:

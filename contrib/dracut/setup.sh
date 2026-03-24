@@ -492,11 +492,23 @@ stop_radvd() {
 }
 
 
+start_dns() {
+  dnsmasq --conf-file=conf/dnsmasq.conf --pid-file=$TESTDIR/dnsmasq.pid
+}
+
+
+stop_dns() {
+  echo stopping dnsmasq
+  pkill -9 -F $TESTDIR/dnsmasq.pid
+}
+
+
 kill_server() {
   stop_nfs
   stop_iscsi
   stop_dhcpd
   stop_radvd
+  stop_dns
 }
 
 
@@ -504,7 +516,8 @@ run_server() {
   start_nfs && \
   start_iscsi && \
   start_dhcpd && \
-  start_radvd
+  start_radvd && \
+  start_dns
 }
 
 stop_qemu() {
