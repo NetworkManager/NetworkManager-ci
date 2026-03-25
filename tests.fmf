@@ -3795,6 +3795,8 @@ link:
 /dracut_NM_NFS_root_nfs_fqdn:
     id: 8eb33329-8f79-58f5-821b-96983bd2ba6e
     order+: 14035
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9250
 /dracut_NM_iSCSI_netroot_dhcp:
     id: 1513c0a4-ecc4-526b-b998-de2987cad8ed
     order+: 14036
