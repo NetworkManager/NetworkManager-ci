@@ -142,6 +142,8 @@ Feature: nmcli: cloud
     @ver+=1.51.91
     @cloud_oci_baremetal_with_vlan
     Scenario: cloud - OCI (baremetal instance) - Oracle Cloud with VLANs nm-cloud-setup checks
+    * Cleanup connection "vlan1"
+    * Cleanup connection "macvlan1"
     * Start test-cloud-meta-mock.py
     * Prepare simulated test "testX1" device with "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
     * Add "ethernet" connection named "conX1" for device "testX1" with options "autoconnect no"
@@ -180,6 +182,7 @@ Feature: nmcli: cloud
     @ver+=1.53.2.2
     @cloud_oci_vm_vnic
     Scenario: cloud - OCI - Apply config also on non DHCP device in VMs
+    * Cleanup connection "Wired connection 1"
     * Start test-cloud-meta-mock.py
     * Prepare simulated test "testX1" device with MAC address "CC:00:00:00:00:01" and "192.168.101.11" ipv4 and "2620:52:0:dead" ipv6 dhcp address prefix
     * Prepare simulated test "testX2" device with MAC address "CC:00:00:00:00:02" and without DHCP
