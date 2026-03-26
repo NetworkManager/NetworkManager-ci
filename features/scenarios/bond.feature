@@ -580,7 +580,7 @@
           con.autoconnect-sl 1
           con.autoconnect-priority 1
           ipv4.method manual
-          ipv4.addresses 192.168.100.12/24
+          ipv4.addresses 192.168.100.112/24
           ipv4.dhcp-client-id mac
           ipv6.method disabled
           autoconnect yes

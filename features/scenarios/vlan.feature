@@ -1065,7 +1065,7 @@ Feature: nmcli - vlan
         ipvlan.mode l2
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1076,7 +1076,7 @@ Feature: nmcli - vlan
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "1" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
     Then "mode l2" is visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
 
 
@@ -1093,7 +1093,7 @@ Feature: nmcli - vlan
         ipvlan.mode l3
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1104,7 +1104,7 @@ Feature: nmcli - vlan
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "2" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
     Then "mode l3" is visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
 
 
@@ -1121,7 +1121,7 @@ Feature: nmcli - vlan
         ipvlan.mode 3
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1132,7 +1132,7 @@ Feature: nmcli - vlan
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "3" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
     Then "mode l3s" is visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
 
 
@@ -1150,7 +1150,7 @@ Feature: nmcli - vlan
         ipvlan.vepa on
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1160,14 +1160,14 @@ Feature: nmcli - vlan
       """
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "l3 vepa" is visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
     * Bring "down" connection "ipvlan"
     * Modify connection "ipvlan" changing options "ipvlan.vepa off"
     * Bring "up" connection "ipvlan"
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "l3 vepa" is not visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
 
 
@@ -1185,7 +1185,7 @@ Feature: nmcli - vlan
         ipvlan.private yes
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1196,14 +1196,14 @@ Feature: nmcli - vlan
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "1" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
     Then "l2 private" is visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
     * Bring "down" connection "ipvlan"
     * Modify connection "ipvlan" changing options "ipvlan.private off"
     * Bring "up" connection "ipvlan"
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
     Then "l2 private" is not visible with command "ip -d link show dev ipvlan0"
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
 
 
@@ -1220,7 +1220,7 @@ Feature: nmcli - vlan
         ipvlan.mode l2
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method ignore
         """
     * Bring "down" connection "ipvlan"
@@ -1245,7 +1245,7 @@ Feature: nmcli - vlan
         ipvlan.mode l3
         dev eth7
         ipv4.method manual
-        ipv4.addresses 192.168.100.10/24
+        ipv4.addresses 192.168.100.110/24
         ipv6.method manual
         ipv6.addresses 2168::16/64
         """
@@ -1255,7 +1255,7 @@ Feature: nmcli - vlan
       Ensure the IPvlan interface automatically reconnects with the expected configuration after reboot.
       """
     Then "ipvlan0\s+ipvlan\s+connected" is visible with command "nmcli device" in "10" seconds
-    Then "192.168.100.10" is visible with command "ip a s ipvlan0"
+    Then "192.168.100.110" is visible with command "ip a s ipvlan0"
     Then "2168::16" is visible with command "ip a s ipvlan0"
     Then "2" is visible with command "nmcli -g ipvlan.mode con show id ipvlan"
 
