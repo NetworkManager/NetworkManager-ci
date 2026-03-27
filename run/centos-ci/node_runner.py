@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
+import glob as glob_mod
 import logging
+import shutil
 import subprocess
 import sys
 import re
@@ -65,12 +67,9 @@ class Machine:
         self.name = name
         self.copr_repo = False
         self.results_common = f"../"
-        self.results = f"../results_m{self.id}/"
-        run(f"mkdir -p {self.results}")
         self.rpms_dir = "../rpms/"
-        self.results_internal = "/tmp/results/"
         self.build_dir = "/root/nm-build/"
-        self.runtest_log = f"../runtest.m{self.id}.log"
+        self.tmt_log = f"../tmt.m{self.id}.log"
         self.artifact_dir = "../"
         self.rpms_build_dir = (
             f"{self.build_dir}/NetworkManager/contrib/fedora/rpm/*/RPMS/*/"
@@ -218,7 +217,6 @@ class Machine:
             " /etc/ssh/sshd_config"
         )
         self._update()
-        self.ssh(f"mkdir -p {self.results_internal}")
         release = self.release_num
         dnf_install = "dnf -y install"
         if int(release) == 9:
@@ -275,11 +273,10 @@ class Machine:
             "/etc/NetworkManager/conf.d/95-nmci-test.conf",
         )
         self.restartNM()
-        # copy NetworkManager-ci repo (already checked out at correct commit)
-        self.scp_to("../NetworkManager-ci/", "")
-        # execute envsetup - with stock NM package, will update later, should not matter
+        # execute envsetup via ssh, keep log separate from tmt
+        self.scp_to("prepare/", "/tmp/prepare/")
         self.ssh(
-            f"cd NetworkManager-ci\\; bash -x prepare/envsetup.sh setup first_test_setup &> ../envsetup.m{self.id}.log"
+            f"cd /tmp\\; bash -x prepare/envsetup.sh setup first_test_setup &> ../envsetup.m{self.id}.log"
         )
         return True
 
@@ -387,34 +384,167 @@ class Machine:
     def install_NM_async(self):
         self.cmd_async(self.install_NM)
 
+    def _generate_tmt_plan(self, tests, plan_name):
+        """Generate a local fmf plan file with test list and connect provision."""
+        test_lines = "\n".join([f"        - /tests/{t}$" for t in tests])
+        plan_content = (
+            f"discover:\n"
+            f"    how: fmf\n"
+            f"    test:\n"
+            f"{test_lines}\n"
+            f"provision:\n"
+            f"    how: connect\n"
+            f"    guest: {self.name}\n"
+            f"    user: root\n"
+        )
+        plan_dir = "plan/centos_ci"
+        os.makedirs(plan_dir, exist_ok=True)
+        with open(f"{plan_dir}/{plan_name}.fmf", "w") as f:
+            f.write(plan_content)
+
+    def _get_tmt_run_dir(self):
+        """Return the tmt run directory in the artifacts area."""
+        return os.path.abspath(f"{self.artifact_dir}/tmt_m{self.id}")
+
+    def _get_tmt_results_dir(self, plan_name):
+        """Return the local tmt results directory path."""
+        return f"{self._get_tmt_run_dir()}/plan/centos_ci/{plan_name}/data/reports"
+
+    def _rename_tmt_report(self, filename):
+        """Rename tmt report from XXXX_TEST_NAME.html to old naming convention.
+
+        tmt format:  XXXX_TEST_NAME.html (or FAIL_XXXX_TEST_NAME.html for failures)
+        old format:  report_NetworkManager-ci-M{id}_Test{XXXX}_{TEST_NAME}.html
+                     (or FAIL-report_... for failures)
+        """
+        name_no_ext = filename.rsplit(".html", 1)[0]
+        fail_prefix = ""
+        if name_no_ext.startswith("FAIL_"):
+            fail_prefix = "FAIL-"
+            name_no_ext = name_no_ext[len("FAIL_") :]
+        parts = name_no_ext.split("_", 1)
+        if len(parts) == 2:
+            counter, test_name = parts
+            return f"{fail_prefix}report_NetworkManager-ci-M{self.id}_Test{counter}_{test_name}.html"
+        return f"{fail_prefix}report_NetworkManager-ci-M{self.id}_{name_no_ext}.html"
+
+    def _copy_tmt_results(self, tmt_results_dir):
+        """Copy and rename tmt HTML reports to match old naming convention."""
+        if not tmt_results_dir or not os.path.isdir(tmt_results_dir):
+            logging.debug(f"TMT results dir not found: {tmt_results_dir}")
+            return
+        for html_file in glob_mod.glob(f"{tmt_results_dir}/*.html"):
+            new_name = self._rename_tmt_report(os.path.basename(html_file))
+            shutil.copy2(html_file, f"{self.results_common}/{new_name}")
+
+    def _load_tmt_results(self, plan_name):
+        """Load tmt results from JSON or YAML file."""
+        results_base = (
+            f"{self._get_tmt_run_dir()}/plan/centos_ci/{plan_name}/execute/results"
+        )
+        # Try JSON first (used with TMT_STATE_FORMAT=json), fall back to YAML
+        for ext, loader in [
+            (".json", json.load),
+            (".yaml", yaml.safe_load),
+        ]:
+            path = results_base + ext
+            if os.path.isfile(path):
+                with open(path) as f:
+                    return loader(f)
+        return None
+
+    def _generate_summary_from_tmt_results(self, plan_name):
+        """Parse tmt results to generate summary.txt compatible with old format."""
+        passed = []
+        failed = []
+        skipped = []
+        try:
+            results = self._load_tmt_results(plan_name)
+            if results is None:
+                logging.debug(
+                    f"M{self.id}: could not find tmt results.json or results.yaml"
+                )
+            else:
+                for entry in results:
+                    name = entry.get("name", "").lstrip("/tests/")
+                    result = entry.get("result", "")
+                    if result == "pass":
+                        passed.append(name)
+                    elif result in ("fail", "error"):
+                        failed.append(name)
+                    else:
+                        skipped.append(name)
+        except (OSError, IOError) as e:
+            logging.debug(f"M{self.id}: could not read tmt results: {e}")
+        except (yaml.YAMLError, json.JSONDecodeError) as e:
+            logging.debug(f"M{self.id}: failed to parse tmt results: {e}")
+
+        summary_path = f"{self._get_tmt_run_dir()}/summary.txt"
+        with open(summary_path, "w") as f:
+            f.write(f"{len(passed)}\n")
+            f.write(f"{len(failed)}\n")
+            f.write(f"{len(skipped)}\n")
+            f.write(f"{' '.join(failed)}\n")
+            f.write(f"{' '.join(skipped)}\n")
+        logging.debug(
+            f"M{self.id}: summary - passed:{len(passed)} "
+            f"failed:{len(failed)} skipped:{len(skipped)}"
+        )
+
     def runtests(self, tests):
         # Log pkg state right before the tests
         self.ssh(f"rpm -qa > ../packages.m{self.id}.list")
         self.tests = tests
         self.tests_num = len(tests)
-        tests = " ".join(tests)
-        # command after redirection operators ('|', '>', '&&') execute on jenkins machine,
-        # unless escaped as "echo \\> file', so runtest.log and journal are saved to jenkins directly
-        cmd = (
-            f"cd NetworkManager-ci\\; MACHINE_ID={self.id} "
-            f"bash -x run/centos-ci/scripts/runtest.sh {tests} &> {self.runtest_log}"
+
+        plan_name = f"machine_{self.id}"
+        self._generate_tmt_plan(tests, plan_name)
+
+        # Run tmt locally on orchestrating machine, it connects to node
+        logging.debug(
+            f"M{self.id}: running tmt with plan {plan_name} "
+            f"({self.tests_num} tests) on node {self.name}"
         )
-        ret = self.ssh(cmd, check=False)
+        tmt_run_dir = self._get_tmt_run_dir()
+        ret = run(
+            f"TMT_STATE_FORMAT=json python3.12 -m tmt run --id {tmt_run_dir} "
+            f"plan --name /plan/centos_ci/{plan_name} "
+            f"2>&1 | tee {self.tmt_log}",
+            check=False,
+        )
+
         self.ssh(
             f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
         )
-        # copy artefacts
-        self.rsync_from(f"{self.results_internal}/*.txt", self.results)
-        self.rsync_from(f"{self.results_internal}/*.html", self.results_common)
+
+        # Parse tmt results.yaml and generate summary.txt
+        self._generate_summary_from_tmt_results(plan_name)
+
+        # Copy and rename results from local tmt workdir
+        tmt_results = self._get_tmt_results_dir(plan_name)
+        self._copy_tmt_results(tmt_results)
         return ret
 
     def runtests_async(self, tests):
-
         # set properties also here, as _async sets properties on forked object
         self.tests = tests
         self.tests_num = len(tests)
 
         self.cmd_async(self.runtests, tests)
+
+    def poll_tmt_results(self):
+        """Copy intermediate results from local tmt workdir during execution."""
+        plan_name = f"machine_{self.id}"
+        tmt_results = self._get_tmt_results_dir(plan_name)
+        if not tmt_results or not os.path.isdir(tmt_results):
+            return
+        for html_file in glob_mod.glob(f"{tmt_results}/*.html"):
+            new_name = self._rename_tmt_report(os.path.basename(html_file))
+            dest = f"{self.results_common}/{new_name}"
+            if os.path.exists(dest):
+                continue
+            logging.debug(f"M{self.id}: polling result {new_name}")
+            shutil.copy2(html_file, dest)
 
 
 class Mapper:
@@ -647,14 +777,15 @@ class Runner:
         self.failed_tests = []
         self.skipped_tests = []
         for m in self.machines:
-            if not os.path.isfile(f"{m.results}/summary.txt"):
+            summary_file = f"{m._get_tmt_run_dir()}/summary.txt"
+            if not os.path.isfile(summary_file):
                 m._gitlab_message = (
                     f"**M{m.id}: NO RESULTS**: no summary.txt retrieved!"
                 )
                 logging.debug(f"M{m.id}: no summary.txt file")
                 self.exit_code = 1
                 continue
-            with open(f"{m.results}/summary.txt") as rf:
+            with open(summary_file) as rf:
                 lines = rf.read().strip("\n").split("\n")
             if len(lines) not in [3, 4, 5]:
                 m._gitlab_message = (
@@ -921,11 +1052,7 @@ class Runner:
             for m in running_machines:
                 if m.cmd_is_active():
                     if poll_results:
-                        m.rsync_from(
-                            f"{m.results_internal}/*.html",
-                            self.results_common,
-                            check=False,
-                        )
+                        m.poll_tmt_results()
                     continue
                 # m is finished
                 running_machines.remove(m)
@@ -1023,6 +1150,16 @@ class Runner:
                 self._abort("Unable to create machines that are up-to-date.")
             self.create_machines(retry - 1)
 
+    def install_tmt(self):
+        logging.debug("Installing tmt on orchestrating machine")
+        ret = run(
+            "python3.12 -m pip install tmt[report-html,provision-connect]",
+            check=False,
+            verbose=True,
+        )
+        if ret.returncode != 0:
+            self._abort("Failed to install tmt on orchestrating machine")
+
     def prepare_machines(self):
         self.phase = "prepare"
         for m in self.machines:
@@ -1056,9 +1193,19 @@ class Runner:
 
     def merge_machines_results(self):
         for m in self.machines:
-            with open(m.runtest_log, errors="ignore") as f:
-                logging.debug(f"runtest.log of machine #{m.id}:")
-                print(f.read())
+            plan_name = f"machine_{m.id}"
+            output_dir = (
+                f"{m._get_tmt_run_dir()}/plan/centos_ci/{plan_name}"
+                f"/execute/data/guest/default-0/tests"
+            )
+            if os.path.isdir(output_dir):
+                for output_file in sorted(glob_mod.glob(f"{output_dir}/*/output.txt")):
+                    test_name = os.path.basename(os.path.dirname(output_file))
+                    logging.debug(f"M{m.id}: output of {test_name}:")
+                    with open(output_file, errors="ignore") as f:
+                        print(f.read())
+            else:
+                logging.debug(f"M{m.id}: no test output dir found at {output_dir}")
 
         # this also computes exit_code
         self._get_machine_summaries()
@@ -1086,6 +1233,7 @@ class Runner:
 def main():
     runner = Runner()
     runner.parse_args()
+    runner.install_tmt()
     runner.check_if_copr_possible()
     runner.create_machines()
     runner.wait_for_machines(abort_on_fail=True)
