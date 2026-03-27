@@ -1153,7 +1153,7 @@ class Runner:
     def install_tmt(self):
         logging.debug("Installing tmt on orchestrating machine")
         ret = run(
-            "python3.12 -m pip install tmt[report-html,provision-connect]",
+            "python3.12 -m pip install 'tmt[report-html,provision-connect]@git+https://github.com/teemtee/tmt@bd7c4b390495bc5df7dc857c835d27fcc097e77a'",
             check=False,
             verbose=True,
         )
