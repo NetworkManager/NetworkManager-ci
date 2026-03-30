@@ -1,0 +1,35 @@
+# Curated list of tags that represent functional areas (requirements).
+# Each tag here becomes a Polarion requirement work item and an FMF story.
+# Infrastructure/environment tags (e.g. @delete_testeth0, @restart_if_needed)
+# are intentionally excluded.
+
+requirement_tags:
+  - 8021x
+  - dhclient_DHCP
+  - disp
+  - dns_default
+  - dns_dnsmasq
+  - dns_systemd_resolved
+  - dpdk
+  - dracut
+  - ethernet
+  - firewall
+  - gsm
+  - gsm_sim
+  - ifcfg
+  - ikev2
+  - inf
+  - internal_DHCP
+  - keyfile
+  - libreswan
+  - macsec
+  - nmtui
+  - openvpn
+  - openvswitch
+  - pkcs11
+  - scapy
+  - simwifi
+  - sriov
+  - strongswan
+  - vpn
+  - wireguard

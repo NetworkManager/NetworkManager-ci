@@ -1,8 +1,15 @@
 #!/usr/bin/python3
 
+import os
+
 import nmci
 
-from nmci.test_nmci import generate_fmf, generate_tests
+from nmci.test_nmci import (
+    generate_fmf,
+    generate_stories,
+    generate_stories_fmf,
+    generate_tests,
+)
 
 import yaml
 
@@ -32,8 +39,19 @@ if PolarionWorkItem:
         else:
             print(f"{testname} linked already")
 
+mapper = generate_tests(nmci.misc.get_mapper_obj(), tests_fmf)
+
 generate_fmf(
-    generate_tests(nmci.misc.get_mapper_obj(), tests_fmf),
+    mapper,
     "fmf_template.j2",
     "tests.fmf",
 )
+
+# Generate stories.fmf for requirements
+stories_fmf = {}
+if os.path.isfile("stories.fmf"):
+    with open("stories.fmf", "r") as s_fmf:
+        stories_fmf = yaml.load(s_fmf, Loader=yaml.SafeLoader) or {}
+
+stories = generate_stories(mapper, stories_fmf)
+generate_stories_fmf(stories)

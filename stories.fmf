@@ -1,0 +1,2438 @@
+component: NetworkManager
+/adsl:
+    story: NetworkManager adsl
+    description: Feature tests for adsl
+    id: 7038d086-4126-5611-a184-73781597c5a3
+    link:
+      - verified-by: /tests/add_adsl_connection_novice_mode
+      - verified-by: /tests/add_adsl_connection
+/alias:
+    story: NetworkManager alias
+    description: Feature tests for alias
+    id: 88fd14d1-d84c-5955-8979-e54497832f8c
+    link:
+      - verified-by: /tests/alias_ifcfg_add_single_alias
+      - verified-by: /tests/alias_ifcfg_add_multiple_aliases
+      - verified-by: /tests/alias_ifcfg_remove_single_alias
+      - verified-by: /tests/alias_ifcfg_connection_restart
+      - verified-by: /tests/alias_ifcfg_remove_all_aliases
+      - verified-by: /tests/alias_ifcfg_reboot
+/bond:
+    story: NetworkManager bond
+    description: Feature tests for bond
+    id: e0fe0a5e-c9cc-5326-b8e1-e1ffa94195d6
+    link:
+      - verified-by: /tests/bond_add_default_bond
+      - verified-by: /tests/bond_config_file
+      - verified-by: /tests/nmcli_editor_for_new_connection_set_con_id
+      - verified-by: /tests/bond_disconnect
+      - verified-by: /tests/bond_remove_active_bond_profile
+      - verified-by: /tests/bond_add_slaves
+      - verified-by: /tests/bond_add_slaves_with_queue-id
+      - verified-by: /tests/bond_port_prio_with_active_backup
+      - verified-by: /tests/add_bond_master_via_uuid
+      - verified-by: /tests/bond_keyfile_master
+      - verified-by: /tests/nmcli_bond_manual_ipv4
+      - verified-by: /tests/bond_remove_slave
+      - verified-by: /tests/bond_slave_type
+      - verified-by: /tests/bond_remove_all_slaves
+      - verified-by: /tests/bond_start_by_hand
+      - verified-by: /tests/bond_start_by_hand_no_slaves
+      - verified-by: /tests/bond_activate
+      - verified-by: /tests/bond_start_on_boot
+      - verified-by: /tests/bond_connect_slave_over_ethernet_upon_reboot
+      - verified-by: /tests/bond_default_rhel7_slaves_ordering
+      - verified-by: /tests/bond_slaves_ordering_by_ifindex
+      - verified-by: /tests/bond_slaves_ordering_by_ifindex_with_autoconnect_slaves
+      - verified-by: /tests/bond_slaves_ordering_by_name
+      - verified-by: /tests/bond_slaves_ordering_by_name_with_autoconnect_slaves
+      - verified-by: /tests/bond_set_miimon_values
+      - verified-by: /tests/bond_set_zero_miimon_values
+      - verified-by: /tests/bond_options_new_arp_values
+      - verified-by: /tests/bond_options_arp_vs_miimon_conflict
+      - verified-by: /tests/bond_option_mode_missing
+      - verified-by: /tests/bond_add_option
+      - verified-by: /tests/bond_mode_incorrect_value
+      - verified-by: /tests/bond_change_options
+      - verified-by: /tests/bond_remove_option
+      - verified-by: /tests/bond_overwrite_options
+      - verified-by: /tests/bond_mode_balance_rr
+      - verified-by: /tests/bond_mode_active_backup
+      - verified-by: /tests/bond_active-backup_primary_set
+      - verified-by: /tests/bond_mode_balance_xor
+      - verified-by: /tests/bond_mode_broadcast
+      - verified-by: /tests/bond_slaves_start_via_master
+      - verified-by: /tests/bond_start_on_boot_with_nothing_auto
+      - verified-by: /tests/bond_mac_spoof
+      - verified-by: /tests/bond_mac_reconnect_preserve
+      - verified-by: /tests/bond_start_by_hand_with_one_auto_only
+      - verified-by: /tests/bond_start_on_boot_with_one_auto_only
+      - verified-by: /tests/bond_start_on_boot_with_bond_and_one_slave_auto
+      - verified-by: /tests/bond_mode_8023ad
+      - verified-by: /tests/bond_8023ad_with_lacp_rate_fast
+      - verified-by: /tests/bond_8023ad_with_lacp_active_on
+      - verified-by: /tests/bond_8023ad_with_lacp_active_off
+      - verified-by: /tests/bond_mode_balance_tlb
+      - verified-by: /tests/bond_mode_balance_alb
+      - verified-by: /tests/bond_set_mtu
+      - verified-by: /tests/bond_set_different_mtu_on_slaves
+      - verified-by: /tests/bond_addreses_restart_persistence
+      - verified-by: /tests/bond_describe
+      - verified-by: /tests/delete_addrgenmode_bond
+      - verified-by: /tests/nmcli_novice_mode_create_bond_with_mii_monitor_values
+      - verified-by: /tests/nmcli_novice_mode_create_bond_with_default_options
+      - verified-by: /tests/nmcli_novice_mode_create_bond_with_arp_monitor_values
+      - verified-by: /tests/nmcli_novice_mode_create_bond-slave_with_default_options
+      - verified-by: /tests/bond_reflect_changes_from_outside_of_NM
+      - verified-by: /tests/bond_dbus_creation
+      - verified-by: /tests/bond_mode_by_number_in_keyfile
+      - verified-by: /tests/bond_set_active_backup_options
+      - verified-by: /tests/bond_set_ad_options
+      - verified-by: /tests/bond_set_arp_all_targets
+      - verified-by: /tests/bond_set_packets_per_slave_option
+      - verified-by: /tests/bond_set_peer_notif_delay_option
+      - verified-by: /tests/bond_set_invalid_peer_notif_delay_option
+      - verified-by: /tests/bond_set_balance_tlb_options
+      - verified-by: /tests/bond_set_balance_tlb_options_var2
+      - verified-by: /tests/bond_device_rename
+      - verified-by: /tests/bond_enslave_to_bridge
+      - verified-by: /tests/bridge_bond_autoconnect_nested_slaves
+      - verified-by: /tests/bond_in_bridge_mtu
+      - verified-by: /tests/bond_8023ad_no_error
+      - verified-by: /tests/bond_balance-alb_no_error
+      - verified-by: /tests/reapply_unchanged_slave
+      - verified-by: /tests/vlan_over_no_L3_bond_restart_persistence
+      - verified-by: /tests/vlan_over_bond_reconnect_on_link_revive
+      - verified-by: /tests/bond_leave_L2_only_up_when_going_down
+      - verified-by: /tests/bond_assume_options_1
+      - verified-by: /tests/bond_assume_options_2
+      - verified-by: /tests/bond_assume_options_3
+      - verified-by: /tests/nmclient_bond_get_state_flags
+      - verified-by: /tests/bond_set_num_grat_arp_unsol_na
+      - verified-by: /tests/bond_send_correct_arp
+      - verified-by: /tests/bond_autoconnect_activation_fails_with_libnm
+      - verified-by: /tests/bond_normalize_connection
+      - verified-by: /tests/bond_arp_validate
+      - verified-by: /tests/bond_rr_arp_validate
+      - verified-by: /tests/bond_reapply_connection_without_wired_settings
+      - verified-by: /tests/bond_reconnect_previously_unavailable_device
+      - verified-by: /tests/bond_add_default_route_if_bond0_exists
+      - verified-by: /tests/bond_reapply
+      - verified-by: /tests/bond_change_mode_of_externally_created_bond
+      - verified-by: /tests/bond_8023ad_with_vlan_srcmac
+      - verified-by: /tests/bond_set_MTU_before_DHCP
+      - verified-by: /tests/bond_accept_all_mac_addresses
+      - verified-by: /tests/bond_accept_all_mac_addresses_external_device
+      - verified-by: /tests/bond_enslave_to_bridge_correct_ARP
+      - verified-by: /tests/bond_controller_port_terminology
+      - verified-by: /tests/bond_ipv4_dad_timeout_not_used
+      - verified-by: /tests/bond_modify_bond-opts_with_slaves
+      - verified-by: /tests/bond_conflicting_device_names
+      - verified-by: /tests/bond_set_balance_slb_options
+      - verified-by: /tests/bond_vlan_filtering_unmanaged_bridge
+      - verified-by: /tests/bond_unattach_ports_on_controller_failure
+      - verified-by: /tests/bond_set_hostname_even_when_links_do_not_come_up_immediately
+      - verified-by: /tests/bond_expose_dhcp_client_identifier
+      - verified-by: /tests/bond_expose_dhcp6_client_id
+      - verified-by: /tests/bond_expose_iaid
+      - verified-by: /tests/bond_stay_up_when_ipv6_flushed
+      - verified-by: /tests/bond_slb_garp
+      - verified-by: /tests/bond_slb_l3_bridge_garp
+      - verified-by: /tests/bond_slb_l2_bridge_rarp
+      - verified-by: /tests/bond_slb_garp_ping
+/bridge:
+    story: NetworkManager bridge
+    description: Feature tests for bridge
+    id: a0a58b6b-aa88-5a3b-af78-f8e16845d783
+    link:
+      - verified-by: /tests/bridge_options
+      - verified-by: /tests/bridge_modify_forward_delay
+      - verified-by: /tests/bridge_connection_up
+      - verified-by: /tests/bridge_connection_down
+      - verified-by: /tests/bridge_disconnect_device
+      - verified-by: /tests/bridge_describe_all
+      - verified-by: /tests/bridge_describe_separately
+      - verified-by: /tests/bridge_delete_connection
+      - verified-by: /tests/bridge_delete_connection_while_up
+      - verified-by: /tests/bridge_new_lower_mac_port_unchanged_ip_addresses_v4
+      - verified-by: /tests/bridge_new_lower_mac_port_unchanged_ip_addresses_v6
+      - verified-by: /tests/bridge_add_slave
+      - verified-by: /tests/bridge_remove_slave
+      - verified-by: /tests/bridge_up_with_slaves
+      - verified-by: /tests/bridge_up_slave
+      - verified-by: /tests/bridge_slaves_start_via_master
+      - verified-by: /tests/bridge_autoconnect_slaves_when_master_reconnected
+      - verified-by: /tests/bridge_dhcp_config_with_ethernet_port
+      - verified-by: /tests/bridge_dhcp_config_with_multiple_ethernet_ports
+      - verified-by: /tests/bridge_static_config_with_multiple_ethernet_ports
+      - verified-by: /tests/bridge_autoconnect_slaves_all
+      - verified-by: /tests/bridge_autoconnect_slaves_all_modified
+      - verified-by: /tests/bridge_server_ingore_carrier_with_dhcp
+      - verified-by: /tests/bridge_reflect_changes_from_outside_of_NM
+      - verified-by: /tests/bridge_assumed_connection_race
+      - verified-by: /tests/bridge_assumed_connection_no_firewalld_zone
+      - verified-by: /tests/bridge_manipulation_with_1000_slaves
+      - verified-by: /tests/bridge_assumed_connection_ip_methods
+      - verified-by: /tests/outer_bridge_restart_persistence
+      - verified-by: /tests/bridge_set_mac_var1
+      - verified-by: /tests/bridge_external_unmanaged
+      - verified-by: /tests/bridge_preserve_assumed_connection_ips
+      - verified-by: /tests/bridge_slave_to_ethernet_conversion
+      - verified-by: /tests/bridge_delete_connection_with_device
+      - verified-by: /tests/bridge_delete_connection_without_device
+      - verified-by: /tests/bridge_ipv6
+      - verified-by: /tests/bridge_detect_initrd_device
+      - verified-by: /tests/bridge_detect_initrd_device_diff_name_for_profile
+      - verified-by: /tests/bridge_vlan_filtering_no_pvid
+      - verified-by: /tests/bridge_vlan_filtering_default_pvid
+      - verified-by: /tests/bridge_vlan_filtering_non_default_pvid
+      - verified-by: /tests/bridge_vlan_filtering_default_pvid_reapply
+      - verified-by: /tests/bridge_device_created_unmanaged
+      - verified-by: /tests/bridge_no_link_till_master
+      - verified-by: /tests/bridge_down_to_l2_only
+      - verified-by: /tests/bridge_remove_slaves_ipv6ll
+      - verified-by: /tests/bridge_v6ll_present_with_stp_and_static_v4
+      - verified-by: /tests/bridge_set_mtu
+      - verified-by: /tests/bridge_accept_all_mac_addresses
+      - verified-by: /tests/bridge_accept_all_mac_addresses_external_device
+      - verified-by: /tests/bridge_controller_port_terminology
+      - verified-by: /tests/bridge_keepaddr_unmanaged_device
+      - verified-by: /tests/bridge_keep_unmanaged_device_on_reapply
+      - verified-by: /tests/bridge_port_not_unblock_after_connection_update
+      - verified-by: /tests/bridge_reapply_modifying_just_managed_ports
+      - verified-by: /tests/bridge_autoconnect_virtual_port
+      - verified-by: /tests/bridge_port_vlan_reapply
+/clat:
+    story: NetworkManager clat
+    description: Feature tests for clat
+    id: 95a7ca7e-f3d2-53ce-97c9-fb3a78f3a382
+    link:
+      - verified-by: /tests/clat_ethernet
+      - verified-by: /tests/clat_ethernet_plen64
+      - verified-by: /tests/clat_ula_prefix
+      - verified-by: /tests/clat_vlan
+      - verified-by: /tests/clat_multiple_instances
+      - verified-by: /tests/clat_disabled
+      - verified-by: /tests/clat_auto_no_opt108
+      - verified-by: /tests/clat_auto_ipv4_manual
+      - verified-by: /tests/clat_mtu_ra
+      - verified-by: /tests/clat_mtu_static
+      - verified-by: /tests/clat_layer3
+/cloud:
+    story: NetworkManager cloud
+    description: Feature tests for cloud
+    id: 7a9e5a0b-412e-5616-a579-359ea15b1c30
+    link:
+      - verified-by: /tests/cloud_aliyun_basic
+      - verified-by: /tests/cloud_azure_basic
+      - verified-by: /tests/cloud_azure_primary_address_race
+      - verified-by: /tests/cloud_ec2_basic
+      - verified-by: /tests/cloud_gcp_basic
+      - verified-by: /tests/cloud_oci_basic_vm
+      - verified-by: /tests/cloud_oci_vm_vnic
+      - verified-by: /tests/cloud_oci_basic_baremetal
+      - verified-by: /tests/cloud_oci_baremetal_with_vlan
+      - verified-by: /tests/cloud_no_provider_warning
+      - verified-by: /tests/cloud_setup_keep_secondary_ips
+      - verified-by: /tests/cloud_ec2_race_with_3_interfaces
+      - verified-by: /tests/nm_cloud_setup_burst_limit
+/connection:
+    story: NetworkManager connection
+    description: Feature tests for connection
+    id: 1621e1de-b089-59f0-a917-8b78bcbec37e
+    link:
+      - verified-by: /tests/connection_objects_autocompletion
+      - verified-by: /tests/802_1x_objects_autocompletion
+      - verified-by: /tests/connection_restricted_to_single_device
+      - verified-by: /tests/connection_help
+      - verified-by: /tests/nmcli_device_autocompletion
+      - verified-by: /tests/connection_names_autocompletion
+      - verified-by: /tests/connection_get_value
+      - verified-by: /tests/connection_no_error
+      - verified-by: /tests/connection_wimax_disabled
+      - verified-by: /tests/connection_team_disabled_rhel10
+      - verified-by: /tests/connection_secondaries_restricted_to_vpn
+      - verified-by: /tests/connection_double_delete
+      - verified-by: /tests/connection_profile_duplication
+      - verified-by: /tests/double_connection_warning
+      - verified-by: /tests/connection_veth_profile_duplication
+      - verified-by: /tests/connection_delete_while_editing
+      - verified-by: /tests/connection_removal_of_disapperared_device
+      - verified-by: /tests/connection_down
+      - verified-by: /tests/connection_set_id
+      - verified-by: /tests/connection_set_uuid_error
+      - verified-by: /tests/connection_set_interface-name
+      - verified-by: /tests/connection_autoconnect_yes
+      - verified-by: /tests/connection_autoconnect_no
+      - verified-by: /tests/connection_autoconnect_yes_without_immediate_effects
+      - verified-by: /tests/keyfile_parse_options_with_comment
+      - verified-by: /tests/keyfile_compliant_with_kickstart
+      - verified-by: /tests/manual_connection_with_both_ips
+      - verified-by: /tests/connection_timestamp
+      - verified-by: /tests/connection_timestamp_conn_down
+      - verified-by: /tests/connection_timestamp_nm_stop
+      - verified-by: /tests/connection_timestamp_on_restart_activation
+      - verified-by: /tests/connection_autoconnect_lower_uuid
+      - verified-by: /tests/connection_readonly_timestamp
+      - verified-by: /tests/connection_readonly_yes
+      - verified-by: /tests/connection_readonly_type
+      - verified-by: /tests/connection_permission_to_user
+      - verified-by: /tests/connection_zone_drop_to_public
+      - verified-by: /tests/connection_metered_manual_no
+      - verified-by: /tests/connection_metered_manual_yes
+      - verified-by: /tests/connection_metered_guess_no
+      - verified-by: /tests/connection_metered_guess_yes
+      - verified-by: /tests/connection_metered_guess_yes_ipv6_disabled
+      - verified-by: /tests/introspection_active_connection
+      - verified-by: /tests/connection_user_settings_data
+      - verified-by: /tests/connection_track_external_changes
+      - verified-by: /tests/connection_describe
+      - verified-by: /tests/profile_priorities
+      - verified-by: /tests/display_allowed_values
+      - verified-by: /tests/firewall_zones_restart_persistence
+      - verified-by: /tests/lldp
+      - verified-by: /tests/lldp_vlan_name_overflow
+      - verified-by: /tests/lldp_malformed_chasis_crash
+      - verified-by: /tests/lldp_vlan_tlv
+      - verified-by: /tests/lldp_with_ovs
+      - verified-by: /tests/lldp_status_flag_libnm
+      - verified-by: /tests/connection_multiconnect_default_single
+      - verified-by: /tests/connection_multiconnect_manual
+      - verified-by: /tests/connection_multiconnect_autoconnect
+      - verified-by: /tests/connection_multiconnect_reboot
+      - verified-by: /tests/connection_multiconnect_autoconnect_retries
+      - verified-by: /tests/connection_prefers_managed_devices
+      - verified-by: /tests/connection_no_managed_device
+      - verified-by: /tests/connection_short_info
+      - verified-by: /tests/in_memory_connection_delete_on_reboot
+      - verified-by: /tests/in_memory_connection_restart_persistency
+      - verified-by: /tests/in_memory_connection_reload_persistency
+      - verified-by: /tests/all_to_in_memory_move
+      - verified-by: /tests/all_to_in_memory_only_move
+      - verified-by: /tests/all_to_in_memory_detached_move
+      - verified-by: /tests/in_memory_detached_resurrect
+      - verified-by: /tests/in_memory_detached_delete_nmmeta
+      - verified-by: /tests/connection_external_dummy_interface
+      - verified-by: /tests/connection_nmcli_migrate
+      - verified-by: /tests/connection_migrate_via_config_option
+      - verified-by: /tests/connection_wait-activation-delay
+      - verified-by: /tests/connection_dont_assume_settings_connection
+      - verified-by: /tests/nmcli_space_in_secondaries
+      - verified-by: /tests/connection_with_higher_priority_active_on_reload
+      - verified-by: /tests/connection_ping_ip_addresses
+      - verified-by: /tests/connection_ping_ip6_addresses
+      - verified-by: /tests/connection_ping_ip_addresses_unreachable
+      - verified-by: /tests/connection_with_empty_sriov_vfs
+      - verified-by: /tests/connection_change_name_with_incorrect_selinux_label
+/dbus:
+    story: NetworkManager dbus
+    description: Feature tests for dbus
+    id: d3f8854f-e837-512c-88c3-46bbf9fad2e6
+    link:
+      - verified-by: /tests/dbus_set_invalid_dns
+      - verified-by: /tests/dbus_set_invalid_addresses
+      - verified-by: /tests/dbus_set_invalid_address_data
+      - verified-by: /tests/dbus_set_invalid_routes
+      - verified-by: /tests/dbus_set_invalid_route_data
+/dcb:
+    story: NetworkManager dcb
+    description: Feature tests for dcb
+    id: 047f896e-0422-5423-9be7-df9f2976a440
+    link:
+      - verified-by: /tests/NetworkManager-dcb/dcb_enable_connection
+      - verified-by: /tests/NetworkManager-dcb/dcb_disable_connection
+      - verified-by: /tests/NetworkManager-dcb/dcb_enable_after_reboot
+      - verified-by: /tests/NetworkManager-dcb/dcb_error_shown
+/dispatcher:
+    story: NetworkManager dispatcher
+    description: Feature tests for dispatcher
+    id: b7daf83c-cf46-53a2-b04f-29f9fba8c883
+    link:
+      - verified-by: /tests/dispatcher_preup_and_up
+      - verified-by: /tests/dispatcher_predown_and_down
+      - verified-by: /tests/dispatcher_hostname
+      - verified-by: /tests/dispatcher_synchronicity
+      - verified-by: /tests/dispatcher_synchronicity_with_predown
+      - verified-by: /tests/dispatcher_serialization
+      - verified-by: /tests/dispatcher_dhcp4_change_on_renewal
+      - verified-by: /tests/dispatcher_private_dhcp_option_dhclient
+      - verified-by: /tests/dispatcher_private_dhcp_option_internal
+      - verified-by: /tests/dispatcher_usr_lib_dir
+      - verified-by: /tests/dispatcher_restart
+      - verified-by: /tests/dispatcher_interface_stuck_in_check_ip_state
+      - verified-by: /tests/dispatcher_track_dns_changes
+      - verified-by: /tests/dispatcher_device_handler_dummy
+      - verified-by: /tests/dispatcher_device_handler_dummy_in_bond
+      - verified-by: /tests/dispatcher_device_handler_geneve
+/dns:
+    story: NetworkManager dns
+    description: Feature tests for dns
+    id: fa48daaf-6b08-53f9-afc0-9b7d29c971f4
+    link:
+      - verified-by: /tests/dns_dnsconfd_unbound_dns_over_tls
+      - verified-by: /tests/dns_dnsconfd_unbound_full_tunnel_vpn
+      - verified-by: /tests/dns_dnsconfd_unbound_split_tunnel_vpn
+      - verified-by: /tests/dns_dnsconfd_unbound
+      - verified-by: /tests/dns_resolved_two_default
+      - verified-by: /tests/dns_resolved_one_default
+      - verified-by: /tests/dns_resolved_two_default_with_priority
+      - verified-by: /tests/dns_resolved_two_default_with_negative_priority
+      - verified-by: /tests/dns_resolved_no_default
+      - verified-by: /tests/dns_resolved_full_tunnel_vpn
+      - verified-by: /tests/dns_resolved_split_tunnel_vpn
+      - verified-by: /tests/dns_resolved_add_remove_ipv6_dns
+      - verified-by: /tests/dns_best_after_reconnect
+      - verified-by: /tests/dns_priority
+      - verified-by: /tests/dns_priority_config
+      - verified-by: /tests/dns_default_two_default
+      - verified-by: /tests/dns_default_one_default
+      - verified-by: /tests/dns_default_two_default_with_priority
+      - verified-by: /tests/dns_default_two_default_with_negative_priority
+      - verified-by: /tests/dns_default_no_default
+      - verified-by: /tests/dns_default_full_tunnel_vpn
+      - verified-by: /tests/dns_default_split_tunnel_vpn
+      - verified-by: /tests/dns_default_split_tunnel_vpn_same_priority
+      - verified-by: /tests/dns_dnsmasq_two_default
+      - verified-by: /tests/dns_dnsmasq_one_default
+      - verified-by: /tests/dns_dnsmasq_two_default_with_priority
+      - verified-by: /tests/dns_dnsmasq_two_default_with_negative_priority
+      - verified-by: /tests/dns_dnsmasq_no_default
+      - verified-by: /tests/dns_dnsmasq_full_tunnel_vpn
+      - verified-by: /tests/dns_dnsmasq_split_tunnel_vpn
+      - verified-by: /tests/dns_dnsmasq_driver_removal
+      - verified-by: /tests/dns_dnsmasq_kill
+      - verified-by: /tests/dns_dnsmasq_kill_ratelimit
+      - verified-by: /tests/dns_dnsmasq_kill_when_nm_restarts
+      - verified-by: /tests/dns_multiple_options
+      - verified-by: /tests/dns_none
+      - verified-by: /tests/remove_dns_none
+      - verified-by: /tests/resolv_conf_dangling_symlink
+      - verified-by: /tests/resolv_conf_do_not_overwrite_symlink
+      - verified-by: /tests/resolv_conf_dns_priority
+      - verified-by: /tests/dns_openshift_dualstack_slow_v4
+      - verified-by: /tests/dns_openshift_dualstack_slow_v6
+      - verified-by: /tests/dns_openshift_v6_only_slow_v6
+      - verified-by: /tests/dns_dnsmasq_dnssec_opts
+      - verified-by: /tests/dns_resolved_dnssec_opts
+      - verified-by: /tests/dns_resolved_mdns
+      - verified-by: /tests/dns_reapply_on_disabled_ipv6
+      - verified-by: /tests/dns_global_options
+      - verified-by: /tests/dns_global_search
+      - verified-by: /tests/dns_global_search_options
+      - verified-by: /tests/dns_global_domains_all
+      - verified-by: /tests/dns_global_domain_split
+      - verified-by: /tests/dns_global_domain_search_option
+      - verified-by: /tests/dns_reapply_device_with_same_globals
+      - verified-by: /tests/dns_global_dbus
+/doc_procedures:
+    story: NetworkManager doc_procedures
+    description: Feature tests for doc_procedures
+    id: f95231ca-c9e4-58cd-95a1-c4a791398f39
+    link:
+      - verified-by: /tests/policy_based_routing_doc_procedure
+      - verified-by: /tests/simwifi_peap_mschapv2_doc_procedure
+      - verified-by: /tests/simwifi_hotspot_doc_procedure
+      - verified-by: /tests/simwifi_hotspot_sae_doc_procedure
+      - verified-by: /tests/nmcli_simwifi_teardown_doc
+      - verified-by: /tests/iptunnel_ipip_doc_procedure
+      - verified-by: /tests/iptunnel_gre_doc_procedure
+      - verified-by: /tests/iptunnel_gretap_doc_procedure
+      - verified-by: /tests/qdisc_doc_procedure
+      - verified-by: /tests/macsec_doc_procedure
+      - verified-by: /tests/wireguard_nmcli_doc_procedure
+      - verified-by: /tests/wireguard_nmtui_doc_procedure
+      - verified-by: /tests/vxlan_doc_procedure
+      - verified-by: /tests/8021x_hostapd_freeradius_doc_procedure
+      - verified-by: /tests/doc_set_gateway_on_existing_profile
+      - verified-by: /tests/doc_set_gateway_nmstate
+      - verified-by: /tests/doc_set_gateway_multiple
+      - verified-by: /tests/doc_set_gateway_multiple_with_metric
+      - verified-by: /tests/doc_set_gateway_ignore
+      - verified-by: /tests/doc_unmanage_interface_permanent
+      - verified-by: /tests/doc_unmanage_interface_temporary
+      - verified-by: /tests/doc_nmcli_route_all_options
+      - verified-by: /tests/doc_nmcli_offline_connection_add
+      - verified-by: /tests/doc_keyfile_connection_add
+      - verified-by: /tests/doc_set_mtu_9000
+      - verified-by: /tests/doc_split_dns_dnsmasq
+      - verified-by: /tests/doc_split_dns_resolved
+      - verified-by: /tests/doc_transmit_queue_length
+      - verified-by: /tests/doc_firewalld_zones_via_keyfile
+      - verified-by: /tests/doc_firewalld_zones_via_ifcfg
+      - verified-by: /tests/doc_unmanaged_reason
+/dracut:
+    story: NetworkManager dracut
+    description: Feature tests for dracut
+    id: 337f7a0f-8998-5f85-afbf-d81513750d98
+    link:
+      - verified-by: /tests/dracut_setup
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp_nm_debug
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp_ip_dhcp_neednet
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp_ip_dhcp_peerdns0
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp_vendor_class
+      - verified-by: /tests/dracut_NM_NFS_root_dhcp_client_id
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_mtu
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_mtu_cloned_mac
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_hostname
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_rd_routes
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip4
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_slow_ip6
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_ip46_and_ip6_nic
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip46_and_ip6_nic
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp_dhcp6_with_slow_ip64_and_ip6_nic
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_dhcp
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_gateway_hostname_mac
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_mtu
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_mtu_cloned_mac
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_dns1
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_dns2
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_dns3
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_dnsconfd
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_dnsconfd_exclusive
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_dnsconfd_prefer
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual_custom_ifname
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_off
+      - verified-by: /tests/dracut_NM_NFS_remote_rootfs_connection
+      - verified-by: /tests/dracut_NM_NFS_remote_rootfs_connection_var2
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_auto6
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_dhcp6
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ip_manual6_gateway_hostname_mac
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_ipv6_disable
+      - verified-by: /tests/dracut_NM_NFS_root_nfs_fqdn
+      - verified-by: /tests/dracut_NM_iSCSI_netroot_dhcp
+      - verified-by: /tests/dracut_NM_iSCSI_netroot_dhcp_ip_dhcp
+      - verified-by: /tests/dracut_NM_iSCSI_ibft_table
+      - verified-by: /tests/dracut_NM_iSCSI_multiple_targets
+      - verified-by: /tests/dracut_NM_bridge_eth0
+      - verified-by: /tests/dracut_NM_bridge_custom_name_2_ifaces
+      - verified-by: /tests/dracut_NM_bond_over_2_ifaces_rr
+      - verified-by: /tests/dracut_NM_team_over_2_ifaces
+      - verified-by: /tests/dracut_NM_vlan_over_nic
+      - verified-by: /tests/dracut_NM_vlan_multiple_over_nic
+      - verified-by: /tests/dracut_NM_vlan_over_bridge
+      - verified-by: /tests/dracut_NM_vlan_over_bond
+      - verified-by: /tests/dracut_NM_vlan_over_team_no_boot
+      - verified-by: /tests/dracut_NM_vlan_over_team
+      - verified-by: /tests/dracut_legacy_iSCSI_ibft_table
+      - verified-by: /tests/dracut_teardown
+/ethernet:
+    story: NetworkManager ethernet
+    description: Feature tests for ethernet
+    id: 8b37335d-f8df-582f-b743-2c30f419d71b
+    link:
+      - verified-by: /tests/ethernet_default_initramfs_connection
+      - verified-by: /tests/ethernet_create_with_editor
+      - verified-by: /tests/ethernet_create_default_connection
+      - verified-by: /tests/ethernet_connection_up
+      - verified-by: /tests/ethernet_disconnect_device
+      - verified-by: /tests/ethernet_describe_all
+      - verified-by: /tests/ethernet_describe_separately
+      - verified-by: /tests/ethernet_set_matching_mac
+      - verified-by: /tests/ethernet_set_invalid_mac
+      - verified-by: /tests/ethernet_set_blacklisted_mac
+      - verified-by: /tests/ethernet_mac_spoofing
+      - verified-by: /tests/ethernet_mac_address_preserve
+      - verified-by: /tests/ethernet_mac_address_permanent
+      - verified-by: /tests/ethernet_mac_address_rhel7_default
+      - verified-by: /tests/ethernet_duplex_speed_auto_negotiation
+      - verified-by: /tests/ethernet_set_mtu
+      - verified-by: /tests/nmcli_set_mtu_lower_limit
+      - verified-by: /tests/ethernet_set_static_configuration
+      - verified-by: /tests/ethernet_set_static_ipv6_configuration
+      - verified-by: /tests/ethernet_set_both_ipv4_6_configuration
+      - verified-by: /tests/ethernet_create_ifname_generic_connection
+      - verified-by: /tests/nmcli_ethernet_no_ip
+      - verified-by: /tests/no_assumed_connection_for_veth
+      - verified-by: /tests/8021x_tls_pkcs11_saved_pw
+      - verified-by: /tests/8021x_tls_pkcs11_pwfile
+      - verified-by: /tests/8021x_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/8021x_tls_pkcs11_pw_in_uri_flag_nr
+      - verified-by: /tests/8021x_with_credentials
+      - verified-by: /tests/8021x_tls
+      - verified-by: /tests/8021x_tls_user_permissions
+      - verified-by: /tests/8021x_tls_bad_private_key_password
+      - verified-by: /tests/8021x_tls_aes256_private_key
+      - verified-by: /tests/8021x_tls_no_private_key_password
+      - verified-by: /tests/8021x_tls_bad_password_flag
+      - verified-by: /tests/8021x_tls_pkcs12_key_restart
+      - verified-by: /tests/8021x_peap_md5
+      - verified-by: /tests/8021x_peap_mschapv2
+      - verified-by: /tests/8021x_peap_gtc
+      - verified-by: /tests/8021x_ttls_pap
+      - verified-by: /tests/8021x_ttls_chap
+      - verified-by: /tests/8021x_ttls_mschap
+      - verified-by: /tests/8021x_ttls_mschapv2
+      - verified-by: /tests/8021x_ttls_mschapv2_eap
+      - verified-by: /tests/8021x_ttls_md5
+      - verified-by: /tests/8021x_ttls_gtc
+      - verified-by: /tests/8021x_with_raw_credentials
+      - verified-by: /tests/8021x_without_password
+      - verified-by: /tests/8021x_without_password_with_ask_at_the_end
+      - verified-by: /tests/8021x_auto_auth_retry_with_backup_network
+      - verified-by: /tests/8021x_stop_wpa_supplicant_with_8021x_optional
+      - verified-by: /tests/preserve_8021x_certs_ethernet
+      - verified-by: /tests/preserve_8021x_leap_con
+      - verified-by: /tests/8021x_ca_path_with_ifcfg_plugin
+      - verified-by: /tests/8021x_reauth_bridge
+      - verified-by: /tests/8021x_teardown_eth
+      - verified-by: /tests/ethtool_features_connection
+      - verified-by: /tests/ethtool_features_fixed_connection
+      - verified-by: /tests/ethtool_features_ring
+      - verified-by: /tests/ethtool_features_channels
+      - verified-by: /tests/ethtool_features_coal
+      - verified-by: /tests/ethtool_features_fec
+      - verified-by: /tests/ethernet_accept_all_mac_addresses_external_device
+      - verified-by: /tests/ethtool_features_pause
+      - verified-by: /tests/ethernet_s390_options_with_subchannels
+      - verified-by: /tests/ethernet_s390_options_without_subchannels
+      - verified-by: /tests/ethernet_keyfiles_dont_write_empty_mac_address_blacklist
+      - verified-by: /tests/ethtool_multiple_options_in_profile_file
+      - verified-by: /tests/ethernet_keep_mtu_on_reboot
+      - verified-by: /tests/NetworkManager-dcb/nmcli_ethernet_wol_from_file_to_default
+      - verified-by: /tests/NetworkManager-dcb/nmcli_ethernet_wol_from_file
+      - verified-by: /tests/NetworkManager-dcb/nmcli_ethernet_wol_disable
+      - verified-by: /tests/NetworkManager-dcb/nmcli_ethernet_wol_enable_magic
+      - verified-by: /tests/NetworkManager-dcb/nmcli_ethernet_wol_default
+/general:
+    story: NetworkManager general
+    description: Feature tests for general
+    id: 09ff64e5-8e48-5f41-9e3a-b1aa32759327
+    link:
+      - verified-by: /tests/pass
+      - verified-by: /tests/skip_step_skip
+      - verified-by: /tests/skip_step_pass
+      - verified-by: /tests/last_copr_build_check
+      - verified-by: /tests/nmstate_upstream
+      - verified-by: /tests/nmcli_general_correct_profile_activated_after_restart
+      - verified-by: /tests/nmcli_general_profile_pickup_doesnt_break_network
+      - verified-by: /tests/nmcli_general_assign_valid_hostname_to_device
+      - verified-by: /tests/nmcli_logging
+      - verified-by: /tests/reduce_logging
+      - verified-by: /tests/man_pages
+      - verified-by: /tests/hostname_change
+      - verified-by: /tests/pull_hostname_from_dhcp
+      - verified-by: /tests/pull_hostname_from_dns
+      - verified-by: /tests/pull_long_hostname_from_dns
+      - verified-by: /tests/pull_hostname_from_dns_retry
+      - verified-by: /tests/pull_hostname_from_hosts_default
+      - verified-by: /tests/pull_hostname_from_hosts_resolved
+      - verified-by: /tests/pull_hostname_from_dns_static_ipv6
+      - verified-by: /tests/pull_hostname_from_dns_dynamic_ipv6
+      - verified-by: /tests/hostname_priority
+      - verified-by: /tests/hostname_mode_full
+      - verified-by: /tests/hostname_mode_dhcp
+      - verified-by: /tests/pull_hostname_from_dhcp_no_gw_no_default_hostname
+      - verified-by: /tests/hostname_mode_full_without_dhcp_hosts
+      - verified-by: /tests/hostname_mode_none
+      - verified-by: /tests/general_check_version
+      - verified-by: /tests/general_state_connected
+      - verified-by: /tests/gen_activate_with_incorrect_hostname
+      - verified-by: /tests/general_state_disconnected
+      - verified-by: /tests/general_state_asleep
+      - verified-by: /tests/general_state_networking_off
+      - verified-by: /tests/general_state_running
+      - verified-by: /tests/general_state_not_running
+      - verified-by: /tests/general_nmcli_offline_connection_add_modify
+      - verified-by: /tests/shutdown_service_assumed
+      - verified-by: /tests/shutdown_service_connected
+      - verified-by: /tests/shutdown_service_any
+      - verified-by: /tests/CAP_SYS_ADMIN_for_ibft
+      - verified-by: /tests/general_networking_on_off
+      - verified-by: /tests/general_networking_enabled
+      - verified-by: /tests/general_networking_disabled
+      - verified-by: /tests/general_networking_off
+      - verified-by: /tests/general_networking_on
+      - verified-by: /tests/nmcli_radio_status
+      - verified-by: /tests/nmcli_device_status
+      - verified-by: /tests/nmcli_device_show_ip
+      - verified-by: /tests/nmcli_device_show_general_params
+      - verified-by: /tests/nmcli_device_disconnect
+      - verified-by: /tests/run_once_ip4_renewal
+      - verified-by: /tests/run_once_ip6_renewal
+      - verified-by: /tests/run_once_helper_for_localhost_localdomain
+      - verified-by: /tests/wait-online-for-both-ips
+      - verified-by: /tests/network_online_target_not_depend_on_wait_online
+      - verified-by: /tests/nm_wait_online_requisite_NM
+      - verified-by: /tests/nm_wait_online_requires_NM
+      - verified-by: /tests/wait_online_with_autoconnect_no_connection
+      - verified-by: /tests/nm_online_wait_for_delayed_device
+      - verified-by: /tests/nm_online_wait_for_second_connection
+      - verified-by: /tests/nm_online_timeout_max
+      - verified-by: /tests/nm_online_wait_for_dnsmasq
+      - verified-by: /tests/policy_based_routing
+      - verified-by: /tests/modify_policy_based_routing_connection
+      - verified-by: /tests/policy_based_routing_with_dispatcher_scripts
+      - verified-by: /tests/nmcli_general_dhcp_profiles_general_gateway
+      - verified-by: /tests/allow_wired_connections
+      - verified-by: /tests/ctc_device_recognition
+      - verified-by: /tests/nmcli_general_wait_for_carrier_on_new_device_request
+      - verified-by: /tests/general_nmclient_query_carrier
+      - verified-by: /tests/connection_up_after_journald_restart
+      - verified-by: /tests/nmcli_general_dhcp_hostname_over_localhost
+      - verified-by: /tests/nmcli_general_ignore_specified_unamanaged_devices
+      - verified-by: /tests/nmcli_general_set_device_unmanaged
+      - verified-by: /tests/nmcli_general_set_device_back_to_managed
+      - verified-by: /tests/nmcli_general_set_device_reset_managed
+      - verified-by: /tests/nmcli_general_set_device_unmanaged_persist
+      - verified-by: /tests/nmcli_general_set_device_unmanaged_persist_only
+      - verified-by: /tests/nmcli_general_set_device_managed_persist
+      - verified-by: /tests/nmcli_general_set_device_managed_persist_only
+      - verified-by: /tests/nmcli_general_set_device_reset_managed_persist
+      - verified-by: /tests/nmcli_general_set_device_reset_managed_persist_only
+      - verified-by: /tests/nmcli_general_set_device_managed_up_persist
+      - verified-by: /tests/nmcli_general_set_device_unmanaged_down_persist
+      - verified-by: /tests/nmcli_general_set_device_managed_up_down_persist_only
+      - verified-by: /tests/nmcli_general_keyfile_tailing_whitespace
+      - verified-by: /tests/nmcli_general_keep_slave_device_unmanaged
+      - verified-by: /tests/no_error_when_firewald_restarted
+      - verified-by: /tests/show_zones_after_firewalld_install
+      - verified-by: /tests/nmcli_general_DHCP_HOSTNAME_profile_pickup
+      - verified-by: /tests/match_connections_when_no_var_run_exists
+      - verified-by: /tests/match_connections_with_pci_address
+      - verified-by: /tests/match_connections_via_kernel_option
+      - verified-by: /tests/no_assumed_wired_connections
+      - verified-by: /tests/no_assumed_wired_connections_var2
+      - verified-by: /tests/keyfile_respect_externally_set_mtu
+      - verified-by: /tests/wpa_supplicant_not_started
+      - verified-by: /tests/nmcli_general_dbus_set_gateway
+      - verified-by: /tests/preserve_failed_assumed_connections
+      - verified-by: /tests/insufficient_logging_perms
+      - verified-by: /tests/insufficient_perms_connection_down
+      - verified-by: /tests/assume_external_controller_with_port
+      - verified-by: /tests/insufficient_perms_connection_up
+      - verified-by: /tests/nmcli_device_connect
+      - verified-by: /tests/nmcli_device_reapply_routes
+      - verified-by: /tests/nmcli_device_reapply_all
+      - verified-by: /tests/nmcli_device_connect_no_profile
+      - verified-by: /tests/nmcli_device_delete
+      - verified-by: /tests/nmcli_device_attempt_hw_delete
+      - verified-by: /tests/nmcli_device_wifi_with_two_devices
+      - verified-by: /tests/veth_goes_to_unmanaged_state
+      - verified-by: /tests/nat_from_shared_network_iptables
+      - verified-by: /tests/nat_from_shared_network_nftables
+      - verified-by: /tests/nmcli_general_activate_static_connection_carrier_ignored
+      - verified-by: /tests/nmcli_general_activate_static_connection_carrier_not_ignored
+      - verified-by: /tests/nmcli_monitor
+      - verified-by: /tests/dns_over_dbus
+      - verified-by: /tests/NM_syslog_in_anaconda
+      - verified-by: /tests/snapshot_rollback
+      - verified-by: /tests/snapshot_rollback_all_devices
+      - verified-by: /tests/snapshot_timeout_rollback_all_devices
+      - verified-by: /tests/snapshot_rollback_unmanaged
+      - verified-by: /tests/snapshot_rollback_managed
+      - verified-by: /tests/snapshot_rollback_managed_persist
+      - verified-by: /tests/snapshot_rollback_soft_device
+      - verified-by: /tests/snapshot_rollback_sriov
+      - verified-by: /tests/snapshot_deleted_soft_device_dbus_link
+      - verified-by: /tests/snapshot_rollback_deleted
+      - verified-by: /tests/snapshot_rollback_delete_devices_and_profiles
+      - verified-by: /tests/snapshot_rollback_in_memory
+      - verified-by: /tests/dummy_non_utf_device
+      - verified-by: /tests/stable_mem_consumption
+      - verified-by: /tests/stable_mem_consumption_massif
+      - verified-by: /tests/stable_mem_consumption2
+      - verified-by: /tests/stable_mem_consumption2_massif
+      - verified-by: /tests/dummy_connection
+      - verified-by: /tests/dummy_with_qdisc
+      - verified-by: /tests/do_not_touch_external_dummy
+      - verified-by: /tests/connectivity_check
+      - verified-by: /tests/disable_connectivity_check
+      - verified-by: /tests/manipulate_connectivity_check_via_dbus
+      - verified-by: /tests/per_device_connectivity_check
+      - verified-by: /tests/keep_external_device_enslaved_on_down
+      - verified-by: /tests/overtake_external_device
+      - verified-by: /tests/wait_10s_for_flappy_carrier
+      - verified-by: /tests/NM_starts_with_incorrect_logging_config
+      - verified-by: /tests/resolv_conf_overwrite_after_stop
+      - verified-by: /tests/libnm_async_tasks_cancelable
+      - verified-by: /tests/libnm_async_activation_cancelable_no_crash
+      - verified-by: /tests/nmcli_monitor_assertion_con_up_down
+      - verified-by: /tests/libnm_snapshot_rollback
+      - verified-by: /tests/libnm_snapshot_rollback_all_devices
+      - verified-by: /tests/libnm_snapshot_timeout_rollback_all_devices
+      - verified-by: /tests/libnm_snapshot_rollback_unmanaged
+      - verified-by: /tests/libnm_snapshot_rollback_managed
+      - verified-by: /tests/libnm_snapshot_rollback_soft_device
+      - verified-by: /tests/libnm_snapshot_destroy_after_rollback
+      - verified-by: /tests/libnm_snapshot_reattach_unmanaged_ports_to_bridge
+      - verified-by: /tests/autoconnect_no_secrets_prompt
+      - verified-by: /tests/ifup_ifdown_scripts
+      - verified-by: /tests/ifup_ifdown_keyfile
+      - verified-by: /tests/resolv_conf_search_limit
+      - verified-by: /tests/captive_portal_detection
+      - verified-by: /tests/editor_print_info
+      - verified-by: /tests/nmcli_novice_print_types
+      - verified-by: /tests/nmcli_modify_altsubject-matches
+      - verified-by: /tests/libnm_get_dns_crash
+      - verified-by: /tests/libnm_nmclient_init_crash
+      - verified-by: /tests/keyfile_nmconnection_extension
+      - verified-by: /tests/move_keyfile_to_usr_lib_dir
+      - verified-by: /tests/no_uuid_in_keyfile_in_usr_lib_dir
+      - verified-by: /tests/busctl_LoadConnections_relative_path
+      - verified-by: /tests/secret_key_file_permissions
+      - verified-by: /tests/invalid_config_warning
+      - verified-by: /tests/libnm_addconnection2_block_autoconnect
+      - verified-by: /tests/libnm_update2_block_autoconnect
+      - verified-by: /tests/libnm_update2_no_reapply
+      - verified-by: /tests/nmcli_general_unmanaged_device_dhclient_fail
+      - verified-by: /tests/no_user_control
+      - verified-by: /tests/clean_device_state_files
+      - verified-by: /tests/NM_merge_dhclient_conditionals
+      - verified-by: /tests/NM_performance_dhcp_on_existing_veths
+      - verified-by: /tests/NM_performance_dhcp_on_existing_veths_with_dad
+      - verified-by: /tests/nmcli_shows_correct_routes
+      - verified-by: /tests/nmcli_show_gateways
+      - verified-by: /tests/user_cannot_reapply_roots_connection
+      - verified-by: /tests/nm_device_get_applied_connection_user_allowed
+      - verified-by: /tests/nmcli_route_dump
+      - verified-by: /tests/nmcli_dhcp_overlong_hostname
+      - verified-by: /tests/nmcli_remove_static_hostname
+      - verified-by: /tests/apply_link_settings
+      - verified-by: /tests/modify_link_settings_ifcfg
+      - verified-by: /tests/autoconnect_port
+      - verified-by: /tests/ignore_carrier_with_bond_noauto
+      - verified-by: /tests/ignore_carrier_with_bond
+      - verified-by: /tests/ignore_carrier_with_bond_two_ports
+      - verified-by: /tests/nm_binds_to_dbus_check
+      - verified-by: /tests/suspend_wakeup
+      - verified-by: /tests/nmcli_version_warning
+      - verified-by: /tests/nmcli_controller_naming_convention
+      - verified-by: /tests/dbusmock_unittests
+      - verified-by: /tests/NM_print_config
+      - verified-by: /tests/nmcli_port_arguments_order
+      - verified-by: /tests/nmcli_port_with_ip_disabled
+      - verified-by: /tests/nmcli_port_type_guess
+      - verified-by: /tests/NM_ebpf_in_journal
+      - verified-by: /tests/print_config_no_avc_error
+      - verified-by: /tests/nmcli_general_multiword_autocompletion
+      - verified-by: /tests/nmcli_device_reapply
+      - verified-by: /tests/crashing_NM_binary
+/gsm:
+    story: NetworkManager gsm
+    description: Feature tests for gsm
+    id: 7d977432-7523-52c2-b4d6-b6d2017b5f36
+    link:
+      - verified-by: /tests/NetworkManager-gsm/gsm_create_default_connection_qmi
+      - verified-by: /tests/NetworkManager-gsm/gsm_disconnect
+      - verified-by: /tests/NetworkManager-gsm/gsm_create_one_minute_ping
+      - verified-by: /tests/NetworkManager-gsm/gsm_mtu
+      - verified-by: /tests/NetworkManager-gsm/gsm_route_metric
+      - verified-by: /tests/NetworkManager-gsm/gsm_connectivity_check
+      - verified-by: /tests/NetworkManager-gsm/gsm_load_from_file
+      - verified-by: /tests/NetworkManager-gsm/gsm_create_assisted_connection
+      - verified-by: /tests/NetworkManager-gsm/gsm_create_default_connection_mbim
+/gsm_sim:
+    story: NetworkManager gsm_sim
+    description: Feature tests for gsm_sim
+    id: 5bd32673-307a-5eaf-9fc6-8d47171c5c8e
+    link:
+      - verified-by: /tests/gsm_sim_create_default_connection
+      - verified-by: /tests/gsm_sim_disconnect
+      - verified-by: /tests/gsm_sim_mtu
+      - verified-by: /tests/gsm_sim_route_metric
+      - verified-by: /tests/gsm_sim_load_from_file
+      - verified-by: /tests/gsm_sim_profile_with_serials
+      - verified-by: /tests/gsm_sim_create_assisted_connection
+/hsr:
+    story: NetworkManager hsr
+    description: Feature tests for hsr
+    id: 0ad75a0a-721b-5de9-a364-da1566542078
+    link:
+      - verified-by: /tests/hsr_with_prp_protocol
+      - verified-by: /tests/hsr_interlink
+      - verified-by: /tests/hsr_proto_version
+/infiniband:
+    story: NetworkManager infiniband
+    description: Feature tests for infiniband
+    id: 33c5ab72-a887-5260-847d-0610ffe2c399
+    link:
+      - verified-by: /tests/NetworkManager-infiniband/inf_create_connection
+      - verified-by: /tests/NetworkManager-infiniband/inf_create_connection_novice_mode
+      - verified-by: /tests/NetworkManager-infiniband/inf_disable_connection
+      - verified-by: /tests/NetworkManager-infiniband/inf_create_port_connection
+      - verified-by: /tests/NetworkManager-infiniband/inf_create_port_novice_mode
+      - verified-by: /tests/NetworkManager-infiniband/inf_disable_port
+      - verified-by: /tests/NetworkManager-infiniband/inf_enable_after_reboot
+      - verified-by: /tests/NetworkManager-infiniband/inf_internal_dhcp
+      - verified-by: /tests/NetworkManager-infiniband/inf_master_in_bond
+      - verified-by: /tests/NetworkManager-infiniband/inf_master_in_bond_restart_persistence
+      - verified-by: /tests/NetworkManager-infiniband/inf_down_before_mode_change
+      - verified-by: /tests/NetworkManager-infiniband/inf_send_correct_client_id
+      - verified-by: /tests/NetworkManager-infiniband/inf_mtu
+      - verified-by: /tests/NetworkManager-infiniband/inf_keyfile_pkey_via_single_digit
+      - verified-by: /tests/NetworkManager-infiniband/inf_reload
+/ipv4:
+    story: NetworkManager ipv4
+    description: Feature tests for ipv4
+    id: 7e93f6b9-cb09-5184-aebc-c1ed4e4e132b
+    link:
+      - verified-by: /tests/ipv4_take_manually_created_keyfile_with_ip
+      - verified-by: /tests/ipv4_method_static_no_IP
+      - verified-by: /tests/ipv4_method_manual_with_IP
+      - verified-by: /tests/ipv4_method_static_with_IP
+      - verified-by: /tests/ipv4_addresses_manual_when_asked
+      - verified-by: /tests/ipv4_addresses_IP_slash_mask
+      - verified-by: /tests/ipv4_change_in_address
+      - verified-by: /tests/ipv4_addresses_IP_slash_invalid_mask
+      - verified-by: /tests/ipv4_addresses_IP_slash_mask_and_route
+      - verified-by: /tests/ipv4_addresses_more_IPs_slash_mask_and_route
+      - verified-by: /tests/ipv4_method_back_to_auto
+      - verified-by: /tests/ipv4_route_set_basic_route
+      - verified-by: /tests/ipv4_route_set_route_with_table
+      - verified-by: /tests/ipv4_route_add_route_with_table_reapply
+      - verified-by: /tests/ipv4_route_delete_route_with_table_reapply
+      - verified-by: /tests/ipv4_route_cleanup_route_with_table
+      - verified-by: /tests/ipv4_route_set_route_with_options
+      - verified-by: /tests/ipv4_route_set_single_route_with_weight
+      - verified-by: /tests/ipv4_route_set_ecmp_route_with_weight
+      - verified-by: /tests/ipv4_route_set_ecmp_route_with_weight_and_drop_weight
+      - verified-by: /tests/ipv4_route_set_ecmp_route_with_weight_and_modify
+      - verified-by: /tests/ipv4_route_set_ecmp_routes_in_two_profiles
+      - verified-by: /tests/ipv4_route_set_ecmp_routes_dummy_and_reactivate_connection
+      - verified-by: /tests/ipv4_route_set_route_with_src_new_syntax
+      - verified-by: /tests/ipv4_route_set_route_with_src_new_syntax_restart_persistence
+      - verified-by: /tests/no_metric_route_connection_restart_persistence
+      - verified-by: /tests/ipv4_route_externally_set_route_with_table
+      - verified-by: /tests/ipv4_route_externally_set_route_with_table_and_reapply
+      - verified-by: /tests/ipv4_restore_default_route_externally
+      - verified-by: /tests/ipv4_route_remove_basic_route
+      - verified-by: /tests/ipv4_route_set_device_route
+      - verified-by: /tests/ipv4_host_destination_route
+      - verified-by: /tests/preserve_route_to_generic_device
+      - verified-by: /tests/ipv4_route_set_invalid_non_IP_route
+      - verified-by: /tests/ipv4_route_set_invalid_missing_gw_route
+      - verified-by: /tests/ipv4_routes_not_reachable
+      - verified-by: /tests/ipv4_dns_manual
+      - verified-by: /tests/ipv4_dns_manual_when_method_auto
+      - verified-by: /tests/ipv4_dns_manual_when_ignore_auto_dns
+      - verified-by: /tests/ipv4_ignore_resolveconf_with_ignore_auto_dns
+      - verified-by: /tests/ipv4_ignore_resolveconf_with_ignore_auto_dns_var1
+      - verified-by: /tests/ipv4_ignore_resolveconf_with_ignore_auto_dns_var2
+      - verified-by: /tests/ipv4_ignore_resolveconf_with_ignore_auto_dns_var3
+      - verified-by: /tests/ipv4_dns_resolvconf_symlinked
+      - verified-by: /tests/ipv4_dns_resolvconf_file
+      - verified-by: /tests/ipv4_dns_add_another_one
+      - verified-by: /tests/ipv4_dns_delete_all
+      - verified-by: /tests/reload_dns
+      - verified-by: /tests/ipv4_dns-search_add
+      - verified-by: /tests/ipv4_dns-search_remove
+      - verified-by: /tests/ipv4_dhcp-hostname_set
+      - verified-by: /tests/nmcli_ipv4_set_fqdn
+      - verified-by: /tests/nmcli_ipv4_override_fqdn
+      - verified-by: /tests/nmcli_ipv4_override_fqdn_var1
+      - verified-by: /tests/nmcli_ipv4_remove_fqdn
+      - verified-by: /tests/ipv4_dhcp-hostname_remove
+      - verified-by: /tests/ipv4_do_not_send_hostname
+      - verified-by: /tests/ipv4_send_real_hostname
+      - verified-by: /tests/ipv4_ignore_sending_real_hostname
+      - verified-by: /tests/ipv4_add_dns_options
+      - verified-by: /tests/ipv4_remove_dns_options
+      - verified-by: /tests/ipv4_dns-search_ignore_auto_routes
+      - verified-by: /tests/ipv4_method_link-local
+      - verified-by: /tests/ipv4_link-local_fallback_static
+      - verified-by: /tests/ipv4_link-local_fallback_dhcp
+      - verified-by: /tests/ipv4_dhcp_client_id_set
+      - verified-by: /tests/ipv4_dhcp_client_id_set_internal
+      - verified-by: /tests/ipv4_dhcp_client_id_none
+      - verified-by: /tests/ipv4_dhcp_client_id_none_internal
+      - verified-by: /tests/ipv4_dhcp_client_id_none_dhclient
+      - verified-by: /tests/ipv4_dhcp_client_id_remove
+      - verified-by: /tests/ipv4_set_very_long_dhcp_client_id
+      - verified-by: /tests/ipv4_dhcp_client_id_default
+      - verified-by: /tests/ipv4_dhcp_client_id_default_dhclient_set
+      - verified-by: /tests/ipv4_dhcp_client_id_default_dhclient_unset
+      - verified-by: /tests/ipv4_may-fail_yes
+      - verified-by: /tests/ipv4_method_disabled
+      - verified-by: /tests/ipv4_never-default_set
+      - verified-by: /tests/ipv4_never-default_remove
+      - verified-by: /tests/ipv4_describe
+      - verified-by: /tests/check_local_routes
+      - verified-by: /tests/set_mtu_from_DHCP
+      - verified-by: /tests/dhcp-timeout
+      - verified-by: /tests/dhcp-timeout_infinity
+      - verified-by: /tests/dhcp-timeout_default_in_cfg
+      - verified-by: /tests/dhcp4_outages_in_various_situation
+      - verified-by: /tests/manual_routes_removed
+      - verified-by: /tests/ipv4_dad
+      - verified-by: /tests/ipv4_send_dhcpdecline_on_ip_conflict
+      - verified-by: /tests/custom_shared_range_preserves_restart
+      - verified-by: /tests/ipv4_method_shared
+      - verified-by: /tests/ipv4_method_shared_configurable_dhcp_range
+      - verified-by: /tests/ipv4_method_shared_with_already_running_dnsmasq
+      - verified-by: /tests/ipv4_do_not_remove_second_ip_route
+      - verified-by: /tests/ipv4_never_default_restart_persistence
+      - verified-by: /tests/ipv4_honor_ip_order_1
+      - verified-by: /tests/ipv4_honor_ip_order_2
+      - verified-by: /tests/ipv4_rp_filter_set_loose_rhel
+      - verified-by: /tests/ipv4_rp_filter_do_not_touch
+      - verified-by: /tests/ipv4_rp_filter_reset_rhel
+      - verified-by: /tests/ipv4_dhcp_do_not_add_route_to_server
+      - verified-by: /tests/ipv4_keep_external_addresses
+      - verified-by: /tests/ipv4_route_onsite
+      - verified-by: /tests/ipv4_multiple_ip4
+      - verified-by: /tests/ipv4_dhcp-hostname_shared_persists
+      - verified-by: /tests/nm_dhcp_lease_renewal_link_down
+      - verified-by: /tests/dhcp_renewal_with_ipv6
+      - verified-by: /tests/ipv4_prefix_route_missing_after_ip_link_down_up
+      - verified-by: /tests/ipv4_manual_addr_before_dhcp
+      - verified-by: /tests/ipv4_manual_addr_preferred_over_dhcp
+      - verified-by: /tests/ipv4_routing_rules_manipulation
+      - verified-by: /tests/ipv4_replace_local_rule
+      - verified-by: /tests/dhcp_multiple_router_options
+      - verified-by: /tests/dhcp_private_option_dhclient
+      - verified-by: /tests/dhcp_private_option_internal
+      - verified-by: /tests/ipv4_send_arp_announcements
+      - verified-by: /tests/dhcp_reboot
+      - verified-by: /tests/dhcp_reboot_nak
+      - verified-by: /tests/dhcp_rebind
+      - verified-by: /tests/dhcp_rebind_with_firewall
+      - verified-by: /tests/dhcp_rebind_with_firewall_var2
+      - verified-by: /tests/dhcp_option_classless_routes
+      - verified-by: /tests/dhcp_option_ms_classless_routes
+      - verified-by: /tests/dhcp_option_domain_search
+      - verified-by: /tests/dhcp_option_filename
+      - verified-by: /tests/ipv4_31_netprefix_ptp_link
+      - verified-by: /tests/ipv4_dhcp_iaid_unset
+      - verified-by: /tests/ipv4_dhcp_iaid_ifname
+      - verified-by: /tests/ipv4_dhcp_iaid_mac
+      - verified-by: /tests/ipv4_external_addresses_no_double_routes
+      - verified-by: /tests/ipv4_dhcp_vendor_class_keyfile
+      - verified-by: /tests/ipv4_spurious_leftover_route
+      - verified-by: /tests/ipv4_ignore_nonstatic_routes
+      - verified-by: /tests/ipv4_route-table_reapply
+      - verified-by: /tests/ipv4_dhcp_reapply_keep_lease
+      - verified-by: /tests/ipv4_required_timeout_set
+      - verified-by: /tests/ipv4_check_addr_order
+      - verified-by: /tests/ipv4_reapply_preserve_external_ip
+      - verified-by: /tests/dhcp_internal_ack_after_nak
+      - verified-by: /tests/dhcp_internal_nak_in_renewing
+      - verified-by: /tests/ipv4_mptcp_no_flags_no_defroute
+      - verified-by: /tests/ipv4_mptcp_no_flags
+      - verified-by: /tests/ipv4_mptcp_flags_disabled
+      - verified-by: /tests/ipv4_mptcp_flags_enabled
+      - verified-by: /tests/ipv4_mptcp_flags_0x2_0x4
+      - verified-by: /tests/ipv4_mptcp_flags_0x2_0x8
+      - verified-by: /tests/ipv4_mptcp_flags_0x10
+      - verified-by: /tests/ipv4_mptcp_flags_0x20
+      - verified-by: /tests/ipv4_mptcp_flags_0x40
+      - verified-by: /tests/ipv4_mptcp_flags_0x80
+      - verified-by: /tests/ipv4_mptcp_flags_0x100
+      - verified-by: /tests/ipv4_mptcp_reapply_change_flag
+      - verified-by: /tests/ipv4_mptcp_remove_endpoints
+      - verified-by: /tests/ipv4_mptcp_endpoints_dad
+      - verified-by: /tests/ipv4_prefsrc_route
+      - verified-by: /tests/ipv4_no_route_without_addr
+      - verified-by: /tests/ipv4_keep_track_l3_despite_too_many_netlink
+      - verified-by: /tests/ipv4_reapply_hostname_from_dhcp
+      - verified-by: /tests/ipv4_allow_static_routes_without_address
+      - verified-by: /tests/ipv4_dhcp_dscp
+      - verified-by: /tests/ipv4_renew_lease_after_dhcp_restart
+      - verified-by: /tests/ipv4_dhcp_send_release
+      - verified-by: /tests/ipv4_dhcp_send_release_reactivate
+      - verified-by: /tests/ipv4_dhcp_send_release_disabled
+      - verified-by: /tests/ipv4_set_dhcp_send_hostname_global_config
+      - verified-by: /tests/ipv4_dhcp_ipv6_only_preferred
+      - verified-by: /tests/ipv4_dhcp_ipv6_only_preferred_global
+      - verified-by: /tests/ipv4_add_frr_routes_just_once
+      - verified-by: /tests/ipv4_add_dns_routes
+      - verified-by: /tests/ipv4_add_dns_routes_global
+      - verified-by: /tests/ipv4_forwarding_with_sysctl_default_forwarding_disabled
+      - verified-by: /tests/ipv4_forwarding_with_sysctl_default_forwarding_enabled
+      - verified-by: /tests/ipv4_shared_connection_with_sysctl_default_forwarding_disabled
+      - verified-by: /tests/ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled
+      - verified-by: /tests/ipv4_unreachable_gateway_warning
+      - verified-by: /tests/route_priorities
+/ipv6:
+    story: NetworkManager ipv6
+    description: Feature tests for ipv6
+    id: e4845ec4-857a-5e9a-a390-492385b0154e
+    link:
+      - verified-by: /tests/ipv6_block_RA
+      - verified-by: /tests/ipv6_accept_ra_handling
+      - verified-by: /tests/ipv6_limited_router_solicitation
+      - verified-by: /tests/solicitation_period_prolonging
+      - verified-by: /tests/ipv6_routes_with_src
+      - verified-by: /tests/ipv6_route_externally_set_route_with_table
+      - verified-by: /tests/ipv6_route_externally_set_route_with_table_and_reapply
+      - verified-by: /tests/ipv6_correct_slaac_setting
+      - verified-by: /tests/ipv6_take_manually_created_keyfile
+      - verified-by: /tests/ipv6_method_static_without_IP
+      - verified-by: /tests/ipv6_method_manual_with_IP
+      - verified-by: /tests/ipv6_method_static_with_IP
+      - verified-by: /tests/ipv6_addresses_IP_with_netmask
+      - verified-by: /tests/ipv6_addresses_yes_when_static_switch_asked
+      - verified-by: /tests/ipv6_addresses_no_when_static_switch_asked
+      - verified-by: /tests/ipv6_addresses_invalid_netmask
+      - verified-by: /tests/ipv6_addresses_IP_with_mask_and_gw
+      - verified-by: /tests/ipv6_addresses_set_several_IPv6s_with_masks_and_gws
+      - verified-by: /tests/ipv6_addresses_delete_IP_moving_method_back_to_auto
+      - verified-by: /tests/ipv6_routes_set_basic_route
+      - verified-by: /tests/ipv6_route_set_route_with_table
+      - verified-by: /tests/ipv6_route_add_route_with_table_reapply
+      - verified-by: /tests/ipv6_route_delete_route_with_table_reapply
+      - verified-by: /tests/ipv6_route_cleanup_route_with_table
+      - verified-by: /tests/ipv6_route_set_route_with_options
+      - verified-by: /tests/ipv6_routes_remove_basic_route
+      - verified-by: /tests/ipv6_routes_device_route
+      - verified-by: /tests/ipv6_routes_invalid_IP
+      - verified-by: /tests/ipv6_routes_without_gw
+      - verified-by: /tests/ipv6_replace_local_rule
+      - verified-by: /tests/ipv6_dns_manual_IP_with_manual_dns
+      - verified-by: /tests/ipv6_dns_auto_with_more_manually_set
+      - verified-by: /tests/ipv6_dns_ignore-auto-dns_with_manually_set_dns
+      - verified-by: /tests/ipv6_dns_add_more_when_already_have_some
+      - verified-by: /tests/ipv6_dns_remove_manually_set
+      - verified-by: /tests/ipv6_dns-search_set
+      - verified-by: /tests/ipv6_dns-search_remove
+      - verified-by: /tests/ipv6_ignore-auto-dns_set
+      - verified-by: /tests/ipv6_method_link-local
+      - verified-by: /tests/ipv6_method_ignored
+      - verified-by: /tests/ipv6_method_disabled
+      - verified-by: /tests/ipv6_may_fail_set_true
+      - verified-by: /tests/ipv6_never-default_set_true
+      - verified-by: /tests/ipv6_never-default_remove
+      - verified-by: /tests/ipv6_dhcp-hostname_set
+      - verified-by: /tests/ipv6_dhcp-hostname_remove
+      - verified-by: /tests/ipv6_send_fqdn_dot_fqdn_to_dhcpv6
+      - verified-by: /tests/ipv6_DHCPv6
+      - verified-by: /tests/ipv6_secondary_address
+      - verified-by: /tests/ipv6_ip6-privacy_0
+      - verified-by: /tests/ipv6_ip6-privacy_1
+      - verified-by: /tests/ipv6_ip6-privacy_2
+      - verified-by: /tests/ipv6_ip6-privacy_with_lifetime
+      - verified-by: /tests/ipv6_ip6-default_privacy
+      - verified-by: /tests/ipv6_ip6-privacy_incorrect_value
+      - verified-by: /tests/ipv6_lifetime_no_padding
+      - verified-by: /tests/ipv6_lifetime_too_low
+      - verified-by: /tests/ipv6_drop_ra_with_255_hlimit
+      - verified-by: /tests/ipv6_drop_ra_with_low_hlimit
+      - verified-by: /tests/ipv6_drop_ra_from_non_ll_address
+      - verified-by: /tests/ipv6_preserve_addr_order
+      - verified-by: /tests/ipv6_add_static_address_manually_not_active
+      - verified-by: /tests/ipv6_no_assumed_connection_for_ipv6ll_only
+      - verified-by: /tests/ipv6_set_ra_announced_mtu
+      - verified-by: /tests/nm-online_wait_for_ipv6_to_finish
+      - verified-by: /tests/ipv6_shared_connection
+      - verified-by: /tests/ipv6_tunnel_module_removal
+      - verified-by: /tests/ipv6_no_activation_schedule_error_in_logs
+      - verified-by: /tests/ipv6_NM_stable_with_internal_DHCPv6
+      - verified-by: /tests/persistent_default_ipv6_gw
+      - verified-by: /tests/persistent_ipv6_routes
+      - verified-by: /tests/ipv6_honor_ip_order
+      - verified-by: /tests/ipv6_keep_static_address_after_reapply
+      - verified-by: /tests/ipv6_keep_route_upon_reapply
+      - verified-by: /tests/ipv6_keep_route_upon_reapply_full
+      - verified-by: /tests/ipv6_no_extra_temp_addresses
+      - verified-by: /tests/ipv6_internal_client_dhcpv6_leases_renewal
+      - verified-by: /tests/ipv6_describe
+      - verified-by: /tests/ipv6_keep_external_addresses
+      - verified-by: /tests/ipv6_keep_external_routes
+      - verified-by: /tests/nmcli_general_finish_dad_without_carrier
+      - verified-by: /tests/ipv4_dad_not_preventing_ipv6
+      - verified-by: /tests/ipv6_may_fail_no_wait_for_dad_dhcp
+      - verified-by: /tests/ipv6_may_fail_no_wait_for_dad_eui
+      - verified-by: /tests/ipv6_preserve_cached_routes
+      - verified-by: /tests/ipv6_restart_prefixroute
+      - verified-by: /tests/persistent_ipv6_after_device_rename
+      - verified-by: /tests/add_ipv6_over_ipv4_configured_ext_device
+      - verified-by: /tests/ipv6_multiple_default_routes
+      - verified-by: /tests/ipv6_duid
+      - verified-by: /tests/ipv6_manual_addr_before_dhcp
+      - verified-by: /tests/ipv6_survive_external_link_restart
+      - verified-by: /tests/ipv6_prefix_delegation_internal
+      - verified-by: /tests/ipv6_prefix_delegation_ll_internal
+      - verified-by: /tests/ipv6_prefix_delegation_dhclient
+      - verified-by: /tests/ipv6_dhcp_iaid_unset
+      - verified-by: /tests/ipv6_dhcp_iaid_ifname
+      - verified-by: /tests/ipv6_dhcp_iaid_mac
+      - verified-by: /tests/ipv6_ra_timeout_set
+      - verified-by: /tests/ipv6_token
+      - verified-by: /tests/dhcpv6_hostname
+      - verified-by: /tests/ipv6_ignore_nonstatic_routes
+      - verified-by: /tests/ipv6_ignore_routes_changes
+      - verified-by: /tests/ipv6_required_timeout_set
+      - verified-by: /tests/ipv6_check_addr_order
+      - verified-by: /tests/ipv6_handle_route_linking
+      - verified-by: /tests/ipv6_ignore_address_lease_dhclient
+      - verified-by: /tests/ipv6_set_addr-gen_mode_global_config
+      - verified-by: /tests/ipv6_set_dhcp_send_hostname_global_config
+      - verified-by: /tests/ipv6_stable_privacy_dad
+      - verified-by: /tests/ipv6_mptcp_no_flags
+      - verified-by: /tests/ipv6_mptcp_flags_0x8
+      - verified-by: /tests/ipv6_mptcp_endpoints_dad
+      - verified-by: /tests/ipv6_route_cache_consistancy
+      - verified-by: /tests/ipv6_prefsrc_route
+      - verified-by: /tests/not_enable_ipv6_on_external
+      - verified-by: /tests/ipv6_allow_static_routes_without_address
+      - verified-by: /tests/ipv6_ndp_ipv6_route_information_buffer_overflow
+      - verified-by: /tests/ipv6_add_dns_routes
+      - verified-by: /tests/ipv6_do_not_touch_ipv6_disabled_on_reapply
+      - verified-by: /tests/ipv6_routes_not_reachable
+      - verified-by: /tests/ipv6_unreachable_gateway_warning
+/libreswan:
+    story: NetworkManager libreswan
+    description: Feature tests for libreswan
+    id: 7b9edba9-3462-572c-bce1-6432579ee673
+    link:
+      - verified-by: /tests/libreswan_ikev1_aggressive
+      - verified-by: /tests/libreswan_ikev1_main
+      - verified-by: /tests/libreswan_ikev2
+      - verified-by: /tests/libreswan_ikev2_require_id_on_cert_subject
+      - verified-by: /tests/libreswan_add_profile_wrong_password
+      - verified-by: /tests/libreswan_terminate
+      - verified-by: /tests/libreswan_delete_active_profile
+      - verified-by: /tests/libreswan_dns
+      - verified-by: /tests/libreswan_start_as_secondary
+      - verified-by: /tests/libreswan_connection_renewal
+      - verified-by: /tests/libreswan_provides_and_obsoletes
+      - verified-by: /tests/libreswan_autocompletion
+      - verified-by: /tests/libreswan_activate_asking_for_password
+      - verified-by: /tests/libreswan_activate_asking_for_password_with_delay
+      - verified-by: /tests/libreswan_activate_asking_for_password_and_secret
+      - verified-by: /tests/libreswan_reimport
+      - verified-by: /tests/libreswan_reimport_ikev2
+      - verified-by: /tests/libreswan_configurable_options_reimport
+      - verified-by: /tests/libreswan_ikev2_right_cert
+      - verified-by: /tests/libreswan_leftsendcert_reimport
+      - verified-by: /tests/libreswan_ikev2_ipv4_leftcert
+      - verified-by: /tests/libreswan_ikev2_ipv4_psk
+      - verified-by: /tests/libreswan_ikev2_ipv4_rsa
+      - verified-by: /tests/libreswan_ikev2_ipv4_leftcert_var2
+      - verified-by: /tests/libreswan_ikev2_interface
+      - verified-by: /tests/libreswan_ikev2_dpd_interface
+      - verified-by: /tests/libreswan_ikev2_leftprotoport_rightprotoport
+      - verified-by: /tests/libreswan_ikev2_ipv4_p2p_cert
+      - verified-by: /tests/libreswan_ikev2_ipv4_leftsubnet
+      - verified-by: /tests/libreswan_ikev2_ipv6_p2p_cert
+      - verified-by: /tests/libreswan_ikev2_ipv6_p2p_client_server
+      - verified-by: /tests/libreswan_ikev2_require_id_on_cert
+      - verified-by: /tests/libreswan_wrong_data
+      - verified-by: /tests/libreswan_wrong_data_var2
+      - verified-by: /tests/libreswan_add_routing_rules
+      - verified-by: /tests/libreswan_nm_auto_defaults
+      - verified-by: /tests/both_side_NM_libreswan_cs_host4
+      - verified-by: /tests/both_side_NM_libreswan_cs_subnet4
+      - verified-by: /tests/both_side_NM_libreswan_cs_subnet6_routed
+      - verified-by: /tests/libreswan_private_connection
+      - verified-by: /tests/vpn_keep_username_from_data
+/loopback:
+    story: NetworkManager loopback
+    description: Feature tests for loopback
+    id: 81d5974c-77ac-5344-b230-fdce10ca1f32
+    link:
+      - verified-by: /tests/loopback_modify_iface_address
+      - verified-by: /tests/loopback_invalid_profile_options
+      - verified-by: /tests/loopback_dns_dnsmasq_default
+      - verified-by: /tests/loopback_set_route_with_options
+      - verified-by: /tests/loopback_add_connection
+      - verified-by: /tests/loopback_multi_connect
+      - verified-by: /tests/loopback_set_iface_as_ovs_port
+      - verified-by: /tests/loopback_set_iface_as_bond_port
+      - verified-by: /tests/loopback_match_renamed_iface
+      - verified-by: /tests/loopback_multiple_profiles
+/macsec:
+    story: NetworkManager macsec
+    description: Feature tests for macsec
+    id: bb2d8a8e-512f-581d-a39d-c91b972323d0
+    link:
+      - verified-by: /tests/macsec_psk
+      - verified-by: /tests/macsec_reboot
+      - verified-by: /tests/macsec_vlan_reboot
+      - verified-by: /tests/macsec_set_mtu_from_parent
+      - verified-by: /tests/macsec_send-sci_by_default
+      - verified-by: /tests/macsec_managed_macsec_from_unmanaged_parent
+      - verified-by: /tests/macsec_offload
+/nmtui_bond:
+    story: NetworkManager nmtui_bond
+    description: Feature tests for nmtui_bond
+    id: fc899712-448c-5f8f-a89e-56e672d84da7
+    link:
+      - verified-by: /tests/nmtui_bond_add_default_bond
+      - verified-by: /tests/nmtui_bond_no_select_device
+      - verified-by: /tests/nmtui_bond_add_custom_bond_mii
+      - verified-by: /tests/nmtui_bond_add_custom_bond_arp
+      - verified-by: /tests/nmtui_bond_add_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_bond_activate_wo_autoconnect
+      - verified-by: /tests/nmtui_bond_activate_with_autoconnect
+      - verified-by: /tests/nmtui_bond_deactivate_connection
+      - verified-by: /tests/nmtui_bond_delete_connection_up
+      - verified-by: /tests/nmtui_bond_delete_connection_down
+      - verified-by: /tests/nmtui_bond_add_one_slave
+      - verified-by: /tests/nmtui_bond_port_select_device
+      - verified-by: /tests/nmtui_bond_add_many_slaves
+      - verified-by: /tests/nmtui_bond_over_ethernet_devices
+      - verified-by: /tests/nmtui_bond_infiniband_slaves
+      - verified-by: /tests/nmtui_bond_start_on_boot_with_one_slave_auto
+      - verified-by: /tests/nmtui_bond_add_mode_active_backup
+      - verified-by: /tests/nmtui_bond_add_mode_round_robin
+      - verified-by: /tests/nmtui_bond_add_mode_xor
+      - verified-by: /tests/nmtui_bond_add_mode_broadcast
+      - verified-by: /tests/nmtui_bond_add_mode_8023ad
+      - verified-by: /tests/nmtui_bond_add_mode_balance_tlb
+      - verified-by: /tests/nmtui_bond_add_mode_balance_alb
+      - verified-by: /tests/nmtui_bond_change_mode_ac_to_rr
+/nmtui_bridge:
+    story: NetworkManager nmtui_bridge
+    description: Feature tests for nmtui_bridge
+    id: 2cb3761b-6117-56b9-bb1e-cd784e9c0a55
+    link:
+      - verified-by: /tests/nmtui_bridge_add_default_bridge
+      - verified-by: /tests/nmtui_bridge_no_select_device
+      - verified-by: /tests/nmtui_bridge_add_custom_bridge
+      - verified-by: /tests/nmtui_bridge_add_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_bridge_activate_wo_autoconnect
+      - verified-by: /tests/nmtui_bridge_activate_with_autoconnect
+      - verified-by: /tests/nmtui_bridge_deactivate_connection
+      - verified-by: /tests/nmtui_bridge_delete_connection_up
+      - verified-by: /tests/nmtui_bridge_delete_connection_down
+      - verified-by: /tests/nmtui_bridge_add_many_slaves
+      - verified-by: /tests/nmtui_bridge_over_ethernet_devices
+      - verified-by: /tests/nmtui_bridge_port_select_device
+      - verified-by: /tests/nmtui_bridge_over_ethernet_devices_no_stp
+      - verified-by: /tests/nmtui_bridge_over_vlans
+      - verified-by: /tests/nmtui_bridge_over_vlans_no_stp
+      - verified-by: /tests/nmtui_bridge_custom_bridge_port
+      - verified-by: /tests/nmtui_bridge_over_ethernet_and_vlan
+/nmtui_ethernet:
+    story: NetworkManager nmtui_ethernet
+    description: Feature tests for nmtui_ethernet
+    id: 6a9b7fc8-39c2-518c-b542-db341da83e0e
+    link:
+      - verified-by: /tests/nmtui_ethernet_create_default_connection
+      - verified-by: /tests/nmtui_ethernet_create_device_bound_connection
+      - verified-by: /tests/nmtui_ethernet_select_device
+      - verified-by: /tests/nmtui_ethernet_create_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_ethernet_activate_connection
+      - verified-by: /tests/nmtui_ethernet_activate_connection_specific_device
+      - verified-by: /tests/nmtui_ethernet_deactivate_connection
+      - verified-by: /tests/nmtui_ethernet_delete_connection_down
+      - verified-by: /tests/nmtui_ethernet_delete_connection_up
+      - verified-by: /tests/nmtui_ethernet_set_mtu
+      - verified-by: /tests/nmtui_ethernet_mac_spoofing
+      - verified-by: /tests/nmtui_ethernet_mac_removal
+      - verified-by: /tests/nmtui_ethernet_static_ipv4
+      - verified-by: /tests/nmtui_ethernet_static_ipv6
+      - verified-by: /tests/nmtui_ethernet_static_combined
+/nmtui_general:
+    story: NetworkManager nmtui_general
+    description: Feature tests for nmtui_general
+    id: 6a0184e8-c4f5-5921-bd4a-b337aec76c8e
+    link:
+      - verified-by: /tests/nmtui_general_exit_nmtui
+      - verified-by: /tests/nmtui_general_open_edit_menu
+      - verified-by: /tests/nmtui_general_open_activation_menu
+      - verified-by: /tests/nmtui_general_open_hostname_dialog
+      - verified-by: /tests/nmtui_general_display_proper_hostname
+      - verified-by: /tests/nmtui_general_set_new_hostname
+      - verified-by: /tests/nmtui_general_active_connections_display
+      - verified-by: /tests/nmtui_general_realtime_refresh_edit_screen
+      - verified-by: /tests/nmtui_general_realtime_refresh_activate_screen_wo_autoconnect
+      - verified-by: /tests/nmtui_general_realtime_refresh_activate_screen
+      - verified-by: /tests/nmtui_dsl_create_default_connection
+      - verified-by: /tests/nmtui_general_show_orphaned_slaves
+      - verified-by: /tests/nmtui_general_activate_screen_no_connections
+/nmtui_infiniband:
+    story: NetworkManager nmtui_infiniband
+    description: Feature tests for nmtui_infiniband
+    id: f74d671e-b93f-5a15-af9d-79a92b218cd6
+    link:
+      - verified-by: /tests/nmtui_inf_create_master_connection
+      - verified-by: /tests/nmtui_inf_create_port_connection
+      - verified-by: /tests/nmtui_inf_add_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_inf_delete_connection
+      - verified-by: /tests/nmtui_inf_set_mtu
+      - verified-by: /tests/nmtui_inf_datagram_mode
+      - verified-by: /tests/nmtui_inf_connected_mode
+/nmtui_ipv4:
+    story: NetworkManager nmtui_ipv4
+    description: Feature tests for nmtui_ipv4
+    id: 2ba6a7d0-8b17-5dea-a6b0-c68ed06da44a
+    link:
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_address
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_mask
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_mask_var2
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_mask_var3
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_mask_var4
+      - verified-by: /tests/nmtui_ipv4_addresses_static_no_mask_var5
+      - verified-by: /tests/nmtui_ipv4_addresses_auto_with_manual
+      - verified-by: /tests/nmtui_ipv4_addresses_IP_slash_invalid_netmask
+      - verified-by: /tests/nmtui_ipv4_addresses_IP_slash_netmask_and_gateway_manual
+      - verified-by: /tests/nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_manual
+      - verified-by: /tests/nmtui_ipv4_addresses_several_IPs_slash_netmask_and_gateway_auto
+      - verified-by: /tests/nmtui_ipv4_addresses_delete_ip_and_back_to_auto
+      - verified-by: /tests/nmtui_ipv4_routes_set_basic_route
+      - verified-by: /tests/nmtui_ipv4_routes_remove_basic_route
+      - verified-by: /tests/nmtui_ipv4_routes_set_device_route
+      - verified-by: /tests/nmtui_ipv4_routes_several_default_routes_metrics
+      - verified-by: /tests/nmtui_ipv4_routes_set_invalid_route_destination
+      - verified-by: /tests/nmtui_ipv4_routes_set_invalid_route_hop
+      - verified-by: /tests/nmtui_ipv4_routes_set_unreachable_route
+      - verified-by: /tests/nmtui_ipv4_dns_method_static_+_IP_+_dns
+      - verified-by: /tests/nmtui_ipv4_dns_method_auto_+_dns
+      - verified-by: /tests/nmtui_ipv4_dns_add_dns_when_one_already_set
+      - verified-by: /tests/nmtui_ipv4_dns_method_auto_then_delete_all_dns
+      - verified-by: /tests/nmtui_ipv4_dns_search_add_dns_search
+      - verified-by: /tests/nmtui_ipv4_dns_search_remove_dns_search
+      - verified-by: /tests/nmtui_ipv4_method_link_local
+      - verified-by: /tests/nmtui_ipv4_may_connection_required
+      - verified-by: /tests/nmtui_ipv4_may_connection_not_required
+      - verified-by: /tests/nmtui_ipv4_method_disabled
+      - verified-by: /tests/nmtui_ipv4_never_default_unset
+      - verified-by: /tests/nmtui_ipv4_never_default_set
+      - verified-by: /tests/nmtui_ipv4_invalid_address
+      - verified-by: /tests/nmtui_ipv4_invalid_gateway
+      - verified-by: /tests/nmtui_ipv4_invalid_dns
+      - verified-by: /tests/nmtui_ipv4_addresses_can_add_after_removing_invalid
+      - verified-by: /tests/nmtui_ipv4_addresses_gateway_ip_prefix_nonzero_form
+      - verified-by: /tests/nmtui_ipv4_unreachable_gateway_warning
+/nmtui_ipv6:
+    story: NetworkManager nmtui_ipv6
+    description: Feature tests for nmtui_ipv6
+    id: d00cd0c5-6595-52a5-89d0-5adf85e495c0
+    link:
+      - verified-by: /tests/nmtui_ipv6_addresses_static_no_address
+      - verified-by: /tests/nmtui_ipv6_addresses_static_no_mask
+      - verified-by: /tests/nmtui_ipv6_addresses_static_with_mask
+      - verified-by: /tests/nmtui_ipv6_addresses_auto_with_manual
+      - verified-by: /tests/nmtui_ipv6_addresses_IP_slash_invalid_netmask
+      - verified-by: /tests/nmtui_ipv6_addresses_IP_slash_netmask_and_gateway_manual
+      - verified-by: /tests/nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_manual
+      - verified-by: /tests/nmtui_ipv6_addresses_several_IPs_slash_netmask_and_gateway_auto
+      - verified-by: /tests/nmtui_ipv6_addresses_delete_ip_and_back_to_auto
+      - verified-by: /tests/nmtui_ipv6_routes_set_basic_route
+      - verified-by: /tests/nmtui_ipv6_routes_remove_basic_route
+      - verified-by: /tests/nmtui_ipv6_routes_set_device_route
+      - verified-by: /tests/nmtui_ipv6_routes_several_default_routes_metrics
+      - verified-by: /tests/nmtui_ipv6_routes_set_invalid_route_destination
+      - verified-by: /tests/nmtui_ipv6_routes_set_invalid_route_hop
+      - verified-by: /tests/nmtui_ipv6_dns_method_static_+_IP_+_dns
+      - verified-by: /tests/nmtui_ipv6_dns_method_auto_+_dns
+      - verified-by: /tests/nmtui_ipv6_dns_add_dns_when_one_already_set
+      - verified-by: /tests/nmtui_ipv6_dns_method_auto_then_delete_all_dns
+      - verified-by: /tests/nmtui_ipv6_dns_search_add_dns_search
+      - verified-by: /tests/nmtui_ipv6_dns_search_remove_dns_search
+      - verified-by: /tests/nmtui_ipv6_method_link_local
+      - verified-by: /tests/nmtui_ipv6_may_connection_required
+      - verified-by: /tests/nmtui_ipv6_may_connection_not_required
+      - verified-by: /tests/nmtui_ipv6_method_ignore
+      - verified-by: /tests/nmtui_ipv6_never_default_unset
+      - verified-by: /tests/nmtui_ipv6_never_default_set
+      - verified-by: /tests/nmtui_ipv6_invalid_address
+      - verified-by: /tests/nmtui_ipv6_invalid_gateway
+      - verified-by: /tests/nmtui_ipv6_invalid_dns
+      - verified-by: /tests/nmtui_ipv6_addresses_can_add_after_removing_invalid
+      - verified-by: /tests/nmtui_ipv6_unreachable_gateway_warning
+/nmtui_loopback:
+    story: NetworkManager nmtui_loopback
+    description: Feature tests for nmtui_loopback
+    id: e77a7b5e-5c30-597b-a0d0-d4ee9f54ea59
+    link:
+      - verified-by: /tests/nmtui_loopback_modify_generated
+      - verified-by: /tests/nmtui_loopback_static_ipv4
+      - verified-by: /tests/nmtui_loopback_static_ipv6
+      - verified-by: /tests/nmtui_loopback_static_combined
+      - verified-by: /tests/nmtui_loopback_delete_connection_down
+      - verified-by: /tests/nmtui_loopback_delete_connection_up
+      - verified-by: /tests/nmtui_loopback_set_mtu
+/nmtui_team:
+    story: NetworkManager nmtui_team
+    description: Feature tests for nmtui_team
+    id: db2e2bbe-d6d6-57b7-977a-a420d232b969
+    link:
+      - verified-by: /tests/nmtui_team_add_default_team
+      - verified-by: /tests/nmtui_team_no_select_device
+      - verified-by: /tests/nmtui_team_add_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_team_activate_wo_autoconnect
+      - verified-by: /tests/nmtui_team_activate_with_autoconnect
+      - verified-by: /tests/nmtui_team_deactivate_connection
+      - verified-by: /tests/nmtui_team_delete_connection_up
+      - verified-by: /tests/nmtui_team_delete_connection_down
+      - verified-by: /tests/nmtui_team_add_many_slaves
+      - verified-by: /tests/nmtui_team_over_ethernet_devices
+      - verified-by: /tests/nmtui_team_port_select_device
+      - verified-by: /tests/nmtui_team_delete_slaves_after_deleting_profile
+      - verified-by: /tests/nmtui_team_infiniband_slaves
+      - verified-by: /tests/nmtui_team_slaves_non_auto
+      - verified-by: /tests/nmtui_team_boot_with_team_and_one_slave_auto
+      - verified-by: /tests/nmtui_team_json_set_loadbalance_mode
+      - verified-by: /tests/nmtui_team_json_set_broadcast_mode
+      - verified-by: /tests/nmtui_team_json_set_invalid_mode
+/nmtui_veth:
+    story: NetworkManager nmtui_veth
+    description: Feature tests for nmtui_veth
+    id: e8f6ac76-e6c7-585e-b712-c57475fa8a8c
+    link:
+      - verified-by: /tests/nmtui_veth_create_default_connection
+      - verified-by: /tests/nmtui_veth_activate_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_veth_deactivate_connection
+      - verified-by: /tests/nmtui_veth_delete_connection_down
+      - verified-by: /tests/nmtui_veth_delete_connection_up
+      - verified-by: /tests/nmtui_veth_set_mtu
+      - verified-by: /tests/nmtui_veth_cloned_mac
+      - verified-by: /tests/nmtui_veth_static_ipv4
+      - verified-by: /tests/nmtui_veth_static_ipv6
+      - verified-by: /tests/nmtui_veth_static_combined
+/nmtui_vlan:
+    story: NetworkManager nmtui_vlan
+    description: Feature tests for nmtui_vlan
+    id: 95ee063e-97f9-5416-947a-0702c40d2ff9
+    link:
+      - verified-by: /tests/nmtui_vlan_add_default_connection
+      - verified-by: /tests/nmtui_vlan_no_select_device
+      - verified-by: /tests/nmtui_vlan_set_device
+      - verified-by: /tests/nmtui_vlan_missing_parent
+      - verified-by: /tests/nmtui_vlan_set_parent_as_device
+      - verified-by: /tests/nmtui_vlan_set_non_existant_parent
+      - verified-by: /tests/nmtui_vlan_autocompletion
+      - verified-by: /tests/nmtui_vlan_invalid_ids
+      - verified-by: /tests/nmtui_vlan_delete_connection_down
+      - verified-by: /tests/nmtui_vlan_delete_connection_activating
+      - verified-by: /tests/nmtui_vlan_delete_connection_up
+      - verified-by: /tests/nmtui_vlan_create_no_autoconnect
+      - verified-by: /tests/nmtui_vlan_activate_connection
+      - verified-by: /tests/nmtui_vlan_deactivate_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_vlan_deactivate_connection_with_autoconnect
+      - verified-by: /tests/nmtui_vlan_change_id
+/nmtui_wifi:
+    story: NetworkManager nmtui_wifi
+    description: Feature tests for nmtui_wifi
+    id: 57ece13e-30a5-512a-a514-92e0a2dc6494
+    link:
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_see_all_networks
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_connect_to_wpa2psk_network
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_connect_to_wpa3psk_network
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_ap
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_wpa2
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_wpa3
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_tls
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_peap_mschapv2
+      - verified-by: /tests/NetworkManager-wifi/nmtui_wifi_wpa2_enterprise_ttls_mschapv2
+/nmtui_wifi_hwsim:
+    story: NetworkManager nmtui_wifi_hwsim
+    description: Feature tests for nmtui_wifi_hwsim
+    id: e9fbe99a-9dc2-5642-b595-6a75c33898bf
+    link:
+      - verified-by: /tests/nmtui_simwifi_see_all_networks
+      - verified-by: /tests/nmtui_simwifi_connect_to_open_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa1psk_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa2psk_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa3psk_network
+      - verified-by: /tests/nmtui_simwifi_add_default_connection_open_network
+      - verified-by: /tests/nmtui_simwifi_fixed_device_present
+      - verified-by: /tests/nmtui_simwifi_select_device
+      - verified-by: /tests/nmtui_simwifi_fixed_device_invalid
+      - verified-by: /tests/nmtui_simwifi_autoconnect_off
+      - verified-by: /tests/nmtui_simwifi_activate_wo_autoconnect
+      - verified-by: /tests/nmtui_simwifi_activate_with_autoconnect
+      - verified-by: /tests/nmtui_simwifi_delete_connection_up
+      - verified-by: /tests/nmtui_simwifi_delete_connection_down
+      - verified-by: /tests/nmtui_simwifi_adhoc_network
+      - verified-by: /tests/nmtui_simwifi_ap
+      - verified-by: /tests/nmtui_simwifi_wrong_ssid
+      - verified-by: /tests/nmtui_simwifi_no_ssid
+      - verified-by: /tests/nmtui_simwifi_set_existing_bssid
+      - verified-by: /tests/nmtui_simwifi_set_nonexisting_bssid
+      - verified-by: /tests/nmtui_simwifi_bogus_bssid
+      - verified-by: /tests/nmtui_simwifi_mac_spoofing
+      - verified-by: /tests/nmtui_simwifi_connect_to_wep_hexkey_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wep_asciikey_network
+      - verified-by: /tests/nmtui_simwifi_wep_hexkey_connection
+      - verified-by: /tests/nmtui_simwifi_wep_ascii_connection
+      - verified-by: /tests/nmtui_simwifi_bogus_spoofing_address
+      - verified-by: /tests/nmtui_simwifi_mtu
+      - verified-by: /tests/nmtui_simwifi_wpa1_connection
+      - verified-by: /tests/nmtui_simwifi_wpa2_connection
+      - verified-by: /tests/nmtui_simwifi_wpa3_connection
+      - verified-by: /tests/nmtui_simwifi_show_password
+      - verified-by: /tests/nmtui_simwifi_connect_to_network_after_dismissal
+      - verified-by: /tests/nmtui_simwifi_teardown
+/openvpn:
+    story: NetworkManager openvpn
+    description: Feature tests for openvpn
+    id: 3ceaaf63-7b84-549f-a734-e24e56e1f468
+    link:
+      - verified-by: /tests/openvpn_ipv4
+      - verified-by: /tests/openvpn_ipv4_neverdefault
+      - verified-by: /tests/openvpn_ipv6
+      - verified-by: /tests/openvpn_ipv6_neverdefault
+      - verified-by: /tests/openvpn_set_mtu
+      - verified-by: /tests/openvpn_set_firewall_zone
+      - verified-by: /tests/openvpn_terminate
+      - verified-by: /tests/openvpn_delete_active_connection
+      - verified-by: /tests/openvpn_persist
+      - verified-by: /tests/openvpn_2fa
+      - verified-by: /tests/openvpn_2fa_save_password
+      - verified-by: /tests/openvpn_add_routing_rules
+      - verified-by: /tests/openvpn_cert_permissions
+/ovs:
+    story: NetworkManager ovs
+    description: Feature tests for ovs
+    id: a89fbe51-df71-5883-af10-44844ef599dd
+    link:
+      - verified-by: /tests/openvswitch_capability
+      - verified-by: /tests/openvswitch_interface_recognized
+      - verified-by: /tests/openvswitch_ignore_ovs_network_setup
+      - verified-by: /tests/openvswitch_ignore_ovs_vlan_network_setup
+      - verified-by: /tests/openvswitch_ignore_ovs_bond_network_setup
+      - verified-by: /tests/nmcli_activate_parent_connection_keep_children_alive
+      - verified-by: /tests/nmcli_create_no_ip_ovs_port_bond
+      - verified-by: /tests/nmcli_add_basic_openvswitch_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_port_by_mac
+      - verified-by: /tests/nmcli_reapply_openvswitch_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_ofport_request
+      - verified-by: /tests/nmcli_add_openvswitch_bond_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_vlan_configuration
+      - verified-by: /tests/nmcli_remove_one_openvswitch_bond_configuration
+      - verified-by: /tests/nmcli_remove_openvswitch_ports_and_master_bridge_configuration
+      - verified-by: /tests/nmcli_reconnect_openvswitch_vlan_configuration
+      - verified-by: /tests/NM_reboot_openvswitch_vlan_configuration
+      - verified-by: /tests/NM_reboot_openvswitch_vlan_configuration_var2
+      - verified-by: /tests/restart_NM_with_mixed_setup
+      - verified-by: /tests/ovs_cloned_mac_set_on_iface
+      - verified-by: /tests/ovs_mtu
+      - verified-by: /tests/ovs_cloned_mac_with_the_same_bridge_iface_name
+      - verified-by: /tests/clear_ovs_settings
+      - verified-by: /tests/ovs_patch_add
+      - verified-by: /tests/ovs_external_ids
+      - verified-by: /tests/NM_clean_during_service_start
+      - verified-by: /tests/ovs_nmstate
+      - verified-by: /tests/ovs_set_firewalld_zone
+      - verified-by: /tests/ovs_service_disabled_error
+      - verified-by: /tests/ovs_external_unmanaged_device
+      - verified-by: /tests/ovs_other_config
+      - verified-by: /tests/ovs_vxlan_networking_off_on
+      - verified-by: /tests/ovs_datapath_type_netdev_with_cloned_mac
+      - verified-by: /tests/ovs_cloned_mac_set_on_iface_with_udev_file
+      - verified-by: /tests/ovs_delete_connecting_interface
+      - verified-by: /tests/ovs_bond_ports_stable_after_reboot
+      - verified-by: /tests/ovs_bond_ports_autoconnect_retries_reboot
+      - verified-by: /tests/nmcli_remove_openvswitch_bridge_on_delete
+      - verified-by: /tests/nmcli_openvswitch_keep_external_ports
+      - verified-by: /tests/nmcli_activate_children
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq_txq_desc
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_bond_sriov
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_with_mtu
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_lsc_interrupt
+      - verified-by: /tests/NetworkManager-dcb/dpdk_teardown
+/ppp:
+    story: NetworkManager ppp
+    description: Feature tests for ppp
+    id: d2aa1bd0-87dc-57e6-a429-c439070a4f58
+    link:
+      - verified-by: /tests/update_firewall_zone_upon_reconnect
+      - verified-by: /tests/pppoe_and_ethernet_together
+      - verified-by: /tests/connect_to_pppoe_via_pap
+      - verified-by: /tests/connect_to_pppoe_via_chap
+      - verified-by: /tests/disconnect_from_pppoe
+      - verified-by: /tests/pppoe_over_vlan
+/pptp:
+    story: NetworkManager pptp
+    description: Feature tests for pptp
+    id: 2a67abce-04bb-5483-ab52-5be7e08c4e95
+    link:
+      - verified-by: /tests/pptp_add_profile
+      - verified-by: /tests/pptp_passwd_file
+      - verified-by: /tests/pptp_terminate
+/sriov:
+    story: NetworkManager sriov
+    description: Feature tests for sriov
+    id: 9cfe5633-f2ce-54f5-8151-955096633de6
+    link:
+      - verified-by: /tests/NetworkManager-dcb/sriov_enable
+      - verified-by: /tests/NetworkManager-dcb/sriov_enable_with_deployed_profile
+      - verified-by: /tests/NetworkManager-dcb/sriov_disable
+      - verified-by: /tests/NetworkManager-dcb/sriov_connect
+      - verified-by: /tests/NetworkManager-dcb/sriov_autoconnect
+      - verified-by: /tests/NetworkManager-dcb/sriov_set_mtu
+      - verified-by: /tests/NetworkManager-dcb/sriov_connect_externally
+      - verified-by: /tests/NetworkManager-dcb/sriov_reboot_persistence
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_bond_with_config
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_maxVFs
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_set_VF_to_0
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_mac_and_trust
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_mtu
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_vlan
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_trust_on
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_trust_off
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_spoof_off
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_spoof
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_firewalld
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_bond
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF_mac_and_trust
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_set_VF_to_0
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF_vlan
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF_trust_off
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF_spoof_off
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_add_VF_spoof
+      - verified-by: /tests/NetworkManager-dcb/sriov_nmstate_many_vfs
+      - verified-by: /tests/NetworkManager-dcb/sriov_dont_disable_on_acitvation_fail
+      - verified-by: /tests/NetworkManager-dcb/sriov_preserve_on_down
+      - verified-by: /tests/NetworkManager-dcb/sriov_reapply_vf
+/strongswan:
+    story: NetworkManager strongswan
+    description: Feature tests for strongswan
+    id: a4daa28e-cd72-552e-bb5d-235cd6b70c55
+    link:
+      - verified-by: /tests/strongswan_add_profile
+      - verified-by: /tests/strongswan_connection_renewal
+      - verified-by: /tests/strongswan_terminate
+      - verified-by: /tests/strongswan_delete_active_profile
+      - verified-by: /tests/strongswan_dns
+      - verified-by: /tests/strongswan_start_as_secondary
+/tc:
+    story: NetworkManager tc
+    description: Feature tests for tc
+    id: bdbcd530-c40b-5306-aa32-2bb9e6b9dbfe
+    link:
+      - verified-by: /tests/set_fq_codel_queue
+      - verified-by: /tests/set_pfifo_fast_queue
+      - verified-by: /tests/remove_root_value
+      - verified-by: /tests/do_not_touch_external_tc
+      - verified-by: /tests/override_externally_set_one
+      - verified-by: /tests/honor_empty_tc
+      - verified-by: /tests/set_tbf_qdiscs
+      - verified-by: /tests/set_sqf_qdiscs
+      - verified-by: /tests/tc_morrir_traffic
+      - verified-by: /tests/tc_morrir_traffic_clsact
+      - verified-by: /tests/tc_device_filter_management
+/team:
+    story: NetworkManager team
+    description: Feature tests for team
+    id: a5cb1412-11a0-5f28-8007-27a4c511c88c
+    link:
+      - verified-by: /tests/add_default_team
+      - verified-by: /tests/add_default_team_after_journal_restart
+      - verified-by: /tests/ifcfg_team_slave_device_type
+      - verified-by: /tests/nmcli_novice_mode_create_team
+      - verified-by: /tests/nmcli_novice_mode_create_team_slave_with_default_options
+      - verified-by: /tests/add_two_slaves_to_team
+      - verified-by: /tests/team_default_config_watch
+      - verified-by: /tests/team_remove_all_slaves
+      - verified-by: /tests/team_remove_one_slave
+      - verified-by: /tests/remove_active_team_profile
+      - verified-by: /tests/disconnect_active_team
+      - verified-by: /tests/team_start_by_hand_no_slaves
+      - verified-by: /tests/team_activate
+      - verified-by: /tests/team_slaves_start_via_master
+      - verified-by: /tests/team_mac_spoof
+      - verified-by: /tests/team_mac_spoof_var1
+      - verified-by: /tests/start_team_by_hand_all_auto
+      - verified-by: /tests/start_team_by_hand_one_auto
+      - verified-by: /tests/start_team_on_boot
+      - verified-by: /tests/team_start_on_boot_with_nothing_auto
+      - verified-by: /tests/team_start_on_boot_with_one_auto_only
+      - verified-by: /tests/team_start_on_boot_with_team_and_one_slave_auto
+      - verified-by: /tests/team_config_loadbalance
+      - verified-by: /tests/team_config_broadcast
+      - verified-by: /tests/team_config_lacp
+      - verified-by: /tests/team_remove_config
+      - verified-by: /tests/team_set_mtu
+      - verified-by: /tests/team_reflect_changes_from_outside_of_NM
+      - verified-by: /tests/kill_teamd
+      - verified-by: /tests/kill_teamd_with_ports
+      - verified-by: /tests/team_enslave_to_bridge
+      - verified-by: /tests/team_describe
+      - verified-by: /tests/team_in_bridge_mtu
+      - verified-by: /tests/team_config_null
+      - verified-by: /tests/team_ifcfg_with_missing_devicetype
+      - verified-by: /tests/team_in_vlan
+      - verified-by: /tests/team_in_vlan_start_correct_device
+      - verified-by: /tests/team_in_vlan_restart_persistence
+      - verified-by: /tests/vlan_in_team
+      - verified-by: /tests/team_leave_L2_only_up_when_going_down
+      - verified-by: /tests/team_add_into_firewall_zone
+      - verified-by: /tests/team_reconnect_back_to_ethernet_after_master_delete
+      - verified-by: /tests/team_abs_set_runners
+      - verified-by: /tests/team_abs_set_runner_hwaddr_policy
+      - verified-by: /tests/team_abs_set_runner_tx_hash
+      - verified-by: /tests/team_abs_set_runner_tx_balancer
+      - verified-by: /tests/team_abs_set_runner_tx_balancer_interval
+      - verified-by: /tests/team_abs_set_runner_active
+      - verified-by: /tests/team_abs_set_runner_fast_rate
+      - verified-by: /tests/team_abs_set_runner_sys_prio
+      - verified-by: /tests/team_abs_set_runner_min_ports
+      - verified-by: /tests/team_abs_set_runner_agg_select_policy
+      - verified-by: /tests/team_abs_set_notify_peers
+      - verified-by: /tests/team_abs_set_mcast_rejoin
+      - verified-by: /tests/team_abs_set_link_watchers_ethtool
+      - verified-by: /tests/team_abs_set_link_watchers_nsna_ping
+      - verified-by: /tests/team_abs_set_link_watchers_arp_ping
+      - verified-by: /tests/team_abs_set_link_watchers_arp_ping_vlanid
+      - verified-by: /tests/team_abs_overwrite_watchers
+      - verified-by: /tests/team_restart_L2_only_lacp
+      - verified-by: /tests/teamd_logging
+      - verified-by: /tests/teamd_killed_by_NM
+      - verified-by: /tests/teamd_boolean_values_problem
+      - verified-by: /tests/team_port_multiple_slaves
+      - verified-by: /tests/team_accept_all_mac_addresses
+      - verified-by: /tests/team_accept_all_mac_addresses_external_device
+      - verified-by: /tests/team_controller_port_terminology
+/tuntap:
+    story: NetworkManager tuntap
+    description: Feature tests for tuntap
+    id: 8e7e4d4a-d028-5681-822d-e869c045d348
+    link:
+      - verified-by: /tests/add_default_tap_device
+      - verified-by: /tests/add_default_tun_device
+      - verified-by: /tests/remove_default_tuntap
+      - verified-by: /tests/preserve_master_and_ip_settings
+      - verified-by: /tests/tuntap_device_kernel_properties
+/veth:
+    story: NetworkManager veth
+    description: Feature tests for veth
+    id: b639c333-47b5-5039-922f-56d3914ac11e
+    link:
+      - verified-by: /tests/veth_profile_add
+      - verified-by: /tests/veth_profile_remove
+      - verified-by: /tests/veth_profile_remove_in_cycle
+      - verified-by: /tests/veth_device_remove
+      - verified-by: /tests/veth_device_remove_return
+      - verified-by: /tests/veth_profile_restart_persistnce
+/vlan:
+    story: NetworkManager vlan
+    description: Feature tests for vlan
+    id: a6c7fd8d-2dcd-548b-9b46-4ff190d39206
+    link:
+      - verified-by: /tests/vlan_add_default_device
+      - verified-by: /tests/vlan_add_beyond_range
+      - verified-by: /tests/nmcli_vlan_restart_persistence
+      - verified-by: /tests/vlan_ipv4_ipv6_restart_persistence
+      - verified-by: /tests/vlan_device_tagging
+      - verified-by: /tests/vlan_connection_up
+      - verified-by: /tests/vlan_reup_connection
+      - verified-by: /tests/vlan_connection_down
+      - verified-by: /tests/vlan_connection_down_with_autoconnect
+      - verified-by: /tests/vlan_remove_connection
+      - verified-by: /tests/vlan_disconnect_device
+      - verified-by: /tests/vlan_disconnect_device_with_autoconnect
+      - verified-by: /tests/vlan_change_id
+      - verified-by: /tests/vlan_change_id_with_no_interface_set
+      - verified-by: /tests/vlan_describe_separately
+      - verified-by: /tests/vlan_describe_all
+      - verified-by: /tests/vlan_on_bridge
+      - verified-by: /tests/assertion_failure
+      - verified-by: /tests/vlan_over_bridge_over_team_over_nic
+      - verified-by: /tests/vlan_not_duplicated
+      - verified-by: /tests/vlan_not_stalled_after_connection_delete
+      - verified-by: /tests/vlan_update_mac_from_bond
+      - verified-by: /tests/bring_up_very_long_device_name
+      - verified-by: /tests/reorder_hdr
+      - verified-by: /tests/vlan_preserve_assumed_connection_ips
+      - verified-by: /tests/vlan_mtu_from_parent
+      - verified-by: /tests/vlan_mtu_reapply
+      - verified-by: /tests/vlan_mtu_device_reapply
+      - verified-by: /tests/vlan_mtu_from_parent_with_slow_dhcp
+      - verified-by: /tests/default_route_for_vlan_over_team
+      - verified-by: /tests/vlan_on_bond_autoconnect
+      - verified-by: /tests/static_route_persists_mac_change
+      - verified-by: /tests/vlan_create_macvlan_on_vlan
+      - verified-by: /tests/vlan_L2_UUID
+      - verified-by: /tests/vlan_no_autoconnect_after_modify
+      - verified-by: /tests/vxlan_interface_recognition
+      - verified-by: /tests/vxlan_libnm_shows_port_numbers
+      - verified-by: /tests/vxlan_do_not_up_if_no_master
+      - verified-by: /tests/vlan_create_many_vlans
+      - verified-by: /tests/vlan_create_1000_bridges_over_1000_vlans
+      - verified-by: /tests/vlan_ifname_vlan0_with_id_7
+      - verified-by: /tests/vlan_accept_all_mac_addresses
+      - verified-by: /tests/vlan_accept_all_mac_addresses_external_device
+      - verified-by: /tests/vlan_add_vlan_on_an_unmanaged_interface
+      - verified-by: /tests/vlan_create_macvlan_on_an_unmanaged_interface
+      - verified-by: /tests/vlan_stacking
+      - verified-by: /tests/vlan_preserve_ip_on_reload
+      - verified-by: /tests/vlan_nic_reconnect_on_link_revive
+      - verified-by: /tests/ipvlan_with_l2_mode
+      - verified-by: /tests/ipvlan_with_l3_mode
+      - verified-by: /tests/ipvlan_with_l3s_mode
+      - verified-by: /tests/ipvlan_vepa
+      - verified-by: /tests/ipvlan_private
+      - verified-by: /tests/ipvlan_bring_down
+      - verified-by: /tests/ipvlan_after_reboot
+      - verified-by: /tests/vlan_add_multiple_qos_mappings
+/vpn:
+    story: NetworkManager vpn
+    description: Feature tests for vpn
+    id: febbff7f-5121-5761-894a-8aac2f9c6842
+    link:
+      - verified-by: /tests/vpn_describe
+      - verified-by: /tests/multiple_vpn_connections
+      - verified-by: /tests/vpn_list_args
+      - verified-by: /tests/iptunnel_create_modify
+      - verified-by: /tests/iptunnel_restart
+      - verified-by: /tests/iptunnel_geneve_create_device
+      - verified-by: /tests/iptunnel_ip6gre_create_device
+      - verified-by: /tests/iptunnel_ip6gre_create_device_with_eui64
+      - verified-by: /tests/wireguard_activate_connection
+      - verified-by: /tests/wireguard_add_routing_rules
+      - verified-by: /tests/wireguard_honor_prefix_routes
+      - verified-by: /tests/wireguard_nmcli
+      - verified-by: /tests/wireguard_allowedIP
+/vpnc:
+    story: NetworkManager vpnc
+    description: Feature tests for vpnc
+    id: 64b24e52-8336-57e0-9c99-a189556b4fa9
+    link:
+      - verified-by: /tests/vpnc_add_profile
+      - verified-by: /tests/vpnc_terminate
+/vrf:
+    story: NetworkManager vrf
+    description: Feature tests for vrf
+    id: d7b36c82-7810-5bb5-9d1a-8e2da5d77590
+    link:
+      - verified-by: /tests/vrf_one_address_two_devices
+      - verified-by: /tests/vrf_bring_down_connections
+      - verified-by: /tests/vrf_delete_connections
+      - verified-by: /tests/vrf_restart_persistence
+      - verified-by: /tests/vrf_check_local_routes
+      - verified-by: /tests/vrf_various_ports
+/wifi:
+    story: NetworkManager wifi
+    description: Feature tests for wifi
+    id: e9bae4f3-eb6f-55b7-8a26-9ad82b141222
+    link:
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_peap_mschapv2
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_tls_2_4g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_tls_5g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_ttls_mschapv2
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_peap_mschapv2
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_tls_2_4g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_tls_5g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_ttls_mschapv2
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_infrastructure_mode_setting
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_ap
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_mac_spoofing
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_disable_radio
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_enable_radio
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_set_mtu
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_seen_bssids
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2hidden_psk
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_psk_2_4g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa2_psk_5g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_psk_2_4g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_wpa3_psk_5g
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_6e_wpa3_tls
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_pairwise_ccmp
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_unmatching_pairwise
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_group_ccmp
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_unmatching_group
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_add_certificate_as_blob_saved
+      - verified-by: /tests/NetworkManager-wifi/nmcli_wifi_indicate_wifi_band_caps
+/wifi_hwsim:
+    story: NetworkManager wifi_hwsim
+    description: Feature tests for wifi_hwsim
+    id: 7c6e6884-0d5a-5987-9f00-394139739df8
+    link:
+      - verified-by: /tests/simwifi_p2p_connect
+      - verified-by: /tests/simwifi_setting_bogus_values
+      - verified-by: /tests/simwifi_set_channel
+      - verified-by: /tests/simwifi_p2p_client_connect
+      - verified-by: /tests/simwifi_wep_ttls_mschapv2_eap
+      - verified-by: /tests/simwifi_ttls_mschap
+      - verified-by: /tests/simwifi_ttls_mschapv2
+      - verified-by: /tests/simwifi_ttls_mschapv2_eap
+      - verified-by: /tests/simwifi_peap_mschapv2
+      - verified-by: /tests/simwifi_open_connect
+      - verified-by: /tests/simwifi_wep_ask_passwd
+      - verified-by: /tests/simwifi_wep_tls
+      - verified-by: /tests/simwifi_wep_peap_gtc
+      - verified-by: /tests/simwifi_wpa1psk_no_profile
+      - verified-by: /tests/simwifi_wpa2psk_profile
+      - verified-by: /tests/simwifi_wpa2psk_no_profile
+      - verified-by: /tests/simwifi_tls_pkcs11_saved_pw
+      - verified-by: /tests/simwifi_tls_pkcs11_pwfile
+      - verified-by: /tests/simwifi_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/simwifi_tls_pkcs11_pw_in_uri_flag_nr
+      - verified-by: /tests/simwifi_tls
+      - verified-by: /tests/simwifi_tls_user_permissions
+      - verified-by: /tests/simwifi_tls_bad_private_key_password
+      - verified-by: /tests/simwifi_tls_no_private_key_password
+      - verified-by: /tests/simwifi_peap_gtc
+      - verified-by: /tests/simwifi_peap_md5
+      - verified-by: /tests/simwifi_ttls_pap
+      - verified-by: /tests/simwifi_ttls_chap
+      - verified-by: /tests/simwifi_ttls_md5
+      - verified-by: /tests/simwifi_ttls_gtc
+      - verified-by: /tests/simwifi_wpa3_personal
+      - verified-by: /tests/simwifi_cloned_mac_address
+      - verified-by: /tests/simwifi_wpa3_h2e
+      - verified-by: /tests/simwifi_wpa3_personal_device_connect_ask
+      - verified-by: /tests/simwifi_tls_wpa3
+      - verified-by: /tests/simwifi_tls_wpa3_pq
+      - verified-by: /tests/simwifi_owe_connect
+      - verified-by: /tests/simwifi_owe_device_connect
+      - verified-by: /tests/simwifi_owe_transition_connect
+      - verified-by: /tests/simwifi_owe_transition_connect_as_open
+      - verified-by: /tests/simwifi_owe_transition_device_connect
+      - verified-by: /tests/nmclient_get_wireless_hw_property
+      - verified-by: /tests/simwifi_dbus_bitrate_property_name
+      - verified-by: /tests/simwifi_do_not_block_autoconnect
+      - verified-by: /tests/simwifi_novice_mode_add_default_connection
+      - verified-by: /tests/simwifi_novice_mode_add_connection_bogus_ip
+      - verified-by: /tests/simwifi_novice_mode_add_connection_with_options
+      - verified-by: /tests/simwifi_novice_mode_add_connection_ip_setup
+      - verified-by: /tests/simwifi_mac_address_blacklist
+      - verified-by: /tests/simwifi_remove_connection_while_up
+      - verified-by: /tests/simwifi_wpa2_psk_unmatching_proto
+      - verified-by: /tests/simwifi_set_mac_address
+      - verified-by: /tests/simwifi_wpa2_ask_passwd
+      - verified-by: /tests/simwifi_wpa2_arg_passwd
+      - verified-by: /tests/simwifi_set_existing_bssid
+      - verified-by: /tests/simwifi_nmcli_radio
+      - verified-by: /tests/simwifi_wifisec_validity
+      - verified-by: /tests/simwifi_wifisec_keymgmt_wrong_values
+      - verified-by: /tests/simwifi_wifisec_authalg_wrong_values
+      - verified-by: /tests/simwifi_set_hidden_property_values
+      - verified-by: /tests/simwifi_set_txpower
+      - verified-by: /tests/simwifi_set_rate
+      - verified-by: /tests/simwifi_describe
+      - verified-by: /tests/simwifi_wifisec_describe
+      - verified-by: /tests/simwifi_set_nonexistent_bssid
+      - verified-by: /tests/simwifi_migrate_to_keyfile
+      - verified-by: /tests/simwifi_dbus_invalid_cert_input
+      - verified-by: /tests/simwifi_mac_address_blacklist_to_denylist
+      - verified-by: /tests/simwifi_mac_address_denylist_to_blacklist
+      - verified-by: /tests/nmcli_simwifi_teardown
+      - verified-by: /tests/simwifi_ap_wpa_psk_method_shared
+      - verified-by: /tests/simwifi_ap_in_bridge_wpa_psk_method_manual
+/8021x:
+    story: NetworkManager 8021x
+    description: Requirement tag tests for 8021x
+    id: 0f7c2021-1d0c-5983-90dd-e4f811af6d7e
+    link:
+      - verified-by: /tests/8021x_tls_pkcs11_saved_pw
+      - verified-by: /tests/8021x_tls_pkcs11_pwfile
+      - verified-by: /tests/8021x_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/8021x_tls_pkcs11_pw_in_uri_flag_nr
+      - verified-by: /tests/8021x_with_credentials
+      - verified-by: /tests/8021x_tls
+      - verified-by: /tests/8021x_tls_user_permissions
+      - verified-by: /tests/8021x_tls_bad_private_key_password
+      - verified-by: /tests/8021x_tls_aes256_private_key
+      - verified-by: /tests/8021x_tls_no_private_key_password
+      - verified-by: /tests/8021x_tls_bad_password_flag
+      - verified-by: /tests/8021x_tls_pkcs12_key_restart
+      - verified-by: /tests/8021x_peap_md5
+      - verified-by: /tests/8021x_peap_mschapv2
+      - verified-by: /tests/8021x_peap_gtc
+      - verified-by: /tests/8021x_ttls_pap
+      - verified-by: /tests/8021x_ttls_chap
+      - verified-by: /tests/8021x_ttls_mschap
+      - verified-by: /tests/8021x_ttls_mschapv2
+      - verified-by: /tests/8021x_ttls_mschapv2_eap
+      - verified-by: /tests/8021x_ttls_md5
+      - verified-by: /tests/8021x_ttls_gtc
+      - verified-by: /tests/8021x_with_raw_credentials
+      - verified-by: /tests/8021x_without_password
+      - verified-by: /tests/8021x_without_password_with_ask_at_the_end
+      - verified-by: /tests/8021x_auto_auth_retry_with_backup_network
+      - verified-by: /tests/8021x_stop_wpa_supplicant_with_8021x_optional
+      - verified-by: /tests/8021x_reauth_bridge
+/dhclient_DHCP:
+    story: NetworkManager dhclient_DHCP
+    description: Requirement tag tests for dhclient_DHCP
+    id: 629d5002-7d9e-56a2-9d9a-443077dc53a2
+    link:
+      - verified-by: /tests/ipv6_prefix_delegation_dhclient
+      - verified-by: /tests/ipv6_ignore_address_lease_dhclient
+      - verified-by: /tests/ipv4_dhcp_client_id_none_dhclient
+      - verified-by: /tests/ipv4_dhcp_client_id_default_dhclient_set
+      - verified-by: /tests/ipv4_dhcp_client_id_default_dhclient_unset
+      - verified-by: /tests/dhcp_private_option_dhclient
+      - verified-by: /tests/nmcli_general_unmanaged_device_dhclient_fail
+      - verified-by: /tests/NM_merge_dhclient_conditionals
+      - verified-by: /tests/dispatcher_private_dhcp_option_dhclient
+/disp:
+    story: NetworkManager disp
+    description: Requirement tag tests for disp
+    id: d229d5aa-bce5-5991-b1f7-709a87f7699c
+    link:
+      - verified-by: /tests/nmcli_monitor
+      - verified-by: /tests/ovs_cloned_mac_set_on_iface
+      - verified-by: /tests/dispatcher_preup_and_up
+      - verified-by: /tests/dispatcher_predown_and_down
+      - verified-by: /tests/dispatcher_hostname
+      - verified-by: /tests/dispatcher_synchronicity
+      - verified-by: /tests/dispatcher_synchronicity_with_predown
+      - verified-by: /tests/dispatcher_serialization
+      - verified-by: /tests/dispatcher_private_dhcp_option_dhclient
+      - verified-by: /tests/dispatcher_private_dhcp_option_internal
+      - verified-by: /tests/dispatcher_usr_lib_dir
+      - verified-by: /tests/dispatcher_interface_stuck_in_check_ip_state
+      - verified-by: /tests/dispatcher_device_handler_dummy
+      - verified-by: /tests/dispatcher_device_handler_dummy_in_bond
+      - verified-by: /tests/dispatcher_device_handler_geneve
+      - verified-by: /tests/nmcli_device_reapply
+/dns_default:
+    story: NetworkManager dns_default
+    description: Requirement tag tests for dns_default
+    id: 8572653d-1958-57ab-9846-c37919a505fc
+    link:
+      - verified-by: /tests/pull_hostname_from_hosts_default
+      - verified-by: /tests/pull_hostname_from_dhcp_no_gw_no_default_hostname
+      - verified-by: /tests/nmcli_dhcp_overlong_hostname
+      - verified-by: /tests/dns_global_options
+      - verified-by: /tests/dns_global_search
+      - verified-by: /tests/dns_global_search_options
+      - verified-by: /tests/dns_global_domains_all
+      - verified-by: /tests/dns_global_domain_split
+      - verified-by: /tests/dns_global_domain_search_option
+      - verified-by: /tests/dns_global_dbus
+/dns_dnsmasq:
+    story: NetworkManager dns_dnsmasq
+    description: Requirement tag tests for dns_dnsmasq
+    id: 4701cfc1-a933-5f82-9833-7de0f9bc98b6
+    link:
+      - verified-by: /tests/nm_online_wait_for_dnsmasq
+      - verified-by: /tests/loopback_dns_dnsmasq_default
+      - verified-by: /tests/doc_split_dns_dnsmasq
+      - verified-by: /tests/dns_dnsmasq_two_default
+      - verified-by: /tests/dns_dnsmasq_one_default
+      - verified-by: /tests/dns_dnsmasq_two_default_with_priority
+      - verified-by: /tests/dns_dnsmasq_two_default_with_negative_priority
+      - verified-by: /tests/dns_dnsmasq_no_default
+      - verified-by: /tests/dns_dnsmasq_full_tunnel_vpn
+      - verified-by: /tests/dns_dnsmasq_split_tunnel_vpn
+      - verified-by: /tests/dns_dnsmasq_driver_removal
+      - verified-by: /tests/dns_dnsmasq_kill
+      - verified-by: /tests/dns_dnsmasq_kill_ratelimit
+      - verified-by: /tests/dns_dnsmasq_kill_when_nm_restarts
+      - verified-by: /tests/dns_dnsmasq_dnssec_opts
+/dns_systemd_resolved:
+    story: NetworkManager dns_systemd_resolved
+    description: Requirement tag tests for dns_systemd_resolved
+    id: 5648735e-49da-5786-af90-30f79a409aea
+    link:
+      - verified-by: /tests/pull_hostname_from_hosts_resolved
+      - verified-by: /tests/libreswan_dns
+      - verified-by: /tests/doc_split_dns_resolved
+      - verified-by: /tests/dns_resolved_two_default
+      - verified-by: /tests/dns_resolved_one_default
+      - verified-by: /tests/dns_resolved_two_default_with_priority
+      - verified-by: /tests/dns_resolved_two_default_with_negative_priority
+      - verified-by: /tests/dns_resolved_no_default
+      - verified-by: /tests/dns_resolved_full_tunnel_vpn
+      - verified-by: /tests/dns_resolved_split_tunnel_vpn
+      - verified-by: /tests/dns_resolved_add_remove_ipv6_dns
+      - verified-by: /tests/dns_resolved_dnssec_opts
+      - verified-by: /tests/dns_resolved_mdns
+/dpdk:
+    story: NetworkManager dpdk
+    description: Requirement tag tests for dpdk
+    id: 6819205c-d046-5f6e-8c61-b48ec8e9579b
+    link:
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq_txq_desc
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_bond_sriov
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_with_mtu
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_lsc_interrupt
+/firewall:
+    story: NetworkManager firewall
+    description: Requirement tag tests for firewall
+    id: 57b06a4b-4f92-5f03-8394-6f99f4575765
+    link:
+      - verified-by: /tests/update_firewall_zone_upon_reconnect
+      - verified-by: /tests/bridge_assumed_connection_no_firewalld_zone
+      - verified-by: /tests/team_add_into_firewall_zone
+      - verified-by: /tests/ipv4_method_shared
+      - verified-by: /tests/no_error_when_firewald_restarted
+      - verified-by: /tests/show_zones_after_firewalld_install
+      - verified-by: /tests/ovs_set_firewalld_zone
+      - verified-by: /tests/wireguard_allowedIP
+      - verified-by: /tests/openvpn_set_firewall_zone
+      - verified-by: /tests/connection_zone_drop_to_public
+      - verified-by: /tests/firewall_zones_restart_persistence
+      - verified-by: /tests/policy_based_routing_doc_procedure
+      - verified-by: /tests/wireguard_nmcli_doc_procedure
+      - verified-by: /tests/vxlan_doc_procedure
+      - verified-by: /tests/8021x_hostapd_freeradius_doc_procedure
+      - verified-by: /tests/doc_firewalld_zones_via_keyfile
+      - verified-by: /tests/doc_firewalld_zones_via_ifcfg
+      - verified-by: /tests/NetworkManager-dcb/sriov_con_drv_add_VF_firewalld
+/ifcfg:
+    story: NetworkManager ifcfg
+    description: Requirement tag tests for ifcfg
+    id: a57dbb76-15bd-5aaa-8171-f75778adca68
+/ikev2:
+    story: NetworkManager ikev2
+    description: Requirement tag tests for ikev2
+    id: da8aa70d-2006-59ce-8da9-04c5de0dc9e6
+    link:
+      - verified-by: /tests/libreswan_ikev2
+      - verified-by: /tests/libreswan_ikev2_require_id_on_cert_subject
+      - verified-by: /tests/libreswan_terminate
+      - verified-by: /tests/libreswan_delete_active_profile
+      - verified-by: /tests/libreswan_dns
+      - verified-by: /tests/libreswan_start_as_secondary
+      - verified-by: /tests/libreswan_connection_renewal
+      - verified-by: /tests/libreswan_reimport_ikev2
+      - verified-by: /tests/libreswan_ikev2_right_cert
+      - verified-by: /tests/libreswan_wrong_data
+      - verified-by: /tests/libreswan_wrong_data_var2
+      - verified-by: /tests/libreswan_add_routing_rules
+      - verified-by: /tests/multiple_vpn_connections
+/inf:
+    story: NetworkManager inf
+    description: Requirement tag tests for inf
+    id: 59fadc09-9c33-5109-95e8-9d8f18165772
+    link:
+      - verified-by: /tests/nmtui_inf_create_master_connection
+      - verified-by: /tests/nmtui_inf_create_port_connection
+      - verified-by: /tests/nmtui_inf_add_connection_wo_autoconnect
+      - verified-by: /tests/nmtui_inf_delete_connection
+      - verified-by: /tests/nmtui_inf_set_mtu
+      - verified-by: /tests/nmtui_inf_datagram_mode
+      - verified-by: /tests/nmtui_inf_connected_mode
+/internal_DHCP:
+    story: NetworkManager internal_DHCP
+    description: Requirement tag tests for internal_DHCP
+    id: 99a7b1ca-bd3d-557a-a03b-6910f54ce269
+    link:
+      - verified-by: /tests/ipv6_DHCPv6
+      - verified-by: /tests/ipv6_NM_stable_with_internal_DHCPv6
+      - verified-by: /tests/ipv6_internal_client_dhcpv6_leases_renewal
+      - verified-by: /tests/ipv6_prefix_delegation_internal
+      - verified-by: /tests/ipv6_prefix_delegation_ll_internal
+      - verified-by: /tests/ipv6_dhcp_iaid_unset
+      - verified-by: /tests/ipv6_dhcp_iaid_ifname
+      - verified-by: /tests/ipv4_dhcp_client_id_set_internal
+      - verified-by: /tests/ipv4_dhcp_client_id_none_internal
+      - verified-by: /tests/ipv4_set_very_long_dhcp_client_id
+      - verified-by: /tests/ipv4_dhcp_client_id_default
+      - verified-by: /tests/dhcp_multiple_router_options
+      - verified-by: /tests/dhcp_private_option_internal
+      - verified-by: /tests/dhcp_reboot_nak
+      - verified-by: /tests/dhcp_option_ms_classless_routes
+      - verified-by: /tests/pull_hostname_from_dns
+      - verified-by: /tests/pull_long_hostname_from_dns
+      - verified-by: /tests/pull_hostname_from_dns_retry
+      - verified-by: /tests/dispatcher_private_dhcp_option_internal
+      - verified-by: /tests/NetworkManager-infiniband/inf_internal_dhcp
+      - verified-by: /tests/NetworkManager-infiniband/inf_send_correct_client_id
+/keyfile:
+    story: NetworkManager keyfile
+    description: Requirement tag tests for keyfile
+    id: 86415c9c-1a31-5bf6-a5b4-dc8ba3afcb05
+    link:
+      - verified-by: /tests/ipv6_allow_static_routes_without_address
+      - verified-by: /tests/ipv4_allow_static_routes_without_address
+      - verified-by: /tests/ipv4_dhcp_dscp
+      - verified-by: /tests/ethernet_s390_options_with_subchannels
+      - verified-by: /tests/ifup_ifdown_keyfile
+      - verified-by: /tests/ovs_bond_ports_autoconnect_retries_reboot
+      - verified-by: /tests/dispatcher_device_handler_geneve
+      - verified-by: /tests/connection_with_higher_priority_active_on_reload
+      - verified-by: /tests/connection_change_name_with_incorrect_selinux_label
+      - verified-by: /tests/doc_firewalld_zones_via_keyfile
+/nmtui:
+    story: NetworkManager nmtui
+    description: Requirement tag tests for nmtui
+    id: 666388e8-3302-5a0a-9081-66ad01e9d3db
+    link:
+      - verified-by: /tests/wireguard_nmtui_doc_procedure
+/openvswitch:
+    story: NetworkManager openvswitch
+    description: Requirement tag tests for openvswitch
+    id: 32c512ee-e503-541d-98e9-a8538bf4b858
+    link:
+      - verified-by: /tests/openvswitch_interface_recognized
+      - verified-by: /tests/openvswitch_ignore_ovs_network_setup
+      - verified-by: /tests/openvswitch_ignore_ovs_vlan_network_setup
+      - verified-by: /tests/openvswitch_ignore_ovs_bond_network_setup
+      - verified-by: /tests/nmcli_activate_parent_connection_keep_children_alive
+      - verified-by: /tests/nmcli_create_no_ip_ovs_port_bond
+      - verified-by: /tests/nmcli_add_basic_openvswitch_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_port_by_mac
+      - verified-by: /tests/nmcli_reapply_openvswitch_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_ofport_request
+      - verified-by: /tests/nmcli_add_openvswitch_bond_configuration
+      - verified-by: /tests/nmcli_add_openvswitch_vlan_configuration
+      - verified-by: /tests/nmcli_remove_one_openvswitch_bond_configuration
+      - verified-by: /tests/nmcli_remove_openvswitch_ports_and_master_bridge_configuration
+      - verified-by: /tests/nmcli_reconnect_openvswitch_vlan_configuration
+      - verified-by: /tests/NM_reboot_openvswitch_vlan_configuration
+      - verified-by: /tests/NM_reboot_openvswitch_vlan_configuration_var2
+      - verified-by: /tests/restart_NM_with_mixed_setup
+      - verified-by: /tests/ovs_cloned_mac_set_on_iface
+      - verified-by: /tests/ovs_mtu
+      - verified-by: /tests/ovs_cloned_mac_with_the_same_bridge_iface_name
+      - verified-by: /tests/clear_ovs_settings
+      - verified-by: /tests/ovs_patch_add
+      - verified-by: /tests/ovs_external_ids
+      - verified-by: /tests/NM_clean_during_service_start
+      - verified-by: /tests/ovs_nmstate
+      - verified-by: /tests/ovs_set_firewalld_zone
+      - verified-by: /tests/ovs_service_disabled_error
+      - verified-by: /tests/ovs_external_unmanaged_device
+      - verified-by: /tests/ovs_other_config
+      - verified-by: /tests/ovs_vxlan_networking_off_on
+      - verified-by: /tests/ovs_datapath_type_netdev_with_cloned_mac
+      - verified-by: /tests/ovs_cloned_mac_set_on_iface_with_udev_file
+      - verified-by: /tests/ovs_delete_connecting_interface
+      - verified-by: /tests/ovs_bond_ports_stable_after_reboot
+      - verified-by: /tests/ovs_bond_ports_autoconnect_retries_reboot
+      - verified-by: /tests/nmcli_remove_openvswitch_bridge_on_delete
+      - verified-by: /tests/nmcli_openvswitch_keep_external_ports
+      - verified-by: /tests/nmcli_activate_children
+      - verified-by: /tests/dispatcher_restart
+      - verified-by: /tests/lldp_with_ovs
+      - verified-by: /tests/connection_with_higher_priority_active_on_reload
+      - verified-by: /tests/loopback_set_iface_as_ovs_port
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_n_rxq_txq_desc
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_bond_sriov
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_with_mtu
+      - verified-by: /tests/NetworkManager-dcb/add_dpdk_port_lsc_interrupt
+/pkcs11:
+    story: NetworkManager pkcs11
+    description: Requirement tag tests for pkcs11
+    id: 78dc7ca8-804b-548b-bdde-1d622df7cf6c
+    link:
+      - verified-by: /tests/8021x_tls_pkcs11_saved_pw
+      - verified-by: /tests/8021x_tls_pkcs11_pwfile
+      - verified-by: /tests/8021x_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/8021x_tls_pkcs11_pw_in_uri_flag_nr
+      - verified-by: /tests/simwifi_tls_pkcs11_saved_pw
+      - verified-by: /tests/simwifi_tls_pkcs11_pwfile
+      - verified-by: /tests/simwifi_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/simwifi_tls_pkcs11_pw_in_uri_flag_nr
+/scapy:
+    story: NetworkManager scapy
+    description: Requirement tag tests for scapy
+    id: 7184eaaa-a2cb-5a4b-be23-aac7707003ed
+    link:
+      - verified-by: /tests/ipv6_lifetime_no_padding
+      - verified-by: /tests/ipv6_lifetime_too_low
+      - verified-by: /tests/ipv6_drop_ra_with_255_hlimit
+      - verified-by: /tests/ipv6_drop_ra_with_low_hlimit
+      - verified-by: /tests/ipv6_drop_ra_from_non_ll_address
+      - verified-by: /tests/ipv6_preserve_addr_order
+      - verified-by: /tests/ipv6_ndp_ipv6_route_information_buffer_overflow
+      - verified-by: /tests/dhcp_internal_ack_after_nak
+      - verified-by: /tests/dhcp_internal_nak_in_renewing
+/simwifi:
+    story: NetworkManager simwifi
+    description: Requirement tag tests for simwifi
+    id: 22d663dc-bc87-5b20-a035-6238d319d585
+    link:
+      - verified-by: /tests/simwifi_setting_bogus_values
+      - verified-by: /tests/simwifi_set_channel
+      - verified-by: /tests/simwifi_wep_ttls_mschapv2_eap
+      - verified-by: /tests/simwifi_ttls_mschap
+      - verified-by: /tests/simwifi_ttls_mschapv2
+      - verified-by: /tests/simwifi_ttls_mschapv2_eap
+      - verified-by: /tests/simwifi_peap_mschapv2
+      - verified-by: /tests/simwifi_open_connect
+      - verified-by: /tests/simwifi_wep_ask_passwd
+      - verified-by: /tests/simwifi_wep_tls
+      - verified-by: /tests/simwifi_wep_peap_gtc
+      - verified-by: /tests/simwifi_wpa1psk_no_profile
+      - verified-by: /tests/simwifi_wpa2psk_profile
+      - verified-by: /tests/simwifi_wpa2psk_no_profile
+      - verified-by: /tests/simwifi_tls_pkcs11_saved_pw
+      - verified-by: /tests/simwifi_tls_pkcs11_pwfile
+      - verified-by: /tests/simwifi_tls_pkcs11_nmcli_ask
+      - verified-by: /tests/simwifi_tls_pkcs11_pw_in_uri_flag_nr
+      - verified-by: /tests/simwifi_tls
+      - verified-by: /tests/simwifi_tls_user_permissions
+      - verified-by: /tests/simwifi_tls_bad_private_key_password
+      - verified-by: /tests/simwifi_tls_no_private_key_password
+      - verified-by: /tests/simwifi_peap_gtc
+      - verified-by: /tests/simwifi_peap_md5
+      - verified-by: /tests/simwifi_ttls_pap
+      - verified-by: /tests/simwifi_ttls_chap
+      - verified-by: /tests/simwifi_ttls_md5
+      - verified-by: /tests/simwifi_ttls_gtc
+      - verified-by: /tests/simwifi_wpa3_personal
+      - verified-by: /tests/simwifi_cloned_mac_address
+      - verified-by: /tests/simwifi_wpa3_h2e
+      - verified-by: /tests/simwifi_wpa3_personal_device_connect_ask
+      - verified-by: /tests/simwifi_tls_wpa3
+      - verified-by: /tests/simwifi_tls_wpa3_pq
+      - verified-by: /tests/simwifi_owe_connect
+      - verified-by: /tests/simwifi_owe_device_connect
+      - verified-by: /tests/simwifi_owe_transition_connect
+      - verified-by: /tests/simwifi_owe_transition_connect_as_open
+      - verified-by: /tests/simwifi_owe_transition_device_connect
+      - verified-by: /tests/nmclient_get_wireless_hw_property
+      - verified-by: /tests/simwifi_dbus_bitrate_property_name
+      - verified-by: /tests/simwifi_do_not_block_autoconnect
+      - verified-by: /tests/simwifi_novice_mode_add_default_connection
+      - verified-by: /tests/simwifi_novice_mode_add_connection_bogus_ip
+      - verified-by: /tests/simwifi_novice_mode_add_connection_with_options
+      - verified-by: /tests/simwifi_novice_mode_add_connection_ip_setup
+      - verified-by: /tests/simwifi_mac_address_blacklist
+      - verified-by: /tests/simwifi_remove_connection_while_up
+      - verified-by: /tests/simwifi_wpa2_psk_unmatching_proto
+      - verified-by: /tests/simwifi_set_mac_address
+      - verified-by: /tests/simwifi_wpa2_ask_passwd
+      - verified-by: /tests/simwifi_wpa2_arg_passwd
+      - verified-by: /tests/simwifi_set_existing_bssid
+      - verified-by: /tests/simwifi_wifisec_validity
+      - verified-by: /tests/simwifi_wifisec_keymgmt_wrong_values
+      - verified-by: /tests/simwifi_wifisec_authalg_wrong_values
+      - verified-by: /tests/simwifi_set_hidden_property_values
+      - verified-by: /tests/simwifi_set_txpower
+      - verified-by: /tests/simwifi_set_rate
+      - verified-by: /tests/simwifi_describe
+      - verified-by: /tests/simwifi_wifisec_describe
+      - verified-by: /tests/simwifi_set_nonexistent_bssid
+      - verified-by: /tests/simwifi_migrate_to_keyfile
+      - verified-by: /tests/simwifi_dbus_invalid_cert_input
+      - verified-by: /tests/simwifi_mac_address_blacklist_to_denylist
+      - verified-by: /tests/simwifi_mac_address_denylist_to_blacklist
+      - verified-by: /tests/simwifi_peap_mschapv2_doc_procedure
+      - verified-by: /tests/simwifi_hotspot_doc_procedure
+      - verified-by: /tests/simwifi_hotspot_sae_doc_procedure
+      - verified-by: /tests/nmtui_simwifi_see_all_networks
+      - verified-by: /tests/nmtui_simwifi_connect_to_open_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa1psk_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa2psk_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wpa3psk_network
+      - verified-by: /tests/nmtui_simwifi_add_default_connection_open_network
+      - verified-by: /tests/nmtui_simwifi_fixed_device_present
+      - verified-by: /tests/nmtui_simwifi_select_device
+      - verified-by: /tests/nmtui_simwifi_fixed_device_invalid
+      - verified-by: /tests/nmtui_simwifi_autoconnect_off
+      - verified-by: /tests/nmtui_simwifi_activate_wo_autoconnect
+      - verified-by: /tests/nmtui_simwifi_activate_with_autoconnect
+      - verified-by: /tests/nmtui_simwifi_delete_connection_up
+      - verified-by: /tests/nmtui_simwifi_delete_connection_down
+      - verified-by: /tests/nmtui_simwifi_adhoc_network
+      - verified-by: /tests/nmtui_simwifi_ap
+      - verified-by: /tests/nmtui_simwifi_wrong_ssid
+      - verified-by: /tests/nmtui_simwifi_no_ssid
+      - verified-by: /tests/nmtui_simwifi_set_existing_bssid
+      - verified-by: /tests/nmtui_simwifi_set_nonexisting_bssid
+      - verified-by: /tests/nmtui_simwifi_bogus_bssid
+      - verified-by: /tests/nmtui_simwifi_mac_spoofing
+      - verified-by: /tests/nmtui_simwifi_connect_to_wep_hexkey_network
+      - verified-by: /tests/nmtui_simwifi_connect_to_wep_asciikey_network
+      - verified-by: /tests/nmtui_simwifi_wep_hexkey_connection
+      - verified-by: /tests/nmtui_simwifi_wep_ascii_connection
+      - verified-by: /tests/nmtui_simwifi_bogus_spoofing_address
+      - verified-by: /tests/nmtui_simwifi_mtu
+      - verified-by: /tests/nmtui_simwifi_wpa1_connection
+      - verified-by: /tests/nmtui_simwifi_wpa2_connection
+      - verified-by: /tests/nmtui_simwifi_wpa3_connection
+      - verified-by: /tests/nmtui_simwifi_show_password
+      - verified-by: /tests/nmtui_simwifi_connect_to_network_after_dismissal
+/wireguard:
+    story: NetworkManager wireguard
+    description: Requirement tag tests for wireguard
+    id: c4aa5c38-0f5b-532b-be69-a92f19fb1e0a
+    link:
+      - verified-by: /tests/wireguard_activate_connection
+      - verified-by: /tests/wireguard_add_routing_rules
+      - verified-by: /tests/wireguard_honor_prefix_routes
+      - verified-by: /tests/wireguard_nmcli
+      - verified-by: /tests/wireguard_allowedIP
+      - verified-by: /tests/wireguard_nmcli_doc_procedure
+      - verified-by: /tests/wireguard_nmtui_doc_procedure

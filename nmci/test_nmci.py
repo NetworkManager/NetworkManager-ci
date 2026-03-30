@@ -2202,6 +2202,121 @@ def generate_tests(mapper, tests):
     return mapper
 
 
+def _parse_feature_tags(feature_dir="features/scenarios"):
+    """Parse all feature files and build testname -> set of tags mapping."""
+    import re
+
+    re_tag = re.compile(r"\s*@(\S+)(.*)")
+    re_sce = re.compile(r"\s*Scenario")
+    test_tags = {}
+
+    for feature_file in sorted(glob.glob(os.path.join(feature_dir, "*.feature"))):
+        with open(feature_file, "r") as f:
+            tags = []
+            for line in f:
+                m = re_tag.match(line)
+                if m:
+                    # Collect all tags on this line
+                    s = line
+                    while True:
+                        m = re_tag.match(s)
+                        if not m:
+                            break
+                        tags.append(m.group(1))
+                        s = m.group(2)
+                elif re_sce.match(line):
+                    if tags:
+                        # Last tag is the test name
+                        testname = tags[-1]
+                        test_tags[testname] = set(tags)
+                    tags = []
+                elif line.strip() == "" or line.strip().startswith("#"):
+                    continue
+                elif line.startswith("Feature:"):
+                    tags = []
+                else:
+                    tags = []
+
+    return test_tags
+
+
+def generate_stories(mapper, existing_stories):
+    import uuid
+    import yaml
+
+    testmapper = mapper["testmapper"]
+
+    # Load requirement tags from requirements.yaml
+    req_tags = []
+    if os.path.isfile("requirements.yaml"):
+        with open("requirements.yaml", "r") as f:
+            req_data = yaml.load(f, Loader=yaml.SafeLoader)
+            req_tags = req_data.get("requirement_tags", [])
+
+    # Parse feature files to get scenario-level tags
+    feature_file_tags = _parse_feature_tags()
+    req_tags_set = set(req_tags)
+
+    stories = []
+
+    # Build feature-to-tests mapping
+    feature_tests = {}
+    for test in testmapper:
+        feature = test.get("feature", "")
+        if feature:
+            feature_tests.setdefault(feature, []).append(test["testname"])
+
+    # Build tag-to-tests mapping from feature file tags
+    tag_tests = {}
+    for test in testmapper:
+        # Strip subcomponent prefix to get the bare test name for tag lookup
+        bare_name = test["testname"].split("/")[-1]
+        scenario_tags = feature_file_tags.get(bare_name, set())
+        for tag in scenario_tags & req_tags_set:
+            tag_tests.setdefault(tag, []).append(test["testname"])
+
+    def _get_polarion_link(name):
+        existing = existing_stories.get("/" + name) if existing_stories else None
+        if existing and "link" in existing:
+            for link in existing["link"]:
+                if isinstance(link, dict) and "implements" in link:
+                    return link["implements"]
+        return None
+
+    # Create stories for features
+    for feature, tests in sorted(feature_tests.items()):
+        story_id = uuid.uuid5(uuid.NAMESPACE_URL, "NetworkManager-ci/story/" + feature)
+        stories.append(
+            {
+                "name": feature,
+                "summary": feature,
+                "description": f"Feature tests for {feature}",
+                "id": story_id,
+                "polarion_link": _get_polarion_link(feature),
+                "test_links": tests,
+            }
+        )
+
+    # Create stories for requirement tags (skip if same name as a feature)
+    for tag in sorted(req_tags):
+        if tag in feature_tests:
+            continue
+        tests = tag_tests.get(tag, [])
+        story_id = uuid.uuid5(uuid.NAMESPACE_URL, "NetworkManager-ci/story/" + tag)
+        stories.append(
+            {
+                "name": tag,
+                "summary": tag,
+                "description": f"Requirement tag tests for {tag}",
+                "id": story_id,
+                "polarion_link": _get_polarion_link(tag),
+                "test_links": tests,
+            }
+        )
+
+    return stories
+
+
 def generate_fmf(mapper, template_file, output_file):
     import jinja2
 
@@ -2257,6 +2372,29 @@ def generate_fmf(mapper, template_file, output_file):
                     f"    filter: name:/tests/{component}/.*\n\n",
                 ]
             )
+
+
+def generate_stories_fmf(
+    stories, template_file="stories_template.j2", output_file="stories.fmf"
+):
+    import jinja2
+
+    if not os.path.isfile(template_file):
+        return
+
+    # backup current stories.fmf if exists
+    if os.path.isfile(output_file):
+        if not os.path.isdir(".tmp"):
+            os.mkdir(".tmp")
+        shutil.copy(output_file, f".tmp/{output_file}")
+
+    with open(template_file, "r") as f:
+        template = jinja2.Template(f.read())
+
+    stories_data = template.render(stories=stories)
+
+    with open(output_file, "w") as f:
+        f.write(stories_data)
 
 
 def test_fmf():

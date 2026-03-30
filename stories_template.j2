@@ -1,0 +1,17 @@
+{%- for story in stories %}
+/{{ story.name }}:
+    story: NetworkManager {{ story.summary }}
+    {%- if story.description %}
+    description: {{ story.description }}
+    {%- endif %}
+    id: {{ story.id }}
+    {%- if story.polarion_link or story.test_links %}
+    link:
+      {%- if story.polarion_link %}
+      - implements: {{ story.polarion_link }}
+      {%- endif %}
+      {%- for test in story.test_links %}
+      - verified-by: /tests/{{ test }}
+      {%- endfor %}
+    {%- endif %}
+{%- endfor %}
