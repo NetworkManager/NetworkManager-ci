@@ -274,6 +274,49 @@ The `@ver/rhel/8` tags now fully specify the version ranges for RHEL 8 (below
 rule, when you add a stream-specific `@ver/` tag, replicate all relevant plain
 `@ver` constraints under the same stream prefix.
 
+> **Note:** Do not confuse `@ver/rhel/...` with `@rhelver`. The `@ver/rhel/...`
+> tags filter by **NetworkManager version** within a specific NM build stream
+> (derived from the RPM version string). The `@rhelver` tag filters by **distro
+> version** (read from `/etc/redhat-release`). They are independent and can be
+> combined.
+
+#### Distro Version Tags: `@rhelver`, `@fedoraver`, `@skip_in_centos`
+
+While `@ver` tags control which **NetworkManager versions** a test runs on,
+distro version tags control which **operating system versions** a test runs on.
+The distro version is read from `/etc/redhat-release` (e.g. "Red Hat Enterprise
+Linux release 9.3") and is independent of the NM package version.
+
+**`@rhelver`** — restricts a test to specific RHEL (and CentOS Stream) versions.
+Uses the same operators as `@ver`: `+=`, `-=`, `+`, `-`. Only evaluated when the
+distro is RHEL or CentOS Stream; the tag is silently ignored on Fedora. For
+CentOS Stream (which only reports a major version, e.g. "CentOS Stream release
+9"), a minor version of 99 is assumed, so `@rhelver+=9.3` will always match on
+CentOS Stream 9. Examples:
+
+```gherkin
+@rhelver+=9.3           # run on RHEL 9.3+ (and CentOS Stream 9)
+@rhelver+=8.6 @rhelver-10  # run on RHEL 8.6 through 9.x
+@rhelver+=8 @rhelver-=8 @fedoraver-=0  # run only on RHEL 8.x, skip Fedora
+```
+
+**`@fedoraver`** — restricts a test to specific Fedora versions. Only evaluated
+when the distro is Fedora; silently ignored on RHEL/CentOS. Examples:
+
+```gherkin
+@fedoraver+=31          # run on Fedora 31+
+@fedoraver-=0           # never run on Fedora (effectively skip Fedora)
+```
+
+Because `@rhelver` and `@fedoraver` only restrict their own distros, a tag like
+`@rhelver+=9` will still run on all Fedora versions (unless `@fedoraver` is also
+set). To skip a distro entirely, use `@rhelver-=0` or `@fedoraver-=0`.
+
+**`@skip_in_centos`** — unconditionally skips the test when the distro is CentOS
+(detected by checking for "CentOS" in `/etc/redhat-release`). This is useful for
+tests that require RHEL-specific packages or features not available in CentOS
+Stream.
+
 ### Gitlab merge request pipelines (CI/CD)
 
 Another possibility how to test the changes is to open a merge request in Gitlab. Pipeline first executes [UnitTests](nmci/test_nmci.py) (checks that the tests are consistent, well defined). Independently, remote jenkins triggers executes the tests, when a maintaner reviews and approves the code. The following apply for RHEL and [CentOS trigger](run/centos-ci/cico_gitlab_trigger.py):
