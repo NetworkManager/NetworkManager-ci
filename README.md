@@ -212,48 +212,67 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 
 #### `@ver` Version Tags
 
-Tests have tags (with an `@`). The @ver tag checks the version of NetworkManager to run or skip the test.
-See also `nmci/helpers/version_control.py` script. Use following best practice for choosing a version tag.
+The `@ver` tag controls which NetworkManager versions a test runs on.
+See also `nmci/helpers/version_control.py`. Best practices:
 
-- prefer `@ver+=NUMBER` over `@ver+NUMBER` because it is nicer to state the version when the feature starts working,
-  and not the version before.
+- Prefer `@ver+=NUMBER` over `@ver+NUMBER` — state the version when the feature
+  starts working, not the version before.
 
-- similarly, prefer `@ver-NUMBER` over `@ver-=NUMBER` to mirror a `@ver+=NUMBER`. We can write two variants of
-  a test with different version tags, and the version selection must only match for one variants of the test.
-  Hence there should always be separate ranges. The use of `@ver-NUMBER` to mirror `@ver+=NUMBER` makes that clear.
+- Prefer `@ver-NUMBER` over `@ver-=NUMBER` to mirror `@ver+=NUMBER`. When two
+  variants of a test have different version tags, their ranges must not overlap.
+  Using `@ver-NUMBER` to mirror `@ver+=NUMBER` makes this clear.
 
-- in NetworkManager, stable releases have an even second version number and an even third number (e.g. 1.42.2).
-  A patch/feature/bugfix can only be added in a development version that leads up to a stable release. In the example,
-  between the tag 1.42.1 and 1.42.2. The right way for a `@ver+=` tag is thus always the development version, like
-  `@ver+=1.42.1`, because the patch is already upstream in `nm-1-42` branch, which is currently between 1.42.1 and
-  1.42.2. The test should start working with 1.42.1+ already. Yes, early versions of 1.42.1+ don't have the patch
-  yet, but it's more important to test the later versions of the development branch and run the test.
-  The right `@ver+=NUMBER` is what `git describe` gives for the commit with the patch.
+- Use the development version from `git describe` for the commit with the patch.
+  Stable releases have even second and third version numbers (e.g. 1.42.2).
+  Patches land in development versions between tags, e.g. between 1.42.1 and
+  1.42.2, so use `@ver+=1.42.1`. Early 1.42.1+ builds may not have the patch
+  yet, but testing later development builds is more important.
 
-  * on main branch, the second number is odd and the third number can be odd or even. For example, 1.43.6 is a
-    development version leading towards the next major release 1.44.0. Also there, a patch is always introduced
-    between two development snapshots, like between 1.43.5 and 1.43.6. Here too, we shall use `@ver+=1.43.5`,
-    so that testing current `main` branch (when 1.43.6 is not yet tagged) also covers the test. Note that
-    we may take a devel snapshot (1.43.5) and package in RHEL. But that version doesn't have the patch yet,
-    so for that RHEL package the test `@ver+=1.43.5` will run but fail. There are are three possibilities.
-    First, don't care. These are all just development versions and the situation resolves itself in a few days.
-    Second, choose `@ver+=1.43.5.2000`, which would match for upstream builds
-    but not for RHEL (note the package version from upstream builds adds a large 4th number).
-    Third, add a RHEL specific override like `@ver+=1.43.5 @ver/rhel+=1.43.6`.
+  * On main branch (odd second number, e.g. 1.43.x), patches also land between
+    snapshots, e.g. between 1.43.5 and 1.43.6. While `@ver+=1.43.5` might seem
+    like the natural choice, it would also match RHEL packages of 1.43.5 that
+    don't have the patch yet. Use `@ver+=1.43.6` instead — for upstream builds,
+    the runner adds one to the third version number of the detected version
+    before evaluating `@ver` tags, so upstream `1.43.5.2000` (copr) is treated
+    as `1.43.6` and matches, while downstream `1.43.5.2` (RHEL/Fedora) does
+    not.
 
-The tested NetworkManager version is parsed with a "stream" along the version
-number. The stream is a variant of the NetworkManager package or a specific
-build configuration. For example, we can have upstream release 1.44.2, which we
-can build in copr, as a Fedora package or as a CentOS Stream 9 package. The
-build configurations may slightly differ for the same tarball. For example, a
-RHEL 8.7 package will be detected to have "rhel/8/7" stream. For most cases,
-downstream RHEL/Fedora is very close to upstream so there is no difference
-between streams. However, when having a stream like rhel/8/7, then the runner
-will first search for version tags `@ver/rhel/8/7`, then `@ver/rhel/8`, then
-`@ver/rhel` and finally `@ver`. If any stream specific version tag is found, it
-is evaluated and more general tags (like `@ver`) are ignored. For example,
-`@ver+=1.43.5 @ver/rhel/9+=1.43.6` means that RHEL 9 packages require a version
-1.43.6 or newer, but all other packages require at least version 1.43.5.
+Each NM package is detected with a "stream" alongside the version number. The
+stream is derived from the RPM version string (e.g. `1.42.2-1.el8_7`), not from
+the distro version. For example, a RHEL 8.7 package has stream "rhel/8/7". For
+stream-specific version
+tags, the runner searches from most specific to least specific: `@ver/rhel/8/7`,
+then `@ver/rhel/8`, then `@ver/rhel`, and finally plain `@ver`. If any
+stream-specific tag is found, all more general tags (like `@ver`) are ignored.
+For example, `@ver+=1.43.5 @ver/rhel/9+=1.43.6` requires version 1.43.6+ on
+RHEL 9 but only 1.43.5+ on all other streams.
+
+This has a non-obvious consequence when combining multiple version ranges.
+For example, this is **wrong**:
+
+```gherkin
+@ver-1.40
+@ver+=1.41.3
+@ver/rhel/8+=1.40.0.2
+```
+
+On RHEL 8, the runner finds `@ver/rhel/8+=1.40.0.2` and uses only that tag,
+ignoring both `@ver-1.40` and `@ver+=1.41.3`. The `@ver-1.40` range is lost,
+so the test is incorrectly skipped on older RHEL 8 versions (below 1.40)
+where it should still run. To fix this, add `@ver/rhel/8-1.40` to preserve the
+lower range:
+
+```gherkin
+@ver-1.40
+@ver+=1.41.3
+@ver/rhel/8-1.40
+@ver/rhel/8+=1.40.0.2
+```
+
+The `@ver/rhel/8` tags now fully specify the version ranges for RHEL 8 (below
+1.40 and 1.40.0.2+), while the plain `@ver` tags handle all other streams. As a
+rule, when you add a stream-specific `@ver/` tag, replicate all relevant plain
+`@ver` constraints under the same stream prefix.
 
 ### Gitlab merge request pipelines (CI/CD)
 
