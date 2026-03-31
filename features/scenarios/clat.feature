@@ -106,8 +106,8 @@ Feature: nmcli: clat
     * Start servers in the CLAT environment for device "testZ" on address "203.0.113.3"
     # the default route is on testX. With rp_filter enabled, it would be impossible to check
     # connectivity on other interfaces
-    * Execute "echo 2 > /proc/sys/net/ipv4/conf/testY/rp_filter"
-    * Execute "echo 2 > /proc/sys/net/ipv4/conf/testZ/rp_filter"
+    * Set sysctl "net.ipv4.conf.testY.rp_filter" to "2"
+    * Set sysctl "net.ipv4.conf.testZ.rp_filter" to "2"
     * Add "ethernet" connection named "testX-clat" for device "testX" with options
           """
           ipv4.clat auto

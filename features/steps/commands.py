@@ -1406,9 +1406,10 @@ def run_nmstate(context, log_file):
 
 
 @step('Set sysctl "{sysctl}" to "{value}"')
-def set_sysctl(context, sysctl, value):
-    nmci.cleanup.add_sysctls(sysctl)
-    nmci.process.run(["sysctl", "-w", f"{sysctl}={value}"])
+@step('Set sysctl "{sysctl}" to "{value}" in namespace "{namespace}"')
+def set_sysctl(context, sysctl, value, namespace=None):
+    nmci.cleanup.add_sysctls(sysctl, namespace=namespace)
+    nmci.process.run(["sysctl", "-w", f"{sysctl}={value}"], namespace=namespace)
 
 
 @step("Dump status")

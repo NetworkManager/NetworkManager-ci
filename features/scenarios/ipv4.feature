@@ -2100,12 +2100,11 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
-    @restore_rp_filters
     @rhel_pkg
     @ipv4_rp_filter_set_loose_rhel
     Scenario: NM - ipv4 - set loose RP filter
-    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
-    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Set sysctl "net.ipv4.conf.eth2.rp_filter" to "1"
+    * Set sysctl "net.ipv4.conf.eth3.rp_filter" to "1"
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ip4 192.168.11.1/24"
     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options "ip4 192.168.11.2/24"
     When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
@@ -2116,11 +2115,11 @@ Feature: nmcli: ipv4
 
     @rhbz1394344 @rhbz1505893
     @ver+=1.9.1
-    @restore_rp_filters @rhel_pkg
+    @rhel_pkg
     @ipv4_rp_filter_do_not_touch
     Scenario: NM - ipv4 - don't touch disabled RP filter
-    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
-    * Execute "echo 0 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Set sysctl "net.ipv4.conf.eth2.rp_filter" to "1"
+    * Set sysctl "net.ipv4.conf.eth3.rp_filter" to "0"
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ip4 192.168.11.1/24"
     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options "ip4 192.168.11.2/24"
     When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
@@ -2132,11 +2131,10 @@ Feature: nmcli: ipv4
     @rhbz1394344 @rhbz1505893 @rhbz1492472
     @ver+=1.9.1
     @rhel_pkg
-    @restore_rp_filters
     @ipv4_rp_filter_reset_rhel
     Scenario: NM - ipv4 - reset RP filter back
-    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth2/rp_filter"
-    * Execute "echo 1 > /proc/sys/net/ipv4/conf/eth3/rp_filter"
+    * Set sysctl "net.ipv4.conf.eth2.rp_filter" to "1"
+    * Set sysctl "net.ipv4.conf.eth3.rp_filter" to "1"
     * Add "ethernet" connection named "con_ipv4" for device "eth2" with options "ip4 192.168.11.1/24"
     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options "ip4 192.168.11.2/24"
     When "192.168.11.0/24 dev eth2.*src 192.168.11.1\s+metric 1" is visible with command "ip r" in "5" seconds
@@ -3166,7 +3164,7 @@ Feature: nmcli: ipv4
     Scenario: MPTCP ensure endpoints are created correctly with DAD active
     * Set sysctl "net.mptcp.enabled" to "1"
     * Add namespace "ns1"
-    * Execute "ip netns exec ns1 sysctl -w net.mptcp.enabled=1"
+    * Set sysctl "net.mptcp.enabled" to "1" in namespace "ns1"
     * Create "veth" device named "v1" with options "peer name v1p netns ns1"
     * Create "veth" device named "v2" with options "peer name v2p netns ns1"
     * Execute "ip link set v1 up"

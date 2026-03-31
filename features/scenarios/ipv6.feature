@@ -1961,8 +1961,8 @@
     Scenario: NM - general - read router solicitation values
     * Prepare simulated test "testX6" device with "15s" leasetime
     # Connection should be alive for full 160s
-    * Execute "echo 4 > /proc/sys/net/ipv6/conf/testX6/router_solicitations"
-    * Execute "echo 40 > /proc/sys/net/ipv6/conf/testX6/router_solicitation_interval"
+    * Set sysctl "net.ipv6.conf.testX6.router_solicitations" to "4"
+    * Set sysctl "net.ipv6.conf.testX6.router_solicitation_interval" to "40"
     * Execute "ip netns exec testX6_ns kill -SIGSTOP $(cat /tmp/testX6_ns.pid)"
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
           """
@@ -2380,7 +2380,7 @@
     Scenario: MPTCP ensure endpoints are created correctly with DAD active
     * Set sysctl "net.mptcp.enabled" to "1"
     * Add namespace "ns1"
-    * Execute "ip netns exec ns1 sysctl -w net.mptcp.enabled=1"
+    * Set sysctl "net.mptcp.enabled" to "1" in namespace "ns1"
     * Create "veth" device named "v1" with options "peer name v1p netns ns1"
     * Create "veth" device named "v2" with options "peer name v2p netns ns1"
     * Execute "ip link set v1 up"
@@ -2514,8 +2514,7 @@
     @ver/rhel/9/2+=1.42.2.8
     @not_enable_ipv6_on_external
     Scenario: NM - ipv6 - do not re-enable IPv6 on the externally connected interface
-    * Cleanup execute "echo 0 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
-    * Execute "echo 1 > /proc/sys/net/ipv6/conf/lo/disable_ipv6"
+    * Set sysctl "net.ipv6.conf.lo.disable_ipv6" to "1"
     * Restart NM
     Then "lo\s+loopback\s+connected \(externally\)\s+lo" is visible with command "nmcli device"
     Then "0" is not visible with command "cat /proc/sys/net/ipv6/conf/lo/disable_ipv6"
