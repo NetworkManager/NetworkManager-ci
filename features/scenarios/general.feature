@@ -895,15 +895,15 @@ Feature: nmcli - general
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
     * Restart NM
     #Then "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
      And "fe80" is visible with command "ip a s eth8"
-     And "192." is visible with command "ip a s eth8"
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8"
+     And "192\." is visible with command "ip r |grep eth8"
 
 
     @rhbz1371433
@@ -915,23 +915,23 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     #When "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip r |grep eth8"
     * Wait for "2" seconds
     * Execute "nmcli device set eth8 managed off"
     #When "/sbin/dhclient" is not visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8"
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
     * Bring "up" connection "con_general"
     #Then "/sbin/dhclient" is visible with command "ps aux|grep dhc |grep eth8 |grep -v orig"
      And "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is not visible with command "nmcli device show eth8"
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
 
 
     @ver+=1.57.3
@@ -941,21 +941,21 @@ Feature: nmcli - general
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
     * Bring "up" connection "con_general"
     Then "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip r |grep eth8"
     * Wait for "2" seconds
     * Execute "nmcli device set eth8 managed off"
     Then "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
     * Execute "nmcli device set eth8 managed reset"
     Then "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
 
 
     @ver+=1.57.3
@@ -968,8 +968,8 @@ Feature: nmcli - general
     * Execute "nmcli device set eth8 managed --permanent no"
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
     # NM restart is not enough because the saved state might affect. Better reboot.
     * Reboot
@@ -985,8 +985,8 @@ Feature: nmcli - general
     * Bring "up" connection "con_general"
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
     * Execute "nmcli device set eth8 managed --permanent-only no"
     * Wait for "3" seconds
@@ -1006,14 +1006,14 @@ Feature: nmcli - general
     * Execute "nmcli device set eth8 managed --permanent yes"
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
     * Reboot
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
 
 
@@ -1031,8 +1031,8 @@ Feature: nmcli - general
     * Reboot
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
 
 
@@ -1043,8 +1043,8 @@ Feature: nmcli - general
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect yes"
     Then "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip r |grep eth8"
     * Execute "nmcli device set eth8 managed --permanent off"
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
     * Reboot
@@ -1054,15 +1054,15 @@ Feature: nmcli - general
     * Execute "nmcli device set eth8 managed --permanent reset"
     Then "state UP" is visible with command "ip a s eth8"
      And "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
     * Reboot
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
 
 
     @ver+=1.57.3
@@ -1072,8 +1072,8 @@ Feature: nmcli - general
     * Cleanup NM config file "/var/lib/NetworkManager/NetworkManager-intern.conf"
     * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect yes"
     Then "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip r |grep eth8"
     * Execute "nmcli device set eth8 managed --permanent off"
     Then "unmanaged" is visible with command "nmcli device show eth8" in "5" seconds
     * Execute "nmcli device set eth8 managed --permanent-only reset"
@@ -1082,9 +1082,9 @@ Feature: nmcli - general
     * Reboot
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "5" seconds
-     And "192." is visible with command "ip a s eth8" in "15" seconds
+     And "192\." is visible with command "ip a s eth8" in "15" seconds
      And "fe80" is visible with command "ip a s eth8" in "15" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip r |grep eth8"
 
 
     @ver+=1.57.3
@@ -1097,14 +1097,14 @@ Feature: nmcli - general
     * Execute "nmcli device set eth8 managed --permanent up"
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
     * Reboot
     Then "state UP" is visible with command "ip a s eth8" in "3" seconds
      And "unmanaged" is not visible with command "nmcli device show eth8" in "3" seconds
-     And "192." is visible with command "ip a s eth8" in "10" seconds
-     And "192." is visible with command "ip r |grep eth8"
+     And "192\." is visible with command "ip a s eth8" in "10" seconds
+     And "192\." is visible with command "ip r |grep eth8"
      And "fe80" is visible with command "ip a s eth8"
 
 
@@ -1449,7 +1449,7 @@ Feature: nmcli - general
       """
     * Wait for "1" seconds
     * Start NM without PID wait
-    * "192." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
+    * "192\." is visible with command " ip a s testG |grep 'inet '|grep dynamic" in "60" seconds
     * Wait for "20" seconds
     # VVV this means that lifetime was refreshed
     When "preferred_lft (119|118|117)sec" is visible with command " ip a s testG" in "100" seconds
@@ -1467,7 +1467,7 @@ Feature: nmcli - general
     #* Execute "nmcli con modify con_general ipv4.may-fail no ipv6.may-fail no"
     * Bring "up" connection "con_general"
     Then "2620" is visible with command "ip a s testG" in "60" seconds
-    Then "192." is visible with command "ip a s testG" in "60" seconds
+    Then "192\." is visible with command "ip a s testG" in "60" seconds
     * Disconnect device "testG"
     * Stop NM and clean "testG"
     When "state DOWN" is visible with command "ip a s testG" in "5" seconds
@@ -1801,7 +1801,7 @@ Feature: nmcli - general
     * Wait for "1" seconds
     * Execute "ip netns exec testG_ns ip link set testGp up"
     * "connected:con_general" is visible with command "nmcli -t -f STATE,CONNECTION device" in "60" seconds
-    Then "192." is visible with command "ip a s testG" in "60" seconds
+    Then "192\." is visible with command "ip a s testG" in "60" seconds
     Then "2620" is visible with command "ip a s testG" in "60" seconds
 
 
