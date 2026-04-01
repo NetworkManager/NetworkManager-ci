@@ -6,6 +6,7 @@ discover:
         - /tests/skip_step_pass
         - /tests/last_copr_build_check
         - /tests/nmstate_upstream
+        - /tests/nmstate_upstream_git_copr
         - /tests/nmcli_general_correct_profile_activated_after_restart
         - /tests/nmcli_general_profile_pickup_doesnt_break_network
         - /tests/nmcli_general_assign_valid_hostname_to_device

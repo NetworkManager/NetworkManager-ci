@@ -2176,6 +2176,19 @@ Feature: nmcli - general
     Then "ERROR" is not visible with command "grep -a ' ERROR' /tmp/nmstate.txt"
 
 
+    # Latest nmstate dropped support for NM<=1.40
+    @ver+=1.41
+    @x86_64_only
+    @nmstate_setup @permissive
+    @nmstate_upstream_git_copr
+    Scenario: NM - general - nmstate from copr
+    * Run tier0 nmstate tests from copr "nmstate/nmstate-git" with log in "/tmp/nmstate.txt"
+    Then "PASSED" is visible with command "grep -a ' PASS' /tmp/nmstate.txt"
+    Then "100%" is visible with command "grep -a '100%' /tmp/nmstate.txt"
+    Then "FAILED" is not visible with command "grep -a ' FAILED' /tmp/nmstate.txt"
+    Then "ERROR" is not visible with command "grep -a ' ERROR' /tmp/nmstate.txt"
+
+
     @rhbz1433303
     @ver+=1.4.0
     @not_on_aarch64

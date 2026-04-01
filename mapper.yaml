@@ -397,6 +397,9 @@ testmapper:
     - nmstate_upstream:
        timeout: 35m
        feature: general
+    - nmstate_upstream_git_copr:
+       timeout: 35m
+       feature: general
     - bridge_options:
         feature: bridge
         tags: gate
