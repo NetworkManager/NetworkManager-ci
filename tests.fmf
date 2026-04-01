@@ -3400,6 +3400,8 @@ link:
 /8021x_tls_system_ca_certs:
     id: 2038a3e8-3abd-5198-bd4a-a8ef830260c2
     order+: 13006
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9251
 /8021x_tls_user_permissions:
     id: 3b8279f9-f147-53f4-aeb9-e105ddb81a91
     order+: 13007
