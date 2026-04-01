@@ -517,6 +517,26 @@ Feature: nmcli - ethernet
     Then Bring "up" connection "con_ethernet"
 
 
+    @RHEL-88782
+    @rhelver+=10
+    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_tls_system_ca_certs
+    Scenario: nmcli - ethernet - connect to 8021x - tls - system-ca-certs
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.system-ca-certs yes
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+          802-1x.private-key-password redhat
+          """
+    * Bring "up" connection "con_ethernet"
+    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+
+
     @ver+=1.55.90
     @ver+=1.54.2.2
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
