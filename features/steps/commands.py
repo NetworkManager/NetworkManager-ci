@@ -1405,6 +1405,111 @@ def run_nmstate(context, log_file):
     )
 
 
+@step('Run tier0 nmstate tests from copr "{nmstate_copr}" with log in "{log_file}"')
+def run_nmstate_from_copr(context, nmstate_copr, log_file):
+    # Install podman and git clone nmstate
+    nmci.veth.wait_for_testeth0()
+    nmci.util.directory_remove("/tmp/nmstate", recursive=True)
+    nmci.process.run_stdout(
+        "git clone https://github.com/nmstate/nmstate.git /tmp/nmstate",
+        ignore_stderr=True,
+        timeout=20,
+    )
+
+    # Get release type and copr chroot
+    # Container images are CentOS Stream, so copr chroot must match
+    release = "el9"
+    copr_chroot = "centos-stream-9-x86_64"
+    if context.rh_release_num[0] == 8:
+        release = "el8"
+        copr_chroot = "centos-stream-8-x86_64"
+    if context.rh_release_num[0] == 10:
+        release = "el10"
+        copr_chroot = "centos-stream-10-x86_64"
+    if "fedora" in context.rh_release.lower():
+        release = "fed"
+        copr_chroot = ""
+    if "rawhide" in context.rh_release.lower():
+        release = "rawhide"
+        copr_chroot = ""
+
+    # Call run-tests.sh directly to use --customize and --use-installed-nmstate
+    # (run-tests-in-nmci.sh does not yet support these, pending nmstate/nmstate#3114)
+    # run-tests.sh sources relative paths, must run from nmstate dir
+    copr_enable = f"dnf copr enable -y {nmstate_copr}"
+    if copr_chroot:
+        copr_enable += f" {copr_chroot}"
+    cmd = (
+        f"cd /tmp/nmstate && env CI=true automation/run-tests.sh"
+        f" --test-type integ_tier1 --nolog --{release}"
+        f" --use-installed-nmstate"
+        f" --customize '{copr_enable} && dnf install -y nmstate nmstate-libs python3-libnmstate'"
+    )
+
+    # Detect NM packages source (same logic as run_nmstate)
+    for path in [
+        "/root/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/",
+        "/tmp/nm-build/NetworkManager/contrib/fedora/rpm/latest0/RPMS/",
+        "/root/rpms/",
+    ]:
+        if os.path.exists(path):
+            cmd += f" --nm-rpm-dir {path}"
+            break
+    else:
+        if os.path.exists("/etc/yum.repos.d/nm-copr.repo"):
+            repo_content = nmci.util.file_get_content_simple(
+                "/etc/yum.repos.d/nm-copr.repo"
+            )
+            for line in repo_content.splitlines():
+                if line.startswith("baseurl"):
+                    copr = line.split("/")[-4] + "/" + line.split("/")[-3]
+                    cmd += f" --copr {copr}"
+                    break
+        elif (
+            nmci.process.dnf(
+                "copr list | grep networkmanager/NetworkManager",
+                shell=True,
+                ignore_returncode=True,
+                ignore_stderr=True,
+                attempts=1,
+            ).returncode
+            == 0
+        ):
+            copr = nmci.process.dnf(
+                "copr list | grep networkmanager/NetworkManager | grep -v libreswan | awk -F 'org/' '{print $2}'",
+                shell=True,
+                ignore_stderr=True,
+                ignore_returncode=True,
+                attempts=1,
+            ).stdout.strip()
+            cmd += f" --copr {copr}"
+        else:
+            dir_name = "/tmp/nm_stock_pkgs/"
+            nmci.util.directory_remove(dir_name, recursive=True)
+            os.mkdir(dir_name)
+            koji = "koji"
+            if "Enterprise" in context.rh_release:
+                koji = "brew"
+            if "CentOS" in context.rh_release:
+                pass
+            nmci.process.run_stdout(
+                f"wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2 $(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g')) -P {dir_name}",
+                ignore_stderr=True,
+                shell=True,
+                timeout=30,
+            )
+            cmd += f" --nm-rpm-dir {dir_name}"
+
+    cmd += f" &> {log_file} </dev/null"
+
+    nmci.process.run_stdout(
+        cmd,
+        ignore_stderr=True,
+        shell=True,
+        timeout=2000,
+    )
+
+
 @step('Set sysctl "{sysctl}" to "{value}"')
 @step('Set sysctl "{sysctl}" to "{value}" in namespace "{namespace}"')
 def set_sysctl(context, sysctl, value, namespace=None):

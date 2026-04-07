@@ -666,6 +666,10 @@ link:
     duration: 35m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4152
+/nmstate_upstream_git_copr:
+    id: 571b9ba7-b4e2-532e-bc60-86fd11a5d65b
+    order+: 3001
+    duration: 35m
 /bridge_options:
     tag: ['gate']
     id: 13c215fc-ba41-505f-8969-effaf15a2b0f
