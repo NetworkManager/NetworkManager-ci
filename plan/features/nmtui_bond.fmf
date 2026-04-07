@@ -25,3 +25,4 @@ discover:
         - /tests/nmtui_bond_add_mode_balance_tlb
         - /tests/nmtui_bond_add_mode_balance_alb
         - /tests/nmtui_bond_change_mode_ac_to_rr
+        - /tests/nmtui_bond_change_mode_8023ad_to_active_backup

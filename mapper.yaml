@@ -3571,6 +3571,8 @@ testmapper:
         feature: nmtui_bond
     - nmtui_bond_change_mode_ac_to_rr:
         feature: nmtui_bond
+    - nmtui_bond_change_mode_8023ad_to_active_backup:
+        feature: nmtui_bond
     - nmtui_team_add_default_team:
         feature: nmtui_team
     - nmtui_team_no_select_device:

@@ -510,3 +510,37 @@ Feature: Bond TUI tests
     Then "Bonding Mode: adaptive load balancing" is visible with command "cat /proc/net/bonding/bond0"
     Then "192.168" is visible with command "ip a s bond0" in "60" seconds
     Then Check bond "bond0" link state is "up"
+
+
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1805
+    @ver+=1.57.5
+    @nmtui_bond_change_mode_8023ad_to_active_backup
+    Scenario: nmtui - bond - mode - change from 802.3ad to active backup
+    * Prepare new connection of type "Bond" named "bond0"
+    * Set "Device" field to "bond0"
+    * Choose to "<Add>" a slave
+    * Choose the connection type "Ethernet"
+    * Set "Profile name" field to "bond-slave-eth1"
+    * Set "Device" field to "eth1"
+    * Ensure "Automatically connect" is not checked
+    * Confirm the slave settings
+    * Choose to "<Add>" a slave
+    * Set "Profile name" field to "bond-slave-eth2"
+    * Set "Device" field to "eth2"
+    * Ensure "Automatically connect" is checked
+    * Confirm the slave settings
+    * Set "Mode" dropdown to "802.3ad"
+    * In "Other options \(key=value\)" property add "lacp_rate=fast"
+    * Confirm the connection settings
+    * "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/bond0" in "45" seconds
+    * "lacp_rate" is visible with command "nmcli -g bond.options connection show bond0"
+    * Select connection "bond0" in the list
+    * Choose to "<Edit...>" a connection
+    * Set "Mode" dropdown to "Active Backup"
+    * Remove all "Other options" property items
+    * Confirm the connection settings
+    * Execute "nmcli connection up bond0"
+    Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/bond0"
+    Then "lacp_rate" is not visible with command "nmcli -g bond.options connection show bond0"
+    Then "192.168" is visible with command "ip a s bond0" in "45" seconds
+    Then Check bond "bond0" link state is "up"
