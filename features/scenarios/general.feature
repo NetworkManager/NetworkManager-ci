@@ -2158,10 +2158,9 @@ Feature: nmcli - general
     # Skip on unmaintained RHEL8 and F40
     @rhelver+=9.4
     @fedoraver+=41
-    # Latest nmstate dropped support for NM<=1.40
-    # https://issues.redhat.com/browse/RHEL-1595
-    @ver+=1.41
     @x86_64_only
+    # Superseded by nmstate_upstream_git_copr, keep for bug verification
+    @ver-=0
     @nmstate_setup @permissive
     @nmstate_upstream
     Scenario: NM - general - nmstate
