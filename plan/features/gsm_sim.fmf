@@ -8,3 +8,4 @@ discover:
         - /tests/gsm_sim_load_from_file
         - /tests/gsm_sim_profile_with_serials
         - /tests/gsm_sim_create_assisted_connection
+        - /tests/gsm_sim_nm_unmanaged

@@ -3076,6 +3076,8 @@ testmapper:
         feature: gsm_sim
     - gsm_sim_create_assisted_connection:
         feature: gsm_sim
+    - gsm_sim_nm_unmanaged:
+        feature: gsm_sim
     - alias_ifcfg_add_single_alias:
         feature: alias
     - alias_ifcfg_add_multiple_aliases:

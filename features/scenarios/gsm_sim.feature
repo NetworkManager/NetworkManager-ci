@@ -147,3 +147,28 @@ Feature: nmcli: gsm
     Then "serial.send-delay:\s+100" is visible with command "nmcli con show gsm"
      And "default" is visible with command "ip r |grep 700"
      * Ignore possible AVC "ModemManager"
+
+
+    @ver+=1.57.5
+    @permissive @gsm_sim
+    @gsm_sim_nm_unmanaged
+    Scenario: nmcli - gsm_sim - respect NM_UNMANAGED udev property for modem devices
+    Given "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "60" seconds
+    # Create udev rule to mark the modem's parent PCI device as NM_UNMANAGED
+    # gsm_sim.pl uses /devices/pci0000:00/0000:00:00.0 as the parent device path
+    * Create udev rule "90-nmci-gsm-unmanaged.rules" with content
+      """
+      DEVPATH=="/devices/pci0000:00/0000:00:00.0", ENV{NM_UNMANAGED}="1"
+      """
+    # Trigger udev to apply the rule on the existing PCI device
+    * Execute "udevadm trigger /sys/devices/pci0000:00/0000:00:00.0"
+    # Teardown and restart the modem so NM re-creates the modem object
+    * Execute "sh prepare/gsm_sim.sh teardown"
+    * Wait for "2" seconds
+    * Run child "sh prepare/gsm_sim.sh smd0"
+    # smd0 should now appear as unmanaged
+    Then "smd0.*unmanaged" is visible with command "nmcli device status" in "60" seconds
+    # Verify user can override the unmanaged state
+    * Execute "nmcli device set smd0 managed yes"
+    Then "smd0" is visible with command "nmcli device status | grep -v unmanaged" in "10" seconds
+    * Ignore possible AVC "ModemManager"
