@@ -87,7 +87,7 @@ def init_screen():
     import pyte
 
     stream = pyte.ByteStream()
-    screen = pyte.Screen(80, 24)
+    screen = pyte.Screen(120, 40)
     stream.attach(screen)
     return stream, screen
 
@@ -163,10 +163,18 @@ def search_all_patterns_in_list(context, patterns, limit=50):
 
 
 def nmtui_start(context, extra_env={}):
-    env = dict(os.environ, **extra_env, LANG="en_US.UTF-8", TERM=TERM_TYPE)
+    env = dict(
+        os.environ,
+        **extra_env,
+        LANG="en_US.UTF-8",
+        TERM=TERM_TYPE,
+        LINES="40",
+        COLUMNS="120",
+    )
     context.tui = context.pexpect_service(
         f"EDITOR=vi nmtui > {OUTPUT}", shell=True, env=env
     )
+    context.tui.setwinsize(40, 120)
     for line in context.screen.display:
         if "NetworkManager TUI" in line:
             break
