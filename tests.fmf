@@ -8086,6 +8086,8 @@ link:
 /nmtui_bond_change_mode_8023ad_to_active_backup:
     id: 89f5a546-1299-55c8-8a49-153518d2a0e1
     order+: 54024
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9253
 /nmtui_team_add_default_team:
     id: 659a415c-28a7-5f7b-910f-96de07dc75b1
     order+: 55000
