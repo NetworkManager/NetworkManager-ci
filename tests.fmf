@@ -7157,6 +7157,8 @@ link:
 /dns_resolved_llmnr:
     id: 16b19492-57d6-5169-bc6e-097cbb052682
     order+: 45046
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9254
 /dns_reapply_on_disabled_ipv6:
     id: ea5deeb1-eabd-5698-accd-e16854212851
     order+: 45047
