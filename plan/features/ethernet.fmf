@@ -70,3 +70,5 @@ discover:
         - /tests/ethernet_keyfiles_dont_write_empty_mac_address_blacklist
         - /tests/ethtool_multiple_options_in_profile_file
         - /tests/ethernet_keep_mtu_on_reboot
+        - /tests/ethernet_match_by_mac_unmanage
+        - /tests/ethernet_match_by_mac_ignore_carrier

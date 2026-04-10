@@ -1508,8 +1508,10 @@ Feature: nmcli - ethernet
     * Commentary
       """
       The MAC is configured by prepare/netdevsim.sh.
-      The patched netdevsim supports carrier control via
-      "ip link set dev <name> carrier on|off".
+      Carrier is controlled via netdevsim link_device: two ports are
+      linked so that downing one drops carrier on the other.
+      The patched netdevsim has ethtool get_link so NM sees
+      CAPABILITIES.CARRIER-DETECT=yes.
       With ignore-carrier=1 matched by permanent MAC, NM should keep
       the connection activated even after carrier is lost.
       Also tests hot-plugged device (eth14) to verify that ignore-carrier
@@ -1533,6 +1535,8 @@ Feature: nmcli - ethernet
       ignore-carrier=1
       """
     * Restart NM
+    # Link eth11 with eth12 so that downing eth12 drops carrier on eth11
+    * Link netdevsim devices "eth11" and "eth12"
     * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
           """
           ipv4.method manual
@@ -1540,8 +1544,8 @@ Feature: nmcli - ethernet
           """
     * Bring "up" connection "con_ethernet"
     Then "eth11:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" in "5" seconds
-    # Turn carrier off and verify connection stays activated due to ignore-carrier
-    * Execute "ip link set dev eth11 carrier off"
+    # Drop carrier on eth11 by downing its linked peer eth12
+    * Execute "ip link set dev eth12 down"
     Then "eth11:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" for full "5" seconds
     # Deactivate, then bring up again while carrier is still off
     * Execute "nmcli con down con_ethernet"
@@ -1566,7 +1570,10 @@ Feature: nmcli - ethernet
           """
     # Wait for the device to become managed after the udev delay settles
     Then "eth14:disconnected" is visible with command "nmcli -t -f DEVICE,STATE dev" in "10" seconds
+    # Link eth14 with eth13 for carrier control
+    * Link netdevsim devices "eth14" and "eth13"
     * Bring "up" connection "con_ethernet2"
     Then "eth14:connected:con_ethernet2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" in "10" seconds
-    * Execute "ip link set dev eth14 carrier off"
+    # Drop carrier on eth14 by downing its linked peer eth13
+    * Execute "ip link set dev eth13 down"
     Then "eth14:connected:con_ethernet2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" for full "5" seconds

@@ -1107,6 +1107,17 @@ def flush_device_routes(context, proto, dev):
     nmci.process.run(f"ip -{proto} route flush dev {dev}", timeout=500)
 
 
+@step('Link netdevsim devices "{dev1}" and "{dev2}"')
+def link_netdevsim_devices(context, dev1, dev2):
+    nmci.process.run_stdout(
+        f"exec 257</proc/self/ns/net"
+        f" && echo 257:$(cat /sys/class/net/{dev1}/ifindex)"
+        f" 257:$(cat /sys/class/net/{dev2}/ifindex)"
+        f" > /sys/bus/netdevsim/link_device",
+        shell=True,
+    )
+
+
 @step('PCAP "{ifname}" interface')
 def pcap_ifname(context, ifname):
     nmci.pexpect.pexpect_service(f"tshark -i {ifname} -w /tmp/{ifname}.pcap -F libpcap")
