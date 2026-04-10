@@ -47,6 +47,7 @@ discover:
         - /tests/dns_dnsmasq_dnssec_opts
         - /tests/dns_resolved_dnssec_opts
         - /tests/dns_resolved_mdns
+        - /tests/dns_resolved_llmnr
         - /tests/dns_reapply_on_disabled_ipv6
         - /tests/dns_global_options
         - /tests/dns_global_search

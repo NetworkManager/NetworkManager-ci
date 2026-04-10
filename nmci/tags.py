@@ -683,12 +683,12 @@ def dns_systemd_resolved_bs(context, scenario):
         if context.process.systemctl("is-active systemd-resolved").returncode != 0:
             context.cext.skip("Cannot start systemd-resolved")
 
-    # mDNS can be enabled per-interface only when it's also enabled
+    # mDNS and LLMNR can be enabled per-interface only when also enabled
     # globally. Do that, and also disable DNSSEC
     context.process.run_stdout("mkdir -p /etc/systemd/resolved.conf.d/")
     nmci.util.file_set_content(
         "/etc/systemd/resolved.conf.d/nmci.conf",
-        "[Resolve]\nMulticastDNS=yes\nDNSSEC=no\n",
+        "[Resolve]\nMulticastDNS=yes\nLLMNR=yes\nDNSSEC=no\n",
     )
     context.process.systemctl("restart systemd-resolved")
 

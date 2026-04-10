@@ -7154,49 +7154,52 @@ link:
     order+: 45045
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5360
+/dns_resolved_llmnr:
+    id: 16b19492-57d6-5169-bc6e-097cbb052682
+    order+: 45046
 /dns_reapply_on_disabled_ipv6:
     id: ea5deeb1-eabd-5698-accd-e16854212851
-    order+: 45046
+    order+: 45047
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5361
 /dns_global_options:
     id: c9bb0f6e-9533-5248-a238-900b84e5a073
-    order+: 45047
+    order+: 45048
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5362
 /dns_global_search:
     id: 72b2647b-18a6-5979-b7f4-cd191bbdb982
-    order+: 45048
+    order+: 45049
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5363
 /dns_global_search_options:
     id: 27d13ec6-71dd-5b0d-acbb-103fa0db811e
-    order+: 45049
+    order+: 45050
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5364
 /dns_global_domains_all:
     id: 029cfb4c-e3bb-5ae6-9991-bc6fb01f8365
-    order+: 45050
+    order+: 45051
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5365
 /dns_global_domain_split:
     id: 4aa807ef-41c0-5195-bb64-77185cbd78ee
-    order+: 45051
+    order+: 45052
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5366
 /dns_global_domain_search_option:
     id: 80837835-6418-5b92-87b8-e5bc495c84e3
-    order+: 45052
+    order+: 45053
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5367
 /dns_reapply_device_with_same_globals:
     id: b404cfec-96e3-5e89-bcba-61efad9cf23b
-    order+: 45053
+    order+: 45054
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5368
 /dns_global_dbus:
     id: 507cb9f2-2528-5257-a175-4df528eeaaaf
-    order+: 45054
+    order+: 45055
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5369
 /nmtui_general_exit_nmtui:

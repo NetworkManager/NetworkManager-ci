@@ -292,6 +292,26 @@ Feature: nmcli - dns
     Then "no" is visible with command "resolvectl mdns eth2"
 
 
+    @rhbz2015458
+    @ver+=1.14
+    @dns_systemd_resolved
+    @dns_resolved_llmnr
+    Scenario: NM - dns - llmnr
+    * Add "ethernet" connection named "con_llmnr" for device "eth2" with options
+      """
+      autoconnect no
+      connection.llmnr yes
+      """
+    * Bring "up" connection "con_llmnr"
+    Then "yes" is visible with command "resolvectl llmnr eth2"
+    * Modify connection "con_llmnr" changing options "connection.llmnr no"
+    * Bring "up" connection "con_llmnr"
+    Then "no" is visible with command "resolvectl llmnr eth2"
+    * Modify connection "con_llmnr" changing options "connection.llmnr resolve"
+    * Bring "up" connection "con_llmnr"
+    Then "resolve" is visible with command "resolvectl llmnr eth2"
+
+
 ##########################################
 # DEFAULT DNS TESTS
 ##########################################
