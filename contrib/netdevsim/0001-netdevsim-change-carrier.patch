@@ -1,0 +1,63 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Thu, 10 Apr 2026 00:00:00 +0200
+Subject: [PATCH] net: netdevsim: Support changing carrier state
+
+Add ndo_change_carrier callback and ethtool get_link to netdevsim so
+that carrier state can be toggled via "ip link set dev <name> carrier
+on|off" and properly detected by network management daemons.
+
+The get_link ethtool op is needed so that NetworkManager recognizes
+the device as supporting carrier detection (CAPABILITIES.CARRIER-DETECT).
+Without it, NM ignores carrier state changes regardless of the
+ignore-carrier configuration.
+
+This is needed for NetworkManager CI to test the ignore-carrier device
+configuration option with match-device=mac against netdevsim devices
+that support permanent addresses.
+
+Signed-off-by: Filip Pokryvka <fpokryvk@redhat.com>
+---
+ drivers/net/netdevsim/ethtool.c | 1 +
+ drivers/net/netdevsim/netdev.c  | 12 ++++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -171,6 +171,7 @@ static const struct ethtool_ops nsim_ethtool_ops = {
+ 	.supported_coalesce_params	= ETHTOOL_COALESCE_ALL_PARAMS,
+ 	.supported_ring_params		= ETHTOOL_RING_USE_TCP_DATA_SPLIT |
+ 					  ETHTOOL_RING_USE_HDS_THRS,
++	.get_link			= ethtool_op_get_link,
+ 	.get_pause_stats	        = nsim_get_pause_stats,
+ 	.get_pauseparam		        = nsim_get_pauseparam,
+ 	.set_pauseparam		        = nsim_set_pauseparam,
+diff --git a/drivers/net/netdevsim/netdev.c b/drivers/net/netdevsim/netdev.c
+--- a/drivers/net/netdevsim/netdev.c
++++ b/drivers/net/netdevsim/netdev.c
+@@ -493,6 +493,16 @@ static int nsim_stop(struct net_device *dev)
+ 	return 0;
+ }
+ 
++static int nsim_change_carrier(struct net_device *dev, bool new_carrier)
++{
++	if (new_carrier)
++		netif_carrier_on(dev);
++	else
++		netif_carrier_off(dev);
++
++	return 0;
++}
++
+ static int nsim_shaper_set(struct net_shaper_binding *binding,
+ 			   const struct net_shaper *shaper,
+ 			   struct netlink_ext_ack *extack)
+@@ -553,6 +563,7 @@ static const struct net_device_ops nsim_netdev_ops = {
+ 	.ndo_bpf		= nsim_bpf,
+ 	.ndo_open		= nsim_open,
+ 	.ndo_stop		= nsim_stop,
++	.ndo_change_carrier	= nsim_change_carrier,
+ 	.net_shaper_ops		= &nsim_shaper_ops,
+ };
+ 

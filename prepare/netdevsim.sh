@@ -75,6 +75,10 @@ function setup () {
         cat "0001-netdevsim-physical-address.patch" | patch -p1 -N -f -l || true
         echo "Check that physical address patch was applied - dry-run in reverse"
         cat "0001-netdevsim-physical-address.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
+        # Do the same for change carrier patch
+        cat "0001-netdevsim-change-carrier.patch" | patch -p1 -N -f -l || true
+        echo "Check that change carrier patch was applied - dry-run in reverse"
+        cat "0001-netdevsim-change-carrier.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
 
         ARCH="$(arch)"
 

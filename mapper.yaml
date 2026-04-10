@@ -1659,6 +1659,10 @@ testmapper:
     - ethernet_keep_mtu_on_reboot:
         feature: ethernet
         timeout: 15m
+    - ethernet_match_by_mac_unmanage:
+        feature: ethernet
+    - ethernet_match_by_mac_ignore_carrier:
+        feature: ethernet
     - dracut_setup:
         feature: dracut
         tags: gate dracut

@@ -3624,6 +3624,12 @@ link:
     duration: 15m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4709
+/ethernet_match_by_mac_unmanage:
+    id: 3acd2531-11f2-53fe-bdd0-8cacf5de75f2
+    order+: 13046
+/ethernet_match_by_mac_ignore_carrier:
+    id: 7108d58f-0c0f-5ae6-85a9-d60f0e5e75b3
+    order+: 13047
 /dracut_setup:
     tag: ['gate', 'dracut']
     id: 52cc1b68-0929-5aa6-9487-73ce7733c939
