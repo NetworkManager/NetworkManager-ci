@@ -2176,7 +2176,7 @@ Feature: nmcli - general
 
 
     # Latest nmstate dropped support for NM<=1.40
-    @ver+=1.41
+    @ver+=1.41 @rhelver+=9.4 @fedoraver+=41 
     @x86_64_only
     @nmstate_setup @permissive
     @nmstate_upstream_git_copr
