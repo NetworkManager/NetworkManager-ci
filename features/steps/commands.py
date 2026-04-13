@@ -1525,7 +1525,7 @@ def step_dump_status(context):
 @step("NetworkManager is installed from a copr repo")
 def copr_repo_check(context):
     repo_name = nmci.process.run_stdout(
-        ["python3", "contrib/dnf/NetworkManager_repo.py"]
+        ["python3", "contrib/dnf/NetworkManager_repo.py"], timeout=10
     ).strip()
 
     if "copr" not in repo_name:
