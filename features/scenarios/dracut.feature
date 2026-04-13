@@ -319,40 +319,40 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                 |
 
 
-      @rhbz1900260
-      @rhelver+=8.4 @fedoraver+=38
-      @ver+=1.26.0
-      @not_on_ppc64le @skip_in_centos
-      @dracut @long
-      @dracut_NM_NFS_root_nfs_ip_dhcp_hostname
-      Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=::::HOSTNAME::dhcp
-      * Run dracut test
-        | Param  | Value                                                                  |
-        | kernel | root=nfs:192.168.50.1:/client ro ip=::::nfs-cl::dhcp                   |
-        | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
-        | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
-        | check  | nmcli_con_active 'Wired Connection' eth0                               |
-        | check  | nmcli_con_prop 'Wired Connection' ipv4.method auto                     |
-        | check  | nmcli_con_prop 'Wired Connection' IP4.ADDRESS 192.168.50.101/24 10     |
-        | check  | nmcli_con_prop 'Wired Connection' IP4.GATEWAY 192.168.50.1             |
-        | check  | nmcli_con_prop 'Wired Connection' IP4.ROUTE *192.168.50.0/24*          |
-        | check  | nmcli_con_prop 'Wired Connection' IP4.DNS 192.168.50.1                 |
-        | check  | nmcli_con_prop 'Wired Connection' IP4.DOMAIN cl01.nfs.redhat.com       |
-        | check  | nmcli_con_prop 'Wired Connection' ipv6.method auto                     |
-        | check  | nmcli_con_prop 'Wired Connection' IP6.ADDRESS *deaf:beef::1:10/128* 10 |
-        | check  | nmcli_con_prop 'Wired Connection' IP6.ROUTE *deaf:beef::/64*           |
-        | check  | nmcli_con_prop 'Wired Connection' IP6.DNS deaf:beef::1 10              |
-        | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
-        | check  | dns_search *'nfs.redhat.com'*                                          |
-        | check  | dns_search *'nfs6.redhat.com'*                                         |
-        | check  | nmcli_con_num 1                                                        |
-        | check  | ip4_route_unique "default via 192.168.50.1"                            |
-        | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
-        | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
-        | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
-        | check  | hostname_check nfs-cl                                                  |
-        | check  | nfs_server 192.168.50.1                                                |
+    @rhbz1900260
+    @rhelver+=8.4 @fedoraver+=38
+    @ver+=1.26.0
+    @not_on_ppc64le @skip_in_centos
+    @dracut @long
+    @dracut_NM_NFS_root_nfs_ip_dhcp_hostname
+    Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=::::HOSTNAME::dhcp
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=::::nfs-cl::dhcp                   |
+      | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nmcli_con_active "Wired Connection" eth0                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
+      | check  | dns_search *'nfs.redhat.com'*                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                         |
+      | check  | nmcli_con_num 1                                                        |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1881974
+      | check  | hostname_check nfs-cl                                                  |
+      | check  | nfs_server 192.168.50.1                                                |
 
 
     @rhelver+=8.3 @fedoraver+=38
@@ -562,7 +562,6 @@ Feature: NM: dracut
       | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
       | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
       | check  | nfs_server 192.168.50.1                                                |
-
 
 
     @rhbz1961666
@@ -1129,64 +1128,64 @@ Feature: NM: dracut
       | check  | nfs_server 192.168.50.1                                                 |
 
 
-      @rhbz1934122
-      @ver+=1.32
-      @rhelver+=9 @fedoraver+=38
-      @not_on_ppc64le @skip_in_centos
-      @dracut @dracut_remote_NFS_clean @long
-      @dracut_NM_NFS_remote_rootfs_connection_var2
-      Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=dhcp
+    @rhbz1934122
+    @ver+=1.32
+    @rhelver+=9 @fedoraver+=38
+    @not_on_ppc64le @skip_in_centos
+    @dracut @dracut_remote_NFS_clean @long
+    @dracut_NM_NFS_remote_rootfs_connection_var2
+    Scenario: NM - dracut - NM module - NM uses connection defined in remote root with ip=dhcp
     * Execute "cp contrib/dracut/conf/rhbz1934122_NM.conf $TESTDIR/nfs/client/etc/NetworkManager/conf.d/50-persist-conn.conf"
     * Execute "cp contrib/dracut/conf/rhbz1934122_eth*.nmconnection $TESTDIR/nfs/client/etc/NetworkManager/system-connections/"
     * Execute "chmod 600 $TESTDIR/nfs/client/etc/NetworkManager/system-connections/rhbz*.nmconnection"
-      * Run dracut test
-        | Param  | Value                                                                  |
-        | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
-        | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi0,mac=52:54:00:12:34:a1  |
-        | qemu   | -netdev tap,id=iscsi0,script=$PWD/qemu-ifup/iscsi0                     |
-        | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi1,mac=52:54:00:12:34:a2  |
-        | qemu   | -netdev tap,id=iscsi1,script=$PWD/qemu-ifup/iscsi1                     |
-        | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
-        | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
-        | check  | nmcli_con_active eth0_p eth0                                           |
-        | check  | nmcli_con_prop eth0_p ipv4.method manual                               |
-        | check  | nmcli_con_prop eth0_p IP4.ADDRESS 192.168.90.204/24 10                 |
-        | check  | nmcli_con_prop eth0_p IP4.GATEWAY ''                                   |
-        | check  | nmcli_con_prop eth0_p IP4.ROUTE *192.168.90.0/24*                      |
-        | check  | nmcli_con_prop eth0_p IP4.DNS ''                                       |
-        | check  | nmcli_con_prop eth0_p IP4.DOMAIN ''                                    |
-        | check  | nmcli_con_prop eth0_p ipv6.method disabled                             |
-        | check  | nmcli_con_active eth1_p eth1                                           |
-        | check  | nmcli_con_prop eth1_p ipv4.method manual                               |
-        | check  | nmcli_con_prop eth1_p IP4.ADDRESS 192.168.91.204/24 10                 |
-        | check  | nmcli_con_prop eth1_p IP4.GATEWAY ''                                   |
-        | check  | nmcli_con_prop eth1_p IP4.ROUTE *192.168.91.0/24*                      |
-        | check  | nmcli_con_prop eth1_p IP4.DNS ''                                       |
-        | check  | nmcli_con_prop eth1_p IP4.DOMAIN ''                                    |
-        | check  | nmcli_con_prop eth1_p ipv6.method disabled                             |
-        | check  | nmcli_con_inactive eth2_p                                              |
-        | check  | nmcli_con_active "Wired Connection" eth2                               |
-        | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
-        | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
-        | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
-        | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
-        | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
-        | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
-        | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
-        | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
-        | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
-        | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
-        | check  | dns_search *'nfs.redhat.com'*                                          |
-        | check  | dns_search *'nfs6.redhat.com'*                                         |
-        | check  | ip4_forever 192.168.90.204/24 eth0                                     |
-        | check  | wait_for_ip4_renew 192.168.50.101/24 eth2                              |
-        | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth2                            |
-        | check  | nmcli_con_num 4                                                        |
-        | check  | ip4_route_unique "default via 192.168.50.1"                            |
-        | check  | ip4_route_unique "192.168.50.0/24 dev eth2"                            |
-        | check  | ip4_route_unique "192.168.91.0/24 dev eth1"                            |
-        | check  | ip4_route_unique "192.168.90.0/24 dev eth0"                            |
-        | check  | nfs_server 192.168.50.1                                                |
+    * Run dracut test
+      | Param  | Value                                                                  |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp                               |
+      | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi0,mac=52:54:00:12:34:a1  |
+      | qemu   | -netdev tap,id=iscsi0,script=$PWD/qemu-ifup/iscsi0                     |
+      | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi1,mac=52:54:00:12:34:a2  |
+      | qemu   | -netdev tap,id=iscsi1,script=$PWD/qemu-ifup/iscsi1                     |
+      | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
+      | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
+      | check  | nmcli_con_active eth0_p eth0                                           |
+      | check  | nmcli_con_prop eth0_p ipv4.method manual                               |
+      | check  | nmcli_con_prop eth0_p IP4.ADDRESS 192.168.90.204/24 10                 |
+      | check  | nmcli_con_prop eth0_p IP4.GATEWAY ''                                   |
+      | check  | nmcli_con_prop eth0_p IP4.ROUTE *192.168.90.0/24*                      |
+      | check  | nmcli_con_prop eth0_p IP4.DNS ''                                       |
+      | check  | nmcli_con_prop eth0_p IP4.DOMAIN ''                                    |
+      | check  | nmcli_con_prop eth0_p ipv6.method disabled                             |
+      | check  | nmcli_con_active eth1_p eth1                                           |
+      | check  | nmcli_con_prop eth1_p ipv4.method manual                               |
+      | check  | nmcli_con_prop eth1_p IP4.ADDRESS 192.168.91.204/24 10                 |
+      | check  | nmcli_con_prop eth1_p IP4.GATEWAY ''                                   |
+      | check  | nmcli_con_prop eth1_p IP4.ROUTE *192.168.91.0/24*                      |
+      | check  | nmcli_con_prop eth1_p IP4.DNS ''                                       |
+      | check  | nmcli_con_prop eth1_p IP4.DOMAIN ''                                    |
+      | check  | nmcli_con_prop eth1_p ipv6.method disabled                             |
+      | check  | nmcli_con_inactive eth2_p                                              |
+      | check  | nmcli_con_active "Wired Connection" eth2                               |
+      | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS 192.168.50.101/24 10     |
+      | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY 192.168.50.1             |
+      | check  | nmcli_con_prop "Wired Connection" IP4.ROUTE *192.168.50.0/24*          |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DNS 192.168.50.1                 |
+      | check  | nmcli_con_prop "Wired Connection" IP4.DOMAIN cl01.nfs.redhat.com       |
+      | check  | nmcli_con_prop "Wired Connection" ipv6.method auto                     |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ADDRESS *deaf:beef::1:10/128* 10 |
+      | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beef::/64*           |
+      | check  | nmcli_con_prop "Wired Connection" IP6.DNS deaf:beef::1 10              |
+      | check  | dns_search *'nfs.redhat.com'*                                          |
+      | check  | dns_search *'nfs6.redhat.com'*                                         |
+      | check  | ip4_forever 192.168.90.204/24 eth0                                     |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 eth2                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth2                            |
+      | check  | nmcli_con_num 4                                                        |
+      | check  | ip4_route_unique "default via 192.168.50.1"                            |
+      | check  | ip4_route_unique "192.168.50.0/24 dev eth2"                            |
+      | check  | ip4_route_unique "192.168.91.0/24 dev eth1"                            |
+      | check  | ip4_route_unique "192.168.90.0/24 dev eth0"                            |
+      | check  | nfs_server 192.168.50.1                                                |
 
 
     @rhbz1854323
