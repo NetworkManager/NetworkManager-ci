@@ -4089,4 +4089,4 @@ Feature: nmcli - general
     * Execute "systemctl daemon-reload"
     * Cleanup execute "systemctl daemon-reload"
     * Execute "systemctl start test-nm.service"
-    Then Dont expect AVC "NetworkManager.*denied.*\\{ write \\}.*admin_home_t.*tclass=dir" in "10" seconds
+    Then Dont expect AVC "NetworkManager.*admin_home_t" in "10" seconds
