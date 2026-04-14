@@ -4071,6 +4071,10 @@ Feature: nmcli - general
     @ver+=1.57
     @print_config_no_avc_error
     Scenario: NM - general - check that there is no avc error with print-config
+    * Cleanup execute "rpm -q gvfs-client && dnf remove -y gvfs-client" with timeout "120" seconds
+    * Execute "dnf install -y gvfs-client"
+    * Cleanup execute "rm -rf /root/.cache"
+    * Execute "rm -rf /root/.cache"
     * Cleanup file "/etc/systemd/system/test-nm.service"
     * Write file "/etc/systemd/system/test-nm.service" with content
       """
