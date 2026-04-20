@@ -1464,3 +1464,109 @@ Feature: nmcli - ethernet
      * Execute "for i in $(seq 0 301); do ip link set veth_dev_$i down; ip addr flush veth_dev_$i; done;"
      * Reboot within "20" seconds
      Then "Exactly" "302" lines with pattern "mtu 9000" are visible with command "ip link show" in "120" seconds
+
+
+
+    @ver+=1.57.4
+    @prepare_patched_netdevsim
+    @ethernet_match_by_mac_unmanage
+    Scenario: NM - ethernet - match by mac in NM config
+    * Commentary
+      """
+      The MAC is configured by prepare/netdevsim.sh
+      """
+    * Create NM config file "/etc/NetworkManager/conf.d/99-unmanage-by-mac.conf" with content
+      """
+      [device-eth11-unmanage]
+      match-device=mac:6E:81:1E:C4:50:01
+      managed=0
+
+      [device-eth14-unmanage]
+      match-device=mac:6E:81:1E:C4:50:04
+      managed=0
+      """
+    * Reboot
+    Then "eth11:unmanaged" is visible with command "nmcli -g DEVICE,STATE dev"
+    Then "eth14" is not visible with command "nmcli d"
+    * Execute "echo '4 6e:81:1e:c4:50:04' > /sys/bus/netdevsim/devices/netdevsim0/new_port"
+    Then "eth14:unmanaged" is visible with command "nmcli -g DEVICE,STATE dev"
+    # Hot-plug with delayed UDEV to verify managed=0 is reevaluated
+    # after UDEV sets the permanent MAC
+    * Execute "echo 4 > /sys/bus/netdevsim/devices/netdevsim0/del_port"
+    * Create udev rule "99-netdevsim-delay.rules" with content
+          """
+          ACTION=="add", SUBSYSTEM=="net", DEVPATH=="*/netdevsim*", PROGRAM="/bin/sleep 3"
+          """
+    * Execute "echo '4 6e:81:1e:c4:50:04' > /sys/bus/netdevsim/devices/netdevsim0/new_port"
+    Then "eth14:unmanaged" is visible with command "nmcli -g DEVICE,STATE dev" in "10" seconds
+
+
+    @ver+=1.57.4
+    @prepare_patched_netdevsim
+    @ethernet_match_by_mac_ignore_carrier
+    Scenario: NM - ethernet - ignore carrier matched by mac in NM config
+    * Commentary
+      """
+      The MAC is configured by prepare/netdevsim.sh.
+      The patched netdevsim supports carrier control via
+      "ip link set dev <name> carrier on|off".
+      With ignore-carrier=1 matched by permanent MAC, NM should keep
+      the connection activated even after carrier is lost.
+      Also tests hot-plugged device (eth14) to verify that ignore-carrier
+      is reevaluated after UDEV sets the permanent MAC address.
+      """
+    * Create NM config file "/etc/NetworkManager/conf.d/98-no-ignore-carrier.conf" with content
+      """
+      [device-no-ignore-carrier]
+      match-device=*
+      ignore-carrier=0
+      carrier-wait-timeout=1500
+      """
+    * Create NM config file "/etc/NetworkManager/conf.d/99-ignore-carrier-by-mac.conf" with content
+      """
+      [device-eth11-ignore-carrier]
+      match-device=mac:6E:81:1E:C4:50:01
+      ignore-carrier=1
+
+      [device-eth14-ignore-carrier]
+      match-device=mac:6E:81:1E:C4:50:04
+      ignore-carrier=1
+      """
+    * Restart NM
+    * Add "ethernet" connection named "con_ethernet" for device "eth11" with options
+          """
+          ipv4.method manual
+          ipv4.addresses 192.168.99.1/24
+          """
+    * Bring "up" connection "con_ethernet"
+    Then "eth11:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" in "5" seconds
+    # Turn carrier off and verify connection stays activated due to ignore-carrier
+    * Execute "ip link set dev eth11 carrier off"
+    Then "eth11:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" for full "5" seconds
+    # Deactivate, then bring up again while carrier is still off
+    * Execute "nmcli con down con_ethernet"
+    * Bring "up" connection "con_ethernet"
+    Then "eth11:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" in "5" seconds
+    # Hot-plug a new netdevsim device while NM is running to test
+    # that ignore-carrier is reevaluated after UDEV sets the permanent MAC.
+    # Add a udev rule to delay UDEV processing of the new device by 3 seconds.
+    # This simulates real-world hot-plug timing (e.g. USB Ethernet) where
+    # UDEV takes time to settle and the permanent MAC is not yet available
+    # when NM first evaluates ignore-carrier.
+    * Create udev rule "99-netdevsim-delay.rules" with content
+          """
+          ACTION=="add", SUBSYSTEM=="net", DEVPATH=="*/netdevsim*", PROGRAM="/bin/sleep 3"
+          """
+    * Execute "echo '4 6e:81:1e:c4:50:04' > /sys/bus/netdevsim/devices/netdevsim0/new_port"
+    * Add "ethernet" connection named "con_ethernet2" for device "eth14" with options
+          """
+          autoconnect no
+          ipv4.method manual
+          ipv4.addresses 192.168.99.2/24
+          """
+    # Wait for the device to become managed after the udev delay settles
+    Then "eth14:disconnected" is visible with command "nmcli -t -f DEVICE,STATE dev" in "10" seconds
+    * Bring "up" connection "con_ethernet2"
+    Then "eth14:connected:con_ethernet2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" in "10" seconds
+    * Execute "ip link set dev eth14 carrier off"
+    Then "eth14:connected:con_ethernet2" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION dev" for full "5" seconds
