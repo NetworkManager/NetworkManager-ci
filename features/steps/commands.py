@@ -1311,6 +1311,33 @@ def cleanup_execute(context, command=None, timeout=5, priority=None):
     )
 
 
+def _patch_nmstate_hsr_cleanup(hsr_test_path):
+    """Workaround for nmstate HSR PRP cloned-mac-address leak (RHEL-86240).
+
+    nmstate copy_hsr_mac() sets cloned-mac-address on port NM profiles
+    when creating HSR PRP but does not clean it up on removal, leaving
+    eth1 and eth2 with identical MACs. This breaks mac-identifier tests.
+
+    Inject a module-scoped fixture into hsr_test.py that regenerates
+    the eth2 veth pair after HSR tests, restoring a unique MAC.
+    """
+    fixture_code = (
+        "\n"
+        "# NMCI workaround: regenerate eth2 after HSR tests (RHEL-86240)\n"
+        "import pytest as _pytest_hsr_fix\n"
+        "from .testlib.veth import create_veth_pair as _create_veth\n"
+        "from .testlib.cmdlib import exec_cmd as _exec\n"
+        "\n"
+        "@_pytest_hsr_fix.fixture(scope='module', autouse=True)\n"
+        "def regenerate_eth2_after_hsr(test_env_setup):\n"
+        "    yield\n"
+        "    _exec(['ip', 'link', 'del', 'eth2'])\n"
+        "    _create_veth('eth2', 'eth2.ep', 'nmstate_test_ep')\n"
+    )
+    with open(hsr_test_path, "a") as f:
+        f.write(fixture_code)
+
+
 @step('Run tier0 nmstate tests with log in "{log_file}"')
 def run_nmstate(context, log_file):
     # Install podman and git clone nmstate
@@ -1322,6 +1349,8 @@ def run_nmstate(context, log_file):
         ignore_stderr=True,
         timeout=20,
     )
+
+    _patch_nmstate_hsr_cleanup("/tmp/nmstate/tests/integration/hsr_test.py")
 
     # Get environement variables
     release = "el9"
@@ -1415,6 +1444,8 @@ def run_nmstate_from_copr(context, nmstate_copr, log_file):
         ignore_stderr=True,
         timeout=20,
     )
+
+    _patch_nmstate_hsr_cleanup("/tmp/nmstate/tests/integration/hsr_test.py")
 
     # Get release type and copr chroot
     # Container images are CentOS Stream, so copr chroot must match
