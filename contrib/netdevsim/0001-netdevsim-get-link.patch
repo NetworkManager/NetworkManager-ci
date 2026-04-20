@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Filip Pokryvka <fpokryvk@redhat.com>
+Date: Thu, 10 Apr 2026 00:00:00 +0200
+Subject: [PATCH] net: netdevsim: Add ethtool get_link support
+
+Add ethtool get_link callback to netdevsim so that NetworkManager
+recognizes the device as supporting carrier detection
+(CAPABILITIES.CARRIER-DETECT). Without it, NM ignores carrier state
+changes regardless of the ignore-carrier configuration.
+
+Signed-off-by: Filip Pokryvka <fpokryvk@redhat.com>
+---
+ drivers/net/netdevsim/ethtool.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/netdevsim/ethtool.c b/drivers/net/netdevsim/ethtool.c
+--- a/drivers/net/netdevsim/ethtool.c
++++ b/drivers/net/netdevsim/ethtool.c
+@@ -152,1 +152,2 @@
++	.get_link			= ethtool_op_get_link,
+ 	.get_pause_stats	        = nsim_get_pause_stats,

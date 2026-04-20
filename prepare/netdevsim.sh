@@ -75,6 +75,10 @@ function setup () {
         cat "0001-netdevsim-physical-address.patch" | patch -p1 -N -f -l || true
         echo "Check that physical address patch was applied - dry-run in reverse"
         cat "0001-netdevsim-physical-address.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
+        # Do the same for get_link patch (needed for NM CARRIER-DETECT capability)
+        cat "0001-netdevsim-get-link.patch" | patch -p1 -N -f -l || true
+        echo "Check that get_link patch was applied - dry-run in reverse"
+        cat "0001-netdevsim-get-link.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
         # Do the same for carrier-sysfs patch (needed for carrier control via sysfs)
         cat "0001-netdevsim-carrier-sysfs.patch" | patch -p1 -N -f -l || true
         echo "Check that carrier-sysfs patch was applied - dry-run in reverse"
