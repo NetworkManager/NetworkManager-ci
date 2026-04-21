@@ -83,6 +83,11 @@ if ! sha256sum $TESTDIR/root.qcow2 | grep -q "$SHA" ; then
     wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2 --no-verbose -O $TESTDIR/root.qcow2 $link --no-check-certificate
 fi
 
+if [ ! -s $TESTDIR/root.qcow2 ]; then
+    echo "Downloaded qcow2 image is empty or missing, image not found at: $link"
+    exit 1
+fi
+
 # Exit if checksum is not correct
 if ! sha256sum $TESTDIR/root.qcow2 | grep -q "$SHA" ; then
     echo "Downloaded image corrupted, checksum mismatch..."
