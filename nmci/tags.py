@@ -1428,6 +1428,9 @@ _register_tag("wireguard", wireguard_bs, None)
 
 
 def dracut_bs(context, scenario):
+    if os.path.isfile("/tmp/dracut_setup_failed") and "dracut_setup" not in scenario.tags:
+        context.cext.skip("Skipping, dracut setup failed in a previous test.")
+
     # import dracut env
     json_env_s = nmci.process.run_stdout(
         "set -a; . contrib/dracut/setup.sh; "
@@ -1465,6 +1468,9 @@ def dracut_bs(context, scenario):
         nmci.embed.embed_file_if_exists(
             "Dracut teardown",
             "/tmp/dracut_teardown.log",
+        )
+        nmci.process.run(
+            "touch /tmp/dracut_setup_failed", shell=True, ignore_stderr=True
         )
         assert False, "dracut setup failed"
 
