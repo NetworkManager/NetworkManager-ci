@@ -1428,7 +1428,10 @@ _register_tag("wireguard", wireguard_bs, None)
 
 
 def dracut_bs(context, scenario):
-    if os.path.isfile("/tmp/dracut_setup_failed") and "dracut_setup" not in scenario.tags:
+    if (
+        os.path.isfile("/tmp/dracut_setup_failed")
+        and "dracut_setup" not in scenario.tags
+    ):
         context.cext.skip("Skipping, dracut setup failed in a previous test.")
 
     # import dracut env
@@ -1476,6 +1479,9 @@ def dracut_bs(context, scenario):
 
 
 def dracut_as(context, scenario):
+    if os.path.isfile("/tmp/dracut_setup_failed"):
+        return
+
     # do not embed DHCP directly, cache output for "no free leases" check
     # nmci.embed.embed_service_log("DHCP", syslog_identifier="dhcpd")
     dhcpd_log = nmci.misc.journal_show(
@@ -1503,6 +1509,9 @@ _register_tag("dracut", dracut_bs, dracut_as)
 
 
 def dracut_remote_NFS_clean_as(context, scenario):
+    if os.path.isfile("/tmp/dracut_setup_failed"):
+        return
+
     # keep nfs service stopped as it hangs rm commands for 90s
     context.process.systemctl("stop nfs-server.service")
     context.process.run_stdout(
