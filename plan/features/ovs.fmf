@@ -41,3 +41,4 @@ discover:
         - /tests/nmcli_remove_openvswitch_bridge_on_delete
         - /tests/nmcli_openvswitch_keep_external_ports
         - /tests/nmcli_activate_children
+        - /tests/ovs_dhcp_send_release_internal

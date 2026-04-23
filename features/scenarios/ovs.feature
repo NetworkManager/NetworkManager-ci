@@ -2185,6 +2185,35 @@ interfaces:
     Then "Interface [\"]?dummy2[\"]?" is visible with command "ovs-vsctl show"
 
 
+    @ver+=1.57.5
+    @tcpdump
+    @openvswitch
+    @ovs_dhcp_send_release_internal
+    Scenario: nmcli - ovs - dhcp-send-release on OVS internal interface
+    * Prepare simulated test "testX" device
+    # Setup OVS bridge with simulated device for L2 connectivity to access DHCP server
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options "conn.master ovsbridge0"
+    * Add "ovs-port" connection named "ovs-port1" for device "port1" with options "conn.master ovsbridge0"
+    * Add "ethernet" connection named "ovs-testX" for device "testX" with options
+          """
+          conn.master port1
+          slave-type ovs-port
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "iface0" with options
+          """
+          conn.master port0
+          ipv4.may-fail no
+          ipv4.dhcp-send-release yes
+          """
+    * Run child "tcpdump -i testX -v -n"
+    * Bring "up" connection "ovs-iface0"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE con show ovs-iface0" in "40" seconds
+     And "192.168.99.*" is visible with command "ip a s iface0"
+    * Bring "down" connection "ovs-iface0"
+    Then Expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

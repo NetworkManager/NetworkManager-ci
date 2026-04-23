@@ -5125,6 +5125,11 @@ link:
     order+: 18039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4988
+/ovs_dhcp_send_release_internal:
+    id: beb91cf5-87aa-5ce4-82ea-c0d1ce5d3a24
+    order+: 18040
+    link:
+      - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9999
 /dispatcher_preup_and_up:
     id: 5493b9fb-bf10-5d50-b8cc-e7ebd0bd3457
     order+: 19000

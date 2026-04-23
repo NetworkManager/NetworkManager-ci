@@ -2288,6 +2288,8 @@ testmapper:
     - nmcli_activate_children:
         feature: ovs
         tags: gate
+    - ovs_dhcp_send_release_internal:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:
