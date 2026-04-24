@@ -31,11 +31,8 @@ test_setup() {
   }
 
 
-  # patch dracut NM module
-  DRACUT_NM_INITRD=/usr/lib/dracut/modules.d/35network-manager/nm-initrd.service
-  if ! grep -F "After=dbus.service" $DRACUT_NM_INITRD; then
-    sed -i 's/After=dracut-cmdline.service/After=dracut-cmdline.service\nAfter=dbus.service/' $DRACUT_NM_INITRD
-  fi
+  # nm-initrd.service dbus ordering is handled via systemd drop-in in the
+  # overlay CPIO (see overlay_dir/etc/systemd/system/nm-initrd.service.d/)
 
   grep -q ostree /proc/cmdline && mount -o remount,rw lazy /usr
 
@@ -43,8 +40,6 @@ test_setup() {
   chmod +x /usr/local/bin/smart_sleep
 
   grep -q ostree /proc/cmdline && mount -o remount,ro lazy /usr
-
-  basedir=/usr/lib/dracut/
 
   if ! command -v tgtd &>/dev/null || ! command -v tgtadm &>/dev/null; then
       echo "Need tgtd and tgtadm from scsi-target-utils"
@@ -288,31 +283,51 @@ EOF
 
   KVERSION=${KVERSION-$(uname -r)}
 
-  # client initramfs with NM module
-  mkdir $TESTDIR/overlay-client
-  (
-     set +x
-     export initdir=$TESTDIR/overlay-client
-     . $basedir/dracut-init.sh
-     inst /etc/machine-id
-     inst_multiple poweroff shutdown mount umount mv mkdir
-     inst_hook shutdown-emergency 000 ./conf/hard-off.sh
-     inst_hook emergency 000 ./conf/hard-off.sh
-     # set core_pattern at the very beginning
-     inst_hook cmdline 00 ./conf/core_pattern_setup.sh
-     # add check to every dracut hook
-     inst_hook pre-udev 99 ./conf/check_core_dumps.sh
-     inst_hook pre-trigger 99 ./conf/check_core_dumps.sh
-     inst_hook initqueue/settled 99 ./conf/check_core_dumps.sh
-     inst_hook initqueue/timeout 99 ./conf/check_core_dumps.sh
-     inst_hook initqueue/online 99 ./conf/check_core_dumps.sh
-     inst_hook initqueue/finished 99 ./conf/check_core_dumps.sh
-     inst_hook pre-mount 99 ./conf/check_core_dumps.sh
-     inst_hook mount 99 ./conf/check_core_dumps.sh
-     inst_hook pre-pivot 99 ./conf/check_core_dumps.sh
-     inst_hook cleanup 99 ./conf/check_core_dumps.sh
-     inst_simple ./conf/99-default.link /etc/systemd/network/99-default.link
-  ) || exit 1
+  # Build overlay CPIO with test infrastructure hooks
+  # This avoids sourcing dracut-init.sh (removed in dracut-ng >= 110, see
+  # https://github.com/dracut-ng/dracut-ng/pull/1619). Instead we build a
+  # standalone CPIO archive and concatenate it with the base initrd.
+  overlay_dir=$TESTDIR/overlay-client
+  rm -rf "$overlay_dir"
+
+  # Create hook directory structure matching dracut's internal layout
+  hooks_base="$overlay_dir/var/lib/dracut/hooks"
+  mkdir -p "$hooks_base"/{shutdown-emergency,emergency,cmdline,pre-udev,pre-trigger}
+  mkdir -p "$hooks_base"/initqueue/{settled,timeout,online,finished}
+  mkdir -p "$hooks_base"/{pre-mount,mount,pre-pivot,cleanup}
+  mkdir -p "$overlay_dir/etc/systemd/network"
+  mkdir -p "$overlay_dir/etc"
+
+  # Emergency/shutdown hooks
+  install -m 0755 ./conf/hard-off.sh "$hooks_base/shutdown-emergency/000-hard-off.sh"
+  install -m 0755 ./conf/hard-off.sh "$hooks_base/emergency/000-hard-off.sh"
+
+  # Core pattern setup at the earliest boot phase
+  install -m 0755 ./conf/core_pattern_setup.sh "$hooks_base/cmdline/00-core_pattern_setup.sh"
+
+  # Coredump detection at every dracut phase
+  for hook in pre-udev pre-trigger initqueue/settled initqueue/timeout \
+              initqueue/online initqueue/finished pre-mount mount \
+              pre-pivot cleanup; do
+      install -m 0755 ./conf/check_core_dumps.sh "$hooks_base/$hook/99-check_core_dumps.sh"
+  done
+
+  # Stable interface naming
+  install -m 0644 ./conf/99-default.link "$overlay_dir/etc/systemd/network/99-default.link"
+
+  # Machine ID
+  install -m 0444 /etc/machine-id "$overlay_dir/etc/machine-id"
+
+  # Add dbus ordering drop-in for nm-initrd.service (instead of patching the
+  # host-installed service file)
+  mkdir -p "$overlay_dir/etc/systemd/system/nm-initrd.service.d"
+  printf '[Unit]\nAfter=dbus.service\n' \
+      > "$overlay_dir/etc/systemd/system/nm-initrd.service.d/after-dbus.conf"
+
+  # Build CPIO archive (uncompressed, newc format — same as dracut uses)
+  (cd "$overlay_dir" && find . -print0 | cpio --null -o -H newc \
+      > "$TESTDIR/overlay.cpio") || exit 1
+  rm -rf "$overlay_dir"
 
   ifcfg=
   release=$(grep -o 'release [0-9]*' /etc/redhat-release | grep -o "[0-9]*" )
@@ -320,25 +335,30 @@ EOF
   grep -q -i enterprise /etc/redhat-release && (( release < 10 )) && ifcfg=ifcfg
   grep -q -i fedora /etc/redhat-release && (( release < 40 )) && ifcfg=ifcfg
 
-  # Make NFS client's dracut image using NM module
-  dracut -i $TESTDIR/overlay-client / \
+  # Make NFS client's base dracut image using NM module (no overlay merged in)
+  dracut \
          -o "plymouth dash dmraid network-legacy" \
          -a "debug network-manager $ifcfg" \
          -d "8021q ipvlan macvlan bonding af_packet piix ext4 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
          --no-hostonly-cmdline -N --no-compress \
-         -f $TESTDIR/initramfs.client.NM $KVERSION || exit 1
+         -f $TESTDIR/initramfs.base.NM $KVERSION || exit 1
+
+  # Concatenate base initrd + overlay CPIO (kernel processes multiple archives)
+  cat $TESTDIR/initramfs.base.NM $TESTDIR/overlay.cpio \
+      > $TESTDIR/initramfs.client.NM
 
   # Make NFS client's dracut image using legacy network module
   if grep -q 'release 8' /etc/redhat-release; then
-      dracut -i $TESTDIR/overlay-client / \
+      dracut \
              -o "plymouth dash dmraid network-manager" \
              -a "debug network-legacy ifcfg" \
              -d "8021q ipvlan macvlan bonding af_packet piix ext4 ide-gd_mod ata_piix sd_mod e1000 nfs sunrpc" \
              --no-hostonly-cmdline -N --no-compress \
-             -f $TESTDIR/initramfs.client.legacy $KVERSION || exit 1
-  fi
+             -f $TESTDIR/initramfs.base.legacy $KVERSION || exit 1
 
-  rm -rf -- $TESTDIR/overlay-client
+      cat $TESTDIR/initramfs.base.legacy $TESTDIR/overlay.cpio \
+          > $TESTDIR/initramfs.client.legacy
+  fi
 
   if ! run_server; then
       echo "Failed to start server" 1>&2
