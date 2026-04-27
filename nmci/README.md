@@ -1818,7 +1818,7 @@ Create NM configuration file, and properly clean it after scenario.
   * **conf_value** (*str* *or* *list**(**str**)*) – content of the config file
   * **conf_file** (*str*) – path to the config file
   * **cleanup_priority** (*int*) – priority of the cleanup, defaults to PRIORITY_FILE
-  * **op** (*str* *or* *callable*) – operation over NM service, can be ‘restart’, ‘reload’ or callable, defaults to ‘restart’
+  * **op** (*str* *or* *callable*) – operation over NM service, can be ‘restart’, ‘reload’, ‘reboot’ or callable, defaults to ‘restart’
 
 ### nmci.nmutil.connection_show(, only_active=False, without_active_externally=False, name=None, uuid=None, setting_type=None)
 

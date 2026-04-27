@@ -942,7 +942,15 @@ Feature: nmcli - procedures in documentation
       [keyfile]
       unmanaged-devices=interface-name:testX2
       """
-    * Create NM config file "99-unmanage-testX3.conf" with content
+    * Commentary
+      """
+      Use "reboot" operation for cleanup: the config file 99-unmanage-testX3.conf
+      overrides the default 94-nmci-unmanage-orig.conf causing orig devices to become
+      managed during the test. A simple restart is not enough to unmanage them back,
+      because NM remembers the managed state. Reboot clears /var/run/NetworkManager/
+      so NM re-evaluates device state from scratch.
+      """
+    * Create NM config file "99-unmanage-testX3.conf" with content and "reboot" NM
       """
       [device-unmanage-testX3]
       match-device=interface-name:testX3*

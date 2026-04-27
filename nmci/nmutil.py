@@ -256,7 +256,7 @@ class _NMUtil:
         :type conf_file: str
         :param cleanup_priority: priority of the cleanup, defaults to PRIORITY_FILE
         :type cleanup_priority: int
-        :param op: operation over NM service, can be 'restart', 'reload' or callable, defaults to 'restart'
+        :param op: operation over NM service, can be 'restart', 'reload', 'reboot' or callable, defaults to 'restart'
         :type op: str or callable
         """
         if op == "restart":
@@ -266,6 +266,19 @@ class _NMUtil:
                 priority=cleanup_priority,
                 schedule_nm_restart=True,
                 schedule_nm_reload=False,
+            )
+        elif op == "reboot":
+            do_op = self.reboot_NM_service
+            nmci.cleanup.add_NM_config(
+                conf_file,
+                priority=cleanup_priority,
+                schedule_nm_restart=False,
+                schedule_nm_reload=False,
+            )
+            nmci.cleanup.add_callback(
+                self.reboot_NM_service,
+                name="NM-reboot",
+                priority=nmci.Cleanup.PRIORITY_NM_SERVICE_RESTART,
             )
         elif op == "reload":
             do_op = self.reload_NM_service
@@ -287,7 +300,9 @@ class _NMUtil:
                 schedule_nm_reload=False,
             )
         else:
-            assert False, "Operation must be `restart`, `reload` or callable function"
+            assert (
+                False
+            ), "Operation must be `restart`, `reload`, `reboot` or callable function"
 
         nmci.util.file_set_content(conf_file, conf_value)
         do_op()
