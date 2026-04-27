@@ -562,9 +562,9 @@ Feature: nmcli - procedures in documentation
 
 
     # nmstate deletes testeth1, restore it after the test
-    @add_testeth1
     @doc_set_gateway_nmstate
     Scenario: nmstate - doc - set gateway to existing profile
+    * Cleanup connection "testeth1" on device "eth1" with reset
     * Doc: "Setting the default gateway on an existing connection using nmstatectl"
     * Add "ethernet" connection named "con_doc" for device "eth1" with options
             """

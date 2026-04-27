@@ -964,9 +964,9 @@ Feature: nmcli - ethernet
 
     @rhbz1391477
     @ver+=1.7.1
-    @preserve_8021x_certs
     @preserve_8021x_certs_ethernet
     Scenario: nmcli - ethernet - preserve 8021x certs
+    * Execute "mkdir -p /tmp/certs/ && cp -r contrib/8021x/certs/client/* /tmp/certs/"
     * Add "ethernet" connection named "con_ethernet" for device "\*" with options
           """
           802-1x.eap 'tls'

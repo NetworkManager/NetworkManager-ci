@@ -306,34 +306,6 @@ def restart_if_needed_as(context, scenario):
 _register_tag("restart_if_needed", None, restart_if_needed_as)
 
 
-def secret_key_reset_bs(context, scenario):
-    context.process.run_stdout(
-        "mv /var/lib/NetworkManager/secret_key /var/lib/NetworkManager/secret_key_back"
-    )
-
-
-def secret_key_reset_as(context, scenario):
-    context.process.run_stdout(
-        "mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key"
-    )
-
-
-_register_tag("secret_key_reset", secret_key_reset_bs, secret_key_reset_as)
-
-
-def tag1000_as(context, scenario):
-    context.process.run("ip link del bridge0", ignore_stderr=True)
-    context.process.run(
-        "for i in $(seq 0 1000); do ip link del port$i ; done",
-        shell=True,
-        ignore_stderr=True,
-        timeout=240,
-    )
-
-
-_register_tag("1000", None, tag1000_as)
-
-
 def many_vlans_bs(context, scenario):
     nmci.veth.manage_veths()
     context.process.run_stdout(
@@ -553,13 +525,6 @@ def alias_as(context, scenario):
 _register_tag("alias", alias_bs, alias_as)
 
 
-def netcat_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-
-
-_register_tag("netcat", netcat_bs)
-
-
 def scapy_as(context, scenario):
     context.process.run("ip link delete test10", ignore_stderr=True)
     context.process.run("ip link delete test11", ignore_stderr=True)
@@ -567,21 +532,6 @@ def scapy_as(context, scenario):
 
 
 _register_tag("scapy", None, scapy_as)
-
-
-def netaddr_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    # TODO move to envsetup
-    if not context.process.run_search_stdout(
-        "python3l -m pip list", "netaddr", ignore_stderr=True
-    ):
-        print("install netaddr")
-        context.process.run_stdout(
-            "python3l -m pip install netaddr", ignore_stderr=True, timeout=120
-        )
-
-
-_register_tag("netaddr", netaddr_bs)
 
 
 def inf_bs(context, scenario):
@@ -796,25 +746,6 @@ def internal_DHCP_bs(context, scenario):
 _register_tag("internal_DHCP", internal_DHCP_bs)
 
 
-def dhcp4_ipv6_only_no_min_wait_bs(context, scenario):
-    conf = [
-        "# configured by beaker-test",
-        "[Service]",
-        "Environment=NM_TEST_IPV6_ONLY_MIN_WAIT=1",
-    ]
-    context.process.run_stdout("mkdir -p /etc/systemd/system/NetworkManager.service.d/")
-    conf_f = "/etc/systemd/system/NetworkManager.service.d/50-dhcp4-ipv6-only-no-min-wait.conf"
-
-    def _restart():
-        nmci.process.systemctl("daemon-reload")
-        nmci.nmutil.restart_NM_service()
-
-    nmci.nmutil.add_NM_config(conf, conf_f, op=_restart)
-
-
-_register_tag("dhcp4_ipv6_only_no_min_wait", dhcp4_ipv6_only_no_min_wait_bs)
-
-
 def dhclient_DHCP_bs(context, scenario):
     distro, version = nmci.misc.distro_detect()
 
@@ -962,30 +893,6 @@ def keyfile_bs(context, scenario):
 _register_tag("keyfile", keyfile_bs)
 
 
-def plugin_default_bs(context, scenario):
-    if os.path.isfile("/etc/NetworkManager/conf.d/95-nmci-test.conf"):
-        print("remove 'plugins=*' from 95-nmci-test.conf")
-        context.process.run_stdout(
-            "cp /etc/NetworkManager/conf.d/95-nmci-test.conf /tmp/95-nmci-test.conf"
-        )
-        context.process.run_stdout(
-            "sed -i 's/^plugins=/#plugins=/' /etc/NetworkManager/conf.d/95-nmci-test.conf"
-        )
-        nmci.nmutil.restart_NM_service()
-
-
-def plugin_default_as(context, scenario):
-    if os.path.isfile("/etc/NetworkManager/conf.d/95-nmci-test.conf"):
-        print("restore 95-nmci-test.conf")
-        context.process.run_stdout(
-            "mv /tmp/95-nmci-test.conf /etc/NetworkManager/conf.d/95-nmci-test.conf"
-        )
-        nmci.nmutil.restart_NM_service()
-
-
-_register_tag("plugin_default", plugin_default_bs, plugin_default_as)
-
-
 def eth3_disconnect_bs(context, scenario):
     context.process.nmcli_force("device disconnect eth3")
     context.process.run("pkill -9 -F /var/run/dhclient-eth3.pid", ignore_stderr=True)
@@ -1042,19 +949,6 @@ def need_dispatcher_scripts_as(context, scenario):
 _register_tag(
     "need_dispatcher_scripts", need_dispatcher_scripts_bs, need_dispatcher_scripts_as
 )
-
-
-def logging_bs(context, scenario):
-    context.loggin_level = context.process.nmcli("-t -f LEVEL general logging").strip()
-
-
-def logging_as(context, scenario):
-    print("---------------------------")
-    print("setting log level back")
-    context.process.nmcli(f"g log level {context.loggin_level} domains ALL")
-
-
-_register_tag("logging", logging_bs, logging_as)
 
 
 # This one is needed in after scenario check
@@ -1303,30 +1197,6 @@ def tcpreplay_bs(context, scenario):
 _register_tag("tcpreplay", tcpreplay_bs)
 
 
-def libreswan_update_rightcert_bs(context, scenario):
-    if context.rh_release_num == [9, 2]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
-            """
-        )
-    elif context.rh_release_num == [9, 4]:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-3.el9_4"
-            """
-        )
-    else:
-        context.execute_steps(
-            f"""
-            * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.20"
-            """
-        )
-
-
-_register_tag("libreswan_update_rightcert", libreswan_update_rightcert_bs, None)
-
-
 def libreswan_bs(context, scenario):
     nmci.veth.wait_for_testeth0()
     if context.process.run_code("rpm -q NetworkManager-libreswan") != 0:
@@ -1565,21 +1435,6 @@ _register_tag(
 )
 
 
-def load_netdevsim_bs(context, scenario):
-    context.process.run("modprobe -r netdevsim", ignore_stderr=True)
-    context.process.run_stdout("modprobe netdevsim")
-    context.process.run_stdout("echo 1 1 > /sys/bus/netdevsim/new_device", shell=True)
-    time.sleep(1)
-
-
-def load_netdevsim_as(context, scenario):
-    context.process.run_stdout("modprobe -r netdevsim")
-    time.sleep(1)
-
-
-_register_tag("load_netdevsim", load_netdevsim_bs, load_netdevsim_as)
-
-
 def attach_hostapd_log_as(context, scenario):
     if nmci.util.is_verbose():
         print("Attaching hostapd log")
@@ -1673,21 +1528,6 @@ def performance_as(context, scenario):
 
 
 _register_tag("performance", performance_bs, performance_as)
-
-
-def preserve_8021x_certs_bs(context, scenario):
-    assert (
-        context.process.run_code("mkdir -p /tmp/certs/") == 0
-    ), "unable to create /tmp/certs/ directory"
-    assert (
-        context.process.run_code(
-            "cp -r contrib/8021x/certs/client/* /tmp/certs/", shell=True
-        )
-        == 0
-    ), "unable to copy certificates"
-
-
-_register_tag("preserve_8021x_certs", preserve_8021x_certs_bs)
 
 
 def pptp_bs(context, scenario):
@@ -2131,31 +1971,6 @@ def nmstate_setup_as(context, scenario):
 _register_tag("nmstate_setup", None, nmstate_setup_as)
 
 
-def backup_sysconfig_network_bs(context, scenario):
-    context.process.run_stdout("cp -f /etc/sysconfig/network /tmp/sysnetwork.backup")
-
-
-def backup_sysconfig_network_as(context, scenario):
-    context.process.run_stdout("mv -f /tmp/sysnetwork.backup /etc/sysconfig/network")
-    context.process.run_stdout("restorecon /etc/sysconfig/network")
-    nmci.nmutil.reload_NM_connections()
-    context.process.nmcli_force("connection down testeth9")
-
-
-_register_tag(
-    "backup_sysconfig_network", backup_sysconfig_network_bs, backup_sysconfig_network_as
-)
-
-
-def remove_fedora_connection_checker_bs(context, scenario):
-    nmci.veth.wait_for_testeth0()
-    context.process.dnf("-y remove NetworkManager-config-connectivity-fedora")
-    nmci.nmutil.reload_NM_service()
-
-
-_register_tag("remove_fedora_connection_checker", remove_fedora_connection_checker_bs)
-
-
 def need_config_server_bs(context, scenario):
     if context.process.run_code("rpm -q NetworkManager-config-server") == 0:
         context.remove_config_server = False
@@ -2299,22 +2114,6 @@ def no_connections_as(context, scenario):
 _register_tag("no_connections", no_connections_bs, no_connections_as)
 
 
-def teamd_as(context, scenario):
-    context.process.systemctl("stop teamd")
-    context.process.systemctl("reset-failed teamd")
-
-
-_register_tag("teamd", None, teamd_as)
-
-
-def restore_eth_mtu_as(context, scenario, num):
-    nmci.ip.link_set(ifname=f"eth{num}", mtu="1500")
-
-
-for i in [1, 7]:
-    _register_tag(f"restore_eth{i}_mtu", None, restore_eth_mtu_as, {"num": i})
-
-
 def wifi_rescan_as(context, scenario):
     if context.IS_NMTUI:
         nmci.nmutil.restart_NM_service()
@@ -2361,13 +2160,6 @@ def checkpoint_remove_as(context, scenario):
 _register_tag("checkpoint_remove", None, checkpoint_remove_as)
 
 
-def clean_iptables_as(context, scenario):
-    context.process.run_stdout("iptables -D OUTPUT -p udp --dport 67 -j REJECT")
-
-
-_register_tag("clean_iptables", None, clean_iptables_as)
-
-
 def kill_dhclient_custom_as(context, scenario):
     time.sleep(0.5)
     context.process.run("pkill -F /tmp/dhclient_custom.pid")
@@ -2383,22 +2175,6 @@ def networking_on_as(context, scenario):
 
 
 _register_tag("networking_on", None, networking_on_as)
-
-
-def adsl_as(context, scenario):
-    context.process.nmcli_force("connection delete id adsl-test11 adsl")
-
-
-_register_tag("adsl", None, adsl_as)
-
-
-def no_auto_default_bs(context, scenario):
-    conf = ["[main]", "no-auto-default=*"]
-    conf_f = "/etc/NetworkManager/conf.d/95-nmci-no-auto-default.conf"
-    nmci.nmutil.add_NM_config(conf, conf_f, op="reload")
-
-
-_register_tag("no_auto_default", no_auto_default_bs)
 
 
 def allow_veth_connections_bs(context, scenario):
@@ -2531,13 +2307,6 @@ def dhcpd_as(context, scenario):
 _register_tag("dhcpd", None, dhcpd_as)
 
 
-def kill_dhcrelay_as(context, scenario):
-    context.process.run_stdout("pkill -F /tmp/dhcrelay.pid")
-
-
-_register_tag("kill_dhcrelay", None, kill_dhcrelay_as)
-
-
 def profie_as(context, scenario):
     context.process.nmcli_force("connection delete id profie")
 
@@ -2562,13 +2331,6 @@ def tshark_as(context, scenario):
 
 
 _register_tag("tshark", None, tshark_as)
-
-
-def eth8_up_as(context, scenario):
-    nmci.veth.reset_hwaddr_nmcli("eth8")
-
-
-_register_tag("eth8_up", None, eth8_up_as)
 
 
 def keyfile_cleanup_as(context, scenario):
@@ -2618,17 +2380,6 @@ def restore_resolvconf_as(context, scenario):
 _register_tag("restore_resolvconf", None, restore_resolvconf_as)
 
 
-def device_connect_as(context, scenario):
-    context.process.nmcli_force("connection delete testeth9 eth9")
-    context.process.nmcli(
-        "connection add type ethernet ifname eth9 con-name testeth9 autoconnect no"
-    )
-
-
-_register_tag("device_connect", None, device_connect_as)
-_register_tag("device_connect_no_profile", None, device_connect_as)
-
-
 def remove_ifcfg_con_general_as(context, scenario):
     context.process.run_stdout("ip link del eth8.100")
     context.process.run_stdout(
@@ -2652,17 +2403,6 @@ def restore_broken_network_as(context, scenario):
 _register_tag("restore_broken_network", None, restore_broken_network_as)
 
 
-def add_testeth_as(context, scenario, num):
-    context.process.nmcli_force(f"connection delete eth{num} testeth{num}")
-    context.process.nmcli(
-        f"connection add type ethernet con-name testeth{num} ifname eth{num} autoconnect no"
-    )
-
-
-for i in [1, 5, 8, 9, 10]:
-    _register_tag(f"add_testeth{i}", None, add_testeth_as, {"num": i})
-
-
 def eth_disconnect_as(context, scenario, num):
     context.process.nmcli_force(f"device disconnect eth{num}")
     # VVV Up/Down to preserve autoconnect feature
@@ -2670,7 +2410,7 @@ def eth_disconnect_as(context, scenario, num):
     context.process.nmcli(f"connection down testeth{num}")
 
 
-for i in [1, 2, 4, 5, 6, 8, 10]:
+for i in [4, 5, 8, 10]:
     _register_tag(f"eth{i}_disconnect", None, eth_disconnect_as, {"num": i})
 
 
@@ -2710,31 +2450,6 @@ def connect_testeth0_as(context, scenario):
 
 
 _register_tag("connect_testeth0", None, connect_testeth0_as)
-
-
-def kill_dbus_monitor_as(context, scenario):
-    context.process.run_stdout("pkill -9 dbus-monitor")
-
-
-_register_tag("kill_dbus-monitor", None, kill_dbus_monitor_as)
-
-
-def remove_ctcdevice_bs(context, scenario):
-    context.process.run_stdout("cio_ignore -R")
-    time.sleep(1)
-
-
-def remove_ctcdevice_as(context, scenario):
-    devs = context.process.run_stdout("znetconf -c")
-    ctc_devs = ""
-    for dev in devs.strip().split("\n"):
-        if "CTC" in dev:
-            ctc_devs += " " + dev.split(",")[0]
-    context.process.run_stdout(f"znetconf -r {ctc_devs} -n")
-    time.sleep(1)
-
-
-_register_tag("remove_ctcdevice", remove_ctcdevice_bs, remove_ctcdevice_as)
 
 
 def filter_batch_bs(context, scenario):

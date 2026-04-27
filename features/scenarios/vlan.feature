@@ -433,9 +433,10 @@ Feature: nmcli - vlan
 
     @rhbz1414186
     @ver+=1.6
-    @restart_if_needed @restore_eth7_mtu
+    @restart_if_needed
     @vlan_mtu_from_parent
     Scenario: nmcli - vlan - MTU from parent
+    * Cleanup execute "ip link set eth7 mtu 1500"
     * Add "ethernet" connection named "vlan1" for device "eth7" with options
           """
           802-3-ethernet.mtu 9000

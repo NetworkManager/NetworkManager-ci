@@ -152,9 +152,9 @@ Feature: nmcli: connection
 
 
     @rhbz1174164
-    @add_testeth5
     @connection_veth_profile_duplication
     Scenario: nmcli - connection - veth - profile duplication
+    * Cleanup connection "testeth5" on device "eth5" with reset
     * Connect device "eth5"
     * Connect device "eth5"
     * Connect device "eth5"
@@ -562,9 +562,9 @@ Feature: nmcli: connection
      Then Error type "type" shown in editor
 
 
-    @eth6_disconnect
     @connection_permission_to_user
     Scenario: nmcli - connection - permissions to user
+     * Cleanup device "eth6" disconnect
      * Add "ethernet" connection named "con_con" for device "eth6"
      * Open editor for connection "con_con"
      * Submit "set connection.permissions test" in editor

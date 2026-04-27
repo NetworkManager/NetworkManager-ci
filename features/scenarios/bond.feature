@@ -9,9 +9,14 @@
 
 
     @rhelver+=9 @fedoraver+=32
-    @plugin_default
+    @restart_if_needed
     @bond_config_file
     Scenario: nmcli - bond - check keyfile config
+    * Create NM config file "96-nmci-plugin-default.conf" with content and "restart" NM
+          """
+          [main]
+          plugins=
+          """
     * Add "bond" connection named "bond0" for device "nm-bond" with options
           """
           autoconnect no mode active-backup

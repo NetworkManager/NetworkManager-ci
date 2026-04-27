@@ -1985,9 +1985,11 @@ Feature: nmcli: ipv4
 
 
     @rhbz1172780
-    @netaddr @long
+    @long
     @ipv4_do_not_remove_second_ip_route
     Scenario: nmcli - ipv4 - do not remove secondary ip subnet route
+    * Wait for testeth0
+    * Execute "python3l -m pip list 2>/dev/null | grep -q netaddr || python3l -m pip install netaddr"
     * Add "ethernet" connection named "con_ipv4" for device "eth3" with options "autoconnect no"
     * Bring "up" connection "con_ipv4"
     * "192.168" is visible with command "ip a s eth3" in "20" seconds
@@ -2149,9 +2151,9 @@ Feature: nmcli: ipv4
 
     @rhbz1448987
     @ver+=1.8.0
-    @kill_dhcrelay
     @ipv4_dhcp_do_not_add_route_to_server
     Scenario: NM - ipv4 - don't add route to server
+    * Cleanup execute "pkill -F /tmp/dhcrelay.pid"
     * Prepare simulated test "testX4" device with DHCPv4 server on different network
     * Add "ethernet" connection named "con_ipv4" for device "testX4"
     Then "10.0.0.0/24 via 172.16.0.1 dev testX4" is visible with command "ip route" in "45" seconds
@@ -2468,9 +2470,10 @@ Feature: nmcli: ipv4
     @rhbz1806516
     @ver+=1.22.7
     @skip_in_centos
-    @long @clean_iptables
+    @long
     @dhcp_rebind_with_firewall
     Scenario: DHCPv4 rebind
+    * Cleanup execute "iptables -D OUTPUT -p udp --dport 67 -j REJECT"
     * Execute "systemctl stop dhcpd"
     * Prepare simulated test "testX4" device using dhcpd and server identifier "10.10.10.1"
     * Add "ethernet" connection named "con_ipv4" for device "testX4" with options "autoconnect no ipv4.may-fail no"
@@ -3501,9 +3504,17 @@ Feature: nmcli: ipv4
 
     @RHEL-14370
     @ver+=1.51.3
-    @dhcp4_ipv6_only_no_min_wait
     @ipv4_dhcp_ipv6_only_preferred
     Scenario: nmcli - ipv4 - DHCP option "IPv6-only preferred"
+    * Execute "mkdir -p /etc/systemd/system/NetworkManager.service.d/"
+    * Create NM config file "/etc/systemd/system/NetworkManager.service.d/50-dhcp4-ipv6-only-no-min-wait.conf" with content
+          """
+          # configured by beaker-test
+          [Service]
+          Environment=NM_TEST_IPV6_ONLY_MIN_WAIT=1
+          """
+    * Execute "systemctl daemon-reload"
+    * Restart NM
     * Prepare simulated test "testX" device with "none" ipv4 and "2620:dead:beaf" ipv6 dhcp address prefix
     * Commentary
       """

@@ -144,9 +144,10 @@ Feature: Ethernet TUI tests
     Then "ethernet1" is not visible with command "nmcli con"
 
 
-    @ifcfg-rh @restore_eth1_mtu
+    @ifcfg-rh
     @nmtui_ethernet_set_mtu
     Scenario: nmtui - ethernet - set mtu
+    * Cleanup execute "ip link set eth1 mtu 1500"
     * Start nmtui
     * Choose to "Edit a connection" from main screen
     * Choose to "<Add>" a connection

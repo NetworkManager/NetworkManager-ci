@@ -469,6 +469,49 @@ def cleanup_connection(context, connection, device=None, priority=None):
         context.execute_steps(f'* Cleanup device "{device}"')
 
 
+@step('Cleanup connection "{connection}" on device "{device}" with reset')
+def cleanup_connection_reset(context, connection, device):
+    """Delete any leftover connections for the device and re-add a clean profile.
+
+    Useful when a test may create/modify connections on a shared veth device
+    (e.g. testeth5 on eth5) and we need to restore the original profile.
+    """
+
+    def _reset():
+        nmci.process.nmcli_force(f"connection delete {device} {connection}")
+        nmci.process.nmcli(
+            f"connection add type ethernet con-name {connection} "
+            f"ifname {device} autoconnect no"
+        )
+
+    nmci.cleanup.add_callback(
+        name=f"connection-reset-{connection}",
+        callback=_reset,
+        priority=nmci.cleanup.Cleanup.PRIORITY_CONNECTION,
+    )
+
+
+@step('Cleanup device "{device}" disconnect')
+def cleanup_device_disconnect(context, device):
+    """Disconnect a device and cycle its testeth profile to preserve autoconnect.
+
+    Useful when a test activates a connection on a shared veth device
+    and we need to ensure the device is disconnected and the original
+    testeth profile autoconnect setting is preserved.
+    """
+
+    def _disconnect():
+        nmci.process.nmcli_force(f"device disconnect {device}")
+        nmci.process.nmcli_force(f"connection up testeth{device.lstrip('eth')}")
+        nmci.process.nmcli_force(f"connection down testeth{device.lstrip('eth')}")
+
+    nmci.cleanup.add_callback(
+        name=f"device-disconnect-{device}",
+        callback=_disconnect,
+        priority=nmci.cleanup.Cleanup.PRIORITY_CONNECTION,
+    )
+
+
 @step('Note the value of property "{prop}" of connection "{con}"')
 @step(
     'Note the value of property "{prop}" of connection "{con}" as noted value "{index}"'

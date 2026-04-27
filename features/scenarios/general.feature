@@ -38,9 +38,9 @@ Feature: nmcli - general
     Then Check coredump is not found in "60" seconds
 
 
-    @logging
     @nmcli_logging
     Scenario: NM - general - setting log level and autocompletion
+    * Cleanup execute "nmcli g log level INFO domains ALL"
     Then "DEBUG\s+ERR\s+INFO\s+.*TRACE\s+WARN" is visible with tab after "nmcli general logging level "
     * Set logging for "all" to "INFO"
     Then "INFO\s+[^:]*$" is visible with command "nmcli general logging"
@@ -98,9 +98,10 @@ Feature: nmcli - general
     Then Execute "test $(echo '<noted:rpm_ver>' | sed 's/~/-/') = '<noted:nmcli_ver>'"
 
 
-    @remove_fedora_connection_checker
     @general_state_connected
     Scenario: nmcli - general - state connected
+    * Wait for testeth0
+    * Execute "rpm -q NetworkManager-config-connectivity-fedora && dnf -y remove NetworkManager-config-connectivity-fedora && nmcli general reload || true"
     Then "connected" is visible with command "nmcli -t -f STATE general"
 
 
@@ -582,9 +583,12 @@ Feature: nmcli - general
 
 
     @rhbz1311988
-    @shutdown @eth8_disconnect @add_testeth8  @restart_if_needed
+    @restart_if_needed
     @shutdown_service_assumed
     Scenario: NM - general - shutdown service - assumed
+    * Cleanup execute "ip addr del 192.168.50.5/24 dev eth8; route del default gw 192.168.50.1 eth8; true"
+    * Cleanup device "eth8" disconnect
+    * Cleanup connection "testeth8" on device "eth8" with reset
     * Delete connection "testeth8"
     * Stop NM
     * Execute "ip addr add 192.168.50.5/24 dev eth8"
@@ -716,9 +720,9 @@ Feature: nmcli - general
 
 ## Basically various bug related reproducer tests follow here
 
-    @device_connect
     @nmcli_device_connect
     Scenario: nmcli - device - connect
+    * Cleanup connection "testeth9" on device "eth9" with reset
     * Bring "up" connection "testeth9"
     * Disconnect device "eth9"
     When "eth9\s+ethernet\s+ connected\s+eth9" is not visible with command "nmcli device"
@@ -770,10 +774,9 @@ Feature: nmcli - general
 
 
     @rhbz1113941
-    @add_testeth9
     @nmcli_device_connect_no_profile
     Scenario: nmcli - device - connect - no profile
-    * Cleanup connection "eth9" and device "eth9"
+    * Cleanup connection "testeth9" on device "eth9" with reset
     * Execute "nmcli connection delete id testeth9"
     * Connect device "eth9"
     * Bring "down" connection "eth9"
@@ -1160,9 +1163,9 @@ Feature: nmcli - general
 
 
     @rhbz1114681
-    @add_testeth8
     @nmcli_general_keep_slave_device_unmanaged
     Scenario: nmcli - general - keep slave device unmanaged
+    * Cleanup connection "testeth8" on device "eth8" with reset
     * Cleanup device "eth8.100"
     * Cleanup execute "nmcli device set eth8 managed on"
     # We need to delete keyfile testeth8
@@ -1257,9 +1260,12 @@ Feature: nmcli - general
 
     @rhbz1687937
     @ver+=1.25
-    @no_config_server @eth8_disconnect @manage_eth8 @add_testeth8 @restart_if_needed
+    @no_config_server @restart_if_needed
     @no_assumed_wired_connections_var2
     Scenario: NM - general - no auto connection created
+    * Cleanup execute "nmcli device set eth8 managed true"
+    * Cleanup device "eth8" disconnect
+    * Cleanup connection "testeth8" on device "eth8" with reset
     * Execute "nmcli device set eth8 managed no"
     * Delete connection "testeth8"
     * Add "ethernet" connection named "con_general" for device "eth8"
@@ -1275,9 +1281,10 @@ Feature: nmcli - general
 
     @rhbz1460760
     @ver+=1.8.0
-    @mtu @add_testeth8
+    @mtu
     @keyfile_respect_externally_set_mtu
     Scenario: NM - general - respect externally set mtu
+    * Cleanup connection "testeth8" on device "eth8" with reset
     * Cleanup connection "con_general"
     * Execute "ip link set dev eth8 mtu 1400"
      * Create keyfile "/etc/NetworkManager/system-connections/con_general.nmconnection"
@@ -1734,9 +1741,11 @@ Feature: nmcli - general
 
 
     @rhbz1262972
-    @ifcfg-rh @backup_sysconfig_network
+    @ifcfg-rh
     @nmcli_general_dhcp_profiles_general_gateway
     Scenario: NM - general - auto connections ignore the generic-set gateway
+    * Execute "cp -f /etc/sysconfig/network /tmp/sysnetwork.backup"
+    * Cleanup execute "mv -f /tmp/sysnetwork.backup /etc/sysconfig/network && restorecon /etc/sysconfig/network && nmcli general reload && nmcli connection down testeth9 2>/dev/null; true"
     # Up dhcp connection
     * Bring "up" connection "testeth9"
     # Create a static connection without gateway
@@ -1807,9 +1816,9 @@ Feature: nmcli - general
 
     @rhbz1722024
     @ver+=1.22
-    @eth8_up
     @general_nmclient_query_carrier
     Scenario: nmclient - general - query carrier
+    * Cleanup execute "ip link set dev eth8 up"
     * Execute "ip link set dev eth8 up"
     When "True" is visible with command "/usr/bin/python3l contrib/gi/nmclient_get_device_property.py eth8 get_carrier"
     * Execute "ip link set dev eth8 down"
@@ -1844,9 +1853,11 @@ Feature: nmcli - general
 
     @rhbz1272974
     @s390x_only
-    @skip_in_kvm @remove_ctcdevice
+    @skip_in_kvm
     @ctc_device_recognition
     Scenario: NM - general - ctc device as ethernet recognition
+    * Execute "cio_ignore -R && sleep 1"
+    * Cleanup execute "znetconf -r $(znetconf -c | awk '/CTC/{print $1}') -n; sleep 1"
     * Execute "znetconf -a $(znetconf -u |grep CTC |awk 'BEGIN { FS = "," } ; { print $1 }')"
     Then "ethernet" is visible with command "nmcli dev |grep $(znetconf -c |grep ctc | awk '{print $5}')"
 
@@ -1897,9 +1908,9 @@ Feature: nmcli - general
 
     @rhbz1404594
     @ver+=1.7.1
-    @kill_dbus-monitor
     @dns_over_dbus
     Scenario: NM - general - publish dns over dbus
+    * Cleanup execute "pkill -9 dbus-monitor"
     * Add "ethernet" connection named "con_general" for device "eth8"
     * Run child "dbus-monitor --system --monitor 'sender=org.freedesktop.NetworkManager' > /tmp/dbus.txt"
     * Bring "up" connection "con_general"
@@ -2073,9 +2084,11 @@ Feature: nmcli - general
 
     @rhbz1819587
     @ver+=1.25.90 @rhelver+=8 @skip_in_centos
-    @checkpoint_remove @load_netdevsim
+    @checkpoint_remove
     @snapshot_rollback_sriov
     Scenario: NM - general - sriov
+    * Execute "modprobe -r netdevsim; modprobe netdevsim && echo '1 1' > /sys/bus/netdevsim/new_device && sleep 1"
+    * Cleanup execute "modprobe -r netdevsim; sleep 1"
     * Snapshot "create" for "all" with timeout "10"
     * Add "ethernet" connection named "con_general" for device "eth11" with options
           """
@@ -2464,9 +2477,10 @@ Feature: nmcli - general
 
 
     @ver+=1.10
-    @add_testeth8 @eth8_disconnect
+    @eth8_disconnect
     @overtake_external_device
     Scenario: nmcli - general - overtake external device
+    * Cleanup connection "testeth8" on device "eth8" with reset
     * Execute "ip add add 1.2.3.4/24 dev eth8"
     When Path "/etc/NetworkManager/system-connections/eth8.nmconnection" does not exist
      And "eth8\s+ethernet\s+connected" is visible with command "nmcli d" in "15" seconds
@@ -3001,9 +3015,11 @@ Feature: nmcli - general
 
     @rhbz1709849
     @ver+=1.18
-    @secret_key_reset @restart_if_needed
+    @restart_if_needed
     @secret_key_file_permissions
     Scenario: NM - general - check secret_key file permissions
+    * Execute "mv /var/lib/NetworkManager/secret_key /var/lib/NetworkManager/secret_key_back"
+    * Cleanup execute "mv /var/lib/NetworkManager/secret_key_back /var/lib/NetworkManager/secret_key"
     * Restart NM
     * Add "ethernet" connection named "con_general" for device "eth8" with options "ipv4.dhcp-client-id stable"
     Then "-rw-------" is visible with command "ls -l /var/lib/NetworkManager/secret_key" in "5" seconds

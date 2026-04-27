@@ -509,9 +509,10 @@ Feature: nmcli - bridge
 
     @not_on_aarch64 @skip_str
     @ignore_backoff_message
-    @1000 @unload_kernel_modules
+    @unload_kernel_modules
     @bridge_manipulation_with_1000_slaves
     Scenario: NM - bridge - manipulation with 1000 slaves bridge
+    * Cleanup execute "ip link del bridge0 2>/dev/null; for i in $(seq 0 1000); do ip link del port$i 2>/dev/null; done; true" with timeout "240" seconds
     * Add "bridge" connection named "bridge4" for device "bridge0" with options "bridge.stp off"
     * Execute "for i in $(seq 0 1000); do ip link add port$i type dummy; ip link set port$i master bridge0; done"
     * Delete connection "bridge4"

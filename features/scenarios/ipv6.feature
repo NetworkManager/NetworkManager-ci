@@ -705,9 +705,10 @@
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
 
-    @restore_hostname @eth2_disconnect @tshark
+    @restore_hostname @tshark
     @ipv6_send_fqdn_dot_fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6
+    * Cleanup device "eth2" disconnect
     * Add "ethernet" connection named "con_ipv6" for device "eth2" with options "autoconnect no"
     * Execute "hostnamectl set-hostname dacan.local"
     * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/ipv6_hostname.log"
@@ -1054,9 +1055,10 @@
 
 
     @rhbz1138426
-    @restart_if_needed @add_testeth10
+    @restart_if_needed
     @ipv6_no_assumed_connection_for_ipv6ll_only
     Scenario: NM - ipv6 - no assumed connection on IPv6LL only device
+    * Cleanup connection "testeth10" on device "eth10" with reset
     * Delete connection "testeth10"
     * Stop NM
     * Execute "ip a flush dev eth10; ip l set eth10 down; ip l set eth10 up"
@@ -1319,9 +1321,14 @@
 
     @rhbz2082230
     @ver+=1.39.5
-    @no_config_server @no_auto_default
+    @no_config_server
     @ipv6_no_extra_temp_addresses
     Scenario: NM - ipv6 - clear extra temporary addresses
+    * Create NM config file "95-nmci-no-auto-default.conf" with content and "reload" NM
+          """
+          [main]
+          no-auto-default=*
+          """
     * Prepare simulated test "testX6" device
     * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
         """
@@ -1557,9 +1564,10 @@
 
     @rhbz1470930
     @ver+=1.8.3
-    @ethernet @netcat
+    @ethernet
     @ipv6_preserve_cached_routes
     Scenario: NM - ipv6 - preserve cached routes
+    * Wait for testeth0
     * Set sysctl "net.ipv6.route.gc_interval" to "300"
     * Prepare simulated test "testX6" device for IPv6 PMTU discovery
     * Add "ethernet" connection named "ethernet0" for device "testX6" with options

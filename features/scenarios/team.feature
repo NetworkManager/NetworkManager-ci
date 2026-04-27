@@ -425,9 +425,9 @@
     @rhbz1816202
     @rhelver-=9
     @ver+=1.25
-    @teamd
     @team_reflect_changes_from_outside_of_NM
     Scenario: nmcli - team - reflect changes from outside of NM
+    * Cleanup execute "systemctl stop teamd; systemctl reset-failed teamd"
     * Execute "systemd-run --unit teamd teamd --team-dev=team0"
     * Wait for "2" seconds
     When "team0\s+team\s+unmanaged" is visible with command "nmcli d"

@@ -543,10 +543,13 @@
     @RHEL-33370
     @RHEL-28898
     @rhelver+=9.2
-    @libreswan_update_rightcert
     @libreswan @ikev2
     @libreswan_ikev2_right_cert
     Scenario: nmcli - libreswan - connect in ike2
+    * Ensure that version of "NetworkManager-libreswan" package is at least
+      | 1.2.14-4.el9_2 | rhel9.2 |
+      | 1.2.18-3.el9_4 | rhel9.4 |
+      | 1.2.20         | rhel9   |
     # Import the server cert into local db
     * Execute "pk12util -W "" -i contrib/libreswan/server/libreswan_server.p12 -d sql:/var/lib/ipsec/nss/"
     * Add "libreswan" VPN connection named "libreswan" for device "\*"
