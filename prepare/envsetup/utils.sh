@@ -321,7 +321,12 @@ get_centos_pkg_release() {
 
 build_srpm() {
     rpm -q rpm-build || dnf -y install rpm-build
-    rpm -ivh $2
+    local srpm_url="$2"
+    local srpm_file="/tmp/$(basename "$srpm_url")"
+    rpm -ivh "$srpm_url" || \
+        wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2 \
+            "$srpm_url" -O "$srpm_file" && \
+        rpm -ivh "$srpm_file"
     dnf -y build-dep /root/rpmbuild/SPECS/$1.spec
     rpmbuild -bb /root/rpmbuild/SPECS/$1.spec
 }
