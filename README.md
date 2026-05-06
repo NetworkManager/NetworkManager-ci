@@ -93,6 +93,10 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 
 ### How to write a NMCI test
 
+> For a comprehensive reference covering the test architecture, CI pipeline,
+> failure diagnostics, and test coverage assessment, see
+> [`docs/test-framework.md`](docs/test-framework.md).
+
 * We use slightly modified python-behave framework to execute tests
   * https://behave.readthedocs.io/en/stable/
 * It's quite readable and easy to learn
