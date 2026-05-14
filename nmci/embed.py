@@ -657,11 +657,17 @@ class _Embed:
             and not nmci.misc.search_str_re_list_any(AVC_IGNORE_LIST, avc)
         ]
         if important_avcs:
-            self.embed_data(
-                "Important SELinux AVCs " + msg,
-                "----\n" + "----\n".join(important_avcs),
-            )
-        assert not important_avcs, "Found important AVCs"
+            if os.environ.get("NMCI_IGNORE_AVC") == "1":
+                self.embed_data(
+                    "Important SELinux AVCs (ignored, NMCI_IGNORE_AVC=1) " + msg,
+                    "----\n" + "----\n".join(important_avcs),
+                )
+            else:
+                self.embed_data(
+                    "Important SELinux AVCs " + msg,
+                    "----\n" + "----\n".join(important_avcs),
+                )
+                assert not important_avcs, "Found important AVCs"
 
     def embed_exception(self, caption=None):
         """Embed traceback of last exception. Should be used in `except` branch only.
