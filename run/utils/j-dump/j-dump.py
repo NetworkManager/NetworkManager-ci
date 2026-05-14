@@ -803,7 +803,7 @@ class Build:
         return self._junit_xml
 
     def make_junit_xml_v1(self, output_file_name):
-        if self.status == "RUNING":
+        if self.status == "RUNNING":
             return
         taskout = self.get_taskout_log()
         tests_outputs = taskout.split("Running test ")
@@ -811,6 +811,8 @@ class Build:
         if len(tests_outputs) < 1000:
             return
         junit = self.get_junit_xml()
+        if not junit:
+            return
 
         xml_o = ET.ElementTree(ET.XML(junit))
         root = xml_o.getroot()
