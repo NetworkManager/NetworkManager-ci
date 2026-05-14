@@ -430,6 +430,22 @@ class Mapper:
         self.default_exlude = ["dcb", "wifi", "infiniband", "wol", "sriov", "gsm"]
         self.m_num = MACHINES_NUM
         self.m_thresh = MACHINES_MIN_THRESHOLD
+        self.timing_cache = {}
+        cache_path = os.path.join(os.path.dirname(__file__), "timing_cache.json")
+        if os.path.isfile(cache_path):
+            try:
+                with open(cache_path) as f:
+                    self.timing_cache = json.load(f).get("features", {})
+                logging.debug(
+                    f"Loaded timing cache with {len(self.timing_cache)} features"
+                )
+                # With real durations the total is much smaller than with
+                # static 10-min defaults, so disable the static threshold
+                # to let average_time drive the distribution.
+                if self.timing_cache:
+                    self.m_thresh = 0
+            except (json.JSONDecodeError, OSError) as e:
+                logging.debug(f"Failed to load timing cache: {e}")
 
     def _parse_features_string(self, features):
         if "best" in features:
@@ -538,9 +554,14 @@ class Mapper:
                     continue
                 if f not in features and not all:
                     continue
-                t = 10
-                if "timeout" in test[test_name]:
+                # Use cached actual duration if available, otherwise
+                # fall back to mapper timeout or default 10 minutes
+                if f in self.timing_cache:
+                    t = self.timing_cache[f]["avg_per_test_minutes"]
+                elif "timeout" in test[test_name]:
                     t = int(test[test_name]["timeout"][:-1])
+                else:
+                    t = 10
                 if f in times:
                     times[f] += t
                     tests[f].append(test_name)
@@ -1078,6 +1099,18 @@ class Runner:
                     "canceled", self.release.replace("-stream", "")
                 )
             self._post_results()
+
+        # Update timing cache from this build's artifacts (best-effort)
+        if hasattr(self, "build_url"):
+            try:
+                artifact_url = f"{self.build_url}/artifact/"
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                update_cmd = (
+                    f"python3 {script_dir}/update_timing_cache.py {artifact_url}"
+                )
+                run(update_cmd, check=False)
+            except Exception as e:
+                logging.debug(f"Failed to update timing cache: {e}")
 
         logging.debug(f"All Done. Exit with {self.exit_code}")
         sys.exit(self.exit_code)
