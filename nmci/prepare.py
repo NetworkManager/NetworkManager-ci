@@ -1,10 +1,12 @@
-import glob
 import os
 import time
 import shutil
 import re
 
 import nmci
+
+
+OPENVPN_CERT_DIR = "/etc/pki/tls/openvpn"
 
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
@@ -64,9 +66,22 @@ def setup_openvpn(context, tags):
     :return: OpenVPN server process
     :rtype: pexpect.spawn
     """
-    path = "%s/contrib/openvpn" % os.getcwd()
-    samples = glob.glob(os.path.abspath(path))[0]
-    nmci.process.run_stdout(f"chcon -R system_u:object_r:usr_t:s0 {samples}")
+    src = nmci.util.base_dir("contrib/openvpn")
+    # Copy certs to a system path accessible by NM's openvpn plugin
+    # even when the repo is under /tmp (NM runs with PrivateTmp=yes).
+    os.makedirs(OPENVPN_CERT_DIR, exist_ok=True)
+    dst_keys = os.path.join(OPENVPN_CERT_DIR, "sample-keys")
+    if os.path.exists(dst_keys):
+        shutil.rmtree(dst_keys)
+    shutil.copytree(os.path.join(src, "sample-keys"), dst_keys)
+    # Also copy oath.sh if present (used by 2FA tests)
+    oath_src = os.path.join(src, "oath.sh")
+    if os.path.exists(oath_src):
+        shutil.copy2(oath_src, OPENVPN_CERT_DIR)
+    # Restore default SELinux context for the copied files
+    nmci.process.run_stdout(f"restorecon -R {OPENVPN_CERT_DIR}")
+
+    samples = OPENVPN_CERT_DIR
     conf = [
         "# OpenVPN configuration for client testing",
         "mode server",

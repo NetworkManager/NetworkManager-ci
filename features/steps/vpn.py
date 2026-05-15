@@ -1,4 +1,5 @@
 # pylint: disable=unused-argument,line-too-long
+import os
 import time
 from behave import step  # pylint: disable=no-name-in-module
 import nmci
@@ -17,7 +18,9 @@ def add_vpnc_connection_for_iface(context, name, ifname, vpn):
     'Use certificate "{cert}" with key "{key}" and authority "{ca_file}" for gateway "{gateway}" on OpenVPN connection "{name}"'
 )
 def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
-    cert_path = nmci.util.base_dir("contrib/openvpn/")
+    # Use system cert path so NM's openvpn plugin can access certs
+    # even with PrivateTmp=yes (certs are copied there by setup_openvpn).
+    cert_path = nmci.prepare.OPENVPN_CERT_DIR + "/"
     if not cert.startswith("/"):
         cert = cert_path + cert
     if not key.startswith("/"):
@@ -42,7 +45,7 @@ def set_openvpn_connection(context, cert, key, ca_file, gateway, name):
 
 @step('Copy openvpn certs to "{dir}" owned by "{user}"')
 def openvpn_certs_copy_chown(context, dir, user):
-    cert_path = nmci.util.base_dir("contrib/openvpn/sample-keys/")
+    cert_path = os.path.join(nmci.prepare.OPENVPN_CERT_DIR, "sample-keys") + "/"
     nmci.cleanup.add_callback(
         lambda: nmci.process.run(
             f"rm -rf {dir}/sample-keys/", ignore_returncode=True, ignore_stderr=True
