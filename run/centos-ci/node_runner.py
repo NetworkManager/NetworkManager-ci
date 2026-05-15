@@ -430,6 +430,30 @@ class Mapper:
         self.default_exlude = ["dcb", "wifi", "infiniband", "wol", "sriov", "gsm"]
         self.m_num = MACHINES_NUM
         self.m_thresh = MACHINES_MIN_THRESHOLD
+        self.timing_cache = {}
+        self._default_test_time = 10
+        self._release_num = ""
+
+    def load_timing(self, build_url, release):
+        """Fetch per-feature timing from last completed main branch build."""
+        from timing_data import get_feature_times
+
+        self._release_num = release.split("-")[0]
+        self.timing_cache = get_feature_times(build_url, release, self.mapper)
+        if self.timing_cache:
+            # With real durations the total is much smaller than with
+            # static 10-min defaults, so disable the static threshold
+            # to let average_time drive the distribution.
+            self.m_thresh = 0
+            total = sum(v["total_minutes"] for v in self.timing_cache.values())
+            count = sum(v["test_count"] for v in self.timing_cache.values())
+            self._default_test_time = total / count if count else 10
+            logging.debug(
+                f"Loaded timing for {len(self.timing_cache)} features "
+                f"(default {self._default_test_time:.2f} min/test)"
+            )
+        else:
+            logging.debug("No timing data available, using mapper timeouts")
 
     def _parse_features_string(self, features):
         if "best" in features:
@@ -538,9 +562,23 @@ class Mapper:
                     continue
                 if f not in features and not all:
                     continue
-                t = 10
-                if "timeout" in test[test_name]:
+                # Use cached actual duration if available, otherwise
+                # fall back to mapper timeout or default.
+                # If timing data is loaded but a feature is missing,
+                # it was likely skipped on this OS -- count it as 0.
+                if f in self.timing_cache:
+                    t = self.timing_cache[f]["avg_per_test_minutes"]
+                elif self.timing_cache:
+                    # Skipped-feature fallback: based on observed overhead
+                    # per skipped test. c9s skips more features and has
+                    # higher per-test overhead; c10s skips fewer and
+                    # benefits from a lower value to avoid distorting
+                    # the distribution.
+                    t = 0.1 if self._release_num == "9" else 0
+                elif "timeout" in test[test_name]:
                     t = int(test[test_name]["timeout"][:-1])
+                else:
+                    t = self._default_test_time
                 if f in times:
                     times[f] += t
                     tests[f].append(test_name)
@@ -1086,6 +1124,7 @@ class Runner:
 def main():
     runner = Runner()
     runner.parse_args()
+    runner.mapper.load_timing(getattr(runner, "build_url", ""), runner.release)
     runner.check_if_copr_possible()
     runner.create_machines()
     runner.wait_for_machines(abort_on_fail=True)
