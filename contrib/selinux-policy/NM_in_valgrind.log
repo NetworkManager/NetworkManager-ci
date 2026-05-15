@@ -34,3 +34,7 @@ type=AVC msg=audit(11/16/2025 21:00:37.590:74572) : avc:  denied  { write open }
 type=AVC msg=audit(11/16/2025 21:00:37.590:74572) : avc:  denied  { create } for  pid=714760 comm=massif-amd64-li name=massif.4237774795 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
 type=AVC msg=audit(11/16/2025 21:00:37.590:74572) : avc:  denied  { add_name } for  pid=714760 comm=massif-amd64-li name=massif.4237774795 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=unconfined_u:object_r:var_t:s0 tclass=dir
 type=AVC msg=audit(11/16/2025 21:00:37.590:74572) : avc:  denied  { write } for  pid=714760 comm=massif-amd64-li name=.tmp dev="vda4" ino=33712985 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=unconfined_u:object_r:var_t:s0 tclass=dir
+----
+type=AVC msg=audit(05/15/2026 16:53:52.077:64793) : avc:  denied  { create } for  pid=594630 comm=massif-amd64-li name=massif.3213421854 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=system_u:object_r:user_tmp_t:s0 tclass=file permissive=1
+type=AVC msg=audit(05/15/2026 16:53:52.077:64793) : avc:  denied  { add_name } for  pid=594630 comm=massif-amd64-li name=massif.3213421854 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=dir permissive=1
+type=AVC msg=audit(05/15/2026 16:53:52.077:64793) : avc:  denied  { write } for  pid=594630 comm=massif-amd64-li name=.tmp dev="xvda2" ino=109326978 scontext=system_u:system_r:NetworkManager_t:s0 tcontext=unconfined_u:object_r:user_tmp_t:s0 tclass=dir permissive=1
