@@ -770,7 +770,7 @@ class Build:
         ]:
             try:
                 # ignore SSL errors for now
-                req = requests.get(self.url + url, verify=False)
+                req = requests.get(self.url + url, verify=False, timeout=60)
                 if req.status_code != 200:
                     continue
                 self._taskout_log = req.text
@@ -792,7 +792,7 @@ class Build:
         ]:
             try:
                 # ignore SSL errors for now
-                req = requests.get(self.url + url, verify=False)
+                req = requests.get(self.url + url, verify=False, timeout=60)
                 if req.status_code != 200:
                     continue
                 self._junit_xml = req.text
@@ -877,7 +877,7 @@ class Failure:
         self.check_crash(build_id, artifact_url)
 
     def check_crash(self, build_id, artifact_url):
-        req = requests.get(artifact_url, verify=False)
+        req = requests.get(artifact_url, verify=False, timeout=60)
         if req.status_code != 200:
             return
         log = req.text
@@ -1000,7 +1000,7 @@ def main():
 
     try:
         # ignore SSL errors for now
-        server = Jenkins(args.url, user, password, ssl_verify=False)
+        server = Jenkins(args.url, user, password, ssl_verify=False, timeout=60)
     except requests.exceptions.ConnectionError as e:
         eprint("Connection to {:s} failed:\n\t {:s}".format(url, str(e.args[0])))
         sys.exit(-1)
