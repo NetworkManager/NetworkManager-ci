@@ -91,7 +91,9 @@ node('cico-workspace') {
                     }
                 }
                 archiveArtifacts '*.*'
-                archiveArtifacts artifacts: 'tmt_m*/**', allowEmptyArchive: 'true'
+                if (params['TMT_ARTIFACTS'] == true) {
+                    archiveArtifacts artifacts: 'tmt_m*/**', allowEmptyArchive: 'true'
+                }
                 archiveArtifacts artifacts: 'rpms/*.rpm', allowEmptyArchive: 'true'
                 junit 'junit.xml'
             }
