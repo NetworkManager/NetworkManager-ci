@@ -82,6 +82,7 @@ report_result() {
     cp -f "$NMTEST_REPORT" ./.tmp/last_report.html
     echo "Testsuite time elapsed: $(date -u -d "$TS seconds ago" +%H:%M:%S)"
     echo "------------ Test result: $RESULT ------------"
+    [ "$CENTOS_CI" = 1 ] && echo "END $TAG $(date '+%Y-%m-%d %H:%M:%S')" >> /tmp/nmci-exec.log
 }
 
 finish_runtest() {
@@ -289,6 +290,7 @@ TAG="${1#@}"
 start_logger
 
 echo "Running test $TAG"
+[ "$CENTOS_CI" = 1 ] && echo "START $TAG $(date '+%Y-%m-%d %H:%M:%S')" >> /tmp/nmci-exec.log
 
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin"
 DIR=$(pwd)

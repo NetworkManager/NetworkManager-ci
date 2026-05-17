@@ -1,9 +1,15 @@
 #!/usr/bin/python3
-"""Fetch per-feature test timing from Jenkins artifact directory listing.
+"""Fetch per-feature test timing from Jenkins artifacts.
 
-Parses HTML report file timestamps from the last completed main branch
-build to compute per-feature durations. Used by node_runner.py Mapper
-to distribute tests across machines based on actual measured times.
+Parses nmci-exec.m{N}.log files from the last completed main branch
+build to compute per-feature durations. These log files are generated
+by runtest.sh, which appends START/END lines with timestamps for each
+test execution.
+
+Used by node_runner.py Mapper to distribute tests across machines
+based on actual measured times. When exec logs are not available
+(older builds), returns empty dict so that node_runner.py falls back
+to mapper timeout-based distribution.
 
 Can be imported as a module or run standalone for debugging:
     python3 timing_data.py 10-stream
@@ -13,24 +19,16 @@ Can be imported as a module or run standalone for debugging:
 import logging
 import re
 import urllib.request
+from datetime import datetime
 
 
 JENKINS_BASE = "https://jenkins-networkmanager.apps.ocp.cloud.ci.centos.org"
 
-# Regex to match report filenames and their timestamps in Jenkins HTML
-# Format: <a href="[FAIL-]report_NetworkManager-ci-M{id}_Test{NNNN}_{name}.html">
-#         ... <td class="fileSize">May 13, 2026, 10:12:43 PM</td>
-# Note: Jenkins uses \u202f (narrow no-break space) before AM/PM
-_REPORT_RE = re.compile(
-    r'<a href="(?:FAIL-)?report_NetworkManager-ci-M(\d+)_Test(\d+)_([^"]+)\.html">'
-    r".*?"
-    r'<td class="fileSize">\s*'
-    r"([A-Z][a-z]+ \d{1,2}, \d{4},\s*\d{1,2}:\d{2}:\d{2}[\s\u202f]*[AP]M)"
-    r"\s*</td>",
-    re.DOTALL,
+_EXEC_LOG_RE = re.compile(
+    r"^(START|END)\s+(\S+)\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s*$"
 )
 
-_TIMESTAMP_FMT = "%b %d, %Y, %I:%M:%S %p"
+_EXEC_LOG_TS_FMT = "%Y-%m-%d %H:%M:%S"
 
 
 def _resolve_project(build_url, release):
@@ -65,66 +63,51 @@ def _resolve_project(build_url, release):
     return project
 
 
-def _fetch_artifact_page(url):
-    """Fetch the Jenkins artifact directory listing page."""
-    if not url.endswith("/"):
-        url += "/"
-    req = urllib.request.Request(url, headers={"User-Agent": "NM-CI-timing/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return resp.read().decode("utf-8", errors="ignore")
+def _fetch_url(url):
+    """Fetch raw content from a URL. Returns string or None on failure."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "NM-CI-timing/1.0"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return resp.read().decode("utf-8", errors="ignore")
+    except Exception as e:
+        logging.debug(f"Failed to fetch {url}: {e}")
+        return None
 
 
-def _parse_report_entries(html):
-    """Parse report filenames, machine IDs, test numbers, and timestamps.
+def _parse_exec_log(content):
+    """Parse nmci-exec.log content into per-test durations.
 
-    Returns a list of (machine_id, test_number, test_name, timestamp) tuples.
+    Each test produces a pair of lines:
+        START <test_name> <timestamp>
+        END <test_name> <timestamp>
+
+    Duration = END timestamp - START timestamp.
+    Tests with START but no END (killed/crashed) are skipped.
+
+    Returns:
+        dict: test_name -> duration in minutes
     """
-    from datetime import datetime
+    starts = {}
+    durations = {}
 
-    entries = []
-    seen = set()
-    for match in _REPORT_RE.finditer(html):
-        machine_id = int(match.group(1))
-        test_num = int(match.group(2))
-        test_name = match.group(3)
-        ts_str = match.group(4)
-        # Deduplicate (same file appears multiple times in Jenkins HTML)
-        key = (machine_id, test_num, test_name)
-        if key in seen:
+    for line in content.splitlines():
+        match = _EXEC_LOG_RE.match(line)
+        if not match:
             continue
-        seen.add(key)
-        # Strip narrow no-break space and other whitespace variants
-        ts_str = re.sub(r"[\s\u202f]+", " ", ts_str).strip()
+        action, test_name, ts_str = match.groups()
         try:
-            ts = datetime.strptime(ts_str, _TIMESTAMP_FMT)
+            ts = datetime.strptime(ts_str, _EXEC_LOG_TS_FMT)
         except ValueError:
             continue
-        entries.append((machine_id, test_num, test_name, ts))
-    return entries
 
-
-def _compute_test_durations(entries):
-    """Compute per-test duration in minutes from consecutive timestamps.
-
-    Tests are grouped by machine and sorted by test number.
-    Duration of test[i] = timestamp[i+1] - timestamp[i].
-    The last test in each machine uses 5 minutes as a default estimate.
-    """
-    machines = {}
-    for machine_id, test_num, test_name, ts in entries:
-        machines.setdefault(machine_id, []).append((test_num, test_name, ts))
-
-    durations = {}
-    for machine_id in sorted(machines.keys()):
-        tests = sorted(machines[machine_id], key=lambda x: x[0])
-        for i, (test_num, test_name, ts) in enumerate(tests):
-            if i + 1 < len(tests):
-                delta = (tests[i + 1][2] - ts).total_seconds() / 60.0
-                if delta < 0 or delta > 120:
-                    delta = 5.0
-            else:
-                delta = 5.0
+        if action == "START":
+            starts[test_name] = ts
+        elif action == "END" and test_name in starts:
+            delta = (ts - starts.pop(test_name)).total_seconds() / 60.0
+            if delta < 0:
+                delta += 24 * 60  # day crossing
             durations[test_name] = delta
+
     return durations
 
 
@@ -171,10 +154,13 @@ def _aggregate_by_feature(durations, test_to_feature):
 def get_feature_times(build_url, release, mapper_data):
     """Fetch per-feature timing from the last completed main branch build.
 
-    Determines the correct Jenkins project from the current build URL and
-    release version, fetches the artifact directory listing of the last
-    completed build, parses HTML report timestamps, and computes per-feature
-    durations.
+    Tries to fetch nmci-exec.m{N}.log files from the last completed
+    build artifacts. These contain accurate START/END timestamps per
+    test, written by runtest.sh.
+
+    If exec logs are not available (older builds without the logging),
+    returns empty dict so that node_runner.py falls back to mapper
+    timeout-based distribution.
 
     Args:
         build_url: current Jenkins build URL
@@ -184,22 +170,38 @@ def get_feature_times(build_url, release, mapper_data):
     Returns:
         dict: feature -> {"total_minutes": float, "test_count": int,
                           "avg_per_test_minutes": float}
-        Returns empty dict on any failure.
+        Returns empty dict when exec logs are not available.
     """
     try:
         project = _resolve_project(build_url, release)
-        artifact_url = f"{JENKINS_BASE}/job/{project}/lastCompletedBuild/artifact/"
-        logging.debug(f"Fetching timing data from {artifact_url}")
+        artifact_url = f"{JENKINS_BASE}/job/{project}/lastCompletedBuild/artifact"
 
-        html = _fetch_artifact_page(artifact_url)
+        # Fetch exec logs from both machines
+        durations = {}
+        found_any = False
+        for machine_id in range(2):
+            log_url = f"{artifact_url}/nmci-exec.m{machine_id}.log"
+            logging.debug(f"Fetching exec log from {log_url}")
+            content = _fetch_url(log_url)
+            if content is None:
+                continue
+            found_any = True
+            machine_durations = _parse_exec_log(content)
+            logging.debug(
+                f"Parsed {len(machine_durations)} test durations from m{machine_id}"
+            )
+            durations.update(machine_durations)
 
-        entries = _parse_report_entries(html)
-        if not entries:
-            logging.debug("No report entries found in artifact listing")
+        if not found_any:
+            logging.debug(
+                "No nmci-exec logs found in artifacts, "
+                "falling back to mapper timeouts"
+            )
             return {}
-        logging.debug(f"Parsed {len(entries)} test report timestamps")
 
-        durations = _compute_test_durations(entries)
+        if not durations:
+            logging.debug("Exec logs found but no test durations parsed")
+            return {}
 
         test_to_feature = _build_test_to_feature(mapper_data)
         if not test_to_feature:
@@ -243,7 +245,7 @@ if __name__ == "__main__":
 
     features = get_feature_times(build_url, release, mapper_data)
     if not features:
-        print("No timing data retrieved")
+        print("No timing data retrieved (falling back to mapper timeouts)")
         sys.exit(1)
 
     total = sum(f["total_minutes"] for f in features.values())

@@ -388,6 +388,8 @@ class Machine:
         """Generate a local fmf plan file with test list and connect provision."""
         test_lines = "\n".join([f"        - /tests/{t}$" for t in tests])
         plan_content = (
+            f"environment:\n"
+            f"    CENTOS_CI: 1\n"
             f"discover:\n"
             f"    how: fmf\n"
             f"    test:\n"
@@ -515,6 +517,11 @@ class Machine:
 
         self.ssh(
             f"journalctl -b --no-pager -o short-monotonic --all \\| bzip2 --best > ../journal.m{self.id}.log.bz2"
+        )
+        self.scp_from(
+            "/tmp/nmci-exec.log",
+            f"{self.results_common}/nmci-exec.m{self.id}.log",
+            check=False,
         )
 
         # Parse tmt results.yaml and generate summary.txt
