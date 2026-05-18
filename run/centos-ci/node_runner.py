@@ -468,7 +468,7 @@ class Machine:
                 )
             else:
                 for entry in results:
-                    name = entry.get("name", "").lstrip("/tests/")
+                    name = entry.get("name", "").split("/tests/", 1)[-1]
                     result = entry.get("result", "")
                     if result == "pass":
                         passed.append(name)
