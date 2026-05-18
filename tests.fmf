@@ -1,4 +1,5 @@
 test: run/runtest.sh ${TMT_TEST_NAME##*/}
+result: custom
 duration: 10m
 tty: true
 order: 200
