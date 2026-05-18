@@ -581,7 +581,7 @@ class Mapper:
             # With real durations the total is much smaller than with
             # static 10-min defaults, so disable the static threshold
             # to let average_time drive the distribution.
-            self.m_thresh = 0
+            self.m_thresh = 30
             total = sum(v["total_minutes"] for v in self.timing_cache.values())
             count = sum(v["test_count"] for v in self.timing_cache.values())
             self._default_test_time = total / count if count else 10
