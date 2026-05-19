@@ -16,7 +16,9 @@ configure_networking () {
     modprobe dummy numdummies=0
 
     # Install server package
-    $dnf -y install NetworkManager-config-server
+    if ! rpm -q NetworkManager-config-server; then
+        $dnf -y install NetworkManager-config-server
+    fi
 
     # If we have custom built packages let's store it's dir
     dir="$(find /root /tmp -name nm-build)"
