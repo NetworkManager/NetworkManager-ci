@@ -389,7 +389,7 @@ class Machine:
         test_lines = "\n".join([f"        - /tests/{t}$" for t in tests])
         plan_content = (
             f"environment:\n"
-            f"    NMCI_EXEC_LOG: \"1\"\n"
+            f'    NMCI_EXEC_LOG: "1"\n'
             f"discover:\n"
             f"    how: fmf\n"
             f"    test:\n"
