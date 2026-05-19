@@ -3,13 +3,13 @@ configure_basic_system () {
 
     # Set the root password to 'networkmanager' (for overcoming polkit easily)
     echo "Setting root password to 'networkmanager'"
-    echo "networkmanager" | passwd root --stdin
+    echo "networkmanager" | passwd root --stdin &> /dev/null
 
     echo "Setting test's password to 'networkmanager'"
     userdel -r test
     sleep 1
     useradd -m test
-    echo "networkmanager" | passwd test --stdin
+    echo "networkmanager" | passwd test --stdin &> /dev/null
 
     # Adding chronyd and syncing
     systemctl restart chronyd.service
