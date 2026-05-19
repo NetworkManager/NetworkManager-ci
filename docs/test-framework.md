@@ -18,6 +18,11 @@ reading the source code.
 3. [How to Add a New Test Case](#3-how-to-add-a-new-test-case)
 4. [CI Pipeline](#4-ci-pipeline)
 5. [Common CI Failure Patterns](#5-common-ci-failure-patterns)
+   - [5.1 How to Tell Infra from Code at a Glance](#51-how-to-tell-infra-from-code-at-a-glance)
+   - [5.2 Infrastructure Failures](#52-infrastructure-failures)
+   - [5.3 Code Failures](#53-code-failures)
+   - [5.4 Reading HTML Reports](#54-reading-html-reports)
+   - [5.5 Key Diagnostic Strings Quick Reference](#55-key-diagnostic-strings-quick-reference)
 6. [Downstream Testing (Testing Farm / Polarion)](#6-downstream-testing-testing-farm--polarion)
 7. [Assessing Test Coverage for an MR](#7-assessing-test-coverage-for-an-mr)
 
@@ -459,38 +464,375 @@ in an "Aborted" message in the MR discussion -- this is expected behavior.
 
 ## 5. Common CI Failure Patterns
 
-### Infrastructure Failures (not your code)
+### 5.1 How to Tell Infra from Code at a Glance
 
-| Symptom | Meaning | Action |
-|---------|---------|--------|
-| UnitTests fails with package install errors | Fedora container registry or DNF mirror issue | Re-trigger |
-| `test_fmf` fails in UnitTests | `tests.fmf` is out of sync with `mapper.yaml` | Run `python3 update_tests_fmf.py` and commit |
-| Jenkins job shows "Aborted" | A newer push cancelled the older run | Expected -- check the newer run |
-| All tests SKIP (exit code 77) | Version control says tests don't apply to this NM/OS | Check `@ver`/`@rhelver` tags |
-| `testeth0` connectivity failure | Virtual testbed lost its default route | Testbed setup issue; re-trigger or investigate `vethsetup.sh` |
-| Machine provisioning timeout | CentOS CI infrastructure is overloaded | Re-trigger later |
+When a test fails, check these signals first to decide where to look:
 
-### Code Failures (likely related to your change)
+| Signal | Infra failure | Code failure |
+|--------|--------------|--------------|
+| GitLab MR comment says `NO RESULTS`, `BAD RESULTS`, `TIMEOUT`, or `Job unexpectedly aborted!` | Yes | No |
+| Jenkins artifacts contain `config.log` | Yes (NM build failed) | No |
+| HTML report is a raw `<pre>` journal dump ("No report generated, dumping NM journal log") | Yes (behave never ran) | No |
+| No HTML report file at all (`"No HTML reprted!"` in JUnit XML) | Yes | No |
+| Failure is in the **Before** pseudo-step of the HTML report | Usually (env/package/service) | Rarely |
+| Failure is in a regular `Given`/`When`/`Then` step | No | Yes |
+| Embed `"Exception in before scenario tags"` with "No such file or directory" for a binary | Often (package silently not installed) | Sometimes (wrong path in test) |
+| Embed `"CRASHED_STEP_NAME"` present | Rarely (NM crashed during setup) | Yes (code change caused crash) |
+| Embed `"Found important AVCs"` present | No | Yes |
+| Embed `` "`backoff` message found in NM journal" `` present | No | Yes |
+| Many unrelated tests fail across multiple features at once | Yes (testbed or machine issue) | No |
 
-| Symptom | Meaning | Action |
-|---------|---------|--------|
-| Test FAILs with assertion error | A `Then "pattern" is visible` step didn't match | Check the HTML report for actual command output |
-| NM crash detected (coredump) | NetworkManager crashed during the test | HTML report includes crash details and FAF links |
-| Test timeout (10m default) | The test hung | Check for missing cleanup, blocking `nmcli` call, or NM bug |
-| `@xfail` test PASSes unexpectedly | An expected-failure test started passing | The underlying bug may be fixed; update the test |
-| Multiple tests fail in the same feature | A tag-based environment setup may be broken | Check `nmci/tags.py` for the relevant tags |
+The single most reliable indicator: **look at the HTML report structure**.
+If the report has properly formatted Behave output with coloured steps, the
+infrastructure worked and the failure is in test logic. If the report is a plain
+`<pre>` block of raw journal lines, or is absent entirely, the infrastructure
+failed before Behave could run.
 
-### Reading HTML Reports
+---
 
-- **PASS reports** contain minimal info (just cleanup output) to save space
-- **FAIL reports** contain full details: all command outputs, NM journal logs,
-  SELinux AVCs, crash dumps
-- Reports are stored in `/tmp` on the test machine and published via HTTP on
-  port 8080 when available
-- Enable verbose reports locally with `NMCI_DEBUG=yes run/runtest.sh test_name`
-- Example reports:
-  - [PASS report](https://vbenes.fedorapeople.org/NM/PASS_bond_8023ad_with_vlan_srcmac.html)
-  - [FAIL report](https://vbenes.fedorapeople.org/NM/FAIL_ipv6_survive_external_link_restart.html)
+### 5.2 Infrastructure Failures
+
+#### Machine provisioning
+
+Test machines are reserved from the CentOS CI Duffy pool. Provisioning is
+retried every 60 seconds for up to 180 minutes before aborting.
+
+| Symptom | Cause | Action |
+|---------|-------|--------|
+| `"Unable to reserve a machine in 180 minutes"` in GitLab comment | Duffy pool exhausted | Re-trigger later; infra congestion |
+| `"Job unexpectedly aborted!"` in GitLab comment, no `junit.xml` and no `config.log` in artifacts | Pipeline orchestrator (`node_runner.py`) itself crashed | Re-trigger; check Jenkins console for Python traceback |
+| Jenkins job shows "Aborted" | A newer push cancelled an older run | Expected; check the newer run |
+| Machine SSH timeout after setup | Machine came up but networking is broken | Machine creation is retried up to 3 times automatically; if all fail, re-trigger |
+
+#### NM build failures
+
+When `@Build:<ref>` is specified, `run/centos-ci/scripts/build.sh` downloads a
+build script from the NM repository and compiles NM from source.
+
+| Symptom | Cause | Action |
+|---------|-------|--------|
+| `config.log` artifact present in Jenkins | NM failed to compile | Check the build log; verify the `@Build:` ref is valid |
+| `"BUILDING ... FAILED"` in Jenkins console, no `config.log` | `wget` failed to download the build script (no retries, no timeout) | Verify the NM ref exists and has the `automation/` branch; re-trigger |
+| All tests report `FAIL` immediately without running, sentinel `/tmp/nm_compilation_failed` exists | NM build failed on the machine | See above |
+
+> **Note:** The wget that fetches the build script (`run/centos-ci/scripts/build.sh`)
+> has **no retry and no timeout**. A single transient network error permanently
+> aborts the entire build run.
+
+#### Package installation failures and silent drops
+
+The test environment installs many packages during setup. Several patterns can
+cause packages to be silently missing at test time.
+
+**The core problem:** `dnf` is invoked with `--skip-broken` (dnf4) or
+`--skip-unavailable` (dnf5) throughout `prepare/envsetup/pkg_install_common.sh`.
+A package that fails to download or resolve is silently omitted -- no error
+propagates to the caller, `check_packages` only verifies a small fixed subset,
+and the missing package surfaces later as a `"command not found"` or
+`"No such file or directory"` error inside a step.
+
+Common root causes for silent drops:
+
+- **Pinned Koji/Brew RPM URLs at pruned builds:** Many packages are specified
+  as absolute HTTP URLs to Koji (`kojipkgs.fedoraproject.org`) or internal Brew
+  (`download.devel.redhat.com`) at a pinned version (e.g.,
+  `tcpreplay-4.3.3-3.fc34.x86_64.rpm`). If that build is pruned from the server
+  or the internal mirror is unreachable, dnf gets a 404 or a connection error,
+  skips the package with `--skip-broken`, and continues silently.
+
+- **EPEL bootstrap failure:** Each distro-specific install script starts with:
+  ```bash
+  [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-N.noarch.rpm
+  ```
+  This `rpm -i` has no retry and no timeout. If it fails (404, network error,
+  EPEL not yet published for a new RHEL major), the EPEL repo is never
+  configured. All subsequent packages that live only in EPEL are then silently
+  skipped by `--skip-broken`. The only retry is a single `sleep 20` + retry of
+  `install_"$release"_packages` in `prepare/envsetup/02_install_packages.sh`.
+
+- **SRPM build failures (tayga, radvd on EL10):** `build_srpm` in
+  `prepare/envsetup/utils.sh` downloads a `.src.rpm` from Koji, installs it,
+  runs `dnf build-dep`, and calls `rpmbuild -bb`. The output RPM path is then
+  added to `$PKGS_INSTALL` unconditionally. If any step in this chain fails
+  (wget 404, build-dep unavailable, compile error), the output RPM is never
+  produced, and `dnf install` of the literal path fails:
+  ```
+  Error: No such file or directory: '/root/rpmbuild/RPMS/x86_64/tayga-0.9.6-...rpm'
+  ```
+  With `--skip-broken`, this is silently dropped. Tests that call `tayga` or
+  `radvd` will fail at runtime.
+
+- **`get_centos_pkg_release` returns empty:** This helper (`utils.sh`) runs
+  `curl -s <url>/` with no timeout to parse a CBS/Koji directory listing and
+  extract the package version. If `curl` times out or the server returns
+  unexpected output, the version variable is empty. The assembled package URL
+  then contains a double slash and empty version component:
+  ```
+  openvswitch2.17-2.17.0-.x86_64.rpm   # note empty version
+  ```
+  dnf fails with HTTP 404 and skips with `--skip-broken`.
+
+#### wget/curl without timeouts
+
+Several `wget` calls in the setup scripts use `--tries=5 --waitretry=2` for
+retry logic but **do not set `--timeout` or `--read-timeout`**. If the target
+server is reachable but very slow, each of the 5 attempts can hang for minutes,
+causing the overall setup to stall.
+
+Affected calls and their consequences:
+
+| Script | URL / Purpose | Missing guard | Consequence if it fails |
+|--------|--------------|---------------|------------------------|
+| `prepare/envsetup/03_configure_networking.sh:203-204` | WiFi EAP certs (`/tmp/certs/client.pem`, `eaptest_ca_cert.pem`) from internal lab server | No file-existence check after wget; `touch /tmp/nm_wifi_configured` is written unconditionally | EAP/WiFi tests fail at runtime: `"Failed to open /tmp/certs/client.pem: No such file or directory"` |
+| `prepare/envsetup/utils.sh:327` | `.src.rpm` download in `build_srpm` | No check that rpm was installed or rpmbuild succeeded before adding output path to `$PKGS_INSTALL` | `dnf install` of non-existent RPM path; package silently dropped |
+| `prepare/netdevsim.sh:55` | Kernel `.src.rpm` from Brew/Koji | Partial check on extracted source tree | `rpmbuild` fails; netdevsim kernel module cannot be built; netdevsim tests fail at setup |
+| `run/centos-ci/scripts/build.sh:21` | NM build script from GitLab/GitHub raw URL | No retry at all | wget failure sets `/tmp/nm_compilation_failed`; all tests aborted |
+
+#### Virtual testbed failures
+
+The test environment uses 10 virtual ethernet devices (`eth1`–`eth10`) created
+by `prepare/vethsetup.sh` inside a network namespace.
+
+| Symptom | Cause | Action |
+|---------|-------|--------|
+| `"SETUP ERROR: We do not have network available via nmcli command."` printed, no HTML report | `vethsetup.sh` or `envsetup.sh` failed before Behave started | Re-trigger; check if machine has external connectivity |
+| Test fails in the **Before** pseudo-step with `"testeth0 check"` embed | `testeth0` was not connected at scenario start; 10 reconnect attempts (1 s each) all failed | Re-trigger; usually transient; investigate `vethsetup.sh` if recurring |
+| Many tests fail in Before step with "Regenerate vethsetup" in logs | Virtual testbed state was corrupted between tests | Re-trigger; if recurring, a tag cleanup may have broken the testbed |
+
+#### TMT orchestration failures
+
+| GitLab comment | Meaning | Action |
+|----------------|---------|--------|
+| `"NO RESULTS"` | Machine died mid-run; no `summary.txt` was retrieved | Re-trigger |
+| `"BAD RESULTS"` | `summary.txt` exists but has unexpected format (truncated write) | Re-trigger |
+| `"TIMEOUT"`, `Missing: N` | Tests ran but N results were never written (test was killed by timeout without producing output) | Check which tests are listed as missing; consider raising `timeout:` in `mapper.yaml` |
+
+The default per-test timeout is **10 minutes**, read from `mapper.yaml`
+`timeout:` field (fallback in `run/centos-ci/scripts/runtest.sh`). If a test
+reliably times out, increase `timeout:` in `mapper.yaml` rather than adding
+infrastructure retries.
+
+#### GitLab CI unit test failures
+
+| Symptom | Cause | Action |
+|---------|-------|--------|
+| `UnitTests` stage fails with package install errors | Fedora container registry or DNF mirror transient failure | Re-trigger |
+| `test_fmf` fails in `UnitTests` | `tests.fmf` is out of sync with `mapper.yaml` | Run `python3 update_tests_fmf.py` and commit the updated `tests.fmf` |
+| All tests SKIP (exit code 77) | Version gates say the tests don't apply to this NM/OS | Check `@ver+=`, `@rhelver+=`, `@fedver+=` tags on the scenarios |
+
+---
+
+### 5.3 Code Failures
+
+Code failures are failures in test logic or NM behaviour detected by the test
+framework. They produce structured Behave HTML output with coloured steps and
+embedded diagnostic data.
+
+#### Step assertion failures (most common)
+
+A `Then "pattern" is visible` step failed to match actual output, or a step
+raised a Python exception.
+
+- **Report shows:** `"Error Message"` embed (the assertion text or exception
+  message) and `"Error Traceback"` embed (full Python traceback), both under
+  the failed step.
+- **To investigate:** Check the `"Commands"` embed in the step immediately
+  before the failing one -- it contains the actual command output that was
+  checked. Check the `"NM"` embed in the After pseudo-step for the NM journal
+  during the scenario.
+- **Typical root causes:** typo in a command name or argument, wrong option
+  name, wrong file path, output format changed in a newer NM version,
+  incorrect regex in the assertion pattern.
+
+#### NM crash (PID change)
+
+NM's PID is captured at `before_scenario` and compared after every step.
+A PID change means NM restarted (crashed and was restarted by systemd).
+
+- **Report shows:** `"CRASHED_STEP_NAME"` embed (the step name where the
+  crash was first detected), then one of:
+  - `"COREDUMP"` embed with GDB backtrace from `coredumpctl debug`
+  - `"FAF"` embed with ABRT/FAF URLs or raw backtrace
+  - `"NO_COREDUMP/NO_FAF"` embed: `"!!! no crash report detected, but NM PID changed !!!"`
+- **Banner printed to stdout:**
+  ```
+  !! NM CRASHED. NEEDS INSPECTION. FAILING THE TEST !!
+  !!  CRASHING STEP: <step name>                     !!
+  ```
+- **Note:** crash detection has ~1-step latency. The actual crash may have
+  happened in the step *before* the one named in `CRASHED_STEP_NAME`.
+- **To investigate:** look at the `"COREDUMP"` or `"FAF"` backtrace; also
+  check the `"NM"` journal embed for the last log lines before the crash.
+
+#### SELinux AVC failures
+
+`ausearch` is run after every scenario using a checkpoint file so only new
+AVCs since the last scenario are reported. AVCs that match NM-related packages
+(`NetworkManager`, `ModemManager`, `nmcli`, `nmtui`, `dnsmasq`) and are not
+in the per-scenario ignore list cause hard assertion failure.
+
+- **Report shows:** `"Important SELinux AVCs during this scenario"` embed with
+  raw `ausearch` output in the After pseudo-step.
+- **Error:** `"Found important AVCs"`
+- **To suppress temporarily:** set `NMCI_IGNORE_AVC=1` (embeds AVCs but does
+  not fail). To permanently ignore a known-benign AVC, add it to
+  `context.ignore_avcs` in the relevant step or tag handler.
+- **Root cause:** typically a missing or outdated SELinux policy for a new NM
+  operation; file a `selinux-policy` bug and add a temporary ignore until the
+  policy is shipped.
+
+#### Backoff message detection
+
+After every scenario, the NM journal is scanned for
+`"backoff for N seconds before the resync."`. If found, the scenario fails.
+
+- **Error:** `` "`backoff` message found in NM journal" ``
+- **Suppress per-scenario:** add tag `@ignore_backoff_message`.
+- **Root cause:** the change causes NM to repeatedly detect a configuration
+  change and schedule a resync, triggering a backoff storm. Investigate whether
+  the code change introduces a loop in NM's configuration reload path.
+
+#### Exceptions in tag setup or teardown
+
+Tag handlers (`@openvpn`, `@hostapd`, `@netdevsim`, etc.) run in
+`before_scenario` and `after_scenario`. Exceptions are accumulated and raised
+together at the end of each phase.
+
+- **Report shows:** `"Exception in before scenario tags"` or `"Exception in
+  after scenario tags"` embed in the Before/After pseudo-step, containing the
+  full Python traceback for each failed tag handler.
+- **Infra vs. code distinction:** if the traceback shows
+  `"No such file or directory"` for a binary (e.g., `openvpn`, `hostapd`),
+  the package was silently not installed (see silent dnf drops above). If it
+  shows an assertion error or wrong output from a running binary, it is a
+  test logic problem.
+
+#### Timeout / SIGTERM kill
+
+The per-test timeout (default 10 minutes, tunable via `mapper.yaml`
+`timeout:`) sends SIGTERM to the Behave process when exceeded.
+
+- `environment.py` installs a SIGTERM handler that raises
+  `AssertionError("killed externally (timeout)")`, giving Behave a chance to
+  produce a partial HTML report before dying.
+- **Report shows:** `"Error Message"` embed with `"killed externally (timeout)"`.
+- **Typical causes:** test logic hangs (blocking `nmcli` call, NM stuck in a
+  state the test doesn't handle, missing cleanup that waits forever). If
+  a test reliably times out, raise `timeout:` in `mapper.yaml` and also
+  investigate what is blocking.
+
+#### `@xfail` unexpected pass
+
+If a scenario tagged `@xfail` starts passing, `run/runtest.sh` converts the
+PASS to FAIL. The underlying bug was likely fixed; remove `@xfail` and the
+associated version gate.
+
+#### Failed systemd services
+
+Before and after each scenario, `systemctl list-units --state=failed` is
+checked. Failed services are embedded (`"service failed during scenario run: X"`)
+but do not directly fail the test -- the failure usually manifests as a step
+assertion error triggered by the broken service.
+
+---
+
+### 5.4 Reading HTML Reports
+
+#### Report naming
+
+- **On Jenkins/CentOS CI:**
+  `FAIL-report_NetworkManager-ci-M{machine_id}_Test{XXXX}_{test_name}.html`
+- **Locally:**
+  `/tmp/report_NetworkManager-ci_Test{XXXX}_{test_name}.html`
+
+A `FAIL-` prefix means Behave reported failure. Absence of the file, or a file
+containing only a raw `<pre>` block, means Behave never ran (infra failure).
+
+Enable full local reports with `NMCI_DEBUG=yes run/runtest.sh test_name`.
+
+Example reports:
+- [PASS report](https://vbenes.fedorapeople.org/NM/PASS_bond_8023ad_with_vlan_srcmac.html)
+- [FAIL report](https://vbenes.fedorapeople.org/NM/FAIL_ipv6_survive_external_link_restart.html)
+
+#### Report structure
+
+```
+Global summary (feature counts, scenario counts, suite duration)
+└── Per-feature block
+    ├── Feature stats (passed/failed/skipped, Expand All Failed button)
+    └── Per-scenario block
+        ├── Tags as links, scenario name, duration
+        ├── Before  ← tag-based setup (failure here = env/infra problem)
+        ├── * Step 1 (Given/When/Then/And/*)
+        ├── * Step 2
+        │     └── [embedded data sections, numbered]
+        ├── ...
+        └── After   ← tag-based teardown + journal/log collection
+```
+
+The **Before** and **After** entries are pseudo-steps representing tag-based
+environment setup and teardown. A failure in **Before** almost always means an
+environment or infrastructure problem, not a test logic error.
+
+#### Key embedded data sections
+
+Each embed appears collapsed under its step (click to expand). The most
+important ones:
+
+| Embed caption | Location | What it means |
+|---------------|----------|----------------|
+| `"Error Message"` | Failed step | Python assertion text or exception message |
+| `"Error Traceback"` | Failed step | Full Python traceback |
+| `"Commands"` / module name | Any step | All nmcli/process calls and their output in that step |
+| `"NM"` | After pseudo-step | NM journal from before_scenario to end of scenario |
+| `"STDOUT"` | After pseudo-step | runtest stdout piped through journald |
+| `"CRASHED_STEP_NAME"` | Failed step or After | Step where NM PID change was first detected |
+| `"NO_COREDUMP/NO_FAF"` | Alongside CRASHED_STEP_NAME | NM crashed but no crash report was captured |
+| `"COREDUMP"` | Failed step | GDB backtrace from `coredumpctl debug` |
+| `"FAF"` | Failed step | ABRT/FAF URLs or raw backtrace |
+| `"Package list"` | Alongside COREDUMP | `rpm -qa` output at crash time |
+| `"Important SELinux AVCs during this scenario"` | After pseudo-step | Filtered NM-relevant AVC records (these cause failure) |
+| `"SELinux AVCs during this scenario"` | After pseudo-step | All AVCs (informational; only important ones cause failure) |
+| `"Exception in before scenario tags"` | Before pseudo-step | Stack traces from tag setup failures |
+| `"Exception in after scenario tags"` | After pseudo-step | Stack traces from tag teardown failures |
+| `"service failed during scenario run: X"` | After pseudo-step | Systemd service journal for a service that failed during the test |
+| `"failed services' statuses"` | Before pseudo-step | `systemctl status` of services already failed before the scenario |
+
+#### `fail_only` truncation
+
+Many embeds are created with `fail_only=True`: on PASS, only the first line
+and last 2 KB are shown; on FAIL, the full content is shown. This is expected
+behaviour and not a report defect.
+
+**PASS reports** contain minimal content (only cleanup output) to save space.
+Full diagnostic detail is only present in FAIL reports.
+
+---
+
+### 5.5 Key Diagnostic Strings Quick Reference
+
+Use these to search (`Ctrl+F`) in the HTML report or grep in logs.
+
+| String to search for | Source | Cause | Action |
+|----------------------|--------|-------|--------|
+| `"SETUP ERROR: We do not have network available"` | `prepare/envsetup.sh` | Vethsetup or machine networking failed before Behave | Re-trigger; check vethsetup |
+| `"killed externally (timeout)"` | HTML report embed | Per-test timeout (SIGTERM) hit | Raise `timeout:` in `mapper.yaml`; investigate what hung |
+| `"NM Crashed as new PID"` | NM journal embed | NM process restarted (PID changed) | Check `COREDUMP` / `FAF` embeds |
+| `"NM CRASHED. NEEDS INSPECTION."` | stdout / HTML | NM crash confirmed | See `CRASHED_STEP_NAME` embed |
+| `"!!! no crash report detected, but NM PID changed !!!"` | `NO_COREDUMP/NO_FAF` embed | NM restarted without leaving a dump | May be a clean NM restart; check NM journal for reason |
+| `"No such file or directory"` on a known binary | Step embed | Package silently not installed (dnf `--skip-broken`) | Re-trigger; verify the Koji/Brew URL for that package still resolves |
+| `"No such file or directory"` on `/tmp/certs/client.pem` | Step embed | WiFi EAP cert wget failed silently | Check lab cert server reachability; re-trigger |
+| `"command not found"` on a test tool | Step embed | Package silently not installed | Re-trigger; check EPEL bootstrap and pinned RPM URLs |
+| `"Found important AVCs"` | HTML report embed | SELinux AVC involving NM package | Check AVC details; file selinux-policy bug or add ignore |
+| `` "`backoff` message found in NM journal" `` | HTML report embed | NM resync storm triggered by the change | Investigate config reload loop in the MR diff |
+| `"Exception in before scenario tags"` | Before pseudo-step embed | Tag setup raised an exception | Check traceback: missing binary (infra) vs. assertion error (code) |
+| `"No HTML reprted!"` (sic) | JUnit XML `<failure>` text | Behave never produced a report | Infra failure; check `tmt.m{N}.log` in Jenkins artifacts |
+| `"no summary.txt retrieved"` | GitLab MR comment | Machine died during test run | Re-trigger |
+| `"Job unexpectedly aborted!"` | GitLab MR comment | Pipeline orchestrator crashed | Re-trigger; check Jenkins console for Python traceback |
+| `"Unable to reserve a machine"` | GitLab MR comment | Duffy pool exhausted | Re-trigger later |
+| `"BUILDING ... FAILED"` | Jenkins console | NM build failure | Check `config.log` artifact; verify `@Build:` ref |
+| `"backoff for N seconds before the resync."` | NM journal embed | NM resync backoff (bug indicator) | Check if MR introduces a config-change loop in NM |
+| `"Regenerate vethsetup!!"` | Logs / Before embed | Virtual testbed was corrupted | Re-trigger; investigate tag cleanup if recurring |
 
 ---
 
