@@ -9,7 +9,7 @@ from behave import step, given
 
 import commands
 import nmci
-from nmci.util import NM
+#from nmci.util import NM
 
 
 @step('{action} all "{what}" devices')
