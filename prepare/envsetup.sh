@@ -21,7 +21,7 @@ configure_environment () {
     [ "$1" == "nm-applet" ] && touch /tmp/keep_old_behave
     configure_basic_system
     #install_packages
-    dnf install lshw
+    dnf -y install lshw bzip2
     [ "$1" == "first_test_setup" ] && return
     if [ "$1" == "image_mode_setup" ]; then
         K_VER=$(rpm -q kernel | head -n 1 | sed 's/^kernel-//')
