@@ -20,7 +20,7 @@ configure_environment () {
 
     [ "$1" == "nm-applet" ] && touch /tmp/keep_old_behave
     configure_basic_system
-    dnf -y install lshw bzip2
+    dnf -y install lshw bzip2 python3-gobject
     install_packages
     [ "$1" == "first_test_setup" ] && return
     if [ "$1" == "image_mode_setup" ]; then
