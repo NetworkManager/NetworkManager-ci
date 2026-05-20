@@ -78,12 +78,12 @@ install_common_packages () {
     skip="--skip-broken"
     rpm -q dnf5 && skip="--skip-unavailable --no-gpgchecks"
 
-    test -n "$PKGS_INSTALL" && $dnf -y install $PKGS_INSTALL $skip \
-                                                               --nobest \
-                                                               $disable_repo
+    #test -n "$PKGS_INSTALL" && $dnf -y install $PKGS_INSTALL $skip \
+ #                                                              --nobest \
+ #                                                              $disable_repo
     echo "update dnf packages..."
-    test -n "$PKGS_UPGRADE" && $dnf -y upgrade $PKGS_UPGRADE $skip \
-                                                               --allowerasing
+    #test -n "$PKGS_UPGRADE" && $dnf -y upgrade $PKGS_UPGRADE $skip \
+  #                                                             --allowerasing
 
     # Enable debug logs for wpa_supplicant
     sed -i 's!OTHER_ARGS="-s"!OTHER_ARGS="-s -dddK -O /var/run/wpa_supplicant"!' /etc/sysconfig/wpa_supplicant
