@@ -15,11 +15,11 @@ configure_basic_system () {
     systemctl restart chronyd.service
 
     # Pull in debugging symbols
-    if [ ! -e /tmp/nm_no_debug ]; then
-        cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
-            grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
-            xargs debuginfo-install -y
-    fi
+    #if [ ! -e /tmp/nm_no_debug ]; then
+    #    cat /proc/$(pidof NetworkManager)/maps | awk '/ ..x. / {print $NF}' |
+    #        grep '^/' | xargs rpm -qf | grep -v 'not owned' | sort | uniq |
+    #        xargs debuginfo-install -y
+    #fi
 
     mkdir -p /etc/systemd/system/NetworkManager.service.d
     cat <<EOF > /etc/systemd/system/NetworkManager.service.d/90-nm-ci-override.conf

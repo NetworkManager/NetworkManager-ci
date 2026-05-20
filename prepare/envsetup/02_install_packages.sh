@@ -24,10 +24,10 @@ install_packages () {
         # We can install packages now
         # and give it possibly one more try
         install_"$release"_packages
-        if ! check_packages; then
-            sleep 20
-            install_"$release"_packages
-        fi
+        #if ! check_packages; then
+        #    sleep 20
+        #    install_"$release"_packages
+        #fi
 
         configure_installed_packages
 
