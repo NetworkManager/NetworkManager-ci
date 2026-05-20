@@ -20,7 +20,7 @@ configure_environment () {
 
     [ "$1" == "nm-applet" ] && touch /tmp/keep_old_behave
     configure_basic_system
-    install_packages
+    #install_packages
     [ "$1" == "first_test_setup" ] && return
     if [ "$1" == "image_mode_setup" ]; then
         K_VER=$(rpm -q kernel | head -n 1 | sed 's/^kernel-//')
@@ -29,7 +29,7 @@ configure_environment () {
     fi
 
     # Configure hw specific needs (veth, wifi, etc)
-    configure_networking $1
+    #configure_networking $1
     case "$1" in
         *dcb_*)
             configure_nm_dcb

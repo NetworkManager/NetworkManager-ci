@@ -216,7 +216,7 @@ class Machine:
             " -e \\'s/^#*ClientAliveCountMax.*/ClientAliveCountMax 240/\\'"
             " /etc/ssh/sshd_config"
         )
-        self._update()
+        #self._update()
         release = self.release_num
         dnf_install = "dnf -y install"
         if int(release) == 9:
