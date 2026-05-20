@@ -218,31 +218,31 @@ class Machine:
         )
         #self._update()
         release = self.release_num
-        dnf_install = "dnf -y install"
-        if int(release) == 9:
-            dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{release}.noarch.rpm"
-        else:
-            # There is not next repo in epel 10 yet
-            dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{release}.noarch.rpm"
-        # enable epel repos
-        self.ssh(f"{dnf_install} {dnf_package}")
+        #dnf_install = "dnf -y install"
+        #if int(release) == 9:
+        #    dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel{{,-next}}-release-latest-{release}.noarch.rpm"
+        #else:
+        #    # There is not next repo in epel 10 yet
+        #    dnf_package = f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{release}.noarch.rpm"
+        ## enable epel repos
+        #self.ssh(f"{dnf_install} {dnf_package}")
         # For some reason names can differ, so enable both powertools
-        self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
-        self.ssh("yum config-manager --set-enabled PowerTools", check=False)
-        self.ssh("yum config-manager --set-enabled powertools", check=False)
-        self.ssh("yum config-manager --set-enabled crb", check=False)
+        #self.ssh("yum install -y \\'dnf-command\\(config-manager\\)\\'")
+        #self.ssh("yum config-manager --set-enabled PowerTools", check=False)
+        #self.ssh("yum config-manager --set-enabled powertools", check=False)
+        #self.ssh("yum config-manager --set-enabled crb", check=False)
         # Enable build deps for NM
-        self.ssh("yum -y copr enable nmstate/nm-build-deps")
+        #self.ssh("yum -y copr enable nmstate/nm-build-deps")
         # install NM packages
-        self.ssh(
-            "yum -y install crda wget bash-completion \
-                    NetworkManager-team \
-                    NetworkManager-ppp NetworkManager-wifi \
-                    NetworkManager-adsl NetworkManager-ovs \
-                    NetworkManager-tui NetworkManager-wwan \
-                    NetworkManager-bluetooth NetworkManager-libnm-devel \
-                    --skip-broken"
-        )
+        #self.ssh(
+        #    "yum -y install crda wget bash-completion \
+        #            NetworkManager-team \
+        #            NetworkManager-ppp NetworkManager-wifi \
+        #            NetworkManager-adsl NetworkManager-ovs \
+        #            NetworkManager-tui NetworkManager-wwan \
+        #            NetworkManager-bluetooth NetworkManager-libnm-devel \
+        #            --skip-broken"
+        #)
         return True
 
     def restartNM(self):
