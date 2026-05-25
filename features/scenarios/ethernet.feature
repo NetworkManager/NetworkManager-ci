@@ -1037,6 +1037,8 @@ Feature: nmcli - ethernet
     @RHEL-121153
     @ver+=1.57.3
     @ver/rhel/9/7+=1.54.0.5
+    @ver/rhel/9/6+=1.52.0.11
+    @ver/rhel/10/0+=1.52.0.10
     @ver/rhel/9+=1.54.3.3
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
     @8021x_reauth_bridge
