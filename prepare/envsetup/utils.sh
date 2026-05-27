@@ -106,21 +106,23 @@ install_plugins_yum () {
 
 
 install_plugins_dnf () {
-    PKGS_INSTALL="$PKGS_INSTALL \
-        NetworkManager-wifi \
-        NetworkManager-wwan \
-        NetworkManager-tui \
-        NetworkManager-cloud-setup \
-        NetworkManager-pptp \
-        NetworkManager-ovs \
-        NetworkManager-ppp \
-        NetworkManager-openvpn \
-        NetworkManager-strongswan \
-        NetworkManager-libreswan"
+    # Only add plugins not already installed to avoid NM version bump
+    for pkg in \
+            NetworkManager-wifi \
+            NetworkManager-wwan \
+            NetworkManager-tui \
+            NetworkManager-cloud-setup \
+            NetworkManager-pptp \
+            NetworkManager-ovs \
+            NetworkManager-ppp \
+            NetworkManager-openvpn \
+            NetworkManager-strongswan \
+            NetworkManager-libreswan; do
+        rpm -q --quiet "$pkg" || PKGS_INSTALL="$PKGS_INSTALL $pkg"
+    done
 
     if ! grep -q -e 'release 10' /etc/redhat-release; then
-        PKGS_INSTALL="$PKGS_INSTALL \
-            NetworkManager-team"
+        rpm -q --quiet NetworkManager-team || PKGS_INSTALL="$PKGS_INSTALL NetworkManager-team"
     fi
 }
 
