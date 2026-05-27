@@ -78,6 +78,19 @@ install_common_packages () {
     skip="--skip-broken"
     rpm -q dnf5 && skip="--skip-unavailable --no-gpgchecks"
 
+    # DROPME: debug - find which package in PKGS_INSTALL forces NM upgrade
+    echo "=== DEBUG: checking which package causes NM upgrade ==="
+    nm_ver_before=$(rpm -q --qf '%{version}-%{release}' NetworkManager 2>/dev/null || echo "not-installed")
+    echo "NM version before install: $nm_ver_before"
+    for pkg in $PKGS_INSTALL; do
+        upgrade=$(dnf install --assumeno "$pkg" $skip $disable_repo 2>&1 | \
+                  sed -n '/^Upgrading:/,/^[^ ]/p' | grep -i 'NetworkManager')
+        if [ -n "$upgrade" ]; then
+            echo "  CULPRIT: $pkg  =>  $upgrade"
+        fi
+    done
+    echo "=== DEBUG: end ==="
+
     test -n "$PKGS_INSTALL" && $dnf -y install $PKGS_INSTALL $skip \
                                                                --nobest \
                                                                $disable_repo
