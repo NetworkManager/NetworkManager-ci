@@ -149,6 +149,7 @@
     Then Bring "down" connection "ipip1"
 
     @ver+=1.57
+    @ver/rhel/10+=1.56.1.1
     @iptunnel
     @iptunnel_geneve_create_device
     Scenario: nmcli - vpn - create GENEVE tunnel with device
