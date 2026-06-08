@@ -1436,6 +1436,25 @@
      Then Check bond "nm-bond" link state is "up"
 
 
+    @ver+=1.55.3
+    @ver/rhel/9+=1.54.4.1
+    @bond_non_8023ad_no_lacp_active_on_reapply
+    Scenario: nmcli - bond - no lacp_active warning for non-802.3ad bond on reapply
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           bond.options mode=active-backup,miimon=100
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: fault-tolerance \(active-backup\)" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+     * Start following journal
+     * Execute "nmcli device reapply nm-bond"
+     Then "failed to set bonding attribute 'lacp_active'" is not visible in journal
+
+
     @bond_mode_balance_tlb
     Scenario: nmcli - bond - options - mode set to balance-tlb
      * Add "bond" connection named "bond0" for device "nm-bond" with options

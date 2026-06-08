@@ -283,352 +283,355 @@ link:
     order+: 1049
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4077
+/bond_non_8023ad_no_lacp_active_on_reapply:
+    id: e07b3020-dcd1-5efd-b7d1-76f10ee246bc
+    order+: 1050
 /bond_mode_balance_tlb:
     id: 468e837f-58f1-54a8-8156-39c49a010d88
-    order+: 1050
+    order+: 1051
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4078
 /bond_mode_balance_alb:
     id: 1750dc19-6f91-5299-8bac-4913ce27d071
-    order+: 1051
+    order+: 1052
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4079
 /bond_set_mtu:
     id: 07a98cf3-8efc-5467-933b-666f17bd526d
-    order+: 1052
+    order+: 1053
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4080
 /bond_set_different_mtu_on_slaves:
     id: 25085f6a-7daf-537e-9384-0579a340886a
-    order+: 1053
+    order+: 1054
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4081
 /bond_addreses_restart_persistence:
     tag: ['gate']
     id: 86b46ba0-81d3-5b99-8c7d-ac2273d575cd
-    order+: 1054
+    order+: 1055
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4082
 /bond_describe:
     id: 17119671-2a54-5967-9c4c-350b996ded4a
-    order+: 1055
+    order+: 1056
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4083
 /delete_addrgenmode_bond:
     id: 60de2be0-9302-5293-a809-099da6811368
-    order+: 1056
+    order+: 1057
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4084
 /nmcli_novice_mode_create_bond_with_mii_monitor_values:
     id: 20103670-c8fa-5941-934b-6ac31c4434d0
-    order+: 1057
+    order+: 1058
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4085
 /nmcli_novice_mode_create_bond_with_default_options:
     id: ada83ab3-adb8-5309-8082-00e1b05e0592
-    order+: 1058
+    order+: 1059
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4086
 /nmcli_novice_mode_create_bond_with_arp_monitor_values:
     id: bbb9861f-7441-5228-b235-cbe2dbaf8b77
-    order+: 1059
+    order+: 1060
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4087
 /nmcli_novice_mode_create_bond-slave_with_default_options:
     id: 0b77595c-119c-5dd5-9f3a-a21a521e4f39
-    order+: 1060
+    order+: 1061
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4088
 /bond_reflect_changes_from_outside_of_NM:
     id: dddc4081-32ff-5a18-bf56-49f01a278bbe
-    order+: 1061
+    order+: 1062
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4089
 /bond_dbus_creation:
     id: af9c4231-fc18-52cd-943f-820d2ede30d7
-    order+: 1062
+    order+: 1063
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4090
 /bond_mode_by_number_in_keyfile:
     id: d5f4dac0-a6ea-5a70-b658-c144fa6e64d4
-    order+: 1063
+    order+: 1064
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4091
 /bond_set_active_backup_options:
     id: fd6c1033-e7fb-5288-a7f5-4bc98cb92742
-    order+: 1064
+    order+: 1065
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4092
 /bond_set_ad_options:
     id: 7c586c44-3f2b-58e0-b9a7-b8708f292fb2
-    order+: 1065
+    order+: 1066
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4093
 /bond_set_arp_all_targets:
     id: f5cb90fd-038c-575a-9cac-d05891535e37
-    order+: 1066
+    order+: 1067
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4094
 /bond_set_packets_per_slave_option:
     id: b95804a7-ccc0-524c-947a-6da818e5cb01
-    order+: 1067
+    order+: 1068
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4095
 /bond_set_peer_notif_delay_option:
     id: 396fdeb6-7c52-5554-a70e-594e923dea3a
-    order+: 1068
+    order+: 1069
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4096
 /bond_set_invalid_peer_notif_delay_option:
     id: 92fa4561-348a-5038-a487-26b9d8679b93
-    order+: 1069
+    order+: 1070
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4097
 /bond_set_balance_tlb_options:
     id: d398acab-25b7-5d77-a064-b658866b30a5
-    order+: 1070
+    order+: 1071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4098
 /bond_set_balance_tlb_options_var2:
     tag: ['customer-scenario']
     id: c7f0d297-9d2f-5873-8100-8dc4d3bb0daa
-    order+: 1071
+    order+: 1072
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4099
 /bond_device_rename:
     id: ed9e1b24-f75e-5eab-9ab8-27d5fe68cef5
-    order+: 1072
+    order+: 1073
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4100
 /bond_enslave_to_bridge:
     id: 4ff65a6c-ef1b-5720-acb1-f9feedc8dc54
-    order+: 1073
+    order+: 1074
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4101
 /bridge_bond_autoconnect_nested_slaves:
     tag: ['gate', 'libnl3']
     id: d173d9c1-6cef-5948-a469-ec7684f770dd
-    order+: 1074
+    order+: 1075
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4102
 /bond_in_bridge_mtu:
     tag: ['gate']
     id: 03cde1b2-40cf-5df1-8fd6-c3ff00b9d596
-    order+: 1075
+    order+: 1076
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4103
 /bond_8023ad_no_error:
     id: c95bf15f-1060-5d41-98c6-01b5f9bfc4ca
-    order+: 1076
+    order+: 1077
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4104
 /bond_balance-alb_no_error:
     id: 1fdd0343-be02-5f9e-aad9-750f7b9533a6
-    order+: 1077
+    order+: 1078
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4105
 /reapply_unchanged_slave:
     id: 1ea80dbf-c6de-59dc-a9b0-f6400bd5a58c
-    order+: 1078
+    order+: 1079
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4106
 /vlan_over_no_L3_bond_restart_persistence:
     tag: ['gate']
     id: a1a28272-5176-548f-ac95-bbd4acdb235d
-    order+: 1079
+    order+: 1080
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4107
 /vlan_over_bond_reconnect_on_link_revive:
     id: 519a840a-5087-57d2-a498-576c6fa68fc6
-    order+: 1080
+    order+: 1081
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4108
 /bond_leave_L2_only_up_when_going_down:
     tag: ['gate']
     id: 6d8db9f0-0f10-56e1-a1b2-334a2e0dfe08
-    order+: 1081
+    order+: 1082
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4109
 /bond_assume_options_1:
     id: eeb9e408-ec96-5bc9-a0b7-14211e38b490
-    order+: 1082
+    order+: 1083
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4110
 /bond_assume_options_2:
     id: 86e39574-0892-59b8-aadd-c68a8d9ad4cb
-    order+: 1083
+    order+: 1084
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4111
 /bond_assume_options_3:
     id: 82d558d8-4f3c-5e77-8de4-508a82fbc8ec
-    order+: 1084
+    order+: 1085
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4112
 /nmclient_bond_get_state_flags:
     id: 9f9df720-7820-5578-b244-17fe17a74de5
-    order+: 1085
+    order+: 1086
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4113
 /bond_set_num_grat_arp_unsol_na:
     id: 5e04ccd8-0311-56fa-9409-9e7efa9b82df
-    order+: 1086
+    order+: 1087
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4114
 /bond_send_correct_arp:
     id: e100e2e2-b36d-5dc9-99df-791b71270ff0
-    order+: 1087
+    order+: 1088
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4115
 /bond_autoconnect_activation_fails_with_libnm:
     id: 8095e432-2190-5776-a48d-ed855d8f60a8
-    order+: 1088
+    order+: 1089
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4116
 /bond_normalize_connection:
     id: 7b60c2ab-298c-5fd1-a87c-805fdc985b77
-    order+: 1089
+    order+: 1090
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4117
 /bond_arp_validate:
     tag: ['gate']
     id: 5a3a9be5-f7ac-5ea6-960c-b28efb9bb5aa
-    order+: 1090
+    order+: 1091
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4118
 /bond_rr_arp_validate:
     id: 00f98db7-7435-54d0-8aef-f0db9227b681
-    order+: 1091
+    order+: 1092
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4119
 /bond_reapply_connection_without_wired_settings:
     id: f581b02a-a344-5337-b1e1-8ab340fc406d
-    order+: 1092
+    order+: 1093
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4120
 /bond_reconnect_previously_unavailable_device:
     id: d0e0b5a0-5e03-5671-ac5f-4f627d36f2fb
-    order+: 1093
+    order+: 1094
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4121
 /bond_add_default_route_if_bond0_exists:
     id: 8150267e-0b8c-524c-a4da-a652a4f2f973
-    order+: 1094
+    order+: 1095
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4122
 /bond_reapply:
     id: df072490-c28e-5758-865b-3eae34fecc48
-    order+: 1095
+    order+: 1096
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4123
 /bond_change_mode_of_externally_created_bond:
     id: 78476b36-9834-51b9-bda6-4216a85787e0
-    order+: 1096
+    order+: 1097
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4124
 /bond_8023ad_with_vlan_srcmac:
     id: 117a2ae6-d318-5af6-bd1b-b880166ef4b3
-    order+: 1097
+    order+: 1098
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4125
 /bond_set_MTU_before_DHCP:
     tag: ['customer-scenario']
     id: 9700673f-2a35-5a0a-a15d-de02abd7ca7b
-    order+: 1098
+    order+: 1099
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4126
 /bond_accept_all_mac_addresses:
     id: 79e438ed-0d8f-5727-8325-93a63530051b
-    order+: 1099
+    order+: 1100
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4127
 /bond_accept_all_mac_addresses_external_device:
     id: 7ba8d678-5e47-5a45-b150-19b48244bb95
-    order+: 1100
+    order+: 1101
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4128
 /bond_enslave_to_bridge_correct_ARP:
     id: e0416f53-c78c-5af5-994a-ca2517d93e3a
-    order+: 1101
+    order+: 1102
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4129
 /bond_controller_port_terminology:
     id: f22b633a-3a18-519a-b74a-9f3f744e8b5c
-    order+: 1102
+    order+: 1103
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4130
 /bond_ipv4_dad_timeout_not_used:
     id: f41d71a6-c17f-5c83-8fc1-abe3b17ea1c0
-    order+: 1103
+    order+: 1104
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4131
 /bond_modify_bond-opts_with_slaves:
     id: 1fa33415-e25a-52ef-950f-a8dc5f8a059e
-    order+: 1104
+    order+: 1105
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4132
 /bond_conflicting_device_names:
     id: 5314c2f8-c097-520b-90bf-0a07a0443d15
-    order+: 1105
+    order+: 1106
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4133
 /bond_set_balance_slb_options:
     id: 70bdcab6-ef15-5dd1-aeb6-65c3e8a22566
-    order+: 1106
+    order+: 1107
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4134
 /bond_vlan_filtering_unmanaged_bridge:
     id: ee098bec-8ef0-5217-87bf-975344001ee8
-    order+: 1107
+    order+: 1108
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4135
 /bond_unattach_ports_on_controller_failure:
     id: cf2775e9-6523-53a6-9dbd-d63ed1ed3cbc
-    order+: 1108
+    order+: 1109
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4136
 /bond_set_hostname_even_when_links_do_not_come_up_immediately:
     id: 63284760-ada5-51b5-973d-c5a7963b255f
-    order+: 1109
+    order+: 1110
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4137
 /bond_expose_dhcp_client_identifier:
     id: 0cae61b0-0e8a-5f87-94c0-3f015bba9139
-    order+: 1110
+    order+: 1111
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4138
 /bond_expose_dhcp6_client_id:
     id: 5324a55e-2f95-56dc-97ad-b6cabd6a06da
-    order+: 1111
+    order+: 1112
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4139
 /bond_expose_iaid:
     id: 38a8ad31-d60a-594d-9eba-fc8990cb6f9e
-    order+: 1112
+    order+: 1113
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4140
 /bond_stay_up_when_ipv6_flushed:
     id: 15a272ac-f8a0-54e0-bfe8-15aff3df75f2
-    order+: 1113
+    order+: 1114
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4141
 /bond_slb_garp:
     id: b130b4cb-5614-5636-8619-eb4539d21081
-    order+: 1114
+    order+: 1115
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4142
 /bond_slb_l3_bridge_garp:
     id: 33ee50ad-2326-5d1d-9214-0d7cf3c26ccf
-    order+: 1115
+    order+: 1116
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4143
 /bond_slb_l2_bridge_rarp:
     id: 9c25f257-3501-52f4-9adf-b951e70cf663
-    order+: 1116
+    order+: 1117
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4144
 /bond_slb_garp_ping:
     id: e8f6d4b9-fe7f-5dbb-9c7c-23538afdb23f
-    order+: 1117
+    order+: 1118
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4145
 /update_firewall_zone_upon_reconnect:

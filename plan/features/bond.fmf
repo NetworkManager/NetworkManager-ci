@@ -51,6 +51,7 @@ discover:
         - /tests/bond_8023ad_with_lacp_rate_fast
         - /tests/bond_8023ad_with_lacp_active_on
         - /tests/bond_8023ad_with_lacp_active_off
+        - /tests/bond_non_8023ad_no_lacp_active_on_reapply
         - /tests/bond_mode_balance_tlb
         - /tests/bond_mode_balance_alb
         - /tests/bond_set_mtu
