@@ -1454,6 +1454,24 @@
      * Execute "nmcli device reapply nm-bond"
      Then "failed to set bonding attribute 'lacp_active'" is not visible in journal
 
+    @ver+=1.57.4
+    @ver/rhel/9+=1.54.4.1
+    @bond_non_8023ad_no_arp_missed_max_err_on_reapply
+    Scenario: nmcli - bond - no arp_missed_max warning for 802.3ad bond on reapply
+     * Add "bond" connection named "bond0" for device "nm-bond" with options
+           """
+           ip4 172.16.1.1/24
+           bond.options mode=802.3ad,miimon=100,lacp_rate=fast
+           """
+     * Add "ethernet" connection named "bond0.0" for device "eth1" with options "master nm-bond"
+     * Add "ethernet" connection named "bond0.1" for device "eth4" with options "master nm-bond"
+     * Bring "up" connection "bond0"
+     Then "Bonding Mode: IEEE 802.3ad Dynamic link aggregation" is visible with command "cat /proc/net/bonding/nm-bond"
+     Then Check bond "nm-bond" link state is "up"
+     * Start following journal
+     * Execute "nmcli device reapply nm-bond"
+     Then "failed to set bonding attribute 'arp_missed_max'" is not visible in journal
+
 
     @bond_mode_balance_tlb
     Scenario: nmcli - bond - options - mode set to balance-tlb
