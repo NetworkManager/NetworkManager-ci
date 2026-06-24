@@ -2674,6 +2674,24 @@ Feature: nmcli: ipv4
     Then "RH" is visible with command "nmcli -g ipv4.dhcp-vendor-class-identifier con show con_ipv4"
 
 
+    @ver+=1.57.5
+    @tshark
+    @ipv4_dhcp_user_class
+    Scenario: NM - ipv4 - dhcp-user-class - send User Class option
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-user-class "MyClass,TestLab"
+          """
+    * Bring "down" connection "con_ipv4"
+    * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "User Class Data:" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "MyClass" is visible with command "grep 'User Class Data:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
+     And "TestLab" is visible with command "grep 'User Class Data:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
+
+
     @rhbz1979192
     @ver+=1.32.10
     @ipv4_spurious_leftover_route

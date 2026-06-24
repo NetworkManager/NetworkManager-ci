@@ -776,6 +776,8 @@ testmapper:
     - ipv6_dhcp-hostname_remove:
         feature: ipv6
         tags: gate libndp
+    - ipv6_dhcp_user_class:
+        feature: ipv6
     - ipv6_send_fqdn_dot_fqdn_to_dhcpv6:
         feature: ipv6
     - ipv6_DHCPv6:
@@ -1233,6 +1235,8 @@ testmapper:
     - ipv4_external_addresses_no_double_routes:
         feature: ipv4
     - ipv4_dhcp_vendor_class_keyfile:
+        feature: ipv4
+    - ipv4_dhcp_user_class:
         feature: ipv4
     - ipv4_spurious_leftover_route:
         feature: ipv4
