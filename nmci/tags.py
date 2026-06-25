@@ -1597,6 +1597,8 @@ def firewall_bs(context, scenario):
     context.process.systemctl("stop firewalld")
     time.sleep(5)
     context.process.systemctl("start firewalld")
+    # Need some small time to start properly
+    time.sleep(1)
     nmci.process.run_stdout(
         "firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp",
         ignore_stderr=True,
