@@ -1330,6 +1330,7 @@ Feature: nmcli - general
     @no_error_when_firewald_restarted
     Scenario: NM - general - no error when firewalld restarted
     * Execute "systemctl restart firewalld"
+    Then "^running$" is visible with command "firewall-cmd --state || true" in "30" seconds
     Then "nm_connection_get_setting_connection: assertion" is not visible with command "journalctl -u NetworkManager --since '10 seconds ago' --no-pager |grep nm_connection"
 
 
@@ -1344,6 +1345,7 @@ Feature: nmcli - general
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show testeth0" in "45" seconds
     * DNF "-y install firewalld"
     * Execute "systemctl start firewalld"
+    Then "^running$" is visible with command "firewall-cmd --state || true" in "30" seconds
     Then "work" is visible with command "firewall-cmd  --get-zone-of-interface=eth8" in "3" seconds
 
 

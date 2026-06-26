@@ -606,6 +606,7 @@ Feature: nmcli: connection
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
+      Then "^running$" is visible with command "firewall-cmd --state || true" in "30" seconds
       When "internal\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Restart NM
@@ -615,6 +616,7 @@ Feature: nmcli: connection
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Execute "systemctl restart firewalld"
+      Then "^running$" is visible with command "firewall-cmd --state || true" in "30" seconds
       When "trusted\s+interfaces: eth5" is visible with command "firewall-cmd --get-active-zones"
        And "public(\s+[(]default[)])?\s+interfaces: eth0" is visible with command "firewall-cmd --get-active-zones"
       * Modify connection "con_con" changing options "connection.zone work"

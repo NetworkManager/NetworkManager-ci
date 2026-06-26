@@ -1597,8 +1597,18 @@ def firewall_bs(context, scenario):
     context.process.systemctl("stop firewalld")
     time.sleep(5)
     context.process.systemctl("start firewalld")
-    # Need some small time to start properly
-    time.sleep(1)
+
+    # "systemctl start" returns before firewalld is ready to answer on D-Bus,
+    # poll until "firewall-cmd --state" reports running to avoid a race
+    def wait_firewalld_running():
+        assert nmci.process.run_code("firewall-cmd --state") == 0
+
+    nmci.util.wait_for(
+        wait_firewalld_running,
+        timeout=30,
+        op_name="firewalld to become running",
+    )
+
     nmci.process.run_stdout(
         "firewall-cmd --zone=public --add-port=80/tcp --add-port=8080/tcp",
         ignore_stderr=True,
