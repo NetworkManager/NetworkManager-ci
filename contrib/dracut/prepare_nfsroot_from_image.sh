@@ -23,7 +23,7 @@ link=
 
 if [ "$ID" == rhel ]; then
     link=$(dnf -v repolist --enabled | grep Repo-baseurl | grep BaseOS | grep /os | grep -v RCMTOOLS | head -n 1 | sed 's/.*: //g;s!/os!/images/!' )
-    link="$link$(get_all "$link" | grep 'qcow2$')"
+    link="$link$(get_all "$link" | grep 'rhel-guest-image' | grep 'qcow2$')"
 elif [ "$ID" == centos ]; then
     link=https://cloud.centos.org/centos/$VERSION_ID-stream/$(arch)/images/
     # grep out GenericCloud-x86_64-9-latest.x86_64.qcow2
