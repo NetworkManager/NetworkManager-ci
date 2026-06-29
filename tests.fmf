@@ -2863,9 +2863,12 @@ link:
     order+: 8173
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4568
+/ipv4_dhclient_mud_url_CVE_2026_10805:
+    id: 4d344ad2-bf06-5910-a629-1a901cf24c30
+    order+: 8174
 /ipv4_unreachable_gateway_warning:
     id: d5bec33e-d868-5b77-a8fb-411e541836b3
-    order+: 8174
+    order+: 8175
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9178
 /vlan_add_default_device:
