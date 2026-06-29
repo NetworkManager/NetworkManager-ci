@@ -175,5 +175,6 @@ discover:
         - /tests/ipv4_forwarding_with_sysctl_default_forwarding_enabled
         - /tests/ipv4_shared_connection_with_sysctl_default_forwarding_disabled
         - /tests/ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled
+        - /tests/ipv4_dhclient_mud_url_CVE_2026_10805
         - /tests/ipv4_unreachable_gateway_warning
         - /tests/route_priorities
