@@ -3888,6 +3888,34 @@ Feature: nmcli: ipv4
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "10" seconds
 
 
+    @ver+=1.57.5
+    @dhclient_DHCP
+    @ipv4_dhclient_mud_url_CVE_2026_10805
+    Scenario: NM - ipv4 - CVE-2026-10805 - mud-url with injection chars must be rejected
+    * Prepare simulated test "testX4" device
+    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
+          """
+          ipv4.method auto
+          ipv4.may-fail yes
+          ipv6.method disabled
+          """
+    # MUD URL containing newline + script directive injection (CVE-2026-10805 payload)
+    Then "Error" is visible with command "nmcli con modify con_ipv4 connection.mud-url $'https://x.invalid/\x22;\nscript \x22/tmp/e.sh\x22;\n#' 2>&1"
+    # double quote alone
+     And "Error" is visible with command "nmcli con modify con_ipv4 connection.mud-url $'https://x.invalid/\x22' 2>&1"
+    # backslash
+     And "Error" is visible with command "nmcli con modify con_ipv4 connection.mud-url $'https://x.invalid/\x5c' 2>&1"
+    # control character
+     And "Error" is visible with command "nmcli con modify con_ipv4 connection.mud-url $'https://x.invalid/\x01' 2>&1"
+    # newline
+     And "Error" is visible with command "nmcli con modify con_ipv4 connection.mud-url $'https://x.invalid/\n' 2>&1"
+    # valid MUD URL must still be accepted and appear in dhclient config
+    * Modify connection "con_ipv4" changing options "connection.mud-url https://mud.example.com/device.json"
+    * Bring "up" connection "con_ipv4" ignoring error
+    Then "mudurl.*https://mud.example.com/device.json" is visible with command "cat /var/lib/NetworkManager/dhclient-testX4.conf" in "10" seconds
+     And "^script " is not visible with command "cat /var/lib/NetworkManager/dhclient-testX4.conf"
+
+
     @RHEL-126543
     @ver+=1.57.2
     @ipv4_unreachable_gateway_warning
