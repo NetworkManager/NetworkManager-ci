@@ -39,6 +39,7 @@ discover:
         - /tests/ipv6_dns-search_set
         - /tests/ipv6_dns-search_remove
         - /tests/ipv6_ignore-auto-dns_set
+        - /tests/ipv6_ignore-auto-dns_reapply
         - /tests/ipv6_method_link-local
         - /tests/ipv6_method_ignored
         - /tests/ipv6_method_disabled
