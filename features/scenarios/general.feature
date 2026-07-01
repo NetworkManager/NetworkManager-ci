@@ -3146,7 +3146,7 @@ Feature: nmcli - general
 
 
     @rhbz1758550
-    @ver+=1.18.6
+    @ver+=1.18.6 @ver-1.57.5
     @manage_eth8 @eth8_disconnect @tshark @dhclient_DHCP
     @NM_merge_dhclient_conditionals
     Scenario: NM - general - merge dhcp conditionals

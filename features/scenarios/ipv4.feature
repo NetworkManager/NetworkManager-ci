@@ -1511,7 +1511,7 @@ Feature: nmcli: ipv4
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
 
 
-    @ver+=1.45.4.2000
+    @ver+=1.45.4.2000 @ver-1.57.5
     @dhclient_DHCP
     @ipv4_dhcp_client_id_default_dhclient_set
     Scenario: NM - ipv4 - ipv4 client id should default to the value from dhclient.conf
@@ -1528,7 +1528,7 @@ Feature: nmcli: ipv4
     Then "01:02:03:04:05:06" is visible with command "grep 'Client-ID' /tmp/tcpdump.log"
 
 
-    @ver+=1.45.4.2000 @rhelver+=9
+    @ver+=1.45.4.2000 @ver-1.57.5 @rhelver+=9
     @dhclient_DHCP
     @ipv4_dhcp_client_id_default_dhclient_unset
     Scenario: NM - ipv4 - ipv4 client id should default to unset if it's missing in dhclient.conf
@@ -2378,7 +2378,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1663253
-    @ver+=1.20
+    @ver+=1.20 @ver-1.57.5
     @dhclient_DHCP
     @dhcp_private_option_dhclient
     Scenario: NM - ipv4 - dhcp server sends private options dhclient
