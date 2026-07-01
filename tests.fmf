@@ -1512,439 +1512,442 @@ link:
     order+: 6037
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4310
+/ipv6_ignore-auto-dns_reapply:
+    id: 1031487d-9ac3-5aed-9cac-1ce113932357
+    order+: 6038
 /ipv6_method_link-local:
     tag: ['gate', 'libndp']
     id: 7d134f46-9854-5b65-8fad-28402f749c32
-    order+: 6038
+    order+: 6039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4311
 /ipv6_method_ignored:
     id: fce8d161-b631-5568-bb16-8692500ce3cf
-    order+: 6039
+    order+: 6040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4312
 /ipv6_method_disabled:
     id: c511b6ed-6b7a-5afe-a7cf-d9860d8e129e
-    order+: 6040
+    order+: 6041
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4313
 /ipv6_may_fail_set_true:
     tag: ['gate', 'libndp']
     id: 56665871-f5c0-5937-ac54-09ca5c093a56
-    order+: 6041
+    order+: 6042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4314
 /ipv6_never-default_set_true:
     tag: ['gate', 'libndp']
     id: 2a5dc684-acb7-588a-8faa-c376c9e056e7
-    order+: 6042
+    order+: 6043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4315
 /ipv6_never-default_remove:
     tag: ['gate', 'libndp']
     id: e61928e2-7b2a-5247-9326-54aaa8cccff6
-    order+: 6043
+    order+: 6044
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4316
 /ipv6_dhcp-hostname_set:
     id: 1c830486-bbec-5166-af82-900e2c569c0a
-    order+: 6044
+    order+: 6045
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4317
 /ipv6_dhcp-hostname_remove:
     tag: ['gate', 'libndp']
     id: 67d39026-773a-5a9c-9dc5-c9612364bb2b
-    order+: 6045
+    order+: 6046
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4318
 /ipv6_send_fqdn_dot_fqdn_to_dhcpv6:
     id: dd1271e9-e8e1-50b2-9e1a-69565b82149e
-    order+: 6046
+    order+: 6047
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4319
 /ipv6_DHCPv6:
     id: 72eee2c4-c835-576b-a4c6-92a6eaa5e8e3
-    order+: 6047
+    order+: 6048
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4320
 /ipv6_secondary_address:
     id: ae847b15-c7aa-593d-abc1-f31ab3e6cd74
-    order+: 6048
+    order+: 6049
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4321
 /ipv6_ip6-privacy_0:
     id: de326c56-574a-5927-80f4-fda4c1bc1421
-    order+: 6049
+    order+: 6050
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4322
 /ipv6_ip6-privacy_1:
     id: dfbae99c-cd1d-566e-bca4-171f633d9914
-    order+: 6050
+    order+: 6051
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4323
 /ipv6_ip6-privacy_2:
     id: 9d9e6e91-c5fc-5f10-aa6d-fb979e7d1318
-    order+: 6051
+    order+: 6052
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4324
 /ipv6_ip6-privacy_with_lifetime:
     id: a844398a-e88a-5a81-9c54-e533a1db9c4e
-    order+: 6052
+    order+: 6053
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4325
 /ipv6_ip6-default_privacy:
     id: 6befd087-c395-50f4-abf3-1abced8b79c0
-    order+: 6053
+    order+: 6054
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4326
 /ipv6_ip6-privacy_incorrect_value:
     id: f3953773-42e5-5625-b2bf-b9d487c533c1
-    order+: 6054
+    order+: 6055
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4327
 /ipv6_lifetime_no_padding:
     id: ef0549dd-a295-5dc1-bf24-d6dbc6acd12e
-    order+: 6055
+    order+: 6056
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4328
 /ipv6_lifetime_too_low:
     id: f61d367d-78d4-5dfe-9b0e-30062e7bfce0
-    order+: 6056
+    order+: 6057
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4329
 /ipv6_drop_ra_with_255_hlimit:
     id: c459babf-7cfe-5b6f-9d92-461ef7dffa72
-    order+: 6057
+    order+: 6058
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4330
 /ipv6_drop_ra_with_low_hlimit:
     id: 6af3339b-6ba9-5f4c-bb7c-8917b09630b1
-    order+: 6058
+    order+: 6059
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4331
 /ipv6_drop_ra_from_non_ll_address:
     id: b0d9cc1d-96bf-5cf5-a272-d309a863a069
-    order+: 6059
+    order+: 6060
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4332
 /ipv6_preserve_addr_order:
     id: b1b2203c-0881-5b96-b643-628bb50e04d8
-    order+: 6060
+    order+: 6061
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4333
 /ipv6_add_static_address_manually_not_active:
     id: 56fc6501-13cc-5695-b2cf-f072be09bac0
-    order+: 6061
+    order+: 6062
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4334
 /ipv6_no_assumed_connection_for_ipv6ll_only:
     id: 4b504d16-9868-5d53-a1aa-73162339f267
-    order+: 6062
+    order+: 6063
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4335
 /ipv6_set_ra_announced_mtu:
     tag: ['gate', 'libndp']
     id: aa0e8468-51d2-5ed6-8005-5fff0a454f75
-    order+: 6063
+    order+: 6064
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4336
 /nm-online_wait_for_ipv6_to_finish:
     tag: ['gate', 'libndp']
     id: 218a89db-a230-5a81-a14c-985e55057881
-    order+: 6064
+    order+: 6065
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4337
 /ipv6_shared_connection:
     tag: ['gate', 'libndp']
     id: e9888e95-a398-532d-9b42-794a76447108
-    order+: 6065
+    order+: 6066
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4338
 /ipv6_tunnel_module_removal:
     id: e3745b33-a0e7-55c2-b559-428ca0067f01
-    order+: 6066
+    order+: 6067
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4339
 /ipv6_no_activation_schedule_error_in_logs:
     id: 4b9e6aba-2739-54a3-aada-ea7fedb43aca
-    order+: 6067
+    order+: 6068
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4340
 /ipv6_NM_stable_with_internal_DHCPv6:
     id: 71235fc5-6940-5416-998e-0f63ef3fe20d
-    order+: 6068
+    order+: 6069
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4341
 /persistent_default_ipv6_gw:
     tag: ['gate', 'libndp']
     id: 19cbfe89-8c37-5ec0-8880-77dd041b97d8
-    order+: 6069
+    order+: 6070
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4342
 /persistent_ipv6_routes:
     tag: ['gate', 'libndp']
     id: 9b260e2b-f057-5078-b0ae-88be55744c23
-    order+: 6070
+    order+: 6071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4343
 /ipv6_honor_ip_order:
     tag: ['gate', 'libndp']
     id: ef183d2b-8acd-5a77-9604-0639992f6098
-    order+: 6071
+    order+: 6072
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4344
 /ipv6_keep_static_address_after_reapply:
     id: 69c05450-1868-5c38-84bf-ad8adb0fabbb
-    order+: 6072
+    order+: 6073
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4345
 /ipv6_keep_route_upon_reapply:
     tag: ['gate', 'libndp']
     id: 8468b405-a231-5e36-ae57-c1791b393212
-    order+: 6073
+    order+: 6074
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4346
 /ipv6_keep_route_upon_reapply_full:
     id: b4c4924c-d1e5-5353-95ef-f926caea5a46
-    order+: 6074
+    order+: 6075
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4347
 /ipv6_no_extra_temp_addresses:
     id: 23aea292-9e34-54b6-b581-1d964424dec1
-    order+: 6075
+    order+: 6076
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4348
 /ipv6_internal_client_dhcpv6_leases_renewal:
     id: 5d1bdad5-84bc-5ae9-8d35-c324e96f5c39
-    order+: 6076
+    order+: 6077
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4349
 /ipv6_describe:
     id: 4b5c0348-1af0-5b35-addc-a23cc211c6c2
-    order+: 6077
+    order+: 6078
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4350
 /ipv6_keep_external_addresses:
     id: 5ff3ebe0-e591-5ba3-a8b8-f9f0b8a59955
-    order+: 6078
+    order+: 6079
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4351
 /ipv6_keep_external_routes:
     id: 2e83d88e-1d22-59ea-97d8-441d91f6a316
-    order+: 6079
+    order+: 6080
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4352
 /nmcli_general_finish_dad_without_carrier:
     id: 5f161993-1e83-583d-8b7d-96cf1aeeb45b
-    order+: 6080
+    order+: 6081
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4353
 /ipv4_dad_not_preventing_ipv6:
     id: f860d05a-a96b-57b1-b316-b116b503573a
-    order+: 6081
+    order+: 6082
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4354
 /ipv6_may_fail_no_wait_for_dad_dhcp:
     id: 061b535c-86a5-5b9d-a186-d60a8afba25a
-    order+: 6082
+    order+: 6083
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4355
 /ipv6_may_fail_no_wait_for_dad_eui:
     id: a2fb8073-2073-5801-8272-580e5c2946ee
-    order+: 6083
+    order+: 6084
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4356
 /ipv6_preserve_cached_routes:
     id: d81cf2b2-f598-5619-b7ea-82cd9829fd4f
-    order+: 6084
+    order+: 6085
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4357
 /ipv6_restart_prefixroute:
     id: cb944073-b6b6-5cc0-8ae3-fb8225bec13d
-    order+: 6085
+    order+: 6086
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4358
 /persistent_ipv6_after_device_rename:
     id: 771e60a1-eb02-518e-be4a-446a391b540f
-    order+: 6086
+    order+: 6087
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4359
 /add_ipv6_over_ipv4_configured_ext_device:
     id: 8b35f878-916a-52f5-a695-de4b6575e834
-    order+: 6087
+    order+: 6088
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4360
 /ipv6_multiple_default_routes:
     id: 813ae511-6e9b-51a7-a429-1d45a90f348b
-    order+: 6088
+    order+: 6089
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4361
 /ipv6_duid:
     id: 63bd2632-8fa0-537f-9b86-4e44041cc81e
-    order+: 6089
+    order+: 6090
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4362
 /ipv6_manual_addr_before_dhcp:
     id: 02590c9e-7098-54c9-b186-38f891f0a8b5
-    order+: 6090
+    order+: 6091
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4363
 /ipv6_survive_external_link_restart:
     id: 3539889a-0180-53db-a168-af4cabb6cce0
-    order+: 6091
+    order+: 6092
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4364
 /ipv6_prefix_delegation_internal:
     id: e3df0ad7-e38c-5dc3-8c8d-ea26f75792ab
-    order+: 6092
+    order+: 6093
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4365
 /ipv6_prefix_delegation_ll_internal:
     id: c5ed11e1-5b84-5f85-a8df-4b2eeda72465
-    order+: 6093
+    order+: 6094
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4366
 /ipv6_prefix_delegation_dhclient:
     id: e1c7cc2b-c3f4-50d1-83fb-61981c18f12d
-    order+: 6094
+    order+: 6095
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4367
 /ipv6_dhcp_iaid_unset:
     id: 3e5b33c5-1638-560e-a338-2e774e2a713e
-    order+: 6095
+    order+: 6096
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4368
 /ipv6_dhcp_iaid_ifname:
     id: aab4098f-57a2-592f-9b06-ac089d96ea80
-    order+: 6096
+    order+: 6097
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4369
 /ipv6_dhcp_iaid_mac:
     id: 0a4ea00a-85f4-5bc1-8b21-6086070bb1f8
-    order+: 6097
+    order+: 6098
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4370
 /ipv6_ra_timeout_set:
     id: b86eb639-bb25-5f36-872e-4082892a16b1
-    order+: 6098
+    order+: 6099
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4371
 /ipv6_token:
     id: dc4bf618-c7ce-5139-9a99-8aa80e2d5548
-    order+: 6099
+    order+: 6100
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4372
 /dhcpv6_hostname:
     id: 838151cd-dc76-57e7-866a-f4d4b92b2a8e
-    order+: 6100
+    order+: 6101
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4373
 /ipv6_ignore_nonstatic_routes:
     id: bb1cbd2e-abdc-5bca-8dd2-1c5518be1353
-    order+: 6101
+    order+: 6102
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4374
 /ipv6_ignore_routes_changes:
     id: 97b43140-a83b-5c78-9912-60bb5e8bb657
-    order+: 6102
+    order+: 6103
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4375
 /ipv6_required_timeout_set:
     id: 03ca11fc-2be3-5ae5-9c3e-a04f34c127c8
-    order+: 6103
+    order+: 6104
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4376
 /ipv6_check_addr_order:
     id: dee08419-4854-5666-94db-a9389158e8f2
-    order+: 6104
+    order+: 6105
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4377
 /ipv6_handle_route_linking:
     id: 86cb6be1-b09f-5802-b417-cbcd7a5546e8
-    order+: 6105
+    order+: 6106
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4378
 /ipv6_ignore_address_lease_dhclient:
     id: 6d0b1e76-ce27-5752-9fb7-fdfcf5f63dbe
-    order+: 6106
+    order+: 6107
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4379
 /ipv6_set_addr-gen_mode_global_config:
     tag: ['gate', 'libndp']
     id: 4758eb02-dda1-5990-8624-6a036bbfc2ee
-    order+: 6107
+    order+: 6108
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4380
 /ipv6_set_dhcp_send_hostname_global_config:
     id: 8a9074e9-c4a8-5a27-b89c-308d5739bb87
-    order+: 6108
+    order+: 6109
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4381
 /ipv6_stable_privacy_dad:
     id: fac4c0a5-d47c-50e1-ad7d-c469b045d01f
-    order+: 6109
+    order+: 6110
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4382
 /ipv6_mptcp_no_flags:
     id: 7f1b355b-7447-5179-8e5f-4fb0c546bca5
-    order+: 6110
+    order+: 6111
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4383
 /ipv6_mptcp_flags_0x8:
     id: c02b1c11-7f96-5da2-890d-99d8108eebd3
-    order+: 6111
+    order+: 6112
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4384
 /ipv6_mptcp_endpoints_dad:
     id: d6adc1aa-9cec-5cf6-9c90-ea7cc0a59498
-    order+: 6112
+    order+: 6113
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4385
 /ipv6_route_cache_consistancy:
     id: b391c967-421a-5b51-86ed-9a4b17bb8ea7
-    order+: 6113
+    order+: 6114
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4386
 /ipv6_prefsrc_route:
     id: bed5f83b-fd21-5e4d-8931-d07e828a9ac5
-    order+: 6114
+    order+: 6115
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4387
 /not_enable_ipv6_on_external:
     id: 543cef5b-88b4-50f5-9e7d-a4bcd729a1ff
-    order+: 6115
+    order+: 6116
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4388
 /ipv6_allow_static_routes_without_address:
     tag: ['gate', 'libndp']
     id: 39697aac-6eb8-5f12-ad25-88c5521a8005
-    order+: 6116
+    order+: 6117
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4389
 /ipv6_ndp_ipv6_route_information_buffer_overflow:
     tag: ['gate', 'libndp']
     id: 970ce98e-a7a0-58b4-8267-549073b0d105
-    order+: 6117
+    order+: 6118
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4390
 /ipv6_add_dns_routes:
     id: 652652bb-92fd-590e-9467-fd707f1f932e
-    order+: 6118
+    order+: 6119
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4391
 /ipv6_do_not_touch_ipv6_disabled_on_reapply:
     id: 4b41d01b-0828-5225-ab41-34da8bc9ba80
-    order+: 6119
+    order+: 6120
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4392
 /ipv6_routes_not_reachable:
     id: 8d3ff43b-5ef8-5420-9fc4-c2606cbcacf9
-    order+: 6120
+    order+: 6121
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9179
 /ipv6_unreachable_gateway_warning:
     id: a86fd281-ffbe-5282-9781-c76e969a78cc
-    order+: 6121
+    order+: 6122
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9180
 /nmcli_general_correct_profile_activated_after_restart:

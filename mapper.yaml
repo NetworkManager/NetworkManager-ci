@@ -755,6 +755,8 @@ testmapper:
         feature: ipv6
     - ipv6_ignore-auto-dns_set:
         feature: ipv6
+    - ipv6_ignore-auto-dns_reapply:
+        feature: ipv6
     - ipv6_method_link-local:
         feature: ipv6
         tags: gate libndp

@@ -595,6 +595,19 @@
     Then Domain "virtual" is not set
 
 
+    @ver+=1.57.4
+    @NMT-2218
+    @eth0
+    @ipv6_ignore-auto-dns_reapply
+    Scenario: nmcli - ipv6 - ignore auto obtained dns honored on reapply
+    * Add "ethernet" connection named "con_ipv6" for device "eth10" with options "ipv6.method auto"
+    * Bring "up" connection "con_ipv6"
+    * Nameserver "2620:" is set in "15" seconds
+    * Modify connection "con_ipv6" changing options "ipv6.ignore-auto-dns yes"
+    * Execute "nmcli device reapply eth10"
+    Then Nameserver "2620:" is not set in "15" seconds
+
+
     @ipv6_method_link-local
     Scenario: nmcli - ipv6 - method - link-local
      * Add "ethernet" connection named "con_ipv6" for device "eth3" with options "ipv6.method link-local"
