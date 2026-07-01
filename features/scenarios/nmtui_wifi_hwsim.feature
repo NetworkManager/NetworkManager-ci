@@ -611,6 +611,7 @@ Feature: WIFI TUI tests
     * Wait for "1" seconds
     * ".*Could not activate connection.*Activation failed.*" is visible on screen
     * Press "ENTER" key
+    * Wait for "1" seconds
     * Get back to the connection list
     * Select connection "wpa2-psk" in the list
     * Choose to "<Activate>" a connection
