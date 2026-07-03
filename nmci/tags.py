@@ -2145,7 +2145,6 @@ _register_tag("testeth7_disconnect", None, testeth7_disconnect_as)
 
 
 def checkpoint_remove_as(context, scenario):
-    # Not supported on 1-10
     import dbus
 
     bus = dbus.SystemBus()
@@ -2157,16 +2156,11 @@ def checkpoint_remove_as(context, scenario):
     manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
     # dbus property getter
     prop_get = dbus.Interface(proxy, "org.freedesktop.DBus.Properties")
-    # Unsupported prior version 1.12
-    if (
-        int(prop_get.Get("org.freedesktop.NetworkManager", "Version").split(".")[1])
-        > 10
-    ):
-        # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
-        checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
-        for checkpoint in checkpoints:
-            print("destroying checkpoint with path %s" % checkpoint)
-            manager.CheckpointDestroy(checkpoint)
+    # get list of all checkpoints (property Checkpoints of org.freedesktop.NetworkManager)
+    checkpoints = prop_get.Get("org.freedesktop.NetworkManager", "Checkpoints")
+    for checkpoint in checkpoints:
+        print("destroying checkpoint with path %s" % checkpoint)
+        manager.CheckpointDestroy(checkpoint)
 
 
 _register_tag("checkpoint_remove", None, checkpoint_remove_as)
