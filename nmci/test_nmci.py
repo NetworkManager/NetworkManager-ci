@@ -666,6 +666,7 @@ def test_misc_nm_version_parse():
     _assert("1.56~rc3-123456.mr123.abdcef1234", "upstream", [1, 55, 92, 123456])
     _assert("1.57.3~dev-1.fc43", "fedora-43", [1, 57, 3, 1])
     _assert("1.56~rc3-1.2.el10_2", "rhel-10-2", [1, 55, 92, 1, 2])
+    _assert("1.58-rc1", "unknown", [1, 57, 90])
 
 
 def test_misc_test_version_tag_parse_ver():
