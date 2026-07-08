@@ -132,6 +132,7 @@ discover:
         - /tests/ipv4_dhcp_iaid_mac
         - /tests/ipv4_external_addresses_no_double_routes
         - /tests/ipv4_dhcp_vendor_class_keyfile
+        - /tests/ipv4_dhcp_user_class
         - /tests/ipv4_spurious_leftover_route
         - /tests/ipv4_ignore_nonstatic_routes
         - /tests/ipv4_route-table_reapply

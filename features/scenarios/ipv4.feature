@@ -1511,7 +1511,7 @@ Feature: nmcli: ipv4
     Then "00:02:00:00:ab:11" is visible with command "grep 'Option 61' /tmp/tcpdump.log" in "10" seconds
 
 
-    @ver+=1.45.4.2000 @ver-1.57.5
+    @ver+=1.45.4.2000
     @dhclient_DHCP
     @ipv4_dhcp_client_id_default_dhclient_set
     Scenario: NM - ipv4 - ipv4 client id should default to the value from dhclient.conf
@@ -1528,7 +1528,7 @@ Feature: nmcli: ipv4
     Then "01:02:03:04:05:06" is visible with command "grep 'Client-ID' /tmp/tcpdump.log"
 
 
-    @ver+=1.45.4.2000 @ver-1.57.5 @rhelver+=9
+    @ver+=1.45.4.2000 @rhelver+=9
     @dhclient_DHCP
     @ipv4_dhcp_client_id_default_dhclient_unset
     Scenario: NM - ipv4 - ipv4 client id should default to unset if it's missing in dhclient.conf
@@ -2378,7 +2378,7 @@ Feature: nmcli: ipv4
 
 
     @rhbz1663253
-    @ver+=1.20 @ver-1.57.5
+    @ver+=1.20
     @dhclient_DHCP
     @dhcp_private_option_dhclient
     Scenario: NM - ipv4 - dhcp server sends private options dhclient
@@ -2672,6 +2672,24 @@ Feature: nmcli: ipv4
     * Replace "dhcp-vendor-class-identifier=RedHat" with "dhcp-vendor-class-identifier=RH" in file "/etc/NetworkManager/system-connections/con_ipv4.nmconnection"
     * Reload connections
     Then "RH" is visible with command "nmcli -g ipv4.dhcp-vendor-class-identifier con show con_ipv4"
+
+
+    @ver+=1.57.5
+    @tshark
+    @ipv4_dhcp_user_class
+    Scenario: NM - ipv4 - dhcp-user-class - send User Class option
+    * Add "ethernet" connection named "con_ipv4" for device "eth2" with options
+          """
+          ipv4.may-fail no
+          ipv4.dhcp-user-class "MyClass,TestLab"
+          """
+    * Bring "down" connection "con_ipv4"
+    * Run child "tshark -l -O bootp -i eth2 > /tmp/tshark.log"
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv4"
+    Then "User Class Data:" is visible with command "cat /tmp/tshark.log" in "10" seconds
+     And "MyClass" is visible with command "grep 'User Class Data:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
+     And "TestLab" is visible with command "grep 'User Class Data:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
 
 
     @rhbz1979192
