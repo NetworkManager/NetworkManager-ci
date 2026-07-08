@@ -718,6 +718,24 @@
     Then "r.cx" is not visible with command "cat /tmp/tshark.log" in "45" seconds
 
 
+    @ver+=1.57.5
+    @tshark
+    @ipv6_dhcp_user_class
+    Scenario: NM - ipv6 - dhcp-user-class - send User Class option
+    * Add "ethernet" connection named "con_ipv6" for device "eth2" with options
+          """
+          ipv6.may-fail true
+          ipv6.method dhcp
+          ipv6.dhcp-user-class "MyClass,TestLab"
+          """
+    * Run child "tshark -i eth2 -f 'port 546' -V -x > /tmp/tshark.log"
+    When "cannot|empty" is not visible with command "file /tmp/tshark.log" in "150" seconds
+    * Bring "up" connection "con_ipv6"
+    Then "User Class" is visible with command "cat /tmp/tshark.log" in "245" seconds
+     And "MyClass" is visible with command "grep 'User Class Data:\|Suboption:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
+     And "TestLab" is visible with command "grep 'User Class Data:\|Suboption:' /tmp/tshark.log | awk '{print $NF}' | tr -d ':' | xxd -r -p"
+
+
     @restore_hostname @tshark
     @ipv6_send_fqdn_dot_fqdn_to_dhcpv6
     Scenario: NM - ipv6 - - send fqdn.fqdn to dhcpv6

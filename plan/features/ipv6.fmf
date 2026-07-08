@@ -48,6 +48,7 @@ discover:
         - /tests/ipv6_never-default_remove
         - /tests/ipv6_dhcp-hostname_set
         - /tests/ipv6_dhcp-hostname_remove
+        - /tests/ipv6_dhcp_user_class
         - /tests/ipv6_send_fqdn_dot_fqdn_to_dhcpv6
         - /tests/ipv6_DHCPv6
         - /tests/ipv6_secondary_address
