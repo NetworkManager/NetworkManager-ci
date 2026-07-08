@@ -1363,7 +1363,7 @@ class _Misc:
         Returns list of systemd units (what 'systemctl list-units' would return
         in CLI) filtered by states and patterns as just a list of unit names or
         list of all the information returned by Systemd API:
-            https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1.html#:~:text=listunits()%20returns%20an%20array%20of%20all%20currently%20loaded%20units.
+        https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.systemd1.html#:~:text=listunits()%20returns%20an%20array%20of%20all%20currently%20loaded%20units.
 
         :param states: Return only units in on of the given states. Defaults to "`[]`"
         :type state: Iterable[str]
