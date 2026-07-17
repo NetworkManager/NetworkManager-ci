@@ -88,6 +88,7 @@ discover:
         - /tests/nmcli_general_set_device_managed_up_down_persist_only
         - /tests/nmcli_general_keyfile_tailing_whitespace
         - /tests/nmcli_general_keep_slave_device_unmanaged
+        - /tests/nmcli_general_activation_error_priority
         - /tests/no_error_when_firewald_restarted
         - /tests/show_zones_after_firewalld_install
         - /tests/nmcli_general_DHCP_HOSTNAME_profile_pickup
