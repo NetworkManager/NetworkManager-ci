@@ -1949,6 +1949,8 @@ testmapper:
         feature: general
     - nmcli_general_keep_slave_device_unmanaged:
         feature: general
+    - nmcli_general_activation_error_priority:
+        feature: general
     - no_error_when_firewald_restarted:
         feature: general
     - show_zones_after_firewalld_install:
