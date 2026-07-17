@@ -1200,6 +1200,27 @@ Feature: nmcli - general
     Then "con_general" is not visible with command "nmcli device"
 
 
+    @ver+=1.59
+    @manage_eth8
+    @nmcli_general_activation_error_priority
+    Scenario: nmcli - general - activation error reports correct device and reason
+    * Add "ethernet" connection named "con_general" for device "eth8" with options
+          """
+          autoconnect no sriov.total-vfs 1
+          """
+    Then "eth8.*SR-IOV" is visible with command "nmcli connection up con_general"
+    * Delete connection "con_general"
+    * Create NM config file with content
+      """
+      [keyfile]
+      unmanaged-devices=interface-name:orig*;interface-name:eth8
+      """
+    * Execute "pkill -HUP NetworkManager"
+    Then "unmanaged" is visible with command "nmcli -g GENERAL.STATE device show eth8"
+    * Add "ethernet" connection named "con_general" for device "eth8" with options "autoconnect no"
+    Then "eth8.*strictly unmanaged" is visible with command "nmcli connection up con_general"
+
+
     @rhbz1393997
     @restart_if_needed @restore_hostname
     @nmcli_general_DHCP_HOSTNAME_profile_pickup
