@@ -28,9 +28,12 @@ install_fedora_packages () {
 
     # Install kernel-modules for currently running kernel
     # Install kernel-modules-internal for mac80211_hwsim
-    # in case we have more kernels take the first (as we do no reboot)
-    VER=$(rpm -q --queryformat '[%{VERSION}\n]' kernel-core |tail -n1)
-    REL=$(rpm -q --queryformat '[%{RELEASE}\n]' kernel-core |tail -n1)
+    # Must match the booted kernel (uname -r), not the newest installed
+    # kernel-core: dnf may pull a newer kernel during setup and we never reboot
+    KVER=$(uname -r)
+    VER=${KVER%%-*}
+    REL=${KVER#*-}
+    REL=${REL%.$(arch)}
     PKGS_INSTALL="$PKGS_INSTALL \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-$VER-$REL.$(arch).rpm \
         $KOJI/kernel/$VER/$REL/$(arch)/kernel-modules-internal-$VER-$REL.$(arch).rpm \
