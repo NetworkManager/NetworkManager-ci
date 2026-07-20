@@ -130,6 +130,7 @@ RUN dnf install -y libreswan \
     valgrind \
     rsync \
     tcpdump \
+    systemd-udev \
     \$(ls /tmp/*.rpm) \
     --allowerasing
 RUN systemctl enable sshd
