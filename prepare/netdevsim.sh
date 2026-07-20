@@ -72,9 +72,13 @@ function setup () {
         echo "Check that patch was applied - dry-run in reverse"
         cat $PATCH | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
         # Do the same for physical adress patch
-        cat "0001-netdevsim-physical-address.patch" | patch -p1 -N -f -l || true
-        echo "Check that physical address patch was applied - dry-run in reverse"
-        cat "0001-netdevsim-physical-address.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
+        if grep -q 'perm_addr\[ETH_ALEN\]' drivers/net/netdevsim/netdevsim.h; then
+            echo "Physical address support already upstream, skipping patch"
+        else
+            cat "0001-netdevsim-physical-address.patch" | patch -p1 -N -f -l || true
+            echo "Check that physical address patch was applied - dry-run in reverse"
+            cat "0001-netdevsim-physical-address.patch" | patch -p1 -R -f -l --dry-run || { echo "Unable to apply patch, please fix the patch"; exit 1; }
+        fi
 
         ARCH="$(arch)"
 

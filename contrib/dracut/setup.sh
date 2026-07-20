@@ -432,6 +432,10 @@ start_nfs() {
   systemctl start nfs-server
   # Next boot can stuck if booted too quickly, wait the grace period
   sleep 10
+
+  rpcinfo -p localhost
+  exportfs -v
+  systemctl --no-pager --full status rpcbind.socket rpcbind.service nfs-server || true
 }
 
 
