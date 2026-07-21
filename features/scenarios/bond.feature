@@ -1456,6 +1456,8 @@
 
     @ver+=1.57.4
     @ver/rhel/9+=1.54.4.1
+    @ver/rhel/9/8+=1.54.3.4
+    @ver/rhel/10/2+=1.56.0.2
     @bond_non_8023ad_no_arp_missed_max_err_on_reapply
     Scenario: nmcli - bond - no arp_missed_max warning for 802.3ad bond on reapply
      * Add "bond" connection named "bond0" for device "nm-bond" with options
