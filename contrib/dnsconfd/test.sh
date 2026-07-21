@@ -27,6 +27,14 @@ pushd $DNSCONFD_DIR
         git checkout tags/$DNSCONFD_VER
     fi
 
+    # Wait for systemd readiness in container before running tests
+    for file in $DNSCONFD_DIR/tests/*/test.sh; do
+        if ! grep -q "is-system-running" $file; then
+	    echo "Adding systemd readiness wait to $file"
+	    sed -i '/podman run.*dnsconfd_testing/a\        until podman exec $dnsconfd_cid systemctl is-system-running --quiet 2>\/dev\/null; do\n            sleep 0.1\n        done' $file
+	fi
+    done
+
     # Include a missing NM logs in Cleanup phase into all tests if not present
     for file in $DNSCONFD_DIR/tests/*/test.sh; do
         line='        rlRun "podman exec $dnsconfd_cid journalctl -u NetworkManager" 0 "Saving NM logs"'
