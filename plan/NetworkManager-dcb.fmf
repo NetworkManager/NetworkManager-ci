@@ -2,3 +2,35 @@ discover:
     how: fmf
     filter: name:/tests/NetworkManager-dcb/.*
 
+provision:
+    how: local
+    kickstart:
+        kernel-options-post: "net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt"
+
+# All DCB/SR-IOV/DPDK/WoL tests need real HW interfaces.
+# Skip vethsetup which renames them to orig-* and creates veth pairs.
+prepare:
+    - name: packages
+      when: deployment-mode != image
+      how: install
+      package:
+        - chkconfig
+        - dnsmasq
+        - tcpdump
+        - chrony
+        - bash-completion
+        - radvd
+        - wget
+        - git-core
+        - iproute
+        - NetworkManager
+    - name: install NetworkManager by NVR
+      when: nvr != ""
+      how: shell
+      script:
+        - bash contrib/utils/brew_links.sh -n $@{nvr} | xargs dnf -y install
+        - systemctl restart NetworkManager
+    - name: envsetup
+      how: shell
+      script:
+        - bash prepare/envsetup.sh setup first_test_setup
