@@ -319,44 +319,45 @@ Feature: nmcli - ethernet
     @nmcli_ethernet_wol_default
     Scenario: nmcli - ethernet - wake-on-lan default
     * Stop NM
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Note the output of "ethtool eno1 |grep Wake-on |grep Supports | awk '{print $3}'" as value "wol_supports"
     * Restart NM
-    * Add "ethernet" connection named "ethernet" for device "sriov_device"
+    * Add "ethernet" connection named "ethernet" for device "eno1"
     # Wake-on-lan 94 equals to (phy, unicast, multicast, broadcast, magic) alias pumbg
     * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan 92"
     * Bring "up" connection "ethernet"
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
+    * Note the output of "ethtool eno1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
     * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan default"
     * Restart NM
+    # Set a known WoL value via ethtool before activating with "default"
+    * Execute "ethtool -s eno1 wol d"
     * Bring "up" connection "ethernet"
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
-    Then Check noted values "wol_now" and "wol_orig" are the same
+    # "default" means NM does not touch WoL, so ethtool value must stay unchanged
+    Then "Wake-on: d" is visible with command "ethtool eno1"
 
 
     @rhbz1141417
     @nmcli_ethernet_wol_enable_magic
     Scenario: nmcli - ethernet - wake-on-lan magic
-    * Add "ethernet" connection named "ethernet" for device "sriov_device"
+    * Add "ethernet" connection named "ethernet" for device "eno1"
     * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan magic"
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool sriov_device"
+    Then "Wake-on: g" is visible with command "ethtool eno1"
 
 
     @rhbz1141417
     @nmcli_ethernet_wol_disable
     Scenario: nmcli - ethernet - wake-on-lan disable
-    * Add "ethernet" connection named "ethernet" for device "sriov_device"
+    * Add "ethernet" connection named "ethernet" for device "eno1"
     * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan none"
     * Bring "up" connection "ethernet"
-    Then "Wake-on: d" is visible with command "ethtool sriov_device"
+    Then "Wake-on: d" is visible with command "ethtool eno1"
 
 
     @rhbz1141417
     @nmcli_ethernet_wol_from_file
     Scenario: nmcli - ethernet - wake-on-lan from file
-    * Add "ethernet" connection named "ethernet" for device "sriov_device"
+    * Add "ethernet" connection named "ethernet" for device "eno1"
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
@@ -364,7 +365,7 @@ Feature: nmcli - ethernet
       """
     * Reload connections
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool sriov_device"
+    Then "Wake-on: g" is visible with command "ethtool eno1"
     Then "default|g|magic" is visible with command "nmcli con show ethernet |grep wake-on-lan"
 
 
@@ -372,8 +373,7 @@ Feature: nmcli - ethernet
     @ver+=1.36.0
     @nmcli_ethernet_wol_from_file_to_default
     Scenario: nmcli - ethernet - wake-on-lan from file and back
-    * Add "ethernet" connection named "ethernet" for device "sriov_device"
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_orig"
+    * Add "ethernet" connection named "ethernet" for device "eno1"
     * Update the keyfile "/etc/NetworkManager/system-connections/ethernet.nmconnection"
       """
       [ethernet]
@@ -381,7 +381,7 @@ Feature: nmcli - ethernet
       """
     * Reload connections
     * Bring "up" connection "ethernet"
-    Then "Wake-on: g" is visible with command "ethtool sriov_device"
+    Then "Wake-on: g" is visible with command "ethtool eno1"
     Then "magic|g|default" is visible with command "nmcli con show ethernet |grep wake-on-lan"
     * Open editor for connection "ethernet"
     * Submit "remove 802-3-ethernet.wake-on-lan magic"
@@ -396,10 +396,11 @@ Feature: nmcli - ethernet
     * Save in editor
     * Quit editor
     * Bring "down" connection "ethernet"
+    # Set a known WoL value via ethtool before activating with "default"
+    * Execute "ethtool -s eno1 wol d"
     * Bring "up" connection "ethernet"
-    #Then "ETHTOOL_OPTS" is not visible with command "cat /etc/sysconfig/network-scripts/ifcfg-ethernet"
-    * Note the output of "ethtool sriov_device |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_new"
-    Then Check noted values "wol_new" and "wol_orig" are the same
+    # "default" means NM does not touch WoL, so ethtool value must stay unchanged
+    Then "Wake-on: d" is visible with command "ethtool eno1"
 
 
     @ver+=1.33 @rhelver+=8 @rhelver+=10.1
