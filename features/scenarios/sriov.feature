@@ -358,7 +358,7 @@
           ipv4.address 1.2.3.4/24
           """
     When " connected" is visible with command "nmcli  device |grep eth0"
-    * Execute "ip link set dev eth0 address 00:11:22:33:44:55"
+    * Execute "ip link set dev eth0 address 00:11:22:33:44:55 || true"
     Then "trust on" is visible with command " ip link show sriov_device"
     And "00:11:22:33:44:55" is visible with command "ip a s eth0"
 
