@@ -323,7 +323,7 @@ Feature: nmcli - ethernet
     * Restart NM
     * Add "ethernet" connection named "ethernet" for device "eno1"
     # Wake-on-lan 94 equals to (phy, unicast, multicast, broadcast, magic) alias pumbg
-    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan 92"
+    * Modify connection "ethernet" changing options "802-3-ethernet.wake-on-lan 94"
     * Bring "up" connection "ethernet"
     * Note the output of "ethtool eno1 |grep Wake-on |grep -v Supports | awk '{print $2}'" as value "wol_now"
     When Check noted values "wol_now" and "wol_supports" are the same
