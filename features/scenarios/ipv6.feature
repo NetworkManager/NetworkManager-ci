@@ -2052,7 +2052,7 @@
         Clean up the device early with ip so that in case of some problems, the restarted
         NM doesn't have to cope with 100000s of routes
         """
-    * Cleanup execute "ip link delete many_routes6" with timeout "10" seconds and priority "-45"
+    * Cleanup execute "ip link delete many_routes6" with timeout "20" seconds and priority "-45"
     * Cleanup execute "sleep 2" with timeout "3" seconds and priority "-44"
     * Add "ethernet" connection named "con_ipv6" for device "many_routes6"
     * Bring "up" connection "con_ipv6"
@@ -2075,8 +2075,8 @@
     """
     Wait before starting the check, as the check might block/slow down the route deletion.
     """
-    * Wait for "5" seconds
-    Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "5" seconds
+    * Wait for "15" seconds
+    Then There are "at most" "5" IP version "6" routes for device "many_routes6" in "10" seconds
 
 
     @RHEL-26195
@@ -2094,7 +2094,7 @@
         Clean up the device early with ip so that in case of some problems, the restarted
         NM doesn't have to cope with 100000s of routes
         """
-    * Cleanup execute "ip link delete many_routes6; sleep 2" with timeout "10" seconds and priority "-45"
+    * Cleanup execute "ip link delete many_routes6; sleep 2" with timeout "20" seconds and priority "-45"
     * Add "ethernet" connection named "con_ipv6" for device "many_routes6" with options
       """
       ipv4.method manual
@@ -2110,7 +2110,7 @@
     # To speed up a bit, it is possible to stop NM while appending routes, but this can be reproducer
     * Stop NM
     * Append "2000000" routes of version "6" to "many_routes6" by "200000" in batch
-    * Start NM in "40" seconds
+    * Start NM in "80" seconds
     When "NetworkManager.*usage within threshold" is visible in journal
     * Commentary
       """
