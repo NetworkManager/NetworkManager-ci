@@ -94,11 +94,25 @@ function setup () {
 
         cd $DRIVER
         grep -q ostree /proc/cmdline | mount -o remount,rw lazy /usr || true
+        # For debug kernels, symlink build dir from non-debug if missing
+        if [ ! -d "/lib/modules/$K_VER/build" ] && [[ "$K_VER" == *"+debug"* ]]; then
+            NON_DEBUG="${K_VER%+debug}"
+            if [ -d "/lib/modules/$NON_DEBUG/build" ]; then
+                ln -sfn "/lib/modules/$NON_DEBUG/build" "/lib/modules/$K_VER/build"
+            fi
+        fi
         # If we cannot build exit 1
         make -C /lib/modules/$K_VER/build M=$PWD ARCH=$ARCH || \
           { echo "Unable to build module"; exit 1; }
         make -C /lib/modules/$K_VER/build M=$PWD modules_install || \
           { echo "Unable to install module"; exit 1; }
+        # For debug kernels, modules_install puts the module under the non-debug
+        # path. Copy the built module directly and run depmod.
+        if [[ "$K_VER" == *"+debug"* ]]; then
+            mkdir -p /lib/modules/$K_VER/extra
+            cp $PWD/netdevsim.ko /lib/modules/$K_VER/extra/
+            depmod $K_VER
+        fi
         grep -q ostree /proc/cmdline | mount -o remount,rw lazy /usr || true
         # We are all OK installing deps
         touch /tmp/netdevsim_installed
