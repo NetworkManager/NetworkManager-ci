@@ -93,6 +93,7 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: |
+              dell-per740-07.knqe.eng.rdu2.dc.redhat.com
               dell-per740-12.rhts.eng.pek2.redhat.com
               dell-per740-69.rhts.eng.pek2.redhat.com
               dell-per740-70.rhts.eng.pek2.redhat.com
