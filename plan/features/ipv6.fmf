@@ -125,3 +125,4 @@ discover:
         - /tests/ipv6_routes_not_reachable
         - /tests/ipv6_unreachable_gateway_warning
         - /tests/ipv6_multiple_default_routes_no_ecmp
+        - /tests/ipv6_honor_router_flag_in_na

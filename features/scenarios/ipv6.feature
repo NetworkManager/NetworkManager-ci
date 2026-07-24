@@ -2738,3 +2738,22 @@
     Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
     Then "default nhid [0-9]+ via fe80::1003 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
     Then "default nhid [0-9]+ via fe80::1004 dev testX6 proto ra metric 100" is visible with command "ip -6 r"
+
+
+    @ver+=1.59.1
+    @ipv6_honor_router_flag_in_na
+    Scenario: NM - ipv6 - honor the Router flag in Neighbor Advertisements
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1459
+    * Prepare device "testX6" with "2" IPv6 routers
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "Exactly" "2" lines with pattern "default" are visible with command "ip -6 route show default dev testX6"
+    Then "default nhid [0-9]+ via fe80::1001 dev testX6 proto ra " is visible with command "ip -6 r"
+    Then "default nhid [0-9]+ via fe80::1002 dev testX6 proto ra " is visible with command "ip -6 r"
+    * Execute "pkill -9 -F /run/radvd/radvd-testX6-rtr1.pid"
+    * Execute "ip netns exec testX6_ns1 sysctl -w net.ipv6.conf.all.forwarding=0"
+    Then "Exactly" "1" lines with pattern "default" are visible with command "ip -6 route show default dev testX6" in "30" seconds
