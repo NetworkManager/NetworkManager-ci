@@ -1425,7 +1425,9 @@ def prepare_patched_netdevsim_bs(context, scenario):
 
 
 def prepare_patched_netdevsim_as(context, scenario):
-    context.process.run_stdout("sh prepare/netdevsim.sh teardown", ignore_stderr=True)
+    context.process.run_stdout(
+        "sh prepare/netdevsim.sh teardown", timeout=30, ignore_stderr=True
+    )
 
 
 _register_tag(

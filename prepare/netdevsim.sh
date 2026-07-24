@@ -94,6 +94,20 @@ function setup () {
 
         cd $DRIVER
         grep -q ostree /proc/cmdline | mount -o remount,rw lazy /usr || true
+        # For debug kernels, install kernel-debug-devel if build dir is missing
+        # or is a stale symlink to non-debug build dir
+        if [[ "$K_VER" == *"+debug"* ]]; then
+            [ -L "/lib/modules/$K_VER/build" ] && rm -f "/lib/modules/$K_VER/build"
+            if [ ! -d "/lib/modules/$K_VER/build" ]; then
+                rpm -ivh --nodeps \
+                    $URL/$MAJOR/$MINOR/$(arch)/kernel-debug-devel-$MAJOR-$MINOR.$(arch).rpm \
+                    $URL/$MAJOR/$MINOR/$(arch)/kernel-debug-modules-internal-$MAJOR-$MINOR.$(arch).rpm || true
+                # Ensure build symlink exists (rpm --nodeps may skip it)
+                if [ -d "/usr/src/kernels/$K_VER" ] && [ ! -e "/lib/modules/$K_VER/build" ]; then
+                    ln -s "/usr/src/kernels/$K_VER" "/lib/modules/$K_VER/build"
+                fi
+            fi
+        fi
         # If we cannot build exit 1
         make -C /lib/modules/$K_VER/build M=$PWD ARCH=$ARCH || \
           { echo "Unable to build module"; exit 1; }
@@ -153,6 +167,20 @@ function setup () {
 }
 
 function teardown () {
+    # Disconnect, unmanage and bring down all netdevsim devices before removal
+    for dev in $(ls /sys/bus/netdevsim/devices/netdevsim*/net/ 2>/dev/null); do
+        nmcli device disconnect $dev 2>/dev/null
+        nmcli device set $dev managed no 2>/dev/null
+        ip link set $dev down 2>/dev/null
+    done
+    sleep 1
+    # Delete all netdevsim ports/devices before removing the module
+    for del in /sys/bus/netdevsim/devices/netdevsim*/del_port; do
+        for port in $(ls $(dirname $del)/net/ 2>/dev/null); do
+            echo "$(cat /sys/class/net/$port/ifindex)" > "$del" 2>/dev/null
+        done
+    done
+    echo 0 > /sys/bus/netdevsim/del_device 2>/dev/null
     modprobe -r netdevsim
     rm -rf /tmp/netdevsim
 }
