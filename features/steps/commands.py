@@ -961,6 +961,34 @@ def ping_domain(context, domain, number=2):
     assert rc == 0
 
 
+@step(
+    '"{pattern}" is stable with command "{command}" for "{stable}" seconds within "{timeout}" seconds'
+)
+def pattern_stable_with_command(context, pattern, command, stable, timeout):
+    import re
+
+    stable = int(stable)
+    timeout = int(timeout)
+    deadline = time.monotonic() + timeout
+    stable_since = None
+    while True:
+        now = time.monotonic()
+        result = nmci.process.run_stdout(
+            command, shell=True, ignore_returncode=True, timeout=10
+        )
+        if re.search(pattern, result):
+            if stable_since is None:
+                stable_since = now
+            elif now - stable_since >= stable:
+                return
+        else:
+            stable_since = None
+        if now >= deadline:
+            break
+        time.sleep(2)
+    assert False, f'Pattern "{pattern}" was not stable for {stable}s within {timeout}s'
+
+
 @step('Ping "{domain}" from "{device}" device')
 def ping_domain_from_device(context, domain, device):
     rc = nmci.process.run(

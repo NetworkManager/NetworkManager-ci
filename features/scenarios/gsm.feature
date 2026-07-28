@@ -22,9 +22,9 @@ Feature: nmcli: gsm
     * Add "gsm" connection named "gsm" for device "<noted:mbim>" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    # Workaround
-    * Wait for "10" seconds
-     And "default" is visible with command "ip r |grep 700"
+    # Wait for stable default route - 5G-NSA modems may temporarily drop
+    # packet service during handover to LTE, causing route to disappear briefly
+     And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
      And Ping "nix.cz" "7" times
 
 
@@ -35,9 +35,9 @@ Feature: nmcli: gsm
     * Add "gsm" connection named "gsm" for device "<noted:qmi>" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    # Workaround
-    * Wait for "10" seconds
-     And "default" is visible with command "ip r |grep 700"
+    # Wait for stable default route - 5G-NSA modems may temporarily drop
+    # packet service during handover to LTE, causing route to disappear briefly
+     And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
      And Ping "nix.cz" "7" times
 
 
@@ -97,10 +97,9 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
      And "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" for full "60" seconds
-    # Workaround
-    * Wait for "10" seconds
-
-     And "default" is visible with command "ip r |grep 700"
+    # Wait for stable default route - 5G-NSA modems may temporarily drop
+    # packet service during handover to LTE, causing route to disappear briefly
+     And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
      And Ping "8.8.8.8" "7" times
 
 
