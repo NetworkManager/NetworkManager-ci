@@ -5,6 +5,7 @@ discover:
         - /tests/simwifi_setting_bogus_values
         - /tests/simwifi_set_channel
         - /tests/simwifi_p2p_client_connect
+        - /tests/simwifi_p2p_client_connect_scan
         - /tests/simwifi_wep_ttls_mschapv2_eap
         - /tests/simwifi_ttls_mschap
         - /tests/simwifi_ttls_mschapv2

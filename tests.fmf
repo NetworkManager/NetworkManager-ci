@@ -6320,375 +6320,379 @@ link:
     order+: 41003
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5205
+/simwifi_p2p_client_connect_scan:
+    tag: ['hostapd']
+    id: a9b3833b-1efb-512b-be0a-d81d8581e8db
+    order+: 41004
 /simwifi_wep_ttls_mschapv2_eap:
     tag: ['hostapd']
     id: 09655be7-1d09-5ada-a7b1-aad2ac683b9c
-    order+: 41004
+    order+: 41005
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5206
 /simwifi_ttls_mschap:
     tag: ['hostapd']
     id: 2b3b0f2f-6a98-54c0-b15e-473fa4145bfa
-    order+: 41005
+    order+: 41006
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5207
 /simwifi_ttls_mschapv2:
     tag: ['hostapd']
     id: c9e04cf4-a343-5519-932d-e8178ee84fb6
-    order+: 41006
+    order+: 41007
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5208
 /simwifi_ttls_mschapv2_eap:
     tag: ['gate', 'hostapd']
     id: 2ec96fc8-f525-5e6e-9da6-e0cd1fe2e2a3
-    order+: 41007
+    order+: 41008
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5209
 /simwifi_peap_mschapv2:
     tag: ['hostapd']
     id: 517b4ab8-f528-5de4-b848-5c95c70b0c97
-    order+: 41008
+    order+: 41009
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5210
 /simwifi_open_connect:
     tag: ['hostapd']
     id: fef7b2b6-84f8-5f81-b9b3-5cfcbe772005
-    order+: 41009
+    order+: 41010
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5212
 /simwifi_wep_ask_passwd:
     tag: ['hostapd']
     id: 8d8d6917-88b7-516e-b5ec-c161a581cf2d
-    order+: 41010
+    order+: 41011
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5213
 /simwifi_wep_tls:
     tag: ['hostapd']
     id: 846519cf-ecff-5803-85ad-93edf8459dfd
-    order+: 41011
+    order+: 41012
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5214
 /simwifi_wep_peap_gtc:
     tag: ['hostapd']
     id: cacf0abd-9bd1-5af8-9c7a-fc47e60b0ff4
-    order+: 41012
+    order+: 41013
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5215
 /simwifi_wpa1psk_no_profile:
     tag: ['gate', 'libnl3', 'wpa_supplicant']
     id: 524dfb6e-c751-5e77-a898-9dc684223a6c
-    order+: 41013
+    order+: 41014
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5216
 /simwifi_wpa2psk_profile:
     tag: ['gate', 'libnl3', 'wpa_supplicant']
     id: d9e37ffe-09e0-5ba8-8181-840d6274ca60
-    order+: 41014
+    order+: 41015
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5217
 /simwifi_wpa2psk_no_profile:
     tag: ['hostapd']
     id: dfe7c962-7a89-5676-a1ee-e7a4f08da227
-    order+: 41015
+    order+: 41016
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5218
 /simwifi_tls_pkcs11_saved_pw:
     tag: ['hostapd']
     id: 6ddd6ab6-e436-5593-ac22-7f5d303c6f24
-    order+: 41016
+    order+: 41017
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5219
 /simwifi_tls_pkcs11_pwfile:
     id: 4f170eea-1a33-539f-a304-086898675b3f
-    order+: 41017
+    order+: 41018
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5220
 /simwifi_tls_pkcs11_nmcli_ask:
     id: e7f9e867-5362-5f6f-8c98-61b8d284fa85
-    order+: 41018
+    order+: 41019
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5221
 /simwifi_tls_pkcs11_pw_in_uri_flag_nr:
     tag: ['hostapd']
     id: f7a3ff0d-ea2a-50e3-a5a4-a1ea70f795d1
-    order+: 41019
+    order+: 41020
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5222
 /simwifi_tls:
     tag: ['gate', 'libnl3', 'wpa_supplicant', 'hostapd']
     id: 160cbadf-225c-5652-8d76-8c9104286a90
-    order+: 41020
+    order+: 41021
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5223
 /simwifi_tls_user_permissions:
     id: f47d3834-0950-5693-8f51-5c95108e0b82
-    order+: 41021
+    order+: 41022
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8878
 /simwifi_tls_bad_private_key_password:
     id: 5492c731-606f-556c-8c2c-0ffab3708028
-    order+: 41022
+    order+: 41023
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5224
 /simwifi_tls_no_private_key_password:
     id: dccbd9de-5a5e-5562-9f8b-274920d8643e
-    order+: 41023
+    order+: 41024
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5225
 /simwifi_peap_gtc:
     tag: ['gate', 'libnl3', 'hostapd']
     id: 4a58c4a5-7fe2-5bfc-81ee-8b8f4c8c0a48
-    order+: 41024
+    order+: 41025
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5228
 /simwifi_peap_md5:
     tag: ['hostapd']
     id: 4d862e1d-47e7-5992-8599-deb7bddc8601
-    order+: 41025
+    order+: 41026
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5229
 /simwifi_ttls_pap:
     tag: ['hostapd']
     id: 22535682-36ad-5561-9603-032964bd52ff
-    order+: 41026
+    order+: 41027
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5230
 /simwifi_ttls_chap:
     tag: ['gate', 'hostapd']
     id: 75b1a8b7-19ae-5463-9c78-7d1cc16b23cc
-    order+: 41027
+    order+: 41028
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5231
 /simwifi_ttls_md5:
     tag: ['hostapd']
     id: 20168c0b-8e89-5d4e-b11f-a01a46742b92
-    order+: 41028
+    order+: 41029
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5232
 /simwifi_ttls_gtc:
     tag: ['gate', 'hostapd']
     id: 33cdb957-434a-5826-8f23-e19ed8d51796
-    order+: 41029
+    order+: 41030
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5233
 /simwifi_wpa3_personal:
     tag: ['wpa_supplicant', 'hostapd', 'gate']
     id: ff10566e-12bd-5ba4-8979-eab7fab769d4
-    order+: 41030
+    order+: 41031
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5234
 /simwifi_cloned_mac_address:
     id: 39f7ea07-2a6c-5ec6-8649-640b2e6462f6
-    order+: 41031
+    order+: 41032
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5236
 /simwifi_wpa3_h2e:
     tag: ['wpa_supplicant', 'hostapd']
     id: 97d10f5a-1201-59d1-9017-a154e831353c
-    order+: 41032
+    order+: 41033
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5237
 /simwifi_wpa3_personal_device_connect_ask:
     id: aa8b1d93-e343-5e27-ae3c-3f615564cc9e
-    order+: 41033
+    order+: 41034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5235
 /simwifi_tls_wpa3:
     tag: ['wpa_supplicant', 'hostapd', 'gate']
     id: f90b93c3-e57d-576e-8cf0-f44d64eeb2ed
-    order+: 41034
+    order+: 41035
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5226
 /simwifi_tls_wpa3_pq:
     tag: ['wpa_supplicant', 'hostapd', 'gate']
     id: ca002677-0dd3-5ff4-938b-48ec2463774a
-    order+: 41035
+    order+: 41036
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5227
 /simwifi_owe_connect:
     tag: ['hostapd']
     id: f4b4d806-1dcc-554e-b360-362882c4d1cb
-    order+: 41036
+    order+: 41037
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5238
 /simwifi_owe_device_connect:
     id: 1b2860db-e0c6-52e3-a090-bbdf7ab90e3f
-    order+: 41037
+    order+: 41038
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5239
 /simwifi_owe_transition_connect:
     tag: ['hostapd']
     id: 50b1f8e6-b3ee-54e4-ac68-9be30fffd15f
-    order+: 41038
+    order+: 41039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5240
 /simwifi_owe_transition_connect_as_open:
     tag: ['hostapd']
     id: a3ac59c0-fb5e-5d69-bc4c-1ec90f2668d1
-    order+: 41039
+    order+: 41040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5241
 /simwifi_owe_transition_device_connect:
     tag: ['hostapd']
     id: 2e2fa1f7-c253-59ea-9877-d5e877ba1b26
-    order+: 41040
+    order+: 41041
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5242
 /nmclient_get_wireless_hw_property:
     id: 27a17d3e-a80d-53a6-aed1-08e7c8315806
-    order+: 41041
+    order+: 41042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5243
 /simwifi_dbus_bitrate_property_name:
     id: cffbe18b-95d8-52d8-9078-f6ea9a4082ad
-    order+: 41042
+    order+: 41043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5244
 /simwifi_do_not_block_autoconnect:
     id: dc00a3ea-cb53-5097-8ac9-79fa6b347bbe
-    order+: 41043
+    order+: 41044
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5245
 /simwifi_novice_mode_add_default_connection:
     id: 3c412d2a-5f9a-50d9-9f8d-e98d55c9be46
-    order+: 41044
+    order+: 41045
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5246
 /simwifi_novice_mode_add_connection_bogus_ip:
     id: 01e1630f-2a0a-5512-a2eb-e49a052da428
-    order+: 41045
+    order+: 41046
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5247
 /simwifi_novice_mode_add_connection_with_options:
     id: 79873d83-6533-5d5a-8dee-fef47e9c3a7c
-    order+: 41046
+    order+: 41047
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5248
 /simwifi_novice_mode_add_connection_ip_setup:
     id: d804610a-0e6c-5905-b590-359d0e784960
-    order+: 41047
+    order+: 41048
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5249
 /simwifi_mac_address_blacklist:
     id: 9768ae7b-7e9c-5537-956e-bba58e6c36b1
-    order+: 41048
+    order+: 41049
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5250
 /simwifi_remove_connection_while_up:
     id: 35bc5a19-8922-5a41-bf83-6bb35ada1930
-    order+: 41049
+    order+: 41050
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5252
 /simwifi_wpa2_psk_unmatching_proto:
     id: 9278dd6e-7b63-53c3-8ceb-89887200ee39
-    order+: 41050
+    order+: 41051
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5253
 /simwifi_set_mac_address:
     id: b677d1ac-14ea-5747-9251-8ceaa0ce342a
-    order+: 41051
+    order+: 41052
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5254
 /simwifi_wpa2_ask_passwd:
     id: 30d29ebc-56e1-5095-b389-b9097ecf7ae3
-    order+: 41052
+    order+: 41053
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5255
 /simwifi_wpa2_arg_passwd:
     id: 7974e621-b8c1-586f-afce-80021577bc6a
-    order+: 41053
+    order+: 41054
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5256
 /simwifi_set_existing_bssid:
     id: 4fdb3968-59b4-5264-8171-471d00d9f5cf
-    order+: 41054
+    order+: 41055
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5257
 /simwifi_nmcli_radio:
     id: 9bbdf130-3964-5324-a0cc-a8ab442eb36a
-    order+: 41055
+    order+: 41056
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5258
 /simwifi_wifisec_validity:
     id: d4caa7b5-0260-5b0e-8b25-0dbbf6eefba0
-    order+: 41056
+    order+: 41057
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5259
 /simwifi_wifisec_keymgmt_wrong_values:
     id: 275c5933-d3b2-5613-82d7-dd1cdbf1d3d5
-    order+: 41057
+    order+: 41058
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5260
 /simwifi_wifisec_authalg_wrong_values:
     id: cec0f6b1-e0e6-5202-8539-bba8dce9f1a0
-    order+: 41058
+    order+: 41059
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5261
 /simwifi_set_hidden_property_values:
     id: 0ac94241-c08a-5ff4-a064-683f4cb9f62e
-    order+: 41059
+    order+: 41060
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5262
 /simwifi_set_txpower:
     id: 5b49acdf-c50c-501e-a7df-66d85111951b
-    order+: 41060
+    order+: 41061
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5263
 /simwifi_set_rate:
     id: 3dccb2d7-9896-5b7b-8fca-6fac4bab670e
-    order+: 41061
+    order+: 41062
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5264
 /simwifi_describe:
     id: 974151ec-5f41-5ad7-b6a1-c6ebd4cd98e3
-    order+: 41062
+    order+: 41063
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5265
 /simwifi_wifisec_describe:
     id: ac4bafe9-274d-5f68-be45-8a66ff9a7b0e
-    order+: 41063
+    order+: 41064
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5266
 /simwifi_set_nonexistent_bssid:
     id: fbee676b-ed53-5dca-b357-00b88a46e01b
-    order+: 41064
+    order+: 41065
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5267
 /simwifi_migrate_to_keyfile:
     id: 01ccdffd-0d3a-5e35-8ed7-f658d23f91df
-    order+: 41065
+    order+: 41066
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5268
 /simwifi_dbus_invalid_cert_input:
     id: c3f90560-043c-52d7-868b-6b191247bebe
-    order+: 41066
+    order+: 41067
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5269
 /simwifi_mac_address_blacklist_to_denylist:
     id: 2d3739e5-e5ff-5134-8f62-bb3936656779
-    order+: 41067
+    order+: 41068
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5251
 /simwifi_mac_address_denylist_to_blacklist:
     id: 4f57bf80-ef16-5bcb-a93d-83aeb4272420
-    order+: 41068
+    order+: 41069
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5270
 /nmcli_simwifi_teardown:
     tag: ['gate', 'wpa_supplicant', 'hostapd']
     id: bafdfdc9-4d8d-519f-9833-a110fc6e3491
-    order+: 41069
+    order+: 41070
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5271
 /simwifi_ap_wpa_psk_method_shared:
     id: f9fe0efd-d9e6-5ba2-80b0-82930dd12de9
-    order+: 41070
+    order+: 41071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5273
 /simwifi_ap_in_bridge_wpa_psk_method_manual:
     tag: ['gate']
     id: d051750c-71e2-58a5-9b0f-143d93398348
-    order+: 41071
+    order+: 41072
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5274
 /policy_based_routing_doc_procedure:
