@@ -19,7 +19,7 @@ Feature: nmcli: gsm
     @gsm_create_default_connection_mbim
     Scenario: nmcli - gsm - create a connection
     * Note the output of "nmcli | grep -B1 mbim | grep -o '"[^"]*"' | tr -d '"'" as value "mbim"
-    * Add "gsm" connection named "gsm" for device "<noted:mbim>" with options "autoconnect no apn internet"
+    * Add "gsm" connection named "gsm" for device "<noted:mbim>" with options "apn internet"
     * Bring "up" connection "gsm"
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Wait for stable default route - 5G-NSA modems may temporarily drop
