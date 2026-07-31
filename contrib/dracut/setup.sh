@@ -96,6 +96,8 @@ test_setup() {
   > $initdir/etc/environment
   # empty hostname
   > $initdir/etc/hostname
+  # test: set DEFAULT_HOSTNAME to localhost
+  sed -i 's/DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="localhost"/' $initdir/etc/os-release $initdir/usr/lib/os-release 2>/dev/null || true
 
   # copy dracut variables
   cp -fa ./vars.sh $initdir/vars.sh
