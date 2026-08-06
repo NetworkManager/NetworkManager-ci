@@ -1053,25 +1053,34 @@ Feature: nmcli - ethernet
           bridge.stp no
           bridge.group-forward-mask 8
           """
-    # Create 802.1x ethernet connection as bridge slave (sets BridgeIfname)
-    * Add "ethernet" connection named "con_ethernet" with options "ifname test8X autoconnect no master br8021x"
-    * Modify connection "con_ethernet" changing options "802-1x.eap tls 802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem 802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem"
-    * Modify connection "con_ethernet" changing options "802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem"
-    * Modify connection "con_ethernet" changing options "802-1x.identity test"
-    * Modify connection "con_ethernet" changing options "802-1x.private-key-password redhat 802-1x.private-key-password-flags 0"
-    # Start following hostapd log, bring up the bridge and slave
+    # Create 802.1x ethernet connection but not as a slave
+    * Add "ethernet" connection named "con_ethernet" with options
+       """
+       ifname test8X autoconnect no
+       802-1x.eap tls
+       802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+       802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+       802-1x.ca-cert /etc/pki/nm-ci-certs/test_user.ca.pem
+       802-1x.identity test
+       802-1x.private-key-password redhat 802-1x.private-key-password-flags 0
+       """
+    # Start following hostapd log for ethernet
     * Run child "journalctl -f -u nm-hostapd -o cat"
     * Bring "up" connection "br8021x"
     * Bring "up" connection "con_ethernet"
     # Verify initial 802.1x authentication succeeds
     Then Expect "CTRL-EVENT-EAP-SUCCESS" in children in "10" seconds
     * Expect "test8Y: STA .* 802.1X: authenticated" in children in "60" seconds
-    # test8X is now authenticated and enslaved to br8021x
-    # Wait for re-auth - with BridgeIfname set, wpa_supplicant uses ETH_P_ALL
-    # instead of ETH_P_PAE, so re-auth works even on a bridge member
+    # test8X is now authenticated and but not enslaved to br8021x
+    # Wait for re-auth - with BridgeIfname set, wpa_supplicant additionally
+    # opens an ETH_P_ALL-filtered socket bound directly to the interface
+    # (alongside its existing ETH_P_PAE socket on the bridge).
     * Kill children
     * Execute "sleep 5"
     * Run child "journalctl -f -u nm-hostapd -o cat -n 0"
+    * Modify connection "con_ethernet" changing options "master br8021x"
+    * Modify connection "con_ethernet" changing options "802-1x.private-key-password redhat 802-1x.private-key-password-flags 0"
+    * Bring "up" connection "con_ethernet"
     * Expect "test8Y: STA .* 802.1X: authenticated" in children in "120" seconds
     * Kill children
 
@@ -1439,7 +1448,7 @@ Feature: nmcli - ethernet
     * Bring "up" connection "con_ethernet"
     When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
     * Modify connection "con_ethernet" changing options "ethtool.pause-autoneg off"
-    * Bring "up" connection "con_ethernet" 
+    * Bring "up" connection "con_ethernet"
     When "GENERAL.STATE:activated" is visible with command "nmcli -f GENERAL.STATE -t connection show id con_ethernet"
     * Modify connection "con_ethernet" changing options "ethtool.ring-rx 512"
     * Bring "up" connection "con_ethernet"
