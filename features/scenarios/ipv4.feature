@@ -945,9 +945,9 @@ Feature: nmcli: ipv4
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
-    * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
-    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
-    * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
+    * Execute "cp /etc/resolv.conf /run/resolv-nmci-orig.conf"
+    * Execute "mv -f /etc/resolv.conf /run/resolv-nmci-scratch.conf"
+    * Execute "ln -s /run/resolv-nmci-scratch.conf /etc/resolv.conf"
     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options
         """
         ipv4.dns 8.8.8.8
@@ -955,8 +955,8 @@ Feature: nmcli: ipv4
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     Then "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
      And "nameserver 8.8.8.8" is not visible with command "cat /etc/resolv.conf"
-     And "are identical" is visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
+     And "are identical" is visible with command "diff -s /run/resolv-nmci-scratch.conf /run/resolv-nmci-orig.conf"
+     And "/etc/resolv.conf -> /run/resolv-nmci-scratch.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @rhbz1423490
@@ -978,9 +978,9 @@ Feature: nmcli: ipv4
     * Restart NM
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "45" seconds
     When Nameserver "nameserver" is set in "0" seconds
-    * Execute "cp /etc/resolv.conf /tmp/resolv_orig.conf"
-    * Execute "mv -f /etc/resolv.conf /tmp/resolv.conf"
-    * Execute "ln -s /tmp/resolv.conf /etc/resolv.conf"
+    * Execute "cp /etc/resolv.conf /run/resolv-nmci-orig.conf"
+    * Execute "mv -f /etc/resolv.conf /run/resolv-nmci-scratch.conf"
+    * Execute "ln -s /run/resolv-nmci-scratch.conf /etc/resolv.conf"
     * Add "ethernet" connection named "con_ipv42" for device "eth3" with options
         """
         ipv4.dns 8.8.8.8
@@ -988,8 +988,8 @@ Feature: nmcli: ipv4
     * Bring "up" connection "con_ipv42"
     Then Nameserver "8.8.8.8" is set in "20" seconds
      And "nameserver 8.8.8.8" is visible with command "cat /var/run/NetworkManager/resolv.conf"
-     And "are identical" is not visible with command "diff -s /tmp/resolv.conf /tmp/resolv_orig.conf"
-     And "/etc/resolv.conf -> /tmp/resolv.conf" is visible with command "ls -all /etc/resolv.conf"
+     And "are identical" is not visible with command "diff -s /run/resolv-nmci-scratch.conf /run/resolv-nmci-orig.conf"
+     And "/etc/resolv.conf -> /run/resolv-nmci-scratch.conf" is visible with command "ls -all /etc/resolv.conf"
 
 
     @ipv4_dns_add_another_one

@@ -2379,8 +2379,8 @@ def restore_resolvconf_as(context, scenario):
         context.process.run_stdout(
             "ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf"
         )
-    context.process.run_stdout("rm -rf /tmp/resolv_orig.conf")
-    context.process.run_stdout("rm -rf /tmp/resolv.conf")
+    context.process.run_stdout("rm -rf /run/resolv-nmci-orig.conf")
+    context.process.run_stdout("rm -rf /run/resolv-nmci-scratch.conf")
     nmci.nmutil.reload_NM_service()
     nmci.veth.wait_for_testeth0()
 
