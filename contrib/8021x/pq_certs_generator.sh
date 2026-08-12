@@ -41,7 +41,7 @@ openssl genpkey -algorithm "ML-DSA-65" -out certs/server/hostapd_pq.key.pem
 openssl req -new -key certs/server/hostapd_pq.key.pem -out certs/server/hostapd_pq.csr \
     -subj "/C=US/ST=RedHat/L=Raleigh/O=WiFi-ML-DSA/CN=wifi-server.local"
 openssl x509 -req -in certs/server/hostapd_pq.csr -CA certs/server/hostapd_pq.ca.pem -CAkey certs/server/hostapd_pq.ca.key.pem \
-    -CAcreateserial -out certs/server/hostapd_pq.cert.pem -days 365
+    -CAcreateserial -out certs/server/hostapd_pq.cert.pem -days 3650
 
 echo "Encrypting server private key with password 'redhat'..."
 openssl pkey -in certs/server/hostapd_pq.key.pem -aes256 -out certs/server/hostapd_pq.key.enc.pem \
@@ -76,7 +76,7 @@ openssl req -new -key certs/client/test_user_pq.key.pem -out certs/client/test_u
 # Sign client certificate with CA
 echo "Signing client certificate with CA..."
 openssl x509 -req -in certs/client/test_user_pq.csr -CA certs/server/hostapd_pq.ca.pem -CAkey certs/server/hostapd_pq.ca.key.pem \
-    -CAcreateserial -out certs/client/test_user_pq.cert.pem -days 365
+    -CAcreateserial -out certs/client/test_user_pq.cert.pem -days 3650
 
 # Convert certificate to DER format
 echo "Converting certificate to DER format..."

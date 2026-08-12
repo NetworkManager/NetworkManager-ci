@@ -921,6 +921,47 @@ Feature: nmcli - wifi
     Then "activated" is visible with command "nmcli con show wifi-p2p" in "120" seconds
 
 
+    @RHEL-16722
+    @ver+=1.59.2
+    @rhelver+=8 @fedoraver-=0
+    @simwifi_p2p @attach_wpa_supplicant_log
+    @simwifi_p2p_client_connect_scan
+    Scenario: nmcli - simwifi - p2p - connect - NM as client with scan pressure
+    * Run child "wpa_supplicant -i wlan1 -C /tmp/wpa_supplicant_peer_ctrl"
+    * Execute "sleep 2; wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_listen"
+    When "p2p_device_address=..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status" in "15" seconds
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl status | sed -n 's/p2p_device_address=//p'" as value "wifi_peer"
+    When "disconnected" is visible with command "nmcli -g GENERAL.STATE device show wlan0" in "15" seconds
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}'" as value "last_scan"
+    * Execute "nmcli device wifi rescan ifname wlan0"
+    Then "yes" is visible with command "test $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}') -gt <noted:last_scan> && echo yes" in "60" seconds
+    * Add "wifi-p2p" connection named "wifi-p2p" for device "p2p-dev-wlan0" with options
+        """
+        wifi-p2p.peer <noted:wifi_peer>
+        ipv4.never-default yes
+        """
+    When "connecting" is visible with command "nmcli -g GENERAL.STATE device show p2p-dev-wlan0" in "15" seconds
+    # Keep scan requests pending through discovery, group formation and DHCP.
+    * Run child "while ! nmcli -g GENERAL.STATE connection show wifi-p2p 2>/dev/null | grep -qx activated; do nmcli device wifi rescan ifname wlan0; sleep 1; done"
+    # `wpa_cli` returns 255 code when called too soon, which fails immediately, hence `|| true`
+    When "..:..:..:..:..:.." is visible with command "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers || true" in "15" seconds
+    * Note the output of "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_peers" as value "wifi_peer"
+    # After discovery, scans stay suppressed through group formation and DHCP.
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}'" as value "activation_last_scan"
+    * Execute "wpa_cli -i wlan1 -p /tmp/wpa_supplicant_peer_ctrl p2p_connect <noted:wifi_peer> pbc auth go_intent=14"
+    When "p2p-wlan1-0" is visible with command "ls /sys/class/net/" in "10" seconds
+    * Execute "ip addr add 192.168.10.1/24 dev p2p-wlan1-0"
+    * Start dnsmasq for "wifi_p2p" with options "-i p2p-wlan1-0 --dhcp-range=192.168.10.100,192.168.10.200"
+    Then "yes" is visible with command "nmcli -g GENERAL.STATE connection show wifi-p2p | grep -qx activated && echo yes" in "120" seconds
+    Then "yes" is visible with command "test $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}') -eq <noted:activation_last_scan> && echo yes" in "1" seconds
+    * Note the output of "busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}'" as value "last_scan"
+    # A queued scan must remain pending immediately after activation.
+    Then "yes" is visible with command "test $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}') -eq <noted:last_scan> && echo yes" for full "1" seconds
+    Then "192\.168\.10\.(1[0-9][0-9]|200)/24" is visible with command "nmcli -g IP4.ADDRESS connection show wifi-p2p" in "45" seconds
+    # LastScan only advances when a queued scan completes; the Wi-Fi list is cached.
+    Then "yes" is visible with command "test $(busctl get-property org.freedesktop.NetworkManager $(nmcli -g GENERAL.DBUS-PATH device show wlan0) org.freedesktop.NetworkManager.Device.Wireless LastScan | awk '{print $2}') -gt <noted:last_scan> && echo yes" in "60" seconds
+
+
     @rhbz2032539
     @rhelver+=8 @fedoraver+=31
     @simwifi_ap @attach_wpa_supplicant_log @attach_hostapd_log
