@@ -19,7 +19,8 @@ install_fedora_packages () {
 
     # Install vpn dependencies
     PKGS_INSTALL="$PKGS_INSTALL \
-        openvpn ipsec-tools strongswan strongswan-charon-nm"
+        openvpn ipsec-tools strongswan strongswan-charon-nm \
+	openconnect ocserv"
     # Workaround for https://issues.redhat.com/browse/RHEL-48124
     PKGS_INSTALL="$PKGS_INSTALL NetworkManager-openvpn-gnome"
 
