@@ -100,20 +100,11 @@ install_el10_packages () {
         $KOJI/scsi-target-utils/1.0.79/9.fc40/$(arch)/scsi-target-utils-1.0.79-9.fc40.$(arch).rpm \
         $KOJI/perl-Config-General/2.65/8.fc40/noarch/perl-Config-General-2.65-8.fc40.noarch.rpm"
 
-    # Wireless (wpa_supplicant and hostapd)
-    # force install older version (if not in repo)
-    PKGS_INSTALL="$PKGS_INSTALL \
-        $BREW/rhel-10/packages/wpa_supplicant/2.10/11.el10/x86_64/wpa_supplicant-2.10-11.el10.x86_64.rpm \
-        $BREW/rhel-10/packages/hostapd/2.10/11.el10/$(arch)/hostapd-2.10-11.el10.$(arch).rpm"
-
     # For CLAT
     build_srpm tayga $KOJI/tayga/0.9.6/0.1.20250731gitfb5c58f.fc43/src/tayga-0.9.6-0.1.20250731gitfb5c58f.fc43.src.rpm
     # Use stock rpm once radvd is rebased in RHEL10
     build_srpm radvd $KOJI/radvd/2.20/6.fc43/src/radvd-2.20-6.fc43.src.rpm
     PKGS_INSTALL="$PKGS_INSTALL bpftool socat /root/rpmbuild/RPMS/$(arch)/tayga-0.9.6-0.1.20250731gitfb5c58f.el10.$(arch).rpm /root/rpmbuild/RPMS/$(arch)/radvd-2.20-6.el10.$(arch).rpm"
-
-    # upgrade (if newer pkg in repo)
-    PKGS_UPGRADE="$PKGS_UPGRADE hostapd wpa_supplicant"
 
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
