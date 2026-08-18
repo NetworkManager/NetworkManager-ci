@@ -7,6 +7,7 @@ import nmci
 
 
 OPENVPN_CERT_DIR = "/etc/pki/tls/openvpn"
+OPENCONNECT_CERT_DIR = "/etc/pki/tls/openconnect"
 
 
 def setup_libreswan(context, mode, dh_group, phase1_al="aes", phase2_al=None):
@@ -141,6 +142,41 @@ def setup_openvpn(context, tags):
 
     return ovpn_proc
 
+def setup_openconnect(context, tags):
+    """
+    Setup Openconnect server and client.
+
+    :param context: behave context
+    :type context: behave.runner.Context
+    :param tags: list of tags
+    :type tags: list
+    :return: Openconnect server process
+    :rtype: pexpect.spawn
+    """
+
+    # Copy certs
+    src = nmci.util.base_dir("contrib/openvpn")
+    os.makedirs(OPENCONNECT_CERT_DIR, exist_ok=True)
+    dst_keys = OPENCONNECT_CERT_DIR
+    if os.path.exists(dst_keys):
+        shutil.rmtree(dst_keys)
+    shutil.copytree(src, dst_keys)
+
+    # Configure ocserv
+
+    ## ==== Configure service ====
+    # Could be a string and then it's written to a file
+
+    ocserv_proc = context.pexpect_service(
+        "ocserv -f -d 1 -c /etc/ocserv/ocserv.conf"
+    )
+    res = ocserv_proc.expect(
+        ["Initialization Sequence Completed", nmci.pexpect.TIMEOUT, nmci.pexpect.EOF],
+        timeout=20,
+    )
+    assert res == 0, "Openconnect Server did not come up in 20 seconds"
+
+    return ocserv_proc
 
 def setup_strongswan(context):
     """

@@ -2197,6 +2197,18 @@ Setup OpenVPN server and client for a given mode and DH group.
 * **Return type:**
   pexpect.spawn
 
+### nmci.prepare.setup_openconnect(context, tags)
+
+Setup Openconnect server and client.
+
+* **Parameters:**
+  * **context** (*behave.runner.Context*) – behave context
+  * **tags** (*list*) – list of tags
+* **Returns:**
+  OpenVPN server process
+* **Return type:**
+  pexpect.spawn
+
 ### nmci.prepare.setup_strongswan(context)
 
 Setup Strongswan.

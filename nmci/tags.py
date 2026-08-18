@@ -1247,6 +1247,22 @@ _register_tag("openvpn4")
 _register_tag("openvpn6")
 _register_tag("oath")
 
+def openconnect_bs(context, scenario):
+    context.ocn_proc = nmci.prepare.setup_openconnect(context, scenario.tags)
+
+
+def openconnect_as(context, scenario):
+    context.process.run(
+        "pkill -F /tmp/openconnect.pid",
+        shell=True,
+        ignore_stderr=True,
+    )
+
+
+_register_tag("openconnect", openvpn_bs, openvpn_as)
+# _register_tag("openconnect4")
+# _register_tag("openconnect6")
+
 
 def strongswan_bs(context, scenario):
     # Do not run on RHEL7 on s390x
