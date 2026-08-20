@@ -1155,6 +1155,7 @@ Feature: nmcli - ethernet
 
     @ver+=1.45.4 @rhelver+=8
     @prepare_patched_netdevsim
+    @skip_in_container
     @ethtool_features_channels
     Scenario: nmcli - ethernet - ethtool set channels options
     * Note the output of "ethtool -l eth11" as value "channels_before"

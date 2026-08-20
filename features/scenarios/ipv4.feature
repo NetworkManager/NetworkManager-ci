@@ -2704,6 +2704,7 @@ Feature: nmcli: ipv4
     @ver+=1.35.7
     @ignore_backoff_message
     @logging_info_only
+    @skip_in_container
     @ipv4_ignore_nonstatic_routes
     Scenario: NM - ipv4 - ignore routes that are neither static nor RA nor DHCP
     * Commentary
