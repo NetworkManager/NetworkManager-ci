@@ -100,11 +100,23 @@ install_el10_packages () {
         $KOJI/scsi-target-utils/1.0.79/9.fc40/$(arch)/scsi-target-utils-1.0.79-9.fc40.$(arch).rpm \
         $KOJI/perl-Config-General/2.65/8.fc40/noarch/perl-Config-General-2.65-8.fc40.noarch.rpm"
 
-    # For CLAT
-    build_srpm tayga $KOJI/tayga/0.9.6/0.1.20250731gitfb5c58f.fc43/src/tayga-0.9.6-0.1.20250731gitfb5c58f.fc43.src.rpm
-    # Use stock rpm once radvd is rebased in RHEL10
-    build_srpm radvd $KOJI/radvd/2.20/6.fc43/src/radvd-2.20-6.fc43.src.rpm
-    PKGS_INSTALL="$PKGS_INSTALL bpftool socat /root/rpmbuild/RPMS/$(arch)/tayga-0.9.6-0.1.20250731gitfb5c58f.el10.$(arch).rpm /root/rpmbuild/RPMS/$(arch)/radvd-2.20-6.el10.$(arch).rpm"
+    # For CLAT: tayga is packaged in EPEL10 now, install it straight from
+    # there instead of building from a Fedora source RPM.
+    PKGS_INSTALL="$PKGS_INSTALL tayga"
+    # Use stock rpm once radvd is rebased in RHEL10 (stock is 2.20-2, missing
+    # fixes present in the Fedora 2.20-6 build below). Skip the rebuild only
+    # if an already-installed radvd is at least this version -- build_srpm's
+    # rpmbuild otherwise recompiles from scratch on every single run, not
+    # just once. Version-compare (not exact-match) so a genuinely older
+    # radvd (e.g. the el10 stock 2.20-2) still gets built.
+    installed_evr="$(rpm -q --qf '%{version}-%{release}' radvd 2>/dev/null)"
+    if [ -n "$installed_evr" ] && \
+        [ "$(printf '%s\n%s\n' "$installed_evr" "2.20-6.el10" | sort -V | tail -n1)" = "$installed_evr" ]; then
+        PKGS_INSTALL="$PKGS_INSTALL bpftool socat"
+    else
+        build_srpm radvd $KOJI/radvd/2.20/6.fc43/src/radvd-2.20-6.fc43.src.rpm
+        PKGS_INSTALL="$PKGS_INSTALL bpftool socat /root/rpmbuild/RPMS/$(arch)/radvd-2.20-6.el10.$(arch).rpm"
+    fi
 
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
