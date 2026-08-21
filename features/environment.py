@@ -200,7 +200,18 @@ def _before_scenario(context, scenario):
     # cleaned up by the tag's own after_scenario, which never gets a chance
     # to matter here since the scenario body never runs either way, but the
     # side effect itself already happened and can leak into the next test.
-    if "skip_in_container" in effective_tags:
+    #
+    # @simwifi/@simwifi_ap/@simwifi_p2p skip in containers for the same
+    # reason (mac80211_hwsim binds its radios to init_net regardless of
+    # netns, so it's unusable from a namespaced container) but do so from
+    # inside their own before_scenario instead of carrying the tag directly.
+    # Tag.before_scenario() queues their after_scenario cleanup *before*
+    # calling that before_scenario, so without this early check the cleanup
+    # still runs against setup that was never done (e.g. simwifi_p2p_as's
+    # `pkill wpa_supplicant.*wlan1` finds no process and exits 1).
+    if set(effective_tags).intersection(
+        {"skip_in_container", "simwifi", "simwifi_ap", "simwifi_p2p"}
+    ):
         try:
             nmci.tags.skip_in_container_bs(context, scenario)
         except nmci.misc.SkipTestException:
