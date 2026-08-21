@@ -1457,6 +1457,23 @@ is set, it is used instead of getting version by `NetworkManager -v`.
 * **Return type:**
   tuple of string and list of int
 
+### nmci.misc.nm_version_detect_real(use_cached=True)
+
+Get parsed NetworkManager version of the actually running/installed
+binary, ignoring the `NM_VERSION` env var and
+`/tmp/nm_version_override` spoofs that `nm_version_detect()`
+honors. Use this for decisions based on what the real NM binary can
+actually do (e.g. version-dependent runtime behavior), as opposed to
+test/tag selection, which should keep using `nm_version_detect()`
+so version spoofing can still force a version-gated scenario to run.
+
+* **Parameters:**
+  **use_cached** (*bool**,* *optional*) – whether to use already processed version, defaults to True
+* **Returns:**
+  parsed version returned by `nm_version_parse()`
+* **Return type:**
+  tuple of string and list of int
+
 ### nmci.misc.nm_version_parse(version)
 
 Parses the version string from `/sbin/NetworkManager -V` and detects a version

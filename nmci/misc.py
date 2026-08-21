@@ -493,6 +493,31 @@ class _Misc:
         self._nm_version_detect_cached = v
         return v
 
+    def nm_version_detect_real(self, use_cached=True):
+        """
+        Get parsed NetworkManager version of the actually running/installed
+        binary, ignoring the :code:`NM_VERSION` env var and
+        :code:`/tmp/nm_version_override` spoofs that :code:`nm_version_detect()`
+        honors. Use this for decisions based on what the real NM binary can
+        actually do (e.g. version-dependent runtime behavior), as opposed to
+        test/tag selection, which should keep using :code:`nm_version_detect()`
+        so version spoofing can still force a version-gated scenario to run.
+
+        :param use_cached: whether to use already processed version, defaults to True
+        :type use_cached: bool, optional
+        :return: parsed version returned by :code:`nm_version_parse()`
+        :rtype: tuple of string and list of int
+        """
+        if use_cached and hasattr(self, "_nm_version_detect_real_cached"):
+            return self._nm_version_detect_real_cached
+
+        current_version_str = nmci.process.run_stdout(
+            ["NetworkManager", "-V"], embed_combine_tag=nmci.embed.NO_EMBED
+        )
+        v = self.nm_version_parse(current_version_str)
+        self._nm_version_detect_real_cached = v
+        return v
+
     def distro_detect(self, use_cached=True, release_file_content=None):
         """
         Get distribution name and version.

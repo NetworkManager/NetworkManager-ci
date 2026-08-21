@@ -111,7 +111,10 @@ class _NMUtil:
             "GetAllDevices",
         ]
         timeout = nmci.util.start_timeout(timeout)
-        _, nm_ver = nmci.misc.nm_version_detect()
+        # Real binary version: whether the bus comes up instantly on restart
+        # is a property of what's actually installed, not of any NM_VERSION
+        # spoof used to force a version-gated scenario to run.
+        _, nm_ver = nmci.misc.nm_version_detect_real()
         ready_at_first_check = do_assert and nm_ver >= [1, 43, 5]
         nm_ver_str = ".".join(f"{i}" for i in nm_ver)
         while timeout.loop_sleep(0.1):
