@@ -190,6 +190,24 @@ def _before_scenario(context, scenario):
         except Exception as e:
             excepts.append(str(e))
 
+    # @skip_in_container must be evaluated before any other tag's
+    # before_scenario, regardless of where it's declared in the scenario's
+    # tag list -- the loop below processes tags in file order, so a
+    # setup-type tag declared earlier (e.g. @dns_dnsmasq, @openvpn, @eth0,
+    # @prepare_patched_netdevsim) would otherwise run its own side effects
+    # (writing config, starting a server, bringing an interface down) before
+    # the skip ever takes effect. Several of those side effects are only
+    # cleaned up by the tag's own after_scenario, which never gets a chance
+    # to matter here since the scenario body never runs either way, but the
+    # side effect itself already happened and can leak into the next test.
+    if "skip_in_container" in effective_tags:
+        try:
+            nmci.tags.skip_in_container_bs(context, scenario)
+        except nmci.misc.SkipTestException:
+            pass
+        except Exception as e:
+            excepts.append(str(e))
+
     for tag_name in effective_tags:
         if context.cext.scenario_skipped:
             break
