@@ -578,6 +578,20 @@ ensure_container() {
         # fresh `ip netns add` always resets to the kernel default -- it is
         # not inherited from the parent netns) and can silently swallow an
         # expected ICMP time-exceeded reply the test is waiting for.
+        # ipsec.service is likewise permanently masked, never unmasked: the
+        # baked image happened to have it enabled+running when captured (a
+        # stale artifact from whatever the container was doing at bake
+        # time), so it auto-starts at boot on every container spun up from
+        # that image from then on -- not something any test setup here
+        # actually requests. It loads ip_vti/ip6_vti/xfrm_interface at
+        # startup for VTI support, pinning them loaded forever, which then
+        # makes any test that tries `modprobe -r ip6_tunnel`/`ip_tunnel`
+        # (e.g. ipv6_tunnel_module_removal) fail with "Module ... is in
+        # use" even though it never touched those modules itself. NM-CI's
+        # own libreswan-tagged scenarios (prepare/libreswan.sh) don't rely
+        # on this systemd unit at all -- they spawn their own `ipsec pluto`
+        # by hand inside a dedicated netns -- so masking it doesn't affect
+        # them.
         # --cap-drop=SYS_BOOT: --privileged grants every capability
         # including CAP_SYS_BOOT, and systemd running as the container's
         # PID 1 treats SIGINT the same way it would on a real console
@@ -599,6 +613,7 @@ ensure_container() {
             -v "/lib/modules/$(uname -r):/lib/modules/$(uname -r):ro" \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/openvswitch.service:ro \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/chronyd.service:ro \
+            -v /dev/null:/etc/systemd/system/multi-user.target.wants/ipsec.service:ro \
             "$IMAGE" /sbin/init
         ensure_dhcp_server
         echo "Waiting for systemd to settle..."
