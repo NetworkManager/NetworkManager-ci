@@ -2278,6 +2278,7 @@
 
     @rhbz1686634
     @ver+=1.22
+    @skip_in_container
     @bond_reconnect_previously_unavailable_device
     Scenario: NM - bond - reconnect device
     * Cleanup file "/etc/modprobe.d/97-nmci-test.conf"

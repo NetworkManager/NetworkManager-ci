@@ -1203,6 +1203,7 @@ Feature: nmcli - ovs
     @ver+=1.19.5 @ver-=1.51.1
     @ver/rhel/9/5-1.48.10.3
     @permissive @openvswitch @dpdk
+    @skip_in_container
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1227,6 +1228,7 @@ Feature: nmcli - ovs
     @ver+=1.51.2
     @ver/rhel/9/5+=1.48.10.3
     @permissive @openvswitch @dpdk
+    @skip_in_container
     @add_dpdk_port
     Scenario: NM -  openvswitch - add dpdk device
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1254,6 +1256,7 @@ Feature: nmcli - ovs
      @rhbz2001563
      @ver+=1.35.4
      @permissive @openvswitch @dpdk
+     @skip_in_container
      @add_dpdk_port_n_rxq
      Scenario: NM -  openvswitch - add dpdk device and n_rxq argument
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1277,6 +1280,7 @@ Feature: nmcli - ovs
      @ver+=1.41.8
      @ver/rhel/9+=1.41.90.1
      @permissive @openvswitch @dpdk
+     @skip_in_container
      @add_dpdk_port_n_rxq_txq_desc
      Scenario: NM -  openvswitch - add dpdk device and n_rxq_desc,n_txq_desc arguments
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1301,6 +1305,7 @@ Feature: nmcli - ovs
     @rhbz1676551 @rhbz1612503
     @ver+=1.19.5
     @permissive @openvswitch @dpdk
+    @skip_in_container
     @add_dpdk_bond_sriov
     Scenario: NM -  openvswitch - add dpdk device
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1595,6 +1600,7 @@ Feature: nmcli - ovs
     @rhbz2001851 @rhbz2001792
     @ver+=1.38
     @permissive @openvswitch @dpdk @restart_if_needed
+    @skip_in_container
     @add_dpdk_port_with_mtu
     Scenario: NM - openvswitch - add dpdk device with preset MTU
     * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -1955,6 +1961,7 @@ Feature: nmcli - ovs
      @RHEL-77148
      @ver+=1.53.1
      @permissive @openvswitch @dpdk
+     @skip_in_container
      @add_dpdk_port_lsc_interrupt
      Scenario: NM -  openvswitch - add dpdk device and lsc-interrupt argument
      * Add "ovs-bridge" connection named "ovs-bridge0" for device "ovsbridge0" with options
@@ -2215,6 +2222,7 @@ interfaces:
 
 
     @dpdk_remove
+    @skip_in_container
     @dpdk_teardown
     Scenario: teardown dpdk setup
     * Execute "echo 'this is skipped'"

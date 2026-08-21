@@ -2044,6 +2044,7 @@
     @ver+=1.35.7
     @ignore_backoff_message
     @logging_info_only
+    @skip_in_container
     @ipv6_ignore_nonstatic_routes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
     * Prepare simulated test "many_routes6" device with "30m" leasetime
@@ -2086,6 +2087,7 @@
     @ver/rhel/9/4+=1.46.0.7
     @ignore_backoff_message
     @logging_info_only
+    @skip_in_container
     @ipv6_ignore_routes_changes
     Scenario: NM - ipv6 - ignore routes that are neither static nor RA nor DHCP
     * Prepare simulated test "many_routes6" device with ifindex "65006"

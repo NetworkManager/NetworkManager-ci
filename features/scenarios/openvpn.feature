@@ -220,6 +220,7 @@
     @fedoraver+=44
     @permissive
     @openvpn @openvpn4
+    @skip_in_container
     @openvpn_cert_permissions
     Scenario: nmcli - openvpn - check for certificat permissions
     * Copy openvpn certs to "/root/" owned by "root"

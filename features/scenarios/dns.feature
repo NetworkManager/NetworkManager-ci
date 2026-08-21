@@ -700,6 +700,7 @@ Feature: nmcli - dns
     @rhbz1628576
     @ver+=1.12
     @dns_dnsmasq @regenerate_veth @skip_str
+    @skip_in_container
     @dns_dnsmasq_driver_removal
     Scenario: NM - dns - remove driver
     * Prepare simulated test "testX4" device
