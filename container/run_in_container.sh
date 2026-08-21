@@ -592,6 +592,19 @@ ensure_container() {
         # on this systemd unit at all -- they spawn their own `ipsec pluto`
         # by hand inside a dedicated netns -- so masking it doesn't affect
         # them.
+        # tuned is also permanently masked, never unmasked, for the same
+        # "baked image left it enabled+running" reason as ipsec.service --
+        # confirmed via ActiveEnterTimestamp matching container boot exactly.
+        # Unlike a per-namespace daemon, tuned's whole job is to apply
+        # host-wide tuning (CPU governor, sysctls, I/O scheduler, ...) via
+        # --privileged's access to /sys and /proc, so a container-baked
+        # tuned silently changes the *host* machine's power/performance
+        # profile (here: "virtual-guest") the moment it starts, with no
+        # relation to any test. NM-CI's own `performance` tag
+        # (nmci/tags.py) already manages tuned explicitly per-scenario via
+        # `systemctl start/stop tuned` -- that still works fine with only
+        # the boot-time enablement symlink shadowed here, since an explicit
+        # `systemctl start` doesn't depend on it.
         # --cap-drop=SYS_BOOT: --privileged grants every capability
         # including CAP_SYS_BOOT, and systemd running as the container's
         # PID 1 treats SIGINT the same way it would on a real console
@@ -614,6 +627,7 @@ ensure_container() {
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/openvswitch.service:ro \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/chronyd.service:ro \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/ipsec.service:ro \
+            -v /dev/null:/etc/systemd/system/multi-user.target.wants/tuned.service:ro \
             "$IMAGE" /sbin/init
         ensure_dhcp_server
         echo "Waiting for systemd to settle..."
