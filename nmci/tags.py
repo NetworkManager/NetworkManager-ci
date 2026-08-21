@@ -1224,6 +1224,16 @@ def libreswan_bs(context, scenario):
         )
         nmci.nmutil.restart_NM_service()
 
+    # nm-libreswan-service (the VPN plugin helper) talks to the main
+    # namespace's pluto via `ipsec whack`/`ipsec status` -- it does not
+    # start pluto itself, so it hard-fails with "Pluto is not running" if
+    # ipsec.service isn't already active (e.g. in a container where it's
+    # masked at boot -- see container/run_in_container.sh).
+    # prepare/libreswan.sh's own `ipsec restart` bootstrap only fires once,
+    # gated on /etc/ipsec.d/ikev1_accept.conf not existing yet, so it can't
+    # be relied on to (re)start pluto on every scenario.
+    context.process.systemctl("start ipsec")
+
     context.process.run_stdout("/usr/sbin/ipsec --checknss")
     mode = "aggressive"
     if "ikev2" in scenario.tags:
@@ -1237,6 +1247,7 @@ def libreswan_as(context, scenario):
     context.process.nmcli_force("connection down libreswan")
     context.process.nmcli_force("connection delete libreswan")
     nmci.prepare.teardown_libreswan(context)
+    context.process.systemctl("stop ipsec")
     nmci.veth.wait_for_testeth0()
 
 
