@@ -1467,11 +1467,32 @@ def run_nmstate_from_copr(context, nmstate_copr, log_file):
     copr_enable = f"dnf copr enable -y {nmstate_copr}"
     if copr_chroot:
         copr_enable += f" {copr_chroot}"
+    # run-tests.sh spins up its OWN inner "workspace" container (from the
+    # same plain <distro>-nmstate-dev base image we start from) to actually
+    # run pytest in -- so it's a separate filesystem from ours, missing the
+    # same fuse-overlayfs/storage.conf setup run_in_container.sh applies to
+    # our own container. Without it, nmstate's ipsec_test.py (which launches
+    # a libreswan gateway via a nested `podman run` of its own, one level
+    # deeper still) fails with "configure storage: 'overlay' is not
+    # supported over overlayfs, a mount_program is required" -- the same
+    # overlay-on-overlay restriction, just one container layer further in.
+    # --customize is the only hook that runs a command inside that inner
+    # container before tests start, so fix it up there too. Only double
+    # quotes below: this whole string is itself wrapped in single quotes.
+    storage_conf_fixup = (
+        "dnf install -y fuse-overlayfs && mkdir -p /etc/containers && "
+        'echo "[storage]" > /etc/containers/storage.conf && '
+        'echo "driver = \\"overlay\\"" >> /etc/containers/storage.conf && '
+        'echo "" >> /etc/containers/storage.conf && '
+        'echo "[storage.options.overlay]" >> /etc/containers/storage.conf && '
+        'echo "mount_program = \\"/usr/bin/fuse-overlayfs\\"" >> /etc/containers/storage.conf'
+    )
     cmd = (
         f"cd /tmp/nmstate && env CI=true automation/run-tests.sh"
         f" --test-type integ_tier1 --nolog --{release}"
         f" --use-installed-nmstate"
-        f" --customize '{copr_enable} && dnf install -y nmstate nmstate-libs python3-libnmstate'"
+        f" --customize '{copr_enable} && dnf install -y nmstate nmstate-libs python3-libnmstate"
+        f" && {storage_conf_fixup}'"
     )
 
     # Detect NM packages source (same logic as run_nmstate)

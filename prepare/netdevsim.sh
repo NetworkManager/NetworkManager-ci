@@ -133,8 +133,17 @@ function setup () {
     # If we are able to insert module create devices and exit 0
     echo "** installing the patched one"
     if modprobe netdevsim; then
-        # RHEL9 prefers signed module, use insmod instead
-        if grep "release 9" /etc/redhat-release; then
+        # RHEL9 prefers signed module, use insmod instead -- but not if a
+        # container pre-created /tmp/netdevsim_installed because its
+        # already-modprobed stock module (bind-mounted read-only from the
+        # host) was independently verified to already qualify: the
+        # from-source build never ran, so there's nothing at the .ko path
+        # to insmod, and rmmod'ing the perfectly-fine stock module would
+        # just leave netdevsim unloaded entirely. Deliberately NOT an
+        # existence check on the .ko path itself -- it lives under that
+        # same read-only bind-mount in a container, so it would always
+        # read as "missing" even if a build genuinely had run.
+        if grep "release 9" /etc/redhat-release && [ ! -f /tmp/netdevsim_container_stock_ok ]; then
             rmmod netdevsim
             insmod /lib/modules/$K_VER/extra/netdevsim.ko
         fi
@@ -142,6 +151,14 @@ function setup () {
         echo "0 0 128" > /sys/bus/netdevsim/new_device
         for i in $(seq 1 $NUM); do
             echo "$i 6e:81:1e:c4:50:$(printf %02x $i)" > /sys/bus/netdevsim/devices/netdevsim0/new_port
+        done
+        # sysfs population after new_port can lag behind the write
+        # returning (seen in containers more than on real hardware) --
+        # without this, the rename loop below can run against zero
+        # interfaces and every test expecting eth11+ fails outright.
+        for _ in $(seq 1 20); do
+            [ "$(ls -d /sys/devices/netdevsim*/net/eth* 2>/dev/null | wc -l)" -ge "$NUM" ] && break
+            sleep 0.2
         done
         # Make sure the netdevsim devices based from eth11,
         # even if eth0-eth10 are not there yet.

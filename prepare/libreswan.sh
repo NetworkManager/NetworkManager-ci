@@ -242,7 +242,7 @@ libreswan_teardown ()
     ip netns list | grep -q libreswan && ip netns del libreswan
     ip link | grep -q libreswan1 && ip link del libreswan1
     nmcli -f NAME c show | grep -q 'lib1' && nmcli connection del lib1
-    modprobe -r ip_vti
+    modprobe -r ip_vti || true
 }
 
 if [ "$1" != "teardown" ]; then
