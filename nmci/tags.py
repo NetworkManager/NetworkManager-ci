@@ -145,6 +145,19 @@ def skip_in_kvm_bs(context, scenario):
 _register_tag("skip_in_kvm", skip_in_kvm_bs)
 
 
+def skip_in_container_bs(context, scenario):
+    virt = nmci.process.run_stdout(
+        "systemd-detect-virt --container",
+        ignore_returncode=True,
+        ignore_stderr=True,
+    ).strip()
+    if virt != "none":
+        context.cext.skip(f"skipping in container ({virt})")
+
+
+_register_tag("skip_in_container", skip_in_container_bs)
+
+
 def arch_only_bs(context, scenario, arch):
     if context.arch != arch:
         context.cext.skip(f"skiping on {context.arch} as not on {arch}")
@@ -1013,6 +1026,7 @@ _register_tag("pkcs11", pkcs11_bs)
 def simwifi_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
+    skip_in_container_bs(context, scenario)
     args = ["namespace"]
     nmci.prepare.setup_hostapd_wireless(context, args)
 
@@ -1040,6 +1054,10 @@ _register_tag("simwifi", simwifi_bs, simwifi_as)
 def simwifi_ap_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
+    # mac80211_hwsim always attaches its radios/interfaces to init_net
+    # regardless of which netns loaded it, so it's unusable from inside a
+    # namespaced container.
+    skip_in_container_bs(context, scenario)
 
     context.process.run_stdout("modprobe -r mac80211_hwsim")
     if not hasattr(context, "noted"):
@@ -1070,6 +1088,7 @@ _register_tag("simwifi_ap", simwifi_ap_bs, simwifi_ap_as)
 def simwifi_p2p_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")
+    skip_in_container_bs(context, scenario)
 
     if (
         context.rh_release_num >= [8, 0]

@@ -1275,6 +1275,7 @@ Feature: nmcli - general
     @rhbz1673321 @rhbz1942741
     @ver+=1.30
     @x86_64_only @eth0 @restart_if_needed
+    @skip_in_container
     @match_connections_with_pci_address
     Scenario: NM - general - connection matching for dhcp with infinite leasetime
     * Add "ethernet" connection named "con_general"
@@ -2264,6 +2265,7 @@ Feature: nmcli - general
     # Needed permissive, because even with additional policy, NM silently exits with code 1
     @permissive
     @logging_info_only
+    @skip_in_container
     @stable_mem_consumption
     Scenario: NM - general - stable mem consumption
     * Commentary
@@ -2299,6 +2301,7 @@ Feature: nmcli - general
     # Needed permissive, because even with additional policy, NM silently exits with code 1
     @permissive
     @logging_info_only
+    @skip_in_container
     @stable_mem_consumption_massif
     Scenario: NM - general - stable mem consumption using massif
     * Cleanup device "eth0"
