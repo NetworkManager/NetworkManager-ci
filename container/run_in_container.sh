@@ -399,12 +399,15 @@ restart_nm_and_wait_for_dns() {
 
 # `podman restart` (as opposed to the initial `podman run`) re-establishes
 # podman's own /etc/resolv.conf/hostname/hosts bind mounts and re-masks
-# openvswitch.service, but doesn't rerun any of the one-time fixups
-# ensure_container() applies right after creation -- so a container that
-# gets restarted (e.g. to recover from a test that broke eth0, such as one
-# doing 'modprobe -r veth', which also takes down the container's own veth
-# uplink) comes back with /etc/resolv.conf busy again and openvswitch
-# masked. This redoes just those fixups, without reinstalling NM or
+# openvswitch.service, and also re-triggers ipsec.service's own boot-time
+# auto-start (that one isn't bind-mount-masked, so a restart brings it back
+# exactly like any other enabled unit) -- but doesn't rerun any of the
+# one-time fixups ensure_container() applies right after creation -- so a
+# container that gets restarted (e.g. to recover from a test that broke
+# eth0, such as one doing 'modprobe -r veth', which also takes down the
+# container's own veth uplink) comes back with /etc/resolv.conf busy again,
+# openvswitch masked, and ipsec.service running again (pinning ip_vti/
+# ip6_vti). This redoes just those fixups, without reinstalling NM or
 # re-cloning NM-CI like a full --refresh would.
 do_reboot() {
     if ! podman container exists "$CONTAINER_NAME"; then
@@ -416,6 +419,7 @@ do_reboot() {
     ensure_dhcp_server
     echo "Waiting for systemd to settle..."
     container_exec "systemctl is-system-running --wait" || true
+    container_exec "systemctl stop ipsec" || true
     container_exec "umount /etc/resolv.conf 2>/dev/null; rm -f /etc/resolv.conf; umount /etc/hostname 2>/dev/null; umount /etc/hosts 2>/dev/null; true"
     restart_nm_and_wait_for_dns
     step "Starting openvswitch (safe now that the bridge is in active use)"
@@ -578,6 +582,33 @@ ensure_container() {
         # fresh `ip netns add` always resets to the kernel default -- it is
         # not inherited from the parent netns) and can silently swallow an
         # expected ICMP time-exceeded reply the test is waiting for.
+        # ipsec.service is NOT masked here (unlike chronyd/tuned below) --
+        # @libreswan-tagged scenarios need the real thing: nm-libreswan-
+        # service (the VPN plugin helper) talks to pluto via `ipsec whack`/
+        # `ipsec status` and never starts it itself, so it hard-fails with
+        # "Pluto is not running" if ipsec.service isn't already active
+        # (nmci/tags.py's libreswan_bs/_as now start/stop it explicitly per
+        # scenario, matching how the `performance` tag drives tuned). Left
+        # running by default (as the baked image does) it pins ip_vti/
+        # ip6_vti/xfrm_interface loaded forever via its own VTI-support
+        # startup, breaking any test that tries `modprobe -r ip6_tunnel`/
+        # `ip_tunnel` (e.g. ipv6_tunnel_module_removal) -- so it's stopped
+        # once, right after boot, below (and again after every `podman
+        # restart` in do_reboot(), since restart re-triggers its
+        # boot-time auto-start same as any other enabled unit).
+        # tuned is also permanently masked, never unmasked, for the same
+        # "baked image left it enabled+running" reason as ipsec.service --
+        # confirmed via ActiveEnterTimestamp matching container boot exactly.
+        # Unlike a per-namespace daemon, tuned's whole job is to apply
+        # host-wide tuning (CPU governor, sysctls, I/O scheduler, ...) via
+        # --privileged's access to /sys and /proc, so a container-baked
+        # tuned silently changes the *host* machine's power/performance
+        # profile (here: "virtual-guest") the moment it starts, with no
+        # relation to any test. NM-CI's own `performance` tag
+        # (nmci/tags.py) already manages tuned explicitly per-scenario via
+        # `systemctl start/stop tuned` -- that still works fine with only
+        # the boot-time enablement symlink shadowed here, since an explicit
+        # `systemctl start` doesn't depend on it.
         # --cap-drop=SYS_BOOT: --privileged grants every capability
         # including CAP_SYS_BOOT, and systemd running as the container's
         # PID 1 treats SIGINT the same way it would on a real console
@@ -599,10 +630,12 @@ ensure_container() {
             -v "/lib/modules/$(uname -r):/lib/modules/$(uname -r):ro" \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/openvswitch.service:ro \
             -v /dev/null:/etc/systemd/system/multi-user.target.wants/chronyd.service:ro \
+            -v /dev/null:/etc/systemd/system/multi-user.target.wants/tuned.service:ro \
             "$IMAGE" /sbin/init
         ensure_dhcp_server
         echo "Waiting for systemd to settle..."
         container_exec "systemctl is-system-running --wait" || true
+        container_exec "systemctl stop ipsec" || true
         write_static_eth0_profile
         # podman bind-mounts /etc/resolv.conf, /etc/hostname AND /etc/hosts
         # itself -- that's how --dns/--dns-search above take effect -- but
