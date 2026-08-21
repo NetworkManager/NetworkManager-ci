@@ -24,9 +24,10 @@ echo $@
 echo "Starting time:" $(date)
 
 # For all tests
+total=$#
 for test in $@; do
     echo "_______________________________"
-    echo "RUNNING $test"
+    echo "RUNNING $test ($((cnt + 1))/$total)"
     counter=$(printf "%04d\n" $cnt)
 
     # Start watchdog. Default is 10m
