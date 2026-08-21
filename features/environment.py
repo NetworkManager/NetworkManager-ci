@@ -190,6 +190,35 @@ def _before_scenario(context, scenario):
         except Exception as e:
             excepts.append(str(e))
 
+    # @skip_in_container must be evaluated before any other tag's
+    # before_scenario, regardless of where it's declared in the scenario's
+    # tag list -- the loop below processes tags in file order, so a
+    # setup-type tag declared earlier (e.g. @dns_dnsmasq, @openvpn, @eth0,
+    # @prepare_patched_netdevsim) would otherwise run its own side effects
+    # (writing config, starting a server, bringing an interface down) before
+    # the skip ever takes effect. Several of those side effects are only
+    # cleaned up by the tag's own after_scenario, which never gets a chance
+    # to matter here since the scenario body never runs either way, but the
+    # side effect itself already happened and can leak into the next test.
+    #
+    # @simwifi/@simwifi_ap/@simwifi_p2p skip in containers for the same
+    # reason (mac80211_hwsim binds its radios to init_net regardless of
+    # netns, so it's unusable from a namespaced container) but do so from
+    # inside their own before_scenario instead of carrying the tag directly.
+    # Tag.before_scenario() queues their after_scenario cleanup *before*
+    # calling that before_scenario, so without this early check the cleanup
+    # still runs against setup that was never done (e.g. simwifi_p2p_as's
+    # `pkill wpa_supplicant.*wlan1` finds no process and exits 1).
+    if set(effective_tags).intersection(
+        {"skip_in_container", "simwifi", "simwifi_ap", "simwifi_p2p"}
+    ):
+        try:
+            nmci.tags.skip_in_container_bs(context, scenario)
+        except nmci.misc.SkipTestException:
+            pass
+        except Exception as e:
+            excepts.append(str(e))
+
     for tag_name in effective_tags:
         if context.cext.scenario_skipped:
             break
