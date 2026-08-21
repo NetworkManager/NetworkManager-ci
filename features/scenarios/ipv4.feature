@@ -131,8 +131,8 @@ Feature: nmcli: ipv4
     Then "192.168.122.253/24" is visible with command "ip a s eth3"
     Then "default via 192.168.122.96 dev eth3\s+proto static\s+metric" is visible with command "ip route"
     Then "192.168.122.0/24 dev eth3\s+proto kernel\s+scope link\s+src 192.168.122.253" is visible with command "ip route"
-    Then "eth0" is visible with command "ip r |grep 'default via 1'" in "5" seconds
-    Then "eth3" is visible with command "ip r |grep 'default via 1'" in "5" seconds
+    Then "eth0" is visible with command "ip r |grep 'default via [12]'" in "5" seconds
+    Then "eth3" is visible with command "ip r |grep 'default via [12]'" in "5" seconds
 
 
     @ipv4_addresses_more_IPs_slash_mask_and_route

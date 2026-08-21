@@ -655,15 +655,15 @@ Feature: nmcli - general
     * Execute "nmcli networking off"
     When "disabled" is visible with command "nmcli networking"
     Then Execute "nmcli networking on"
-    Then "inet 1" is visible with command "ip a s eth0" in "40" seconds
+    Then "inet [1-2]" is visible with command "ip a s eth0" in "40" seconds
 
 
     @networking_on
     @general_networking_off
     Scenario: nmcli - networking - turn off
-    When "inet 1" is visible with command "ip a s eth0" in "40" seconds
+    When "inet [1-2]" is visible with command "ip a s eth0" in "40" seconds
     * Execute "nmcli networking off"
-    Then "inet 1" is not visible with command "ip a s eth0"
+    Then "inet [1-2]" is not visible with command "ip a s eth0"
     Then Execute "nmcli networking on"
 
 
@@ -671,9 +671,9 @@ Feature: nmcli - general
     @general_networking_on
     Scenario: nmcli - networking - turn on
     * Execute "nmcli networking off"
-    When "inet 1" is not visible with command "ip a s eth0"
+    When "inet [1-2]" is not visible with command "ip a s eth0"
     * Execute "nmcli networking on"
-    Then "inet 1" is visible with command "ip a s eth0" in "40" seconds
+    Then "inet [1-2]" is visible with command "ip a s eth0" in "40" seconds
 
 
     @ver+=1.37.3
