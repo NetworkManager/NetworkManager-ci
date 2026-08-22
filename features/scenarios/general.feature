@@ -2332,6 +2332,7 @@ Feature: nmcli - general
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
     @not_on_aarch64
+    @skip_in_container
     # Needed permissive, because even with additional policy, NM silently exits with code 1
     @permissive
     @no_config_server
@@ -2370,6 +2371,7 @@ Feature: nmcli - general
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
     @not_on_aarch64
+    @skip_in_container
     # Needed permissive, because even with additional policy, NM silently exits with code 1
     @permissive
     @no_config_server
