@@ -54,8 +54,10 @@ SHELL_ONLY=0
 REFRESH=0
 CLEAN=0
 REBOOT=0
+FORCE_CONCURRENT=0
 NMCI_URL="https://gitlab.freedesktop.org/NetworkManager/NetworkManager-ci.git"
 CONTAINER_REPO="/root/NetworkManager-ci"
+NMCI_RUN_LOCKFILE="/run/nmci-container-run.lock"
 
 usage() {
     cat <<EOF
@@ -87,6 +89,16 @@ Usage: $0 [options]
                             (bandwidth note: reusing an existing container skips both the NM
                             install and the git clone/pull when nothing changed -- good for
                             metered connections)
+  -m, --memory <size>       cap this container's cgroup memory (podman --memory syntax, e.g.
+                            6g), so a runaway container can't push the *host* into swapping.
+                            Memory+swap is capped at 2x this value -- a long '--feature all'/
+                            'gate' run legitimately accumulates page cache/NM state across
+                            hundreds of sequential tests (only cleaned up at the very end), so a
+                            1:1 cap with no swap headroom OOM-kills an innocent test the moment
+                            that tail hits the ceiling; the 2x swap cushion absorbs it without
+                            leaving the cgroup unbounded. Default: 8g (so 16g memory+swap).
+  --force-concurrent        skip the warning/prompt (see below) when another nmci container's
+                            test run is already in progress, and run anyway.
   -s, --save-image <tag>    on success, 'podman commit' the container to <tag> (e.g.
                             quay.io/you/nmci-c10s:baked) so a future run can start from it via
                             NMCI_CONTAINER_IMAGE=<tag> instead of redoing dnf/pip/git work.
@@ -124,6 +136,12 @@ Environment variables (override the --distro-derived defaults individually):
   NMCI_CONTAINER_NAME      container name (default: nmci-<distro>)
   NMCI_CONTAINER_NETWORK   podman network name (default: nmci-egress)
   NMCI_CONTAINER_IP        pinned container IP (default: 203.0.113.10)
+  NMCI_CONTAINER_MEMORY    per-container memory cap, see -m/--memory above (default: 8g)
+
+Note: a c9s and a c10s container share the same nmci-egress bridge network, one DHCP/DNS
+server and the host kernel -- running both at once has caused real test interference (e.g. a
+mass DNS/dispatcher/tunnel failure pileup on one side from a concurrent '--feature all' run).
+This script warns and asks before letting that happen; see --force-concurrent above to skip it.
 
 Examples:
   $0
@@ -175,6 +193,8 @@ while [ $# -gt 0 ]; do
             FEATURES="${FEATURES# }"
             ;;
         -f|--force) FORCE_REINSTALL=1; shift ;;
+        -m|--memory) NMCI_CONTAINER_MEMORY="$2"; shift 2 ;;
+        --force-concurrent) FORCE_CONCURRENT=1; shift ;;
         -s|--save-image) SAVE_IMAGE="$2"; shift 2 ;;
         -P|--push) PUSH_IMAGE=1; shift ;;
         --shell) SHELL_ONLY=1; shift ;;
@@ -223,6 +243,16 @@ REPORT_DIR="$(pwd)/.tmp/container-reports/$(date +%Y%m%d-%H%M%S)-$DISTRO"
 CONTAINER_NAME="${NMCI_CONTAINER_NAME:-nmci-$DISTRO}"
 IMAGE="${NMCI_CONTAINER_IMAGE:-quay.io/nmstate/nmci-$DISTRO:latest}"
 NETWORK_NAME="${NMCI_CONTAINER_NETWORK:-nmci-egress}"
+CONTAINER_MEMORY="${NMCI_CONTAINER_MEMORY:-8g}"
+# Memory+swap capped at 2x memory (not left unbounded, not equal to memory --
+# see -m/--memory in usage() for why a 1:1 cap OOM-kills innocent tests on a
+# long '--feature all'/'gate' run).
+if [[ "$CONTAINER_MEMORY" =~ ^([0-9]+)([a-zA-Z]*)$ ]]; then
+    CONTAINER_MEMORY_SWAP="$((${BASH_REMATCH[1]} * 2))${BASH_REMATCH[2]}"
+else
+    echo "Unrecognized --memory value '$CONTAINER_MEMORY' -- expected e.g. '8g'" >&2
+    exit 1
+fi
 
 container_exec() {
     podman exec "$CONTAINER_NAME" bash -lc "$*"
@@ -623,6 +653,8 @@ ensure_container() {
             --privileged \
             --cap-drop=SYS_BOOT \
             --systemd=always \
+            --memory="$CONTAINER_MEMORY" \
+            --memory-swap="$CONTAINER_MEMORY_SWAP" \
             --network="$NETWORK_NAME" \
             --ip="$CONTAINER_IP" \
             --dns="$NETWORK_GATEWAY" \
@@ -945,6 +977,81 @@ print_report_links() {
     step "Reports: file://$(readlink -f "$REPORT_DIR")"
 }
 
+# c9s and c10s share one nmci-egress bridge, one DHCP/DNS server and the host
+# kernel -- running both at once has caused real cross-container test
+# interference (a mass DNS/dispatcher/tunnel failure pileup on one side from
+# a concurrent '--feature all' run, see project memory). flock is used
+# (rather than a hand-rolled PID file) specifically because it self-heals: if
+# a prior holder crashed instead of exiting cleanly, the kernel releases the
+# lock the moment that process's fds are gone, so there's no stale-lock state
+# to ever manually clean up. Opened '>>' (not '>') so a losing process
+# reading the file below sees the winner's already-written info instead of
+# racing it with its own truncate.
+check_concurrent_run() {
+    # --shell doesn't run tests or touch the shared network/topology -- just an
+    # interactive peek into an already-running container -- so it's never the
+    # cross-distro interference this guards against.
+    [ "$SHELL_ONLY" -eq 1 ] && return
+
+    exec {NMCI_LOCKFD}>>"$NMCI_RUN_LOCKFILE"
+    if flock -n "$NMCI_LOCKFD"; then
+        printf '%s\n' "$DISTRO (pid $$) since $(date -Iseconds)" > "$NMCI_RUN_LOCKFILE"
+        return
+    fi
+
+    local holder holder_distro
+    holder="$(cat "$NMCI_RUN_LOCKFILE" 2>/dev/null)"
+    holder_distro="${holder%% *}"
+    # Same distro as us -- not the cross-distro (c9s vs c10s) interference this
+    # guards against, so nothing to warn about here.
+    [ "$holder_distro" = "$DISTRO" ] && return
+
+    echo >&2
+    echo "WARNING: another nmci container run is already in progress: ${holder:-unknown}" >&2
+    echo "Running c9s and c10s at the same time is known to make their tests interfere with" >&2
+    echo "each other (shared bridge network, single DHCP/DNS server, shared host kernel" >&2
+    echo "modules) -- see --force-concurrent in --help to skip this check on purpose." >&2
+
+    if [ "$FORCE_CONCURRENT" -eq 1 ]; then
+        echo "--force-concurrent given, proceeding anyway." >&2
+        return
+    fi
+
+    if [ ! -t 0 ]; then
+        echo "Not running in a terminal -- aborting. Re-run with --force-concurrent to proceed." >&2
+        exit 1
+    fi
+
+    local ans
+    read -r -p "[a]bort (default) / [w]ait for it to finish / [k]ill it / [c]ontinue anyway: " ans
+    case "$ans" in
+        w|W)
+            step "Waiting for the other run to finish..."
+            flock "$NMCI_LOCKFD"
+            ;;
+        k|K)
+            local holder_pid
+            holder_pid="$(echo "$holder" | grep -oP '(?<=pid )\d+' || true)"
+            if [ -n "$holder_pid" ] && kill -0 "$holder_pid" 2>/dev/null; then
+                echo "Killing pid $holder_pid..." >&2
+                kill "$holder_pid" 2>/dev/null || true
+                flock "$NMCI_LOCKFD"
+            else
+                echo "Couldn't find that process (already gone?) -- proceeding." >&2
+            fi
+            ;;
+        c|C)
+            echo "Continuing without the lock -- interference risk accepted." >&2
+            return
+            ;;
+        *)
+            echo "Aborting." >&2
+            exit 1
+            ;;
+    esac
+    printf '%s\n' "$DISTRO (pid $$) since $(date -Iseconds)" > "$NMCI_RUN_LOCKFILE"
+}
+
 if [ "$CLEAN" -eq 1 ]; then
     do_clean
     exit 0
@@ -955,6 +1062,7 @@ if [ "$REBOOT" -eq 1 ]; then
     exit 0
 fi
 
+check_concurrent_run
 ensure_container
 
 if [ "$SHELL_ONLY" -eq 1 ]; then
