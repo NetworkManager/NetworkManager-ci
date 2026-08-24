@@ -28,6 +28,8 @@ if env == "host_site":
     IpsecTestEnv.start_ipsec_srv_host_to_site()
 if env == "icmp":
     IpsecTestEnv.start_ipsec_srv_cert_gw_icmp()
+if env == "4in6_6in4":
+    IpsecTestEnv.start_ipsec_srv_4in6_6in4()
 
 IpsecTestEnv.load_both_srv_cli_keys()
 

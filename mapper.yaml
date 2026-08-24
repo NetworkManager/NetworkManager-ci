@@ -2423,6 +2423,12 @@ testmapper:
     - libreswan_ikev2_dpd_interface:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_4in6:
+        feature: libreswan
+        tags: NetworkManager-libreswan
+    - libreswan_ikev2_6in4:
+        feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2_leftprotoport_rightprotoport:
         feature: libreswan
         tags: gate NetworkManager-libreswan
