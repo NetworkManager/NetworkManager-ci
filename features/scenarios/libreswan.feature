@@ -743,6 +743,40 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @libreswan_ikev2_4in6
+    Scenario: libreswan - ikev2 - 4in6 - IPv6 endpoints with IPv4 subnets
+    * Prepare nmstate libreswan server for "4in6_6in4" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftmodecfgclient = no, leftsubnet = <noted:CLI_SUBNET_V4>, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V4>'
+      """
+    * Wait for "1" seconds
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "VPN.GATEWAY:[^\n]*2001:db8:a::1" is visible with command "nmcli c show libreswan"
+    Then "src 10.0.9.0/24 dst 10.0.0.0/24.*src 2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+    Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 2001:db8:a::1 dst 2001:db8:a::2" is visible with command "ip xfrm policy"
+
+
+    @libreswan_ikev2_6in4
+    Scenario: libreswan - ikev2 - 6in4 - IPv4 endpoints with IPv6 subnets
+    * Prepare nmstate libreswan server for "4in6_6in4" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'hostaddrfamily = ipv4, ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftmodecfgclient = no, leftsubnet = <noted:CLI_SUBNET_V6>, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V6>'
+      """
+    * Wait for "1" seconds
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src fd00:9::/64 dst fd00:a::/64.*src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm policy"
+    Then "src fd00:a::/64 dst fd00:9::/64.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
+
+
     @fedoraver+=43
     @libreswan_ikev2_leftprotoport_rightprotoport
     Scenario: libreswan - ikev2 - leftprotoport - rightprotoport
