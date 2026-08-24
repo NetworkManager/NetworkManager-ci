@@ -4129,6 +4129,7 @@ Feature: nmcli - general
 
     @ver+=1.57
     @ver/rhel/10/3+=1.58.0.1
+    @ver/rhel/9/9+=1.54.4.3
     @print_config_no_avc_error
     Scenario: NM - general - check that there is no avc error with print-config
     * Cleanup execute "rpm -q gvfs-client && dnf remove -y gvfs-client" with timeout "120" seconds
