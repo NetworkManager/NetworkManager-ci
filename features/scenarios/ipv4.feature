@@ -3599,8 +3599,9 @@ Feature: nmcli: ipv4
           ipv6.method disabled
           """
     * Wait for "35" seconds
+    * Note the output of "date -d '30 seconds ago' '+%Y-%m-%d %H:%M:%S'" as value "time_stamp"
     * Note the output of "cat /sys/class/net/dummy0/ifindex" as value "dummy0_ifindex"
-    Then "IPv4" is not visible with command "journalctl -u NetworkManager --since='30 seconds ago' | grep -F 'ifindex=<noted:dummy0_ifindex>]' | grep -E 'start announcing|committing IPv4 configuration'"
+    Then "IPv4" is not visible with command "journalctl -u NetworkManager --since='<noted:time_stamp>' | grep -F 'ifindex=<noted:dummy0_ifindex>]' | grep -E 'start announcing|committing IPv4 configuration'"
     Then "DHCP-Message .*53.*, length 1: Release" is not visible with command "cat /tmp/tcpdump.log" in "10" seconds
 
 
