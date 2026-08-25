@@ -596,8 +596,8 @@
 
 
     @ver+=1.57.4
-    @ver/rhel/10/3+=1.58.0.1
-    @ver/rhel/9/9+=1.54.4.3
+    @ver/rhel/10+=1.58.0.1
+    @ver/rhel/9+=1.54.4.3
     @NMT-2218
     @eth0
     @ipv6_ignore-auto-dns_reapply
