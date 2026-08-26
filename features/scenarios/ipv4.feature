@@ -3892,6 +3892,12 @@ Feature: nmcli: ipv4
     @ver+=1.57.5
     @ver/rhel/8/10+=1.40.16.21
     @ver/rhel/9/8+=1.54.3.5
+    @ver/rhel/9/6+=1.52.0.11
+    @ver/rhel/9/4+=1.46.0.38
+    @ver/rhel/9/2+=1.42.2.32
+    @ver/rhel/8/8+=1.40.16.10
+    @ver/rhel/8/6+=1.36.0.18
+    @ver/rhel/8/4+=1.30.0.19
     @dhclient_DHCP
     @ipv4_dhclient_mud_url_CVE_2026_10805
     Scenario: NM - ipv4 - CVE-2026-10805 - mud-url with injection chars must be rejected
