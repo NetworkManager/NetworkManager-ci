@@ -301,7 +301,13 @@ class _Misc:
         :rtype: tuple of string and list of int
         """
 
-        m = re.match(r"^(.*)\.((el|fc)([0-9]+)(_([0-9]+))?)$", version)
+        # The trailing "(?:\.[0-9]+)*" tolerates an optional z-stream respin
+        # that comes *after* the dist tag, e.g. the ".1" in "1.52.0-11.el9_6.1".
+        # It is intentionally not captured: a respin is treated identically to
+        # its base build for test gating (same stream, same version array), so
+        # e.g. "1.52.0-11.el9_6.1" and "1.52.0-11.el9_6" both parse to
+        # ("rhel-9-6", [1, 52, 0, 11]).
+        m = re.match(r"^(.*)\.((el|fc)([0-9]+)(_([0-9]+))?)(?:\.[0-9]+)*$", version)
         if m:
             if m.group(3) == "el":
                 d = "rhel"
