@@ -667,6 +667,16 @@ def test_misc_nm_version_parse():
     _assert("1.57.3~dev-1.fc43", "fedora-43", [1, 57, 3, 1])
     _assert("1.56~rc3-1.2.el10_2", "rhel-10-2", [1, 55, 92, 1, 2])
     _assert("1.58-rc1", "unknown", [1, 57, 90])
+    # z-stream respin builds: the ".1" after the dist tag is tolerated and
+    # dropped, so the respin parses to the same stream and version as its
+    # base build (e.g. "1.52.0-11.el9_6.1" == "1.52.0-11.el9_6").
+    _assert("1.52.0-11.el9_6.1", "rhel-9-6", [1, 52, 0, 11])
+    _assert("1.46.0-38.el9_4.1", "rhel-9-4", [1, 46, 0, 38])
+    _assert("1.42.2-32.el9_2.1", "rhel-9-2", [1, 42, 2, 32])
+    _assert("1.40.16-10.el8_8.1", "rhel-8-8", [1, 40, 16, 10])
+    _assert("1.36.0-18.el8_6.1", "rhel-8-6", [1, 36, 0, 18])
+    _assert("1.30.0-19.el8_4.1", "rhel-8-4", [1, 30, 0, 19])
+    _assert("1.52.0-11.el9_6.2", "rhel-9-6", [1, 52, 0, 11])
 
 
 def test_misc_test_version_tag_parse_ver():
