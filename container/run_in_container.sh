@@ -258,6 +258,100 @@ container_exec() {
     podman exec "$CONTAINER_NAME" bash -lc "$*"
 }
 
+# Background async report copier - monitors /tmp/report_*.html and copies new/updated files
+COPIER_PID=""
+COPIER_STATEFILE=""
+
+start_async_report_copier() {
+    [ -z "$REPORT_DIR" ] && return
+    mkdir -p "$REPORT_DIR"
+    # Fix ownership if running under sudo (rootful podman)
+    if [ -n "${SUDO_UID:-}" ]; then
+        chown "$SUDO_UID:$SUDO_GID" "$REPORT_DIR" 2>/dev/null || true
+    fi
+    COPIER_STATEFILE="$REPORT_DIR/.copier_state"
+    : > "$COPIER_STATEFILE"
+
+    # Capture variables for background subshell (subshells don't inherit non-exported vars)
+    local _container="$CONTAINER_NAME"
+    local _report_dir="$REPORT_DIR"
+    local _state_file="$COPIER_STATEFILE"
+    local _sudo_uid="${SUDO_UID:-}"
+    local _sudo_gid="${SUDO_GID:-}"
+
+    (
+        # Redirect output to log file since background job stdout/stderr may not work
+        exec >> "$_report_dir/.copier.log" 2>&1
+
+        # Even though parent script runs under sudo, background job needs explicit
+        # sudo for podman to access rootful containers
+        PODMAN_CMD="sudo podman"
+
+        echo "[$(date +%H:%M:%S)] copier started, container=$_container"
+
+        while true; do
+            # Get list of reports with sizes (match both report_*.html and FAIL-report_*.html)
+            echo "[$(date +%H:%M:%S)] polling reports..."
+            reports=$($PODMAN_CMD exec "$_container" bash -c 'stat -c "%s %n" /tmp/results/*report_*.html 2>/dev/null || true') || {
+                echo "[$(date +%H:%M:%S)] ERROR: podman exec failed, copier exiting"
+                exit 1
+            }
+            echo "[$(date +%H:%M:%S)] got $(echo "$reports" | wc -l) reports"
+
+            while IFS= read -r line; do
+                [ -z "$line" ] && continue
+                size=$(echo "$line" | awk '{print $1}')
+                report=$(echo "$line" | awk '{print $2}')
+                basename=$(basename "$report")
+                dest="$_report_dir/$basename"
+
+                # Skip if already copied
+                if grep -qF "$basename" "$_state_file" 2>/dev/null; then
+                    continue
+                fi
+
+                # Skip if report is still being written (< 10KB)
+                # Behave reports are typically 50KB+, so 10KB = safe threshold
+                if [ "$size" -lt 10240 ]; then
+                    continue
+                fi
+
+                # Verify size is stable (file not actively being written)
+                sleep 2
+                new_size=$($PODMAN_CMD exec "$_container" stat -c "%s" "$report" 2>/dev/null || echo "0")
+                if [ "$size" != "$new_size" ]; then
+                    continue
+                fi
+
+                # Copy report
+                if $PODMAN_CMD cp "$_container:$report" "$dest" 2>/dev/null; then
+                    # Fix ownership if running under sudo (rootful podman)
+                    if [ -n "$_sudo_uid" ]; then
+                        chown "$_sudo_uid:$_sudo_gid" "$dest" 2>/dev/null || true
+                    fi
+                    echo "$basename" >> "$_state_file"
+                    actual_size=$(du -h "$dest" 2>/dev/null | cut -f1)
+                    echo "[$(date +%H:%M:%S)] Copied: $basename ($actual_size)"
+                fi
+            done <<< "$reports"
+
+            sleep 5
+        done
+    ) &
+
+    COPIER_PID=$!
+    echo "  [copier] Started async report copier (PID: $COPIER_PID, interval: 5s, log: $REPORT_DIR/.copier.log)"
+}
+
+stop_async_report_copier() {
+    if [ -n "$COPIER_PID" ]; then
+        kill $COPIER_PID 2>/dev/null || true
+        wait $COPIER_PID 2>/dev/null || true
+        echo "  [copier] Stopped async report copier"
+        COPIER_PID=""
+    fi
+}
+
 NETWORK_SUBNET="203.0.113.0/24"
 NETWORK_GATEWAY="203.0.113.1"
 # Distinct per distro so a c10s and a c9s container can run at the same time
@@ -887,9 +981,13 @@ run_gate_tests() {
     echo "  -> $(echo "$names" | wc -w) gating tests"
 
     local frc=0
+    start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runtests.sh $names" || frc=$?
+    stop_async_report_copier
+
     echo "  -> feature 'gate': $([ "$frc" -eq 0 ] && echo PASS || echo "FAIL (rc=$frc)")"
 
+    # Final sync - copy any reports the background job missed
     if container_exec "[ -d /tmp/results ]" &>/dev/null; then
         podman cp "$CONTAINER_NAME:/tmp/results/." "$REPORT_DIR/" 2>/dev/null || true
     fi
@@ -911,12 +1009,17 @@ run_all_tests() {
     echo "  -> $(echo "$names" | wc -w) tests -- expect dracut to skip (feature-level @skip_in_centos, unrelated to the container)"
 
     local frc=0
+    start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runtests.sh $names" || frc=$?
+    stop_async_report_copier
+    
     echo "  -> feature 'all': $([ "$frc" -eq 0 ] && echo PASS || echo "FAIL (rc=$frc)")"
 
+    # Final sync - copy any reports the background job missed
     if container_exec "[ -d /tmp/results ]" &>/dev/null; then
         podman cp "$CONTAINER_NAME:/tmp/results/." "$REPORT_DIR/" 2>/dev/null || true
     fi
+    
     return $frc
 }
 
@@ -933,9 +1036,13 @@ run_one_feature() {
 
     step "Running feature '$feature' (run/runfeature.sh -> run/runtests.sh)"
     local frc=0
+    start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runfeature.sh $feature" || frc=$?
+    stop_async_report_copier
+
     echo "  -> feature '$feature': $([ "$frc" -eq 0 ] && echo PASS || echo "FAIL (rc=$frc)")"
 
+    # Final sync - copy any reports the background job missed
     if container_exec "[ -d /tmp/results ]" &>/dev/null; then
         podman cp "$CONTAINER_NAME:/tmp/results/." "$REPORT_DIR/" 2>/dev/null || true
     fi
@@ -944,6 +1051,10 @@ run_one_feature() {
 
 run_tests() {
     mkdir -p "$REPORT_DIR"
+    # Fix ownership if running under sudo (rootful podman)
+    if [ -n "${SUDO_UID:-}" ]; then
+        chown "$SUDO_UID:$SUDO_GID" "$REPORT_DIR" 2>/dev/null || true
+    fi
     local rc=0
     local failed=()
     local tag
