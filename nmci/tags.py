@@ -1956,7 +1956,6 @@ _register_tag("no_testeth10", no_testeth10_bs)
 
 
 def pppoe_bs(context, scenario):
-    pass
     if context.arch == "aarch64":
         if not context.process.run_search_stdout("semodule -l", "pppd"):
             print("enable pppd selinux policy on aarch64")
@@ -1964,7 +1963,7 @@ def pppoe_bs(context, scenario):
                 "semodule -i contrib/selinux-policy/pppd.pp",
                 timeout=40,
             )
-    if not os.path.isabs("/dev/ppp"):
+    if not os.path.exists("/dev/ppp"):
         context.process.run("mknod /dev/ppp c 108 0")
 
 
@@ -1972,6 +1971,16 @@ def pppoe_as(context, scenario):
     context.process.run_stdout("kill $(pidof pppoe-server)", shell=True)
     # Give pppoe-server a bit time to clean after itslef when terminated
     time.sleep(1)
+    # Kill all pppd processes and remove all ppp interfaces to reset kernel state
+    context.process.run("killall -9 pppd 2>/dev/null || true", shell=True)
+    # Remove all ppp* interfaces
+    for iface in glob.glob("/sys/class/net/ppp*"):
+        iface_name = os.path.basename(iface)
+        context.process.run(f"ip link del {iface_name} 2>/dev/null || true", shell=True)
+    time.sleep(0.5)
+    # Remove /dev/ppp to reset kernel PPP unit allocation for next test
+    if os.path.exists("/dev/ppp"):
+        os.remove("/dev/ppp")
 
 
 _register_tag("pppoe", pppoe_bs, pppoe_as)
