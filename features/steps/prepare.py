@@ -1501,6 +1501,20 @@ def libreswan_ng_setup(context, ipsec_type):
         commands.check_pattern_command(
             context, "ip a s", "hosta_nic", seconds=2, check_type="not"
         )
+        # The client-side pluto daemon's own journal has the full,
+        # unmangled negotiation log (EXPECTATION FAILED / kernel_xfrm
+        # asserts and similar are only visible here) -- what NM's own
+        # journal shows is just nm-libreswan's PTY relay of whack output,
+        # which can interleave/garble lines. Embed it same as the older
+        # setup_libreswan()/teardown_libreswan() path does.
+        nmci.embed.embed_data(
+            "Libreswan Pluto Journal",
+            nmci.misc.journal_show(
+                syslog_identifier="pluto",
+                cursor=context.log_cursor,
+                journal_args="-o cat",
+            ),
+        )
 
     nmci.cleanup.add_callback(_libreswan_ng_teardown, "teardown-libreswan")
 
