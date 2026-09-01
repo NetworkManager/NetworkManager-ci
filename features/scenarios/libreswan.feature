@@ -1080,6 +1080,7 @@ method=auto
     Scenario: nmcli - libreswan - test host-to-host connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
     * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Cleanup execute "podman network rm -f n1 n2" with priority "101"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
     * Download NM-libreswan package to "/tmp/nm-packages/"
     * Setup the same distro type container with rpms from "/tmp/nm-packages/"
@@ -1092,6 +1093,7 @@ method=auto
     Scenario: nmcli - libreswan - test subnet-to-subnet IPv4 connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
     * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Cleanup execute "podman network rm -f n1 n2" with priority "101"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
     * Download NM-libreswan package to "/tmp/nm-packages/"
     * Setup the same distro type container with rpms from "/tmp/nm-packages/"
@@ -1105,6 +1107,7 @@ method=auto
     Scenario: nmcli - libreswan - test subnet-to-subnet IPv6 routed connection with NetworkManager on both ends
     * Cleanup execute "podman kill ipsec-host1 ipsec-host2 ipsec-router" with priority "100"
     * Cleanup execute "podman rmi localhost/ipsec:latest" with priority "99"
+    * Cleanup execute "podman network rm -f n1 n2" with priority "101"
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
     * Download NM-libreswan package to "/tmp/nm-packages/"
     * Setup the same distro type container with rpms from "/tmp/nm-packages/"
