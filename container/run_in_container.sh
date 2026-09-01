@@ -805,13 +805,19 @@ ensure_container() {
         # (needed a few lines down by netdevsim_stock_module_has_needed_features,
         # before pkg_install_common would otherwise install it), `e2fsprogs`
         # (mkfs.ext4, used by contrib/dracut/setup.sh to build the dracut
-        # test root/iscsi filesystems), and `dracut-network` (ships the
+        # test root/iscsi filesystems), `dracut-network` (ships the
         # `35network-manager` dracut module -- without it `dracut -a
         # network-manager` fails with "Module 'network-manager' cannot be
-        # found") are all missing from the minimal image but always present
-        # on a real machine. Needed regardless of --nm-version, so this
-        # can't live in install_nm()'s COPR-only path (skipped entirely by
-        # -n skip).
+        # found"), and `passwd` (prepare/envsetup/01_configure_system.sh's
+        # `configure_basic_system()` does `echo networkmanager | passwd test
+        # --stdin` to set up the "test" system account that pppoe/pptp's
+        # PAP `login` option authenticates against -- without the binary
+        # that silently no-ops, leaving "test" locked (`!!` in
+        # /etc/shadow) forever, since configure_basic_system() only ever
+        # runs once per container lifetime) are all missing from the
+        # minimal image but always present on a real machine. Needed
+        # regardless of --nm-version, so this can't live in install_nm()'s
+        # COPR-only path (skipped entirely by -n skip).
         local missing_pkgs="\
             audit \
             hostname \
@@ -819,7 +825,8 @@ ensure_container() {
             fuse-overlayfs \
             ethtool \
             e2fsprogs \
-            dracut-network"
+            dracut-network \
+            passwd"
         container_exec "rpm -q $missing_pkgs &>/dev/null || dnf -y install $missing_pkgs"
         # The image ships no /etc/containers/storage.conf at all, so a
         # nested `podman run` (e.g. nmstate's IpsecTestEnv, which launches a
