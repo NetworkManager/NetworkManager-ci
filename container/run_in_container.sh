@@ -582,8 +582,16 @@ do_reboot() {
 # container). Pre-load the ones NM-CI commonly needs on the host itself so
 # tests that just use (not reload) them work; warn about whatever's missing
 # so a later test failure isn't a surprise.
+#
+# ip6table_nat is here for a different reason than the rest: it's not a
+# module any NM-CI test loads directly, but nested podman-in-podman tests
+# (libreswan's contrib/ipsec_both_ends/setup.sh, which creates its own
+# --ipv6 podman network) need netavark to program ip6tables NAT for the
+# inner containers, which fails with "Table does not exist" if this module
+# was never loaded host-wide (iptable_nat's IPv4 counterpart tends to
+# already be loaded by other podman networks, but the IPv6 one isn't).
 preload_host_kernel_modules() {
-    local mods="bonding dummy sch_netem ip_gre ip6_gre sit ip_tunnel ip6_tunnel ip_vti ip6_vti mac80211_hwsim macsec wireguard netdevsim"
+    local mods="bonding dummy sch_netem ip_gre ip6_gre sit ip_tunnel ip6_tunnel ip_vti ip6_vti mac80211_hwsim macsec wireguard netdevsim ip6table_nat"
     local missing=()
     local m
     for m in $mods; do
