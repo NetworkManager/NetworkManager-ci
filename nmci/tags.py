@@ -1568,6 +1568,7 @@ def pptp_bs(context, scenario):
 
     # Load ppp_generic to avoid first test failure
     context.process.run_code("modprobe ppp_generic", ignore_stderr=True, timeout=120)
+    ensure_dev_ppp(context)
 
     context.process.run_stdout("rm -f /etc/ppp/ppp-secrets")
     nmci.util.file_set_content("/etc/ppp/chap-secrets", ["budulinek pptpd passwd *"])
@@ -1955,6 +1956,15 @@ def no_testeth10_bs(context, scenario):
 _register_tag("no_testeth10", no_testeth10_bs)
 
 
+def ensure_dev_ppp(context):
+    # In a container, udev never fires for the ppp_generic module load, so
+    # /dev/ppp is never auto-created (and pppoe_as below removes it between
+    # scenarios to reset kernel PPP unit allocation) -- every tag that spawns
+    # pppd (pppoe, pptp) must recreate it itself rather than assume it's there.
+    if not os.path.exists("/dev/ppp"):
+        context.process.run("mknod /dev/ppp c 108 0")
+
+
 def pppoe_bs(context, scenario):
     if context.arch == "aarch64":
         if not context.process.run_search_stdout("semodule -l", "pppd"):
@@ -1963,8 +1973,7 @@ def pppoe_bs(context, scenario):
                 "semodule -i contrib/selinux-policy/pppd.pp",
                 timeout=40,
             )
-    if not os.path.exists("/dev/ppp"):
-        context.process.run("mknod /dev/ppp c 108 0")
+    ensure_dev_ppp(context)
 
 
 def pppoe_as(context, scenario):
