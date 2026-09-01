@@ -1963,6 +1963,14 @@ def ensure_dev_ppp(context):
     # pppd (pppoe, pptp) must recreate it itself rather than assume it's there.
     if not os.path.exists("/dev/ppp"):
         context.process.run("mknod /dev/ppp c 108 0")
+    # NM always spawns pppd with a hardcoded "unit 0" -- if a leftover ppp*
+    # interface from a previous scenario (crash, interrupted run, or manual
+    # debugging) still holds that kernel PPP unit, the new connection's ppp
+    # interface (e.g. "my-ppp") never gets created at all, with no error
+    # pointing at the real cause. Clear any stray ones before starting.
+    for iface in glob.glob("/sys/class/net/ppp*"):
+        iface_name = os.path.basename(iface)
+        context.process.run(f"ip link del {iface_name} 2>/dev/null || true", shell=True)
 
 
 def pppoe_bs(context, scenario):
