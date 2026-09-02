@@ -64,14 +64,37 @@ def check_noted_value_in_range(context, r_min, r_max, index="noted-value"):
 @step('Execute "{command}"')
 def execute_command(context, command):
     command = nmci.misc.str_replace_dict(command, context.noted)
-    nmci.process.run_stdout(
-        command,
-        shell=True,
-        ignore_returncode=False,
-        ignore_stderr=True,
-        as_bytes=True,
-        timeout=None,
-    )
+
+    def _run():
+        nmci.process.run_stdout(
+            command,
+            shell=True,
+            ignore_returncode=False,
+            ignore_stderr=True,
+            as_bytes=True,
+            timeout=None,
+        )
+
+    if command.strip().split(maxsplit=1)[0:1] == ["hostnamectl"]:
+        # In a container, something not yet fully root-caused transiently
+        # re-mounts /etc/hostname as its own mountpoint at unpredictable
+        # moments throughout the container's whole lifetime (not just at
+        # boot) -- confirmed live via journalctl showing
+        # "systemd-hostnamed[...]: Failed to write static hostname: Device
+        # or resource busy" for a window well under a second, every time
+        # it's been observed, never seen on real hardware. Retry only
+        # hostnamectl specifically, and only for this exact transient
+        # message, so a genuinely broken hostnamectl invocation (bad
+        # syntax, a real permission issue, ...) still fails immediately
+        # instead of being retried into a 10s timeout for no reason.
+        nmci.util.wait_for(
+            _run,
+            timeout=10,
+            op_name=f'"{command}"',
+            handle_exception=lambda e: "Device or resource busy" in str(e),
+        )
+    else:
+        _run()
 
 
 def get_reproducer_command_v(rname, options):
