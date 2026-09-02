@@ -1684,11 +1684,23 @@ def restore_hostname_as(context, scenario):
     if context.IS_NMTUI:
         nmci.util.file_set_content("/etc/hostname", ["localhost.localdomain"])
     else:
-        context.process.run_stdout(
-            'hostnamectl set-hostname --transient ""', ignore_stderr=True
-        )
-        context.process.run_stdout(
-            f"hostnamectl set-hostname --static {context.original_hostname}"
+        # In a container, systemd-hostnamed's own private mount-namespace
+        # setup for /etc can transiently race with the container's
+        # synthetic /etc (individually bind-mounted files rather than a
+        # real filesystem), failing with "Device or resource busy" for a
+        # short window -- never seen on real hardware. Retry instead of
+        # failing the whole scenario's cleanup on a race that always
+        # resolves on its own within a couple of seconds.
+        def _set_hostname():
+            context.process.run_stdout(
+                'hostnamectl set-hostname --transient ""', ignore_stderr=True
+            )
+            context.process.run_stdout(
+                f"hostnamectl set-hostname --static {context.original_hostname}"
+            )
+
+        nmci.util.wait_for(
+            _set_hostname, timeout=10, op_name="hostnamectl set-hostname"
         )
     nmci.veth.wait_for_testeth0()
 
