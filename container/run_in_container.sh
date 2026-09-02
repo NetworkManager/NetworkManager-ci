@@ -504,35 +504,146 @@ EOF
 # via `nmcli connection show --active` showing a different UUID each time
 # than our fixed $ETH0_UUID. Force our profile to actually take over.
 restart_nm_and_wait_for_dns() {
-    container_exec "systemctl restart NetworkManager"
+    # No `systemctl restart NetworkManager` here -- NM already watches
+    # /etc/NetworkManager/system-connections/ via inotify, so a freshly
+    # (re)written eth0.nmconnection gets picked up by an already-running NM
+    # on its own. Confirmed live: writing the file then going straight to
+    # `nmcli connection up uuid $ETH0_UUID` (no restart, no `nmcli
+    # connection reload`) activates it immediately and populates
+    # /etc/resolv.conf correctly. A full daemon restart only added latency
+    # (and briefly drops every connection) for no benefit here.
+    # NM-CI's own prepare/envsetup/03_configure_networking.sh (run once per
+    # test_run.sh invocation after any resume, as part of the very first
+    # test) unconditionally does `nmcli connection add ... con-name
+    # testeth0; nmcli connection delete eth0` -- so $ETH0_UUID's own
+    # eth0.nmconnection only survives until the first test after container
+    # creation runs. On every resume after that, this uuid simply doesn't
+    # exist any more (confirmed live: `nmcli connection up uuid $ETH0_UUID`
+    # fails immediately with "unknown connection", every single retry, for
+    # the full 60s, guaranteed to hit the DNS warning below). Don't touch
+    # testeth0 to work around that -- it's NM-CI's own test fixture, not
+    # this script's to modify (e.g. forcing ipv4.dns/ignore-auto-dns onto
+    # it could mask what a real DHCP-DNS test is checking). Instead,
+    # redo_post_restart_fixups() now calls write_static_eth0_profile()
+    # again on every resume (not just fresh creation) so this uuid always
+    # exists again by the time this loop runs, same as a fresh container.
     local i
-    for i in $(seq 1 10); do
+    for i in $(seq 1 60); do
         container_exec "nmcli connection up uuid $ETH0_UUID" 2>/dev/null && break
-        sleep 0.5
+        sleep 1
     done
-    # NM regenerates /etc/resolv.conf asynchronously after that -- give it a
-    # moment so callers right after this (e.g. dnf install) don't race a
-    # window where the file has no nameserver yet.
-    local i
-    for i in $(seq 1 20); do
+    for i in $(seq 1 60); do
         container_exec "grep -q '^nameserver' /etc/resolv.conf" 2>/dev/null && return
-        sleep 0.5
+        sleep 1
     done
-    echo "WARNING: /etc/resolv.conf had no nameserver line after 10s -- DNS may not work yet." >&2
+    echo "WARNING: /etc/resolv.conf had no nameserver line after 60s -- DNS may not work yet." >&2
 }
 
-# `podman restart` (as opposed to the initial `podman run`) re-establishes
-# podman's own /etc/resolv.conf/hostname/hosts bind mounts and re-masks
-# openvswitch.service, and also re-triggers ipsec.service's own boot-time
-# auto-start (that one isn't bind-mount-masked, so a restart brings it back
-# exactly like any other enabled unit) -- but doesn't rerun any of the
-# one-time fixups ensure_container() applies right after creation -- so a
-# container that gets restarted (e.g. to recover from a test that broke
+# A systemd generator/unit inside the image re-mounts fresh tmpfs over these
+# three paths for a short window even after "systemctl is-system-running
+# --wait" already reports settled (confirmed via `mount` still showing
+# `tmpfs on /etc/hostname` right after a one-shot umount, then "not mounted"
+# moments later on its own) -- so a single umount attempt can lose that race
+# and leave a mountpoint in place just long enough for the first real test to
+# hit "Device or resource busy" on e.g. `hostnamectl set-hostname`. Retry
+# until they're actually gone instead of trusting one attempt.
+#
+# There is a second trigger for the exact same race, outside this script's
+# control: NM-CI's own prepare/envsetup/03_configure_networking.sh runs a
+# `systemctl daemon-reload; systemctl restart NetworkManager` near its end,
+# gated on a `/tmp/nm_eth_configured` marker that redo_post_restart_fixups()
+# deliberately clears on every (re)start (the veth testbed doesn't survive
+# one) -- so the first test_run.sh invocation after any resume re-triggers
+# that daemon-reload, and with it the same tmpfs race, well after this
+# function's own initial retry loop already succeeded. Confirmed live:
+# re-running the exact same failing scenario a second time (nothing else
+# changed) passed. Deliberately NOT fixed by faking the marker or otherwise
+# skipping configure_networking() -- it also does test-specific SR-IOV/DCB/
+# wifi interface setup keyed off the test name, shared with real hardware
+# CI, and isn't this script's to alter. Instead, run_tests() calls this
+# again (see below) right after the 'pass' sanity test that always runs
+# first -- by construction the same test_run.sh invocation that triggers
+# configure_networking()'s reload, so this catches its aftermath before any
+# test that actually cares about hostname/resolv.conf/hosts gets to run.
+#
+# Prints "1" and does nothing else if nothing was actually mounted (the
+# common case -- cheap, no need to touch /etc/resolv.conf or restart NM),
+# "0" if it found and cleared a mount (caller should call
+# restart_nm_and_wait_for_dns() afterward to regenerate /etc/resolv.conf).
+unmount_podman_etc_bind_mounts() {
+    if ! container_exec "mountpoint -q /etc/hostname || mountpoint -q /etc/hosts || mountpoint -q /etc/resolv.conf" 2>/dev/null; then
+        return 1
+    fi
+    local i
+    for i in $(seq 1 20); do
+        container_exec "umount /etc/resolv.conf 2>/dev/null; umount /etc/hostname 2>/dev/null; umount /etc/hosts 2>/dev/null; true"
+        container_exec "mountpoint -q /etc/hostname || mountpoint -q /etc/hosts || mountpoint -q /etc/resolv.conf" 2>/dev/null || break
+        sleep 1
+    done
+    container_exec "rm -f /etc/resolv.conf; true"
+    return 0
+}
+
+# `podman restart` (as opposed to the initial `podman run`) -- and, just as
+# much, `podman start` on a previously-stopped container, which resets
+# exactly the same things -- re-establishes podman's own /etc/resolv.conf/
+# hostname/hosts bind mounts and re-masks openvswitch.service, and also
+# re-triggers ipsec.service's own boot-time auto-start (that one isn't
+# bind-mount-masked, so a (re)start brings it back exactly like any other
+# enabled unit) -- but doesn't rerun any of the one-time fixups
+# ensure_container() applies right after creation -- so a container that
+# comes back from being stopped (e.g. to recover from a test that broke
 # eth0, such as one doing 'modprobe -r veth', which also takes down the
-# container's own veth uplink) comes back with /etc/resolv.conf busy again,
-# openvswitch masked, and ipsec.service running again (pinning ip_vti/
-# ip6_vti). This redoes just those fixups, without reinstalling NM or
-# re-cloning NM-CI like a full --refresh would.
+# container's own veth uplink -- or simply because a prior run's end-of-run
+# prompt/concurrency-guard stopped it) comes back with /etc/resolv.conf busy
+# again, openvswitch masked, and ipsec.service running again (pinning
+# ip_vti/ip6_vti). This redoes just those fixups, without reinstalling NM or
+# re-cloning NM-CI like a full --refresh would. Shared between do_reboot()
+# (explicit `podman restart`) and ensure_container()'s reuse path (`podman
+# start` on a container that turns out to have been stopped).
+redo_post_restart_fixups() {
+    echo "Waiting for systemd to settle..."
+    container_exec "systemctl is-system-running --wait" || true
+    container_exec "systemctl stop ipsec" || true
+    step "Starting openvswitch (safe now that the bridge is in active use)"
+    container_exec "umount /etc/systemd/system/multi-user.target.wants/openvswitch.service 2>/dev/null; systemctl daemon-reload; systemctl start openvswitch" || true
+    # `daemon-reload` above re-runs the same systemd generator that
+    # re-mounts tmpfs over /etc/resolv.conf/hostname/hosts (see
+    # unmount_podman_etc_bind_mounts()'s comment) -- so this has to be the
+    # LAST thing touching those paths before tests run, not the other way
+    # around. Doing it before the daemon-reload (as an earlier version of
+    # this function did) left the mounts reinstated right after being
+    # cleared, with nothing left to catch it -- the first test to touch
+    # e.g. hostnamectl would then hit "Device or resource busy" again.
+    unmount_podman_etc_bind_mounts || true
+    # NM-CI's own configure_networking() deletes eth0.nmconnection and
+    # replaces it with its own "testeth0" the first time any test runs
+    # after a (re)start (see restart_nm_and_wait_for_dns()'s comment) --
+    # so on every resume after the very first one, this file is already
+    # gone by the time we get here. Recreate it unconditionally (cheap,
+    # just overwrites the same static content written at container
+    # creation) so restart_nm_and_wait_for_dns()'s uuid-based activation
+    # has something to actually activate, instead of failing "unknown
+    # connection" for the full 60s every single resume after the first.
+    write_static_eth0_profile
+    restart_nm_and_wait_for_dns
+    # On-disk state (packages, sudoers, systemd overrides, ...) survives a
+    # (re)start, so skip redoing those. The veth testbed does NOT survive --
+    # the container's network namespace, and every device in it
+    # (eth1-eth10/testeth1-eth10), is destroyed and recreated by a (re)start
+    # -- clear these so the next test run regenerates it instead of trusting
+    # a now-stale "already configured" marker.
+    step "Marking packages/base-system config as still valid, clearing veth testbed markers"
+    container_exec "touch /tmp/nm_packages_installed /tmp/nm_eth_configured_part1; rm -f /tmp/nm_eth_configured /tmp/nm_veth_configured"
+    # Kernel modules are host-global, not per-netns, so a (re)start doesn't
+    # reset them -- only the netns-scoped pieces of configure_networking()
+    # (the veth testbed itself) actually need redoing. Do that now, right
+    # away, rather than leaving the container in a half-usable state until
+    # whatever runs the next test lazily triggers it via test_run.sh.
+    step "Regenerating the veth testbed"
+    container_exec "cd $CONTAINER_REPO && bash prepare/vethsetup.sh check"
+}
+
 do_reboot() {
     if ! podman container exists "$CONTAINER_NAME"; then
         echo "No container '$CONTAINER_NAME' to reboot -- nothing to do." >&2
@@ -541,34 +652,22 @@ do_reboot() {
     step "Restarting $CONTAINER_NAME"
     podman restart "$CONTAINER_NAME" >/dev/null
     ensure_dhcp_server
-    echo "Waiting for systemd to settle..."
-    container_exec "systemctl is-system-running --wait" || true
-    container_exec "systemctl stop ipsec" || true
-    container_exec "umount /etc/resolv.conf 2>/dev/null; rm -f /etc/resolv.conf; umount /etc/hostname 2>/dev/null; umount /etc/hosts 2>/dev/null; true"
-    restart_nm_and_wait_for_dns
-    step "Starting openvswitch (safe now that the bridge is in active use)"
-    container_exec "umount /etc/systemd/system/multi-user.target.wants/openvswitch.service 2>/dev/null; systemctl daemon-reload; systemctl start openvswitch" || true
-    # On-disk state (packages, sudoers, systemd overrides, ...) survives the
-    # restart, so skip redoing those. The veth testbed does NOT survive --
-    # the container's network namespace, and every device in it
-    # (eth1-eth10/testeth1-eth10), is destroyed and recreated by the
-    # restart -- clear these so the next test run regenerates it instead of
-    # trusting a now-stale "already configured" marker.
-    step "Marking packages/base-system config as still valid, clearing veth testbed markers"
-    container_exec "touch /tmp/nm_packages_installed /tmp/nm_eth_configured_part1; rm -f /tmp/nm_eth_configured /tmp/nm_veth_configured"
-    # Kernel modules are host-global, not per-netns, so a restart doesn't
-    # reset them -- only the netns-scoped pieces of configure_networking()
-    # (the veth testbed itself) actually need redoing. Do that now, right
-    # away, rather than leaving the container in a half-usable state until
-    # whatever runs the next test lazily triggers it via test_run.sh.
-    step "Regenerating the veth testbed"
-    container_exec "cd $CONTAINER_REPO && bash prepare/vethsetup.sh check"
+    redo_post_restart_fixups
 
     if [ -t 0 ] && [ -t 1 ]; then
-        read -r -p "Drop into a shell in $CONTAINER_NAME? [y/N] " ans
-        if [[ "$ans" =~ ^[Yy] ]]; then
-            exec podman exec -it "$CONTAINER_NAME" bash -lc "cd $CONTAINER_REPO 2>/dev/null; exec bash"
-        fi
+        local ans
+        read -r -p "[y]es, drop into a shell in $CONTAINER_NAME / [n]o, leave it running / [s]top it (default): " ans
+        case "$ans" in
+            y|Y)
+                exec podman exec -it "$CONTAINER_NAME" bash -lc "cd $CONTAINER_REPO 2>/dev/null; exec bash"
+                ;;
+            n|N)
+                ;;
+            *)
+                step "Stopping $CONTAINER_NAME"
+                podman stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+                ;;
+        esac
     fi
 }
 
@@ -665,10 +764,22 @@ ensure_container() {
     fi
     if podman container exists "$CONTAINER_NAME"; then
         step "Reusing existing container $CONTAINER_NAME"
+        local was_running
+        was_running="$(podman container inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null)"
         podman start "$CONTAINER_NAME" >/dev/null
         # The bridge's kernel interface only exists once a container is
         # actually attached to it, so this can't run any earlier than here.
         ensure_dhcp_server
+        if [ "$was_running" != "true" ]; then
+            # It was actually stopped (not just "already running, `podman
+            # start` is a no-op") -- that resets the same things a `podman
+            # restart` does (bind mounts, network namespace/veth testbed,
+            # tmpfs /tmp markers, openvswitch masking, ipsec auto-start), so
+            # skipping this here (like before this fix) left a container
+            # started this way silently broken instead of ready to test
+            # against -- see redo_post_restart_fixups()'s comment.
+            redo_post_restart_fixups
+        fi
     else
         step "Starting new container $CONTAINER_NAME from $IMAGE"
         # The nmstate-dev image auto-enables openvswitch at boot. Its
@@ -771,6 +882,71 @@ ensure_container() {
         container_exec "systemctl is-system-running --wait" || true
         container_exec "systemctl stop ipsec" || true
         write_static_eth0_profile
+        # systemd-hostnamed.service ships with a whole battery of sandboxing
+        # directives (ProtectSystem=strict, ReadWritePaths=/etc, PrivateTmp,
+        # ProtectHome, ProtectKernel*, ProtectControlGroups,
+        # RestrictNamespaces, ...) -- ANY one of these is enough on its own
+        # to make systemd build this unit its own private mount namespace,
+        # and something about that setup intermittently races with this
+        # container's synthetic /etc (individually bind-mounted files
+        # rather than a normal filesystem), failing hostnamectl with
+        # "Device or resource busy" -- confirmed live via journalctl
+        # showing `systemd-hostnamed[...]: Failed to write static hostname:
+        # Device or resource busy` while `mount`/`findmnt` run from a plain
+        # shell showed *no* mountpoint at /etc/hostname at all (invisible
+        # outside hostnamed's own private namespace), AND while a plain
+        # `echo ... > /etc/hostname` or `mv` from a normal shell always
+        # succeeded at the very same moment -- ruling out the filesystem/
+        # mount state itself as the cause and pointing squarely at
+        # hostnamed's own private-namespace machinery. An earlier version
+        # of this override cleared only ProtectSystem+ReadWritePaths, which
+        # helped but did NOT fully fix it: live reproduction (2026-09-02)
+        # still hit 10+ second continuous failures with that narrower
+        # override in place. Clearing every directive that can trigger a
+        # private mount namespace for this unit (not just ProtectSystem)
+        # is what actually made 3 consecutive stop/start/retest cycles pass
+        # cleanly. This recurs throughout the container's whole lifetime
+        # (any later `hostnamectl`/`nmcli`-triggered hostname change can
+        # retrigger hostnamed), not just right after a (re)start, so no
+        # retry loop can fully rule it out -- see pre_test_mount_check()
+        # and features/steps/commands.py's hostnamectl retry for the
+        # remaining defense-in-depth layers. Fully desandboxing this one
+        # service is acceptable here since this is a throwaway, already
+        # --privileged debug container, not a production hardening target.
+        container_exec "mkdir -p /etc/systemd/system/systemd-hostnamed.service.d"
+        podman exec -i "$CONTAINER_NAME" bash -c 'cat > /etc/systemd/system/systemd-hostnamed.service.d/nmci-container-override.conf' <<'EOF'
+# Created by container/run_in_container.sh -- see its comments for the full
+# history of why every one of these is needed, not just ProtectSystem.
+[Service]
+ProtectSystem=no
+ProtectHome=no
+ReadWritePaths=
+PrivateTmp=no
+PrivateDevices=no
+PrivateNetwork=no
+ProtectKernelTunables=no
+ProtectKernelModules=no
+ProtectKernelLogs=no
+ProtectControlGroups=no
+ProtectProc=default
+RestrictNamespaces=no
+NoNewPrivileges=no
+SystemCallFilter=
+EOF
+        # Now that the network is up and stable, the bridge module is
+        # actively in use -- so it's safe to lift the openvswitch.service
+        # block from container creation above: ovs-kmod-ctl's own rmmod of
+        # 'bridge' will just fail harmlessly (module in use) instead of
+        # succeeding and killing the podman bridge network out from under
+        # us, like it would at boot. OVS-dependent tests need the service
+        # actually running, not just present. Done *before* the
+        # unmount/NM-restart below since its `systemctl daemon-reload`
+        # (needed anyway to pick up the hostnamed override above) re-runs
+        # generators too -- if it ran after the unmount, any generator-side
+        # remount would reinstate mounts we just cleared, with nothing left
+        # to catch it before the first real test touches e.g. hostnamectl.
+        step "Starting openvswitch (safe now that the bridge is in active use)"
+        container_exec "umount /etc/systemd/system/multi-user.target.wants/openvswitch.service 2>/dev/null; systemctl daemon-reload; systemctl start openvswitch" || true
         # podman bind-mounts /etc/resolv.conf, /etc/hostname AND /etc/hosts
         # itself -- that's how --dns/--dns-search above take effect -- but
         # it means NM/hostnamed (or any test doing a plain `sed -i`, which
@@ -782,19 +958,11 @@ ensure_container() {
         # are the exact same mechanism. Unmount all three so they're
         # ordinary files, same as a real machine. Done *after*
         # write_static_eth0_profile (see its restart function's comment for
-        # why the order matters), and the actual NM restart happens only
-        # once, here.
-        container_exec "umount /etc/resolv.conf 2>/dev/null; rm -f /etc/resolv.conf; umount /etc/hostname 2>/dev/null; umount /etc/hosts 2>/dev/null; true"
+        # why the order matters) and after the openvswitch daemon-reload
+        # above, as the LAST thing touching these paths -- the actual NM
+        # restart happens only once, here.
+        unmount_podman_etc_bind_mounts || true
         restart_nm_and_wait_for_dns
-        # Now that the network is up and stable, the bridge module is
-        # actively in use -- so it's safe to lift the openvswitch.service
-        # block from container creation above: ovs-kmod-ctl's own rmmod of
-        # 'bridge' will just fail harmlessly (module in use) instead of
-        # succeeding and killing the podman bridge network out from under
-        # us, like it would at boot. OVS-dependent tests need the service
-        # actually running, not just present.
-        step "Starting openvswitch (safe now that the bridge is in active use)"
-        container_exec "umount /etc/systemd/system/multi-user.target.wants/openvswitch.service 2>/dev/null; systemctl daemon-reload; systemctl start openvswitch" || true
         # `audit` (ausearch, used by nmci's embed_avcs()), `hostname` (the
         # `hostname` command, used by e.g. @restore_hostname), `sudo`
         # (used by e.g. @insufficient_perms_* to actually drop privileges),
@@ -967,9 +1135,23 @@ clone_nmci() {
     container_exec "rm -rf $CONTAINER_REPO && git clone --branch $NMCI_BRANCH --depth 1 $NMCI_URL $CONTAINER_REPO"
 }
 
+# Guard immediately before every single test/feature invocation, not just
+# once after 'pass' -- live reproduction (2026-09-02) showed the boot-time
+# /etc/resolv.conf/hostname/hosts tmpfs race can occasionally survive well
+# past the initial post-restart cleanup (observed once staying mounted for
+# minutes, through install/clone/pass, with nothing else visibly re-creating
+# it -- i.e. this isn't a one-off race resolved right after boot, it can
+# just take unpredictably long to settle on a loaded host). Cheap in the
+# overwhelmingly common case (unmount_podman_etc_bind_mounts() returns fast
+# when nothing needs fixing).
+pre_test_mount_check() {
+    unmount_podman_etc_bind_mounts && restart_nm_and_wait_for_dns
+}
+
 run_one_test() {
     local tag="$1"
     local trc=0
+    pre_test_mount_check
     step "Running test '$tag' (test_run.sh sets up its own deps)"
     container_exec "cd $CONTAINER_REPO && ./test_run.sh $tag" || trc=$?
     echo "  -> '$tag': $([ "$trc" -eq 0 ] && echo PASS || echo "FAIL (rc=$trc)")"
@@ -995,6 +1177,7 @@ run_gate_tests() {
     fi
     echo "  -> $(echo "$names" | wc -w) gating tests"
 
+    pre_test_mount_check
     local frc=0
     start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runtests.sh $names" || frc=$?
@@ -1023,6 +1206,7 @@ run_all_tests() {
     fi
     echo "  -> $(echo "$names" | wc -w) tests -- expect dracut to skip (feature-level @skip_in_centos, unrelated to the container)"
 
+    pre_test_mount_check
     local frc=0
     start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runtests.sh $names" || frc=$?
@@ -1050,6 +1234,7 @@ run_one_feature() {
     fi
 
     step "Running feature '$feature' (run/runfeature.sh -> run/runtests.sh)"
+    pre_test_mount_check
     local frc=0
     start_async_report_copier
     container_exec "cd $CONTAINER_REPO && run/runfeature.sh $feature" || frc=$?
@@ -1074,8 +1259,11 @@ run_tests() {
     local failed=()
     local tag
     local feature
-    # 'pass' always runs first as a sanity check that the box is minimally usable;
-    # skip it if the caller already listed it explicitly to avoid running it twice.
+    # 'pass' always runs first as a sanity check that the box is minimally
+    # usable. run_one_test() itself now runs pre_test_mount_check() before
+    # every single invocation (including this one), so no separate handling
+    # is needed here -- see pre_test_mount_check()'s comment for why it
+    # moved from a single call right after 'pass' to before every test.
     local tags="pass"
     for tag in $EXTRA_TAGS; do
         [ "$tag" == "pass" ] || tags="$tags $tag"
@@ -1119,21 +1307,56 @@ check_concurrent_run() {
     # cross-distro interference this guards against.
     [ "$SHELL_ONLY" -eq 1 ] && return
 
+    # A container left running (even idle) from an earlier session is the
+    # same interference risk (shared bridge/DHCP/DNS/kernel modules) as one
+    # actively mid-test -- check actual podman state up front, independent of
+    # the flock below, since an idle-but-up "nmci-c9s" holds no lock at all.
+    local other_distro=""
+    local d
+    for d in c10s c9s; do
+        [ "$d" = "$DISTRO" ] && continue
+        if [ "$(podman container inspect -f '{{.State.Running}}' "nmci-$d" 2>/dev/null)" = "true" ]; then
+            other_distro="$d"
+            break
+        fi
+    done
+
     exec {NMCI_LOCKFD}>>"$NMCI_RUN_LOCKFILE"
+    local have_lock=0
+    local holder="" holder_distro=""
     if flock -n "$NMCI_LOCKFD"; then
+        have_lock=1
         printf '%s\n' "$DISTRO (pid $$) since $(date -Iseconds)" > "$NMCI_RUN_LOCKFILE"
+    else
+        holder="$(cat "$NMCI_RUN_LOCKFILE" 2>/dev/null)"
+        holder_distro="${holder%% *}"
+        # A same-distro holder (e.g. an orphaned process left over from an
+        # earlier run of this SAME distro -- see the report-copier comment
+        # below) isn't by itself the cross-distro interference this guards
+        # against -- but it must NOT short-circuit past the independent
+        # other-distro-container check above the way an earlier version of
+        # this function did, which is exactly how a stale same-distro lock
+        # let a real concurrent c9s container run go completely unwarned.
+        if [ -z "$other_distro" ] && [ "$holder_distro" != "$DISTRO" ]; then
+            other_distro="$holder_distro"
+        fi
+    fi
+
+    # Nothing contended, and no other distro's container is up either --
+    # clean start, nothing to warn about.
+    if [ "$have_lock" -eq 1 ] && [ -z "$other_distro" ]; then
+        return
+    fi
+    if [ "$have_lock" -eq 0 ] && [ "$holder_distro" = "$DISTRO" ] && [ -z "$other_distro" ]; then
         return
     fi
 
-    local holder holder_distro
-    holder="$(cat "$NMCI_RUN_LOCKFILE" 2>/dev/null)"
-    holder_distro="${holder%% *}"
-    # Same distro as us -- not the cross-distro (c9s vs c10s) interference this
-    # guards against, so nothing to warn about here.
-    [ "$holder_distro" = "$DISTRO" ] && return
-
     echo >&2
-    echo "WARNING: another nmci container run is already in progress: ${holder:-unknown}" >&2
+    if [ "$have_lock" -eq 0 ] && [ "$holder_distro" != "$DISTRO" ]; then
+        echo "WARNING: another nmci container run is already in progress: ${holder:-unknown}" >&2
+    else
+        echo "WARNING: nmci-$other_distro is currently running." >&2
+    fi
     echo "Running c9s and c10s at the same time is known to make their tests interfere with" >&2
     echo "each other (shared bridge network, single DHCP/DNS server, shared host kernel" >&2
     echo "modules) -- see --force-concurrent in --help to skip this check on purpose." >&2
@@ -1148,26 +1371,54 @@ check_concurrent_run() {
         exit 1
     fi
 
+    # No point offering [w]ait when we already hold the lock ourselves --
+    # there's no other script run to wait on, only a container to maybe stop.
+    local prompt="[a]bort (default) / [s]top it / [c]ontinue anyway: "
+    [ "$have_lock" -eq 0 ] && prompt="[a]bort (default) / [w]ait for it to finish / [s]top it / [c]ontinue anyway: "
+
     local ans
-    read -r -p "[a]bort (default) / [w]ait for it to finish / [k]ill it / [c]ontinue anyway: " ans
+    read -r -p "$prompt" ans
     case "$ans" in
         w|W)
+            if [ "$have_lock" -eq 1 ]; then
+                echo "Aborting." >&2
+                exit 1
+            fi
             step "Waiting for the other run to finish..."
             flock "$NMCI_LOCKFD"
             ;;
-        k|K)
-            local holder_pid
-            holder_pid="$(echo "$holder" | grep -oP '(?<=pid )\d+' || true)"
-            if [ -n "$holder_pid" ] && kill -0 "$holder_pid" 2>/dev/null; then
-                echo "Killing pid $holder_pid..." >&2
-                kill "$holder_pid" 2>/dev/null || true
+        s|S)
+            # Killing just the host-side orchestrating script (below) doesn't
+            # free up anything -- podman keeps the container running
+            # completely independently of whatever bash process happened to
+            # start it, and the container is the actual thing consuming host
+            # memory/network. Stop it directly. This also has a useful side
+            # effect: the other run's background report copier
+            # (start_async_report_copier) exits on its own the moment its
+            # `podman exec` starts failing against a stopped container,
+            # releasing the flock even if its parent script already died and
+            # left it orphaned holding a duplicate of the fd -- which is
+            # exactly the stale-pid-but-still-locked situation that let a c9s
+            # and c10s run race each other for real and OOM-kill one of them.
+            local stop_distro="${other_distro:-$holder_distro}"
+            local other_container="nmci-$stop_distro"
+            if podman container exists "$other_container" 2>/dev/null; then
+                echo "Stopping container $other_container..." >&2
+                podman stop "$other_container" >/dev/null 2>&1 || true
+            fi
+            if [ "$have_lock" -eq 0 ]; then
+                local holder_pid
+                holder_pid="$(echo "$holder" | grep -oP '(?<=pid )\d+' || true)"
+                if [ -n "$holder_pid" ] && kill -0 "$holder_pid" 2>/dev/null; then
+                    echo "Killing pid $holder_pid..." >&2
+                    kill "$holder_pid" 2>/dev/null || true
+                fi
+                step "Waiting for the lock to free up..."
                 flock "$NMCI_LOCKFD"
-            else
-                echo "Couldn't find that process (already gone?) -- proceeding." >&2
             fi
             ;;
         c|C)
-            echo "Continuing without the lock -- interference risk accepted." >&2
+            echo "Continuing without stopping it -- interference risk accepted." >&2
             return
             ;;
         *)
@@ -1175,7 +1426,7 @@ check_concurrent_run() {
             exit 1
             ;;
     esac
-    printf '%s\n' "$DISTRO (pid $$) since $(date -Iseconds)" > "$NMCI_RUN_LOCKFILE"
+    [ "$have_lock" -eq 0 ] && printf '%s\n' "$DISTRO (pid $$) since $(date -Iseconds)" > "$NMCI_RUN_LOCKFILE"
 }
 
 if [ "$CLEAN" -eq 1 ]; then
@@ -1219,10 +1470,18 @@ print_report_links
 step "RESULT: $([ $rc -eq 0 ] && echo PASS || echo "FAIL (rc=$rc)")"
 
 if [ -t 0 ] && [ -t 1 ]; then
-    read -r -p "Drop into a shell in $CONTAINER_NAME? [y/N] " ans
-    if [[ "$ans" =~ ^[Yy] ]]; then
-        exec podman exec -it "$CONTAINER_NAME" bash -lc "cd $CONTAINER_REPO 2>/dev/null; exec bash"
-    fi
+    read -r -p "[y]es, drop into a shell in $CONTAINER_NAME / [n]o, leave it running / [s]top it (default): " ans
+    case "$ans" in
+        y|Y)
+            exec podman exec -it "$CONTAINER_NAME" bash -lc "cd $CONTAINER_REPO 2>/dev/null; exec bash"
+            ;;
+        n|N)
+            ;;
+        *)
+            step "Stopping $CONTAINER_NAME"
+            podman stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            ;;
+    esac
 fi
 
 exit $rc
