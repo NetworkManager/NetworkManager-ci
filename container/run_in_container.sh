@@ -642,6 +642,15 @@ redo_post_restart_fixups() {
     # whatever runs the next test lazily triggers it via test_run.sh.
     step "Regenerating the veth testbed"
     container_exec "cd $CONTAINER_REPO && bash prepare/vethsetup.sh check"
+    # /tmp markers are on tmpfs, so a (re)start wipes them even though
+    # the host-global kernel module itself survives. Re-probe and
+    # recreate the markers so prepare/netdevsim.sh doesn't fall back to
+    # the from-source build (which fails when the host kernel and the
+    # container's distro don't match, e.g. Fedora host + CentOS Stream).
+    if netdevsim_stock_module_has_needed_features; then
+        step "Restoring netdevsim stock-module markers after restart"
+        container_exec "touch /tmp/netdevsim_installed /tmp/netdevsim_container_stock_ok"
+    fi
 }
 
 do_reboot() {
