@@ -1,0 +1,4 @@
+discover:
+    how: fmf
+    test:
+        - /tests/bluetooth_dun_sdp_error_no_crash

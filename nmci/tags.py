@@ -218,6 +218,59 @@ def gsm_sim_as(context, scenario):
 _register_tag("gsm_sim", gsm_sim_bs, gsm_sim_as)
 
 
+def bt_dun_bs(context, scenario):
+    if context.arch != "x86_64":
+        context.cext.skip("Skipping on not intel arch")
+
+    context.process.run_code("modprobe hci_vhci", ignore_stderr=True, timeout=30)
+    # btvirt creates two linked BR/EDR controllers (hci0 + hci1)
+    context.pexpect_service("/usr/libexec/bluetooth/btvirt -l2 -B", label="btvirt")
+    time.sleep(2)
+
+    # Power on and make both controllers connectable
+    context.process.run_stdout("btmgmt --index 0 power on")
+    context.process.run_stdout("btmgmt --index 1 power on")
+    context.process.run_stdout("btmgmt --index 0 connectable on")
+    context.process.run_stdout("btmgmt --index 1 connectable on")
+
+    # Stop bluetoothd — mock_bluez replaces it
+    context.process.systemctl("stop bluetooth")
+
+    # Fake SDP server on the "remote" controller — sends garbage to trigger
+    # NM's SDP error path
+    context.pexpect_service(
+        "python3 contrib/bluetooth/fake_sdp_server.py 00:AA:01:01:00:01",
+        label="fake_sdp",
+    )
+
+    # BlueZ D-Bus mock — presents adapter + device with DUN UUID
+    context.pexpect_service(
+        "python3 contrib/bluetooth/mock_bluez.py",
+        label="mock_bluez",
+    )
+    time.sleep(1)
+
+    # ModemManager is required for NM to consider DUN connections available
+    if context.process.systemctl("is-active ModemManager").returncode != 0:
+        context.process.systemctl("start ModemManager")
+
+    nmci.nmutil.restart_NM_service()
+    time.sleep(2)
+
+
+def bt_dun_as(context, scenario):
+    context.process.nmcli_force("con down id bt-dun")
+    context.process.nmcli_force("con del id bt-dun")
+    # pexpect_service processes (mock_bluez, fake_sdp, btvirt) are killed
+    # automatically by the cleanup system
+    context.process.systemctl("start bluetooth")
+    nmci.nmutil.restart_NM_service()
+    nmci.embed.embed_file_if_exists("MOCK_BLUEZ", "/tmp/mock_bluez.log")
+
+
+_register_tag("bt_dun", bt_dun_bs, bt_dun_as)
+
+
 def crash_bs(context, scenario):
     context.crash_upload = False
     if nmci.process.systemctl("is-active abrt-journal-core").returncode == 0:
