@@ -1198,7 +1198,7 @@ class Runner:
     def install_tmt(self):
         logging.debug("Installing tmt on orchestrating machine")
         ret = run(
-            "python3.12 -m pip install tmt[report-html,provision-connect]",
+            "python3.12 -m pip install 'tmt[report-html,provision-connect]<1.78.0'",
             check=False,
             verbose=True,
         )
