@@ -2245,6 +2245,7 @@ Feature: nmcli - general
 
 
     @rhbz1433303
+    @rhelver+=9
     @ver+=1.4.0
     @not_on_aarch64
     # Needed permissive, because even with additional policy, NM silently exits with code 1
@@ -2310,6 +2311,7 @@ Feature: nmcli - general
 
     @rhbz1461643 @rhbz1945282
     @ver+=1.10.0
+    @rhelver+=9
     @ver/rhel/8+=1.36.0.8
     @ver/rhel/9/0+=1.36.0.6
     @ver/rhel/9+=1.38.7
