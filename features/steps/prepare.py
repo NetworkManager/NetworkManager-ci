@@ -1474,12 +1474,22 @@ def libreswan_ng_setup(context, ipsec_type):
     base = "contrib/ipsec/nmstate"
     if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
         nmci.process.run(f"rm -rf {base}")
-        nmci.process.run(
-            "git clone https://github.com/nmstate/nmstate.git",
+        ret = nmci.process.run(
+            "git clone -b vb/libreswan-srv-c10s https://github.com/vbenes/nmstate.git",
             cwd="contrib/ipsec",
             ignore_stderr=True,
             timeout=40,
+            ignore_returncode=True,
         )
+        if ret.returncode != 0 or not os.path.isdir(base):
+            nmci.process.run(f"rm -rf {base}")
+            nmci.process.run(
+                "git clone https://github.com/nmstate/nmstate.git",
+                cwd="contrib/ipsec",
+                ignore_stderr=True,
+                timeout=40,
+            )
+        assert os.path.isdir(base), f"nmstate clone failed: {base} not found"
         # Mark setup complete
         nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
 
