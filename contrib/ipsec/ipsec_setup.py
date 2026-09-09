@@ -1,7 +1,12 @@
+import glob
+import os
+import subprocess
 import sys
 import time
 import yaml
 from nmstate.tests.integration.testlib.ipsec import IpsecTestEnv
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # pull podman images
 print("env repare")
@@ -28,6 +33,29 @@ if env == "host_site":
     IpsecTestEnv.start_ipsec_srv_host_to_site()
 if env == "icmp":
     IpsecTestEnv.start_ipsec_srv_cert_gw_icmp()
+
+# Patch libreswan in the server container with fixed RPMs
+# (fixes PASSERT crash in terminate_and_down_and_unroute_connections)
+CONTAINER_NAME = "nmstate-ipsec-srv"
+import platform
+arch = platform.machine()
+rpm_dir = os.path.join(SCRIPT_DIR, "rpms")
+rpms = glob.glob(os.path.join(rpm_dir, f"libreswan-*.{arch}.rpm"))
+print(f"libreswan patch: SCRIPT_DIR={SCRIPT_DIR} rpm_dir={rpm_dir} arch={arch} rpms={rpms}")
+if rpms:
+    print(f"patching libreswan in container with {len(rpms)} RPMs ({arch})")
+    for rpm in rpms:
+        subprocess.run(
+            ["podman", "cp", rpm, f"{CONTAINER_NAME}:/tmp/"],
+            check=True,
+        )
+    subprocess.run(
+        ["podman", "exec", CONTAINER_NAME, "bash", "-c",
+         "rpm -Uvh --force /tmp/libreswan-*.rpm && systemctl restart ipsec"],
+        check=True,
+    )
+else:
+    print(f"WARNING: no patched libreswan RPMs found in {rpm_dir}")
 
 IpsecTestEnv.load_both_srv_cli_keys()
 
