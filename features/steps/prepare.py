@@ -121,11 +121,9 @@ def config_dhcpv6_pd(context, mode, lease=None):
 
 @step("Prepare connection")
 def prepare_connection(context):
-    context.execute_steps(
-        """
+    context.execute_steps("""
         * Execute "nmcli con modify dcb ipv4.method manual ipv4.addresses 1.2.3.4/24 ipv6.method ignore"
-    """
-    )
+    """)
 
 
 @step('Prepare "{conf}" config for "{device}" device with "{vfs}" VFs')
@@ -166,8 +164,7 @@ def prepare_sriov_config(context, conf, device, vfs):
 
 @step("Prepare PBR documentation procedure")
 def pbr_doc_proc(context):
-    context.execute_steps(
-        """
+    context.execute_steps("""
         * Prepare simulated test "provA" device without DHCP
         * Execute "ip -n provA_ns address add 198.51.100.2/30 dev provAp"
         * Prepare simulated test "provB" device without DHCP
@@ -182,8 +179,7 @@ def pbr_doc_proc(context):
         * Create "veth" device named "defB" in namespace "provB_ns" with options "peer name defBp"
         * Execute "ip -n provB_ns link set dev defBp netns internet"
         * Create "bridge" device named "br0" in namespace "internet" with options "stp_state 0"
-        """
-    )
+        """)
 
     # Configure bridge connections in internet namespace
     bridge_commands = [
@@ -269,14 +265,12 @@ def prepare_veths(context, pairs_array, bridge):
     nmci.process.run(f"ip link set dev {bridge} up")
     for pair in pairs:
         nmci.veth.manage_device(pair)
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Create "veth" device named "{pair}" with options "peer name {pair}p"
             * Cleanup device "{pair}p"
             * Cleanup connection "{pair}p"
             * Cleanup connection "{bridge}"
-            """
-        )
+            """)
         veth_commands = [
             f"ip link set {pair}p master {bridge}",
             f"ip link set dev {pair} up",
@@ -1166,14 +1160,12 @@ def setup_macsec_psk(context, cak, ckn, vid=None):
     nmci.util.file_set_content("/tmp/wpa_supplicant.conf", conf)
 
     base_interface = "vlan" if vid is not None else "macsec_vethp"
-    nmci.process.run(
-        f"ip netns exec macsec_ns wpa_supplicant \
+    nmci.process.run(f"ip netns exec macsec_ns wpa_supplicant \
                                          -c /tmp/wpa_supplicant.conf \
                                          -i {base_interface} \
                                          -B \
                                          -D macsec_linux \
-                                         -P /tmp/wpa_supplicant_ms.pid"
-    )
+                                         -P /tmp/wpa_supplicant_ms.pid")
     nmci.ip.link_set("macsec0", up=True, namespace="macsec_ns", wait_for_device=6)
     nmci.process.nmcli("device set macsec_veth managed yes")
     nmci.ip.address_add(
@@ -1416,54 +1408,40 @@ def libreswan_ng_setup(context, ipsec_type):
         nmci.cext.skip("These libreswan tests require RHEL9.2+")
 
     if context.rh_release_num == [9, 2]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-4.el9_2"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
+            """)
     if context.rh_release_num == [9, 3]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.14-3.el9_3"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
+            """)
     if context.rh_release_num == [9, 4]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.18-4.el9_4"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
+            """)
     if context.rh_release_num == [9, 5]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el9"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
+            """)
     if context.rh_release_num == [10, 0]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el10"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
-            """
-        )
+            """)
     if context.rh_release_num == [9, 99]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el9"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el9"
-            """
-        )
+            """)
     if context.rh_release_num == [10, 99]:
-        context.execute_steps(
-            f"""
+        context.execute_steps(f"""
             * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.22-1.el10"
             * Ensure that version of "nmstate" package is at least "2.2.31-1.el10"
-            """
-        )
+            """)
 
     # This might take some time on secondaries if NM is restarted ^^
     nmci.process.run(
@@ -1493,6 +1471,33 @@ def libreswan_ng_setup(context, ipsec_type):
 
     # register cleanup
     def _libreswan_ng_teardown():
+        # Collect pluto logs before the container is destroyed
+        try:
+            nmci.embed.embed_service_log("Client pluto log", syslog_identifier="pluto")
+        except Exception:
+            pass
+        try:
+            srv_log = nmci.process.run(
+                [
+                    "podman",
+                    "exec",
+                    "nmstate-ipsec-srv",
+                    "journalctl",
+                    "-t",
+                    "pluto",
+                    "--no-pager",
+                ],
+                timeout=10,
+                ignore_returncode=True,
+                embed_combine_tag=nmci.embed.NO_EMBED,
+            )
+            nmci.embed.embed_data(
+                "Server pluto log (container)",
+                srv_log.stdout or "(no output)",
+            )
+        except Exception:
+            pass
+
         try:
             context.ipsec_proc.send("\n")
         except:
