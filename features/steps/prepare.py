@@ -1503,6 +1503,35 @@ def libreswan_ng_setup(context, ipsec_type):
 
     # register cleanup
     def _libreswan_ng_teardown():
+        # Collect pluto logs before the container is destroyed
+        try:
+            nmci.embed.embed_service_log(
+                "Client pluto log", syslog_identifier="pluto"
+            )
+        except Exception:
+            pass
+        try:
+            srv_log = nmci.process.run(
+                [
+                    "podman",
+                    "exec",
+                    "nmstate-ipsec-srv",
+                    "journalctl",
+                    "-t",
+                    "pluto",
+                    "--no-pager",
+                ],
+                timeout=10,
+                ignore_returncode=True,
+                embed_combine_tag=nmci.embed.NO_EMBED,
+            )
+            nmci.embed.embed_data(
+                "Server pluto log (container)",
+                srv_log.stdout or "(no output)",
+            )
+        except Exception:
+            pass
+
         try:
             context.ipsec_proc.send("\n")
         except:
