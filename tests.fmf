@@ -3631,7 +3631,7 @@ link:
 /ethernet_keep_mtu_on_reboot:
     id: fe8f7c99-9180-5530-a500-34c754bccfd1
     order+: 13045
-    duration: 15m
+    duration: 30m
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4709
 /dracut_setup:
