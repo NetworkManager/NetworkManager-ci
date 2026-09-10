@@ -37,7 +37,7 @@ if env == "4in6_6in4":
     IpsecTestEnv.start_ipsec_srv_4in6_6in4()
 
 # Patch libreswan in the server container with fixed RPMs
-# (fixes PASSERT crash in terminate_and_down_and_unroute_connections)
+# (fixes routing state cleanup for failed IKE_AUTH on INSTANCE connections)
 CONTAINER_NAME = "nmstate-ipsec-srv"
 import platform
 arch = platform.machine()
