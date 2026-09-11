@@ -49,6 +49,10 @@ attributes = [
     "CLI_SUBNET_V4",
     "SRV_SUBNET_V6",
     "CLI_SUBNET_V6",
+    "SRV_SUBNET_V4_2",
+    "CLI_SUBNET_V4_2",
+    "SRV_SUBNET_V6_2",
+    "CLI_SUBNET_V6_2",
     "SRV_POOL_PREFIX_V4",
     "SRV_POOL_PREFIX_V6",
 ]

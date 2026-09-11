@@ -2426,6 +2426,12 @@ testmapper:
     - libreswan_ikev2_ipv4_leftsubnet_modecfg:
         feature: libreswan
         tags: NetworkManager-libreswan
+    - libreswan_ikev2_ipv6_leftsubnets:
+        feature: libreswan
+        tags: NetworkManager-libreswan
+    - libreswan_leftsubnets_rightsubnet_default:
+        feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2_4in6:
         feature: libreswan
         tags: NetworkManager-libreswan

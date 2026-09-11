@@ -761,6 +761,43 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @libreswan_ikev2_ipv6_leftsubnets
+    Scenario: libreswan - ikev2 - leftsubnets - rightsubnets
+    * Prepare nmstate libreswan server for "site_site" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftmodecfgclient = no, leftsubnets = <noted:CLI_SUBNET_V6>\,<noted:CLI_SUBNET_V6_2>, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnets = <noted:SRV_SUBNET_V6>\,<noted:SRV_SUBNET_V6_2>'
+      """
+    * Wait for "1" seconds
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "VPN.GATEWAY:[^\n]*2001:db8:a::1" is visible with command "nmcli c show libreswan"
+    Then "src fd00:9::/64 dst fd00:a::/64.*src 2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+    Then "src fd00:10::/64 dst fd00:b::/64.*src 2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+
+
+    @libreswan_leftsubnets_rightsubnet_default
+    Scenario: nmcli - libreswan - rightsubnet defaults to ::/0 from IPv6 leftsubnets
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
+    * Add "vpn" connection named "vpn" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'right=1.2.3.4,
+                rightid=@server,
+                rightrsasigkey=server-key,
+                left=1.2.3.5,
+                leftid=@client,
+                leftrsasigkey=client-key,
+                leftcert=client-cert,
+                leftsubnets=fd00:9::/64\,fd00:10::/64'
+      """
+    * Execute "nmcli connection export vpn | tee /tmp/vpn.swan"
+    Then "rightsubnet=::/0" is visible with command "cat /tmp/vpn.swan"
+
+
     @libreswan_ikev2_4in6
     Scenario: libreswan - ikev2 - 4in6 - IPv6 endpoints with IPv4 subnets
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
