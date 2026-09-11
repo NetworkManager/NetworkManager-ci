@@ -745,6 +745,7 @@
 
     @libreswan_ikev2_4in6
     Scenario: libreswan - ikev2 - 4in6 - IPv6 endpoints with IPv4 subnets
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
     * Prepare nmstate libreswan server for "4in6_6in4" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
@@ -762,6 +763,7 @@
 
     @libreswan_ikev2_6in4
     Scenario: libreswan - ikev2 - 6in4 - IPv4 endpoints with IPv6 subnets
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
     * Prepare nmstate libreswan server for "4in6_6in4" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
