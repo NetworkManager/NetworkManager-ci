@@ -743,6 +743,24 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @libreswan_ikev2_ipv4_leftsubnet_modecfg
+    Scenario: libreswan - ikev2 - leftsubnet - mode config without an address
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
+    * Prepare nmstate libreswan server for "site_site" environment
+    * Add "vpn" connection named "libreswan" for device "\*" with options
+      """
+      autoconnect no
+      vpn-type libreswan
+      vpn.data 'ikev2 = insist, left = <noted:CLI_ADDR_V4>, leftcert = <noted:CLI_KEY_ID>, leftid = %fromcert, leftsubnet = <noted:CLI_SUBNET_V4>, right = <noted:SRV_ADDR_V4>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V4>'
+      """
+    * Wait for "1" seconds
+    * Bring "up" connection "libreswan"
+    Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
+    Then "VPN.GATEWAY:[^\n]*192.0.2.1" is visible with command "nmcli c show libreswan"
+    Then "src 10.0.9.0/24 dst 10.0.0.0/24.*src 192.0.2.2 dst 192.0.2.1" is visible with command "ip xfrm policy"
+    Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
+
+
     @libreswan_ikev2_4in6
     Scenario: libreswan - ikev2 - 4in6 - IPv6 endpoints with IPv4 subnets
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
