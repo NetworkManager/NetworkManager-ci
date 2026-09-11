@@ -1317,7 +1317,7 @@ Feature: nmcli - general
     * Execute "nmcli device set eth8 managed yes"
     When "activated" is visible with command "nmcli -g GENERAL.STATE con show con_general" in "45" seconds
     * Delete connection "con_general"
-    Then "Wired" is not visible with command "nmcli con"
+    Then "eth8" is not visible with command "nmcli -f DEVICE con"
 
 
     @rhbz1460760
