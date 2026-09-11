@@ -144,6 +144,7 @@ def start_stop_connection(context, name, action, device=""):
         if name == "gsm":
             wait = "--wait 60"
     if device:
+        device = nmci.misc.str_replace_dict(device, getattr(context, "noted", {}))
         device = f"ifname {device}"
 
     nmci.process.nmcli(f"{wait} connection {action} id {name} {device}", timeout=180)
