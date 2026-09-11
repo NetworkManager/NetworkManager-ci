@@ -264,11 +264,27 @@ def noted_value_does_not_contain(context, pattern, index="noted-value"):
 
 @step('Note the output of "{command}"')
 @step('Note the output of "{command}" as value "{index}"')
-def note_the_output_as(context, command, index="noted-value"):
+@step('Note the output of "{command}" retrying for "{timeout}" seconds')
+@step(
+    'Note the output of "{command}" as value "{index}" retrying for "{timeout}" seconds'
+)
+def note_the_output_as(context, command, index="noted-value", timeout=None):
     if not hasattr(context, "noted"):
         context.noted = {}
     command = nmci.process.WithShell(command)
-    context.noted[index] = nmci.process.run_stdout(command, ignore_stderr=True).strip()
+
+    if timeout is None:
+        context.noted[index] = nmci.process.run_stdout(
+            command, ignore_stderr=True
+        ).strip()
+        return
+
+    def do():
+        value = nmci.process.run_stdout(command, ignore_stderr=True).strip()
+        assert value, f"Command produced no output: {command}"
+        return value
+
+    context.noted[index] = nmci.util.wait_for(do, timeout=float(timeout))
 
 
 @step('Note the number of lines of "{command}"')

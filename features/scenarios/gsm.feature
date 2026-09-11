@@ -65,8 +65,9 @@ Feature: nmcli: gsm
 
 
     * Wait for "5" seconds
+    * Note the output of "nmcli -g GENERAL.DEVICES connection show gsm" as value "gsm_device" retrying for "10" seconds
     * Bring "down" connection "gsm"
-    * Bring "up" connection "gsm"
+    * Bring "up" connection "gsm" for "<noted:gsm_device>" device
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
     * Wait for "5" seconds
