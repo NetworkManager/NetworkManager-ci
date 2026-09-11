@@ -2423,6 +2423,9 @@ testmapper:
     - libreswan_ikev2_dpd_interface:
         feature: libreswan
         tags: gate NetworkManager-libreswan
+    - libreswan_ikev2_ipv4_leftsubnet_modecfg:
+        feature: libreswan
+        tags: NetworkManager-libreswan
     - libreswan_ikev2_4in6:
         feature: libreswan
         tags: NetworkManager-libreswan
