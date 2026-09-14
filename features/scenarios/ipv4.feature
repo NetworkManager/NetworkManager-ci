@@ -3889,7 +3889,9 @@ Feature: nmcli: ipv4
     Then "0" is visible with command "cat /proc/sys/net/ipv4/conf/veth1/forwarding" in "10" seconds
 
 
-    @ver+=1.57.5
+    # dhclient support was removed upstream in 1.57.5 (the same release cycle as the fix).
+    # Only run on patched RHEL streams.
+    @ver-
     @ver/rhel/8/10+=1.40.16.21
     @ver/rhel/9/8+=1.54.3.5
     @ver/rhel/9/6+=1.52.0.11
