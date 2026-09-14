@@ -1,8 +1,22 @@
 # pylint: disable=unused-argument,line-too-long,function-redefined,no-name-in-module
 # type: ignore[no-redef]
 from behave import step
+import re
 
 import nmci
+
+
+@step(
+    'Connection "{name}" has IPv4 address "{address}" saved and applied on "{device}" within "{seconds}" seconds'
+)
+def connection_address_saved_and_applied(context, name, address, device, seconds):
+    pattern = re.escape(address)
+    context.execute_steps(
+        f'Then "^{pattern}$" is visible with command '
+        f'"nmcli -g ipv4.addresses connection show {name}" in "{seconds}" seconds\n'
+        f'Then "inet {pattern} " is visible with command '
+        f'"ip -4 address show dev {device}" in "{seconds}" seconds'
+    )
 
 
 @step('Add "{typ}" connection named "{name}"')
