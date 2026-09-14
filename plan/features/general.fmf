@@ -153,6 +153,11 @@ discover:
         - /tests/libnm_async_activation_cancelable_no_crash
         - /tests/nmcli_monitor_assertion_con_up_down
         - /tests/libnm_snapshot_rollback
+        - /tests/libnm_snapshot_allow_overlapping
+        - /tests/libnm_snapshot_overlap_rollback_older
+        - /tests/libnm_snapshot_adjust_timeout_extend
+        - /tests/libnm_snapshot_adjust_timeout_shorten
+        - /tests/libnm_snapshot_adjust_timeout_disable
         - /tests/libnm_snapshot_rollback_all_devices
         - /tests/libnm_snapshot_timeout_rollback_all_devices
         - /tests/libnm_snapshot_rollback_unmanaged

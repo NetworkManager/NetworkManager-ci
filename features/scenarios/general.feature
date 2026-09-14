@@ -2617,6 +2617,173 @@ Feature: nmcli - general
     Then "should not be reached" is not visible with command "cat /tmp/nmcli_monitor_out"
 
 
+    @ver+=1.12
+    @checkpoint_remove
+    @libnm_snapshot_allow_overlapping
+    Scenario: NM - general - libnm overlapping checkpoints and newest rollback
+    Then There are "0" checkpoints
+    * Add "ethernet" connection named "con_checkpoint" for device "eth8" with options
+        """
+        connection.autoconnect no ipv4.method manual ipv4.addresses 192.0.2.10/24
+        ipv4.never-default yes ipv6.method ignore
+        """
+    * Bring "up" connection "con_checkpoint"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "older" on "eth8" with rollback timeout "0"
+    Then Creating a checkpoint on "eth8" fails because it overlaps "older"
+     And There are "1" checkpoints
+     And Checkpoint "older" is present
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.20/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "newer" on "eth8" with rollback timeout "0" allowing overlap
+    Then Check noted values "older" and "newer" are not the same
+     And There are "2" checkpoints
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.30/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.30/24" saved and applied on "eth8" within "5" seconds
+
+    * Rollback checkpoint "newer" on "eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.]30/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And Checkpoint "newer" is gone within "0" seconds
+     And Checkpoint "older" is present
+     And There are "1" checkpoints
+
+    * Rollback checkpoint "older" on "eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.](20|30)/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And There are "0" checkpoints
+
+
+    @ver+=1.12
+    @checkpoint_remove
+    @libnm_snapshot_overlap_rollback_older
+    Scenario: NM - general - libnm older rollback destroys overlapping checkpoints
+    Then There are "0" checkpoints
+    * Add "ethernet" connection named "con_checkpoint" for device "eth8" with options
+        """
+        connection.autoconnect no ipv4.method manual ipv4.addresses 192.0.2.10/24
+        ipv4.never-default yes ipv6.method ignore
+        """
+    * Bring "up" connection "con_checkpoint"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "older" on "eth8" with rollback timeout "0"
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.20/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "newer" on "eth8" with rollback timeout "0" allowing overlap
+    Then Check noted values "older" and "newer" are not the same
+     And There are "2" checkpoints
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.30/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.30/24" saved and applied on "eth8" within "5" seconds
+
+    * Rollback checkpoint "older" on "eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.](20|30)/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And Checkpoint "older" is gone within "0" seconds
+     And Checkpoint "newer" is gone within "0" seconds
+     And There are "0" checkpoints
+
+
+    @ver+=1.12
+    @checkpoint_remove
+    @libnm_snapshot_adjust_timeout_extend
+    Scenario: NM - general - libnm extend checkpoint rollback timeout
+    Then There are "0" checkpoints
+    * Add "ethernet" connection named "con_checkpoint" for device "eth8" with options
+        """
+        connection.autoconnect no ipv4.method manual ipv4.addresses 192.0.2.10/24
+        ipv4.never-default yes ipv6.method ignore
+        """
+    * Bring "up" connection "con_checkpoint"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "checkpoint" on "eth8" with rollback timeout "30"
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.20/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "5" seconds
+
+    * Wait for "10" seconds
+    * Adjust checkpoint "checkpoint" rollback timeout to "60" seconds
+    # After waiting 10s, observing another 25s crosses the original 30s deadline.
+    Then Checkpoint "checkpoint" and IPv4 address "192.0.2.20/24" on "eth8" remain present for "25" seconds
+     And Checkpoint "checkpoint" is gone within "45" seconds
+     And Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.](20|30)/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And There are "0" checkpoints
+
+
+    @ver+=1.12
+    @checkpoint_remove
+    @libnm_snapshot_adjust_timeout_shorten
+    Scenario: NM - general - libnm shorten checkpoint rollback timeout
+    Then There are "0" checkpoints
+    * Add "ethernet" connection named "con_checkpoint" for device "eth8" with options
+        """
+        connection.autoconnect no ipv4.method manual ipv4.addresses 192.0.2.10/24
+        ipv4.never-default yes ipv6.method ignore
+        """
+    * Bring "up" connection "con_checkpoint"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "checkpoint" on "eth8" with rollback timeout "120"
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.20/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "5" seconds
+
+    * Wait for "10" seconds
+    * Adjust checkpoint "checkpoint" rollback timeout to "10" seconds
+    # Ten seconds have already elapsed; the new timeout starts at adjustment.
+    Then Checkpoint "checkpoint" and IPv4 address "192.0.2.20/24" on "eth8" remain present for "5" seconds
+     And Checkpoint "checkpoint" is gone within "20" seconds
+     And Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.](20|30)/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And There are "0" checkpoints
+
+
+    @ver+=1.12
+    @checkpoint_remove
+    @libnm_snapshot_adjust_timeout_disable
+    Scenario: NM - general - libnm disable checkpoint rollback timeout
+    Then There are "0" checkpoints
+    * Add "ethernet" connection named "con_checkpoint" for device "eth8" with options
+        """
+        connection.autoconnect no ipv4.method manual ipv4.addresses 192.0.2.10/24
+        ipv4.never-default yes ipv6.method ignore
+        """
+    * Bring "up" connection "con_checkpoint"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "5" seconds
+
+    * Create checkpoint "checkpoint" on "eth8" with rollback timeout "30"
+
+    * Modify connection "con_checkpoint" changing options "ipv4.addresses 192.0.2.20/24"
+    * Execute "nmcli device reapply eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.20/24" saved and applied on "eth8" within "5" seconds
+
+    # Zero disables automatic rollback; the original deadline was 30 seconds.
+    * Adjust checkpoint "checkpoint" rollback timeout to "0" seconds
+    Then "timeout: infinity" is visible with command "contrib/gi/checkpoint.py show" in "0" seconds
+    # Disabling expiry must preserve both the checkpoint and changed state.
+    Then Checkpoint "checkpoint" and IPv4 address "192.0.2.20/24" on "eth8" remain present for "35" seconds
+
+    * Rollback checkpoint "checkpoint" on "eth8"
+    Then Connection "con_checkpoint" has IPv4 address "192.0.2.10/24" saved and applied on "eth8" within "30" seconds
+     And "inet 192[.]0[.]2[.](20|30)/24 " is not visible with command "ip -4 address show dev eth8" in "0" seconds
+     And There are "0" checkpoints
+
+
     @rhbz1496739
     @ver+=1.12
     @checkpoint_remove

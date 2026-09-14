@@ -2101,6 +2101,16 @@ testmapper:
         feature: general
     - libnm_snapshot_rollback:
         feature: general
+    - libnm_snapshot_allow_overlapping:
+        feature: general
+    - libnm_snapshot_overlap_rollback_older:
+        feature: general
+    - libnm_snapshot_adjust_timeout_extend:
+        feature: general
+    - libnm_snapshot_adjust_timeout_shorten:
+        feature: general
+    - libnm_snapshot_adjust_timeout_disable:
+        feature: general
     - libnm_snapshot_rollback_all_devices:
         feature: general
     - libnm_snapshot_timeout_rollback_all_devices:
