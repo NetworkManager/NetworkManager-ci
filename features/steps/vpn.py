@@ -310,10 +310,11 @@ def download_nm_libreswan_package(context, target_dir):
         ignore_returncode=True,
         ignore_stderr=True,
     ).strip()
+    url_version = version.replace("^", "%5e") if "^" in version else version
     for url in download_urls.split("\n"):
         if (
             "NetworkManager-libreswan" in url
-            and f"NetworkManager-libreswan-{version}-" in url
+            and f"NetworkManager-libreswan-{url_version}-" in url
             and not url.endswith(".src.rpm")
         ):
             nmci.process.run(
