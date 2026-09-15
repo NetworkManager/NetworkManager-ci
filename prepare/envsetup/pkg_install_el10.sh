@@ -6,7 +6,7 @@ install_el10_packages () {
 
     # Epel release is a bit crippled in 10.1, let's fix minor versions
     # Seems to be the case also for RHEL10.0 now
-    if grep -q 'release 10' /etc/redhat-release; then
+    if grep -E '10.0|10.1' /etc/os-release; then
         sed -i 's/\$releasever&/\$releasever\${releasever_minor:+.}\$releasever_minor\&/g' /etc/yum.repos.d/epel*
     fi
 
