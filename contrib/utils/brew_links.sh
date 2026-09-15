@@ -178,7 +178,7 @@ $interactive && echo "Selected package: $package" && echo
 # ----------------------------------------------------------------------------
 # 2. Determine version
 # ----------------------------------------------------------------------------
-ver=$(echo "$2" | sed 's/^/%5e/g')
+ver=$(echo "$2" | sed 's/\^/%5e/g')
 if [ -z "$ver" ]; then
     # No version specified - fetch available versions
     if $interactive; then
