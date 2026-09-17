@@ -743,6 +743,7 @@
     Then "src 10.0.0.0/24 dst 10.0.9.0/24.*src 192.0.2.1 dst 192.0.2.2" is visible with command "ip xfrm policy"
 
 
+    @rhelver+=10
     @libreswan_ikev2_ipv4_leftsubnet_modecfg
     Scenario: libreswan - ikev2 - leftsubnet - mode config without an address
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
