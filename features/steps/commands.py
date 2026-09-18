@@ -1524,7 +1524,7 @@ def run_nmstate_from_copr(context, nmstate_copr, log_file):
                 f"wget --tries=5 --retry-connrefused --retry-on-http-error=404,500,502 --waitretry=2 $(./contrib/utils/{koji}_links.sh '' $(NetworkManager --version | sed 's/-/ /g') | grep -v debuginfo | grep -v debugsource) -P {dir_name}",
                 ignore_stderr=True,
                 shell=True,
-                timeout=30,
+                timeout=180,
             )
             cmd += f" --nm-rpm-dir {dir_name}"
 
