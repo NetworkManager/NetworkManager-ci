@@ -940,6 +940,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_reset_managed
     Scenario: NM - general - reset unmanaged state
@@ -966,6 +967,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_unmanaged_persist
     Scenario: NM - general - set device to unmanaged state
@@ -986,6 +988,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_unmanaged_persist_only
     Scenario: NM - general - set device to unmanaged state (on disk only)
@@ -1008,6 +1011,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @unmanage_eth
     @nmcli_general_set_device_managed_persist
     Scenario: NM - general - set device to managed state
@@ -1031,6 +1035,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @unmanage_eth
     @nmcli_general_set_device_managed_persist_only
     Scenario: NM - general - set device to managed state (on disk only)
@@ -1052,6 +1057,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_reset_managed_persist
     Scenario: NM - general - reset persistent unmanaged state
@@ -1083,6 +1089,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_reset_managed_persist_only
     Scenario: NM - general - reset persistent-only unmanaged state
@@ -1107,6 +1114,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @unmanage_eth
     @nmcli_general_set_device_managed_up_persist
     Scenario: NM - general - set device managed up state
@@ -1130,6 +1138,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_unmanaged_down_persist
     Scenario: NM - general - set device to managed down state
@@ -1148,6 +1157,7 @@ Feature: nmcli - general
     @ver+=1.57.3
     @ver/rhel/9+=1.54.4.1
     @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8
     @nmcli_general_set_device_managed_up_down_persist_only
     Scenario: NM - general - set device managed up/down state with --permanent-only
@@ -2067,6 +2077,9 @@ Feature: nmcli - general
 
 
     @ver+=1.57.3
+    @ver/rhel/9+=1.54.4.1
+    @ver/rhel/10+=1.56.1.1
+    @ver/rhel/10/2+=1.56.0.3
     @manage_eth8 @checkpoint_remove
     @snapshot_rollback_managed_persist
     Scenario: NM - general - snapshot and rollback persistent managed
