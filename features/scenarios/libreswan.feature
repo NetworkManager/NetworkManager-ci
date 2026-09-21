@@ -764,6 +764,7 @@
 
     @libreswan_ikev2_ipv6_leftsubnets
     Scenario: libreswan - ikev2 - leftsubnets - rightsubnets
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
     * Prepare nmstate libreswan server for "site_site" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
