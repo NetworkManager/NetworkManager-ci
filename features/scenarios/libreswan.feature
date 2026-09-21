@@ -899,15 +899,15 @@
       """
       autoconnect no
       vpn-type libreswan
-      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftid = %fromcert, leftcert = <noted:CLI_KEY_ID>, leftmodecfgclient = no, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V6>'
+      vpn.data 'clientaddrfamily = ipv6, hostaddrfamily = ipv6, ikev2 = insist, left = <noted:CLI_ADDR_V6>, leftid = %fromcert, leftcert = <noted:CLI_KEY_ID>, right = <noted:SRV_ADDR_V6>, rightid = %fromcert, rightsubnet = <noted:SRV_SUBNET_V6>'
       """
     * Wait for "1" seconds
     * Bring "up" connection "libreswan"
     Then "VPN.VPN-STATE:[^\n]*VPN connected" is visible with command "nmcli c show libreswan"
-    Then "IP6.ADDRESS[^\n]*2001:db8:a::2/64" is visible with command "nmcli d show $(echo $CLI_NIC)"
+    Then "IP6.ADDRESS[^\n]*<noted:SRV_POOL_PREFIX_V6>" is visible with command "nmcli d show $(echo $CLI_NIC)"
     Then "VPN.GATEWAY:[^\n]*2001:db8:a::1" is visible with command "nmcli c show libreswan"
-    Then "src 2001:db8:a::2/128 dst fd00:a::/64.*2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
-    Then "src fd00:a::/64 dst 2001:db8:a::2/128.*2001:db8:a::1 dst 2001:db8:a::2" is visible with command "ip xfrm policy"
+    Then "src <noted:SRV_POOL_PREFIX_V6>[^\n]*/128 dst fd00:a::/64.*2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
+    Then "src fd00:a::/64 dst <noted:SRV_POOL_PREFIX_V6>[^\n]*/128.*2001:db8:a::1 dst 2001:db8:a::2" is visible with command "ip xfrm policy"
 
 
     @RHEL-58040
