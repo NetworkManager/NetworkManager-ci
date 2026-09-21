@@ -111,36 +111,42 @@ build_base_image()
         done
     fi
 
-    cat <<EOF > "$tmpdir/build/Containerfile"
+    local has_rpms=false
+    if ls "$tmpdir/build/"*.rpm >/dev/null 2>&1; then
+        has_rpms=true
+    fi
+
+    if $has_rpms; then
+        cat <<EOF > "$tmpdir/build/Containerfile"
 FROM $distro
-
 ENTRYPOINT ["/sbin/init"]
-
 COPY authorized_keys /root/.ssh/authorized_keys
 COPY *.rpm /tmp
-
 RUN dnf install -y libreswan \
-    iputils \
-    hostname \
-    openssh-server \
-    bash-completion \
-    less \
-    policycoreutils \
-    gdb \
-    valgrind \
-    rsync \
-    tcpdump \
-    systemd-udev \
-    \$(ls /tmp/*.rpm) \
+    iputils hostname openssh-server bash-completion less \
+    policycoreutils gdb valgrind rsync tcpdump systemd-udev \
+    \$(ls /tmp/*.rpm) --allowerasing
+RUN systemctl enable sshd
+RUN rm /etc/machine-id
+EOF
+    else
+        cat <<EOF > "$tmpdir/build/Containerfile"
+FROM $distro
+ENTRYPOINT ["/sbin/init"]
+COPY authorized_keys /root/.ssh/authorized_keys
+RUN dnf install -y libreswan NetworkManager-libreswan \
+    iputils hostname openssh-server bash-completion less \
+    policycoreutils gdb valgrind rsync tcpdump systemd-udev \
     --allowerasing
 RUN systemctl enable sshd
 RUN rm /etc/machine-id
 EOF
+    fi
 
     podman build \
            --squash-all \
            --tag "$image" \
-           "$tmpdir/build"
+           "$tmpdir/build" || { echo "ERROR: Container image build failed"; exit 1; }
 }
 
 build_base_image

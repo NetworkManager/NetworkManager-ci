@@ -217,12 +217,15 @@ elif [ "$package" != kernel ]; then
     # Version was specified - find matching version in repository
     # For brew, switch to url_base_build to access all builds (not just gated ones)
     echo "$url_base" | grep -q brew && url_base="$url_base_build"
-    ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
+    # Prefer exact match to avoid e.g. "1.2.30" matching "1.2.30%5egit7cb0ae2"
+    ver2=$(get_all $url_base/$package/ | grep -xF "$ver")
+    [ -z "$ver2" ] && ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
     if [ -z "$ver2" ] && [ "$provider" != koji ]; then
        # Fallback to koji if version not found
        url_base="https://kojipkgs.fedoraproject.org/packages"
        provider=koji
-       ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
+       ver2=$(get_all $url_base/$package/ | grep -xF "$ver")
+       [ -z "$ver2" ] && ver2=$(get_all $url_base/$package/ | grep -F "$ver" | sort -V | tail -n 1)
     fi
     ver="$ver2"
 fi
@@ -279,8 +282,9 @@ if [ -z "$build" ]; then
         fi
     fi
 else
-    # Build was specified - find matching build
-    build=$(get_all $url_base/$package/$ver | grep -F "$build" | sort -V | tail -n 1)
+    # Build was specified - find matching build (anchor at start to avoid
+    # e.g. "2.el10" matching "3.git7cb0ae2.el10" as a substring)
+    build=$(get_all $url_base/$package/$ver | awk -v b="$build" 'index($0, b) == 1' | sort -V | tail -n 1)
 fi
 
 # ----------------------------------------------------------------------------

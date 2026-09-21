@@ -263,8 +263,8 @@ def download_nm_libreswan_package(context, target_dir):
     Args:
         target_dir: Directory where package should be downloaded
     """
-    # Create target directory if not exists
-    nmci.process.run(f"mkdir -p {target_dir}", shell=True)
+    # Clean and create target directory (stale RPMs from previous runs cause conflicts)
+    nmci.process.run(f"rm -rf {target_dir} && mkdir -p {target_dir}", shell=True)
 
     # 1. Try dnf download first
     libreswan_version = nmci.process.run_stdout(
@@ -290,10 +290,12 @@ def download_nm_libreswan_package(context, target_dir):
 
         print("dnf download failed, switching to koji_links")
 
-    # 2. Fallback to koji_links.sh using NetworkManager-libreswan version
+    # 2. Fallback to koji_links.sh/brew_links.sh using NetworkManager-libreswan version
+    # brew_links.sh uses Red Hat Brew (internal, only reachable from RHEL/RH network)
+    # koji_links.sh uses CentOS Kojihub (public) for CentOS Stream, Fedora Koji for Fedora
     distro_info = nmci.process.run_stdout("cat /etc/os-release", shell=True)
-    is_fedora = "Fedora" in distro_info
-    script_name = "koji_links.sh" if is_fedora else "brew_links.sh"
+    is_rhel = "Red Hat Enterprise Linux" in distro_info
+    script_name = "brew_links.sh" if is_rhel else "koji_links.sh"
 
     # Get NetworkManager-libreswan version info (package is guaranteed to be installed)
     nm_libreswan_info = nmci.process.run_stdout(
@@ -323,6 +325,14 @@ def download_nm_libreswan_package(context, target_dir):
                 ignore_returncode=True,
             )
             break
+
+    rpms_found = nmci.process.run_code(
+        f"ls {target_dir}/*.rpm >/dev/null 2>&1", shell=True, ignore_returncode=True
+    )
+    if rpms_found != 0:
+        raise AssertionError(
+            f"Failed to download NetworkManager-libreswan RPM to {target_dir}"
+        )
 
 
 @step('Setup the same distro type container with rpms from "{rpm_dir}"')
