@@ -71,6 +71,7 @@ discover:
         - /tests/simwifi_dbus_invalid_cert_input
         - /tests/simwifi_mac_address_blacklist_to_denylist
         - /tests/simwifi_mac_address_denylist_to_blacklist
+        - /tests/simwifi_iwd_profile_permissions
         - /tests/nmcli_simwifi_teardown
         - /tests/simwifi_ap_wpa_psk_method_shared
         - /tests/simwifi_ap_in_bridge_wpa_psk_method_manual

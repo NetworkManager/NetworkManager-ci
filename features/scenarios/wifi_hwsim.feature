@@ -8,6 +8,31 @@ Feature: nmcli - wifi
     # Scenario:
 
 
+    @ver+=1.59.2
+    @simwifi @iwd
+    @simwifi_iwd_profile_permissions
+    Scenario: nmcli - simwifi - check mirrored IWD profile permissions
+    * Execute "mkdir -p /run/nm-iwd-test && chmod 0755 /run/nm-iwd-test"
+    * Cleanup execute "rm -rf /run/nm-iwd-test" with priority "60"
+    * Create NM config file with content
+      """
+      [main]
+      iwd-config-path=/run/nm-iwd-test
+
+      [device]
+      wifi.backend=iwd
+      """
+    * Restart NM
+    * Add "wifi" connection named "nmci-iwd-permissions" for device "wlan0" with options
+      """
+      autoconnect no
+      ssid nmci-iwd-permissions
+      802-11-wireless-security.key-mgmt wpa-psk
+      802-11-wireless-security.psk secret123
+      """
+    Then "^600$" is visible with command "stat -c %a /run/nm-iwd-test/nmci-iwd-permissions.psk" in "5" seconds
+
+
     @ver+=1.9.1 @fedoraver+=31
     @simwifi @attach_hostapd_log @attach_wpa_supplicant_log
     @simwifi_open_connect
