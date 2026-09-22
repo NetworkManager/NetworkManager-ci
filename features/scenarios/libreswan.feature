@@ -839,7 +839,7 @@
     @fedoraver+=43
     @libreswan_ikev2_leftprotoport_rightprotoport
     Scenario: libreswan - ikev2 - leftprotoport - rightprotoport
-    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.29"
+    * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
     * Prepare nmstate libreswan server for "icmp" environment
     * Add "vpn" connection named "libreswan" for device "\*" with options
       """
