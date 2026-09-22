@@ -6716,21 +6716,25 @@ link:
     order+: 41069
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5270
+/simwifi_iwd_profile_permissions:
+    tag: ['hostapd', 'iwd']
+    id: c9f23371-4066-5bc8-bc14-96618a04d4fa
+    order+: 41070
 /nmcli_simwifi_teardown:
     tag: ['gate', 'wpa_supplicant', 'hostapd']
     id: bafdfdc9-4d8d-519f-9833-a110fc6e3491
-    order+: 41070
+    order+: 41071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5271
 /simwifi_ap_wpa_psk_method_shared:
     id: f9fe0efd-d9e6-5ba2-80b0-82930dd12de9
-    order+: 41071
+    order+: 41072
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5273
 /simwifi_ap_in_bridge_wpa_psk_method_manual:
     tag: ['gate']
     id: d051750c-71e2-58a5-9b0f-143d93398348
-    order+: 41072
+    order+: 41073
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5274
 /policy_based_routing_doc_procedure:

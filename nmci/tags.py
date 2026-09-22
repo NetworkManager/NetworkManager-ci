@@ -1036,6 +1036,28 @@ def simwifi_as(context, scenario):
 _register_tag("simwifi", simwifi_bs, simwifi_as)
 
 
+def iwd_bs(context, scenario):
+    context.iwd_package_installed = context.process.run_code("rpm -q iwd") == 0
+
+    if not context.iwd_package_installed:
+        nmci.veth.wait_for_testeth0()
+        context.process.dnf("-y install iwd")
+
+    context.process.systemctl("stop wpa_supplicant")
+    context.process.systemctl("start iwd")
+
+
+def iwd_as(context, scenario):
+    context.process.systemctl("stop iwd")
+    context.process.systemctl("start wpa_supplicant")
+
+    if not context.iwd_package_installed:
+        context.process.dnf("-y remove iwd", timeout=60)
+
+
+_register_tag("iwd", iwd_bs, iwd_as, priority=180)
+
+
 def simwifi_ap_bs(context, scenario):
     if context.arch != "x86_64":
         context.cext.skip("Skipping as not on x86_64")

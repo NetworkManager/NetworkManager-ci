@@ -31,6 +31,7 @@ component:
       - dracut
       - wpa_supplicant
       - hostapd
+      - iwd
       - NetworkManager-libreswan
   gated-by:
     - gnome-control-center
@@ -3001,6 +3002,9 @@ testmapper:
         feature: wifi_hwsim
     - simwifi_mac_address_denylist_to_blacklist:
         feature: wifi_hwsim
+    - simwifi_iwd_profile_permissions:
+        feature: wifi_hwsim
+        tags: hostapd iwd
     # Add @simwifi tests before this line ^^
     - nmcli_simwifi_teardown:
         feature: wifi_hwsim
