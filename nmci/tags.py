@@ -2301,11 +2301,7 @@ def mtu_as(context, scenario):
 _register_tag("mtu", None, mtu_as)
 
 
-def macsec_as(context, scenario):
-    context.process.run_stdout("pkill -F /tmp/wpa_supplicant_ms.pid")
-
-
-_register_tag("macsec", None, macsec_as)
+_register_tag("macsec")
 
 
 def dhcpd_as(context, scenario):
