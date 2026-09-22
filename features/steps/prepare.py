@@ -1174,6 +1174,10 @@ def setup_macsec_psk(context, cak, ckn, vid=None):
                                          -D macsec_linux \
                                          -P /tmp/wpa_supplicant_ms.pid"
     )
+    nmci.cleanup.add_callback(
+        lambda: nmci.process.run_stdout("pkill -F /tmp/wpa_supplicant_ms.pid"),
+        name="wpa_supplicant_ms",
+    )
     nmci.ip.link_set("macsec0", up=True, namespace="macsec_ns", wait_for_device=6)
     nmci.process.nmcli("device set macsec_veth managed yes")
     nmci.ip.address_add(
