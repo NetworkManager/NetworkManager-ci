@@ -349,5 +349,7 @@ deploy_ssh_keys () {
 
     echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRHp6u74FcR+0noY7zgHaHPQQdugtrHUMVg6cakXb/e praksany@redhat.com" >> /root/.ssh/authorized_keys
 
+    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEteeNrJ0mr6kjNuYD6/FULzlfPl73obkWeS58yNYGUu eshatsky@redhat.com" >> /root/.ssh/authorized_keys
+
     echo "# NM_CONTRIBUTORS_END" >> /root/.ssh/authorized_keys
 }
