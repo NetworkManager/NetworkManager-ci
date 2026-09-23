@@ -6167,6 +6167,10 @@ link:
     order+: 36034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5169
+/ifcfg_no_nm_controlled_connection_active_after_nm_restart:
+    tag: ['gate']
+    id: d05c9be5-8066-5833-936f-ef1ef5d4cacd
+    order+: 36035
 /add_default_tap_device:
     tag: ['gate']
     id: f8de5b6c-b8fc-5566-893e-463404679863

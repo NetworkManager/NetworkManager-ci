@@ -1424,6 +1424,41 @@ Feature: nmcli: connection
     Then "migration_dns:/etc/NetworkManager/system-connections/migration_dns.nmconnection" is visible with command "nmcli -g NAME,FILENAME connection"
 
 
+    @NMT-2824
+    @rhelver+=9 @rhelver-=9
+    @ifcfg-rh
+    @restart_if_needed
+    @ifcfg_no_nm_controlled_connection_active_after_nm_restart
+    Scenario: NM - connection - ifcfg without NM_CONTROLLED is managed by NM and stays active across service restart
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_ifcfg_no_nm_controlled"
+      """
+      TYPE=Ethernet
+      DEVICE=eth1
+      NAME=con_ifcfg_no_nm_controlled
+      ONBOOT=yes
+      BOOTPROTO=none
+      IPADDR=192.168.100.10
+      PREFIX=24
+      """
+    * Create ifcfg-file "/etc/sysconfig/network-scripts/ifcfg-con_ifcfg_nm_controlled_no"
+      """
+      TYPE=Ethernet
+      DEVICE=eth2
+      NAME=con_ifcfg_nm_controlled_no
+      ONBOOT=yes
+      BOOTPROTO=none
+      IPADDR=192.168.100.11
+      PREFIX=24
+      NM_CONTROLLED=no
+      """
+    * Reload connections
+    Then "eth1:connected:con_ifcfg_no_nm_controlled" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    And "eth2:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "5" seconds
+    * Restart NM
+    Then "eth1:connected:con_ifcfg_no_nm_controlled" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    And "eth2:unmanaged" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "5" seconds
+
+
     @rhbz2008337
     @ver+=1.39.10
     @connection_wait-activation-delay

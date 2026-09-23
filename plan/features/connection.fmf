@@ -84,3 +84,4 @@ discover:
         - /tests/connection_ping_ip_addresses_unreachable
         - /tests/connection_with_empty_sriov_vfs
         - /tests/connection_change_name_with_incorrect_selinux_label
+        - /tests/ifcfg_no_nm_controlled_connection_active_after_nm_restart

@@ -2756,6 +2756,9 @@ testmapper:
         feature: connection
     - connection_change_name_with_incorrect_selinux_label:
         feature: connection
+    - ifcfg_no_nm_controlled_connection_active_after_nm_restart:
+        feature: connection
+        tags: gate
     - add_default_tap_device:
         feature: tuntap
         tags: gate
