@@ -35,6 +35,7 @@ Feature: nmcli - hsr
     # that are present in 6.18 and will be backported to CentOS Streams.
     @rhelver+=10 @fedoraver+=44
     @ver+=1.55.5
+    @x86_64_only
     @hsr_interlink
     Scenario: NM - hsr - PRP protocol enabled
     * Add "ethernet" connection named "port1" for device "eth1" with options
@@ -68,6 +69,7 @@ Feature: nmcli - hsr
 
     @rhelver+=10 @fedoraver+=44
     @ver+=1.55.5
+    @x86_64_only
     @hsr_proto_version
     Scenario: NM - hsr - PRP protocol enabled
     * Add "ethernet" connection named "port1" for device "eth1" with options
