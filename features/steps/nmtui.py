@@ -46,8 +46,11 @@ keys["F12"] = "\x1b\x5b\x32\x34\x7e"
 
 def get_cursored_screen(screen):
     myscreen_display = [line for line in screen.display]
+    # pyte cursor.x can equal screen width in "pending wrap" state (after
+    # writing the last column), clamp to the last valid index
+    cursor_x = min(screen.cursor.x, len(myscreen_display[screen.cursor.y]) - 1)
     lst = [item for item in myscreen_display[screen.cursor.y]]
-    lst[screen.cursor.x] = "\u2588"
+    lst[cursor_x] = "\u2588"
     myscreen_display[screen.cursor.y] = "".join(lst)
     return myscreen_display
 
