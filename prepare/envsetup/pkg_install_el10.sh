@@ -1,8 +1,6 @@
 install_el10_packages () {
-    # Enable EPEL but on s390x
-    if ! uname -a |grep -q s390x; then
-        [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
-    fi
+    # Enable EPEL
+    [ -f /etc/yum.repos.d/epel.repo ] || rpm -i http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
 
     # Epel release is a bit crippled in 10.1, let's fix minor versions
     # Seems to be the case also for RHEL10.0 now
@@ -11,7 +9,6 @@ install_el10_packages () {
     fi
 
     dnf makecache
-
 
     # TODO remove when the issue with resolv.conf symlink is fixed
     dnf -y install systemd-resolved
@@ -26,13 +23,8 @@ install_el10_packages () {
     # Dnf more deps
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager file initscripts perl-IO-Tty python3-libnmstate python3-pyyaml \
-        rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon "
-
-    # Install non distro deps
-    # TODO install from epel once epel-10 is live
-    PKGS_INSTALL="$PKGS_INSTALL \
-        $KOJI/tcpreplay/4.4.4/5.fc40/$(arch)/tcpreplay-4.4.4-5.fc40.$(arch).rpm \
-        $KOJI/libdnet/1.17.0/3.fc40/$(arch)/libdnet-1.17.0-3.fc40.$(arch).rpm"
+        rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon \
+        tcpreplay libdnet valgrind-gdb util-linux"
 
     # Non ditro deps - not even in epel
     PKGS_INSTALL="$PKGS_INSTALL \
@@ -41,13 +33,6 @@ install_el10_packages () {
         $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-server-4.4.3-13.P1.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/$(arch)/dhcp-relay-4.4.3-13.P1.fc40.$(arch).rpm \
         $KOJI/dhcp/4.4.3/13.P1.fc40/noarch/dhcp-common-4.4.3-13.P1.fc40.noarch.rpm"
-
-    # Valgrind vgdb was split to different RPM not yet in repo
-    PKGS_INSTALL="$PKGS_INSTALL \
-        $KHUB/valgrind/3.24.0/6.el10/$(arch)/valgrind-gdb-3.24.0-6.el10.$(arch).rpm"
-
-    # Install util-linux deps to avoid RHEL-32647
-    PKGS_UPGRADE="$PKGS_UPGRADE $(contrib/utils/koji_links.sh util-linux 2.40)"
 
     # Install centos deps
     if grep -q -e 'CentOS' /etc/redhat-release; then
