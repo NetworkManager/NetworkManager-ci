@@ -1472,16 +1472,27 @@ def libreswan_ng_setup(context, ipsec_type):
 
     # Clone nmstate project, if not already done
     base = "contrib/ipsec/nmstate"
-    if not os.path.isfile("/tmp/nmstate_ipsec_updated"):
-        nmci.process.run(f"rm -rf {base}")
-        nmci.process.run(
-            "git clone https://github.com/nmstate/nmstate.git",
-            cwd="contrib/ipsec",
-            ignore_stderr=True,
-            timeout=40,
-        )
-        # Mark setup complete
-        nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
+    if not os.path.exists(f"{base}/.git"):
+        if os.path.exists(base):
+            raise ValueError(f"{base} exists but is not a Git checkout")
+        for attempt in range(1, 4):
+            try:
+                nmci.process.run(
+                    "git clone https://github.com/nmstate/nmstate.git",
+                    cwd="contrib/ipsec",
+                    ignore_returncode=False,
+                    ignore_stderr=True,
+                    timeout=40,
+                )
+            except Exception:
+                # Remove an incomplete clone before retrying.
+                nmci.process.run(f"rm -rf {base}", ignore_returncode=False)
+                if attempt == 3:
+                    raise
+                print(f"nmstate clone attempt {attempt} failed; retrying in 60 seconds")
+                time.sleep(60)
+            else:
+                break
 
     # We need to run this and expect "env ready" message
     context.ipsec_proc = nmci.pexpect.pexpect_service(
