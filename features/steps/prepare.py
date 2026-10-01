@@ -1483,8 +1483,6 @@ def libreswan_ng_setup(context, ipsec_type):
         # Mark setup complete
         nmci.util.file_set_content("/tmp/nmstate_ipsec_updated")
 
-    pluto_journal = nmci.pexpect.pexpect_spawn("journalctl -f -n 0 -t pluto")
-
     # We need to run this and expect "env ready" message
     context.ipsec_proc = nmci.pexpect.pexpect_service(
         f"python3l contrib/ipsec/ipsec_setup.py {ipsec_type}",
@@ -1534,11 +1532,17 @@ def libreswan_ng_setup(context, ipsec_type):
     # Wait until env is ready
     context.ipsec_proc.expect("env ready", timeout=60)
 
-    # Secondaries might be slower in writing the config file where we read
-    # the certificate info from - wait until pluto starts
+    # Query the client daemon instead of waiting for a one-time startup log.
     with nmci.util.start_timeout() as t:
-        pluto_journal.expect("listening for IKE messages")
-        print(f"pluto started in {t.elapsed_time():.3f}s")
+        nmci.util.wait_for(
+            lambda: nmci.process.run(
+                "ipsec whack --status", ignore_returncode=False, timeout=5
+            ),
+            timeout=30,
+            poll_sleep_time=1,
+            op_name="client Pluto to answer status queries",
+        )
+        print(f"pluto ready in {t.elapsed_time():.3f}s")
 
     import yaml
 
