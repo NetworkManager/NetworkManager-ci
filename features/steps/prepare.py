@@ -1478,7 +1478,14 @@ def libreswan_ng_setup(context, ipsec_type):
         for attempt in range(1, 4):
             try:
                 nmci.process.run(
-                    "git clone https://github.com/nmstate/nmstate.git",
+                    [
+                        "git",
+                        "clone",
+                        "--",
+                        os.environ.get("NMSTATE_REPO")
+                        or "https://github.com/nmstate/nmstate.git",
+                        "nmstate",
+                    ],
                     cwd="contrib/ipsec",
                     ignore_returncode=False,
                     ignore_stderr=True,

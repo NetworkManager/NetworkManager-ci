@@ -91,6 +91,38 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
   * there is a summary at the end
 
 
+### Source and artifact overrides
+
+Set these environment variables on the test or build machine to select mirrors.
+Remote launchers must forward them to that machine. Unset or empty variables keep
+the existing defaults; a failed override is not retried against a public source.
+
+* `NMSTATE_REPO` selects the Git repository used by the nmstate and IPsec test
+  setup. The checkout directory remains `nmstate`, even if the mirror has a
+  different repository name. The mirror must contain the branches and installed
+  package version tags needed by the tests.
+* `BUILD_REPO` selects the NetworkManager source repository for the CentOS CI
+  build script. `BUILD_SCRIPT_URL` independently selects the complete URL of
+  `build-from-source.sh`. Its default is
+  `${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh`;
+  set it separately when the Git endpoint does not provide that raw-file path.
+* `KOJI`, `BREW`, `FEDP`, `CBSC`, `KHUB`, and `MBOX` override the artifact bases in
+  `prepare/envsetup/utils.sh`. Use URLs without a trailing slash and retain each
+  source's directory layout. These cover Fedora Koji, Brew, the NM Fedorapeople
+  directory, CentOS CBS, CentOS Stream Koji, and CentOS Mbox, respectively.
+
+The nmstate subprocesses inherit the environment. With a supporting nmstate
+checkout, `CONTAINER_IMAGE`, `NMSTATE_SKIP_IMAGE_REBUILD=1`, and
+`NMSTATE_IPSEC_IMAGE` also select prebuilt test images and the IPsec fixture.
+
+These overrides do not provide a fully offline setup. EPEL and COPR configuration,
+pip indexes, direct RPM URLs in test hooks and repository files, other Git
+repositories, and test connectivity targets still need separate configuration or
+changes. Mirrors and images must be populated before an external outage.
+
+Run the source override tests locally with `python3 nmci/test_sources.py`.
+
+
 ### How to write a NMCI test
 
 > For a comprehensive reference covering the test architecture, CI pipeline,

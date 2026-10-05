@@ -1,10 +1,10 @@
 # Some URL shorteners
-KOJI="https://kojipkgs.fedoraproject.org/packages"
-BREW="http://download.devel.redhat.com/brewroot/vol"
-FEDP="https://vbenes.fedorapeople.org/NM"
-CBSC="https://cbs.centos.org/kojifiles/packages"
-KHUB="https://kojihub.stream.centos.org/kojifiles/packages"
-MBOX="https://koji.mbox.centos.org/pkgs/packages"
+KOJI="${KOJI:-https://kojipkgs.fedoraproject.org/packages}"
+BREW="${BREW:-http://download.devel.redhat.com/brewroot/vol}"
+FEDP="${FEDP:-https://vbenes.fedorapeople.org/NM}"
+CBSC="${CBSC:-https://cbs.centos.org/kojifiles/packages}"
+KHUB="${KHUB:-https://kojihub.stream.centos.org/kojifiles/packages}"
+MBOX="${MBOX:-https://koji.mbox.centos.org/pkgs/packages}"
 
 # DNF alias for image mode
 dnf=dnf

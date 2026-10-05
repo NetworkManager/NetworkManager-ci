@@ -4,6 +4,7 @@ BUILD_DIR="${BUILD_DIR:-/root/nm-build}"
 RPM_DIR="NetworkManager/contrib/fedora/rpm/latest/RPMS/"
 BUILD_ID="$1"
 BUILD_REPO="${BUILD_REPO:-https://github.com/NetworkManager/NetworkManager.git}"
+BUILD_SCRIPT_URL="${BUILD_SCRIPT_URL:-${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh}"
 BUILD_SNAPSHOT="$2"
 ARCH="${ARCH:-`arch`}"
 WITH_DEBUG="${WITH_DEBUG:-yes}"
@@ -18,7 +19,7 @@ rm -rf /etc/yum.repos.d/CentOS-Media.repo
 
 RC=1
 # Get a build script from NM repo
-if wget ${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh -O /root/nm-build-from-source.sh; then
+if wget "$BUILD_SCRIPT_URL" -O /root/nm-build-from-source.sh; then
     # Build NM
     BUILD_REPO=$BUILD_REPO \
     WITH_DEBUG=$WITH_DEBUG \

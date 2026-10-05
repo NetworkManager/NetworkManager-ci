@@ -1362,7 +1362,13 @@ def run_nmstate(context, log_file):
     nmci.util.directory_remove("/tmp/nmstate", recursive=True)
     # Use temporary repo to try some changes in dnf
     nmci.process.run_stdout(
-        "git clone https://github.com/nmstate/nmstate.git /tmp/nmstate",
+        [
+            "git",
+            "clone",
+            "--",
+            os.environ.get("NMSTATE_REPO") or "https://github.com/nmstate/nmstate.git",
+            "/tmp/nmstate",
+        ],
         ignore_stderr=True,
         timeout=20,
     )
@@ -1455,7 +1461,13 @@ def run_nmstate_from_copr(context, nmstate_copr, log_file):
     nmci.veth.wait_for_testeth0()
     nmci.util.directory_remove("/tmp/nmstate", recursive=True)
     nmci.process.run_stdout(
-        "git clone https://github.com/nmstate/nmstate.git /tmp/nmstate",
+        [
+            "git",
+            "clone",
+            "--",
+            os.environ.get("NMSTATE_REPO") or "https://github.com/nmstate/nmstate.git",
+            "/tmp/nmstate",
+        ],
         ignore_stderr=True,
         timeout=20,
     )
