@@ -135,7 +135,7 @@ Feature: nmcli: gsm
     * Bring "up" connection "gsm"
     * Wait for "5" seconds
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-    And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
+    And "default" is stable with command "ip r |grep 120" for "30" seconds within "120" seconds
     Then "default" is visible with command "ip r |grep 120" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 120"
 
