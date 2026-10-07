@@ -63,16 +63,16 @@ Feature: nmcli: gsm
     Then "gsm.username:\s+user" is visible with command "nmcli connection show gsm --show-secrets"
     Then "gsm.apn:internet" is visible with command "nmcli -t connection show gsm --show-secrets"
 
-
     * Wait for "5" seconds
     * Note the output of "nmcli -g GENERAL.DEVICES connection show gsm" as value "gsm_device" retrying for "10" seconds
+
     * Bring "down" connection "gsm"
+    * Wait for "5" seconds
+
     * Bring "up" connection "gsm" for "<noted:gsm_device>" device
     Then "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
     # Workaround
-    * Wait for "5" seconds
-
-    And "default" is visible with command "ip r |grep 700"
+     And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
     * Ping "8.8.8.8" "7" times
 
 
@@ -85,10 +85,8 @@ Feature: nmcli: gsm
      * Bring "down" connection "gsm"
     Then "GENERAL.STATE:.*activated" is not visible with command "nmcli con show gsm" in "20" seconds
     # Workaround
-    * Wait for "10" seconds
-
-     And "default" is not visible with command "ip r |grep 700"
-     And Unable to ping "8.8.8.8"
+    And "default" is not visible with command "ip r |grep 700"
+    And Unable to ping "8.8.8.8"
 
 
     @gsm
@@ -113,6 +111,7 @@ Feature: nmcli: gsm
     * Modify connection "gsm" changing options "gsm.mtu 1430"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+     And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
      And "mtu 1430" is visible with command "ip a s |grep -v -e lo -e eth|grep mtu" in "5" seconds
      And "mtu 1430" is visible with command "nmcli |grep gsm"
      * Modify connection "gsm" changing options "gsm.mtu 1500"
@@ -129,12 +128,14 @@ Feature: nmcli: gsm
     Scenario: nmcli - gsm - route metric
     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
-    When "default" is visible with command "ip r |grep 700" in "20" seconds
+    When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
     And "proto .* scope" is visible with command "ip r |grep 700"
     * Modify connection "gsm" changing options "ipv4.route-metric 120"
     * Bring "up" connection "gsm"
     * Wait for "5" seconds
-    When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "20" seconds
+    When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
+    And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
     Then "default" is visible with command "ip r |grep 120" in "20" seconds
     And "proto .* scope" is visible with command "ip r |grep 120"
 
@@ -212,7 +213,6 @@ Feature: nmcli: gsm
     * Add "gsm" connection named "gsm" for device "\*" with options "autoconnect no apn internet"
     * Bring "up" connection "gsm"
     When "GENERAL.STATE:.*activated" is visible with command "nmcli con show gsm" in "60" seconds
-     And "default" is visible with command "ip r |grep 700"
-    * Bring "up" connection "gsm"
+    And "default" is stable with command "ip r |grep 700" for "30" seconds within "120" seconds
     Then "full" is visible with command "nmcli g" in "80" seconds
      And Ping "nix.cz" "7" times
