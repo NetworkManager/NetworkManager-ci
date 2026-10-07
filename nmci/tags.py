@@ -336,6 +336,7 @@ _register_tag("captive_portal", captive_portal_bs, captive_portal_as)
 
 
 def gsm_bs(context, scenario):
+
     if context.process.systemctl("is-active ModemManager").returncode != 0:
         context.process.systemctl("restart ModemManager")
 
@@ -347,7 +348,7 @@ def gsm_bs(context, scenario):
     scenario.name += " - " + context.modem_str
 
     if not os.path.isfile("/tmp/usb_hub"):
-        nmci.gsm.reinitialize_devices()
+        nmci.gsm.wait_for_interfaces()
 
     print("bringing down testeth0")
     context.process.nmcli_force("con down testeth0")

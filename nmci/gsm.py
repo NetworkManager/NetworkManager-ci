@@ -2,6 +2,7 @@ import re
 import os
 import time
 import fcntl
+import subprocess
 
 import nmci
 
@@ -171,6 +172,59 @@ def find_modem():
                     return f"USB ID {key} {value}"
 
     return "USB ID 0000:0000 Modem Not in List"
+
+
+def restart_modem_manager():
+    """Restarts the ModemManager service using systemctl."""
+    print("Restarting ModemManager...")
+    try:
+        subprocess.run(["sudo", "systemctl", "restart", "ModemManager"], check=True)
+    except subprocess.SubprocessError as e:
+        print(f"Failed to restart ModemManager: {e}")
+
+
+def wait_for_interfaces(
+    targets={"cdc-wdm0", "cdc-wdm1"}, timeout=120, restart_delay=60, poll_interval=2
+):
+    start_time = time.time()
+    modem_manager_restarted = False
+
+    while time.time() - start_time < timeout:
+        try:
+            result = subprocess.run(
+                ["nmcli", "-t", "-f", "DEVICE", "device"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+
+            # Strip all leading/trailing whitespace
+            present_devices = {
+                line.strip() for line in result.stdout.splitlines() if line.strip()
+            }
+
+            # Check if target interfaces are present
+            if targets.issubset(present_devices):
+                elapsed = int(time.time() - start_time)
+                print(f"Success! Found interfaces {targets} in {elapsed}s.")
+                return True
+
+            elapsed = time.time() - start_time
+            # Restart ModemManager once after restart_delay seconds if interfaces are still missing
+            if elapsed >= restart_delay and not modem_manager_restarted:
+                print(
+                    f"Interfaces missing after {int(elapsed)}s. Triggering ModemManager restart..."
+                )
+                restart_modem_manager()
+                modem_manager_restarted = True
+
+        except (subprocess.SubprocessError, FileNotFoundError) as e:
+            print(f"Execution error: {e}")
+
+        time.sleep(poll_interval)
+
+    print(f"Timeout ({timeout}s) reached before interfaces {targets} appeared.")
+    return False
 
 
 def get_modem_info(context):

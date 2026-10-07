@@ -830,6 +830,12 @@ When to extract information about a modem?
 * **Return type:**
   str
 
+### nmci.gsm.restart_modem_manager()
+
+Restarts the ModemManager service using systemctl.
+
+### nmci.gsm.wait_for_interfaces(targets={'cdc-wdm0', 'cdc-wdm1'}, timeout=120, restart_delay=60, poll_interval=2)
+
 ### nmci.gsm.get_modem_info(context)
 
 Get a list of connected modem via command `mmcli -L`.
