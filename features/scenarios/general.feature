@@ -3943,12 +3943,12 @@ Feature: nmcli - general
 
 
     @rhelver+=9
-    @ver-=1.55.4
-    @ver-=1.54.1
     @dbusmock_unittests
     Scenario: Execute dbusmock unittests
+    # Pinned to tag 0.38.1 (fixes "asleep"/"network off" mismatch from NM!2284, see NM-ci!2002); bump deliberately, never track a moving branch.
     * Cleanup execute "rm -rf .tmp/python-dbusmock"
     * Execute "cd .tmp; git clone https://github.com/martinpitt/python-dbusmock"
+    * Execute "cd .tmp/python-dbusmock; git checkout --detach ee00606c4a57d83028ae2df71d47f6bda07741f8"
     * Execute "cd .tmp/python-dbusmock; python3l -m pytest tests/test_networkmanager.py"
 
 
