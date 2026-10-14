@@ -5733,6 +5733,12 @@ link:
     order+: 28012
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9146
+/openvpn_secret_hint_tag_add:
+    id: 21e35588-d829-500b-aa84-357597b12eb0
+    order+: 28013
+/openvpn_secret_flags_hint_tag_activate:
+    id: 2e04df3c-b9e9-5978-99a5-86176b31843e
+    order+: 28014
 /vpnc_add_profile:
     tag: ['gate']
     id: 2db97311-de02-5858-a112-894b8f75aa1c

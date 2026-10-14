@@ -2580,6 +2580,10 @@ testmapper:
         feature: openvpn
     - openvpn_cert_permissions:
         feature: openvpn
+    - openvpn_secret_hint_tag_add:
+        feature: openvpn
+    - openvpn_secret_flags_hint_tag_activate:
+        feature: openvpn
     - vpnc_add_profile:
         feature: vpnc
         tags: gate
