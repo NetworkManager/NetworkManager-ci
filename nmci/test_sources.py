@@ -161,6 +161,124 @@ class SourceTests(unittest.TestCase):
                     else:
                         self.assertEqual(len(calls), 1 if fail else 2)
 
+    def test_shell_clone(self):
+        repository = self.directory / "mirror with spaces" / "different-name.git"
+        repository.parent.mkdir()
+        self.run_command(["git", "init", str(repository)], check=True)
+        self.run_command(
+            [
+                "git",
+                "-C",
+                str(repository),
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.invalid",
+                "commit",
+                "--allow-empty",
+                "-m",
+                "fixture",
+            ],
+            check=True,
+        )
+        self.run_command(["git", "-C", str(repository), "tag", "v2.2.1"], check=True)
+        config = self.directory / "gitconfig"
+        self.run_command(
+            [
+                "git",
+                "config",
+                "--file",
+                str(config),
+                "url.{}.insteadOf".format(repository),
+                "https://github.com/nmstate/nmstate",
+            ],
+            check=True,
+        )
+        wrapper = r"""
+dnf() { return 0; }
+grep() { return 1; }
+rpm() {
+    if [ "$*" = '-q nmstate' ]; then
+        return "$NMCI_TEST_RPM_RC"
+    fi
+    printf '%s' "$NMCI_TEST_VERSION"
+    return "$NMCI_TEST_VERSION_RC"
+}
+test() {
+    if [ "$*" = '-f /tmp/nmstate_setup.txt' ]; then
+        builtin test -f "$NMCI_TEST_DIR/complete"
+    else
+        builtin test "$@"
+    fi
+}
+touch() {
+    [ "$*" = '/tmp/nmstate_setup.txt' ] || return 99
+    command touch "$NMCI_TEST_DIR/complete"
+}
+git() {
+    if [ "$1" = clone ]; then
+        printf '%s\0' "$@" > "$NMCI_TEST_DIR/clone"
+    fi
+    command git "$@"
+}
+source "$1"
+"""
+        for index, (repo, version, rpm_rc, version_rc, expected_rc) in enumerate(
+            (
+                (None, "2.2.1", 0, 0, 0),
+                ("", "2.2.1", 0, 0, 0),
+                (str(repository), "2.2.1", 0, 0, 0),
+                (str(self.directory / "absent.git"), "2.2.1", 0, 0, 128),
+                (str(repository), "absent", 0, 0, 1),
+                (str(repository), "2.2.1", 7, 0, 7),
+                (str(repository), "2.2.1", 0, 8, 8),
+            )
+        ):
+            with self.subTest(repository=repo, version=version, rpm_rc=rpm_rc):
+                work = self.directory / ("shell-" + str(index))
+                work.mkdir()
+                env = {
+                    "GIT_CONFIG_GLOBAL": str(config),
+                    "NMCI_TEST_DIR": str(work),
+                    "NMCI_TEST_VERSION": version,
+                    "NMCI_TEST_RPM_RC": str(rpm_rc),
+                    "NMCI_TEST_VERSION_RC": str(version_rc),
+                }
+                if repo is not None:
+                    env["NMSTATE_REPO"] = repo
+                result = self.run_command(
+                    [
+                        "bash",
+                        "-c",
+                        wrapper,
+                        "bash",
+                        str(ROOT / "prepare/nmstate.sh"),
+                    ],
+                    env=env,
+                    cwd=str(work),
+                )
+                self.assertEqual(result.returncode, expected_rc, result.stderr)
+                self.assertEqual((work / "complete").exists(), expected_rc == 0)
+                if rpm_rc:
+                    self.assertFalse((work / "clone").exists())
+                    self.assertFalse((work / "nmstate").exists())
+                else:
+                    self.assertEqual(
+                        (work / "clone").read_text().split("\0")[:-1],
+                        [
+                            "clone",
+                            "--",
+                            repo or "https://github.com/nmstate/nmstate",
+                            "nmstate",
+                        ],
+                    )
+                if expected_rc == 0:
+                    head = self.run_command(
+                        ["git", "-C", str(work / "nmstate"), "describe", "--tags"],
+                        check=True,
+                    )
+                    self.assertEqual(head.stdout.strip(), "v2.2.1")
+
     def test_artifact_bases(self):
         script = 'source "$1"; printf "%s\\0" "$KOJI" "$BREW" "$FEDP" "$CBSC" "$KHUB" "$MBOX"'
         for overrides in (

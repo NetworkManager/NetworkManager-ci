@@ -24,11 +24,13 @@ else
 
     rpm -q nmstate; RC=$?
 
-    rm -rf nmstate
-    git clone https://github.com/nmstate/nmstate
-    pushd nmstate
-        git checkout v$(rpm -q --queryformat '%{VERSION}' nmstate)
-    popd
+    if test $RC -eq 0; then
+        rm -rf nmstate &&
+            git clone -- "${NMSTATE_REPO:-https://github.com/nmstate/nmstate}" nmstate &&
+            version=$(rpm -q --queryformat '%{VERSION}' nmstate) &&
+            git -C nmstate checkout "v$version"
+        RC=$?
+    fi
 
     if test $RC -eq 0; then
         touch /tmp/nmstate_setup.txt

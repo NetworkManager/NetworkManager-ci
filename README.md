@@ -93,34 +93,27 @@ This repo contains a set of integration tests for NetworkManager and CentOS 8 St
 
 ### Source and artifact overrides
 
-Set these environment variables on the test or build machine to select mirrors.
-Remote launchers must forward them to that machine. Unset or empty variables keep
-the existing defaults; a failed override is not retried against a public source.
+Export these variables on the worker. Unset or empty values use the defaults.
+Failed clones and bootstrap downloads stop setup without public fallback.
 
-* `NMSTATE_REPO` selects the Git repository used by the nmstate and IPsec test
-  setup. The checkout directory remains `nmstate`, even if the mirror has a
-  different repository name. The mirror must contain the branches and installed
-  package version tags needed by the tests.
-* `BUILD_REPO` selects the NetworkManager source repository for the CentOS CI
-  build script. `BUILD_SCRIPT_URL` independently selects the complete URL of
-  `build-from-source.sh`. Its default is
-  `${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh`;
-  set it separately when the Git endpoint does not provide that raw-file path.
-* `KOJI`, `BREW`, `FEDP`, `CBSC`, `KHUB`, and `MBOX` override the artifact bases in
-  `prepare/envsetup/utils.sh`. Use URLs without a trailing slash and retain each
-  source's directory layout. These cover Fedora Koji, Brew, the NM Fedorapeople
-  directory, CentOS CBS, CentOS Stream Koji, and CentOS Mbox, respectively.
+* `NMSTATE_REPO`: nmstate Git repository. Include the branches and package
+  version tags used by the tests.
+* `BUILD_REPO`: NetworkManager repository for CentOS CI. `BUILD_SCRIPT_URL`
+  defaults to `${BUILD_REPO%.git}/raw/automation/contrib/rh-bkr/build-from-source.sh`;
+  override it if the mirror uses a different raw-file URL.
+* Artifact URL bases: `KOJI` (Fedora Koji), `BREW` (Brew), `FEDP` (NM Fedorapeople),
+  `CBSC` (CentOS CBS), `KHUB` (CentOS Stream Koji), `MBOX` (CentOS Mbox).
+  Keep the source directory layout and omit trailing slashes.
 
-The nmstate subprocesses inherit the environment. With a supporting nmstate
-checkout, `CONTAINER_IMAGE`, `NMSTATE_SKIP_IMAGE_REBUILD=1`, and
-`NMSTATE_IPSEC_IMAGE` also select prebuilt test images and the IPsec fixture.
+With a nmstate version that supports them, use `CONTAINER_IMAGE` and
+`NMSTATE_IPSEC_IMAGE` to select test images. With `CI=true`,
+`NMSTATE_SKIP_IMAGE_REBUILD=1` skips the Git baseline check and image rebuild.
+`NMSTATE_IMAGE_MIRROR=registry.example.org/mirror` enables fallback after failed
+pulls from `quay.io/nmstate/`, including IPsec. Tags and digests are preserved;
+other image prefixes are unchanged.
 
-These overrides do not provide a fully offline setup. EPEL and COPR configuration,
-pip indexes, direct RPM URLs in test hooks and repository files, other Git
-repositories, and test connectivity targets still need separate configuration or
-changes. Mirrors and images must be populated before an external outage.
-
-Run the source override tests locally with `python3 nmci/test_sources.py`.
+Private registries need network access, CA trust and credentials on the worker
+and inside the test container. Other package and source downloads are unchanged.
 
 
 ### How to write a NMCI test
