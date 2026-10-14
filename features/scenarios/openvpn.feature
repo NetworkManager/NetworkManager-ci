@@ -238,3 +238,32 @@
     Then "IP4.ADDRESS.*172.31.70.*/32" is visible with command "nmcli c show openvpn"
     Then "IP6.ADDRESS" is not visible with command "nmcli c show openvpn |grep -v fe80::"
      And "default" is visible with command "ip r |grep ^default | grep -v eth0"
+
+
+    @RHEL-220661
+    @ver+=1.59.2
+    @openvpn_secret_hint_tag_add
+    Scenario: nmcli - openvpn - add connection with a hint-tag prefixed secret
+    * Add "vpn" connection named "vpn-test" with options
+      """
+      vpn-type openvpn
+      vpn.secrets 'x-dynamic-challenge:challenge-response=dummy-otp'
+      """
+    Then "challenge-response-flags = 2" is visible with command "nmcli -g vpn.data connection show vpn-test"
+     And "x-dynamic-challenge" is not visible with command "nmcli -s -g vpn.data,vpn.secrets connection show vpn-test"
+     And "/etc/NetworkManager/system-connections/vpn-test.nmconnection" is file in "5" seconds
+     And "x-dynamic-challenge" is not visible with command "cat /etc/NetworkManager/system-connections/vpn-test.nmconnection"
+     And "dummy-otp" is not visible with command "cat /etc/NetworkManager/system-connections/vpn-test.nmconnection"
+
+
+    @RHEL-220661
+    @ver+=1.59.2
+    @openvpn_secret_flags_hint_tag_activate
+    Scenario: nmcli - openvpn - activate connection with a hint-tag prefixed secret flag
+    * Add "vpn" connection named "vpn-crash" with options
+      """
+      vpn-type openvpn
+      vpn.data 'remote=10.0.0.1, connection-type=password, x-dynamic-challenge:foo-flags=0'
+      """
+    # This will wait for 30s on build's without fix and exit immediately otherwise
+    Then "activation failed: No valid secrets" is visible with command "nmcli --wait 30 connection up id vpn-crash"
