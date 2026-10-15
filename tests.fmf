@@ -2671,207 +2671,210 @@ link:
     order+: 8134
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4530
+/ipv4_manual_routes_reapply_keep_address:
+    id: 2f208a0e-9511-505e-8cdc-ad34d231569c
+    order+: 8135
 /ipv4_required_timeout_set:
     id: 88644508-3e55-56bd-a0e3-c6957ae2b973
-    order+: 8135
+    order+: 8136
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4531
 /ipv4_check_addr_order:
     id: 04dd5c8b-a0d6-5b06-9be4-7a48cc5e1141
-    order+: 8136
+    order+: 8137
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4532
 /ipv4_reapply_preserve_external_ip:
     id: 38117048-9c35-5796-be19-bcb1410bfcd7
-    order+: 8137
+    order+: 8138
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4533
 /dhcp_internal_ack_after_nak:
     id: 56e0cd49-21d1-5aed-8599-3413a09129ef
-    order+: 8138
+    order+: 8139
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4534
 /dhcp_internal_nak_in_renewing:
     id: 330fd62c-735a-56b4-aa6c-9dd66bea1d52
-    order+: 8139
+    order+: 8140
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4535
 /ipv4_mptcp_no_flags_no_defroute:
     id: a4d2df1b-c7bb-5152-9953-ef1884642d98
-    order+: 8140
+    order+: 8141
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4536
 /ipv4_mptcp_no_flags:
     id: e0f1743e-97ce-58b2-a5d8-162fc9b1a8e0
-    order+: 8141
+    order+: 8142
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4537
 /ipv4_mptcp_flags_disabled:
     id: 1e014d20-fc06-5abf-8265-ca1a1ce5128a
-    order+: 8142
+    order+: 8143
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4538
 /ipv4_mptcp_flags_enabled:
     id: c0bc63c5-d897-5471-8c1e-064ab89e4602
-    order+: 8143
+    order+: 8144
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4539
 /ipv4_mptcp_flags_0x2_0x4:
     id: 1f15993d-451b-50c2-869d-ed9cabc74cf5
-    order+: 8144
+    order+: 8145
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4540
 /ipv4_mptcp_flags_0x2_0x8:
     id: d861322d-3ae4-5b21-bcdd-3d4fdafe1a97
-    order+: 8145
+    order+: 8146
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4541
 /ipv4_mptcp_flags_0x10:
     id: dd1de6c1-45f0-583b-a82b-779a1a41f48e
-    order+: 8146
+    order+: 8147
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4542
 /ipv4_mptcp_flags_0x20:
     id: 54d9c93f-a3bc-5d4d-8809-29e51f0fc969
-    order+: 8147
+    order+: 8148
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4543
 /ipv4_mptcp_flags_0x40:
     id: bc75930b-2491-5c82-ac98-7dac6e3c196a
-    order+: 8148
+    order+: 8149
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4544
 /ipv4_mptcp_flags_0x80:
     id: e7ef54dc-0571-500e-99d0-c044c58487f2
-    order+: 8149
+    order+: 8150
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4545
 /ipv4_mptcp_flags_0x100:
     id: c657912a-440c-534b-90a2-4c1f36a0a7a5
-    order+: 8150
+    order+: 8151
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5960
 /ipv4_mptcp_reapply_change_flag:
     id: f8b72145-6c7b-5042-9543-f1400eba22bc
-    order+: 8151
+    order+: 8152
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4546
 /ipv4_mptcp_remove_endpoints:
     id: 4fc3e966-1bcc-5ee9-a097-2e9c8f287bc4
-    order+: 8152
+    order+: 8153
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4547
 /ipv4_mptcp_endpoints_dad:
     id: 698f1d55-2186-576d-9af5-8f9b2f9f3534
-    order+: 8153
+    order+: 8154
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4548
 /ipv4_prefsrc_route:
     id: 74a80565-bfb9-5c50-adc1-dfcb9ae6ccfb
-    order+: 8154
+    order+: 8155
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4549
 /ipv4_no_route_without_addr:
     id: b04b8055-29ca-5dba-9012-bbfc551e395c
-    order+: 8155
+    order+: 8156
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4550
 /ipv4_keep_track_l3_despite_too_many_netlink:
     id: 179b9d1f-c24b-519b-b6c6-cd80532add59
-    order+: 8156
+    order+: 8157
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4551
 /ipv4_reapply_hostname_from_dhcp:
     id: 392606b2-dc77-5a02-92c0-1c1da13f2834
-    order+: 8157
+    order+: 8158
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4552
 /ipv4_allow_static_routes_without_address:
     id: d3878942-04fe-52ba-a9c0-4a9a3717660d
-    order+: 8158
+    order+: 8159
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4553
 /ipv4_dhcp_dscp:
     id: bb085445-70ba-596d-905b-01db3e083e1d
-    order+: 8159
+    order+: 8160
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4554
 /ipv4_renew_lease_after_dhcp_restart:
     id: c50b19bf-bbda-5664-95c5-aa4961a0950a
-    order+: 8160
+    order+: 8161
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4555
 /ipv4_dhcp_send_release:
     id: 0f2b3473-0b57-5a1e-83d4-17f9c32e9ea6
-    order+: 8161
+    order+: 8162
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4556
 /ipv4_dhcp_send_release_reactivate:
     id: 095ab99c-7abe-50dd-954f-1361ba572f21
-    order+: 8162
+    order+: 8163
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4557
 /ipv4_dhcp_send_release_disabled:
     id: decf0ab0-94f9-5e97-9e11-38c0fde9f4ec
-    order+: 8163
+    order+: 8164
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4558
 /ipv4_set_dhcp_send_hostname_global_config:
     id: 499344bc-f987-505c-b90c-88597a15b847
-    order+: 8164
+    order+: 8165
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4559
 /ipv4_dhcp_ipv6_only_preferred:
     id: c6335daa-c5c3-5b5b-9f51-6c6dff4c34db
-    order+: 8165
+    order+: 8166
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4560
 /ipv4_dhcp_ipv6_only_preferred_global:
     id: cae974d5-75b7-5e2b-825a-e5d8d1c7cb7e
-    order+: 8166
+    order+: 8167
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4561
 /ipv4_add_frr_routes_just_once:
     id: 4ccb601c-63b6-5b6b-bfe3-8251bc71c404
-    order+: 8167
+    order+: 8168
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4562
 /ipv4_add_dns_routes:
     id: bfd0c5b1-1f96-5f3d-9f40-f1d0be9936f1
-    order+: 8168
+    order+: 8169
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4563
 /ipv4_add_dns_routes_global:
     id: e9139818-8e14-5828-a57f-b3f7b3631128
-    order+: 8169
+    order+: 8170
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4564
 /ipv4_forwarding_with_sysctl_default_forwarding_disabled:
     id: b98e2ae9-ad1f-5440-a117-c526a0e871fe
-    order+: 8170
+    order+: 8171
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4565
 /ipv4_forwarding_with_sysctl_default_forwarding_enabled:
     id: e4d494d1-8e8f-547f-a6c7-cc3c1511d84b
-    order+: 8171
+    order+: 8172
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4566
 /ipv4_shared_connection_with_sysctl_default_forwarding_disabled:
     id: 7c8bd454-090d-56b4-9ac3-1e4f1acbbcf2
-    order+: 8172
+    order+: 8173
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4567
 /ipv4_multiple_shared_connections_with_sysctl_default_forwarding_disabled:
     id: 40dd8dfd-6a2f-5f7b-9236-8b7b3effcd9d
-    order+: 8173
+    order+: 8174
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4568
 /ipv4_dhclient_mud_url_CVE_2026_10805:
     id: 4d344ad2-bf06-5910-a629-1a901cf24c30
-    order+: 8174
+    order+: 8175
 /ipv4_unreachable_gateway_warning:
     id: d5bec33e-d868-5b77-a8fb-411e541836b3
-    order+: 8175
+    order+: 8176
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9178
 /vlan_add_default_device:
