@@ -50,33 +50,27 @@ configure_networking () {
     if [ $dcb_inf_wol_sriov -eq 1 ]; then
         # We don't need it now for infiniband devices
         if [[ $1 != *inf_* ]]; then
-            driver="unknown"
-            nmcli |grep mlx5 |grep sriov
-            if [ $? -eq 0 ];
-                then driver="mlx5_core"
-            fi
-            nmcli |grep i40e |grep sriov
-            if [ $? -eq 0 ];
-                then driver="i40e"
-            fi
-            # We need to have standard device name
-            device_names=$(nmcli device |grep ethernet | grep -oP '^\S+' | while read -r name; do \
-                        ethtool -i "$name" 2>/dev/null | grep -q "$driver" && echo "$name"; \
-                        done)
+            # Find the first ethernet device driven by a supported HW driver
+            device=""
+            for name in $(nmcli -t -f DEVICE,TYPE device | awk -F: '$2=="ethernet"{print $1}'); do
+                drv=$(ethtool -i "$name" 2>/dev/null | awk -F': ' '/^driver:/{print $2}')
+                case "$drv" in
+                    mlx5_core|i40e|ice)
+                        device="$name"
+                        break
+                        ;;
+                esac
+            done
 
-            if [ "$driver" == "i40e" ]; then
-                device=$(echo $device_names | awk '{print $1}')
+            if [ -z "$device" ]; then
+                echo "WARNING: no DCB-capable NIC found (need mlx5_core/i40e/ice)"
+            else
+                standard_device="sriov_device"
+                ip link set $device down
+                ip link set $device name $standard_device
+                ip link set $standard_device up
+                nmcli con del $device
             fi
-            if [ "$driver" == "mlx5_core" ]; then
-                device=$(echo $device_names | awk '{print $1}')
-            fi
-            standard_device="sriov_device"
-            # Let's rename it to standard name
-            ip link set $device down
-            ip link set $device name $standard_device
-            ip link set $standard_device up
-
-            nmcli con del $device
         fi
         touch /tmp/nm_dcb_inf_wol_sriov_configured
     fi
