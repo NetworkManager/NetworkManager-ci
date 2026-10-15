@@ -126,29 +126,8 @@ install_plugins_dnf () {
 
 configure_nm_dcb () {
     [ -e /tmp/dcb_configured ] && return
-
-    #start dcb modules
-    yum -y install lldpad fcoe-utils
-    systemctl enable fcoe
-    systemctl start fcoe
-    systemctl enable lldpad
-    systemctl start lldpad
-
-    modprobe -r ixgbe; modprobe ixgbe
-    sleep 2
-
-    # "Finding and renaming all 'eth' network interfaces..."
-    # This is happening with ixgbe driver sometimes
-    for OLD_NAME in $(ip -br link | awk '$1 ~ /^eth/ {print $1}' | sort -V); do
-        NUM=$(echo $OLD_NAME | sed 's/eth//')
-        NEW_NAME="ens1f$NUM"
-
-        echo "Renaming $OLD_NAME to $NEW_NAME..."
-        sudo ip link set dev $OLD_NAME name $NEW_NAME
-    done
-
-    dcbtool sc p6p2 dcb on
-
+    # NM configures DCB via kernel dcb netlink API (iproute2 'dcb' tool).
+    # Device rename to sriov_device is handled by 03_configure_networking.sh.
     touch /tmp/dcb_configured
 }
 
