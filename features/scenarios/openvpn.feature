@@ -241,7 +241,7 @@
 
 
     @RHEL-220661
-    # @ver+=1.59.2
+    @ver+=1.59.2
     @openvpn_secret_hint_tag_add
     Scenario: nmcli - openvpn - add connection with a hint-tag prefixed secret
     * Add "vpn" connection named "vpn-test" with options
@@ -257,7 +257,7 @@
 
 
     @RHEL-220661
-    # @ver+=1.59.2
+    @ver+=1.59.2
     @openvpn_secret_flags_hint_tag_activate
     Scenario: nmcli - openvpn - activate connection with a hint-tag prefixed secret flag
     * Add "vpn" connection named "vpn-crash" with options
@@ -265,5 +265,5 @@
       vpn-type openvpn
       vpn.data 'remote=10.0.0.1, connection-type=password, x-dynamic-challenge:foo-flags=0'
       """
-    Then "activation failed" is visible with command "nmcli --wait 30 connection up id vpn-crash"
-     And "vpn-crash" is visible with command "nmcli -g NAME connection show"
+    # This will wait for 5s on build's without fix and exit immediately otherwise
+    Then "activation failed: No valid secrets" is visible with command "nmcli --wait 5 connection up id vpn-crash"
