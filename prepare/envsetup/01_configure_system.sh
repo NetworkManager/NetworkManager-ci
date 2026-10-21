@@ -103,3 +103,20 @@ EOF
 
     touch /tmp/nm_eth_configured_part1
 }
+
+configure_asan_preload () {
+    [ -e /tmp/nm_asan_compiled ] && return
+    readelf -d /usr/sbin/NetworkManager 2>/dev/null | grep -q libasan || return
+
+    libasan=$(ls /usr/lib64/libasan.so.* 2>/dev/null | head -1)
+    [ -z "$libasan" ] && return
+
+    mkdir -p /etc/systemd/system/NetworkManager.service.d
+    cat >> /etc/systemd/system/NetworkManager.service.d/90-nm-ci-override.conf <<EOF
+Environment=LD_PRELOAD=$libasan
+EOF
+    systemctl daemon-reload
+    systemctl restart NetworkManager
+
+    touch /tmp/nm_asan_compiled
+}

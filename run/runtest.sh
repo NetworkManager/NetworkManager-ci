@@ -335,6 +335,11 @@ if [ $conf_rc != 0 ]; then
     exit $conf_rc
 fi
 
+if [ -e /tmp/nm_asan_compiled ]; then
+    libasan=$(ls /usr/lib64/libasan.so.* 2>/dev/null | head -1)
+    [ -n "$libasan" ] && export LD_PRELOAD="$libasan" && export ASAN_OPTIONS=detect_leaks=0
+fi
+
 export COLUMNS="1024"
 export -f get_rhel_compose
 
