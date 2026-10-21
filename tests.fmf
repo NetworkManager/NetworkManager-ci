@@ -1953,6 +1953,9 @@ link:
     order+: 6122
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9180
+/ipv6_prefix_delegation_managed_pd_only:
+    id: 743d8479-8408-5477-8577-bae3d3440eba
+    order+: 6123
 /nmcli_general_correct_profile_activated_after_restart:
     tag: ['gate']
     id: 9c2b60db-da9c-5a7d-8398-2f746ab231e5

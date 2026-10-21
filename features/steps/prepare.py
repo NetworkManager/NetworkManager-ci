@@ -91,6 +91,8 @@ def config_dhcpv6_pd(context, mode, lease=None):
     elif mode == "dhcp-stateful":
         adv_managed = "on"
         dhcp_range = "range6 fc01::1000 fc01::ffff;"
+    elif mode == "dhcp-stateful-pd-only":
+        adv_managed = "on"
     else:
         assert False, f"unknown address configuration mode {mode}"
 
