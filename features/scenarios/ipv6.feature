@@ -1832,6 +1832,42 @@
      And  Execute "ip netns exec testY6_ns ping -c2 fc01::1"
 
 
+    @ver+=1.54.5 @ver+=1.56.2 @ver+=1.57.4
+    @internal_DHCP @dhcpd @rhelver+=8
+    @ipv6_prefix_delegation_managed_pd_only
+    Scenario: nmcli - ipv6 - managed DHCPv6 with a delegated prefix but no address
+    # https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/1948
+    * Prepare simulated test "testX6" device without DHCP
+    * Execute "ip -n testX6_ns addr add dev testX6p fc01::1/64"
+    * Prepare simulated test "testY6" device without DHCP
+    # Advertise M=1 without a SLAAC prefix or a DHCPv6 address pool.
+    * Configure dhcpv6 prefix delegation server with address configuration mode "dhcp-stateful-pd-only"
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+        """
+        ipv4.method disabled
+        ipv6.method auto
+        ipv6.route-metric 50
+        autoconnect no
+        """
+    * Add "ethernet" connection named "con_ipv62" for device "testY6" with options
+        """
+        ipv4.method disabled
+        ipv6.method shared
+        autoconnect no
+        """
+    # Share first: IA_PD is only requested for a shared device, and con_ipv6
+    # cannot activate before DHCPv6 returns the delegated prefix.
+    * Bring "up" connection "con_ipv62"
+    * Bring "up" connection "con_ipv6"
+    Then "ip6_prefix" is visible with command "nmcli -f DHCP6.OPTION device show testX6"
+    And "inet6" is not visible with command "ip -6 addr show dev testX6 scope global"
+    And "default via fe80:" is visible with command "ip -6 route show default dev testX6"
+    * Execute "ip netns exec testX6_ns ip route add fc01:bbbb::/32 via $(ip -6 addr show dev testX6 scope link | grep -o 'fe80[a-f0-9:]*') dev testX6p"
+    Then "inet6 fc01:bbbb:[a-f0-9:]+/64" is visible with command "ip -n testY6_ns addr show dev testY6p" in "20" seconds
+    And "tentative" is not visible with command "ip -n testY6_ns addr show dev testY6p" in "15" seconds
+    And Execute "ip netns exec testY6_ns ping -c2 fc01::1"
+
+
      @rhbz1755467
      @ver+=1.6
      @dhclient_DHCP @dhcpd @rhelver+=8
