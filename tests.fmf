@@ -971,6 +971,9 @@ link:
     order+: 4056
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4210
+/bridge_port_boolean_properties:
+    id: c3a5553a-7243-5579-9d8d-eb3e943fe23d
+    order+: 4057
 /add_default_team:
     id: 854c0fe3-8b32-5f2b-8fb0-528e9e33893d
     order+: 5000

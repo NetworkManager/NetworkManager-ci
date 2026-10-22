@@ -1307,3 +1307,98 @@ Feature: nmcli - bridge
     * Modify connection "dummy0+" changing options "bridge-port.vlans '300'"
     * Execute "nmcli device reapply dummy0"
     Then JSON "[{"ifname":"dummy0","vlans":[{"vlan":42,"flags":["PVID","Egress Untagged"]},{"vlan":300}]}]" is visible with command "bridge -j vlan show dev dummy0"
+
+
+    @ver+=1.59.2
+    @bridge_port_boolean_properties
+    Scenario: nmcli - bridge - bridge port boolean properties
+    * Cleanup connection "bridge" and device "br0"
+    * Cleanup connection "bridge-port" and device "eth4"
+    * Add "bridge" connection named "bridge" for device "br0" with options
+          """
+          autoconnect no
+          bridge.stp no
+          """
+    * Add "ethernet" connection named "bridge-port" for device "eth4" with options
+          """
+          autoconnect no
+          controller br0
+	  """
+    * Bring "up" connection "bridge"
+    * Bring "up" connection "bridge-port"
+    # Check defaults
+    Then " bcast_flood on" is visible with command "ip -d link show eth4"
+    Then " fastleave off" is visible with command "ip -d link show eth4"
+    Then " flood on" is visible with command "ip -d link show eth4"
+    Then " guard off" is visible with command "ip -d link show eth4"
+    Then " isolated off" is visible with command "ip -d link show eth4"
+    Then " learning on" is visible with command "ip -d link show eth4"
+    Then " locked off" is visible with command "ip -d link show eth4"
+    Then " mcast_flood on" is visible with command "ip -d link show eth4"
+    Then " mcast_to_unicast off" is visible with command "ip -d link show eth4"
+    Then " neigh_suppress off" is visible with command "ip -d link show eth4"
+    Then " neigh_vlan_suppress off" is visible with command "ip -d link show eth4"
+    Then " root_block off" is visible with command "ip -d link show eth4"
+    Then " vlan_tunnel off" is visible with command "ip -d link show eth4"
+    * Modify connection "bridge-port" changing options
+          """
+          bridge-port.bpdu-guard yes
+          bridge-port.broadcast-flood no
+          bridge-port.fast-leave yes
+          bridge-port.isolated yes
+          bridge-port.learning no
+          bridge-port.locked yes
+          bridge-port.multicast-flood no
+          bridge-port.multicast-to-unicast yes
+          bridge-port.neighbor-suppress yes
+          bridge-port.neighbor-vlan-suppress yes
+          bridge-port.root-block yes
+          bridge-port.unicast-flood no
+          bridge-port.vlan-tunnel yes
+          """
+    * Bring "down" connection "bridge-port"
+    * Bring "up" connection "bridge-port"
+    Then " guard on" is visible with command "ip -d link show eth4"
+    Then " bcast_flood off" is visible with command "ip -d link show eth4"
+    Then " fastleave on" is visible with command "ip -d link show eth4"
+    Then " isolated on" is visible with command "ip -d link show eth4"
+    Then " learning off" is visible with command "ip -d link show eth4"
+    Then " locked on" is visible with command "ip -d link show eth4"
+    Then " mcast_flood off" is visible with command "ip -d link show eth4"
+    Then " mcast_to_unicast on" is visible with command "ip -d link show eth4"
+    Then " neigh_suppress on" is visible with command "ip -d link show eth4"
+    Then " neigh_vlan_suppress on" is visible with command "ip -d link show eth4"
+    Then " root_block on" is visible with command "ip -d link show eth4"
+    Then " flood off" is visible with command "ip -d link show eth4"
+    Then " vlan_tunnel on" is visible with command "ip -d link show eth4"
+    * Modify connection "bridge-port" changing options
+          """
+          bridge-port.bpdu-guard no
+          bridge-port.broadcast-flood yes
+          bridge-port.fast-leave no
+          bridge-port.isolated no
+          bridge-port.learning yes
+          bridge-port.locked no
+          bridge-port.multicast-flood yes
+          bridge-port.multicast-to-unicast no
+          bridge-port.neighbor-suppress no
+          bridge-port.neighbor-vlan-suppress no
+          bridge-port.root-block no
+          bridge-port.unicast-flood yes
+          bridge-port.vlan-tunnel no
+          """
+    * Execute "nmcli device reapply eth4"
+    Then " guard off" is visible with command "ip -d link show eth4"
+    Then " bcast_flood on" is visible with command "ip -d link show eth4"
+    Then " fastleave off" is visible with command "ip -d link show eth4"
+    Then " isolated off" is visible with command "ip -d link show eth4"
+    Then " learning on" is visible with command "ip -d link show eth4"
+    Then " locked off" is visible with command "ip -d link show eth4"
+    Then " mcast_flood on" is visible with command "ip -d link show eth4"
+    Then " mcast_to_unicast off" is visible with command "ip -d link show eth4"
+    Then " neigh_suppress off" is visible with command "ip -d link show eth4"
+    Then " neigh_vlan_suppress off" is visible with command "ip -d link show eth4"
+    Then " root_block off" is visible with command "ip -d link show eth4"
+    Then " flood on" is visible with command "ip -d link show eth4"
+    Then " vlan_tunnel off" is visible with command "ip -d link show eth4"
+

@@ -58,3 +58,4 @@ discover:
         - /tests/bridge_reapply_modifying_just_managed_ports
         - /tests/bridge_autoconnect_virtual_port
         - /tests/bridge_port_vlan_reapply
+        - /tests/bridge_port_boolean_properties

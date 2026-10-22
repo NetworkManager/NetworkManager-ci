@@ -529,6 +529,8 @@ testmapper:
         feature: bridge
     - bridge_port_vlan_reapply:
         feature: bridge
+    - bridge_port_boolean_properties:
+        feature: bridge
     - add_default_team:
         feature: team
     - add_default_team_after_journal_restart:
