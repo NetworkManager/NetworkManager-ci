@@ -18,6 +18,7 @@ die_cmd() {
   resolv_conf_dump
   clean_root
   poweroff
+  exit 1
 }
 
 
