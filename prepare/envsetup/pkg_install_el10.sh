@@ -94,10 +94,15 @@ install_el10_packages () {
         $KOJI/perl-Config-General/2.65/8.fc40/noarch/perl-Config-General-2.65-8.fc40.noarch.rpm"
 
     # For CLAT
-    build_srpm tayga $KOJI/tayga/0.9.6/0.1.20250731gitfb5c58f.fc43/src/tayga-0.9.6-0.1.20250731gitfb5c58f.fc43.src.rpm
+    PKGS_INSTALL="$PKGS_INSTALL tayga bpftool socat"
+    # Upgrade to the big-endian checksum fix without downgrading newer builds
+    if [ "$(arch)" = s390x ]; then
+        PKGS_UPGRADE="$PKGS_UPGRADE \
+            $KOJI/tayga/0.9.6/3.20261026git0.9.6.el10_4/s390x/tayga-0.9.6-3.20261026git0.9.6.el10_4.s390x.rpm"
+    fi
     # Use stock rpm once radvd is rebased in RHEL10
     build_srpm radvd $KOJI/radvd/2.20/6.fc43/src/radvd-2.20-6.fc43.src.rpm
-    PKGS_INSTALL="$PKGS_INSTALL bpftool socat /root/rpmbuild/RPMS/$(arch)/tayga-0.9.6-0.1.20250731gitfb5c58f.el10.$(arch).rpm /root/rpmbuild/RPMS/$(arch)/radvd-2.20-6.el10.$(arch).rpm"
+    PKGS_INSTALL="$PKGS_INSTALL /root/rpmbuild/RPMS/$(arch)/radvd-2.20-6.el10.$(arch).rpm"
 
     # This uses PKGS_{INSTALL,UPGRADE,REMOVE} and performs install
     install_common_packages
