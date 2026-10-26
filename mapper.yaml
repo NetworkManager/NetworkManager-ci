@@ -61,8 +61,10 @@ beaker-hardware:
   - aarch64:
       hostname: ampere-mtsnow-altramax-%%.khw%%
   - ppc64le:
-      hostname: ibm-p10-01-lp%%
-      memory: 16000
+      hostname: |
+        ibm-p10-01-lp%%
+        ibm-ic922-%%
+      memory: 64000
   - s390x:
       hostname: s390x-kvm-1%%.lab%%
   - subcomponents:
