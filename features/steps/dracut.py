@@ -14,7 +14,9 @@ REMOTE_CRASH_DIR = lambda: os.environ["TESTDIR"] + "/client_dumps/"
 KVM_HW_ERROR = "KVM: entry failed, hardware error"
 
 
-def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
+def handle_timeout(
+    context, proc, timeout, boot_log_proc, first_half=True, message_check_timeout=30
+):
     # The system must boot up in 3/4 of the timeout.
     # The second half is called with remaining timeout of first 3/4 + 1/4 of the timeout
     timeout = (timeout * 3) / 4 if first_half else timeout
@@ -22,7 +24,6 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
     now_booted = False
     last_before = None
     failed_output = None
-    message_check_timeout = 30
     messages = [
         "== BOOT ==",
         "== PASS ==",
@@ -66,7 +67,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
             print(f"VM boot detected in {t.elapsed_time():.3f}s")
             break
         if boot_log_proc.before == last_before:
-            print("No output in console in last 30s, exitting...")
+            print(f"No output in console in last {message_check_timeout}s, exitting...")
             return False
         last_before = boot_log_proc.before
 
@@ -81,6 +82,7 @@ def handle_timeout(context, proc, timeout, boot_log_proc, first_half=True):
             t.remaining_time() + timeout / 3,
             boot_log_proc,
             first_half=False,
+            message_check_timeout=message_check_timeout,
         )
     else:
         return False
@@ -275,7 +277,10 @@ def dracut_run(context):
         timeout=None,
     )
 
-    if not handle_timeout(context, proc, p_timeout, boot_log_proc):
+    msg_timeout = 60 if arch != "x86_64" else 30
+    if not handle_timeout(
+        context, proc, p_timeout, boot_log_proc, message_check_timeout=msg_timeout
+    ):
         nmci.process.run("python3l contrib/dracut/shutdown.py", ignore_stderr=True)
     res = proc.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=20)
     if res != 0:
