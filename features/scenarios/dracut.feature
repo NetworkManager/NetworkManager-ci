@@ -479,6 +479,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      | kernel | ifname=eth0:52:54:00:12:34:00 ifname=eth1:52:54:00:12:34:01            |
       | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp,dhcp6                         |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
@@ -526,6 +527,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      | kernel | ifname=eth0:52:54:00:12:34:20 ifname=eth1:52:54:00:12:34:01            |
       | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp,dhcp6                         |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:20     |
@@ -573,6 +575,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4 + slow IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      | kernel | ifname=eth0:52:54:00:12:34:00 ifname=eth1:52:54:00:12:34:01            |
       | kernel | root=nfs:[feed:beef::1]:/var/dracut_test/nfs/client ro ip=dhcp,dhcp6   |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=slow6,mac=52:54:00:12:34:00   |
@@ -1033,6 +1036,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=off
     * Run dracut test
       | Param  | Value                                                                    |
+      | kernel | ifname=eth0:52:54:00:12:34:00 ifname=eth1:52:54:00:12:34:01              |
       | kernel | root=nfs:192.168.50.1:/client ro ip=eth1:off                             |
       | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none                             |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00       |
@@ -1559,6 +1563,7 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - custom bridge name over 2 ifaces
     * Run dracut test
       | Param  | Value                                                                        |
+      | kernel | ifname=eth0:52:54:00:12:34:00 ifname=eth1:52:54:00:12:34:01                  |
       | kernel | root=nfs:192.168.50.1:/client ro                                             |
       | kernel | bridge=foobr0:eth0,eth1                                                      |
       | kernel | ip=192.168.50.201:::255.255.255.0::foobr0:off                                |
