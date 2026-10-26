@@ -479,14 +479,18 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      # Use non-kernel names (nic0/nic1) to avoid collision with net.ifnames=0:
+      # ifname=ethN fails when kernel enumerates NICs in a different order,
+      # because udev can't rename to a name already taken by another NIC.
+      | kernel | ifname=nic0:52:54:00:12:34:00 ifname=nic1:52:54:00:12:34:01            |
       | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp,dhcp6                         |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00     |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs_ip6,mac=52:54:00:12:34:01 |
       | qemu   | -netdev tap,id=nfs_ip6,script=$PWD/qemu-ifup/nfs_ip6                   |
-      | check  | nmcli_con_active "Wired Connection" eth0                               |
-      | check  | nmcli_con_active "Wired Connection" eth1 25                            |
+      | check  | nmcli_con_active "Wired Connection" nic0                               |
+      | check  | nmcli_con_active "Wired Connection" nic1 25                            |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS *192.168.50.101/24* 10   |
       | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY *192.168.50.1*           |
@@ -500,20 +504,20 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beaf::/64*           |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beef::1* 10            |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beaf::1*               |
-      | check  | wait_for_ip4_renew 192.168.50.101/24 eth0                              |
-      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
-      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 eth1                            |
+      | check  | wait_for_ip4_renew 192.168.50.101/24 nic0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 nic0                            |
+      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 nic1                            |
       | check  | dns_search *'nfs.redhat.com'*                                          |
       | check  | dns_search *'nfs6.redhat.com'*                                         |
       | check  | dns_search *'nfs6_2.redhat.com'*                                       |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                            |
-      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
-      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
-      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
-      | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
-      | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
+      | check  | ip4_route_unique "192.168.50.0/24 dev nic0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev nic0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev nic0 proto ra"                    |
+      | check  | ip6_route_unique "deaf:beaf::1:10 dev nic1 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beaf::/64 dev nic1 proto ra"                    |
       | check  | nfs_server 192.168.50.1                                                |
 
 
@@ -526,14 +530,15 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with slow IPv4+IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      | kernel | ifname=nic0:52:54:00:12:34:20 ifname=nic1:52:54:00:12:34:01            |
       | kernel | root=nfs:192.168.50.1:/client ro ip=dhcp,dhcp6                         |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:20     |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                           |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs_ip6,mac=52:54:00:12:34:01 |
       | qemu   | -netdev tap,id=nfs_ip6,script=$PWD/qemu-ifup/nfs_ip6                   |
-      | check  | nmcli_con_active "Wired Connection" eth0                               |
-      | check  | nmcli_con_active "Wired Connection" eth1 25                            |
+      | check  | nmcli_con_active "Wired Connection" nic0                               |
+      | check  | nmcli_con_active "Wired Connection" nic1 25                            |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS *192.168.50.103/24* 10   |
       | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY *192.168.50.1*           |
@@ -547,20 +552,20 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beaf::/64*           |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beef::1* 10            |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beaf::1*               |
-      | check  | wait_for_ip4_renew 192.168.50.103/24 eth0                              |
-      | check  | wait_for_ip6_renew deaf:beef::1:10/128 eth0                            |
-      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 eth1                            |
+      | check  | wait_for_ip4_renew 192.168.50.103/24 nic0                              |
+      | check  | wait_for_ip6_renew deaf:beef::1:10/128 nic0                            |
+      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 nic1                            |
       | check  | dns_search *'nfs.redhat.com'*                                          |
       | check  | dns_search *'nfs6.redhat.com'*                                         |
       | check  | dns_search *'nfs6_2.redhat.com'*                                       |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.50.1"                            |
-      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                            |
-      | check  | ip6_route_unique "deaf:beef::1:10 dev eth0 proto kernel"               |
-      | check  | ip6_route_unique "deaf:beef::/64 dev eth0 proto ra"                    |
-      | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
-      | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
+      | check  | ip4_route_unique "192.168.50.0/24 dev nic0"                            |
+      | check  | ip6_route_unique "deaf:beef::1:10 dev nic0 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beef::/64 dev nic0 proto ra"                    |
+      | check  | ip6_route_unique "deaf:beaf::1:10 dev nic1 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beaf::/64 dev nic1 proto ra"                    |
       | check  | nfs_server 192.168.50.1                                                |
 
 
@@ -573,14 +578,15 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=dhcp,dhcp6 with IPv4 + slow IPv6 NIC and IPv6 only NIC
     * Run dracut test
       | Param  | Value                                                                  |
+      | kernel | ifname=nic0:52:54:00:12:34:00 ifname=nic1:52:54:00:12:34:01            |
       | kernel | root=nfs:[feed:beef::1]:/var/dracut_test/nfs/client ro ip=dhcp,dhcp6   |
       | kernel | rd.retry=0 rd.net.dhcp.retry=0 rd.net.timeout.dhcp=30                  |
       | qemu   | -device virtio-net,guest_csum=off,netdev=slow6,mac=52:54:00:12:34:00   |
       | qemu   | -netdev tap,id=slow6,script=$PWD/qemu-ifup/slow6                       |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs_ip6,mac=52:54:00:12:34:01 |
       | qemu   | -netdev tap,id=nfs_ip6,script=$PWD/qemu-ifup/nfs_ip6                   |
-      | check  | nmcli_con_active "Wired Connection" eth0 25                            |
-      | check  | nmcli_con_active "Wired Connection" eth1 25                            |
+      | check  | nmcli_con_active "Wired Connection" nic0 25                            |
+      | check  | nmcli_con_active "Wired Connection" nic1 25                            |
       | check  | nmcli_con_prop "Wired Connection" ipv4.method auto                     |
       | check  | nmcli_con_prop "Wired Connection" IP4.ADDRESS *192.168.49.2/30* 10     |
       | check  | nmcli_con_prop "Wired Connection" IP4.GATEWAY *192.168.49.1*           |
@@ -594,19 +600,19 @@ Feature: NM: dracut
       | check  | nmcli_con_prop "Wired Connection" IP6.ROUTE *deaf:beaf::/64*           |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *feed:beef::1* 10            |
       | check  | nmcli_con_prop "Wired Connection" IP6.DNS *deaf:beaf::1*               |
-      | check  | wait_for_ip4_renew 192.168.49.2/30 eth0                                |
-      | check  | wait_for_ip6_renew feed:beef::1:10/128 eth0                            |
-      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 eth1                            |
+      | check  | wait_for_ip4_renew 192.168.49.2/30 nic0                                |
+      | check  | wait_for_ip6_renew feed:beef::1:10/128 nic0                            |
+      | check  | wait_for_ip6_renew deaf:beaf::1:10/128 nic1                            |
       | check  | dns_search *'slow6.redhat.com'*                                        |
       | check  | dns_search *'nfs6_2.redhat.com'*                                       |
       | check  | nmcli_con_num 1                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.49.1"                            |
-      | check  | ip4_route_unique "192.168.49.0/30 dev eth0"                            |
-      | check  | ip6_route_unique "feed:beef::1:10 dev eth0 proto kernel"               |
-      | check  | ip6_route_unique "feed:beef::/64 dev eth0 proto ra"                    |
-      | check  | ip6_route_unique "deaf:beaf::1:10 dev eth1 proto kernel"               |
-      | check  | ip6_route_unique "deaf:beaf::/64 dev eth1 proto ra"                    |
+      | check  | ip4_route_unique "192.168.49.0/30 dev nic0"                            |
+      | check  | ip6_route_unique "feed:beef::1:10 dev nic0 proto kernel"               |
+      | check  | ip6_route_unique "feed:beef::/64 dev nic0 proto ra"                    |
+      | check  | ip6_route_unique "deaf:beaf::1:10 dev nic1 proto kernel"               |
+      | check  | ip6_route_unique "deaf:beaf::/64 dev nic1 proto ra"                    |
       | check  | nfs_server [feed:beef::1]                                              |
 
 
@@ -1033,30 +1039,31 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - NFSv3 root=nfs ip=off
     * Run dracut test
       | Param  | Value                                                                    |
-      | kernel | root=nfs:192.168.50.1:/client ro ip=eth1:off                             |
-      | kernel | ip=192.168.50.201:::255.255.255.0::eth0:none                             |
+      | kernel | ifname=nic0:52:54:00:12:34:00 ifname=nic1:52:54:00:12:34:01              |
+      | kernel | root=nfs:192.168.50.1:/client ro ip=nic1:off                             |
+      | kernel | ip=192.168.50.201:::255.255.255.0::nic0:none                             |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00       |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                             |
       | qemu   | -device virtio-net,guest_csum=off,netdev=vlan33_0,mac=52:54:00:12:34:01  |
       | qemu   | -netdev tap,id=vlan33_0,script=$PWD/qemu-ifup/vlan33_0                   |
-      | check  | nmcli_con_active eth1 eth1                                               |
-      | check  | nmcli_con_prop eth1 ipv4.method disabled                                 |
-      | check  | nmcli_con_prop eth1 ipv6.method disabled                                 |
-      | check  | nmcli_con_active eth0 eth0                                               |
-      | check  | nmcli_con_prop eth0 ipv4.method manual                                   |
-      | check  | nmcli_con_prop eth0 ipv4.addresses 192.168.50.201/24                     |
-      | check  | nmcli_con_prop eth0 ipv4.dns ''                                          |
-      | check  | nmcli_con_prop eth0 IP4.ADDRESS *192.168.50.201/24*                      |
-      | check  | nmcli_con_prop eth0 IP4.GATEWAY ''                                       |
-      | check  | nmcli_con_prop eth0 IP4.ROUTE *192.168.50.0/24*                          |
-      | check  | nmcli_con_prop eth0 IP4.DNS ''                                           |
-      | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                        |
-      | check  | nmcli_con_prop eth0 ipv6.method disabled                                 |
-      | check  | ip4_forever 192.168.50.201/24 eth0                                       |
+      | check  | nmcli_con_active nic1 nic1                                               |
+      | check  | nmcli_con_prop nic1 ipv4.method disabled                                 |
+      | check  | nmcli_con_prop nic1 ipv6.method disabled                                 |
+      | check  | nmcli_con_active nic0 nic0                                               |
+      | check  | nmcli_con_prop nic0 ipv4.method manual                                   |
+      | check  | nmcli_con_prop nic0 ipv4.addresses 192.168.50.201/24                     |
+      | check  | nmcli_con_prop nic0 ipv4.dns ''                                          |
+      | check  | nmcli_con_prop nic0 IP4.ADDRESS *192.168.50.201/24*                      |
+      | check  | nmcli_con_prop nic0 IP4.GATEWAY ''                                       |
+      | check  | nmcli_con_prop nic0 IP4.ROUTE *192.168.50.0/24*                          |
+      | check  | nmcli_con_prop nic0 IP4.DNS ''                                           |
+      | check  | nmcli_con_prop nic0 IP4.DOMAIN ''                                        |
+      | check  | nmcli_con_prop nic0 ipv6.method disabled                                 |
+      | check  | ip4_forever 192.168.50.201/24 nic0                                       |
       | check  | dns_search '' '.'                                                        |
       | check  | nmcli_con_num 2                                                          |
       | check  | no_ifcfg                                                                 |
-      | check  | ip4_route_unique "192.168.50.0/24 dev eth0"                              |
+      | check  | ip4_route_unique "192.168.50.0/24 dev nic0"                              |
       | check  | nfs_server 192.168.50.1                                                  |
 
 
@@ -1559,8 +1566,9 @@ Feature: NM: dracut
     Scenario: NM - dracut - NM module - custom bridge name over 2 ifaces
     * Run dracut test
       | Param  | Value                                                                        |
+      | kernel | ifname=nic0:52:54:00:12:34:00 ifname=nic1:52:54:00:12:34:01                  |
       | kernel | root=nfs:192.168.50.1:/client ro                                             |
-      | kernel | bridge=foobr0:eth0,eth1                                                      |
+      | kernel | bridge=foobr0:nic0,nic1                                                      |
       | kernel | ip=192.168.50.201:::255.255.255.0::foobr0:off                                |
       | qemu   | -netdev tap,id=nfs,script=$PWD/qemu-ifup/nfs                                 |
       | qemu   | -device virtio-net,guest_csum=off,netdev=nfs,mac=52:54:00:12:34:00           |
@@ -1575,16 +1583,16 @@ Feature: NM: dracut
       | check  | nmcli_con_prop foobr0 IP4.DNS ''                                             |
       | check  | nmcli_con_prop foobr0 IP4.DOMAIN ''                                          |
       | check  | nmcli_con_prop foobr0 ipv6.method disabled                                   |
-      | check  | nmcli_con_active eth0 eth0                                                   |
-      | check  | nmcli_con_prop eth0 connection.slave-type bridge                             |
-      | check  | nmcli_con_prop eth0 connection.master $(nmcli -g connection.uuid c s foobr0) |
-      | check  | nmcli_con_prop eth0 ipv4.method ''                                           |
-      | check  | nmcli_con_prop eth0 ipv6.method ''                                           |
-      | check  | nmcli_con_active eth1 eth1                                                   |
-      | check  | nmcli_con_prop eth1 connection.slave-type bridge                             |
-      | check  | nmcli_con_prop eth1 connection.master $(nmcli -g connection.uuid c s foobr0) |
-      | check  | nmcli_con_prop eth1 ipv4.method ''                                           |
-      | check  | nmcli_con_prop eth1 ipv6.method ''                                           |
+      | check  | nmcli_con_active nic0 nic0                                                   |
+      | check  | nmcli_con_prop nic0 connection.slave-type bridge                             |
+      | check  | nmcli_con_prop nic0 connection.master $(nmcli -g connection.uuid c s foobr0) |
+      | check  | nmcli_con_prop nic0 ipv4.method ''                                           |
+      | check  | nmcli_con_prop nic0 ipv6.method ''                                           |
+      | check  | nmcli_con_active nic1 nic1                                                   |
+      | check  | nmcli_con_prop nic1 connection.slave-type bridge                             |
+      | check  | nmcli_con_prop nic1 connection.master $(nmcli -g connection.uuid c s foobr0) |
+      | check  | nmcli_con_prop nic1 ipv4.method ''                                           |
+      | check  | nmcli_con_prop nic1 ipv6.method ''                                           |
       | check  | ip4_forever 192.168.50.201/24 foobr0                                         |
       | check  | dns_search '' '.'                                                            |
       | check  | nmcli_con_num 3                                                              |

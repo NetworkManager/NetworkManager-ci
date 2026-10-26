@@ -206,6 +206,9 @@ def dracut_run(context):
         "systemd.crash_reboot",
         "rd.shell=0",
         "biosdevname=0",
+        # net.ifnames=0 makes kernel assign eth0/eth1/... by enumeration order.
+        # Multi-NIC tests must use ifname= with non-kernel names (e.g. nic0, nic1)
+        # to avoid rename collisions when kernel order doesn't match the mapping.
         "net.ifnames=0",
         "noapic",
         "loglevel=7",
