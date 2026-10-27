@@ -1399,28 +1399,31 @@ Feature: NM: dracut
     * Run dracut test
       | Param  | Value                                                                   |
       | type   | iscsi_single                                                            |
-      | kernel | root=/dev/root netroot=dhcp ip=eth0:dhcp                                |
+      # Use non-kernel names (nic0/nic1) for ifname= to avoid rename collisions
+      # when kernel enumeration order doesn't match QEMU NIC order (e.g. on s390x).
+      | kernel | root=/dev/root netroot=dhcp ip=nic0:dhcp                                |
+      | kernel | ifname=nic0:52:54:00:12:34:a1 ifname=nic1:52:54:00:12:34:a2            |
       | kernel | rw rd.auto rd.iscsi.initiator=$(iscsi-iname)                            |
       | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi0,mac=52:54:00:12:34:a1   |
       | qemu   | -netdev tap,id=iscsi0,script=$PWD/qemu-ifup/iscsi0                      |
       | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi1,mac=52:54:00:12:34:a2   |
       | qemu   | -netdev tap,id=iscsi1,script=$PWD/qemu-ifup/iscsi1                      |
-      | check  | nmcli_con_active eth0 eth0                                              |
-      | check  | nmcli_con_prop eth0 ipv4.method auto                                    |
-      | check  | nmcli_con_prop eth0 IP4.ADDRESS 192.168.51.101/24 10                    |
-      | check  | nmcli_con_prop eth0 IP4.GATEWAY 192.168.51.1                            |
-      | check  | nmcli_con_prop eth0 IP4.ROUTE *192.168.51.0/24*                         |
-      | check  | nmcli_con_prop eth0 IP4.DNS 192.168.51.1                                |
-      | check  | nmcli_con_prop eth0 IP4.DOMAIN cl.iscsi0.redhat.com                     |
-      | check  | nmcli_con_prop eth0 ipv6.method auto                                    |
-      | check  | nmcli_con_prop eth0 IP6.DNS ''                                          |
-      | check  | wait_for_ip4_renew 192.168.51.101/24 eth0                               |
-      | check  | link_no_ip4 eth1                                                        |
+      | check  | nmcli_con_active nic0 nic0                                              |
+      | check  | nmcli_con_prop nic0 ipv4.method auto                                    |
+      | check  | nmcli_con_prop nic0 IP4.ADDRESS 192.168.51.101/24 10                    |
+      | check  | nmcli_con_prop nic0 IP4.GATEWAY 192.168.51.1                            |
+      | check  | nmcli_con_prop nic0 IP4.ROUTE *192.168.51.0/24*                         |
+      | check  | nmcli_con_prop nic0 IP4.DNS 192.168.51.1                                |
+      | check  | nmcli_con_prop nic0 IP4.DOMAIN cl.iscsi0.redhat.com                     |
+      | check  | nmcli_con_prop nic0 ipv6.method auto                                    |
+      | check  | nmcli_con_prop nic0 IP6.DNS ''                                          |
+      | check  | wait_for_ip4_renew 192.168.51.101/24 nic0                               |
+      | check  | link_no_ip4 nic1                                                        |
       | check  | dns_search iscsi0.redhat.com                                            |
       | check  | nmcli_con_num 1                                                         |
       | check  | no_ifcfg                                                                |
       | check  | ip4_route_unique "default via 192.168.51.1"                             |
-      | check  | ip4_route_unique "192.168.51.0/24 dev eth0"                             |
+      | check  | ip4_route_unique "192.168.51.0/24 dev nic0"                             |
       | check  | mount_root_type ext4                                                    |
 
 
@@ -1469,8 +1472,11 @@ Feature: NM: dracut
       | Param  | Value                                                                  |
       | type   | iscsi_raid                                                             |
       | kernel | root=LABEL=sysroot rw rd.auto                                          |
-      | kernel | ip=192.168.51.101::192.168.51.1:255.255.255.0::eth0:off                |
-      | kernel | ip=192.168.52.101::192.168.52.1:255.255.255.0::eth1:off                |
+      # Use non-kernel names (nic0/nic1) for ifname= to avoid rename collisions
+      # when kernel enumeration order doesn't match QEMU NIC order (e.g. on s390x).
+      | kernel | ifname=nic0:52:54:00:12:34:a1 ifname=nic1:52:54:00:12:34:a2            |
+      | kernel | ip=192.168.51.101::192.168.51.1:255.255.255.0::nic0:off                |
+      | kernel | ip=192.168.52.101::192.168.52.1:255.255.255.0::nic1:off                |
       | kernel | netroot=iscsi:192.168.52.1::::iqn.2009-06.dracut:target1               |
       | kernel | netroot=iscsi:192.168.51.1::::iqn.2009-06.dracut:target2               |
       | kernel | rd.iscsi.initiator=$(iscsi-iname)                                      |
@@ -1480,35 +1486,35 @@ Feature: NM: dracut
       | qemu   | -device virtio-net,guest_csum=off,netdev=iscsi1,mac=52:54:00:12:34:a2  |
       | qemu   | -netdev tap,id=iscsi0,script=$PWD/qemu-ifup/iscsi0                     |
       | qemu   | -netdev tap,id=iscsi1,script=$PWD/qemu-ifup/iscsi1                     |
-      | check  | nmcli_con_active eth0 eth0                                             |
-      | check  | nmcli_con_prop eth0 ipv4.method manual                                 |
-      | check  | nmcli_con_prop eth0 ipv4.addresses 192.168.51.101/24                   |
-      | check  | nmcli_con_prop eth0 ipv4.gateway 192.168.51.1                          |
-      | check  | nmcli_con_prop eth0 IP4.ADDRESS 192.168.51.101/24 10                   |
-      | check  | nmcli_con_prop eth0 IP4.GATEWAY 192.168.51.1                           |
-      | check  | nmcli_con_prop eth0 IP4.ROUTE *192.168.51.0/24*                        |
-      | check  | nmcli_con_prop eth0 IP4.DNS ''                                         |
-      | check  | nmcli_con_prop eth0 IP4.DOMAIN ''                                      |
-      | check  | nmcli_con_prop eth0 ipv6.method disabled                               |
-      | check  | nmcli_con_active eth1 eth1                                             |
-      | check  | nmcli_con_prop eth1 ipv4.method manual                                 |
-      | check  | nmcli_con_prop eth1 ipv4.addresses 192.168.52.101/24                   |
-      | check  | nmcli_con_prop eth1 ipv4.gateway 192.168.52.1                          |
-      | check  | nmcli_con_prop eth1 IP4.ADDRESS 192.168.52.101/24 10                   |
-      | check  | nmcli_con_prop eth1 IP4.GATEWAY 192.168.52.1                           |
-      | check  | nmcli_con_prop eth1 IP4.ROUTE *192.168.52.0/24*                        |
-      | check  | nmcli_con_prop eth1 IP4.DNS ''                                         |
-      | check  | nmcli_con_prop eth1 IP4.DOMAIN ''                                      |
-      | check  | nmcli_con_prop eth1 ipv6.method disabled                               |
-      | check  | ip4_forever 192.168.51.101/24 eth0                                     |
-      | check  | ip4_forever 192.168.52.101/24 eth1                                     |
+      | check  | nmcli_con_active nic0 nic0                                             |
+      | check  | nmcli_con_prop nic0 ipv4.method manual                                 |
+      | check  | nmcli_con_prop nic0 ipv4.addresses 192.168.51.101/24                   |
+      | check  | nmcli_con_prop nic0 ipv4.gateway 192.168.51.1                          |
+      | check  | nmcli_con_prop nic0 IP4.ADDRESS 192.168.51.101/24 10                   |
+      | check  | nmcli_con_prop nic0 IP4.GATEWAY 192.168.51.1                           |
+      | check  | nmcli_con_prop nic0 IP4.ROUTE *192.168.51.0/24*                        |
+      | check  | nmcli_con_prop nic0 IP4.DNS ''                                         |
+      | check  | nmcli_con_prop nic0 IP4.DOMAIN ''                                      |
+      | check  | nmcli_con_prop nic0 ipv6.method disabled                               |
+      | check  | nmcli_con_active nic1 nic1                                             |
+      | check  | nmcli_con_prop nic1 ipv4.method manual                                 |
+      | check  | nmcli_con_prop nic1 ipv4.addresses 192.168.52.101/24                   |
+      | check  | nmcli_con_prop nic1 ipv4.gateway 192.168.52.1                          |
+      | check  | nmcli_con_prop nic1 IP4.ADDRESS 192.168.52.101/24 10                   |
+      | check  | nmcli_con_prop nic1 IP4.GATEWAY 192.168.52.1                           |
+      | check  | nmcli_con_prop nic1 IP4.ROUTE *192.168.52.0/24*                        |
+      | check  | nmcli_con_prop nic1 IP4.DNS ''                                         |
+      | check  | nmcli_con_prop nic1 IP4.DOMAIN ''                                      |
+      | check  | nmcli_con_prop nic1 ipv6.method disabled                               |
+      | check  | ip4_forever 192.168.51.101/24 nic0                                     |
+      | check  | ip4_forever 192.168.52.101/24 nic1                                     |
       | check  | dns_search '' '.'                                                      |
       | check  | nmcli_con_num 2                                                        |
       | check  | no_ifcfg                                                               |
       | check  | ip4_route_unique "default via 192.168.51.1"                            |
       | check  | ip4_route_unique "default via 192.168.52.1"                            |
-      | check  | ip4_route_unique "192.168.51.0/24 dev eth0"                            |
-      | check  | ip4_route_unique "192.168.52.0/24 dev eth1"                            |
+      | check  | ip4_route_unique "192.168.51.0/24 dev nic0"                            |
+      | check  | ip4_route_unique "192.168.52.0/24 dev nic1"                            |
       | check  | mount_root_type ext4                                                   |
 
 
