@@ -1,9 +1,9 @@
 [connection]
-id=eth0_p
+id=nic0_p
 uuid=287192f3-fb46-46e9-a9a9-8722c205fd7e
 type=ethernet
 autoconnect-retries=1
-interface-name=eth0
+interface-name=nic0
 permissions=
 
 [ethernet]
