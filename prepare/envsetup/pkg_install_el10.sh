@@ -24,7 +24,15 @@ install_el10_packages () {
     PKGS_INSTALL="$PKGS_INSTALL \
         ModemManager file initscripts perl-IO-Tty python3-libnmstate python3-pyyaml \
         rpm-build sos wireguard-tools systemd-resolved dbus-tools dbus-daemon \
-        tcpreplay libdnet valgrind-gdb util-linux"
+        libdnet valgrind-gdb util-linux"
+
+    # tcpreplay is not available in EPEL for RHEL10.0
+    if grep -q '10\.0' /etc/os-release; then
+        PKGS_INSTALL="$PKGS_INSTALL \
+            https://dl.fedoraproject.org/pub/epel/10/Everything/$(arch)/Packages/t/tcpreplay-4.6.1-1.el10_3.$(arch).rpm"
+    else
+        PKGS_INSTALL="$PKGS_INSTALL tcpreplay"
+    fi
 
     # Non ditro deps - not even in epel
     PKGS_INSTALL="$PKGS_INSTALL \
