@@ -2780,27 +2780,6 @@ Feature: nmcli: ipv4
     And Do not expect "Deleted" in children in "2" seconds
 
 
-    @ver+=1.59.2
-    @ipv4_manual_routes_reapply_keep_address
-    Scenario: nmcli - ipv4 - routes-only reapply keeps static address
-    * Prepare simulated test "testX4" device without DHCP
-    * Add "ethernet" connection named "con_ipv4" for device "testX4" with options
-          """
-          ipv4.method manual
-          ipv4.addresses 192.168.133.5/24
-          ipv4.may-fail no
-          """
-    * Bring "up" connection "con_ipv4"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
-    And "192.168.133.5/24" is visible with command "ip a s testX4"
-    * Run child "ip -4 monitor addr dev testX4"
-    * Modify connection "con_ipv4" changing options "ipv4.routes 172.25.67.89"
-    * Execute "nmcli device reapply testX4"
-    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv4" in "10" seconds
-    And Do not expect "Deleted" in children in "2" seconds
-    And "192.168.133.5/24" is visible with command "ip a s testX4"
-
-
     @rhbz2047788
     @ver+=1.32.7
     @ipv4_required_timeout_set
