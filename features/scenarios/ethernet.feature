@@ -1078,6 +1078,15 @@ Feature: nmcli - ethernet
     * Kill children
     * Execute "sleep 5"
     * Run child "journalctl -f -u nm-hostapd -o cat -n 0"
+    # Workaround: tc ingress on the port drops EAPOL before bridge processing,
+    # preventing wpa_supplicant's bridge AF_PACKET socket from delivering stale
+    # duplicate EAP-Requests that crash the TLS fragment state machine.
+    # tc ingress fires AFTER ptype_all (ETH_P_ALL port socket still works) but
+    # BEFORE rx_handler (bridge never sees EAPOL). Remove once wpa_supplicant
+    # ignores stale EAP IDs during fragmented TLS handshakes.
+    * Execute "tc qdisc add dev test8X ingress"
+    * Execute "tc filter add dev test8X ingress protocol 0x888e prio 1 flower action drop"
+    * Cleanup execute "tc qdisc del dev test8X ingress"
     * Modify connection "con_ethernet" changing options "master br8021x"
     * Modify connection "con_ethernet" changing options "802-1x.private-key-password redhat 802-1x.private-key-password-flags 0"
     * Bring "up" connection "con_ethernet"
