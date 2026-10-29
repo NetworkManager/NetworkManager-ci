@@ -781,6 +781,7 @@
     Then "src fd00:10::/64 dst fd00:b::/64.*src 2001:db8:a::2 dst 2001:db8:a::1" is visible with command "ip xfrm policy"
 
 
+    @rhelver+=9.2
     @libreswan_leftsubnets_rightsubnet_default
     Scenario: nmcli - libreswan - rightsubnet defaults to ::/0 from IPv6 leftsubnets
     * Ensure that version of "NetworkManager-libreswan" package is at least "1.2.31"
