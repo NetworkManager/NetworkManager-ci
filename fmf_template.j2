@@ -15,6 +15,9 @@ link:
     {%- if test.dir != '.' %}
     path: /{{ test.dir }}
     {%- endif %}
+    {%- if test.component_tags is defined and test.component_tags %}
+    component+: {{ test.component_tags }}
+    {%- endif %}
     {%- if test.tags %}
     tag: {{ test.tags }}
     {%- endif %}

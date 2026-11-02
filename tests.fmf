@@ -7,6 +7,7 @@ component: NetworkManager
 link:
     - verifies: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5601
 /pass:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info', 'libndp', 'libnl3', 'NetworkManager-libreswan']
     tag: ['gate', 'jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info', 'libndp', 'hostapd', 'wpa_supplicant', 'libnl3', 'dracut', 'NetworkManager-libreswan']
     id: 3cf1b750-dc9a-5833-8db5-386f7172ddfd
     order+: 0
@@ -412,6 +413,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4101
 /bridge_bond_autoconnect_nested_slaves:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3']
     id: d173d9c1-6cef-5948-a469-ec7684f770dd
     order+: 1076
@@ -1080,6 +1082,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4231
 /team_start_on_boot_with_team_and_one_slave_auto:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3']
     id: cd8eaef2-4051-58d2-825d-104dc8edfde4
     order+: 5021
@@ -1319,6 +1322,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4273
 /ipv6_accept_ra_handling:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 083ea65f-fcdd-531c-907b-9b7e65940cb0
     order+: 6001
@@ -1335,12 +1339,14 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4276
 /ipv6_routes_with_src:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: d62d3620-ee58-5af9-a987-2814fbb9dd5e
     order+: 6004
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4277
 /ipv6_route_externally_set_route_with_table:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 30b6624b-52ab-52e5-8bce-539375b3c666
     order+: 6005
@@ -1352,6 +1358,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4279
 /ipv6_correct_slaac_setting:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: fa8dd72b-4b0f-5130-a07f-82e2df91885b
     order+: 6007
@@ -1403,12 +1410,14 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4289
 /ipv6_addresses_set_several_IPv6s_with_masks_and_gws:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: d219b9f4-cc34-5393-94cf-320ea3368bbc
     order+: 6017
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4290
 /ipv6_addresses_delete_IP_moving_method_back_to_auto:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: bd626aac-1524-5f7c-9093-1310e1f8affd
     order+: 6018
@@ -1442,18 +1451,21 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4296
 /ipv6_route_set_route_with_options:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 622366cd-1426-51b8-8eee-6916e4cc8ed5
     order+: 6024
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4297
 /ipv6_routes_remove_basic_route:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 3f4946d5-f779-503f-a029-5b4142691eb4
     order+: 6025
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4298
 /ipv6_routes_device_route:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 79bacf19-a14d-56d1-8d66-570564b4cc83
     order+: 6026
@@ -1485,6 +1497,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4304
 /ipv6_dns_ignore-auto-dns_with_manually_set_dns:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 461d043b-84a8-5736-bff9-2fffdacfecca
     order+: 6032
@@ -1519,6 +1532,7 @@ link:
     id: 1031487d-9ac3-5aed-9cac-1ce113932357
     order+: 6038
 /ipv6_method_link-local:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 7d134f46-9854-5b65-8fad-28402f749c32
     order+: 6039
@@ -1535,18 +1549,21 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4313
 /ipv6_may_fail_set_true:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 56665871-f5c0-5937-ac54-09ca5c093a56
     order+: 6042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4314
 /ipv6_never-default_set_true:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 2a5dc684-acb7-588a-8faa-c376c9e056e7
     order+: 6043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4315
 /ipv6_never-default_remove:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: e61928e2-7b2a-5247-9326-54aaa8cccff6
     order+: 6044
@@ -1558,6 +1575,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4317
 /ipv6_dhcp-hostname_remove:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 67d39026-773a-5a9c-9dc5-c9612364bb2b
     order+: 6046
@@ -1649,18 +1667,21 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4335
 /ipv6_set_ra_announced_mtu:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: aa0e8468-51d2-5ed6-8005-5fff0a454f75
     order+: 6064
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4336
 /nm-online_wait_for_ipv6_to_finish:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 218a89db-a230-5a81-a14c-985e55057881
     order+: 6065
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4337
 /ipv6_shared_connection:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: e9888e95-a398-532d-9b42-794a76447108
     order+: 6066
@@ -1682,18 +1703,21 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4341
 /persistent_default_ipv6_gw:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 19cbfe89-8c37-5ec0-8880-77dd041b97d8
     order+: 6070
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4342
 /persistent_ipv6_routes:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 9b260e2b-f057-5078-b0ae-88be55744c23
     order+: 6071
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4343
 /ipv6_honor_ip_order:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: ef183d2b-8acd-5a77-9604-0639992f6098
     order+: 6072
@@ -1705,6 +1729,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4345
 /ipv6_keep_route_upon_reapply:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 8468b405-a231-5e36-ae57-c1791b393212
     order+: 6074
@@ -1876,6 +1901,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4379
 /ipv6_set_addr-gen_mode_global_config:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 4758eb02-dda1-5990-8624-6a036bbfc2ee
     order+: 6108
@@ -1922,12 +1948,14 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4388
 /ipv6_allow_static_routes_without_address:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 39697aac-6eb8-5f12-ad25-88c5521a8005
     order+: 6117
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4389
 /ipv6_ndp_ipv6_route_information_buffer_overflow:
+    component+: ['libndp']
     tag: ['gate', 'libndp']
     id: 970ce98e-a7a0-58b4-8267-549073b0d105
     order+: 6118
@@ -3438,6 +3466,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4673
 /8021x_tls_aes256_private_key:
+    component+: ['libnl3']
     tag: ['libnl3', 'wpa_supplicant', 'hostapd']
     id: 64c522eb-f3c3-5af5-b9b8-fdc4b0f6883d
     order+: 13009
@@ -3502,6 +3531,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-4684
 /8021x_ttls_mschapv2_eap:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3', 'hostapd']
     id: 0fdf6432-22cd-59e5-b155-10dfbc8c01ce
     order+: 13020
@@ -5275,102 +5305,119 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5009
 /libreswan_ikev1_aggressive:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: c041ddd8-b36f-521b-8082-fbe8d98093a9
     order+: 22000
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5010
 /libreswan_ikev1_main:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 74f6f5da-a65c-51d8-9d9f-bc19dbbb1ba3
     order+: 22001
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5011
 /libreswan_ikev2:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 19bd4a59-9a9d-5207-9b3a-2aac72019e18
     order+: 22002
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5012
 /libreswan_ikev2_require_id_on_cert_subject:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 7818f1ab-c253-5a63-ad7f-6daa1210c041
     order+: 22003
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5013
 /libreswan_add_profile_wrong_password:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 920421f1-69d7-54e2-9a91-6c8e4df34052
     order+: 22004
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5026
 /libreswan_terminate:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 5ac03cfb-11f6-5c25-9e3e-be4c5998ae97
     order+: 22005
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5027
 /libreswan_delete_active_profile:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: ca2c2afc-a489-5b74-96d1-77600ff96088
     order+: 22006
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5028
 /libreswan_dns:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 31debe20-1d54-5c5d-b3e0-e0cdb91d1205
     order+: 22007
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5029
 /libreswan_start_as_secondary:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: ec9a140c-0064-51fc-b5b2-5bfe648a000c
     order+: 22008
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5030
 /libreswan_connection_renewal:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: fd60aac5-9bba-58bf-b4a8-5b390e87cee5
     order+: 22009
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5031
 /libreswan_provides_and_obsoletes:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 19b68de1-a1fd-595f-adef-1506a1a76d99
     order+: 22010
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5032
 /libreswan_autocompletion:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: eb239781-9127-56e6-9aef-322ecfe34f45
     order+: 22011
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5033
 /libreswan_activate_asking_for_password:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 792d6f66-c7cc-5214-a1a2-cd8dee68d922
     order+: 22012
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5034
 /libreswan_activate_asking_for_password_with_delay:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 7dec8427-58a0-523f-82a8-51e7ccc76095
     order+: 22013
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5035
 /libreswan_activate_asking_for_password_and_secret:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 9651541f-2390-5ca2-995b-191b5243ac61
     order+: 22014
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5036
 /libreswan_reimport:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 4cdb9d9a-6fe1-5797-839f-5dd9630d6198
     order+: 22015
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5037
 /libreswan_reimport_ikev2:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: b83e2d67-9b40-5a31-9d73-31af0b40ed7e
     order+: 22016
@@ -5382,152 +5429,179 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5039
 /libreswan_ikev2_right_cert:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 2f6d3f00-e1b6-572b-8b3d-5d95131e02ed
     order+: 22018
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5014
 /libreswan_leftsendcert_reimport:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: ea926a05-77b1-5d26-af40-9cfcece4ba38
     order+: 22019
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5040
 /libreswan_ikev2_ipv4_leftcert:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 5e7ebc72-c6b4-5407-8597-58f1d660e671
     order+: 22020
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5015
 /libreswan_ikev2_ipv4_psk:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: bc9ce639-c78d-5348-9b96-648734d82f78
     order+: 22021
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5016
 /libreswan_ikev2_ipv4_rsa:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 56129463-2d5c-5731-a2ff-802de8cb80fd
     order+: 22022
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5017
 /libreswan_ikev2_ipv4_leftcert_var2:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: c4821772-fa4f-58aa-9060-3623beea38ff
     order+: 22023
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5018
 /libreswan_ikev2_interface:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 6cce53e4-1f07-5eef-adf5-eb48b143e41e
     order+: 22024
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5019
 /libreswan_ikev2_dpd_interface:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 809c8eab-bffe-5bee-8011-14fc63fb4245
     order+: 22025
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5020
 /libreswan_ikev2_ipv4_leftsubnet_modecfg:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 619fd08a-346c-5cfd-bb3b-de9b8eafb956
     order+: 22026
 /libreswan_ikev2_ipv6_leftsubnets:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: e644153d-9010-54c0-bae3-cc003a70c275
     order+: 22027
 /libreswan_leftsubnets_rightsubnet_default:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 3b15bd6f-f601-5078-a7f7-ed8ec65011a6
     order+: 22028
 /libreswan_ikev2_4in6:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: fca55c57-f46c-5296-b4f8-72bd85282ea1
     order+: 22029
 /libreswan_ikev2_6in4:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 7c69a7be-fae9-5e54-99d3-bf115a907c3f
     order+: 22030
 /libreswan_ikev2_leftprotoport_rightprotoport:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 8494e322-5c31-5233-b456-7820b86100de
     order+: 22031
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8894
 /libreswan_ikev2_ipv4_p2p_cert:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: b0079485-1123-58c1-9d8f-9dafa503bd3b
     order+: 22032
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5021
 /libreswan_ikev2_ipv4_leftsubnet:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 46b1cfb0-9d42-5499-bcf5-120dad3c4278
     order+: 22033
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5022
 /libreswan_ikev2_ipv6_p2p_cert:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: b59602cd-48a2-5361-bae4-f63aaf5b04f4
     order+: 22034
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5023
 /libreswan_ikev2_ipv6_p2p_client_server:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: b402e1fd-426e-5300-851b-ea88b7c53600
     order+: 22035
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5024
 /libreswan_ikev2_require_id_on_cert:
+    component+: ['NetworkManager-libreswan']
     tag: ['gate', 'NetworkManager-libreswan']
     id: 0377644c-f016-51d9-b95d-9d1db633185f
     order+: 22036
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5025
 /libreswan_wrong_data:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: b4bfe008-2e23-50e9-b7dc-cf7f13b1fe58
     order+: 22037
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5041
 /libreswan_wrong_data_var2:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 1bb8c1c5-b379-5924-beb0-9891d018802e
     order+: 22038
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5042
 /libreswan_add_routing_rules:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: c3ab6a8e-945e-5008-b915-dd13908be617
     order+: 22039
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5043
 /libreswan_nm_auto_defaults:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 0d4a3f71-c397-5b0a-bc92-eb257eda6789
     order+: 22040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5044
 /both_side_NM_libreswan_cs_host4:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 25a518df-78e6-5852-b437-a4603e7b9e02
     order+: 22041
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8879
 /both_side_NM_libreswan_cs_subnet4:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 479a375b-f3a1-5253-a72e-c8b271d91f24
     order+: 22042
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8880
 /both_side_NM_libreswan_cs_subnet6_routed:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: bb22da7d-d047-501c-82c2-83ef990809b7
     order+: 22043
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-8881
 /libreswan_private_connection:
+    component+: ['NetworkManager-libreswan']
     tag: ['NetworkManager-libreswan']
     id: 68a7b61d-f8bc-5efe-9bee-ceb487f0e19b
     order+: 22044
@@ -5636,6 +5710,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5064
 /macsec_psk:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3']
     id: 84396581-e008-5c5e-9fc7-bce126017640
     order+: 27000
@@ -6433,12 +6508,14 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5215
 /simwifi_wpa1psk_no_profile:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3', 'wpa_supplicant']
     id: 524dfb6e-c751-5e77-a898-9dc684223a6c
     order+: 41014
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5216
 /simwifi_wpa2psk_profile:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3', 'wpa_supplicant']
     id: d9e37ffe-09e0-5ba8-8181-840d6274ca60
     order+: 41015
@@ -6473,6 +6550,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5222
 /simwifi_tls:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3', 'wpa_supplicant', 'hostapd']
     id: 160cbadf-225c-5652-8d76-8c9104286a90
     order+: 41021
@@ -6494,6 +6572,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5225
 /simwifi_peap_gtc:
+    component+: ['libnl3']
     tag: ['gate', 'libnl3', 'hostapd']
     id: 4a58c4a5-7fe2-5bfc-81ee-8b8f4c8c0a48
     order+: 41025
@@ -8567,6 +8646,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5591
 /NetworkManager-gsm/gsm_create_default_connection_qmi:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: d485da7c-5291-5d5d-b2d5-55bfdc3a25db
     order+: 62000
@@ -8574,6 +8654,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5725
 /NetworkManager-gsm/gsm_disconnect:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 228895d7-2d68-5d64-afd5-c96a5a1911f3
     order+: 62001
@@ -8581,6 +8662,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5726
 /NetworkManager-gsm/gsm_create_one_minute_ping:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: e184cafe-c113-51b7-8c67-167e81e68928
     order+: 62002
@@ -8588,6 +8670,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5727
 /NetworkManager-gsm/gsm_mtu:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: bb01be4f-8438-5583-b034-93058ee5eb8b
     order+: 62003
@@ -8595,6 +8678,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5728
 /NetworkManager-gsm/gsm_route_metric:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 471f9f1b-52b1-5054-93ef-27641b65b9a3
     order+: 62004
@@ -8602,6 +8686,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5729
 /NetworkManager-gsm/gsm_connectivity_check:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 0d2fb945-fd1a-5932-b5d9-71e052b839ae
     order+: 62005
@@ -8609,6 +8694,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5730
 /NetworkManager-gsm/gsm_load_from_file:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: dc28d8ee-f4e6-541d-b45a-c8df878093a3
     order+: 62006
@@ -8616,6 +8702,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5731
 /NetworkManager-gsm/gsm_create_assisted_connection:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 1a80800d-8279-54c4-ba74-6f00aab54afe
     order+: 62007
@@ -8623,6 +8710,7 @@ link:
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5732
 /NetworkManager-gsm/gsm_create_default_connection_mbim:
+    component+: ['libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     tag: ['jimtcl', 'libmbim', 'libqmi', 'libqrtr-glib', 'ModemManager', 'usb_modeswitch-data', 'usb_modeswitch', 'mobile-broadband-provider-info']
     id: 7fdb2112-e060-5fb4-a2e1-bad7138ee12c
     order+: 62008

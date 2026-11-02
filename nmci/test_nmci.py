@@ -2139,6 +2139,20 @@ def test_nmci_doc():
         warnings.warn(w, UserWarning)
 
 
+_JIRA_COMPONENT_TAGS = {
+    "libmbim",
+    "libqmi",
+    "libqrtr-glib",
+    "ModemManager",
+    "usb_modeswitch",
+    "usb_modeswitch-data",
+    "mobile-broadband-provider-info",
+    "libndp",
+    "libnl3",
+    "NetworkManager-libreswan",
+}
+
+
 def generate_tests(mapper, tests):
     import uuid
 
@@ -2182,7 +2196,9 @@ def generate_tests(mapper, tests):
                     test_count = 0
                 last_feature = instance["feature"]
             if "tags" in entry[instance["testname"]]:
-                instance["tags"] = entry[instance["testname"]]["tags"].split()
+                all_tags = entry[instance["testname"]]["tags"].split()
+                instance["tags"] = all_tags
+                instance["component_tags"] = [t for t in all_tags if t in _JIRA_COMPONENT_TAGS]
             if "run" in entry[instance["testname"]]:
                 instance["run"] = entry[instance["testname"]]["run"]
                 if "$testname" in instance["run"]:
