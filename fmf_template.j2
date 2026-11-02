@@ -3,7 +3,8 @@ result: custom
 duration: {{ mapper.default_test_timeout }}
 tty: true
 order: 200
-component: NetworkManager
+component:
+- NetworkManager
 link:
     - verifies: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5601
 

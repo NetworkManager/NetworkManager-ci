@@ -3,7 +3,8 @@ result: custom
 duration: 10m
 tty: true
 order: 200
-component: NetworkManager
+component:
+- NetworkManager
 link:
     - verifies: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-5601
 /pass:
