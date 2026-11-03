@@ -1334,6 +1334,31 @@
     Then "ff00" is visible with command "ip -6 route show table local dev testX6"
 
 
+    @ver+=1.59.2
+    @ipv6_auto_routes_reapply_keep_address
+    Scenario: nmcli - ipv6 - routes-only reapply keeps autoconf address
+    # Manual IPv4 removes and re-adds its address inside one stage3 run, so
+    # that case stays quiet in `ip monitor` even without the fix. An autoconf
+    # address is deleted across the same route-only reapply.
+    * Prepare simulated test "testX6" device
+    * Add "ethernet" connection named "con_ipv6" for device "testX6" with options
+          """
+          ipv4.method disabled
+          ipv6.method auto
+          ipv6.may-fail no
+          """
+    * Bring "up" connection "con_ipv6"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "45" seconds
+    And "2620:dead:beaf" is visible with command "ip -6 addr show dev testX6" in "20" seconds
+    * Run child "ip -6 monitor addr dev testX6"
+    * Modify connection "con_ipv6" changing options "ipv6.routes 2001:db8:99::1"
+    * Execute "nmcli device reapply testX6"
+    Then "activated" is visible with command "nmcli -g GENERAL.STATE con show con_ipv6" in "10" seconds
+    And "2001:db8:99::1 dev testX6" is visible with command "ip -6 route" in "5" seconds
+    And Do not expect "Deleted" in children in "2" seconds
+    And "2620:dead:beaf" is visible with command "ip -6 addr show dev testX6"
+
+
     @rhbz2082230
     @ver+=1.39.5
     @no_config_server

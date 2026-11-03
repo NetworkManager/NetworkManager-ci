@@ -849,6 +849,8 @@ testmapper:
         tags: gate libndp
     - ipv6_keep_route_upon_reapply_full:
         feature: ipv6
+    - ipv6_auto_routes_reapply_keep_address:
+        feature: ipv6
     - ipv6_no_extra_temp_addresses:
         feature: ipv6
     - ipv6_internal_client_dhcpv6_leases_renewal:
@@ -1251,6 +1253,8 @@ testmapper:
     - ipv4_route-table_reapply:
         feature: ipv4
     - ipv4_dhcp_reapply_keep_lease:
+        feature: ipv4
+    - ipv4_manual_routes_reapply_keep_address:
         feature: ipv4
     - ipv4_required_timeout_set:
         feature: ipv4

@@ -136,6 +136,7 @@ discover:
         - /tests/ipv4_ignore_nonstatic_routes
         - /tests/ipv4_route-table_reapply
         - /tests/ipv4_dhcp_reapply_keep_lease
+        - /tests/ipv4_manual_routes_reapply_keep_address
         - /tests/ipv4_required_timeout_set
         - /tests/ipv4_check_addr_order
         - /tests/ipv4_reapply_preserve_external_ip

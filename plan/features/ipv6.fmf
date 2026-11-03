@@ -77,6 +77,7 @@ discover:
         - /tests/ipv6_keep_static_address_after_reapply
         - /tests/ipv6_keep_route_upon_reapply
         - /tests/ipv6_keep_route_upon_reapply_full
+        - /tests/ipv6_auto_routes_reapply_keep_address
         - /tests/ipv6_no_extra_temp_addresses
         - /tests/ipv6_internal_client_dhcpv6_leases_renewal
         - /tests/ipv6_describe
