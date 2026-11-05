@@ -538,6 +538,34 @@ Feature: nmcli - ethernet
     Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
 
 
+    @ver+=1.59.1
+    @8021x @attach_hostapd_log @attach_wpa_supplicant_log
+    @8021x_tls_server_cert_hash
+    Scenario: nmcli - ethernet - connect to 8021x - tls - server certificate hash
+    # To get the certificate hash use: openssl x509 -fingerprint -sha256 -in contrib/8021x/certs/server/hostapd.cert.pem -noout
+    * Add "ethernet" connection named "con_ethernet" with options
+          """
+          ifname test8X
+          autoconnect no
+          connection.auth-retries 1
+          802-1x.auth-timeout 10
+          802-1x.eap tls
+          802-1x.identity test
+          802-1x.client-cert /etc/pki/nm-ci-certs/test_user.cert.pem
+          802-1x.private-key /etc/pki/nm-ci-certs/test_user.key.enc.pem
+          802-1x.private-key-password redhat
+          802-1x.server-cert-hash 8F:C6:2A:13:EB:D2:AB:C2:F4:18:43:58:01:4E:8C:AB:24:34:EB:71:43:C5:D3:9A:A0:02:7A:2F:53:0B:5A:14
+          """
+    * Bring "up" connection "con_ethernet"
+    Then "test8X:connected:con_ethernet" is visible with command "nmcli -t -f DEVICE,STATE,CONNECTION device" in "20" seconds
+    * Bring "down" connection "con_ethernet"
+    * Modify connection "con_ethernet" changing options
+          """
+          802-1x.server-cert-hash 8F:C6:2A:13:EB:D2:AB:C2:F4:18:43:58:01:4E:8C:AB:24:34:EB:71:43:C5:D3:9A:00:00:00:00:00:00:00:00
+          """
+    Then "Error" is visible with command "nmcli connection up con_ethernet"
+
+
     @ver+=1.55.90
     @ver+=1.54.2.2
     @8021x @attach_hostapd_log @attach_wpa_supplicant_log
