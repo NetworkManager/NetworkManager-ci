@@ -2350,6 +2350,7 @@ Feature: nmcli - general
       [keyfile]
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
+    * Ignore possible AVC "comm=debuginfod-find"
     * Start NM in valgrind
     * Note NM memory consumption as value "0"
     * Execute reproducer "repro_1461643.sh" for "7" times
@@ -2379,6 +2380,7 @@ Feature: nmcli - general
       [keyfile]
       unmanaged-devices=interface-name:orig*;interface-name:eth*
       """
+    * Ignore possible AVC "comm=debuginfod-find"
     * Start NM in valgrind using tool "massif"
     * Execute reproducer "repro_1461643.sh" for "3" times
     * Wait for "10" seconds
