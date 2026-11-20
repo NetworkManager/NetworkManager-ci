@@ -4,9 +4,15 @@ install_el10_packages () {
 
     # Epel release is a bit crippled in 10.1, let's fix minor versions
     # Seems to be the case also for RHEL10.0 now
-    if grep -E '10.0|10.1' /etc/os-release; then
-        sed -i 's/\$releasever&/\$releasever\${releasever_minor:+.}\$releasever_minor\&/g' /etc/yum.repos.d/epel*
-    fi
+    (
+        . /etc/os-release
+        if [[ "$ID" == rhel && "$VERSION_ID" == 10.[01] ]]; then
+            dnf config-manager \
+                --set-enabled \
+                --setopt="epel.metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-$VERSION_ID&arch=\$basearch" \
+                epel
+        fi
+    )
 
     dnf makecache
 
