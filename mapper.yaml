@@ -96,14 +96,17 @@ beaker-hardware:
       NetworkManager-dcb:
         - x86_64:
             hostname: |
+              nst-test-049.knqe.eng.rdu2.dc.redhat.com
+              nst-test-050.knqe.eng.rdu2.dc.redhat.com
+              nst-test-053.knqe.eng.rdu2.dc.redhat.com
+              nst-test-072.knqe.eng.rdu2.dc.redhat.com
+              nst-test-073.knqe.eng.rdu2.dc.redhat.com
+              nst-test-076.knqe.eng.rdu2.dc.redhat.com
+              nst-test-077.knqe.eng.rdu2.dc.redhat.com
+              nst-test-080.knqe.eng.rdu2.dc.redhat.com
+              nst-test-081.knqe.eng.rdu2.dc.redhat.com
               dell-per740-07.knqe.eng.rdu2.dc.redhat.com
-              dell-per740-12.rhts.eng.pek2.redhat.com
-              dell-per740-69.rhts.eng.pek2.redhat.com
-              dell-per740-70.rhts.eng.pek2.redhat.com
-              dell-per740-79.rhts.eng.pek2.redhat.com
-              dell-per740-80.rhts.eng.pek2.redhat.com
-              dell-per740-81.rhts.eng.pek2.redhat.com
-
+            
             kernel-options: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt
             kernel-options-post: net.ifnames=1 default_hugepagesz=1G hugepagesz=1G hugepages=32 iommu=on intel_iommu=pt mlx5_core.vf_names=eth
 
