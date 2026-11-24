@@ -5179,6 +5179,15 @@ link:
     order+: 18040
     link:
       - implements: https://polarion.example.org/polarion/#/project/RHELNST/workitem?id=RHELNST-9999
+/ovs_internal_link_admin_state_netdev:
+    id: 34ee7205-9cdf-5d81-9a25-570d1ecc7cb7
+    order+: 18041
+/ovs_internal_link_admin_state_reapply:
+    id: 4a322c8c-14d5-5946-9429-2c7f6f1bcbcc
+    order+: 18042
+/ovs_internal_link_admin_state_system:
+    id: c1c4758d-4ce6-564d-865b-1e5ab095e030
+    order+: 18043
 /dispatcher_preup_and_up:
     id: 5493b9fb-bf10-5d50-b8cc-e7ebd0bd3457
     order+: 19000

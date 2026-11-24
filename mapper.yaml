@@ -2326,6 +2326,12 @@ testmapper:
         tags: gate
     - ovs_dhcp_send_release_internal:
         feature: ovs
+    - ovs_internal_link_admin_state_netdev:
+        feature: ovs
+    - ovs_internal_link_admin_state_reapply:
+        feature: ovs
+    - ovs_internal_link_admin_state_system:
+        feature: ovs
     - dispatcher_preup_and_up:
         feature: dispatcher
     - dispatcher_predown_and_down:

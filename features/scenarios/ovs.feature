@@ -2216,6 +2216,167 @@ interfaces:
     Then Expect "DHCP-Message .*53.*, length 1: Release" in children in "10" seconds
 
 
+    @RHEL-162871
+    @ver+=1.59.2
+    @openvswitch
+    @ovs_internal_link_admin_state_netdev
+    Scenario: nmcli - ovs - activate local and additional internal interfaces down on netdev bridge
+    * Commentary
+        """
+        Create a netdev OVS bridge with both the local internal port (br0) and an
+        additional internal port (foo) configured with link.admin-state set to down.
+        """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "br0" with options
+          """
+          ovs-bridge.datapath-type netdev
+          """
+    * Add "ovs-port" connection named "ovs-port-br0" for device "br0" with options
+          """
+          controller ovs-bridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface-br0" for device "br0" with options
+          """
+          controller ovs-port-br0
+          link.admin-state down
+          """
+    * Add "ovs-port" connection named "ovs-port-foo" for device "foo" with options
+          """
+          controller ovs-bridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface-foo" for device "foo" with options
+          """
+          controller ovs-port-foo
+          link.admin-state down
+          """
+    * Commentary
+        """
+        When link.admin-state is down, omitted IPv4 and IPv6 methods default to
+        disabled, and the tun interfaces stay down while attached to their OVS ports.
+        """
+    Then "0 \(down\)" is visible with command "nmcli -f link.admin-state connection show ovs-iface-br0"
+     And "^disabled$" is visible with command "nmcli -g ipv4.method connection show ovs-iface-br0"
+     And "^disabled$" is visible with command "nmcli -g ipv6.method connection show ovs-iface-br0"
+     And "0 \(down\)" is visible with command "nmcli -f link.admin-state connection show ovs-iface-foo"
+     And "^disabled$" is visible with command "nmcli -g ipv4.method connection show ovs-iface-foo"
+     And "^disabled$" is visible with command "nmcli -g ipv6.method connection show ovs-iface-foo"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-br0" in "40" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-foo" in "40" seconds
+    Then "Bridge [\"]?br0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?br0[\"]?\s+Interface [\"]?br0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port [\"]?foo[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "state DOWN" is visible with command "ip -d link show dev br0"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev br0"
+     And "tun" is visible with command "ip -d link show dev br0"
+     And "state DOWN" is visible with command "ip -d link show dev foo"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+     And "tun" is visible with command "ip -d link show dev foo"
+    * Commentary
+        """
+        Check that the interfaces stay down and attached across reactivation and a
+        NetworkManager restart.
+        """
+    * Bring "up" connection "ovs-iface-br0"
+    * Bring "up" connection "ovs-iface-foo"
+    When "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-br0" in "40" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-foo" in "40" seconds
+    Then "Port [\"]?br0[\"]?\s+Interface [\"]?br0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port [\"]?foo[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "state DOWN" is visible with command "ip link show dev br0"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev br0"
+     And "state DOWN" is visible with command "ip link show dev foo"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+    * Restart NM
+    When "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-br0" in "40" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-foo" in "40" seconds
+    Then "Port [\"]?br0[\"]?\s+Interface [\"]?br0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port [\"]?foo[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "state DOWN" is visible with command "ip link show dev br0"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev br0"
+     And "state DOWN" is visible with command "ip link show dev foo"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+
+
+    @RHEL-162871
+    @ver+=1.59.2
+    @openvswitch
+    @ovs_internal_link_admin_state_reapply
+    Scenario: nmcli - ovs - reapply link.admin-state on internal interface
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "br0" with options
+          """
+          ovs-bridge.datapath-type netdev
+          """
+    * Add "ovs-port" connection named "ovs-port0" for device "port0" with options
+          """
+          controller ovs-bridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface0" for device "foo" with options
+          """
+          controller ovs-port0
+          link.admin-state down
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface0" in "40" seconds
+    Then "Port [\"]?port0[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "state DOWN" is visible with command "ip link show dev foo"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+    * Commentary
+        """
+        Toggle link.admin-state between up and down via reapply without detaching
+        the OVS port.
+        """
+    * Execute "nmcli device modify foo link.admin-state up"
+    Then "[<,]UP[,>]" is visible with command "ip link show dev foo" in "5" seconds
+     And "Port [\"]?port0[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+    * Execute "nmcli device modify foo link.admin-state down"
+    Then "state DOWN" is visible with command "ip link show dev foo" in "5" seconds
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+     And "Port [\"]?port0[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+
+
+    @RHEL-162871
+    @ver+=1.59.2
+    @openvswitch
+    @ovs_internal_link_admin_state_system
+    Scenario: nmcli - ovs - activate local and additional internal interfaces down on system bridge
+    * Commentary
+        """
+        Verify that local and additional internal interfaces also stay down on a
+        system datapath bridge and are cleaned up when deactivated.
+        """
+    * Add "ovs-bridge" connection named "ovs-bridge0" for device "br0"
+    * Add "ovs-port" connection named "ovs-port-br0" for device "br0" with options
+          """
+          controller ovs-bridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface-br0" for device "br0" with options
+          """
+          controller ovs-port-br0
+          link.admin-state down
+          """
+    * Add "ovs-port" connection named "ovs-port-foo" for device "foo" with options
+          """
+          controller ovs-bridge0
+          """
+    * Add "ovs-interface" connection named "ovs-iface-foo" for device "foo" with options
+          """
+          controller ovs-port-foo
+          link.admin-state down
+          """
+    When "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-br0" in "40" seconds
+     And "activated" is visible with command "nmcli -g GENERAL.STATE connection show ovs-iface-foo" in "40" seconds
+    Then "Bridge [\"]?br0[\"]?" is visible with command "ovs-vsctl show"
+     And "Port [\"]?br0[\"]?\s+Interface [\"]?br0[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "Port [\"]?foo[\"]?\s+Interface [\"]?foo[\"]?\s+type: internal" is visible with command "ovs-vsctl show"
+     And "state DOWN" is visible with command "ip -d link show dev br0"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev br0"
+     And "openvswitch" is visible with command "ip -d link show dev br0"
+     And "state DOWN" is visible with command "ip -d link show dev foo"
+     And "[<,]UP[,>]" is not visible with command "ip link show dev foo"
+     And "openvswitch" is visible with command "ip -d link show dev foo"
+    * Bring "down" connection "ovs-iface-foo"
+    Then "foo" is not visible with command "ip link show" in "10" seconds
+     And "Interface [\"]?foo[\"]?" is not visible with command "ovs-vsctl show" in "10" seconds
+
+
     @dpdk_remove
     @dpdk_teardown
     Scenario: teardown dpdk setup

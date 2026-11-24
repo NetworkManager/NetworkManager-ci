@@ -42,3 +42,6 @@ discover:
         - /tests/nmcli_openvswitch_keep_external_ports
         - /tests/nmcli_activate_children
         - /tests/ovs_dhcp_send_release_internal
+        - /tests/ovs_internal_link_admin_state_netdev
+        - /tests/ovs_internal_link_admin_state_reapply
+        - /tests/ovs_internal_link_admin_state_system
